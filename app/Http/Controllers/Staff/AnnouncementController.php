@@ -14,7 +14,7 @@ class AnnouncementController extends Controller
         $name  = trim((string)session('admin_first_name').' '.(string)session('admin_last_name'));
 
         // Staff sees THEIR requests only (Announcements + News)
-        $myRequests = DB::table('approvals_request')
+        $myRequests = DB::table('approval_requests')
             ->where('requester_email', $email)
             ->whereIn('type', [
                 'ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_DELETE',
@@ -84,6 +84,42 @@ class AnnouncementController extends Controller
             $title,
             [
                 'announcement_id' => (int)$request->announcement_id,
+            ]
+        );
+    }
+
+        public function requestEnableAnnouncement(Request $request)
+    {
+        $request->validate([
+            'announcement_id' => ['required', 'integer'],
+            'title' => ['nullable','string','max:255'],
+        ]);
+
+        $title = $request->title ?: 'Enable Announcement';
+
+        return $this->createRequest(
+            'ANNOUNCEMENT_ENABLE',
+            $title,
+            [
+                'announcement_id' => (int) $request->announcement_id,
+            ]
+        );
+    }
+
+    public function requestDisableAnnouncement(Request $request)
+    {
+        $request->validate([
+            'announcement_id' => ['required', 'integer'],
+            'title' => ['nullable','string','max:255'],
+        ]);
+
+        $title = $request->title ?: 'Disable Announcement';
+
+        return $this->createRequest(
+            'ANNOUNCEMENT_DISABLE',
+            $title,
+            [
+                'announcement_id' => (int) $request->announcement_id,
             ]
         );
     }
@@ -165,7 +201,7 @@ class AnnouncementController extends Controller
         $email = (string) session('admin_email');
         $name  = trim((string)session('admin_first_name').' '.(string)session('admin_last_name'));
 
-        DB::table('approvals_request')->insert([
+        DB::table('approval_requests')->insert([
             'type' => $type,
             'title' => $title,
             'details' => json_encode($payload, JSON_UNESCAPED_UNICODE),

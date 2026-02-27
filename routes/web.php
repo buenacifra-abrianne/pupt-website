@@ -24,6 +24,8 @@ Route::prefix('staff')
 
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
 
+        Route::get('/announcements', [StaffAnnouncementController::class, 'index'])->name('announcements');
+
         // Requests (Announcements)
         Route::post('/announcements/request-create', [StaffAnnouncementController::class, 'requestCreateAnnouncement'])
             ->name('announcements.requestCreate');
@@ -31,6 +33,13 @@ Route::prefix('staff')
             ->name('announcements.requestUpdate');
         Route::post('/announcements/request-delete', [StaffAnnouncementController::class, 'requestDeleteAnnouncement'])
             ->name('announcements.requestDelete');
+
+        // Requests (Announcement Toggle)
+        Route::post('/announcements/request-enable',  [StaffAnnouncementController::class, 'requestEnableAnnouncement'])
+            ->name('announcements.requestEnable');
+
+        Route::post('/announcements/request-disable', [StaffAnnouncementController::class, 'requestDisableAnnouncement'])
+            ->name('announcements.requestDisable');
 
         // Requests (News)
         Route::post('/news/request-create', [StaffAnnouncementController::class, 'requestCreateNews'])

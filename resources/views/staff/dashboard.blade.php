@@ -27,8 +27,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                {{-- update this route when you create announcements page --}}
-                <a href="#" class="nav-link">
+                <a href="{{ route('staff.announcements') }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
@@ -41,8 +40,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                {{-- update this route when you create notifications page --}}
-                <a href="#" class="nav-link">
+                <a href="{{ route('staff.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
