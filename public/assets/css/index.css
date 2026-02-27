@@ -1,0 +1,321 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+:root {
+    --primary-color: #8B0000;
+    --primary-dark: #660000;
+    --accent-color: #FFD700;
+    --text-color: #696969;
+    --light-bg: #ffffff;
+    --white: #ffffff;
+    --border-color: #ddd;
+}
+
+body {
+    line-height: 1.6;
+    color: var(--text-color);
+}
+
+/* Main Content */
+.main-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 auto;
+    min-height: calc(100vh - 400px);
+}
+
+/* =========================
+   BIG LOGOS (2 CENTER LOGOS)
+========================= */
+.big_logo {
+    width: 100px;
+    max-width: 900px;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;              /* space between the 2 big logos */
+}
+
+.big_logo img {
+    width: 100px;           /* large size like reference */
+    height: auto;
+    object-fit: contain;
+}
+
+/* =========================
+   SMALL LOGOS (3 SEALS ROW)
+========================= */
+.small_logo {
+    width: 100px;
+    max-width: 700px;
+
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 10px;
+
+    margin: 10px auto 18px;
+}
+
+.small_logo img {
+    width: 55px;            /* smaller seals */
+    height: auto;
+    object-fit: contain;
+}
+
+/* =========================
+   RESPONSIVE ADJUSTMENTS
+========================= */
+@media (max-width: 768px) {
+    .big_logo {
+        gap: 20px;
+        margin-top: 16px;
+    }
+
+    .big_logo img {
+        width: 160px;
+    }
+
+    .small_logo {
+        gap: 14px;
+        margin-bottom: 14px;
+    }
+
+    .small_logo img {
+        width: 70px;
+    }
+}
+
+/* Header Styles - Landing Page Overrides */
+.header {
+    background-color: var(--white);
+    border-bottom: 3px solid var(--primary-color);
+}
+
+.header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.logo-section {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+}
+
+.logo {
+    width: 50px;
+    height: 50px;
+    object-fit: contain;
+}
+
+.tagline {
+    font-size: 10px;
+    color: var(--primary-color);
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 40px 20px;
+    position: relative;
+    overflow: hidden;
+    background-color: rgb(255, 255, 255);
+}
+
+.Title {
+    font-size: 18px;
+    color: rgb(118, 4, 4);
+    margin-bottom: 10px;
+    font-weight: 700;
+    text-align: center;
+}
+
+.arrow-inline {
+    width: 18px;
+    height: 18px;
+    vertical-align: middle;
+    margin-right: 6px;
+}
+
+.destination-hint {
+    font-size: 12px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+}
+
+/* =========================
+   UPDATED REUSABLE BUTTONS
+   (White default, Red hover, centered, longer, smaller height)
+========================= */
+/* =========================
+   INNER LANDING CONTAINER
+========================= */
+.landing-container { 
+    width: 100%; 
+    max-width: 600px;       /* was 700px */
+    padding: 18px 14px;     /* was 28px 16px */
+    border-radius: 14px;    /* was 16px */
+    background: rgb(255, 255, 255); 
+    backdrop-filter: blur(20px); 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 2px;              /* was 12px */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    
+}
+
+.landing-container::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 8px; /* same as your border-top */
+
+    background: linear-gradient(
+        90deg,
+        #660000,   /* dark red */
+        #8B0000,   /* primary red */
+        #b22222    /* lighter red */
+    );
+}
+
+/* Mobile adjustment */
+@media (max-width: 768px) {
+    .landing-container {
+        padding: 24px 18px;
+        border-radius: 14px;
+    }
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    max-width: 620px;     /* longer buttons */
+    margin: 0 auto;       /* center container */
+    align-items: center;  /* center buttons */
+}
+
+.portal-button {
+    width: 100%;
+    max-width: 620px;
+
+    display: flex;
+    align-items: center;          /* better than left */
+    justify-content: flex-start;  /* better than left */
+    gap: 12px;
+
+    padding: 10px 18px;
+    border-radius: 10px;
+
+    background:
+        linear-gradient(180deg, #660000, #8B0000, #ff4d4d) left/6px 100% no-repeat,
+        #ffffff;
+
+    color: #8B0000;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 600;
+
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
+    transition: background-color 0.25s ease,
+                color 0.25s ease,
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
+}
+
+.portal-button:hover {
+    background:
+        linear-gradient(180deg, #660000, #8B0000, #ff4d4d) left/6px 100% no-repeat,
+        #8B0000;
+    color: #f4d043;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+}
+
+/* keep icons consistent */
+.portal-button .icon {
+    display: flex;
+    align-items: center;
+}
+
+.portal-button .icon svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
+/* Outline icons */
+.portal-button .icon svg[fill="none"] {
+    stroke: currentColor;
+}
+
+/* Solid icons */
+.portal-button .icon svg[fill="currentColor"] {
+    fill: currentColor;
+}
+
+/* make text look balanced */
+.portal-button .text {
+    line-height: 1;
+    margin-top: 3px;
+}
+
+.portal-button:hover .icon {
+    margin-left: 10px;
+}
+
+/* ONLY RED on hover */
+.portal-button:hover {
+    background: #8B0000;
+    color: #f4d043;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.28);
+    border-left: 5px #f4d043 solid;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .button-container {
+        max-width: 100%;
+    }
+
+    .portal-button {
+        font-size: 15px;
+        padding: 9px 16px;
+    }
+
+    .portal-button .icon svg {
+        width: 18px;
+        height: 18px;
+    }
+}

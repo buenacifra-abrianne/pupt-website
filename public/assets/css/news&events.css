@@ -1,0 +1,674 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* ONLY VARIABLES USED IN THIS FILE */
+:root {
+  --primary-color: #8B0000;
+  --text-color: #696969;
+  --light-bg: #ffffff;
+  --white: #ffffff;
+  --border-color: #ddd;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--light-bg);
+}
+
+/* Main Content */
+.main-content {
+  max-width: 1400px;
+  margin: 40px auto;
+  padding: 0 40px;
+  min-height: calc(100vh - 400px);
+}
+
+/* AI Message Button */
+.message-button {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background-color: rgba(123, 0, 0, 0.85);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 999;
+}
+
+.message-button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.7);
+}
+
+.message-button:active {
+  transform: scale(0.95);
+}
+
+/* =========================
+   FEATURED EVENT CARD
+========================= */
+.event-card {
+  width: 100%;
+  height: 500px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.event-image {
+  background-color: #d9d9d9;
+  height: 250px;
+  width: 100%;
+}
+
+.event-image img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+  filter: blur(2px);
+}
+
+.event-content {
+  padding: 20px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.event-span {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 4px 10px;
+  font-size: 14px;
+  border-radius: 25px;
+  text-transform: uppercase;
+  font-weight: bold;
+  display: inline-block;
+  margin-bottom: 10px;
+  width: 155px;
+  text-align: center;
+}
+
+.event-content h2 {
+  color: var(--primary-color);
+  margin: 0 0 5px 0;
+  font-size: 30px;
+  font-weight: bold;
+}
+
+.event-content h3 {
+  font-size: 14px;
+  color: #333;
+  margin: 0 0 10px 0;
+}
+
+.event-content p {
+  font-size: 14px;
+  color: #000000;
+  margin: 0 0 10px 0;
+}
+
+.event-button {
+  background-color: var(--primary-color);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+  align-self: flex-end;
+  transition: background 0.3s ease;
+}
+
+.event-button:hover {
+  background-color: #a00000;
+}
+
+/* =========================
+   UPCOMING EVENTS SECTION
+========================= */
+.upcoming-events {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+  max-width: 1325px;
+  margin: 0 auto;
+  margin-top: 5px;
+  width: 100%;
+  text-align: center;
+}
+
+.upcoming-events h2 {
+  color: var(--primary-color);
+  font-size: 20px;
+  margin-bottom: 20px;
+  font-weight: 700;
+}
+
+/* Layout: Left ongoing / Right upcoming */
+.events-layout {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 20px;
+  margin-top: 20px;
+}
+
+/* Event card (applies to both ongoing & upcoming) */
+.event-item {
+  background: #fff1f1;
+  padding: 16px 20px;
+  border-radius: 10px;
+  border-left: 5px solid var(--primary-color);
+  display: flex;
+  flex-direction: column;
+  transition: background 0.3s ease;
+  margin-bottom: 14px;
+}
+
+.event-item:hover {
+  background: #f0d6d6;
+}
+
+.event-date {
+  font-weight: 700;
+  color: var(--primary-color);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.event-title {
+  font-size: 14px;
+  color: #444;
+}
+
+/* Ongoing event styling */
+.ongoing-event {
+  background: #e6f4ea;
+  border-left-color: #00a651;
+  text-align: center;
+}
+
+.ongoing-event:hover {
+  background: #d0ead6;
+}
+
+.ongoing-event .event-date {
+  color: #00a651;
+}
+
+/* =========================
+   FILTER BAR
+========================= */
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+  margin-left: 80px;
+}
+
+.filter-label {
+  font-weight: 600;
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+}
+
+.filter {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 20px;
+  background: #ddd;
+  cursor: pointer;
+  font-weight: 500;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.filter.active {
+  background: #bfbfbf;
+}
+
+.filter:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+/* =========================
+   CARD GRID
+========================= */
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 25px;
+  margin-left: 75px;
+  margin-right: 20px;
+  width: 1330px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.card-image {
+  height: 160px;
+  background: #d9d9d9;
+}
+
+.card-image img {
+  height: 160px;
+  width: 100%;
+  object-fit: cover;
+  filter: blur(2px);
+}
+
+.card-content {
+  padding: 16px;
+}
+
+.tag {
+  display: inline-block;
+  background: #f3caca;
+  color: var(--primary-color);
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 0px;
+  margin-bottom: 8px;
+}
+
+.date {
+  font-size: 12px;
+  color: #777;
+  margin: 6px 0;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 6px;
+}
+
+.description {
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Card footer */
+.card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+}
+
+.location {
+  color: #777;
+}
+
+.read-more {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.read-more:hover {
+  text-decoration: underline;
+}
+
+/* =========================
+   MODAL (READ MORE POPUP)
+   NOTE: This includes the base modal layout + animations
+========================= */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 18px;
+  z-index: 2000;
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+.modal-overlay.show {
+  display: flex;
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-overlay.closing {
+  opacity: 0;
+}
+
+.modal-card {
+  width: min(920px, 96vw);
+  max-height: 88vh;
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(0,0,0,0.30);
+  position: relative;
+
+  transform: scale(0.92) translateY(30px);
+  opacity: 0;
+  transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.modal-overlay.show .modal-card {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.modal-overlay.closing .modal-card {
+  transform: scale(0.92) translateY(30px);
+  opacity: 0;
+}
+
+.modal-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: 10px;
+  background: rgba(0,0,0,0.08);
+  cursor: pointer;
+  font-size: 26px;
+  line-height: 1;
+  z-index: 10;
+}
+
+.modal-close:hover {
+  background: rgba(0,0,0,0.14);
+}
+
+.modal-body {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  height: 88vh;
+  max-height: 88vh;
+}
+
+.modal-image {
+  background: #ddd;
+  height: 100%;
+}
+
+.modal-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+}
+
+.modal-content {
+  padding: 18px 18px 22px;
+  overflow: auto;
+}
+
+.modal-tag {
+  display: inline-block;
+  background: #f3caca;
+  color: var(--primary-color);
+  font-size: 12px;
+  padding: 4px 10px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.modal-date {
+  font-size: 12px;
+  color: #777;
+  margin-bottom: 6px;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.modal-location {
+  font-size: 13px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.modal-hr {
+  border: none;
+  border-top: 1px solid var(--border-color);
+  margin: 10px 0 12px;
+}
+
+.modal-text {
+  font-size: 14px;
+  color: #333;
+  line-height: 1.7;
+  white-space: pre-line;
+}
+
+/* Lock background scroll when modal is open */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* =========================
+   SMART SCROLL ANIMATIONS
+========================= */
+.reveal {
+  opacity: 0;
+  transform: translateY(50px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  will-change: opacity, transform;
+}
+
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+body.scroll-up .reveal:not(.active) {
+  transform: translateY(-50px);
+}
+
+.reveal.delay-100 { transition-delay: 0.1s; }
+.reveal.delay-200 { transition-delay: 0.2s; }
+
+/* =========================
+   MOBILE VIEW
+========================= */
+@media (max-width: 900px) {
+
+  .main-content {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+
+  /* Featured */
+  .event-card {
+    height: 350px;
+    margin-bottom: -20px;
+  }
+
+  .event-image {
+    height: 120px;
+  }
+
+  .event-content h2 {
+    font-size: 18px;
+  }
+
+  .event-content h3 {
+    font-size: 12px;
+  }
+
+  .event-content p {
+    font-size: 12px;
+  }
+
+  .event-button {
+    font-size: 12px;
+    padding: 8px 16px;
+  }
+
+  /* Events grid */
+  .events-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .upcoming-events h2 {
+    font-size: 16px;
+  }
+
+  /* Filter */
+  .filter-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-left: 20px;
+  }
+
+  .filter-label {
+    font-size: 12px;
+  }
+
+  .filter {
+    padding: 6px 12px;
+    font-size: 10px;
+  }
+
+  .filters {
+    flex-wrap: wrap;
+    gap: 10px;
+    width: 100%;
+  }
+
+  /* Card grid */
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin: 20px auto 0;
+    width: 100%;
+    padding: 0 6px;
+  }
+
+  .card-image {
+    height: 100px;
+  }
+
+  .card-image img {
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+  }
+
+  .tag,
+  .date,
+  .title,
+  .description,
+  .location,
+  .read-more {
+    font-size: 10px;
+  }
+
+  .hr {
+    margin-top: -30px;
+  }
+
+  /* Modal mobile */
+  .modal-body {
+    grid-template-columns: 1fr;
+    height: 90vh;
+    max-height: 90vh;
+  }
+
+  .modal-image {
+    height: 220px;
+  }
+
+  .modal-title {
+    font-size: 16px;
+  }
+
+  .modal-text {
+    font-size: 12px;
+  }
+}
+
+.featured-event-card, .event-card {
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0,0,0,.12);
+  background: #fff;
+}
+
+.featured-event-img {
+  width: 100%;
+  height: 260px;
+  object-fit: cover;
+  display: block;
+}
+
+.event-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  display: block;
+}
+
+.featured-event-body, .event-body {
+  padding: 14px 16px;
+}
+
+.featured-event-meta, .event-meta {
+  font-size: 12px;
+  opacity: .8;
+  margin: 6px 0 10px;
+}
+
+.featured-event-desc, .event-desc {
+  margin: 0;
+  line-height: 1.4;
+}
+
+#publicOngoingEvents, #publicUpcomingEvents {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}

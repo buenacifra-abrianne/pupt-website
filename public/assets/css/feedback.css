@@ -1,0 +1,124 @@
+.feedback-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 30px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.feedback-title {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: #8B0000;
+  margin-bottom: 30px;
+}
+
+.feedback-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.feedback-item {
+  padding: 18px 22px;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  background: #fafafa;
+}
+
+.feedback-item.error {
+  border: 2px solid #b30000;
+  background: #fff5f5;
+}
+
+.question {
+  font-size: 17px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+}
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  cursor: pointer;
+  background: #ffffff;
+}
+
+.options input[type="radio"] {
+  accent-color: #8B0000;
+}
+
+.warning-text {
+  display: none;
+  margin-top: 8px;
+  color: #b30000;
+  font-size: 14px;
+}
+
+.feedback-item.error .warning-text {
+  display: block;
+}
+
+.submit-btn {
+  margin-top: 30px;
+  align-self: center;
+  padding: 12px 28px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #fff;
+  background: #8B0000;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.submit-btn:hover {
+  background: #660000;
+}
+
+/* MODAL */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  display: none;
+  background: rgba(0, 0, 0, 0.55);
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+}
+
+.modal-box {
+  background: #ffffff;
+  padding: 35px 40px;
+  border-radius: 14px;
+  text-align: center;
+  max-width: 450px;
+  width: 90%;
+}
+
+.modal-box h3 {
+  color: #8B0000;
+  margin-bottom: 10px;
+}
+
+.home-btn {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 24px;
+  background: #8B0000;
+  color: #ffffff;
+  text-decoration: none;
+  border-radius: 10px;
+}
