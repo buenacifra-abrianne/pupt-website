@@ -751,3 +751,18 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+ .type-badge{
+    display:inline-block;
+    padding:4px 10px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:600;
+    margin-left:6px; /* dikit lang */
+    vertical-align:middle;
+  }
+  .type-create{ background:#e8f3ff; color:#0b4db3; }
+  .type-update{ background:#fff6db; color:#8a5a00; }
+  .type-delete{ background:#ffecec; color:#8a1f1f; }
+  .type-enable{ background:#e9fbef; color:#1b6b2a; }
+  .type-disable{ background:#fff1f1; color:#8a1f1f; }

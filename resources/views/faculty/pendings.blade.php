@@ -152,7 +152,7 @@
                         <thead>
                             <tr>
                                 <th style="text-align:left; padding:10px;">Date</th>
-                                <th style="text-align:left; padding:10px;">Title</th>
+                                <th style="text-align:left; padding:10px;">Details</th>
                                 <th style="text-align:left; padding:10px;">Requester</th>
                                 <th style="text-align:left; padding:10px;">Type</th>
                                 <th style="text-align:left; padding:10px; width:220px;">Actions</th>
@@ -167,15 +167,11 @@
                                     </td>
 
                                     <td style="padding:10px;">
-                                        <div style="font-weight:600;">{{ e($item->title ?? 'Untitled') }}</div>
-                                        @if(!empty($item->details))
-                                            <div style="opacity:.75; font-size: 13px;">
-                                                {{ \Illuminate\Support\Str::limit($item->details, 80) }}
-                                            </div>
-                                        @endif
-                                        <div style="opacity:.65; font-size: 12px; margin-top:4px;">
-                                            ID: {{ $item->id }}
-                                        </div>
+                                        <button type="button"
+                                        class="btn btn-sm btn-primary"
+                                        onclick='openDetails(@json($item->title), @json($item->type), @json($item->details))'>
+                                        <i class="fas fa-eye"></i> View
+                                        </button>
                                     </td>
 
                                     <td style="padding:10px;">
@@ -184,40 +180,39 @@
                                     </td>
 
                                     <td style="padding:10px;">
-                                        <span class="priority-badge priority-medium">
-                                            {{ e($item->type ?? 'General') }}
-                                        </span>
-                                    </td>
+  @php
+    $typeMap = [
+      'ANNOUNCEMENT_CREATE' => 'Create Announcement',
+      'ANNOUNCEMENT_UPDATE' => 'Edit Announcement',
+      'ANNOUNCEMENT_DELETE' => 'Delete Announcement',
+      'ANNOUNCEMENT_ENABLE' => 'Enable Announcement',
+      'ANNOUNCEMENT_DISABLE' => 'Disable Announcement',
+      'NEWS_CREATE' => 'Create News',
+      'NEWS_UPDATE' => 'Edit News',
+      'NEWS_DELETE' => 'Delete News',
+    ];
+    $rawType = strtoupper((string)($item->type ?? ''));
+    $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
+  @endphp
+
+  <span class="priority-badge priority-medium">
+    {{ e($friendlyType) }}
+  </span>
+</td>
 
                                     <td style="padding:10px;">
                                         {{-- Approve --}}
-                                        <form method="POST"
-                                              action="{{ route('faculty.approvals.approve', $item->id) }}"
-                                              style="display:inline-block;">
-                                            @csrf
-                                            <button class="btn btn-sm btn-success"
-                                                    type="submit"
-                                                    onclick="return confirm('Approve this request?')">
-                                                <i class="fas fa-check"></i> Approve
-                                            </button>
-                                        </form>
+                                        <button type="button"
+                                        class="btn btn-sm btn-success"
+                                        onclick="approveReq('{{ route('faculty.approvals.approve', $item->id) }}')">
+                                        Approve
+                                        </button>
 
                                         {{-- Reject (with reason prompt) --}}
-                                        <form method="POST"
-                                              action="{{ route('faculty.approvals.reject', $item->id) }}"
-                                              style="display:inline-block;"
-                                              onsubmit="
-                                                const reason = prompt('Reason for rejection? (optional)');
-                                                if (reason === null) return false;
-                                                this.querySelector('input[name=reason]').value = reason;
-                                                return confirm('Reject this request?');
-                                              ">
-                                            @csrf
-                                            <input type="hidden" name="reason" value="">
-                                            <button class="btn btn-sm btn-delete" type="submit">
-                                                <i class="fas fa-times"></i> Reject
-                                            </button>
-                                        </form>
+                                        <button type="button" class="btn btn-sm btn-delete"
+                                        onclick="rejectReq('{{ route('faculty.approvals.reject', $item->id) }}')">
+                                        <i class="fas fa-times"></i> Reject
+                                        </button>
                                     </td>
                                 </tr>
                             @empty
@@ -238,13 +233,116 @@
         </div>
     </main>
 
+<div id="detailsModal" class="modal">
+  <div class="modal-content" style="max-width:720px;">
+    <div class="modal-header">
+      <h2 class="modal-title">Request Details</h2>
+      <button class="close-modal" type="button" onclick="closeDetails()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div style="padding: 10px 0;">
+      <div style="margin-bottom:10px;">
+        <div style="opacity:.7;font-size:13px;">Title</div>
+        <div style="font-weight:700;font-size:18px;" id="dTitle">—</div>
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+        <span class="priority-badge priority-medium" id="dPriority">Priority: —</span>
+      </div>
+
+      <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Content / Details</div>
+      <div id="dContent" style="white-space:pre-wrap; background:#f7f7f7; border-radius:12px; padding:12px;">
+        —
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('collapsed');
     }
 
-    // Client-side search (same style as your announcements page)
+    // ✅ AJAX POST expecting JSON
+    async function postJson(url, data = {}) {
+        const res = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(data)
+        });
+
+        const raw = await res.text();
+        let json;
+        try { json = JSON.parse(raw); }
+        catch (e) { throw new Error("Non-JSON response: " + raw); }
+
+        if (!res.ok || !json.ok) throw new Error(json.error || "Request failed");
+        return json;
+    }
+
+    // ✅ simple toast
+    function showToast(message, ms = 2200) {
+        let t = document.getElementById('toast');
+        if (!t) {
+            t = document.createElement('div');
+            t.id = 'toast';
+            t.style.cssText = `
+              position:fixed;right:18px;bottom:18px;z-index:9999;
+              min-width:280px;max-width:380px;padding:12px 14px;border-radius:12px;
+              background:#111;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.25);
+              display:none;font-size:14px;`;
+            document.body.appendChild(t);
+        }
+        t.textContent = message;
+        t.style.display = 'block';
+        t.style.opacity = '1';
+        clearTimeout(window.__toastTimer);
+        window.__toastTimer = setTimeout(() => {
+            t.style.opacity = '0';
+            setTimeout(() => t.style.display = 'none', 200);
+        }, ms);
+    }
+
+    // ✅ Approve button handler
+    async function approveReq(url) {
+        if (!confirm("Approve this request?")) return;
+        try {
+            await postJson(url);
+            showToast("Approved and applied.");
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            showToast("Approve failed: " + err.message, 3500);
+        }
+    }
+
+    // Reject button handler
+    async function rejectReq(url) {
+    const reason = prompt('Reason for rejection? (optional)');
+        if (reason === null) return; // cancelled
+
+        if (!confirm("Reject this request?")) return;
+
+        try {
+            await postJson(url, { reason: reason });
+            showToast("Rejected.");
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            showToast("Reject failed: " + err.message, 3500);
+        }
+    }
+
+    // ✅ Client-side search
     const searchInput = document.getElementById('globalSearch');
 
     function runSearch() {
@@ -264,6 +362,52 @@
             }
         });
     }
+
+    function closeDetails() {
+  document.getElementById('detailsModal').classList.remove('active');
+}
+
+function prettyType(rawType) {
+  const m = {
+    'ANNOUNCEMENT_CREATE': 'Create Announcement',
+    'ANNOUNCEMENT_UPDATE': 'Edit Announcement',
+    'ANNOUNCEMENT_DELETE': 'Delete Announcement',
+    'ANNOUNCEMENT_ENABLE': 'Enable Announcement',
+    'ANNOUNCEMENT_DISABLE': 'Disable Announcement',
+    'NEWS_CREATE': 'Create News',
+    'NEWS_UPDATE': 'Edit News',
+    'NEWS_DELETE': 'Delete News',
+  };
+  const key = String(rawType || '').toUpperCase();
+  return m[key] || rawType || 'General';
+}
+
+function openDetails(title, type, detailsRaw) {
+  const modal = document.getElementById('detailsModal');
+  modal.classList.add('active');
+
+  document.getElementById('dTitle').textContent = title || '—';
+
+  // parse JSON details safely
+  let payload = {};
+  try {
+    payload = detailsRaw ? JSON.parse(detailsRaw) : {};
+  } catch (e) {
+    payload = {};
+  }
+
+  const pr = String(payload.priority || '').toUpperCase();
+  document.getElementById('dPriority').textContent = 'Priority: ' + (pr || '—');
+
+  const content = payload.content || payload.details || '';
+  document.getElementById('dContent').textContent = content || (detailsRaw || '—');
+}
+
+// click outside to close (optional)
+window.addEventListener('click', function(e) {
+  const modal = document.getElementById('detailsModal');
+  if (e.target === modal) closeDetails();
+});
 </script>
 
 </body>

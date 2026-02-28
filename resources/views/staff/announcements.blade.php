@@ -18,7 +18,7 @@
             <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
             <div class="logo-text">
                 Hello,<br>
-                {{ $name ? e($name) : 'Staff' }}!
+                {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
             </div>
         </div>
 
@@ -34,6 +34,13 @@
                 <a href="{{ route('staff.announcements') }}" class="nav-link active">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="#" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Content Management</span>
                 </a>
             </li>
 
@@ -75,7 +82,7 @@
 
                 <div class="user-info">
                     <div class="user-name">
-                        {{ $name ? e($name) : 'Staff' }}
+                        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
                     </div>
                     <div class="user-role">
                         Staff
@@ -123,49 +130,63 @@
                 <div id="announcementsList">
                     @php
                         $annReqs = $myRequests->filter(fn($r) =>
-                            in_array($r->type, ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE'])
+                            in_array($r->type, ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
                         );
                     @endphp
 
                     @foreach($annReqs as $row)
                         @php
-                            $payload = json_decode($row->details ?? '{}', true) ?: [];
+    $payload = json_decode($row->details ?? '{}', true) ?: [];
 
-                            // emulate faculty structure fields
-                            $title = $payload['title'] ?? $row->title ?? 'Request';
-                            $content = $payload['content'] ?? '';
-                            $priority = strtoupper($payload['priority'] ?? 'LOW');
+    $reqId = (int) $row->id;
+    $type  = strtoupper((string)$row->type);
+    $reqType = $type;
 
-                            $type = strtoupper((string)$row->type); // ANNOUNCEMENT_CREATE/UPDATE/DELETE
-                            $status = strtoupper(trim((string)$row->status)); // pending/approved/rejected
-                            $statusClass = strtolower($status);
+    $title = $payload['title'] ?? $row->title ?? 'Request';
+    $content = $payload['content'] ?? '';
+    $priority = strtoupper($payload['priority'] ?? 'LOW');
 
-                            $is_disabled = false; // no real status toggling here; request-only
-                            $targetId = $payload['announcement_id'] ?? null;
+    $reqStatus = strtolower(trim((string)$row->status));
+    $statusClass = $reqStatus;
 
-                            $searchHay = strtolower(
-                                ($title).' '.($content).' '.($priority).' '.($type).' '.($status).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
-                            );
-                        @endphp
+    $db_status = null;
+    $is_disabled = false;
+
+    if ($reqType === 'ANNOUNCEMENT_ENABLE') {
+        $db_status = 'ENABLED';
+    } elseif ($reqType === 'ANNOUNCEMENT_DISABLE') {
+        $db_status = 'DISABLED';
+        $is_disabled = true;
+    }
+
+    $targetId = $payload['announcement_id'] ?? null;
+
+    $searchHay = strtolower(
+        ($title).' '.($content).' '.($priority).' '.($reqStatus).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
+    );
+@endphp
 
                         <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($priority) }}-priority"
                             data-search="{{ e($searchHay) }}">
 
                             <div class="announcement-header">
                                 <div>
-                                    <h3 class="announcement-title">{{ e($title) }}</h3>
+                                    <h3 class="announcement-title">
+                                        {{ e($title) }}
+
+                                        {{-- ✅ request status beside title --}}
+                                        <span class="status-badge status-{{ $statusClass }}" style="margin-left:10px;">
+                                            {{ ucfirst($reqStatus) }}
+                                        </span>
+                                    </h3>
 
                                     <span class="priority-badge priority-{{ strtolower($priority) }}">
                                         {{ ucfirst(strtolower($priority)) }} Priority
                                     </span>
 
-                                    <span class="status-badge status-{{ $statusClass }}">
-                                        {{ ucfirst(strtolower($status)) }}
-                                    </span>
-
-                                    <span class="priority-badge priority-low" style="margin-left:6px;">
-                                        {{ str_replace('ANNOUNCEMENT_', '', $type) }}
-                                        @if($targetId) • ID: {{ (int)$targetId }} @endif
+                                    {{-- keep Enabled/Disabled badge look --}}
+                                    <span class="status-badge status-{{ strtolower($db_status) }}">
+                                        {{ ucfirst(strtolower($db_status)) }}
                                     </span>
                                 </div>
                             </div>
@@ -175,37 +196,51 @@
                             <div class="announcement-meta">
                                 <span>
                                     <i class="fas fa-calendar"></i>
-                                    Submitted:
+                                    Published:
                                     {{ \Carbon\Carbon::parse($row->created_at)->format('M d, Y') }}
                                 </span>
 
                                 <span>
                                     <i class="fas fa-user"></i>
-                                    By: {{ e($row->requester_name ?? $name ?? 'Staff') }}
+                                    By: Administration
                                 </span>
                             </div>
 
+                            {{-- ✅ keep buttons as-is, only change behavior --}}
                             <div class="announcement-actions">
                                 <button class="btn btn-sm btn-primary"
-                                    onclick="editAnnouncement(
-                                        '{{ $payload['announcement_id'] ?? '' }}',
-                                        '{{ addslashes($title) }}',
-                                        '{{ addslashes($content) }}',
-                                        '{{ $priority }}',
-                                        'DISABLED'
-                                    )">
-                                    <i class="fas fa-edit"></i> Request Update
+                                onclick="editAnnouncementRequest(
+                                    {{ $reqId }},
+                                    '{{ $type }}',
+                                    {{ $targetId ? (int)$targetId : 0 }},
+                                    '{{ addslashes($title) }}',
+                                    '{{ addslashes($content) }}',
+                                    '{{ $priority }}'
+                                )">
+                                <i class="fas fa-edit"></i> Edit
                                 </button>
 
-                                {{-- No toggle for now (you said no function yet) --}}
-                                <button class="btn btn-sm btn-delete"
+                                <button class="btn btn-sm {{ $is_disabled ? 'btn-success' : 'btn-warning' }}"
                                     type="button"
-                                    onclick="deleteAnnouncement({{ (int)($payload['announcement_id'] ?? 0) }}, '{{ addslashes($title) }}')"
-                                    title="Request Delete Announcement">
-                                    <i class="fas fa-trash"></i>
+                                    onclick="toggleAnnouncementStatus({{ (int)($payload['announcement_id'] ?? 0) }}, '{{ $db_status }}')"
+                                    style="text-decoration: none;">
+                                    <i class="fas {{ $is_disabled ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                    {{ $is_disabled ? 'Enable' : 'Disable' }}
+                                </button>
+
+                                <button class="btn btn-sm btn-delete" type="button"
+                                onclick="deleteAnnouncementRequest(
+                                    {{ $reqId }},
+                                    '{{ $type }}',
+                                    {{ $targetId ? (int)$targetId : 0 }},
+                                    '{{ addslashes($title) }}'
+                                )"
+                                title="Delete Announcement">
+                                <i class="fas fa-trash"></i>
                                 </button>
                             </div>
 
+                            {{-- ✅ rejection reason stays below buttons --}}
                             @if($statusClass === 'rejected' && !empty($row->rejection_reason))
                                 <div style="margin-top:10px;padding:10px;border-radius:10px;background:#ffecec;color:#8a1f1f;">
                                     <strong>Rejected reason:</strong> {{ e($row->rejection_reason) }}
@@ -243,40 +278,33 @@
                             $content = $payload['content'] ?? '';
                             $category = $payload['category'] ?? 'Other';
                             $location = $payload['location'] ?? '';
-                            // keep image upload feature in modal; request list doesn't have preview yet
-                            $type = strtoupper((string)$news->type);
-                            $status = strtoupper(trim((string)$news->status));
-                            $statusClass = strtolower($status);
+                            $reqStatus = strtolower(trim((string)$news->status)); // pending/approved/rejected
+                            $statusClass = $reqStatus;
 
-                            $targetId = $payload['news_id'] ?? null;
-
-                            $searchHay = strtolower($title.' '.$content.' '.$category.' '.$location.' '.$type.' '.$status.' '.($targetId ?? '').' '.(($news->rejection_reason ?? '')));
+                            $searchHay = strtolower($title.' '.$content.' '.$category.' '.$location.' '.$reqStatus.' '.(($news->rejection_reason ?? '')));
                         @endphp
 
                         <div class="news-card"
                             data-search="{{ e($searchHay) }}">
 
                             <div class="news-image">
-                                {{-- Request-only list: no stored image yet --}}
                                 <i class="fas fa-newspaper"></i>
                             </div>
 
                             <div class="news-content">
                                 <span class="news-category">{{ e($category) }}</span>
-                                <h3 class="news-title">{{ e($title) }}</h3>
+
+                                <h3 class="news-title">
+                                    {{ e($title) }}
+
+                                    {{-- ✅ status beside title (colors come from your css status-badge classes) --}}
+                                    <span class="status-badge status-{{ $statusClass }}" style="margin-left:10px;">
+                                        {{ ucfirst($reqStatus) }}
+                                    </span>
+                                </h3>
 
                                 <div class="news-meta">
                                     <span><i class="fas fa-map-marker-alt"></i> {{ e($location) }}</span>
-                                </div>
-
-                                <div style="margin-top:8px;">
-                                    <span class="status-badge status-{{ $statusClass }}">
-                                        {{ ucfirst(strtolower($status)) }}
-                                    </span>
-                                    <span class="priority-badge priority-low" style="margin-left:6px;">
-                                        {{ str_replace('NEWS_', '', $type) }}
-                                        @if($targetId) • ID: {{ (int)$targetId }} @endif
-                                    </span>
                                 </div>
 
                                 <div class="news-actions">
@@ -322,7 +350,6 @@
                 </button>
             </div>
 
-            {{-- STAFF: request create/update --}}
             <form id="announcementForm" method="POST" action="{{ route('staff.announcements.requestCreate') }}">
                 @csrf
 
@@ -342,15 +369,6 @@
                         <option value="HIGH">High Priority</option>
                         <option value="MEDIUM" selected>Medium Priority</option>
                         <option value="LOW">Low Priority</option>
-                    </select>
-                </div>
-
-                {{-- keep status field (same structure) but staff won't use it --}}
-                <div class="form-group">
-                    <label>Status *</label>
-                    <select name="status" required>
-                        <option value="ENABLED" selected>Enabled</option>
-                        <option value="DISABLED">Disabled</option>
                     </select>
                 </div>
 
@@ -374,7 +392,6 @@
                 </button>
             </div>
 
-            {{-- STAFF: keep enctype + image upload --}}
             <form id="newsForm" action="{{ route('staff.news.requestCreate') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
@@ -463,23 +480,26 @@
 
     // Announcement Modal
     function openAnnouncementModal(isNew = false) {
-        const modal = document.getElementById('announcementModal');
-        const form = document.getElementById('announcementForm');
-        const modalTitle = modal.querySelector('.modal-title');
-        const submitBtn = document.getElementById('announcementSubmitBtn');
+  const modal = document.getElementById('announcementModal');
+  const form = document.getElementById('announcementForm');
+  const modalTitle = modal.querySelector('.modal-title');
+  const submitBtn = document.getElementById('announcementSubmitBtn');
 
-        modal.classList.add('active');
+  modal.classList.add('active');
 
-        if (isNew) {
-            form.reset();
-            form.action = "{{ route('staff.announcements.requestCreate') }}";
-            if (modalTitle) modalTitle.innerText = "New Announcement";
-            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
+  if (isNew) {
+    form.reset();
+    form.action = "{{ route('staff.announcements.requestCreate') }}";
+    if (modalTitle) modalTitle.innerText = "New Announcement";
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
 
-            const idInput = document.getElementById('edit_announcement_id');
-            if (idInput) idInput.remove();
-        }
-    }
+    const idInput = document.getElementById('edit_announcement_id');
+    if (idInput) idInput.remove();
+
+    const reqInput = document.getElementById('edit_request_id');
+    if (reqInput) reqInput.remove();
+  }
+}
 
     function closeAnnouncementModal() {
         document.getElementById('announcementModal').classList.remove('active');
@@ -495,7 +515,6 @@
         if (modalTitle) modalTitle.innerText = "Edit Announcement";
         if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
 
-        // STAFF update route
         form.action = "{{ route('staff.announcements.requestUpdate') }}";
 
         form.querySelector('[name="title"]').value = title;
@@ -514,10 +533,37 @@
         idInput.value = id;
     }
 
-    // STAFF delete becomes requestDelete
+        async function toggleAnnouncementStatus(id, currentStatus) {
+        if (!id) {
+            alert("No announcement_id found.");
+            return;
+        }
+
+        const isEnabled = String(currentStatus).toUpperCase() === 'ENABLED';
+        const action = isEnabled ? 'DISABLE' : 'ENABLE';
+
+        if (!confirm(`Request ${action} this announcement?`)) return;
+
+        const url = isEnabled
+            ? "{{ route('staff.announcements.requestDisable') }}"
+            : "{{ route('staff.announcements.requestEnable') }}";
+
+        try {
+            await postForm(url, {
+                announcement_id: id
+            });
+
+            showToast("Request submitted. Please wait for admin approval.");
+            window.location.reload();
+        } catch (err) {
+            console.error(err);
+            alert("Request toggle failed: " + err.message);
+        }
+    }
+
     async function deleteAnnouncement(id, title = '') {
         if (!id) {
-            alert("No announcement_id found to request delete. (This request may be CREATE only.)");
+            alert("No announcement_id found to request delete.");
             return;
         }
 
@@ -528,7 +574,7 @@
                 announcement_id: id,
                 title: title
             });
-            alert("Request submitted. Please wait for admin approval.");
+            showToast("Request submitted. Please wait for admin approval.");
             window.location.reload();
         } catch (err) {
             console.error(err);
@@ -573,7 +619,6 @@
         if (modalTitle) modalTitle.innerText = "Edit News Article";
         if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
 
-        // STAFF update route
         form.action = "{{ route('staff.news.requestUpdate') }}";
 
         form.querySelector('[name="title"]').value = title;
@@ -597,7 +642,7 @@
 
     async function deleteNews(id, title = '') {
         if (!id) {
-            alert("No news_id found to request delete. (This request may be CREATE only.)");
+            alert("No news_id found to request delete.");
             return;
         }
 
@@ -608,7 +653,7 @@
                 news_id: id,
                 title: title
             });
-            alert("Request submitted. Please wait for admin approval.");
+            showToast("Request submitted. Please wait for admin approval.");
             window.location.reload();
         } catch (err) {
             console.error(err);
@@ -654,6 +699,156 @@
             if (btn) switchTab(savedTab, btn);
         }
     });
+
+ function editAnnouncementRequest(reqId, type, announcementId, title, content, priority) {
+  const modal = document.getElementById('announcementModal');
+  const form = document.getElementById('announcementForm');
+  const modalTitle = modal.querySelector('.modal-title');
+  const submitBtn = document.getElementById('announcementSubmitBtn');
+
+  modal.classList.add('active');
+
+  // fill fields
+  form.querySelector('[name="title"]').value = title || '';
+  form.querySelector('[name="content"]').value = content || '';
+  form.querySelector('[name="priority"]').value = priority || 'MEDIUM';
+
+  // ✅ always attach request_id so backend UPDATES same request (no duplicates)
+  let reqInput = document.getElementById('edit_request_id');
+  if (!reqInput) {
+    reqInput = document.createElement('input');
+    reqInput.type = 'hidden';
+    reqInput.name = 'request_id';
+    reqInput.id = 'edit_request_id';
+    form.appendChild(reqInput);
+  }
+  reqInput.value = reqId;
+
+  // ✅ parse announcementId safely
+  const annId = parseInt(announcementId, 10);
+
+  // ✅ If this is an existing announcement, submit UPDATE request
+  if (!isNaN(annId) && annId > 0) {
+    if (modalTitle) modalTitle.innerText = "Edit Announcement";
+    form.action = "{{ route('staff.announcements.requestUpdate') }}";
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
+
+    let idInput = document.getElementById('edit_announcement_id');
+    if (!idInput) {
+      idInput = document.createElement('input');
+      idInput.type = 'hidden';
+      idInput.name = 'announcement_id';
+      idInput.id = 'edit_announcement_id';
+      form.appendChild(idInput);
+    }
+    idInput.value = annId;
+
+  } else {
+    // ✅ Draft request (no announcement_id yet): resubmit as CREATE (update same request via request_id)
+    if (modalTitle) modalTitle.innerText = "Edit Draft Request";
+    form.action = "{{ route('staff.announcements.requestCreate') }}";
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update Draft';
+
+    const idInput = document.getElementById('edit_announcement_id');
+    if (idInput) idInput.remove();
+  }
+}
+
+async function deleteAnnouncementRequest(reqId, type, announcementId, title) {
+  // If no target id, we can't request delete of a real announcement
+  if (!announcementId) {
+    alert("This is a CREATE request (no announcement ID yet). You can’t request delete on it.");
+    return;
+  }
+
+  if (!confirm("Request DELETE this announcement?")) return;
+
+  try {
+    await postForm("{{ route('staff.announcements.requestDelete') }}", {
+      announcement_id: announcementId,
+      title: title
+    });
+
+    showToast("Request submitted. Please wait for admin approval.");
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Request delete failed: " + err.message);
+  }
+}
+
+// ✅ Intercept Announcement form submit so it won't navigate to JSON page
+document.getElementById('announcementForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const url = form.action;
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    try {
+        await postForm(url, data);
+        showToast("Request submitted. Please wait for admin approval.");
+        closeAnnouncementModal();
+        window.location.reload();
+    } catch (err) {
+        console.error(err);
+        alert("Submit failed: " + err.message);
+    }
+});
+
+// ✅ Intercept News form submit too (same issue)
+document.getElementById('newsForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const form = e.target;
+    const url = form.action;
+
+    const data = Object.fromEntries(new FormData(form).entries());
+
+    try {
+        await postForm(url, data);
+        showToast("Request submitted. Please wait for admin approval.");
+        closeNewsModal();
+        window.location.reload();
+    } catch (err) {
+        console.error(err);
+        alert("Submit failed: " + err.message);
+    }
+});
+
+function showToast(message, ms = 2200) {
+  const t = document.getElementById('toast');
+  const m = document.getElementById('toastMsg');
+  if (!t || !m) return;
+
+  m.textContent = message;
+  t.style.display = 'block';
+  t.style.opacity = '1';
+
+  clearTimeout(window.__toastTimer);
+  window.__toastTimer = setTimeout(() => {
+    t.style.opacity = '0';
+    setTimeout(() => { t.style.display = 'none'; }, 200);
+  }, ms);
+}
 </script>
+<div id="toast" style="
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 9999;
+  min-width: 280px;
+  max-width: 380px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(0,0,0,.25);
+  display: none;
+  font-size: 14px;
+">
+  <div id="toastMsg"></div>
+</div>
 </body>
 </html>

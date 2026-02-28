@@ -38,7 +38,7 @@
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ route('staff.content') }}" class="nav-link">
+        <a href="#" class="nav-link">
           <i class="fas fa-file-alt"></i><span>Content Management</span>
         </a>
       </li>

@@ -103,10 +103,10 @@ Route::prefix('faculty')->group(function () {
         Route::get('/approvals/pending', [ApprovalsController::class, 'pending'])
             ->name('faculty.approvals.pending');
 
-        Route::post('/approvals/{approval}/approve', [ApprovalsController::class, 'approve'])
+        Route::post('/approvals/{id}/approve', [ApprovalsController::class, 'approve'])
             ->name('faculty.approvals.approve');
 
-        Route::post('/approvals/{approval}/reject', [ApprovalsController::class, 'reject'])
+        Route::post('/approvals/{id}/reject', [ApprovalsController::class, 'reject'])
             ->name('faculty.approvals.reject');
     });
 });
