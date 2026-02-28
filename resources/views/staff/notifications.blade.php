@@ -34,7 +34,7 @@
       </li>
       <li class="nav-item">
         <a href="{{ route('staff.announcements') }}" class="nav-link">
-          <i class="fas fa-bullhorn"></i><span>Announcements</span>
+          <i class="fas fa-bullhorn"></i><span>News & Announcements</span>
         </a>
       </li>
       <li class="nav-item">

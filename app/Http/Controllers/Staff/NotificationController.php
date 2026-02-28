@@ -41,8 +41,6 @@ class NotificationController extends Controller
             'total'  => (int)($statsRow->total_count ?? 0),
         ];
 
-
-
         // Base query
         $base = DB::table('notifications as n')
             ->leftJoin('notification_reads as nr', function ($join) use ($userId) {
@@ -112,7 +110,7 @@ class NotificationController extends Controller
 
         return view('staff.notifications', compact(
             'q','typeFilter','statusFilter','rangeFilter',
-            'notifications'
+            'notifications','stats','iconMap', 'totalFiltered'
         ));
 
     }
