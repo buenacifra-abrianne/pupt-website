@@ -5,26 +5,54 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\ApprovalRequest;
 
 class AnnouncementController extends Controller
 {
     public function index()
-    {
-        $email = (string) session('user_email');
-        $name  = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
+{
+    $email  = (string) session('user_email');
+    $name   = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
+    $userId = (int) (session('user_id') ?? 0);
 
-        // Staff sees THEIR requests only (Announcements + News)
-        $myRequests = DB::table('approval_requests')
-            ->where('requester_email', $email)
-            ->whereIn('type', [
-                'ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_DELETE',
-                'NEWS_CREATE', 'NEWS_UPDATE', 'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE', 'NEWS_DELETE'
-            ])
-            ->orderByDesc('created_at')
-            ->get();
+    // Staff sees THEIR requests only (Announcements + News)
+    $myRequests = DB::table('approval_requests')
+        ->where('requester_email', $email)
+        ->whereIn('type', [
+            'ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_DELETE',
+            'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE',
+            'NEWS_CREATE', 'NEWS_UPDATE', 'NEWS_DELETE'
+        ])
+        ->orderByDesc('created_at')
+        ->get();
 
-        return view('staff.announcements', compact('myRequests', 'email', 'name'));
-    }
+    // ✅ Get announcement_ids that currently have PENDING requests (so we hide them from LIVE)
+    $pendingAnnIds = DB::table('approval_requests')
+        ->where('requester_email', $email)
+        ->where('status', 'pending')
+        ->whereIn('type', ['ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+        ->get()
+        ->map(function ($r) {
+            $p = json_decode($r->details ?? '{}', true) ?: [];
+            return (int)($p['announcement_id'] ?? 0);
+        })
+        ->filter(fn($id) => $id > 0)
+        ->unique()
+        ->values()
+        ->all();
+
+    // ✅ LIVE = approved announcements created by this staff,
+    // minus those with pending changes
+    $myAnnouncements = DB::table('announcements')
+        ->where('created_by', $userId)
+        ->when(count($pendingAnnIds) > 0, function ($q) use ($pendingAnnIds) {
+            $q->whereNotIn('announcement_id', $pendingAnnIds);
+        })
+        ->orderByDesc('created_at')
+        ->get();
+
+    return view('staff.announcements', compact('myRequests', 'myAnnouncements', 'email', 'name'));
+}
 
     // -------------------------
     // ANNOUNCEMENTS (requests)
@@ -256,4 +284,26 @@ class AnnouncementController extends Controller
 
         return response()->json(['ok' => true]);
     }
+
+    public function deleteRequestOnly($id)
+{
+    $req = ApprovalRequest::findOrFail($id);
+
+    // OPTIONAL but recommended: only allow deleting own requests
+    $userEmail = session('user_email') ?? null; // adjust if iba session key mo
+    if ($userEmail && strtolower($req->requester_email) !== strtolower($userEmail)) {
+        return response()->json(['message' => 'Not allowed.'], 403);
+    }
+
+    // Recommended: only allow delete if NOT approved (para di mabura approved history)
+    $status = strtolower(trim((string)$req->status));
+    if ($status === 'approved') {
+        return response()->json(['message' => 'Approved requests cannot be deleted.'], 422);
+    }
+
+    // Delete REQUEST ONLY (does not touch announcements table)
+    $req->delete();
+
+    return response()->json(['ok' => true]);
+}
 }

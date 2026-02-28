@@ -119,139 +119,133 @@
 
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content active">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage Announcements</h3>
-                    <button class="btn btn-primary" onclick="openAnnouncementModal(true)">
-                        <i class="fas fa-plus"></i> Request New Announcement
-                    </button>
-                </div>
+  <div style="display:grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items:start;">
 
-                <div id="announcementsList">
-                    @php
-                        $annReqs = $myRequests->filter(fn($r) =>
-                            in_array($r->type, ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
-                        );
-                    @endphp
+    {{-- LEFT: MANAGE --}}
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Manage Announcements</h3>
+        <button class="btn btn-primary" onclick="openAnnouncementModal(true)">
+          <i class="fas fa-plus"></i> Request New Announcement
+        </button>
+      </div>
 
-                    @foreach($annReqs as $row)
-                        @php
-    $payload = json_decode($row->details ?? '{}', true) ?: [];
+      @php
+        $annReqs = $myRequests->filter(fn($r) =>
+          in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+        );
 
-    $reqId = (int) $row->id;
-    $type  = strtoupper((string)$row->type);
-    $reqType = $type;
+        $pendingReqs  = $annReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'pending');
+        $rejectedReqs = $annReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'rejected');
+      @endphp
 
-    $title = $payload['title'] ?? $row->title ?? 'Request';
-    $content = $payload['content'] ?? '';
-    $priority = strtoupper($payload['priority'] ?? 'LOW');
+      <div style="padding: 12px;">
+        <h4 style="margin:0 0 10px 0;">Pending</h4>
 
-    $reqStatus = strtolower(trim((string)$row->status));
-    $statusClass = $reqStatus;
+        <div id="announcementsList">
+          @forelse($pendingReqs as $row)
+            @include('staff.partials.announcement_request_card', ['row' => $row])
+          @empty
+            <div style="padding: 14px; opacity:.75;">No pending requests.</div>
+          @endforelse
+        </div>
 
-    $db_status = null;
-    $is_disabled = false;
+        <hr style="opacity:.2; margin: 16px 0;">
 
-    if ($reqType === 'ANNOUNCEMENT_ENABLE') {
-        $db_status = 'ENABLED';
-    } elseif ($reqType === 'ANNOUNCEMENT_DISABLE') {
-        $db_status = 'DISABLED';
-        $is_disabled = true;
-    }
+        <h4 style="margin:0 0 10px 0;">Rejected</h4>
 
-    $targetId = $payload['announcement_id'] ?? null;
+        <div>
+          @forelse($rejectedReqs as $row)
+            @include('staff.partials.announcement_request_card', ['row' => $row])
+          @empty
+            <div style="padding: 14px; opacity:.75;">No rejected requests.</div>
+          @endforelse
+        </div>
+      </div>
+    </div>
 
-    $searchHay = strtolower(
-        ($title).' '.($content).' '.($priority).' '.($reqStatus).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
-    );
-@endphp
+    {{-- RIGHT: LIVE --}}
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Live (Approved)</h3>
+        <span class="status-badge status-enabled">
+          Total: {{ isset($myAnnouncements) ? $myAnnouncements->count() : 0 }}
+        </span>
+      </div>
 
-                        <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($priority) }}-priority"
-                            data-search="{{ e($searchHay) }}">
+      <div style="padding: 12px;">
+        @if(isset($myAnnouncements) && $myAnnouncements->count())
+          @foreach($myAnnouncements as $a)
+            @php
+              $liveStatus = strtoupper((string)($a->status ?? 'ENABLED'));
+              $isDisabled = ($liveStatus === 'DISABLED');
+              $prio = strtoupper((string)($a->priority ?? 'LOW'));
+            @endphp
 
-                            <div class="announcement-header">
-                                <div>
-                                    <h3 class="announcement-title">
-                                        {{ e($title) }}
+            <div class="announcement-item {{ $isDisabled ? 'disabled' : '' }} {{ strtolower($prio) }}-priority"
+                 style="margin-bottom: 14px;">
 
-                                        {{-- ✅ request status beside title --}}
-                                        <span class="status-badge status-{{ $statusClass }}" style="margin-left:10px;">
-                                            {{ ucfirst($reqStatus) }}
-                                        </span>
-                                    </h3>
+              <div class="announcement-header">
+  <div class="title-row">
+    <h3 class="announcement-title">
+      {{ e($a->title) }}
+    </h3>
 
-                                    <span class="priority-badge priority-{{ strtolower($priority) }}">
-                                        {{ ucfirst(strtolower($priority)) }} Priority
-                                    </span>
+    <span class="priority-badge priority-{{ strtolower($announcement->priority ?? 'low') }}">
+      {{ ucfirst(strtolower($announcement->priority ?? 'low')) }} Priority
+    </span>
+  </div>
+</div>
 
-                                    {{-- keep Enabled/Disabled badge look --}}
-                                    <span class="status-badge status-{{ strtolower($db_status) }}">
-                                        {{ ucfirst(strtolower($db_status)) }}
-                                    </span>
-                                </div>
-                            </div>
+              <p class="announcement-description">{{ e($a->content ?? '') }}</p>
 
-                            <p class="announcement-description">{{ e($content) }}</p>
+              <div class="announcement-actions">
+                {{-- These still SUBMIT REQUESTS --}}
+                <button class="btn btn-sm btn-primary"
+                        type="button"
+                        onclick="editAnnouncementRequest(
+                          0,
+                          'ANNOUNCEMENT_UPDATE',
+                          {{ (int)$a->announcement_id }},
+                          '{{ addslashes($a->title ?? '') }}',
+                          '{{ addslashes($a->content ?? '') }}',
+                          '{{ strtoupper($a->priority ?? 'LOW') }}'
+                        )">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
 
-                            <div class="announcement-meta">
-                                <span>
-                                    <i class="fas fa-calendar"></i>
-                                    Published:
-                                    {{ \Carbon\Carbon::parse($row->created_at)->format('M d, Y') }}
-                                </span>
+                <button class="btn btn-sm {{ $isDisabled ? 'btn-success' : 'btn-warning' }}"
+                        type="button"
+                        onclick="toggleAnnouncementStatus({{ (int)$a->announcement_id }}, '{{ $liveStatus }}')">
+                  <i class="fas {{ $isDisabled ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                  {{ $isDisabled ? 'Enable' : 'Disable' }}
+                </button>
 
-                                <span>
-                                    <i class="fas fa-user"></i>
-                                    By: Administration
-                                </span>
-                            </div>
-
-                            {{-- ✅ keep buttons as-is, only change behavior --}}
-                            <div class="announcement-actions">
-                                <button class="btn btn-sm btn-primary"
-                                onclick="editAnnouncementRequest(
-                                    {{ $reqId }},
-                                    '{{ $type }}',
-                                    {{ $targetId ? (int)$targetId : 0 }},
-                                    '{{ addslashes($title) }}',
-                                    '{{ addslashes($content) }}',
-                                    '{{ $priority }}'
-                                )">
-                                <i class="fas fa-edit"></i> Edit
-                                </button>
-
-                                <button class="btn btn-sm {{ $is_disabled ? 'btn-success' : 'btn-warning' }}"
-                                    type="button"
-                                    onclick="toggleAnnouncementStatus({{ (int)($payload['announcement_id'] ?? 0) }}, '{{ $db_status }}')"
-                                    style="text-decoration: none;">
-                                    <i class="fas {{ $is_disabled ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
-                                    {{ $is_disabled ? 'Enable' : 'Disable' }}
-                                </button>
-
-                                <button class="btn btn-sm btn-delete" type="button"
-                                onclick="deleteAnnouncementRequest(
-                                    {{ $reqId }},
-                                    '{{ $type }}',
-                                    {{ $targetId ? (int)$targetId : 0 }},
-                                    '{{ addslashes($title) }}'
-                                )"
-                                title="Delete Announcement">
-                                <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-
-                            {{-- ✅ rejection reason stays below buttons --}}
-                            @if($statusClass === 'rejected' && !empty($row->rejection_reason))
-                                <div style="margin-top:10px;padding:10px;border-radius:10px;background:#ffecec;color:#8a1f1f;">
-                                    <strong>Rejected reason:</strong> {{ e($row->rejection_reason) }}
-                                </div>
-                            @endif
-                        </div>
-                    @endforeach
-                </div>
+                <button class="btn btn-sm btn-delete"
+                        type="button"
+                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, '{{ addslashes($a->title ?? '') }}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
 
             </div>
-        </div>
+          @endforeach
+        @else
+          <div style="padding: 14px; opacity:.75;">No live announcements yet.</div>
+        @endif
+      </div>
+    </div>
+
+  </div>
+
+  <style>
+    @media (max-width: 980px){
+      #announcements.tab-content.active > div[style*="grid-template-columns"]{
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</div>
 
         <!-- News Tab -->
         <div id="news" class="tab-content">
@@ -505,34 +499,6 @@
         document.getElementById('announcementModal').classList.remove('active');
     }
 
-    function editAnnouncement(id, title, content, priority, status) {
-        const modal = document.getElementById('announcementModal');
-        const form = document.getElementById('announcementForm');
-        const modalTitle = modal.querySelector('.modal-title');
-        const submitBtn = document.getElementById('announcementSubmitBtn');
-
-        modal.classList.add('active');
-        if (modalTitle) modalTitle.innerText = "Edit Announcement";
-        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
-
-        form.action = "{{ route('staff.announcements.requestUpdate') }}";
-
-        form.querySelector('[name="title"]').value = title;
-        form.querySelector('[name="content"]').value = content;
-        form.querySelector('[name="priority"]').value = priority;
-        form.querySelector('[name="status"]').value = status;
-
-        let idInput = document.getElementById('edit_announcement_id');
-        if (!idInput) {
-            idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'announcement_id';
-            idInput.id = 'edit_announcement_id';
-            form.appendChild(idInput);
-        }
-        idInput.value = id;
-    }
-
         async function toggleAnnouncementStatus(id, currentStatus) {
         if (!id) {
             alert("No announcement_id found.");
@@ -755,8 +721,10 @@
 }
 
 async function deleteAnnouncementRequest(reqId, type, announcementId, title) {
+  const annId = parseInt(announcementId, 10);
+
   // If no target id, we can't request delete of a real announcement
-  if (!announcementId) {
+  if (isNaN(annId) || annId <= 0) {
     alert("This is a CREATE request (no announcement ID yet). You can’t request delete on it.");
     return;
   }
@@ -765,7 +733,8 @@ async function deleteAnnouncementRequest(reqId, type, announcementId, title) {
 
   try {
     await postForm("{{ route('staff.announcements.requestDelete') }}", {
-      announcement_id: announcementId,
+      request_id: reqId,           // ✅ important (so it updates same request row if needed)
+      announcement_id: annId,
       title: title
     });
 
@@ -831,6 +800,70 @@ function showToast(message, ms = 2200) {
     t.style.opacity = '0';
     setTimeout(() => { t.style.display = 'none'; }, 200);
   }, ms);
+}
+
+function deleteApprovalRequestOnly(a, b) {
+  // Works for both calls:
+  // onclick="deleteApprovalRequestOnly(this)"
+  // onclick="deleteApprovalRequestOnly(event, this)"
+  let e = null;
+  let btn = null;
+
+  if (a && typeof a.preventDefault === 'function') {
+    e = a;
+    btn = b;
+  } else {
+    btn = a;
+  }
+
+  if (e) {
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  if (!btn || !btn.getAttribute) {
+    alert('Delete button reference is invalid. Check onclick signature.');
+    return;
+  }
+
+  const deleteUrl = btn.getAttribute('data-delete-url');
+  const title = btn.getAttribute('data-title') || 'Request';
+
+  // Debug: para makita mo agad sa console kung tama URL
+  console.log('DELETE URL =', deleteUrl);
+
+  if (!deleteUrl || deleteUrl.trim() === '') {
+    alert('Delete URL is empty. (data-delete-url missing) — kaya napupunta sa staff/dashboard.');
+    return;
+  }
+
+  if (!confirm(`Delete this request?\n\n"${title}"\n\nThis will NOT affect the live/approved announcement.`)) return;
+
+  fetch(deleteUrl, {
+    method: 'DELETE',
+    headers: {
+      'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '',
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  })
+  .then(async (r) => {
+    const text = await r.text(); // read raw first
+    let data = {};
+    try { data = JSON.parse(text); } catch (_) {}
+
+    if (!r.ok) {
+      // show raw response if not JSON
+      throw new Error(data.message || text || `Delete failed (HTTP ${r.status})`);
+    }
+    return data;
+  })
+  .then(() => {
+    const card = btn.closest('.announcement-item');
+    if (card) card.remove();
+    alert('Request deleted.');
+  })
+  .catch(err => alert(err.message));
 }
 </script>
 <div id="toast" style="

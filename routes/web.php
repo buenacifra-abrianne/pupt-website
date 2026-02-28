@@ -26,6 +26,9 @@ Route::prefix('staff')
 
         Route::get('/announcements', [StaffAnnouncementController::class, 'index'])->name('announcements');
 
+        Route::delete('/requests/{id}', [StaffAnnouncementController::class, 'deleteRequestOnly'])
+            ->name('requests.delete');
+
         // Requests (Announcements)
         Route::post('/announcements/request-create', [StaffAnnouncementController::class, 'requestCreateAnnouncement'])
             ->name('announcements.requestCreate');
@@ -108,5 +111,8 @@ Route::prefix('faculty')->group(function () {
 
         Route::post('/approvals/{id}/reject', [ApprovalsController::class, 'reject'])
             ->name('faculty.approvals.reject');
+
+        Route::delete('/approvals/{id}', [ApprovalsController::class, 'destroy'])
+            ->name('faculty.approvals.destroy');
     });
 });

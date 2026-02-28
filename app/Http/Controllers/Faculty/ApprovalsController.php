@@ -62,40 +62,56 @@ class ApprovalsController extends Controller
         // ANNOUNCEMENTS
         // -------------------------
         if ($type === 'ANNOUNCEMENT_CREATE') {
-            // created_by is INT in announcements table
-$creatorId = 0;
 
-// adjust table name if needed (users table)
-$u = DB::table('users')->where('email', $row->requester_email)->first();
-if ($u && isset($u->user_id)) {
-    $creatorId = (int) $u->user_id;
-} elseif ($u && isset($u->id)) {
-    $creatorId = (int) $u->id;
+    // created_by is INT in announcements table
+    $creatorId = 0;
+    $u = DB::table('users')->where('email', $row->requester_email)->first();
+    if ($u && isset($u->user_id)) {
+        $creatorId = (int) $u->user_id;
+    } elseif ($u && isset($u->id)) {
+        $creatorId = (int) $u->id;
+    }
+
+    // ✅ Insert and get the new announcement_id
+    $newAnnouncementId = DB::table('announcements')->insertGetId([
+        'title' => $payload['title'] ?? $row->title ?? 'Announcement',
+        'content' => $payload['content'] ?? '',
+        'priority' => strtoupper($payload['priority'] ?? 'LOW'),
+        'created_at' => now(),
+        'status' => 'ENABLED',
+        'date_published' => now(),
+        'created_by' => $creatorId,
+    ], 'announcement_id');
+
+    // ✅ Save announcement_id back into approval_requests.details (so future edits become UPDATE)
+    $payload['announcement_id'] = (int) $newAnnouncementId;
+
+    DB::table('approval_requests')->where('id', (int)$id)->update([
+        'details' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        'updated_at' => now(),
+    ]);
 }
+        elseif ($type === 'NEWS_CREATE') {
 
-DB::table('announcements')->insert([
-    'title' => $payload['title'] ?? $row->title ?? 'Announcement',
-    'content' => $payload['content'] ?? '',
-    'priority' => strtoupper($payload['priority'] ?? 'LOW'),
-    'created_at' => now(),
-    'status' => 'ENABLED',
-    'date_published' => now(),
-    'created_by' => $creatorId,
-]);
-        }
-        elseif ($type === 'ANNOUNCEMENT_UPDATE') {
-            $aid = (int)($payload['announcement_id'] ?? 0);
-            if (!$aid) throw new \Exception("Missing announcement_id in request details.");
+    // ✅ Insert and get the new news_id
+    $newNewsId = DB::table('news')->insertGetId([
+        'title' => $payload['title'] ?? $row->title ?? 'News',
+        'content' => $payload['content'] ?? '',
+        'category' => $payload['category'] ?? 'Other',
+        'location' => $payload['location'] ?? null,
+        'image_path' => $payload['image_path'] ?? null,
+        'date_published' => now(),
+        'created_at' => now(),
+    ], 'news_id');
 
-            DB::table('announcements')
-                ->where('announcement_id', $aid)
-                ->update([
-                    'title' => $payload['title'] ?? DB::raw('title'),
-                    'content' => $payload['content'] ?? DB::raw('content'),
-                    'priority' => strtoupper($payload['priority'] ?? 'LOW'),
-                    // no updated_at column in your table (based on your schema)
-                ]);
-        }
+    // ✅ Save news_id back into approval_requests.details
+    $payload['news_id'] = (int) $newNewsId;
+
+    DB::table('approval_requests')->where('id', (int)$id)->update([
+        'details' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+        'updated_at' => now(),
+    ]);
+}
         elseif ($type === 'ANNOUNCEMENT_DELETE') {
             $aid = (int)($payload['announcement_id'] ?? 0);
             if (!$aid) throw new \Exception("Missing announcement_id in request details.");
@@ -191,6 +207,14 @@ DB::table('announcements')->insert([
         'rejection_reason' => $request->input('reason'),
         'updated_at' => now(),
     ]);
+
+    return response()->json(['ok' => true]);
+}
+
+public function destroy($id)
+{
+    $req = \App\Models\ApprovalRequest::findOrFail($id);
+    $req->delete(); // approval_requests ONLY
 
     return response()->json(['ok' => true]);
 }

@@ -766,3 +766,21 @@ body {
   .type-delete{ background:#ffecec; color:#8a1f1f; }
   .type-enable{ background:#e9fbef; color:#1b6b2a; }
   .type-disable{ background:#fff1f1; color:#8a1f1f; }
+
+/* Staff announcements: force title + priority side-by-side */
+.title-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.title-row .announcement-title{
+  margin:0 !important;
+  display:inline-block;
+  width:auto !important;
+}
+
+.title-row .priority-badge{
+  white-space:nowrap;
+}
