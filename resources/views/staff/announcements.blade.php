@@ -214,11 +214,15 @@
                   <i class="fas fa-edit"></i> Edit
                 </button>
 
-                <button class="btn btn-sm {{ $isDisabled ? 'btn-success' : 'btn-warning' }}"
-                        type="button"
-                        onclick="toggleAnnouncementStatus({{ (int)$a->announcement_id }}, '{{ $liveStatus }}')">
-                  <i class="fas {{ $isDisabled ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
-                  {{ $isDisabled ? 'Enable' : 'Disable' }}
+                <button class="btn btn-sm {{ ($a->status ?? '') === 'DISABLED' ? 'btn-success' : 'btn-warning' }}"
+                    type="button"
+                    onclick="requestToggleAnnouncement(
+                        {{ (int)$a->announcement_id }},
+                        '{{ addslashes($a->title ?? '') }}',
+                        '{{ strtoupper($a->status ?? 'ENABLED') }}'
+                    )">
+                    <i class="fas {{ ($a->status ?? '') === 'DISABLED' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                    {{ ($a->status ?? '') === 'DISABLED' ? 'Enable' : 'Disable' }}
                 </button>
 
                 <button class="btn btn-sm btn-delete"
@@ -867,6 +871,52 @@ function deleteApprovalRequestOnly(a, b) {
   })
   .catch(err => alert(err.message));
 }
+
+function requestToggleAnnouncement(announcementId, title, currentStatus) {
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
+  const urlEnable  = document.getElementById('urlReqEnable')?.value;
+  const urlDisable = document.getElementById('urlReqDisable')?.value;
+
+  if (!urlEnable || !urlDisable) {
+    alert('Missing staff toggle URLs. Check hidden inputs urlReqEnable/urlReqDisable.');
+    return;
+  }
+
+  const isDisabled = (String(currentStatus).toUpperCase() === 'DISABLED');
+  const url = isDisabled ? urlEnable : urlDisable;
+
+  const actionLabel = isDisabled ? 'ENABLE' : 'DISABLE';
+  if (!confirm(`Send request to ${actionLabel} this announcement?\n\n"${title}"`)) return;
+
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'X-CSRF-TOKEN': csrf,
+      'Accept': 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      announcement_id: announcementId,
+      title: title
+    })
+  })
+  .then(async (r) => {
+    const text = await r.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch (_) {}
+
+    if (!r.ok) {
+      throw new Error(data.error || data.message || text.slice(0, 200));
+    }
+    if (!data.ok) {
+      throw new Error(data.error || data.message || 'Request failed.');
+    }
+    // ✅ refresh so staff sees updated "My Requests" immediately
+    window.location.reload();
+  })
+  .catch(err => alert('Request toggle failed: ' + err.message));
+}
 </script>
 <div id="toast" style="
   position: fixed;
@@ -885,5 +935,7 @@ function deleteApprovalRequestOnly(a, b) {
 ">
   <div id="toastMsg"></div>
 </div>
+<input type="hidden" id="urlReqEnable" value="{{ route('staff.announcements.requestEnable') }}">
+<input type="hidden" id="urlReqDisable" value="{{ route('staff.announcements.requestDisable') }}">
 </body>
 </html>

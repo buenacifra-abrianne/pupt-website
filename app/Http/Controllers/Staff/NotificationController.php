@@ -30,8 +30,11 @@ class NotificationController extends Controller
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
             })
-            ->where('n.channel', 'SYSTEM')
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
             ->whereNull('nd.user_id')
+            
             ->selectRaw("SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count")
             ->selectRaw("COUNT(*) AS total_count")
             ->first();
@@ -51,7 +54,9 @@ class NotificationController extends Controller
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
             })
-            ->where('n.channel', 'SYSTEM')
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
             ->whereNull('nd.user_id');
 
         // Type
@@ -126,13 +131,15 @@ class NotificationController extends Controller
         // - mark all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
-                ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
-                    $join->on('nd.notification_id', '=', 'n.notification_id')
-                         ->where('nd.user_id', '=', $userId);
-                })
-                ->where('n.channel', 'SYSTEM')
-                ->whereNull('nd.user_id')
-                ->pluck('n.notification_id');
+            ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
+                $join->on('nd.notification_id', '=', 'n.notification_id')
+                    ->where('nd.user_id', '=', $userId);
+            })
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
+            ->whereNull('nd.user_id')
+            ->pluck('n.notification_id');
 
             if ($ids->isNotEmpty()) {
                 $rows = $ids->map(fn ($nid) => [
@@ -172,13 +179,15 @@ class NotificationController extends Controller
         // - clear all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
-                ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
-                    $join->on('nd.notification_id', '=', 'n.notification_id')
-                         ->where('nd.user_id', '=', $userId);
-                })
-                ->where('n.channel', 'SYSTEM')
-                ->whereNull('nd.user_id')
-                ->pluck('n.notification_id');
+            ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
+                $join->on('nd.notification_id', '=', 'n.notification_id')
+                    ->where('nd.user_id', '=', $userId);
+            })
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
+            ->whereNull('nd.user_id')
+            ->pluck('n.notification_id');
 
             if ($ids->isNotEmpty()) {
                 $rows = $ids->map(fn ($nid) => [
@@ -206,5 +215,18 @@ class NotificationController extends Controller
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole = null, ?int $targetUserId = null): void
+    {
+        DB::table('notifications')->insert([
+            'title'         => $title,
+            'message'       => $message,
+            'type'          => strtoupper($type),
+            'channel'       => 'SYSTEM',
+            'target_role'   => $targetRole,     // ADMIN / STAFF
+            'target_user_id'=> $targetUserId,   // only for STAFF
+            'created_at'    => now(),
+        ]);
     }
 }

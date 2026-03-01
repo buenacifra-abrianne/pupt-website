@@ -32,6 +32,7 @@ class NotificationController extends Controller
                     ->where('nd.user_id', '=', $userId);
             })
             ->where('n.channel', 'SYSTEM')
+            ->where('n.target_role', 'ADMIN')
             ->whereNull('nd.user_id')
             ->selectRaw("SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count")
             ->selectRaw("COUNT(*) AS total_count")
@@ -53,6 +54,7 @@ class NotificationController extends Controller
                     ->where('nd.user_id', '=', $userId);
             })
             ->where('n.channel', 'SYSTEM')
+            ->where('n.target_role', 'ADMIN')
             ->whereNull('nd.user_id');
 
         // Type
@@ -210,5 +212,24 @@ class NotificationController extends Controller
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    private function pushSystemNotif(
+    string $type,
+    string $title,
+    string $message,
+    ?string $targetRole,
+    ?int $targetUserId = null
+    ): void
+    {
+        \DB::table('notifications')->insert([
+            'title'          => $title,
+            'message'        => $message,
+            'type'           => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
+            'channel'        => 'SYSTEM',
+            'target_role'    => $targetRole,         // 'ADMIN' or 'STAFF'
+            'target_user_id' => $targetUserId,       // required if STAFF-only
+            'created_at'     => now(),
+        ]);
     }
 }

@@ -175,11 +175,20 @@ class ApprovalsController extends Controller
             'updated_at' => now(),
         ]);
 
-        $this->pushSystemNotif(
-            'PRIMARY',
-            'Approval request approved',
-            ($row->requester_name ?: $row->requester_email) . " request was APPROVED: {$type} — " . ($row->title ?? 'Request')
-        );
+        // 🔔 Notify ONLY the requester staff
+        $staffUser = DB::table('users')
+            ->where('email', $row->requester_email)
+            ->first();
+
+        if ($staffUser) {
+            $this->pushSystemNotif(
+                'PRIMARY',
+                'Request Approved',
+                'Your request was approved.',
+                'STAFF',
+                (int)($staffUser->user_id ?? $staffUser->id ?? 0)
+            );
+        }
 
         DB::commit();
         return response()->json(['ok' => true]);
@@ -214,15 +223,23 @@ class ApprovalsController extends Controller
         'updated_at' => now(),
     ]);
 
+    $staffUser = DB::table('users')
+    ->where('email', $row->requester_email)
+    ->first();
+
+    if ($staffUser) {
+        $this->pushSystemNotif(
+            'DANGER',
+            'Request Rejected',
+            'Your request was rejected.',
+            'STAFF',
+            (int)($staffUser->user_id ?? $staffUser->id ?? 0)
+        );
+    }
+
     $reason = trim((string)$request->input('reason'));
     $msg = ($row->requester_name ?: $row->requester_email) . " request was REJECTED: " . (strtoupper((string)$row->type)) . " — " . ($row->title ?? 'Request');
     if ($reason !== '') $msg .= " | Reason: {$reason}";
-
-    $this->pushSystemNotif(
-        'WARNING',
-        'Approval request rejected',
-        $msg
-    );
 
     return response()->json(['ok' => true]);
 }

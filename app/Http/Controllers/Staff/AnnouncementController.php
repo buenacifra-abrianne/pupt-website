@@ -273,28 +273,57 @@ class AnnouncementController extends Controller
 
         // ✅ update existing request row (prevents duplicates)
         if ($requestId) {
-            DB::table('approval_requests')
-                ->where('id', $requestId)
-                ->where('requester_email', $email)
-                ->update($data);
 
-            // ✅ notif: resubmitted / updated request -> pending
-            $this->pushSystemNotif(
-                'INFO',
-                'Approval request re-submitted',
-                "{$name} re-submitted a request: {$type} — {$title} (Status: PENDING)"
-            );
-        } else {
-            $data['created_at'] = now();
-            DB::table('approval_requests')->insert($data);
+    DB::table('approval_requests')
+        ->where('id', $requestId)
+        ->where('requester_email', $email)
+        ->update($data);
 
-            // ✅ notif: new request -> pending
-            $this->pushSystemNotif(
-                'INFO',
-                'Approval request submitted',
-                "{$name} submitted a request: {$type} — {$title} (Status: PENDING)"
-            );
-        }
+    // ADMIN notif
+    $this->pushSystemNotif(
+        'INFO',
+        'New Approval Request',
+        "{$name} re-submitted a request.",
+        'ADMIN',
+        null
+    );
+
+    $userId = (int)(session('user_id') ?? 0);
+
+    // STAFF notif (FIXED)
+    $this->pushSystemNotif(
+        'INFO',
+        'Request Submitted',
+        "Your request is now PENDING.",
+        'STAFF',
+        $userId
+    );
+
+} else {
+
+    $data['created_at'] = now();
+    DB::table('approval_requests')->insert($data);
+
+    // ADMIN notif
+    $this->pushSystemNotif(
+        'INFO',
+        'New Approval Request',
+        "{$name} submitted a request.",
+        'ADMIN',
+        null
+    );
+
+    $userId = (int)(session('user_id') ?? 0);
+
+    // STAFF notif (FIXED)
+    $this->pushSystemNotif(
+        'INFO',
+        'Request Submitted',
+        "Your request is now PENDING.",
+        'STAFF',
+        $userId
+    );
+}
 
         return response()->json(['ok' => true]);
     }
@@ -321,14 +350,16 @@ class AnnouncementController extends Controller
     return response()->json(['ok' => true]);
 }
 
-private function pushSystemNotif(string $type, string $title, string $message): void
-{
-    \DB::table('notifications')->insert([
-        'title'      => $title,
-        'message'    => $message,
-        'type'       => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
-        'channel'    => 'SYSTEM',
-        'created_at' => now(),
-    ]);
-}
+    private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole, ?int $targetUserId = null): void
+    {
+        DB::table('notifications')->insert([
+            'title'          => $title,
+            'message'        => $message,
+            'type'           => strtoupper($type),
+            'channel'        => 'SYSTEM',
+            'target_role'    => $targetRole,
+            'target_user_id' => $targetUserId,
+            'created_at'     => now(),
+        ]);
+    }
 }

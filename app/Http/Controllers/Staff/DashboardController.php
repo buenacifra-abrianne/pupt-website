@@ -52,7 +52,9 @@ class DashboardController extends Controller
             'nr.read_at'
         )
         ->where('n.channel', 'SYSTEM')
-        ->whereNull('nd.user_id') // hide dismissed for this user
+        ->where('n.target_role', 'STAFF')      // ✅ only staff-targeted
+        ->where('n.target_user_id', $userId)   // ✅ only this staff
+        ->whereNull('nd.user_id')
         ->orderBy('n.created_at', 'desc')
         ->limit(6)
         ->get();

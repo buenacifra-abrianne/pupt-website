@@ -47,6 +47,7 @@ class DashboardController extends Controller
         'nr.read_at'
     )
     ->where('n.channel', 'SYSTEM')
+    ->where('n.target_role', 'ADMIN')
     ->whereNull('nd.user_id') // hide dismissed for this user
     ->orderBy('n.created_at', 'desc')
     ->limit(6)
