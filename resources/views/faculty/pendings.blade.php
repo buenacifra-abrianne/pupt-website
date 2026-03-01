@@ -169,7 +169,7 @@
                                     <td style="padding:10px;">
                                         <button type="button"
                                         class="btn btn-sm btn-primary"
-                                        onclick='openDetails(@json($item->title), @json($item->type), @json($item->details))'>
+                                        onclick='openDetails(@json($item->display_title), @json($item->display_priority), @json($item->display_content))'>
                                         <i class="fas fa-eye"></i> View
                                         </button>
                                     </td>
@@ -244,13 +244,15 @@
 
     <div style="padding: 10px 0;">
       <div style="margin-bottom:10px;">
-        <div style="opacity:.7;font-size:13px;">Title</div>
-        <div style="font-weight:700;font-size:18px;" id="dTitle">—</div>
-      </div>
+  <div style="opacity:.7;font-size:13px;">Title</div>
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
-        <span class="priority-badge priority-medium" id="dPriority">Priority: —</span>
-      </div>
+  <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+    <div style="font-weight:700;font-size:18px;" id="dTitle">—</div>
+
+    {{-- badge moved beside title --}}
+    <span class="priority-badge priority-medium" id="dPriority">Priority: —</span>
+  </div>
+</div>
 
       <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Content / Details</div>
       <div id="dContent" style="white-space:pre-wrap; background:#f7f7f7; border-radius:12px; padding:12px;">
@@ -270,24 +272,36 @@
 
     // ✅ AJAX POST expecting JSON
     async function postJson(url, data = {}) {
-        const res = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'X-CSRF-TOKEN': token,
-                'X-Requested-With': 'XMLHttpRequest'
-            },
-            body: new URLSearchParams(data)
-        });
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+      'X-CSRF-TOKEN': token,
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json'
+    },
+    body: new URLSearchParams(data)
+  });
 
-        const raw = await res.text();
-        let json;
-        try { json = JSON.parse(raw); }
-        catch (e) { throw new Error("Non-JSON response: " + raw); }
+  const raw = await res.text();
 
-        if (!res.ok || !json.ok) throw new Error(json.error || "Request failed");
-        return json;
-    }
+  let json = null;
+  try { json = JSON.parse(raw); } catch (e) {}
+
+  // If server didn't return JSON, show useful snippet
+  if (!json) {
+    throw new Error(`Non-JSON response (HTTP ${res.status}): ` + raw.slice(0, 180));
+  }
+
+  // Accept either {ok:true} or {success:true}
+  const success = (json.ok === true) || (json.success === true);
+
+  if (!res.ok || !success) {
+    throw new Error(json.error || json.message || `Request failed (HTTP ${res.status})`);
+  }
+
+  return json;
+}
 
     // ✅ simple toast
     function showToast(message, ms = 2200) {
@@ -382,25 +396,32 @@ function prettyType(rawType) {
   return m[key] || rawType || 'General';
 }
 
-function openDetails(title, type, detailsRaw) {
+function openDetails(title, priority, content) {
   const modal = document.getElementById('detailsModal');
   modal.classList.add('active');
 
   document.getElementById('dTitle').textContent = title || '—';
 
-  // parse JSON details safely
-  let payload = {};
-  try {
-    payload = detailsRaw ? JSON.parse(detailsRaw) : {};
-  } catch (e) {
-    payload = {};
+  // always show priority (kahit blank -> —)
+  const badge = document.getElementById('dPriority');
+  badge.classList.remove('priority-high','priority-medium','priority-low');
+
+  const pr = String(priority || '').toUpperCase();
+  if (pr === 'HIGH' || pr === 'MEDIUM' || pr === 'LOW') {
+    badge.textContent = 'Priority: ' + pr;
+    badge.classList.add('priority-' + pr.toLowerCase());
+  } else {
+    badge.textContent = 'Priority: —';
+    badge.classList.add('priority-medium');
   }
 
-  const pr = String(payload.priority || '').toUpperCase();
-  document.getElementById('dPriority').textContent = 'Priority: ' + (pr || '—');
+  document.getElementById('dContent').textContent = content || '—';
+}
 
-  const content = payload.content || payload.details || '';
-  document.getElementById('dContent').textContent = content || (detailsRaw || '—');
+function formatValue(v) {
+  if (v === null || v === undefined) return '—';
+  if (typeof v === 'object') return JSON.stringify(v);
+  return String(v);
 }
 
 // click outside to close (optional)

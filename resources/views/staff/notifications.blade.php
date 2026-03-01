@@ -65,7 +65,7 @@
         <i class="fas fa-bars"></i>
       </button>
 
-      <form class="search-bar" method="GET" action="{{ route('faculty.notifications') }}">
+      <form class="search-bar" method="GET" action="{{ route('staff.notifications') }}">
         <i class="fas fa-search"></i>
         <input name="q" value="{{ $q }}" type="text" placeholder="Search notifications...">
         <input type="hidden" name="type" value="{{ $typeFilter }}">
@@ -135,7 +135,7 @@
         </div>
 
         <div style="padding:0;">
-          <form class="filter-bar" method="GET" action="{{ route('faculty.notifications') }}">
+          <form class="filter-bar" method="GET" action="{{ route('staff.notifications') }}">
             <select name="type">
               <option value="ALL" {{ $typeFilter==='ALL' ? 'selected' : '' }}>All Types</option>
               <option value="INFO" {{ $typeFilter==='INFO' ? 'selected' : '' }}>Info</option>
@@ -289,7 +289,7 @@
     window.markNotificationRead = async function (id, btn) {
       try {
         btn.disabled = true;
-        await postJSON("{{ route('faculty.notifications.markRead') }}", { id });
+        await postJSON("{{ route('staff.notifications.markRead') }}", { id });
 
         const item = btn.closest('.notification-item');
         if (item) item.classList.remove('unread');
@@ -304,7 +304,7 @@
       if (!confirm("Delete this notification?")) return;
       try {
         btn.disabled = true;
-        await postJSON("{{ route('faculty.notifications.delete') }}", { id });
+        await postJSON("{{ route('staff.notifications.delete') }}", { id });
 
         const item = btn.closest('.notification-item');
         if (item) item.remove();
@@ -317,7 +317,7 @@
     window.markAllRead = async function () {
       if (!confirm("Mark ALL notifications as read?")) return;
       try {
-        await postJSON("{{ route('faculty.notifications.markRead') }}", { all: 1 });
+        await postJSON("{{ route('staff.notifications.markRead') }}", { all: 1 });
         location.reload();
       } catch (err) {
         alert("Mark all as read failed: " + err.message);
@@ -327,7 +327,7 @@
     window.clearAll = async function () {
       if (!confirm("Delete ALL notifications? This cannot be undone.")) return;
       try {
-        await postJSON("{{ route('faculty.notifications.delete') }}", { all: 1 });
+        await postJSON("{{ route('staff.notifications.delete') }}", { all: 1 });
         location.reload();
       } catch (err) {
         alert("Clear all failed: " + err.message);

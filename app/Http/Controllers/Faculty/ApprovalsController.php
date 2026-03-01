@@ -31,6 +31,51 @@ class ApprovalsController extends Controller
 
         $pending = $query->paginate(10)->withQueryString();
 
+        // ✅ Attach display fields for modal "View" (so enable/disable/delete shows real announcement data)
+$pending->getCollection()->transform(function ($item) {
+    $type = strtoupper((string)($item->type ?? ''));
+    $payload = json_decode($item->details ?? '{}', true) ?: [];
+
+    // default: use request payload (create/update)
+    $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
+    $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
+    $displayContent = $payload['content'] ?? ($payload['details'] ?? '');
+
+    // ✅ For actions that reference an existing announcement,
+    // show the REAL announcement data from announcements table
+    if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
+        $aid = (int)($payload['announcement_id'] ?? 0);
+        if ($aid > 0) {
+            $a = \DB::table('announcements')->where('announcement_id', $aid)->first();
+            if ($a) {
+                $displayTitle = (string)($a->title ?? $displayTitle);
+                $displayPriority = strtoupper((string)($a->priority ?? $displayPriority));
+                $displayContent = (string)($a->content ?? $displayContent);
+            }
+        }
+    }
+
+    // Optional: NEWS_DELETE show real news content
+    if (in_array($type, ['NEWS_DELETE'], true)) {
+        $nid = (int)($payload['news_id'] ?? 0);
+        if ($nid > 0) {
+            $n = \DB::table('news')->where('news_id', $nid)->first();
+            if ($n) {
+                $displayTitle = (string)($n->title ?? $displayTitle);
+                $displayPriority = ''; // news has no priority usually
+                $displayContent = (string)($n->content ?? $displayContent);
+            }
+        }
+    }
+
+    // attach to row for blade
+    $item->display_title = $displayTitle;
+    $item->display_priority = $displayPriority;
+    $item->display_content = $displayContent;
+
+    return $item;
+});
+
         $types = ApprovalRequest::select('type')
             ->distinct()
             ->pluck('type');
@@ -176,19 +221,31 @@ class ApprovalsController extends Controller
         ]);
 
         // 🔔 Notify ONLY the requester staff
-        $staffUser = DB::table('users')
-            ->where('email', $row->requester_email)
-            ->first();
+        // 🔔 Notify ONLY the requester staff (robust user id lookup)
+$reqEmail = strtolower(trim((string)($row->requester_email ?? '')));
 
-        if ($staffUser) {
-            $this->pushSystemNotif(
-                'PRIMARY',
-                'Request Approved',
-                'Your request was approved.',
-                'STAFF',
-                (int)($staffUser->user_id ?? $staffUser->id ?? 0)
-            );
-        }
+// try user_id first (your app seems to use user_id)
+$reqUserId = (int) DB::table('users')
+    ->whereRaw('LOWER(email) = ?', [$reqEmail])
+    ->value('user_id');
+
+// fallback if the PK is 'id'
+if ($reqUserId <= 0) {
+    $reqUserId = (int) DB::table('users')
+        ->whereRaw('LOWER(email) = ?', [$reqEmail])
+        ->value('id');
+}
+
+// ✅ If still 0, do nothing (cannot target a staff user)
+if ($reqUserId > 0) {
+    $this->pushSystemNotif(
+        'PRIMARY',
+        'Request Approved',
+        'Your request was approved.',
+        'STAFF',
+        $reqUserId
+    );
+}
 
         DB::commit();
         return response()->json(['ok' => true]);
@@ -223,19 +280,27 @@ class ApprovalsController extends Controller
         'updated_at' => now(),
     ]);
 
-    $staffUser = DB::table('users')
-    ->where('email', $row->requester_email)
-    ->first();
+    $reqEmail = strtolower(trim((string)($row->requester_email ?? '')));
 
-    if ($staffUser) {
-        $this->pushSystemNotif(
-            'DANGER',
-            'Request Rejected',
-            'Your request was rejected.',
-            'STAFF',
-            (int)($staffUser->user_id ?? $staffUser->id ?? 0)
-        );
-    }
+$reqUserId = (int) DB::table('users')
+    ->whereRaw('LOWER(email) = ?', [$reqEmail])
+    ->value('user_id');
+
+if ($reqUserId <= 0) {
+    $reqUserId = (int) DB::table('users')
+        ->whereRaw('LOWER(email) = ?', [$reqEmail])
+        ->value('id');
+}
+
+if ($reqUserId > 0) {
+    $this->pushSystemNotif(
+        'DANGER',
+        'Request Rejected',
+        'Your request was rejected.',
+        'STAFF',
+        $reqUserId
+    );
+}
 
     $reason = trim((string)$request->input('reason'));
     $msg = ($row->requester_name ?: $row->requester_email) . " request was REJECTED: " . (strtoupper((string)$row->type)) . " — " . ($row->title ?? 'Request');
@@ -252,14 +317,22 @@ public function destroy($id)
     return response()->json(['ok' => true]);
 }
 
-private function pushSystemNotif(string $type, string $title, string $message): void
+private function pushSystemNotif(
+    string $type,
+    string $title,
+    string $message,
+    ?string $targetRole = null,
+    ?int $targetUserId = null
+): void
 {
-    \DB::table('notifications')->insert([
-        'title'      => $title,
-        'message'    => $message,
-        'type'       => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
-        'channel'    => 'SYSTEM',
-        'created_at' => now(),
+    DB::table('notifications')->insert([
+        'title'          => $title,
+        'message'        => $message,
+        'type'           => strtoupper($type),
+        'channel'        => 'SYSTEM',
+        'target_role'    => $targetRole,
+        'target_user_id' => $targetUserId,
+        'created_at'     => now(),
     ]);
 }
 }

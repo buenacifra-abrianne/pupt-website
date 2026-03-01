@@ -124,7 +124,7 @@
     {{-- LEFT: MANAGE --}}
     <div class="card">
       <div class="card-header">
-        <h3 class="card-title">Manage Announcements</h3>
+        <h3 class="card-title"> Announcement Requests</h3>
         <button class="btn btn-primary" onclick="openAnnouncementModal(true)">
           <i class="fas fa-plus"></i> Request New Announcement
         </button>
@@ -185,17 +185,17 @@
             <div class="announcement-item {{ $isDisabled ? 'disabled' : '' }} {{ strtolower($prio) }}-priority"
                  style="margin-bottom: 14px;">
 
-              <div class="announcement-header">
-  <div class="title-row">
-    <h3 class="announcement-title">
-      {{ e($a->title) }}
-    </h3>
+                <div class="announcement-header">
+                    <div class="title-row">
+                        <h3 class="announcement-title">
+                        {{ e($a->title) }}
+                        </h3>
 
-    <span class="priority-badge priority-{{ strtolower($announcement->priority ?? 'low') }}">
-      {{ ucfirst(strtolower($announcement->priority ?? 'low')) }} Priority
-    </span>
-  </div>
-</div>
+                        <span class="priority-badge priority-{{ strtolower($a->priority ?? 'low') }}">
+                        {{ ucfirst(strtolower($a->priority ?? 'low')) }} Priority
+                        </span>
+                    </div>
+                </div>
 
               <p class="announcement-description">{{ e($a->content ?? '') }}</p>
 

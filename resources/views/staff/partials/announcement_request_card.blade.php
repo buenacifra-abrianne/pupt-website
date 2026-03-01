@@ -3,9 +3,35 @@
 
   $reqId = (int) $row->id;
   $type  = strtoupper((string)$row->type);
-  $title = $payload['title'] ?? $row->title ?? 'Request';
-  $content = $payload['content'] ?? '';
-  $priority = strtoupper($payload['priority'] ?? 'LOW');
+
+  $typeLabel = match($type) {
+    'ANNOUNCEMENT_UPDATE'  => 'Edit Request',
+    'ANNOUNCEMENT_DELETE'  => 'Delete Request',
+    'ANNOUNCEMENT_ENABLE'  => 'Enable Request',
+    'ANNOUNCEMENT_DISABLE' => 'Disable Request',
+    'ANNOUNCEMENT_CREATE'  => 'Create Request',
+    'NEWS_UPDATE'          => 'Edit News Request',
+    'NEWS_DELETE'          => 'Delete News Request',
+    'NEWS_CREATE'          => 'Create News Request',
+    default => 'Request',
+  };
+
+$title = $payload['title'] ?? $row->title ?? 'Request';
+$content = $payload['content'] ?? '';
+$priority = strtoupper($payload['priority'] ?? 'LOW');
+
+// ✅ If this request targets an existing announcement (enable/disable/delete/update),
+// show LIVE announcement title/priority/content on the card.
+$targetAnnId = (int)($payload['announcement_id'] ?? 0);
+
+if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_UPDATE'], true)) {
+  $live = \DB::table('announcements')->where('announcement_id', $targetAnnId)->first();
+  if ($live) {
+    $title = (string)($live->title ?? $title);
+    $content = (string)($live->content ?? $content);
+    $priority = strtoupper((string)($live->priority ?? $priority));
+  }
+}
 
   $reqStatus = strtolower(trim((string)$row->status));
   $statusClass = $reqStatus;
@@ -33,23 +59,30 @@
 
   <div class="announcement-header">
   <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-    <div>
+
+    {{-- LEFT SIDE: Title + Priority inline --}}
+    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
       <h3 class="announcement-title" style="margin:0;">
         {{ e($title) }}
       </h3>
 
-      <div style="margin-top:6px;">
-        <span class="priority-badge priority-{{ strtolower($priority) }}">
-          {{ ucfirst(strtolower($priority)) }} Priority
-        </span>
-
-        @if(!empty($db_status))
-          <span class="status-badge status-{{ strtolower($db_status) }}">
-            {{ ucfirst(strtolower($db_status)) }}
-          </span>
-        @endif
-      </div>
+      <span class="priority-badge priority-{{ strtolower($priority) }}">
+        {{ ucfirst(strtolower($priority)) }} Priority
+      </span>
     </div>
+
+    {{-- RIGHT SIDE: Request Type --}}
+    <span style="
+      font-size:12px;
+      padding:6px 10px;
+      border-radius:999px;
+      background:#f2f3f5;
+      color:#333;
+      white-space:nowrap;
+    ">
+      {{ $typeLabel }}
+    </span>
+
   </div>
 </div>
 
