@@ -468,6 +468,7 @@
 
         if (!res.ok || !json.ok) {
             throw new Error(json.error || ("Request failed (" + res.status + ")"));
+            window.location.reload();
         }
         return json;
     }
@@ -862,6 +863,7 @@ function deleteApprovalRequestOnly(a, b) {
     const card = btn.closest('.announcement-item');
     if (card) card.remove();
     alert('Request deleted.');
+    window.location.reload();
   })
   .catch(err => alert(err.message));
 }

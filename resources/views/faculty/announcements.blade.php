@@ -149,15 +149,11 @@
                             data-search="{{ e(strtolower($row->title.' '.$row->content.' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
 
                             <div class="announcement-header">
-                                <div>
+                                <div class="title-row">
                                     <h3 class="announcement-title">{{ e($row->title) }}</h3>
 
                                     <span class="priority-badge priority-{{ strtolower($row->priority) }}">
-                                        {{ ucfirst(strtolower($row->priority)) }} Priority
-                                    </span>
-
-                                    <span class="status-badge status-{{ strtolower($db_status) }}">
-                                        {{ ucfirst(strtolower($db_status)) }}
+                                    {{ ucfirst(strtolower($row->priority)) }} Priority
                                     </span>
                                 </div>
                             </div>
@@ -173,7 +169,7 @@
 
                                 <span>
                                     <i class="fas fa-user"></i>
-                                    By: {{ e(session('admin_role') ?? 'Administration') }}
+                                    By: {{ e(session('user_name') ?? '') }}
                                 </span>
                             </div>
 

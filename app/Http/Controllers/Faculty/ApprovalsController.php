@@ -175,6 +175,12 @@ class ApprovalsController extends Controller
             'updated_at' => now(),
         ]);
 
+        $this->pushSystemNotif(
+            'PRIMARY',
+            'Approval request approved',
+            ($row->requester_name ?: $row->requester_email) . " request was APPROVED: {$type} — " . ($row->title ?? 'Request')
+        );
+
         DB::commit();
         return response()->json(['ok' => true]);
 
@@ -208,6 +214,16 @@ class ApprovalsController extends Controller
         'updated_at' => now(),
     ]);
 
+    $reason = trim((string)$request->input('reason'));
+    $msg = ($row->requester_name ?: $row->requester_email) . " request was REJECTED: " . (strtoupper((string)$row->type)) . " — " . ($row->title ?? 'Request');
+    if ($reason !== '') $msg .= " | Reason: {$reason}";
+
+    $this->pushSystemNotif(
+        'WARNING',
+        'Approval request rejected',
+        $msg
+    );
+
     return response()->json(['ok' => true]);
 }
 
@@ -217,5 +233,16 @@ public function destroy($id)
     $req->delete(); // approval_requests ONLY
 
     return response()->json(['ok' => true]);
+}
+
+private function pushSystemNotif(string $type, string $title, string $message): void
+{
+    \DB::table('notifications')->insert([
+        'title'      => $title,
+        'message'    => $message,
+        'type'       => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
+        'channel'    => 'SYSTEM',
+        'created_at' => now(),
+    ]);
 }
 }

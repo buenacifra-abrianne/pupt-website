@@ -277,9 +277,23 @@ class AnnouncementController extends Controller
                 ->where('id', $requestId)
                 ->where('requester_email', $email)
                 ->update($data);
+
+            // ✅ notif: resubmitted / updated request -> pending
+            $this->pushSystemNotif(
+                'INFO',
+                'Approval request re-submitted',
+                "{$name} re-submitted a request: {$type} — {$title} (Status: PENDING)"
+            );
         } else {
             $data['created_at'] = now();
             DB::table('approval_requests')->insert($data);
+
+            // ✅ notif: new request -> pending
+            $this->pushSystemNotif(
+                'INFO',
+                'Approval request submitted',
+                "{$name} submitted a request: {$type} — {$title} (Status: PENDING)"
+            );
         }
 
         return response()->json(['ok' => true]);
@@ -305,5 +319,16 @@ class AnnouncementController extends Controller
     $req->delete();
 
     return response()->json(['ok' => true]);
+}
+
+private function pushSystemNotif(string $type, string $title, string $message): void
+{
+    \DB::table('notifications')->insert([
+        'title'      => $title,
+        'message'    => $message,
+        'type'       => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
+        'channel'    => 'SYSTEM',
+        'created_at' => now(),
+    ]);
 }
 }
