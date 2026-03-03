@@ -113,7 +113,7 @@
             </button>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search announcements...">
+                <input type="text" id="globalSearch" placeholder="Search...">
             </div>
         </div>
 
@@ -252,90 +252,138 @@
 </div>
 
         <!-- News Tab -->
-        <div id="news" class="tab-content">
-            <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage News</h3>
-                    <button class="btn btn-primary" onclick="openNewsModal(true)">
-                        <i class="fas fa-plus"></i> Request New News Article
-                    </button>
-                </div>
+<div id="news" class="tab-content">
+  <div style="display:grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items:start;">
 
-                <div class="news-grid">
-                    @php
-                        $newsReqs = $myRequests->filter(fn($r) =>
-                            in_array($r->type, ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
-                        );
-                    @endphp
+    {{-- LEFT: REQUESTS --}}
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">News Requests</h3>
+        <button class="btn btn-primary" onclick="openNewsModal(true)">
+          <i class="fas fa-plus"></i> Request New News Article
+        </button>
+      </div>
 
-                    @foreach($newsReqs as $news)
-                        @php
-                            $payload = json_decode($news->details ?? '{}', true) ?: [];
+      @php
+        $newsReqs = $myRequests->filter(fn($r) =>
+          in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
+        );
 
-                            $title = $payload['title'] ?? $news->title ?? 'Request';
-                            $content = $payload['content'] ?? '';
-                            $category = $payload['category'] ?? 'Other';
-                            $location = $payload['location'] ?? '';
-                            $reqStatus = strtolower(trim((string)$news->status)); // pending/approved/rejected
-                            $statusClass = $reqStatus;
+        $pendingNewsReqs  = $newsReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'pending');
+        $rejectedNewsReqs = $newsReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'rejected');
+      @endphp
 
-                            $searchHay = strtolower($title.' '.$content.' '.$category.' '.$location.' '.$reqStatus.' '.(($news->rejection_reason ?? '')));
-                        @endphp
+      <div style="padding: 12px;">
+        <h4 style="margin:0 0 10px 0;">Pending</h4>
 
-                        <div class="news-card"
-                            data-search="{{ e($searchHay) }}">
-
-                            <div class="news-image">
-                                <i class="fas fa-newspaper"></i>
-                            </div>
-
-                            <div class="news-content">
-                                <span class="news-category">{{ e($category) }}</span>
-
-                                <h3 class="news-title">
-                                    {{ e($title) }}
-
-                                    {{-- ✅ status beside title (colors come from your css status-badge classes) --}}
-                                    <span class="status-badge status-{{ $statusClass }}" style="margin-left:10px;">
-                                        {{ ucfirst($reqStatus) }}
-                                    </span>
-                                </h3>
-
-                                <div class="news-meta">
-                                    <span><i class="fas fa-map-marker-alt"></i> {{ e($location) }}</span>
-                                </div>
-
-                                <div class="news-actions">
-                                    <button type="button" class="btn btn-sm btn-primary"
-                                        onclick="editNews(
-                                            '{{ $payload['news_id'] ?? '' }}',
-                                            '{{ addslashes($title) }}',
-                                            '{{ addslashes($content) }}',
-                                            '{{ addslashes($category) }}',
-                                            '{{ addslashes($location) }}'
-                                        )">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-
-                                    <button type="button" class="btn btn-sm btn-delete"
-                                        onclick="deleteNews({{ (int)($payload['news_id'] ?? 0) }}, '{{ addslashes($title) }}')">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </div>
-
-                                @if($statusClass === 'rejected' && !empty($news->rejection_reason))
-                                    <div style="margin-top:10px;padding:10px;border-radius:10px;background:#ffecec;color:#8a1f1f;">
-                                        <strong>Rejected reason:</strong> {{ e($news->rejection_reason) }}
-                                    </div>
-                                @endif
-                            </div>
-
-                        </div>
-                    @endforeach
-                </div>
-
-            </div>
+        <div id="newsRequestsList">
+          @forelse($pendingNewsReqs as $row)
+            @include('staff.partials.news_request_card', ['row' => $row])
+          @empty
+            <div style="padding: 14px; opacity:.75;">No pending news requests.</div>
+          @endforelse
         </div>
+
+        <hr style="opacity:.2; margin: 16px 0;">
+
+        <h4 style="margin:0 0 10px 0;">Rejected</h4>
+
+        <div>
+          @forelse($rejectedNewsReqs as $row)
+            @include('staff.partials.news_request_card', ['row' => $row])
+          @empty
+            <div style="padding: 14px; opacity:.75;">No rejected news requests.</div>
+          @endforelse
+        </div>
+      </div>
+    </div>
+
+    {{-- RIGHT: LIVE --}}
+    <div class="card">
+      <div class="card-header">
+        <h3 class="card-title">Live (Approved)</h3>
+        <span class="status-badge status-enabled">
+          Total: {{ isset($myNews) ? $myNews->count() : 0 }}
+        </span>
+      </div>
+
+      <div style="padding: 12px;">
+        @if(isset($myNews) && $myNews->count())
+          @foreach($myNews as $n)
+            @php
+              $imgUrl = !empty($n->image_path) ? asset('storage/' . ltrim($n->image_path,'/')) : null;
+            @endphp
+
+            <div class="announcement-item style="margin-bottom:14px;">
+              <div class="announcement-header">
+                <div class="title-row">
+                  <h3 class="announcement-title">{{ e($n->title) }}</h3>
+                  <div style="display:flex; gap:14px; font-size:13px; opacity:.8; margin-top:6px; flex-wrap:wrap;">
+  @if($n->category)
+    <span>
+      <i class="fas fa-tag" style="margin-right:4px;"></i>
+      {{ e($n->category) }}
+    </span>
+  @endif
+
+  @if($n->location)
+    <span>
+      <i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>
+      {{ e($n->location) }}
+    </span>
+  @endif
+</div>
+                </div>
+              </div>
+
+              @if($imgUrl)
+  <div style="margin: 10px 0;">
+    <img src="{{ $imgUrl }}" alt="news image"
+         style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
+  </div>
+@endif
+
+              <p class="announcement-description">{{ e($n->content ?? '') }}</p>
+
+              <div class="announcement-actions">
+                <button class="btn btn-sm btn-primary"
+                  type="button"
+                  onclick="editNews(
+                  {{ (int)$n->news_id }},
+                  '{{ addslashes($n->title ?? '') }}',
+                  '{{ addslashes($n->content ?? '') }}',
+                  '{{ addslashes($n->category ?? '') }}',
+                  '{{ addslashes($n->location ?? '') }}',
+                  '{{ $n->image_path ? addslashes($n->image_path) : '' }}',
+                  '{{ $imgUrl ? addslashes($imgUrl) : '' }}'
+                )">
+                  <i class="fas fa-edit"></i> Edit
+                </button>
+
+                <button class="btn btn-sm btn-delete"
+                  type="button"
+                  onclick="deleteNews({{ (int)$n->news_id }}, '{{ addslashes($n->title ?? '') }}')">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+          @endforeach
+        @else
+          <div style="padding: 14px; opacity:.75;">No live news yet.</div>
+        @endif
+      </div>
+    </div>
+
+  </div>
+
+  <style>
+    @media (max-width: 980px){
+      #news.tab-content.active > div[style*="grid-template-columns"]{
+        grid-template-columns: 1fr !important;
+      }
+    }
+  </style>
+</div>
     </main>
 
     <!-- Announcement Modal -->
@@ -421,9 +469,46 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Featured Image</label>
-                    <input type="file" id="imageUpload" name="image" accept="image/*">
-                </div>
+  <label><i class="fas fa-image"></i> Featured Image</label>
+
+  <div class="image-preview-container" id="newsImagePreview"
+       style="border:1px dashed rgba(0,0,0,.25); border-radius:14px; padding:12px; min-height:170px;
+              display:flex; align-items:center; justify-content:center; background:#fafafa; overflow:hidden;">
+
+    <div class="no-image-placeholder" id="newsNoImage"
+         style="text-align:center; opacity:.75;">
+      <i class="fas fa-image" style="font-size:28px; margin-bottom:6px;"></i>
+      <p style="margin:0;">No image uploaded</p>
+    </div>
+
+    <img id="newsPreviewImg" src="" alt="Preview"
+         style="display:none; width:100%; height:220px; object-fit:cover; border-radius:12px;">
+  </div>
+
+  <div class="image-actions" style="display:flex; gap:10px; margin-top:10px;">
+    <input type="file"
+           id="newsImageInput"
+           name="image"
+           accept="image/*"
+           style="display:none;"
+           onchange="handleNewsImagePick(this)">
+
+    <button type="button" class="btn btn-sm btn-primary"
+            onclick="document.getElementById('newsImageInput').click()">
+      <i class="fas fa-upload"></i> Upload Image
+    </button>
+
+    <button type="button" class="btn btn-sm btn-delete"
+            id="newsRemoveImageBtn"
+            style="display:none;"
+            onclick="clearNewsImage()">
+      <i class="fas fa-trash"></i> Remove
+    </button>
+  </div>
+
+  {{-- stores current image path when editing (from DB). No file upload here. --}}
+  <input type="hidden" id="news_existing_image_path" name="existing_image_path" value="">
+</div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeNewsModal()" style="background: #ccc;">
@@ -564,15 +649,22 @@
 
         if (isNew) {
             form.reset();
+            setNewsPreview('');
+            document.getElementById('news_existing_image_path').value = '';
+            document.getElementById('newsRemoveImageBtn').style.display = 'none';
             form.action = "{{ route('staff.news.requestCreate') }}";
             if (modalTitle) modalTitle.innerText = "New News Article";
             if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
 
+            const fileInput = document.getElementById('newsImageInput');
+            if (fileInput) fileInput.value = '';
+
             const idInput = document.getElementById('edit_news_id');
             if (idInput) idInput.remove();
 
-            const fileInput = document.getElementById('imageUpload');
-            if (fileInput) fileInput.value = '';
+            const reqInput = document.getElementById('edit_news_request_id');
+            if (reqInput) reqInput.remove();
+
         }
     }
 
@@ -580,38 +672,113 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
-    function editNews(id, title, content, category, location) {
-        const modal = document.getElementById('newsModal');
-        const form = document.getElementById('newsForm');
-        const modalTitle = modal.querySelector('.modal-title');
-        const submitBtn = document.getElementById('newsSubmitBtn');
+    function editNews(id, title, content, category, location, imagePath, imageUrl) {
+  id = parseInt(id, 10);
+  if (!id || id <= 0) {
+    alert("This request has no News ID yet. You can't submit an UPDATE. Please submit it as CREATE first (wait for admin approval), then edit from Live.");
+    return;
+  }
 
-        modal.classList.add('active');
-        if (modalTitle) modalTitle.innerText = "Edit News Article";
-        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
+  const modal = document.getElementById('newsModal');
+  const form = document.getElementById('newsForm');
+  const modalTitle = modal.querySelector('.modal-title');
+  const submitBtn = document.getElementById('newsSubmitBtn');
 
-        form.action = "{{ route('staff.news.requestUpdate') }}";
+  modal.classList.add('active');
+  if (modalTitle) modalTitle.innerText = "Edit News Article";
+  if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
 
-        form.querySelector('[name="title"]').value = title;
-        form.querySelector('[name="content"]').value = content;
-        form.querySelector('[name="category"]').value = category;
-        form.querySelector('[name="location"]').value = location;
+  form.action = "{{ route('staff.news.requestUpdate') }}";
 
-        let idInput = document.getElementById('edit_news_id');
-        if (!idInput) {
-            idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'news_id';
-            idInput.id = 'edit_news_id';
-            form.appendChild(idInput);
-        }
-        idInput.value = id;
+  form.querySelector('[name="title"]').value = title || '';
+  form.querySelector('[name="content"]').value = content || '';
+  form.querySelector('[name="category"]').value = category || '';
+  form.querySelector('[name="location"]').value = location || '';
 
-        const fileInput = document.getElementById('imageUpload');
-        if (fileInput) fileInput.value = '';
+  let idInput = document.getElementById('edit_news_id');
+  if (!idInput) {
+    idInput = document.createElement('input');
+    idInput.type = 'hidden';
+    idInput.name = 'news_id';
+    idInput.id = 'edit_news_id';
+    form.appendChild(idInput);
+  }
+  idInput.value = id;
+
+  const fileInput = document.getElementById('newsImageInput');
+  if (fileInput) fileInput.value = '';
+
+  // ✅ store PATH for backend (not URL)
+  const hidden = document.getElementById('news_existing_image_path');
+  if (hidden) hidden.value = imagePath || '';
+
+  // ✅ show URL for preview
+  setNewsPreview(imageUrl || '');
+}
+
+  function editNewsRequest(reqId, type, newsId, title, content, category, location, imagePath, imageUrl) {
+  const modal = document.getElementById('newsModal');
+  const form = document.getElementById('newsForm');
+  const modalTitle = modal.querySelector('.modal-title');
+  const submitBtn = document.getElementById('newsSubmitBtn');
+
+  modal.classList.add('active');
+
+  form.querySelector('[name="title"]').value = title || '';
+  form.querySelector('[name="content"]').value = content || '';
+  form.querySelector('[name="category"]').value = category || '';
+  form.querySelector('[name="location"]').value = location || '';
+
+  let reqInput = document.getElementById('edit_news_request_id');
+  if (!reqInput) {
+    reqInput = document.createElement('input');
+    reqInput.type = 'hidden';
+    reqInput.name = 'request_id';
+    reqInput.id = 'edit_news_request_id';
+    form.appendChild(reqInput);
+  }
+  reqInput.value = parseInt(reqId || 0, 10);
+
+  // clear file input
+  const fileInput = document.getElementById('newsImageInput');
+  if (fileInput) fileInput.value = '';
+
+  // ✅ keep existing image PATH for backend
+  const hidden = document.getElementById('news_existing_image_path');
+  if (hidden) hidden.value = imagePath || '';
+
+  // ✅ show existing image URL for preview
+  setNewsPreview(imageUrl || '');
+
+  const nid = parseInt(newsId || 0, 10);
+
+  if (!isNaN(nid) && nid > 0) {
+    if (modalTitle) modalTitle.innerText = "Edit News Article";
+    form.action = "{{ route('staff.news.requestUpdate') }}";
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
+
+    let idInput = document.getElementById('edit_news_id');
+    if (!idInput) {
+      idInput = document.createElement('input');
+      idInput.type = 'hidden';
+      idInput.name = 'news_id';
+      idInput.id = 'edit_news_id';
+      form.appendChild(idInput);
     }
+    idInput.value = nid;
+
+  } else {
+    if (modalTitle) modalTitle.innerText = "Edit Draft News Request";
+    form.action = "{{ route('staff.news.requestCreate') }}";
+    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Update Draft';
+
+    const idInput = document.getElementById('edit_news_id');
+    if (idInput) idInput.remove();
+  }
+}
 
     async function deleteNews(id, title = '') {
+        id = parseInt(id, 10);
         if (!id) {
             alert("No news_id found to request delete.");
             return;
@@ -773,22 +940,39 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
 // ✅ Intercept News form submit too (same issue)
 document.getElementById('newsForm').addEventListener('submit', async function (e) {
-    e.preventDefault();
+  e.preventDefault();
 
-    const form = e.target;
-    const url = form.action;
+  const form = e.target;
+  const url = form.action;
 
-    const data = Object.fromEntries(new FormData(form).entries());
+  try {
+    const fd = new FormData(form);
 
-    try {
-        await postForm(url, data);
-        showToast("Request submitted. Please wait for admin approval.");
-        closeNewsModal();
-        window.location.reload();
-    } catch (err) {
-        console.error(err);
-        alert("Submit failed: " + err.message);
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+      },
+      body: fd, // ✅ multipart (includes file)
+    });
+
+    const raw = await res.text();
+    let json = {};
+    try { json = JSON.parse(raw); } catch (_) {}
+
+    if (!res.ok || !json.ok) {
+      throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
     }
+
+    showToast("Request submitted. Please wait for admin approval.");
+    closeNewsModal();
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    alert("Submit failed: " + err.message);
+  }
 });
 
 function showToast(message, ms = 2200) {
@@ -916,6 +1100,44 @@ function requestToggleAnnouncement(announcementId, title, currentStatus) {
     window.location.reload();
   })
   .catch(err => alert('Request toggle failed: ' + err.message));
+}
+
+function setNewsPreview(src) {
+  const img = document.getElementById('newsPreviewImg');
+  const ph = document.getElementById('newsNoImage');
+  const rm = document.getElementById('newsRemoveImageBtn');
+
+  if (src) {
+    img.src = src;
+    img.style.display = 'block';
+    ph.style.display = 'none';
+    rm.style.display = 'inline-flex';
+  } else {
+    img.src = '';
+    img.style.display = 'none';
+    ph.style.display = 'block';
+    rm.style.display = 'none';
+  }
+}
+
+function handleNewsImagePick(input) {
+  const file = input.files && input.files[0];
+  if (!file) return;
+
+  const url = URL.createObjectURL(file);
+  setNewsPreview(url);
+
+  // if user picks a new file, we keep existing_image_path but backend should prefer the new upload
+}
+
+function clearNewsImage() {
+  const input = document.getElementById('newsImageInput');
+  const hidden = document.getElementById('news_existing_image_path');
+
+  if (input) input.value = '';
+  if (hidden) hidden.value = ''; // means "remove existing" (if you support it)
+
+  setNewsPreview('');
 }
 </script>
 <div id="toast" style="

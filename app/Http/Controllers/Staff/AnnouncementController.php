@@ -51,7 +51,35 @@ class AnnouncementController extends Controller
         ->orderByDesc('created_at')
         ->get();
 
-    return view('staff.announcements', compact('myRequests', 'myAnnouncements', 'email', 'name'));
+// ✅ Get news_ids that currently have PENDING requests (hide from LIVE)
+$pendingNewsIds = DB::table('approval_requests')
+    ->where('requester_email', $email)
+    ->where('status', 'pending')
+    ->whereIn('type', ['NEWS_UPDATE','NEWS_DELETE'])
+    ->get()
+    ->map(function ($r) {
+        $p = json_decode($r->details ?? '{}', true) ?: [];
+        return (int)($p['news_id'] ?? 0);
+    })
+    ->filter(fn($id) => $id > 0)
+    ->unique()
+    ->values()
+    ->all();
+
+// ✅ LIVE = approved news created by this staff,
+// minus those with pending changes
+$myNews = DB::table('news')
+    ->where('created_by', $userId)
+    ->where('status', 'APPROVED') // keep it clean for public consistency
+    ->when(count($pendingNewsIds) > 0, function ($q) use ($pendingNewsIds) {
+        $q->whereNotIn('news_id', $pendingNewsIds);
+    })
+    ->orderByDesc('created_at')
+    ->get();
+
+    return view('staff.announcements', compact(
+    'myRequests', 'myAnnouncements', 'myNews', 'email', 'name'
+));
 }
 
     // -------------------------
@@ -174,58 +202,103 @@ class AnnouncementController extends Controller
     // -------------------------
 
     public function requestCreateNews(Request $request)
-    {
-        $request->validate([
-            'request_id' => ['nullable','integer'], // ✅
-            'title' => ['required','string','max:255'],
-            'content' => ['required','string'],
-            'category' => ['required','string','max:100'],
-            'location' => ['nullable','string','max:255'],
-        ]);
+{
+    $request->validate([
+        'request_id' => ['nullable','integer'],
+        'title' => ['required','string','max:255'],
+        'content' => ['required','string'],
+        'category' => ['required','string','max:100'],
+        'location' => ['nullable','string','max:255'],
+        'image' => ['nullable','image','max:5120'], // 5MB
+        'existing_image_path' => ['nullable','string'], // ✅ add this
+    ]);
 
-        return $this->createOrUpdateRequest(
-            $request->input('request_id') ? (int)$request->input('request_id') : null,
-            'NEWS_CREATE',
-            $request->input('title'),
-            [
-                'title' => $request->input('title'),
-                'content' => $request->input('content'),
-                'category' => $request->input('category'),
-                'location' => $request->input('location'),
-            ]
-        );
+    $requestId = $request->input('request_id') ? (int)$request->input('request_id') : null;
+
+    // ✅ Start with existing image (from hidden input OR from old request row)
+    $imagePath = $request->input('existing_image_path') ?: null;
+
+    // If editing an existing request row, and hidden wasn’t sent (fallback)
+    if ($requestId && !$imagePath) {
+        $old = DB::table('approval_requests')
+            ->where('id', $requestId)
+            ->where('requester_email', (string)session('user_email'))
+            ->first();
+
+        if ($old) {
+            $oldPayload = json_decode($old->details ?? '{}', true) ?: [];
+            $imagePath = $oldPayload['image_path'] ?? null;
+        }
     }
+
+    // ✅ If user uploaded a new file, override
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('news', 'public');
+    }
+
+    return $this->createOrUpdateRequest(
+        $requestId,
+        'NEWS_CREATE',
+        $request->input('title'),
+        [
+            'title' => $request->input('title'),
+            'content' => $request->input('content'),
+            'category' => $request->input('category'),
+            'location' => $request->input('location'),
+            'image_path' => $imagePath, // ✅ now preserved
+        ]
+    );
+}
 
     public function requestUpdateNews(Request $request)
-    {
-        $request->validate([
-            'request_id' => ['nullable','integer'], // ✅
-            'news_id' => ['required','integer'],
-            'title' => ['required','string','max:255'],
-            'content' => ['required','string'],
-            'category' => ['required','string','max:100'],
-            'location' => ['nullable','string','max:255'],
-        ]);
+{
+    $request->validate([
+    'request_id' => ['nullable','integer'],
+    'news_id' => ['required','integer','gt:0'],
+    'title' => ['required','string','max:255'],
+    'content' => ['required','string'],
+    'category' => ['required','string','max:100'],
+    'location' => ['nullable','string','max:255'],
+    'image' => ['nullable','image','max:5120'],
+    'existing_image_path' => ['nullable','string'], // ✅ add
+]);
 
-        return $this->createOrUpdateRequest(
-            $request->input('request_id') ? (int)$request->input('request_id') : null,
-            'NEWS_UPDATE',
-            $request->input('title'),
-            [
-                'news_id' => (int)$request->input('news_id'),
-                'title' => $request->input('title'),
-                'content' => $request->input('content'),
-                'category' => $request->input('category'),
-                'location' => $request->input('location'),
-            ]
-        );
+$imagePath = null;
+if ($request->hasFile('image')) {
+    $imagePath = $request->file('image')->store('news', 'public');
+}
+
+$payload = [
+    'news_id' => (int)$request->input('news_id'),
+    'title' => $request->input('title'),
+    'content' => $request->input('content'),
+    'category' => $request->input('category'),
+    'location' => $request->input('location'),
+];
+
+// ✅ If new upload -> use it
+if ($imagePath) {
+    $payload['image_path'] = $imagePath;
+} else {
+    // ✅ If no new upload, preserve existing image if provided
+    if ($request->filled('existing_image_path')) {
+        $payload['image_path'] = $request->input('existing_image_path');
     }
+}
+
+    return $this->createOrUpdateRequest(
+        $request->input('request_id') ? (int)$request->input('request_id') : null,
+        'NEWS_UPDATE',
+        $request->input('title'),
+        $payload
+    );
+}
 
     public function requestDeleteNews(Request $request)
     {
         $request->validate([
             'request_id' => ['nullable','integer'], // ✅
-            'news_id' => ['required','integer'],
+            'news_id' => ['required','integer','gt:0'],
             'title' => ['nullable','string','max:255'],
         ]);
 

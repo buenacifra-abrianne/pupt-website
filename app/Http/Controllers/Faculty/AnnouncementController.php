@@ -112,77 +112,57 @@ class AnnouncementController extends Controller
     }
 
     public function saveNews(Request $request)
-    {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'category' => 'required|string|max:100',
-            'location' => 'nullable|string|max:255',
-            'news_id' => 'nullable|integer',
-            'image' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:4096',
-        ]);
+{
+    $request->validate([
+        'news_id'   => ['nullable','integer'],
+        'title'     => ['required','string','max:255'],
+        'content'   => ['required','string'],
+        'category'  => ['required','string','max:100'],
+        'location'  => ['nullable','string','max:255'],
+        'image'     => ['nullable','image','max:5120'], // 5MB
+    ]);
 
-        $title = $request->input('title');
+    $newsId = (int) $request->input('news_id', 0);
 
-        $data = [
-            'title' => $title,
-            'content' => $request->input('content'),
-            'category' => $request->input('category'),
-            'location' => $request->input('location')
-        ];
-
-        // image upload (optional)
-        if ($request->hasFile('image')) {
-            $file = $request->file('image');
-            $filename = time().'_'.$file->getClientOriginalName();
-            $file->move(public_path('assets/uploads'), $filename);
-            $data['image_path'] = $filename;
+    // ✅ Keep existing image_path on edit
+    $existing = null;
+    if ($newsId > 0) {
+        $existing = DB::table('news')->where('news_id', $newsId)->first();
+        if (!$existing) {
+            return response()->json(['ok' => false, 'error' => 'News not found.'], 404);
         }
-
-        // ===== EDIT =====
-        if ($request->filled('news_id')) {
-
-            DB::table('news')
-                ->where('news_id', $request->news_id)
-                ->update($data);
-
-            // ✅ NOTIFICATION: News Updated
-            $this->notifySystem(
-                'News Updated',
-                'News article '.$title.' was updated.',
-                'PRIMARY'
-            );
-            $this->logActivity(
-                'UPDATED',
-                'NEWS',
-                (int) $request->news_id,
-                'Updated news: '.$title.''
-            );
-
-            return back()->with('success', 'News updated.');
-        }
-
-        // ===== CREATE =====
-        $data['created_at'] = now();
-
-        // ✅ NOTIFICATION: News Created
-        $this->notifySystem(
-            'News Created',
-            'News article "'.$title.'" was created.',
-            'INFO'
-        );
-        
-        $id = DB::table('news')->insertGetId($data, 'news_id');
-
-        $this->logActivity(
-            'CREATED',
-            'NEWS',
-            (int) $id,
-            'Created news: "'.$title.'"'
-        );
-
-        return back()->with('success', 'News created.');
     }
+
+    $imagePath = $existing->image_path ?? null;
+
+    // ✅ Save new upload (public disk -> storage/app/public/news)
+    if ($request->hasFile('image')) {
+        $imagePath = $request->file('image')->store('news', 'public'); // returns "news/xxx.jpg"
+    }
+
+    $data = [
+        'title'        => $request->title,
+        'content'      => $request->content,
+        'category'     => $request->category,
+        'location'     => $request->location,
+        'image_path'   => $imagePath,
+        'date_published' => now(),
+    ];
+
+    if ($newsId > 0) {
+        DB::table('news')->where('news_id', $newsId)->update($data);
+    } else {
+        // optional fields if meron kayo in table
+        $data['created_at'] = now();
+        $data['priority']   = 'MEDIUM';
+        $data['status']     = 'APPROVED';
+        $data['created_by'] = (int) (session('user_id') ?? 0);
+
+        DB::table('news')->insert($data);
+    }
+
+    return response()->json(['ok' => true]);
+}
 
     public function delete(Request $request)
     {

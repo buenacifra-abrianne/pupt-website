@@ -22,7 +22,7 @@
             <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
             <div class="logo-text">
                 Hello,<br>
-                {{ session('admin_first_name') ? e(session('admin_first_name')) : 'Admin' }}!
+                {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
             </div>
         </div>
 
@@ -90,17 +90,17 @@
             <div class="user-profile">
                 <div class="user-avatar">
                     @php
-                        $fn = session('admin_first_name');
+                        $fn = session('user_first_name');
                         echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
                     @endphp
                 </div>
 
                 <div class="user-info">
                     <div class="user-name">
-                        {{ session('admin_first_name') ? e(session('admin_first_name')) : 'Admin' }}
+                        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
                     </div>
                     <div class="user-role">
-                        {{ session('admin_role') ? e(session('admin_role')) : 'Staff' }}
+                        {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
                     </div>
                 </div>
 
@@ -169,7 +169,15 @@
                                     <td style="padding:10px;">
                                         <button type="button"
                                         class="btn btn-sm btn-primary"
-                                        onclick='openDetails(@json($item->display_title), @json($item->display_priority), @json($item->display_content))'>
+                                        onclick='openDetails(
+                                            @json($item->type),
+                                            @json($item->display_title),
+                                            @json($item->display_priority),
+                                            @json($item->display_content),
+                                            @json($item->display_image_url),
+                                            @json($item->display_category),
+                                            @json($item->display_location)
+                                            )'>
                                         <i class="fas fa-eye"></i> View
                                         </button>
                                     </td>
@@ -204,13 +212,13 @@
                                         {{-- Approve --}}
                                         <button type="button"
                                         class="btn btn-sm btn-success"
-                                        onclick="approveReq('{{ route('faculty.approvals.approve', $item->id) }}')">
+                                        onclick="approveReq('{{ route('faculty.approvals.approve', $item->id) }}', {{ (int)$item->id }})">
                                         Approve
                                         </button>
 
                                         {{-- Reject (with reason prompt) --}}
                                         <button type="button" class="btn btn-sm btn-delete"
-                                        onclick="rejectReq('{{ route('faculty.approvals.reject', $item->id) }}')">
+                                        onclick="rejectReq('{{ route('faculty.approvals.reject', $item->id) }}', {{ (int)$item->id }})">
                                         <i class="fas fa-times"></i> Reject
                                         </button>
                                     </td>
@@ -251,7 +259,23 @@
 
     {{-- badge moved beside title --}}
     <span class="priority-badge priority-medium" id="dPriority">Priority: —</span>
+
+      <div id="dMeta" style="display:none; margin: 8px 0 12px 0; font-size:14px; opacity:.85;">
+  <span id="dCategory" style="margin-right:15px;"></span>
+  <span id="dLocation"></span>
+</div>
   </div>
+</div>
+
+<div id="dMeta" style="display:none; margin: 8px 0 12px 0; opacity:.85; font-size:14px;">
+  <span id="dCategory"></span>
+  <span id="dLocation" style="margin-left:10px;"></span>
+</div>
+
+<div id="dImgWrap" style="display:none; margin: 10px 0;">
+  <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Image</div>
+  <img id="dImg" src="" alt="Uploaded image"
+       style="max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
 </div>
 
       <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Content / Details</div>
@@ -327,34 +351,77 @@
     }
 
     // ✅ Approve button handler
-    async function approveReq(url) {
-        if (!confirm("Approve this request?")) return;
-        try {
-            await postJson(url);
-            showToast("Approved and applied.");
-            window.location.reload();
-        } catch (err) {
-            console.error(err);
-            showToast("Approve failed: " + err.message, 3500);
-        }
+    async function approveReq(url, id) {
+  if (!confirm("Approve this request?")) return;
+
+  console.log("APPROVE clicked -> id:", id, "url:", url);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      }
+    });
+
+    const raw = await res.text();
+    console.log("APPROVE raw:", raw);
+
+    let json = {};
+    try { json = JSON.parse(raw); } catch (_) {}
+
+    if (!res.ok || !json.ok) {
+      throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
     }
+
+    showToast("Approved.");
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    showToast("Approve failed: " + err.message, 3500);
+  }
+}
 
     // Reject button handler
-    async function rejectReq(url) {
-    const reason = prompt('Reason for rejection? (optional)');
-        if (reason === null) return; // cancelled
+    async function rejectReq(url, id) {
+  const reason = prompt('Reason for rejection? (optional)');
+  if (reason === null) return;
 
-        if (!confirm("Reject this request?")) return;
+  if (!confirm("Reject this request?")) return;
 
-        try {
-            await postJson(url, { reason: reason });
-            showToast("Rejected.");
-            window.location.reload();
-        } catch (err) {
-            console.error(err);
-            showToast("Reject failed: " + err.message, 3500);
-        }
+  console.log("REJECT clicked -> id:", id, "url:", url, "reason:", reason);
+
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      },
+      body: new URLSearchParams({ reason })
+    });
+
+    const raw = await res.text();
+    console.log("REJECT raw:", raw);
+
+    let json = {};
+    try { json = JSON.parse(raw); } catch (_) {}
+
+    if (!res.ok || !json.ok) {
+      throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
     }
+
+    showToast("Rejected.");
+    window.location.reload();
+  } catch (err) {
+    console.error(err);
+    showToast("Reject failed: " + err.message, 3500);
+  }
+}
 
     // ✅ Client-side search
     const searchInput = document.getElementById('globalSearch');
@@ -396,26 +463,60 @@ function prettyType(rawType) {
   return m[key] || rawType || 'General';
 }
 
-function openDetails(title, priority, content) {
+function openDetails(type, title, priority, content, imageUrl, category, location) {
   const modal = document.getElementById('detailsModal');
   modal.classList.add('active');
 
   document.getElementById('dTitle').textContent = title || '—';
+  document.getElementById('dContent').textContent = content || '—';
 
-  // always show priority (kahit blank -> —)
+  // ✅ show badge ONLY for announcements
   const badge = document.getElementById('dPriority');
-  badge.classList.remove('priority-high','priority-medium','priority-low');
+  const rawType = String(type || '').toUpperCase();
+  const isNews = rawType.startsWith('NEWS_');
 
-  const pr = String(priority || '').toUpperCase();
-  if (pr === 'HIGH' || pr === 'MEDIUM' || pr === 'LOW') {
-    badge.textContent = 'Priority: ' + pr;
-    badge.classList.add('priority-' + pr.toLowerCase());
-  } else {
-    badge.textContent = 'Priority: —';
-    badge.classList.add('priority-medium');
+  if (badge) {
+    if (isNews) {
+      badge.style.display = 'none';
+    } else {
+      badge.style.display = 'inline-flex';
+
+      badge.classList.remove('priority-high','priority-medium','priority-low');
+
+      const pr = String(priority || '').trim().toUpperCase();
+      if (['HIGH','MEDIUM','LOW'].includes(pr)) {
+        badge.textContent = 'Priority: ' + pr;
+        badge.classList.add('priority-' + pr.toLowerCase());
+      } else {
+        badge.textContent = 'Priority: —';
+        badge.classList.add('priority-medium');
+      }
+    }
   }
 
-  document.getElementById('dContent').textContent = content || '—';
+  // ✅ category/location
+  const meta = document.getElementById('dMeta');
+  const cEl = document.getElementById('dCategory');
+  const lEl = document.getElementById('dLocation');
+
+  if (category) cEl.innerHTML = `<i class="fas fa-tag" style="margin-right:4px;"></i>${category}`;
+  else cEl.innerHTML = '';
+
+  if (location) lEl.innerHTML = `<i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>${location}`;
+  else lEl.innerHTML = '';
+
+  meta.style.display = (category || location) ? 'block' : 'none';
+
+  // ✅ image
+  const wrap = document.getElementById('dImgWrap');
+  const img = document.getElementById('dImg');
+  if (imageUrl) {
+    img.src = imageUrl;
+    wrap.style.display = 'block';
+  } else {
+    img.src = '';
+    wrap.style.display = 'none';
+  }
 }
 
 function formatValue(v) {

@@ -12,9 +12,13 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
 use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+use App\Http\Controllers\Public\HomeController;
+
+Route::get('/', [HomeController::class, 'index']);
+
+// Route::get('/', function () {
+//    return view('welcome');
+//});
 
 // Staff Login
 Route::prefix('staff')

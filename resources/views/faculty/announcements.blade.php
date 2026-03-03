@@ -18,7 +18,7 @@
             <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
             <div class="logo-text">
                 Hello,<br>
-                {{ session('admin_first_name') ? e(session('admin_first_name')) : 'Admin' }}!
+                {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
             </div>
         </div>
 
@@ -86,17 +86,17 @@
             <div class="user-profile">
                 <div class="user-avatar">
                     @php
-                        $fn = session('admin_first_name');
+                        $fn = session('user_first_name');
                         echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
                     @endphp
                 </div>
 
                 <div class="user-info">
                     <div class="user-name">
-                        {{ session('admin_first_name') ? e(session('admin_first_name')) : 'Admin' }}
+                        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
                     </div>
                     <div class="user-role">
-                        {{ session('admin_role') ? e(session('admin_role')) : 'Staff' }}
+                        {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
                     </div>
                 </div>
 
@@ -224,7 +224,7 @@
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
-                                    <img src="{{ asset('assets/uploads/'.$news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
+                                    <img src="{{ asset('storage/' . ltrim($news->image_path,'/')) }}" style="width:100%; height:150px; object-fit:cover;">
                                 @else
                                     <i class="fas fa-newspaper"></i>
                                 @endif
@@ -585,6 +585,33 @@
             window.scrollTo(0, parseInt(scrollY, 10));
         }
     });
+
+    document.getElementById('newsForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const url = form.action;
+
+  const fd = new FormData(form);
+
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'X-CSRF-TOKEN': token },
+    body: fd
+  });
+
+  const raw = await res.text();
+  let json = null;
+  try { json = JSON.parse(raw); } catch (_) {}
+
+  if (!res.ok || !json || !json.ok) {
+    alert((json && (json.error || json.message)) || raw.slice(0, 200));
+    return;
+  }
+
+  closeNewsModal();
+  window.location.reload();
+});
 </script>
 </body>
 </html>

@@ -56,22 +56,37 @@ $pending->getCollection()->transform(function ($item) {
     }
 
     // Optional: NEWS_DELETE show real news content
-    if (in_array($type, ['NEWS_DELETE'], true)) {
-        $nid = (int)($payload['news_id'] ?? 0);
-        if ($nid > 0) {
-            $n = \DB::table('news')->where('news_id', $nid)->first();
-            if ($n) {
-                $displayTitle = (string)($n->title ?? $displayTitle);
-                $displayPriority = ''; // news has no priority usually
-                $displayContent = (string)($n->content ?? $displayContent);
-            }
+    // ✅ NEWS_DELETE show real news content + priority + image
+if (in_array($type, ['NEWS_DELETE'], true)) {
+    $nid = (int)($payload['news_id'] ?? 0);
+    if ($nid > 0) {
+        $n = \DB::table('news')->where('news_id', $nid)->first();
+        if ($n) {
+            $displayTitle = (string)($n->title ?? $displayTitle);
+            $displayPriority = strtoupper((string)($n->priority ?? $displayPriority));
+            $displayContent = (string)($n->content ?? $displayContent);
+
+            // keep image_path for modal
+            $payload['image_path'] = $payload['image_path'] ?? ($n->image_path ?? null);
+
+            // keep category/location for modal
+            $payload['category'] = $payload['category'] ?? ($n->category ?? null);
+            $payload['location'] = $payload['location'] ?? ($n->location ?? null);
         }
     }
+}
 
     // attach to row for blade
     $item->display_title = $displayTitle;
     $item->display_priority = $displayPriority;
     $item->display_content = $displayContent;
+// ✅ image URL for modal
+$imagePath = $payload['image_path'] ?? null;
+$item->display_image_url = $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : null;
+
+// ✅ news meta for modal (category/location)
+$item->display_category = $payload['category'] ?? null;
+$item->display_location = $payload['location'] ?? null;
 
     return $item;
 });
@@ -90,7 +105,7 @@ $pending->getCollection()->transform(function ($item) {
     $adminName  = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
     $reviewedBy = $adminName ?: $adminEmail ?: 'Admin';
 
-    $row = DB::table('approval_requests')->where('id', (int)$id)->first();
+    $row = ApprovalRequest::find($id);
     if (!$row) {
         return response()->json(['ok' => false, 'error' => 'Request not found.'], 404);
     }
@@ -100,6 +115,7 @@ $pending->getCollection()->transform(function ($item) {
 
     $type = strtoupper((string)$row->type);
     $payload = json_decode($row->details ?? '{}', true) ?: [];
+    $reqId = (int) $row->getKey(); // ✅ use real PK
 
     DB::beginTransaction();
     try {
@@ -131,12 +147,21 @@ $pending->getCollection()->transform(function ($item) {
     // ✅ Save announcement_id back into approval_requests.details (so future edits become UPDATE)
     $payload['announcement_id'] = (int) $newAnnouncementId;
 
-    DB::table('approval_requests')->where('id', (int)$id)->update([
+    DB::table('approval_requests')->where('id', $reqId)->update([
         'details' => json_encode($payload, JSON_UNESCAPED_UNICODE),
         'updated_at' => now(),
     ]);
 }
         elseif ($type === 'NEWS_CREATE') {
+
+    // created_by is INT in news table
+    $creatorId = 0;
+    $u = DB::table('users')->where('email', $row->requester_email)->first();
+    if ($u && isset($u->user_id)) {
+        $creatorId = (int) $u->user_id;
+    } elseif ($u && isset($u->id)) {
+        $creatorId = (int) $u->id;
+    }
 
     // ✅ Insert and get the new news_id
     $newNewsId = DB::table('news')->insertGetId([
@@ -147,12 +172,15 @@ $pending->getCollection()->transform(function ($item) {
         'image_path' => $payload['image_path'] ?? null,
         'date_published' => now(),
         'created_at' => now(),
+        'priority' => strtoupper($payload['priority'] ?? 'LOW'),
+        'status' => 'APPROVED',
+        'created_by' => $creatorId,
     ], 'news_id');
 
     // ✅ Save news_id back into approval_requests.details
     $payload['news_id'] = (int) $newNewsId;
 
-    DB::table('approval_requests')->where('id', (int)$id)->update([
+    DB::table('approval_requests')->where('id', $reqId)->update([
         'details' => json_encode($payload, JSON_UNESCAPED_UNICODE),
         'updated_at' => now(),
     ]);
@@ -177,20 +205,11 @@ $pending->getCollection()->transform(function ($item) {
         // -------------------------
         // NEWS
         // -------------------------
-        elseif ($type === 'NEWS_CREATE') {
-            DB::table('news')->insert([
-                'title' => $payload['title'] ?? $row->title ?? 'News',
-                'content' => $payload['content'] ?? '',
-                'category' => $payload['category'] ?? 'Other',
-                'location' => $payload['location'] ?? null,
-                'image_path' => $payload['image_path'] ?? null,
-                'date_published' => now(),
-                'created_at' => now(),
-            ]);
-        }
         elseif ($type === 'NEWS_UPDATE') {
             $nid = (int)($payload['news_id'] ?? 0);
-            if (!$nid) throw new \Exception("Missing news_id in request details.");
+        if ($nid <= 0) {
+            throw new \Exception("Missing news_id in request details. Approve NEWS_CREATE first so it saves news_id into the request payload.");
+        }
 
             DB::table('news')
                 ->where('news_id', $nid)
@@ -199,6 +218,7 @@ $pending->getCollection()->transform(function ($item) {
                     'content' => $payload['content'] ?? DB::raw('content'),
                     'category' => $payload['category'] ?? DB::raw('category'),
                     'location' => $payload['location'] ?? DB::raw('location'),
+                    'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),
                     // image_path update if you later support image requests
                 ]);
         }
@@ -213,7 +233,7 @@ $pending->getCollection()->transform(function ($item) {
         }
 
         // mark request approved
-        DB::table('approval_requests')->where('id', (int)$id)->update([
+        DB::table('approval_requests')->where('id', $reqId)->update([
             'status' => 'approved',
             'reviewed_by' => (int) (session('user_id') ?? 0),
             'reviewed_at' => now(),
@@ -263,16 +283,17 @@ if ($reqUserId > 0) {
     ]);
 
     // get the row by ID (same style as approve)
-    $row = DB::table('approval_requests')->where('id', (int)$id)->first();
+    $row = ApprovalRequest::find($id);
     if (!$row) {
         return response()->json(['ok' => false, 'error' => 'Request not found.'], 404);
     }
+    $reqId = (int) $row->getKey();
 
     if (strtolower(trim((string)$row->status)) !== 'pending') {
         return response()->json(['ok' => false, 'error' => 'This request is no longer pending.'], 422);
     }
 
-    DB::table('approval_requests')->where('id', (int)$id)->update([
+    DB::table('approval_requests')->where('id', $reqId)->update([
         'status' => 'rejected',
         'reviewed_by' => (int) (session('user_id') ?? 0),  // INT column
         'reviewed_at' => now(),

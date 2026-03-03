@@ -23,7 +23,7 @@
       <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
       <div class="logo-text">
         Hello,<br>
-        {{ session('admin_first_name', 'Admin') }}!
+        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
       </div>
     </div>
     <ul class="nav-menu">
@@ -32,7 +32,7 @@
           <i class="fas fa-home"></i><span>Dashboard</span>
         </a>
       </li>
-      @php
+            @php
                 $role = strtoupper(trim((string) session('user_role')));
             @endphp
 
@@ -89,12 +89,19 @@
     <div class="topbar-right">
       <div class="user-profile">
         <div class="user-avatar">
-          {{ strtoupper(substr((string)session('user_first_name','A'), 0, 1)) }}
+          @php
+              $fn = session('user_first_name');
+              echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
+          @endphp
         </div>
         <div class="user-info">
-          <div class="user-name">{{ session('user_first_name', 'Admin User') }}</div>
-          <div class="user-role">{{ session('user_role', 'Staff') }}</div>
-        </div>
+                    <div class="user-name">
+                        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
+                    </div>
+                    <div class="user-role">
+                        {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
+                    </div>
+                </div>
         <i class="fas fa-chevron-down" style="color: #D4AF37;"></i>
       </div>
     </div>

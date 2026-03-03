@@ -122,19 +122,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="stat-card">
-                <div class="stat-icon danger">
-                    <i class="fas fa-times-circle"></i>
-                </div>
-                <div class="stat-info">
-                    <div class="stat-label">Rejected Requests</div>
-                    <div class="stat-value">{{ $rejected_requests ?? 0 }}</div>
-                    <div class="stat-change">
-                        <i class="fas fa-ban"></i> Needs revision
-                    </div>
-                </div>
-            </div>
         </div>
 
             <!-- ✅ Recent Activity + Recent Notifications SIDE-BY-SIDE -->
