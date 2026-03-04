@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polytechnic University of the Philippines - Taguig Campus</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/loginstyle.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
 </head>
@@ -77,7 +77,7 @@
                 <span class="text">Faculty</span>
             </a>
 
-            <a href="#" class="portal-button">
+            <a href="{{ route('public.students') }}" class="portal-button">
                 <span class="icon">
                     <!-- academic-cap -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -88,7 +88,7 @@
                 <span class="text">Student</span>
             </a>
 
-            <a href="#" class="portal-button">
+            <a href="{{ route('public.research') }}" class="portal-button">
                 <span class="icon">
                     <!-- beaker -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -99,7 +99,7 @@
                 <span class="text">Research</span>
             </a>
 
-            <a href="#" class="portal-button">
+            <a href="{{ route('public.services') }}" class="portal-button">
                 <span class="icon">
                     <!-- wrench -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

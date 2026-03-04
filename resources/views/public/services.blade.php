@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Systems - Polytechnic University of the Philippines</title>
+    <link rel="stylesheet" href="../assets/styles/layout.css">
+    <link rel="stylesheet" href="../assets/css/services.css">
+    <link rel="icon" type="image/png" href="../assets/static_img/logo.png" sizes="32x32">
+</head>
+<body>
+    <!-- Header -->
+    <pup-header
+  data-home="{{ route('public.home') }}"
+  data-about="{{ route('public.about') }}"
+  data-academics="{{ route('public.academics') }}"
+  data-students="{{ route('public.students') }}"
+  data-news-events="{{ route('public.events') }}"
+  data-research="{{ route('public.research') }}"
+  data-services="{{ route('public.services') }}"
+  data-assets="{{ asset('assets') }}"
+></pup-header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <section class="page-section">
+            <div class="cards-container" id="servicePortals">
+               <!-- Default portals will be added here --> 
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <pup-footer></pup-footer>
+
+    <script src="../assets/js/script.js" defer></script>
+    <script src="../assets/js/pup-components.js" defer></script>
+</body>
+</html>

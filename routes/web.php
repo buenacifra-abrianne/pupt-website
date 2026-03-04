@@ -13,12 +13,24 @@ use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementContro
 use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
 
 use App\Http\Controllers\Public\HomeController;
-
-Route::get('/home', [HomeController::class, 'index'])->name('public.home');
+use App\Http\Controllers\Public\AboutController;
+use App\Http\Controllers\Public\AcademicsController;
+use App\Http\Controllers\Public\StudentsController;
+use App\Http\Controllers\Public\EventsController;
+use App\Http\Controllers\Public\ResearchController;
+use App\Http\Controllers\Public\ServicesController;
 
 Route::get('/', function () {
-    return view('public.index'); // landing page mo
+    return view('public.index'); // <-- ito yung index blade mo
 })->name('public.landing');
+
+Route::get('/home', [HomeController::class, 'index'])->name('public.home');
+Route::get('/about', [AboutController::class, 'index'])->name('public.about');
+Route::get('/academics', [AcademicsController::class, 'index'])->name('public.academics');
+Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
+Route::get('/events', [EventsController::class, 'index'])->name('public.events');
+Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
+Route::get('/services', [ServicesController::class, 'index'])->name('public.services');
 
 // Staff Login
 Route::prefix('staff')

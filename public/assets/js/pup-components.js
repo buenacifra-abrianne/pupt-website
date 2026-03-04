@@ -3,11 +3,22 @@
 
 class PUPHeader extends HTMLElement {
   connectedCallback() {
+    const home = this.dataset.home || "/";
+    const about = this.dataset.about || "/about";
+    const academics = this.dataset.academics || "/academics";
+    const students = this.dataset.students || "/students";
+    const newsEvents = this.dataset.newsEvents || "/news-events";
+    const research = this.dataset.research || "/research";
+    const services = this.dataset.services || "/services";
+    const assets = this.dataset.assets || "/assets";
+
+    const logoUrl = `${assets}/static_img/logo.png`;
+
     this.innerHTML = `
 <header class="header">
   <div class="header-top">
     <div class="logo-section">
-      <img src="../assets/static_img/logo.png" alt="PUP Logo" class="logo">
+      <img src="${logoUrl}" alt="PUP Logo" class="logo">
       <div class="header-text">
         <h1>POLYTECHNIC UNIVERSITY OF THE PHILIPPINES - TAGUIG CAMPUS</h1>
         <p class="tagline">THE COUNTRY'S 1ST POLYTECHNIC</p>
@@ -18,19 +29,19 @@ class PUPHeader extends HTMLElement {
 
   <nav class="navbar">
     <ul class="nav-menu" id="navMenu">
-      <img src="../assets/static_img/logo.png" alt="PUP Logo" class="nav-logo">
+      <img src="${logoUrl}" alt="PUP Logo" class="nav-logo">
 
       <li class="close-btn">
         <button id="closeSidebar" aria-label="Close menu">✖</button>
       </li>
 
-      <li><a href="../public/home.php">HOME</a></li>
-      <li><a href="../public/about.php">ABOUT</a></li>
-      <li><a href="../public/academics.php">ACADEMICS</a></li>
-      <li><a href="../public/students.php">STUDENTS</a></li>
-      <li><a href="../public/news&events.php">NEWS & EVENTS</a></li>
-      <li><a href="../public/research.php">RESEARCH</a></li>
-      <li><a href="../public/services.php">SERVICES</a></li>
+      <li><a href="${home}" data-key="home">HOME</a></li>
+      <li><a href="${about}" data-key="about">ABOUT</a></li>
+      <li><a href="${academics}" data-key="academics">ACADEMICS</a></li>
+      <li><a href="${students}" data-key="students">STUDENTS</a></li>
+      <li><a href="${newsEvents}" data-key="news-events">NEWS & EVENTS</a></li>
+      <li><a href="${research}" data-key="research">RESEARCH</a></li>
+      <li><a href="${services}" data-key="services">SERVICES</a></li>
     </ul>
   </nav>
 </header>
@@ -38,14 +49,16 @@ class PUPHeader extends HTMLElement {
 
     this.#setActiveLink();
     this.#initHeaderMenu();
-    this.#initDropdowns();
   }
 
   #setActiveLink() {
-    const current = (location.pathname.split("/").pop() || "home.php").toLowerCase();
+    const path = (location.pathname || "/").toLowerCase();
+
     this.querySelectorAll(".nav-menu a").forEach((a) => {
       const href = (a.getAttribute("href") || "").toLowerCase();
-      a.classList.toggle("active", href === current);
+      // active if current path starts with link href (safe for /about, /research, etc.)
+      const isActive = href !== "/" ? path.startsWith(href) : path === "/";
+      a.classList.toggle("active", isActive);
     });
   }
 
@@ -67,32 +80,6 @@ class PUPHeader extends HTMLElement {
         hamburger.classList.remove("open");
       });
     }
-  }
-
-  #initDropdowns() {
-    const dropdowns = this.querySelectorAll(".dropdown");
-
-    dropdowns.forEach((dropdown) => {
-      const link = dropdown.querySelector("a");
-      if (!link) return;
-
-      link.addEventListener("click", (e) => {
-        if (window.innerWidth <= 768) {
-          e.preventDefault();
-          const content = dropdown.querySelector(".dropdown-content");
-          if (!content) return;
-          content.style.display = content.style.display === "block" ? "none" : "block";
-        }
-      });
-    });
-
-    document.addEventListener("click", (e) => {
-      if (!e.target.closest(".dropdown")) {
-        this.querySelectorAll(".dropdown-content").forEach((content) => {
-          content.style.display = "none";
-        });
-      }
-    });
   }
 }
 
