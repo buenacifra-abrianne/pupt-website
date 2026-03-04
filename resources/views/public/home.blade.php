@@ -102,10 +102,6 @@
                   {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}
                 </time>
 
-                <button class="readmore-btn" type="button">
-                  Read More
-                </button>
-
               </div>
             @endforeach
           @else
@@ -144,10 +140,6 @@
                   <time>
                     {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}
                   </time>
-
-                  <button class="readmore2-btn" type="button">
-                    Read More
-                  </button>
                 </div>
 
               </article>

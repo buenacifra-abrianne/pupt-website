@@ -14,11 +14,11 @@ use App\Http\Controllers\Staff\NotificationController as StaffNotificationContro
 
 use App\Http\Controllers\Public\HomeController;
 
-Route::get('/', [HomeController::class, 'index']);
+Route::get('/home', [HomeController::class, 'index'])->name('public.home');
 
-// Route::get('/', function () {
-//    return view('welcome');
-//});
+Route::get('/', function () {
+    return view('public.index'); // landing page mo
+})->name('public.landing');
 
 // Staff Login
 Route::prefix('staff')

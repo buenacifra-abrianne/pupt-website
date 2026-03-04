@@ -391,16 +391,6 @@
                 </div>
             </div>
 
-            <!-- (Your existing analytics inner tabs stay as-is) -->
-            <div class="tab-navigation">
-                <button class="tab-btn" data-tab="engagement" onclick="switchTab('engagement')">
-                    <i class="fas fa-users-cog"></i> User Engagement
-                </button>
-                <button class="tab-btn" data-tab="announcements" onclick="switchTab('announcements')">
-                    <i class="fas fa-bullhorn"></i> Announcement Reach
-                </button>
-            </div>
-
             <!-- Tab: User Engagement -->
             <div class="tab-content" id="engagement">
                 <div class="card">
@@ -440,49 +430,6 @@
                                 </div>
                             </div>
 
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tab: Announcement Reach -->
-            <div class="tab-content" id="announcements">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <div class="stats-grid">
-                                <div class="stat-card">
-                                    <div class="stat-icon maroon"><i class="fas fa-eye"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Announcement Views</div>
-                                        <div class="stat-value" id="reachViews">0</div>
-                                    </div>
-                                </div>
-
-                                <div class="stat-card">
-                                    <div class="stat-icon info"><i class="fas fa-user-check"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Unique Viewers</div>
-                                        <div class="stat-value" id="reachUnique">0</div>
-                                    </div>
-                                </div>
-
-                                <div class="stat-card">
-                                    <div class="stat-icon warning"><i class="fas fa-mouse-pointer"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Announcement Clicks</div>
-                                        <div class="stat-value" id="reachClicks">0</div>
-                                    </div>
-                                </div>
-
-                                <div class="stat-card">
-                                    <div class="stat-icon yellow"><i class="fas fa-percentage"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">CTR</div>
-                                        <div class="stat-value" id="reachCTR">0%</div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

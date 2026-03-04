@@ -155,14 +155,6 @@
 
         <div style="padding:0;">
           <form class="filter-bar" method="GET" action="{{ route('faculty.notifications') }}">
-            <select name="type">
-              <option value="ALL" {{ $typeFilter==='ALL' ? 'selected' : '' }}>All Types</option>
-              <option value="INFO" {{ $typeFilter==='INFO' ? 'selected' : '' }}>Info</option>
-              <option value="PRIMARY" {{ $typeFilter==='PRIMARY' ? 'selected' : '' }}>Primary</option>
-              <option value="WARNING" {{ $typeFilter==='WARNING' ? 'selected' : '' }}>Warning</option>
-              <option value="DANGER" {{ $typeFilter==='DANGER' ? 'selected' : '' }}>Danger</option>
-            </select>
-
             <select name="status">
               <option value="ALL" {{ $statusFilter==='ALL' ? 'selected' : '' }}>All Status</option>
               <option value="UNREAD" {{ $statusFilter==='UNREAD' ? 'selected' : '' }}>Unread Only</option>
