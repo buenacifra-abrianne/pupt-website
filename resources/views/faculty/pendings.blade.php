@@ -112,7 +112,7 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="page-header">
-            <h1 class="page-title">Pending Approvals</h1>
+            <h1 class="page-title">Approvals</h1>
             <p class="page-subtitle">Review and approve or reject submitted requests</p>
         </div>
 
@@ -120,7 +120,7 @@
         <div class="tab-navigation" style="justify-content: flex-end;">
             <div class="search-bar">
                 <i class="fas fa-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search pending approvals...">
+                <input type="text" id="globalSearch" placeholder="Search approvals...">
             </div>
         </div>
 
@@ -188,25 +188,25 @@
                                     </td>
 
                                     <td style="padding:10px;">
-  @php
-    $typeMap = [
-      'ANNOUNCEMENT_CREATE' => 'Create Announcement',
-      'ANNOUNCEMENT_UPDATE' => 'Edit Announcement',
-      'ANNOUNCEMENT_DELETE' => 'Delete Announcement',
-      'ANNOUNCEMENT_ENABLE' => 'Enable Announcement',
-      'ANNOUNCEMENT_DISABLE' => 'Disable Announcement',
-      'NEWS_CREATE' => 'Create News',
-      'NEWS_UPDATE' => 'Edit News',
-      'NEWS_DELETE' => 'Delete News',
-    ];
-    $rawType = strtoupper((string)($item->type ?? ''));
-    $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
-  @endphp
+                                    @php
+                                        $typeMap = [
+                                        'ANNOUNCEMENT_CREATE' => 'Create Announcement',
+                                        'ANNOUNCEMENT_UPDATE' => 'Edit Announcement',
+                                        'ANNOUNCEMENT_DELETE' => 'Delete Announcement',
+                                        'ANNOUNCEMENT_ENABLE' => 'Enable Announcement',
+                                        'ANNOUNCEMENT_DISABLE' => 'Disable Announcement',
+                                        'NEWS_CREATE' => 'Create News',
+                                        'NEWS_UPDATE' => 'Edit News',
+                                        'NEWS_DELETE' => 'Delete News',
+                                        ];
+                                        $rawType = strtoupper((string)($item->type ?? ''));
+                                        $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
+                                    @endphp
 
-  <span class="priority-badge priority-medium">
-    {{ e($friendlyType) }}
-  </span>
-</td>
+                                    <span class="priority-badge priority-medium">
+                                        {{ e($friendlyType) }}
+                                    </span>
+                                    </td>
 
                                     <td style="padding:10px;">
                                         {{-- Approve --}}
@@ -235,7 +235,184 @@
                 </div>
 
                 <div style="margin-top: 15px;">
-                    {{ $pending->links() }}
+                    <div style="padding:14px; display:flex; justify-content:flex-end;">
+  <div class="custom-pagination">
+    {{-- Previous --}}
+    @if ($pending->onFirstPage())
+      <span class="page-btn disabled">
+        <i class="fas fa-chevron-left"></i>
+      </span>
+    @else
+      <a class="page-btn"
+         href="{{ $pending->appends(request()->query())->previousPageUrl() }}">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    @endif
+
+    {{-- Page Numbers --}}
+    @for ($i = 1; $i <= $pending->lastPage(); $i++)
+      <a class="page-number {{ $pending->currentPage() == $i ? 'active' : '' }}"
+         href="{{ $pending->appends(request()->query())->url($i) }}">
+        {{ $i }}
+      </a>
+    @endfor
+
+    {{-- Next --}}
+    @if ($pending->hasMorePages())
+      <a class="page-btn"
+         href="{{ $pending->appends(request()->query())->nextPageUrl() }}">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    @else
+      <span class="page-btn disabled">
+        <i class="fas fa-chevron-right"></i>
+      </span>
+    @endif
+  </div>
+</div>
+                </div>
+            </div>
+        </div>
+
+        </div>
+
+        {{-- ✅ PROCESSED REQUESTS (Approved + Rejected) --}}
+        <div class="card" style="margin-top: 18px;">
+            <div class="card-header">
+                <h3 class="card-title">Processed Requests</h3>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <span class="status-badge status-enabled">
+                        Total: {{ $history->total() }}
+                    </span>
+                </div>
+            </div>
+
+            <div style="padding: 15px;">
+                <div style="overflow-x:auto;">
+                    <table class="table" style="width:100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="text-align:left; padding:10px;">Date</th>
+                                <th style="text-align:left; padding:10px;">Details</th>
+                                <th style="text-align:left; padding:10px;">Requester</th>
+                                <th style="text-align:left; padding:10px;">Type</th>
+                                <th style="text-align:left; padding:10px;">Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody id="historyRows">
+                            @forelse($history as $item)
+                                @php
+                                    $rawType = strtoupper((string)($item->type ?? ''));
+                                    $typeMap = [
+                                        'ANNOUNCEMENT_CREATE' => 'Create Announcement',
+                                        'ANNOUNCEMENT_UPDATE' => 'Edit Announcement',
+                                        'ANNOUNCEMENT_DELETE' => 'Delete Announcement',
+                                        'ANNOUNCEMENT_ENABLE' => 'Enable Announcement',
+                                        'ANNOUNCEMENT_DISABLE' => 'Disable Announcement',
+                                        'NEWS_CREATE' => 'Create News',
+                                        'NEWS_UPDATE' => 'Edit News',
+                                        'NEWS_DELETE' => 'Delete News',
+                                    ];
+                                    $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
+
+                                    $status = strtolower(trim((string)($item->status ?? '')));
+                                    $isApproved = ($status === 'approved');
+                                    $isRejected = ($status === 'rejected');
+                                @endphp
+
+                                <tr class="history-row"
+                                    data-search="{{ e(strtolower(($item->title ?? '').' '.($item->requester_name ?? '').' '.($item->requester_email ?? '').' '.($item->type ?? '').' '.($item->status ?? '').' '.($item->rejection_reason ?? ''))) }}">
+                                    <td style="padding:10px; white-space:nowrap;">
+                                        {{ optional($item->created_at)->format('M d, Y h:i A') }}
+                                    </td>
+
+                                    <td style="padding:10px;">
+                                        <button type="button"
+                                            class="btn btn-sm btn-primary"
+                                            onclick='openDetails(
+                                                @json($item->type),
+                                                @json($item->display_title),
+                                                @json($item->display_priority),
+                                                @json($item->display_content),
+                                                @json($item->display_image_url),
+                                                @json($item->display_category),
+                                                @json($item->display_location)
+                                            )'>
+                                            <i class="fas fa-eye"></i> View
+                                        </button>
+
+                                        @if($isRejected && !empty($item->rejection_reason))
+                                            <div style="margin-top:8px; font-size:13px; opacity:.8;">
+                                                <strong>Reason:</strong> {{ e($item->rejection_reason) }}
+                                            </div>
+                                        @endif
+                                    </td>
+
+                                    <td style="padding:10px;">
+                                        <div style="font-weight:600;">{{ e($item->requester_name ?? '—') }}</div>
+                                        <div style="opacity:.75; font-size: 13px;">{{ e($item->requester_email ?? '') }}</div>
+                                    </td>
+
+                                    <td style="padding:10px;">
+                                        <span class="priority-badge priority-medium">
+                                            {{ e($friendlyType) }}
+                                        </span>
+                                    </td>
+
+                                    <td style="padding:10px; white-space:nowrap;">
+                                        @if($isApproved)
+                                            <span class="status-badge status-enabled">Approved</span>
+                                        @elseif($isRejected)
+                                            <span class="status-badge status-disabled">Rejected</span>
+                                        @else
+                                            <span class="status-badge status-pending">{{ e($item->status ?? '—') }}</span>
+                                        @endif
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="6" style="padding: 18px; text-align:center; opacity:.75;">
+                                        No processed requests found.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 15px;">
+                    <div style="padding:14px; display:flex; justify-content:flex-end;">
+  <div class="custom-pagination">
+    {{-- Previous --}}
+    @if ($history->onFirstPage())
+      <span class="page-btn disabled"><i class="fas fa-chevron-left"></i></span>
+    @else
+      <a class="page-btn"
+         href="{{ $history->appends(request()->query())->previousPageUrl() }}">
+        <i class="fas fa-chevron-left"></i>
+      </a>
+    @endif
+
+    {{-- Page Numbers --}}
+    @for ($i = 1; $i <= $history->lastPage(); $i++)
+      <a class="page-number {{ $history->currentPage() == $i ? 'active' : '' }}"
+         href="{{ $history->appends(array_merge(request()->query(), ['history_page' => $i]))->url($i) }}">
+        {{ $i }}
+      </a>
+    @endfor
+
+    {{-- Next --}}
+    @if ($history->hasMorePages())
+      <a class="page-btn"
+         href="{{ $history->appends(request()->query())->nextPageUrl() }}">
+        <i class="fas fa-chevron-right"></i>
+      </a>
+    @else
+      <span class="page-btn disabled"><i class="fas fa-chevron-right"></i></span>
+    @endif
+  </div>
+</div>
                 </div>
             </div>
         </div>
@@ -259,11 +436,6 @@
 
     {{-- badge moved beside title --}}
     <span class="priority-badge priority-medium" id="dPriority">Priority: —</span>
-
-      <div id="dMeta" style="display:none; margin: 8px 0 12px 0; font-size:14px; opacity:.85;">
-  <span id="dCategory" style="margin-right:15px;"></span>
-  <span id="dLocation"></span>
-</div>
   </div>
 </div>
 
@@ -427,12 +599,13 @@
     const searchInput = document.getElementById('globalSearch');
 
     function runSearch() {
-        const q = (searchInput.value || '').trim().toLowerCase();
-        document.querySelectorAll('.pending-row').forEach(row => {
-            const hay = row.getAttribute('data-search') || '';
-            row.style.display = hay.includes(q) ? '' : 'none';
-        });
-    }
+  const q = (searchInput.value || '').trim().toLowerCase();
+
+  document.querySelectorAll('.pending-row, .history-row').forEach(row => {
+    const hay = row.getAttribute('data-search') || '';
+    row.style.display = hay.includes(q) ? '' : 'none';
+  });
+}
 
     if (searchInput) {
         searchInput.addEventListener('input', runSearch);

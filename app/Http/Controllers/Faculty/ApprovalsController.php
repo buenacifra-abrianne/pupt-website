@@ -30,72 +30,36 @@ class ApprovalsController extends Controller
         }
 
         $pending = $query->paginate(10)->withQueryString();
+        $pending = $this->attachDisplayFields($pending);
+
+        $historyQuery = ApprovalRequest::whereIn('status', ['approved', 'rejected'])->latest();
+
+        // same search
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $historyQuery->where(function ($sub) use ($q) {
+                $sub->where('title', 'like', "%{$q}%")
+                    ->orWhere('requester_name', 'like', "%{$q}%")
+                    ->orWhere('requester_email', 'like', "%{$q}%");
+            });
+        }
+
+        // same type filter
+        if ($request->filled('type')) {
+            $historyQuery->where('type', $request->type);
+        }
+
+// IMPORTANT: different page name so pagination won't conflict with pending list
+$history = $historyQuery->paginate(10, ['*'], 'history_page')->withQueryString();
+$history = $this->attachDisplayFields($history);
 
         // ✅ Attach display fields for modal "View" (so enable/disable/delete shows real announcement data)
-$pending->getCollection()->transform(function ($item) {
-    $type = strtoupper((string)($item->type ?? ''));
-    $payload = json_decode($item->details ?? '{}', true) ?: [];
-
-    // default: use request payload (create/update)
-    $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
-    $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
-    $displayContent = $payload['content'] ?? ($payload['details'] ?? '');
-
-    // ✅ For actions that reference an existing announcement,
-    // show the REAL announcement data from announcements table
-    if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
-        $aid = (int)($payload['announcement_id'] ?? 0);
-        if ($aid > 0) {
-            $a = \DB::table('announcements')->where('announcement_id', $aid)->first();
-            if ($a) {
-                $displayTitle = (string)($a->title ?? $displayTitle);
-                $displayPriority = strtoupper((string)($a->priority ?? $displayPriority));
-                $displayContent = (string)($a->content ?? $displayContent);
-            }
-        }
-    }
-
-    // Optional: NEWS_DELETE show real news content
-    // ✅ NEWS_DELETE show real news content + priority + image
-if (in_array($type, ['NEWS_DELETE'], true)) {
-    $nid = (int)($payload['news_id'] ?? 0);
-    if ($nid > 0) {
-        $n = \DB::table('news')->where('news_id', $nid)->first();
-        if ($n) {
-            $displayTitle = (string)($n->title ?? $displayTitle);
-            $displayPriority = strtoupper((string)($n->priority ?? $displayPriority));
-            $displayContent = (string)($n->content ?? $displayContent);
-
-            // keep image_path for modal
-            $payload['image_path'] = $payload['image_path'] ?? ($n->image_path ?? null);
-
-            // keep category/location for modal
-            $payload['category'] = $payload['category'] ?? ($n->category ?? null);
-            $payload['location'] = $payload['location'] ?? ($n->location ?? null);
-        }
-    }
-}
-
-    // attach to row for blade
-    $item->display_title = $displayTitle;
-    $item->display_priority = $displayPriority;
-    $item->display_content = $displayContent;
-// ✅ image URL for modal
-$imagePath = $payload['image_path'] ?? null;
-$item->display_image_url = $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : null;
-
-// ✅ news meta for modal (category/location)
-$item->display_category = $payload['category'] ?? null;
-$item->display_location = $payload['location'] ?? null;
-
-    return $item;
-});
 
         $types = ApprovalRequest::select('type')
             ->distinct()
             ->pluck('type');
 
-        return view('faculty.pendings', compact('pending', 'types'));
+        return view('faculty.pendings', compact('pending', 'history', 'types'));
     }
 
     public function approve(Request $request, $id)
@@ -355,5 +319,65 @@ private function pushSystemNotif(
         'target_user_id' => $targetUserId,
         'created_at'     => now(),
     ]);
+}
+
+private function attachDisplayFields($paginator)
+{
+    $paginator->getCollection()->transform(function ($item) {
+        $type = strtoupper((string)($item->type ?? ''));
+        $payload = json_decode($item->details ?? '{}', true) ?: [];
+
+        // default: use request payload (create/update)
+        $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
+        $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
+        $displayContent = $payload['content'] ?? ($payload['details'] ?? '');
+
+        // ANNOUNCEMENT: enable/disable/delete -> show REAL announcement
+        if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
+            $aid = (int)($payload['announcement_id'] ?? 0);
+            if ($aid > 0) {
+                $a = DB::table('announcements')->where('announcement_id', $aid)->first();
+                if ($a) {
+                    $displayTitle = (string)($a->title ?? $displayTitle);
+                    $displayPriority = strtoupper((string)($a->priority ?? $displayPriority));
+                    $displayContent = (string)($a->content ?? $displayContent);
+                }
+            }
+        }
+
+        // NEWS_DELETE -> show REAL news + keep image/category/location
+        if ($type === 'NEWS_DELETE') {
+            $nid = (int)($payload['news_id'] ?? 0);
+            if ($nid > 0) {
+                $n = DB::table('news')->where('news_id', $nid)->first();
+                if ($n) {
+                    $displayTitle = (string)($n->title ?? $displayTitle);
+                    $displayPriority = strtoupper((string)($n->priority ?? $displayPriority));
+                    $displayContent = (string)($n->content ?? $displayContent);
+
+                    $payload['image_path'] = $payload['image_path'] ?? ($n->image_path ?? null);
+                    $payload['category']   = $payload['category']   ?? ($n->category ?? null);
+                    $payload['location']   = $payload['location']   ?? ($n->location ?? null);
+                }
+            }
+        }
+
+        // attach to row for blade
+        $item->display_title = $displayTitle;
+        $item->display_priority = $displayPriority;
+        $item->display_content = $displayContent;
+
+        // image url for modal
+        $imagePath = $payload['image_path'] ?? null;
+        $item->display_image_url = $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : null;
+
+        // news meta for modal
+        $item->display_category = $payload['category'] ?? null;
+        $item->display_location = $payload['location'] ?? null;
+
+        return $item;
+    });
+
+    return $paginator;
 }
 }

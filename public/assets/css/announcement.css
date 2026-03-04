@@ -784,3 +784,39 @@ body {
 .title-row .priority-badge{
   white-space:nowrap;
 }
+
+.custom-pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.page-btn,
+.page-number {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  text-decoration: none;
+  background: white;
+  color: #333;
+  font-weight: 600;
+  transition: 0.2s ease;
+}
+
+.page-number.active {
+  background: #800000;
+  color: white;
+  border-color: #800000;
+}
+
+.page-btn:hover,
+.page-number:hover {
+  background: #f2f2f2;
+}
+
+.page-btn.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
