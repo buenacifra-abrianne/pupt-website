@@ -131,9 +131,13 @@
                     </div>
                     <div class="stat-info">
                         <div class="stat-label">Pending Approvals</div>
-                        <div class="stat-value">{{ $total_announcements ?? 0}}</div>
+                        <div class="stat-value">{{ $pendingApprovals ?? 0 }}</div>
                         <div class="stat-change positive">
-                            <i class="fas fa-arrow-up"></i> Live From Database
+                            <i class="fas fa-database"></i> Live From Database
+                            &nbsp;•&nbsp;
+                            <a href="{{ route('faculty.approvals.pending') }}" style="color:inherit; text-decoration:none;">
+                                View
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -144,9 +148,11 @@
                     </div>
                     <div class="stat-info">
                         <div class="stat-label">System Uptime</div>
-                        <div class="stat-value">99.8%</div>
+                        <div class="stat-value">{{ $uptime['percent'] ?? '—' }}</div>
                         <div class="stat-change positive">
-                            <i class="fas fa-check-circle"></i> All systems operational
+                            <i class="fas fa-check-circle"></i>
+                            {{ ($uptime['ok'] ?? false) ? 'All systems operational' : 'Check system health' }}
+                            &nbsp;•&nbsp; Up for {{ $uptime['human'] ?? '—' }}
                         </div>
                     </div>
                 </div>

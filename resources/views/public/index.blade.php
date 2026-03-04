@@ -99,7 +99,7 @@
                 <span class="text">Research</span>
             </a>
 
-            <a href="{{ route('public.services') }}" class="portal-button">
+            <a href="#" class="portal-button">
                 <span class="icon">
                     <!-- wrench -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
@@ -107,7 +107,7 @@
 </svg>
 
                 </span>
-                <span class="text">Services</span>
+                <span class="text">Online Services</span>
             </a>
 
             <a href="{{ route('public.home') }}" class="portal-button">

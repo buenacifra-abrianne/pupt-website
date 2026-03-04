@@ -39,7 +39,7 @@
 
             @if(in_array($role, ['ADMIN']))
             <li class="nav-item">
-                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link">
+                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link active">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
                 </a>

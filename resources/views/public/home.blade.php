@@ -24,7 +24,6 @@
   data-students="{{ route('public.students') }}"
   data-news-events="{{ route('public.events') }}"
   data-research="{{ route('public.research') }}"
-  data-services="{{ route('public.services') }}"
   data-assets="{{ asset('assets') }}"
 ></pup-header>
 
@@ -162,7 +161,7 @@
 
     </section>
 
-    <a href="{{ url('feedback.html') }}" class="submit-btn">Feedback Form</a>
+    <a href="{{ route('public.feedback') }}" class="submit-btn">Feedback Form</a>
 
   </main>
 

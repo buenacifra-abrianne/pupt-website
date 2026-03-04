@@ -18,7 +18,7 @@ use App\Http\Controllers\Public\AcademicsController;
 use App\Http\Controllers\Public\StudentsController;
 use App\Http\Controllers\Public\EventsController;
 use App\Http\Controllers\Public\ResearchController;
-use App\Http\Controllers\Public\ServicesController;
+use App\Http\Controllers\Public\FeedbackController;
 
 Route::get('/', function () {
     return view('public.index'); // <-- ito yung index blade mo
@@ -30,7 +30,7 @@ Route::get('/academics', [AcademicsController::class, 'index'])->name('public.ac
 Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
-Route::get('/services', [ServicesController::class, 'index'])->name('public.services');
+Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');
 
 // Staff Login
 Route::prefix('staff')
