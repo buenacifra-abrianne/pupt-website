@@ -130,5 +130,11 @@ Route::prefix('faculty')->group(function () {
 
         Route::delete('/approvals/{id}', [ApprovalsController::class, 'destroy'])
             ->name('faculty.approvals.destroy');
+
+        Route::post('/analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])
+            ->name('faculty.analytics.exportPdf');
+
+        Route::post('/analytics/export/excel', [AnalyticsController::class, 'exportExcel'])
+            ->name('faculty.analytics.exportExcel');
     });
 });

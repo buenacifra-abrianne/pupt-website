@@ -354,13 +354,21 @@
                     </div>
                 </div>
 
+                <form id="exportPdfForm" method="POST" action="{{ route('faculty.analytics.exportPdf') }}" target="_blank" style="display:none;">
+                @csrf
+                <input type="hidden" name="start" id="exp_start">
+                <input type="hidden" name="end" id="exp_end">
+                <input type="hidden" name="payload" id="exp_payload">
+                </form>
+
                 <div class="export-options">
-                    <button class="btn btn-secondary btn-sm">
-                        <i class="fas fa-file-pdf"></i> Export PDF
-                    </button>
-                    <button class="btn btn-secondary btn-sm">
-                        <i class="fas fa-file-excel"></i> Export Excel
-                    </button>
+                <button class="btn btn-secondary btn-sm" type="button" onclick="exportPdf()">
+                <i class="fas fa-file-pdf"></i> Export PDF
+                </button>
+
+                <button class="btn btn-secondary btn-sm" onclick="exportAnalytics('excel')">
+                <i class="fas fa-file-excel"></i> Export CSV
+                </button>
                 </div>
             </div>
 
@@ -824,6 +832,84 @@
 
         applyAnalytics();
     }
+
+    function exportAnalytics(type){
+
+    const start=document.getElementById('analyticsStart')?.value || '';
+    const end=document.getElementById('analyticsEnd')?.value || '';
+
+    const payload={
+        start:start,
+        end:end,
+
+        total_visitors:document.getElementById('kpiVisitors')?.textContent || 0,
+        avg_duration:document.getElementById('kpiAvgDuration')?.textContent || '0m 0s',
+        bounce_rate:document.getElementById('kpiBounce')?.textContent || '0%',
+
+        sessions:document.getElementById('engSessions')?.textContent || 0,
+        pageviews:document.getElementById('engPageviews')?.textContent || 0,
+        pages_per_session:document.getElementById('engPagesPerSession')?.textContent || 0,
+        returning_rate:document.getElementById('engReturningRate')?.textContent || '0%'
+    };
+
+    let url='';
+
+    if(type==='pdf'){
+        url="{{ route('faculty.analytics.exportPdf') }}";
+    }
+
+    if(type==='excel'){
+        url="{{ route('faculty.analytics.exportExcel') }}";
+    }
+
+    const form=document.createElement('form');
+    form.method='POST';
+    form.action=url;
+
+    const csrf=document.createElement('input');
+    csrf.type='hidden';
+    csrf.name='_token';
+    csrf.value=document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    form.appendChild(csrf);
+
+    for(const key in payload){
+        const input=document.createElement('input');
+        input.type='hidden';
+        input.name=key;
+        input.value=payload[key];
+        form.appendChild(input);
+    }
+
+    document.body.appendChild(form);
+    form.submit();
+}
+
+function exportPdf() {
+  // grab date range currently used
+  const start = document.getElementById('analyticsStart')?.value || '';
+  const end   = document.getElementById('analyticsEnd')?.value || '';
+
+  // ✅ grab EXACT numbers already shown on screen
+  const payload = {
+    kpis: {
+      total_visitors: document.getElementById('kpiVisitors')?.textContent?.trim() || '0',
+      avg_duration: document.getElementById('kpiAvgDuration')?.textContent?.trim() || '0m 0s',
+      bounce_rate: document.getElementById('kpiBounce')?.textContent?.trim() || '0%',
+    },
+    user_engagement: {
+      sessions: document.getElementById('engSessions')?.textContent?.trim() || '0',
+      pageviews: document.getElementById('engPageviews')?.textContent?.trim() || '0',
+      pages_per_session: document.getElementById('engPagesPerSession')?.textContent?.trim() || '0',
+      returning_rate: document.getElementById('engReturningRate')?.textContent?.trim() || '0%',
+    }
+  };
+
+  document.getElementById('exp_start').value = start;
+  document.getElementById('exp_end').value = end;
+  document.getElementById('exp_payload').value = JSON.stringify(payload);
+
+  document.getElementById('exportPdfForm').submit();
+}
 </script>
 </body>
 </html>
