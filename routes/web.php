@@ -35,6 +35,7 @@ Route::get('/students', [StudentsController::class, 'index'])->name('public.stud
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');
+Route::post('/feedback', [FeedbackController::class, 'store'])->name('public.feedback.submit');
 
 Route::post('/profile/update', [AuthController::class, 'updateProfile'])
     ->middleware('faculty.auth')

@@ -107,6 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
 // =======================
 function showThankYou(event) {
   event.preventDefault();
+  const form = event.target;
 
   let allAnswered = true;
   const questions = document.querySelectorAll('.feedback-item');
@@ -128,7 +129,7 @@ function showThankYou(event) {
     return;
   }
 
-  document.getElementById('thankYouModal').style.display = 'flex';
+  form.submit();
 }
 
 // =========================

@@ -81,20 +81,16 @@ class AnalyticsController extends Controller
 
     private function buildAnalyticsPayload(Carbon $startAt, Carbon $endAt): array
     {
-        if (! $this->hasAnalyticsSchema()) {
-            return $this->emptyAnalyticsPayload();
-        }
+        $sessionRows = collect();
 
-        $sessionRows = DB::table('analytics_sessions')
-            ->select('visitor_id', 'pageviews_count', 'started_at', 'last_activity_at')
-            ->whereBetween('started_at', [$startAt, $endAt])
-            ->get();
+        if ($this->hasAnalyticsSchema()) {
+            $sessionRows = DB::table('analytics_sessions')
+                ->select('visitor_id', 'pageviews_count', 'started_at', 'last_activity_at')
+                ->whereBetween('started_at', [$startAt, $endAt])
+                ->get();
+        }
 
         $sessions = $sessionRows->count();
-
-        if ($sessions === 0) {
-            return $this->emptyAnalyticsPayload();
-        }
 
         $totalVisitors = $sessionRows
             ->pluck('visitor_id')
@@ -118,6 +114,7 @@ class AnalyticsController extends Controller
 
         $bounceRatePct = round(($bounceSessions / max(1, $sessions)) * 100, 2);
         $pagesPerSession = round($pageviews / max(1, $sessions), 2);
+        $feedbackResults = $this->resolveFeedbackResults($startAt, $endAt);
 
         return [
             'kpis' => [
@@ -130,6 +127,7 @@ class AnalyticsController extends Controller
                 'pageviews' => $pageviews,
                 'pages_per_session' => $pagesPerSession,
             ],
+            'feedback_results' => $feedbackResults,
             'announcement_reach' => [
                 'views' => 0,
                 'unique_viewers' => 0,
@@ -172,6 +170,7 @@ class AnalyticsController extends Controller
                 'pageviews' => 0,
                 'pages_per_session' => 0,
             ],
+            'feedback_results' => $this->feedbackDefaults(),
             'announcement_reach' => [
                 'views' => 0,
                 'unique_viewers' => 0,
@@ -179,6 +178,93 @@ class AnalyticsController extends Controller
                 'ctr_pct' => 0,
             ],
         ];
+    }
+
+    private function resolveFeedbackResults(Carbon $startAt, Carbon $endAt): array
+    {
+        if (! $this->hasFeedbackSchema()) {
+            return $this->feedbackDefaults();
+        }
+
+        $row = DB::table('feedback_submissions')
+            ->selectRaw('COUNT(*) as total_responses')
+            ->selectRaw('AVG(q1_score) as question_1_avg')
+            ->selectRaw('AVG(q2_score) as question_2_avg')
+            ->selectRaw('AVG(q3_score) as question_3_avg')
+            ->selectRaw('AVG(q4_score) as question_4_avg')
+            ->selectRaw('AVG(q5_score) as question_5_avg')
+            ->selectRaw('AVG(q6_score) as question_6_avg')
+            ->selectRaw('SUM(CASE WHEN overall_score >= 3.5 THEN 1 ELSE 0 END) as outstanding')
+            ->selectRaw('SUM(CASE WHEN overall_score >= 2.5 AND overall_score < 3.5 THEN 1 ELSE 0 END) as very_satisfactory')
+            ->selectRaw('SUM(CASE WHEN overall_score >= 1.5 AND overall_score < 2.5 THEN 1 ELSE 0 END) as satisfactory')
+            ->selectRaw('SUM(CASE WHEN overall_score < 1.5 THEN 1 ELSE 0 END) as unsatisfactory')
+            ->whereBetween('created_at', [$startAt, $endAt])
+            ->first();
+
+        if (! $row || (int) ($row->total_responses ?? 0) === 0) {
+            return $this->feedbackDefaults();
+        }
+
+        $q1 = round((float) ($row->question_1_avg ?? 0), 2);
+        $q2 = round((float) ($row->question_2_avg ?? 0), 2);
+        $q3 = round((float) ($row->question_3_avg ?? 0), 2);
+        $q4 = round((float) ($row->question_4_avg ?? 0), 2);
+        $q5 = round((float) ($row->question_5_avg ?? 0), 2);
+        $q6 = round((float) ($row->question_6_avg ?? 0), 2);
+
+        $overallAverage = round(($q1 + $q2 + $q3 + $q4 + $q5 + $q6) / 6, 2);
+
+        return [
+            'total_responses' => (int) ($row->total_responses ?? 0),
+            'question_1_avg' => $q1,
+            'question_2_avg' => $q2,
+            'question_3_avg' => $q3,
+            'question_4_avg' => $q4,
+            'question_5_avg' => $q5,
+            'question_6_avg' => $q6,
+            'overall_average' => $overallAverage,
+            'final_rating' => $this->feedbackLabelFromScore($overallAverage),
+            'outstanding' => (int) ($row->outstanding ?? 0),
+            'very_satisfactory' => (int) ($row->very_satisfactory ?? 0),
+            'satisfactory' => (int) ($row->satisfactory ?? 0),
+            'unsatisfactory' => (int) ($row->unsatisfactory ?? 0),
+        ];
+    }
+
+    private function feedbackDefaults(): array
+    {
+        return [
+            'total_responses' => 0,
+            'question_1_avg' => 0,
+            'question_2_avg' => 0,
+            'question_3_avg' => 0,
+            'question_4_avg' => 0,
+            'question_5_avg' => 0,
+            'question_6_avg' => 0,
+            'overall_average' => 0,
+            'final_rating' => 'No Data',
+            'outstanding' => 0,
+            'very_satisfactory' => 0,
+            'satisfactory' => 0,
+            'unsatisfactory' => 0,
+        ];
+    }
+
+    private function feedbackLabelFromScore(float $score): string
+    {
+        if ($score >= 3.5) {
+            return 'Outstanding';
+        }
+
+        if ($score >= 2.5) {
+            return 'Very Satisfactory';
+        }
+
+        if ($score >= 1.5) {
+            return 'Satisfactory';
+        }
+
+        return 'Unsatisfactory';
     }
 
     private function resolveDateRange(Request $request): array
@@ -211,5 +297,19 @@ class AnalyticsController extends Controller
                 'last_activity_at',
             ]);
     }
-}
 
+    private function hasFeedbackSchema(): bool
+    {
+        return Schema::hasTable('feedback_submissions')
+            && Schema::hasColumns('feedback_submissions', [
+                'q1_score',
+                'q2_score',
+                'q3_score',
+                'q4_score',
+                'q5_score',
+                'q6_score',
+                'overall_score',
+                'created_at',
+            ]);
+    }
+}
