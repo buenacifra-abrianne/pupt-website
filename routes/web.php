@@ -113,6 +113,15 @@ Route::prefix('superadmin')->group(function () {
         Route::post('/accounts', [AccountsController::class, 'store'])
             ->name('superadmin.accounts.store');
 
+        Route::post('/accounts', [AccountsController::class, 'store'])
+            ->name('superadmin.accounts.store');
+
+        Route::put('/accounts/{id}', [AccountsController::class, 'update'])
+            ->name('superadmin.accounts.update');
+
+        Route::patch('/accounts/{id}/status', [AccountsController::class, 'updateStatus'])
+            ->name('superadmin.accounts.status');
+
         // Notifications
 
         Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])

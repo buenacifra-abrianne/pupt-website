@@ -171,6 +171,11 @@
                     <span class="count-pill" id="pill-StudentServices">0</span>
                 </button>
 
+                <button class="tab-btn" data-role="Research and Extension" onclick="switchRole('Research and Extension')">
+                    <i class="fas fa-flask"></i> Research & Extension
+                    <span class="count-pill" id="pill-ResearchExtension">0</span>
+                </button>
+
                 <button class="tab-btn" data-role="Faculty" onclick="switchRole('Faculty')">
                     <i class="fas fa-chalkboard-user"></i> Faculty <span class="count-pill" id="pill-Faculty">0</span>
                 </button>
@@ -235,11 +240,6 @@
             <label>Role <span class="req">*</span></label>
             <select id="f-rl">
                 <option value="">Select Role</option>
-                <option>Admin</option>
-                <option>Registrar</option>
-                <option>HAP</option>
-                <option>Faculty</option>
-                <option>Student Services</option>
             </select>
         </div>
     </div>
@@ -301,26 +301,66 @@
 
 <script>
 const RC = {
-  Admin: 'r-admin',
-  Registrar: 'r-registrar',
+  GLOBAL_SUPERADMIN: 'r-admin',
+  SYSTEM_SUPERADMIN: 'r-admin',
+
+  REGISTRAR: 'r-registrar',
   HAP: 'r-hap',
-  Faculty: 'r-faculty',
-  'Student Services': 'r-studentservices',
-  Library: 'r-library'
+  STUDENT_SERVICES: 'r-studentservices',
+  RESEARCH_EXTENSION: 'r-research',
+  FACULTY: 'r-faculty',
+  'pupt:faculty': 'r-faculty',
+  'pupt:student': 'r-student'
 };
 const SC = { Active:'sb-active', Inactive:'sb-inactive', Pending:'sb-pending', Suspended:'sb-suspended' };
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Pending:'fa-clock', Suspended:'fa-ban' };
 const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
+const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
+
+const TAB_GROUPS = {
+  'Admin': ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN'],
+  'Registrar': ['REGISTRAR'],
+  'HAP': ['HAP'],
+  'Student Services': ['STUDENT_SERVICES'],
+  'Research and Extension': ['RESEARCH_EXTENSION'],
+  'Faculty': ['pupt:faculty'], // include base role pero label stays "Faculty"
+};
+
+function roleMatchesTab(roleCode, tabLabel){
+  const list = TAB_GROUPS[tabLabel];
+  if (!list) return roleCode === tabLabel; // fallback
+  return list.includes(roleCode);
+}
 
 function normalizeRole(role){
-  const r = String(role || '').trim().toUpperCase();
-  if (r === 'ADMIN' || r === 'ADMINISTRATOR') return 'Admin';
-  if (r === 'STUDENT SERVICES' || r === 'STUDENT_SERVICES' || r === 'STUDENT-SERVICES') return 'Student Services';
-  if (r === 'FACULTY') return 'Faculty';
-  if (r === 'REGISTRAR') return 'Registrar';
-  if (r === 'HAP') return 'HAP';
-  if (r === 'LIBRARY') return 'Library';
-  return String(role || '').trim();
+  let r = String(role || '').trim();
+
+  // keep base roles exactly (they are case-sensitive-ish)
+  if (r.includes(':')) return r; // e.g., pupt:faculty, pupt:student
+
+  // normalize everything else to CODE style
+  r = r.toUpperCase().replace(/\s+/g, '_'); // "Global Superadmin" -> "GLOBAL_SUPERADMIN"
+  return r;
+}
+
+function isGlobalSuperadmin(roleCode){
+  return normalizeRole(roleCode) === 'GLOBAL_SUPERADMIN';
+}
+
+function isSystemSuperadmin(roleCode){
+  return normalizeRole(roleCode) === 'SYSTEM_SUPERADMIN';
+}
+
+function canEditUser(targetRole){
+  // SYSTEM_SUPERADMIN cannot edit GLOBAL_SUPERADMIN
+  if (CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && isGlobalSuperadmin(targetRole)) return false;
+  return true;
+}
+
+function canSuspendUser(targetRole){
+  // SYSTEM_SUPERADMIN cannot suspend GLOBAL_SUPERADMIN
+  if (CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && isGlobalSuperadmin(targetRole)) return false;
+  return true;
 }
 
 /**
@@ -345,7 +385,46 @@ function shapeUser(raw = {}) {
   };
 }
 
+const ROLES = @json(json_decode($rolesJson ?? '[]', true));
 let users = @json(json_decode($usersJson ?? '[]', true));
+
+const ROLE_NAME_BY_CODE = (ROLES || []).reduce((acc, r) => {
+  acc[String(r.code)] = String(r.name);
+  return acc;
+}, {});
+
+function roleLabel(code){
+  const c = String(code || '');
+  if (c === 'pupt:faculty') return 'Faculty';
+  if (c === 'pupt:student') return 'Student';
+  return ROLE_NAME_BY_CODE[c] || c;
+}
+
+function fillRoleOptions() {
+  const sel = document.getElementById('f-rl');
+  if (!sel) return;
+
+  // build options with overrides
+  const opts = (ROLES || [])
+  .filter(r => String(r.code) !== 'LIBRARY')
+  .filter(r => String(r.code) !== 'GLOBAL_SUPERADMIN') // ✅ remove sa dropdown
+  .filter(r => !String(r.code).includes(':'))          // ✅ hide base roles
+  .map(r => {
+    const code = String(r.code);
+    const name = String(r.name);
+
+    // ✅ Faculty dropdown pero pupt:faculty ang isi-save
+    if (code === 'FACULTY') {
+      return `<option value="pupt:faculty">${name}</option>`;
+    }
+
+    return `<option value="${code}">${name}</option>`;
+  })
+  .join('');
+
+  sel.innerHTML = `<option value="">Select Role</option>` + opts;
+}
+fillRoleOptions();
 users = (Array.isArray(users) ? users : []).map(shapeUser);
 
 let curRole='all', editId=null, viewId=null, pg=1;
@@ -355,7 +434,7 @@ function filtered(){
   const q=(document.getElementById('srch').value||'').toLowerCase();
   const st=document.getElementById('stFil').value;
   return users.filter(u=>{
-    const mr=curRole==='all'||u.rl===curRole;
+    const mr = (curRole === 'all') || roleMatchesTab(u.rl, curRole);
     const mq=!q||`${u.fn} ${u.ln} ${u.em} ${u.id}`.toLowerCase().includes(q);
     const ms=!st||u.st===st;
     return mr&&mq&&ms;
@@ -372,10 +451,23 @@ function render(){
     tb.innerHTML=sl.map((u,i)=>{
       const ini = `${(u.fn || 'U').charAt(0)}${(u.ln || 'N').charAt(0)}`;
       const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive', si=SI[u.st]||'fa-circle';
-      const susp=u.st==='Active'||u.st==='Pending';
-      const tb2=susp
-        ?`<button class="bico bi-suspend" title="Suspend" onclick="doConfirm(${u.id},'suspend')"><i class="fas fa-ban"></i></button>`
-        :`<button class="bico bi-activate" title="Activate" onclick="doConfirm(${u.id},'activate')"><i class="fas fa-circle-check"></i></button>`;
+      const susp = (u.st === 'Active' || u.st === 'Pending');
+
+const allowEdit = canEditUser(u.rl);
+const allowSuspend = canSuspendUser(u.rl);
+
+const editBtn = allowEdit
+  ? `<button class="bico bi-edit" title="Edit" onclick="openEdit(${u.id})"><i class="fas fa-pen"></i></button>`
+  : ``; // hide completely
+
+let statusBtn = '';
+if (allowSuspend) {
+  statusBtn = susp
+    ? `<button class="bico bi-suspend" title="Suspend" onclick="doConfirm(${u.id},'suspend')"><i class="fas fa-ban"></i></button>`
+    : `<button class="bico bi-activate" title="Activate" onclick="doConfirm(${u.id},'activate')"><i class="fas fa-circle-check"></i></button>`;
+} else {
+  statusBtn = ``; // hide completely
+}
 
       return `<tr>
         <td style="color:#bbb;font-size:12px">${s+i+1}</td>
@@ -388,14 +480,14 @@ function render(){
             </div>
           </div>
         </td>
-        <td><span class="role-badge ${rc}">${u.rl}</span></td>
+        <td><span class="role-badge ${rc}">${roleLabel(u.rl)}</span></td>
         <td><span class="sbadge ${sc}"><i class="fas ${si}" style="font-size:9px"></i> ${u.st}</span></td>
         <td style="color:#888;font-size:12px">${u.ll}</td>
         <td>
           <div class="actions">
             <button class="bico bi-view" title="View" onclick="viewUser(${u.id})"><i class="fas fa-eye"></i></button>
-            <button class="bico bi-edit" title="Edit" onclick="openEdit(${u.id})"><i class="fas fa-pen"></i></button>
-            ${tb2}
+${editBtn}
+${statusBtn}
           </div>
         </td>
       </tr>`;
@@ -426,12 +518,18 @@ function updateCounts(){
 
   document.getElementById('pill-all').textContent = users.length;
 
-  const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  setPill('pill-Admin', rc['Admin'] || 0);
-  setPill('pill-Registrar', rc['Registrar'] || 0);
-  setPill('pill-HAP', rc['HAP'] || 0);
-  setPill('pill-Faculty', rc['Faculty'] || 0);
-  setPill('pill-StudentServices', rc['Student Services'] || 0);
+const countByTab = (tabLabel) => {
+  return users.reduce((n,u)=> n + (roleMatchesTab(u.rl, tabLabel) ? 1 : 0), 0);
+};
+
+const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+setPill('pill-Admin', countByTab('Admin'));
+setPill('pill-Registrar', countByTab('Registrar'));
+setPill('pill-HAP', countByTab('HAP'));
+setPill('pill-StudentServices', countByTab('Student Services'));
+setPill('pill-ResearchExtension', countByTab('Research and Extension'));
+setPill('pill-Faculty', countByTab('Faculty'));
 }
 
 function applyFilters(){ pg=1; render(); }
@@ -466,7 +564,7 @@ function openEdit(id){
   document.getElementById('f-fn').value = u.fn || '';
   document.getElementById('f-ln').value = u.ln || '';
   document.getElementById('f-em').value = u.em || '';
-  document.getElementById('f-rl').value = u.rl || '';
+  document.getElementById('f-rl').value = (u.rl === 'FACULTY') ? 'pupt:faculty' : (u.rl || '');
   document.getElementById('f-st').value = u.st || 'Active';
 
   document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit User';
@@ -476,6 +574,10 @@ function openEdit(id){
 }
 
 const STORE_URL = "{{ route('superadmin.accounts.store') }}";
+const UPDATE_URL_TPL = "{{ route('superadmin.accounts.update', ['id' => '__ID__']) }}";
+const STATUS_URL_TPL = "{{ route('superadmin.accounts.status', ['id' => '__ID__']) }}";
+
+const urlWithId = (tpl, id) => tpl.replace('__ID__', String(id));
 const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 async function saveUser(){
@@ -490,9 +592,13 @@ async function saveUser(){
     return;
   }
 
+  const isEdit = !!editId;
+  const url = isEdit ? urlWithId(UPDATE_URL_TPL, editId) : STORE_URL;
+  const method = isEdit ? 'PUT' : 'POST';
+
   try {
-    const res = await fetch(STORE_URL, {
-      method: 'POST',
+    const res = await fetch(url, {
+      method,
       credentials: 'same-origin',
       headers: {
         'Accept': 'application/json',
@@ -509,7 +615,6 @@ async function saveUser(){
       })
     });
 
-    // handle 419/500 that returns HTML instead of JSON
     const text = await res.text();
     let data = {};
     try { data = JSON.parse(text); } catch(e) {}
@@ -519,17 +624,29 @@ async function saveUser(){
       return;
     }
 
-    if(data.ok){
-      const newUser = shapeUser(data.user);
-      users.unshift(newUser);
+    if(!data.ok){
+      alert(data.message || 'Failed.');
+      return;
+    }
 
+    if(isEdit){
+      // update local list
+      const idx = users.findIndex(x => x.id === editId);
+      if(idx >= 0){
+        users[idx] = shapeUser({ ...users[idx], ...data.user });
+      }
+      editId = null;
       closeM('userModal');
       render();
-
-      alert(`User created successfully.\nTemporary Password: ${data.temp_password || '(not returned)'}`);
+      alert('User updated successfully.');
     } else {
-      alert(data.message || 'Failed to create user.');
+      const newUser = shapeUser(data.user);
+      users.unshift(newUser);
+      closeM('userModal');
+      render();
+      alert(`User created successfully.\nTemporary Password: ${data.temp_password || '(not returned)'}`);
     }
+
   } catch (err){
     console.error(err);
     alert('Network/JS error. Check console.');
@@ -547,7 +664,7 @@ function viewUser(id){
       <div>
         <div class="vname">${u.fn} ${u.ln}</div>
         <div class="vsub">
-          <span class="role-badge ${rc}">${u.rl}</span>
+          <span class="role-badge ${rc}">${roleLabel(u.rl)}</span>
           <span class="sbadge ${sc}">${u.st}</span>
         </div>
       </div>
@@ -562,6 +679,11 @@ function viewUser(id){
         ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${u.nt}</div></div>`:''}
       </div>
     </div>`;
+
+    const editActionBtn = document.querySelector('#viewModal .mfoot .action-btn');
+if (editActionBtn) {
+  editActionBtn.style.display = canEditUser(u.rl) ? '' : 'none';
+}
 
   openM('viewModal');
 }
@@ -594,7 +716,47 @@ function doConfirm(id, action){
   const btn=document.getElementById('cfOk');
   btn.style.cssText=c.bs+';color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:0.3s;';
   btn.innerHTML=`<i class="fas ${c.icon}"></i> ${c.lbl}`;
-  btn.onclick=()=>{ u.st=action==='suspend'?'Suspended':'Active'; closeM('confirmModal'); render(); };
+  btn.onclick = async () => {
+  const nextStatus = (action === 'suspend') ? 'Suspended' : 'Active';
+  const url = urlWithId(STATUS_URL_TPL, id);
+
+  try {
+    const res = await fetch(url, {
+      method: 'PATCH',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': CSRF
+      },
+      body: JSON.stringify({ status: nextStatus })
+    });
+
+    const text = await res.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch(e) {}
+
+    if(!res.ok){
+      alert(`Request failed (${res.status}).\n${data.message || 'Check Network tab + server logs.'}`);
+      return;
+    }
+
+    if(!data.ok){
+      alert(data.message || 'Failed.');
+      return;
+    }
+
+    // update UI
+    u.st = data.status || nextStatus;
+    closeM('confirmModal');
+    render();
+
+  } catch (e) {
+    console.error(e);
+    alert('Network/JS error. Check console.');
+  }
+};
 
   openM('confirmModal');
 }

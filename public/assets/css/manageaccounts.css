@@ -601,6 +601,7 @@ tbody td {
   background: rgba(236, 72, 153, 0.12); 
   color: #ec4899; 
 }
+.r-research { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
 
 /* Status Badges */
 .sbadge {
