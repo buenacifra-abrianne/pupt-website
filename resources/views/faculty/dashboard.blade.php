@@ -446,7 +446,7 @@
                                 <div class="stat-card">
                                     <div class="stat-icon warning"><i class="fas fa-file-alt"></i></div>
                                     <div class="stat-info">
-                                        <div class="stat-label">Pageviews</div>
+                                        <div class="stat-label">Page views</div>
                                         <div class="stat-value" id="engPageviews">0</div>
                                     </div>
                                 </div>
@@ -459,13 +459,7 @@
                                     </div>
                                 </div>
 
-                                <div class="stat-card">
-                                    <div class="stat-icon yellow"><i class="fas fa-redo"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Returning Visitors</div>
-                                        <div class="stat-value" id="engReturningRate">0%</div>
-                                    </div>
-                                </div>
+
                             </div>
 
                         </div>
@@ -807,7 +801,6 @@
             setTextSafe('engSessions', Number(ue.sessions || 0).toLocaleString());
             setTextSafe('engPageviews', Number(ue.pageviews || 0).toLocaleString());
             setTextSafe('engPagesPerSession', ue.pages_per_session ?? 0);
-            setPctSafe('engReturningRate', ue.returning_rate_pct ?? 0);
 
             const ar = json.announcement_reach || {};
             setTextSafe('reachViews', Number(ar.views || 0).toLocaleString());
@@ -873,7 +866,6 @@
         sessions:document.getElementById('engSessions')?.textContent || 0,
         pageviews:document.getElementById('engPageviews')?.textContent || 0,
         pages_per_session:document.getElementById('engPagesPerSession')?.textContent || 0,
-        returning_rate:document.getElementById('engReturningRate')?.textContent || '0%'
     };
 
     let url='';
@@ -924,7 +916,6 @@ function exportPdf() {
       sessions: document.getElementById('engSessions')?.textContent?.trim() || '0',
       pageviews: document.getElementById('engPageviews')?.textContent?.trim() || '0',
       pages_per_session: document.getElementById('engPagesPerSession')?.textContent?.trim() || '0',
-      returning_rate: document.getElementById('engReturningRate')?.textContent?.trim() || '0%',
     }
   };
 
@@ -937,5 +928,4 @@ function exportPdf() {
 </script>
 </body>
 </html>
-
 

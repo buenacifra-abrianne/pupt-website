@@ -11,11 +11,15 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        $middleware->web(append: [
+            \App\Http\Middleware\TrackPublicAnalytics::class,
+        ]);
+
         $middleware->alias([
-        'faculty.auth' => \App\Http\Middleware\FacultyAuth::class,
-        'admin.role' => \App\Http\Middleware\AdminRoleOnly::class,
-        'nonadmin.role' => \App\Http\Middleware\NonAdminRoleOnly::class,
-    ]);
+            'faculty.auth' => \App\Http\Middleware\FacultyAuth::class,
+            'admin.role' => \App\Http\Middleware\AdminRoleOnly::class,
+            'nonadmin.role' => \App\Http\Middleware\NonAdminRoleOnly::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

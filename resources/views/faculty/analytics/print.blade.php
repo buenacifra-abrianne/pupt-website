@@ -134,18 +134,13 @@ table tr:nth-child(even){
 </tr>
 
 <tr>
-<td>Pageviews</td>
+<td>Page views</td>
 <td>{{ $data['pageviews'] }}</td>
 </tr>
 
 <tr>
 <td>Pages / Session</td>
 <td>{{ $data['pages_per_session'] }}</td>
-</tr>
-
-<tr>
-<td>Returning Visitors</td>
-<td>{{ $data['returning_rate'] }}</td>
 </tr>
 
 </table>
@@ -155,3 +150,4 @@ table tr:nth-child(even){
 
 </body>
 </html>
+
