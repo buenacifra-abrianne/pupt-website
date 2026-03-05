@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewAccountTempPasswordMail;
 
 class AccountsController extends Controller
 {
@@ -170,20 +172,41 @@ if (in_array('FACULTY', $allowedCodes, true)) {
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
     $newUserId = DB::table('users')->insertGetId($insert, $pk);
+    // ✅ send temp password via email
+$roleLabel = $requestedRoleCode;
+$roleRow = DB::table('roles')->where('code', $requestedRoleCode)->first();
+if ($roleRow && !empty($roleRow->name)) $roleLabel = (string) $roleRow->name;
+
+$emailSent = false;
+try {
+    Mail::to($data['email'])->queue(
+        new NewAccountTempPasswordMail(
+            $name,
+            $data['email'],
+            $roleLabel,
+            $tempPassword
+        )
+    );
+    $emailSent = true;
+} catch (\Throwable $e) {
+    \Log::error('Temp password email failed: '.$e->getMessage(), ['email' => $data['email']]);
+}
 
     return response()->json([
-        'ok' => true,
-        'user' => [
-            'id' => (int) $newUserId,
-            'fn' => $data['first_name'],
-            'ln' => $data['last_name'],
-            'em' => $data['email'],
-            'rl' => $requestedRoleCode,  // ✅ return stored role
-            'st' => $data['status'],
-            'll' => 'Never',
-        ],
-        'temp_password' => $tempPassword,
-    ]);
+    'ok' => true,
+    'user' => [
+        'id' => (int) $newUserId,
+        'fn' => $data['first_name'],
+        'ln' => $data['last_name'],
+        'em' => $data['email'],
+        'rl' => $requestedRoleCode,
+        'st' => $data['status'],
+        'll' => 'Never',
+    ],
+    'email_sent' => $emailSent,
+    // ✅ if email sent, don't return temp password (security)
+    'temp_password' => $emailSent ? null : $tempPassword,
+]);
 }
 
 public function setStatus(Request $request, $id)

@@ -408,6 +408,7 @@ function fillRoleOptions() {
   const opts = (ROLES || [])
   .filter(r => String(r.code) !== 'LIBRARY')
   .filter(r => String(r.code) !== 'GLOBAL_SUPERADMIN') // ✅ remove sa dropdown
+  .filter(r => !(CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && String(r.code) === 'SYSTEM_SUPERADMIN'))
   .filter(r => !String(r.code).includes(':'))          // ✅ hide base roles
   .map(r => {
     const code = String(r.code);
@@ -644,7 +645,11 @@ async function saveUser(){
       users.unshift(newUser);
       closeM('userModal');
       render();
-      alert(`User created successfully.\nTemporary Password: ${data.temp_password || '(not returned)'}`);
+      if (data.email_sent) {
+  alert('User created successfully. Temporary password sent to email.');
+} else {
+  alert(`User created successfully but email failed.\nTemporary Password: ${data.temp_password || '(not returned)'}`);
+}
     }
 
   } catch (err){
