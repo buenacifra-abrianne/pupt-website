@@ -84,8 +84,78 @@ class PUPHeader extends HTMLElement {
 
 class PUPFooter extends HTMLElement {
   connectedCallback() {
+    const variant = (this.getAttribute("variant") || "").toLowerCase();
+    const isLanding = variant === "landing";
+    const year = new Date().getFullYear();
+
     this.innerHTML = `
-<footer class="footer">
+<style>
+  .footer-legal {
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+    margin-top: 12px;
+    padding: 10px 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.92);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .footer-legal .footer-copy {
+    font-weight: 600;
+    color: #ffffff;
+  }
+
+  .footer-legal a {
+    color: #f4f4f4;
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .footer-legal a:hover {
+    color: #f0c85a;
+    text-decoration: underline;
+  }
+
+  .footer-legal .footer-sep {
+    opacity: 0.75;
+  }
+
+  .footer.footer-landing {
+    background: rgba(20, 27, 35, 0.92);
+    color: #fff;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+  }
+
+  .footer.footer-landing .footer-content {
+    display: none;
+  }
+
+  .footer.footer-landing .footer-legal {
+    margin-top: 0;
+    width: 100%;
+  }
+
+  @media (max-width: 768px) {
+    .footer-legal {
+      gap: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      line-height: 1.35;
+    }
+  }
+</style>
+<footer class="footer${isLanding ? " footer-landing" : ""}">
+  ${!isLanding ? `
   <div class="footer-content">
 
     <div class="footer-column">
@@ -137,8 +207,14 @@ class PUPFooter extends HTMLElement {
 
   </div>
 
-  <div class="footer-bottom">
-    <p>&copy; 1992-2025 Polytechnic University of the Philippines - Taguig Campus</p>
+  ` : ""}
+
+  <div class="footer-legal">
+    <span class="footer-copy">&copy; 1998-${year} Polytechnic University of the Philippines</span>
+    <span class="footer-sep" aria-hidden="true">|</span>
+    <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">Terms of Use</a>
+    <span class="footer-sep" aria-hidden="true">|</span>
+    <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">Privacy Statement</a>
   </div>
 </footer>
     `.trim();
