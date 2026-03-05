@@ -33,6 +33,10 @@ Route::get('/events', [EventsController::class, 'index'])->name('public.events')
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');
 
+Route::post('/profile/update', [AuthController::class, 'updateProfile'])
+    ->middleware('faculty.auth')
+    ->name('profile.update');
+
 // Staff Login
 Route::prefix('staff')
     ->name('staff.')

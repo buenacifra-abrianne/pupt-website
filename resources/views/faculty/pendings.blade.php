@@ -87,27 +87,44 @@
         </div>
 
         <div class="topbar-right">
-            <div class="user-profile">
-                <div class="user-avatar">
-                    @php
-                        $fn = session('user_first_name');
-                        echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
-                    @endphp
-                </div>
-
-                <div class="user-info">
-                    <div class="user-name">
-                        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
+            <details class="user-menu">
+                <summary class="user-profile">
+                    <div class="user-avatar">
+                        @php
+                            $fn = session('user_first_name');
+                            echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
+                        @endphp
                     </div>
-                    <div class="user-role">
-                        {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
-                    </div>
-                </div>
 
-                <i class="fas fa-chevron-down" style="color: #D4AF37;"></i>
-            </div>
+                    <div class="user-info">
+                        <div class="user-name">
+                            {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
+                        </div>
+                        <div class="user-role">
+                            {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
+                        </div>
+                    </div>
+
+                    <i class="fas fa-chevron-down profile-chevron" style="color: #D4AF37;"></i>
+                </summary>
+                <div class="profile-dropdown">
+                    <button type="button" class="profile-dropdown-item" onclick="openProfileModal(this)">
+                        <i class="fas fa-user-pen"></i>
+                        <span>Edit Profile</span>
+                    </button>
+                    <form method="POST" action="{{ route('faculty.logout') }}">
+                        @csrf
+                        <button type="submit" class="profile-dropdown-item">
+                            <i class="fa-solid fa-right-from-bracket"></i>
+                            <span>Logout</span>
+                        </button>
+                    </form>
+                </div>
+            </details>
         </div>
     </header>
+
+    @include('partials.profile_modal')
 
     <!-- Main Content -->
     <main class="main-content">
@@ -707,3 +724,5 @@ window.addEventListener('click', function(e) {
 
 </body>
 </html>
+
+
