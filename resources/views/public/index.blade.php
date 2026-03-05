@@ -7,6 +7,11 @@
     <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
+    <style>
+        :root {
+            --landing-bg-image: url("{{ asset('assets/static_img/bg_landing_page.jpg') }}");
+        }
+    </style>
 </head>
 <body>
 
@@ -43,10 +48,13 @@
         >
     </div>
 
+        <p class="kicker">Official Campus Portal</p>
 
         <!-- Title -->
-        <h2 class="Title">Welcome to the
-            Polytechnic University of the Philippines <br> Taguig Campus</h2>
+        <h2 class="Title">
+            Welcome to
+            <span>Polytechnic University of the Philippines - Taguig Campus</span>
+        </h2>
 
         <!-- Subtitle -->
         <p class="destination-hint">
@@ -60,7 +68,7 @@
                       stroke-linejoin="round"
                       d="m19.5 8.25-7.5 7.5-7.5-7.5" />
             </svg>
-            Please click/tap the appropriate link to help you in your navigation of our services
+            Select your destination to continue.
         </p>
 
         <!-- Buttons -->
@@ -88,28 +96,6 @@
                 <span class="text">Student</span>
             </a>
 
-            <a href="{{ route('public.research') }}" class="portal-button">
-                <span class="icon">
-                    <!-- beaker -->
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 3.104v5.714a2.25 2.25 0 0 1-.659 1.591L5 14.5M9.75 3.104c-.251.023-.501.05-.75.082m.75-.082a24.301 24.301 0 0 1 4.5 0m0 0v5.714c0 .597.237 1.17.659 1.591L19.8 15.3M14.25 3.104c.251.023.501.05.75.082M19.8 15.3l-1.57.393A9.065 9.065 0 0 1 12 15a9.065 9.065 0 0 0-6.23-.693L5 14.5m14.8.8 1.402 1.402c1.232 1.232.65 3.318-1.067 3.611A48.309 48.309 0 0 1 12 21c-2.773 0-5.491-.235-8.135-.687-1.718-.293-2.3-2.379-1.067-3.61L5 14.5" />
-</svg>
-
-                </span>
-                <span class="text">Research</span>
-            </a>
-
-            <a href="#" class="portal-button">
-                <span class="icon">
-                    <!-- wrench -->
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12a7.5 7.5 0 0 0 15 0m-15 0a7.5 7.5 0 1 1 15 0m-15 0H3m16.5 0H21m-1.5 0H12m-8.457 3.077 1.41-.513m14.095-5.13 1.41-.513M5.106 17.785l1.15-.964m11.49-9.642 1.149-.964M7.501 19.795l.75-1.3m7.5-12.99.75-1.3m-6.063 16.658.26-1.477m2.605-14.772.26-1.477m0 17.726-.26-1.477M10.698 4.614l-.26-1.477M16.5 19.794l-.75-1.299M7.5 4.205 12 12m6.894 5.785-1.149-.964M6.256 7.178l-1.15-.964m15.352 8.864-1.41-.513M4.954 9.435l-1.41-.514M12.002 12l-3.75 6.495" />
-</svg>
-
-                </span>
-                <span class="text">Online Services</span>
-            </a>
-
             <a href="{{ route('public.home') }}" class="portal-button">
                 <span class="icon">
                     <!-- home -->
@@ -118,7 +104,7 @@
 </svg>
 
                 </span>
-                <span class="text">View Homepage</span>
+                <span class="text">Visitor</span>
             </a>
 
         </div>
