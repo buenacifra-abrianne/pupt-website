@@ -43,6 +43,13 @@
                     <span>Pending Approvals</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('faculty.accounts') }}" class="nav-link">
+                    <i class="fas fa-users-gear"></i>
+                    <span>Manage Accounts</span>
+                </a>
+            </li>
             @endif
       <li class="nav-item">
         <a href="{{ route('faculty.announcements') }}" class="nav-link">

@@ -32,6 +32,17 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+            @php
+                $role = strtoupper(trim((string) session('user_role')));
+            @endphp
+
+            @if(in_array($role, ['ADMIN']))
+            <li class="nav-item">
+                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Pending Approvals</span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a href="{{ route('faculty.accounts') }}" class="nav-link active">
@@ -39,6 +50,7 @@
                     <span>Manage Accounts</span>
                 </a>
             </li>
+            @endif
 
             <li class="nav-item">
                 <a href="{{ route('faculty.announcements') }}" class="nav-link">
@@ -87,38 +99,22 @@
             <button class="menu-toggle" onclick="toggleSidebar()">
                 <i class="fas fa-bars"></i>
             </button>
-
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Search across all systems...">
-            </div>
         </div>
 
         <div class="topbar-right">
-            <button class="icon-btn" type="button">
-                <i class="fas fa-bell"></i>
-                <span class="badge">0</span>
-            </button>
-
-            <button class="icon-btn" type="button">
-                <i class="fas fa-envelope"></i>
-                <span class="badge">0</span>
-            </button>
-
             <details class="user-menu">
                 <summary class="user-profile">
                     <div class="user-avatar">
                         @php
                             $fn = (string) session('user_first_name');
-                            $ln = (string) session('user_last_name');
-                            $ini = ($fn ? strtoupper(substr($fn,0,1)) : 'A') . ($ln ? strtoupper(substr($ln,0,1)) : '');
+                            $ini = ($fn ? strtoupper(substr($fn,0,1)) : 'A');
                             echo $ini ?: 'AD';
                         @endphp
                     </div>
 
                     <div class="user-info">
                         <div class="user-name">
-                            {{ session('user_first_name') ? e(session('user_first_name').' '.session('user_last_name')) : 'Admin User' }}
+                            {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
                         </div>
                         <div class="user-role">
                             {{ session('user_role') ? e(session('user_role')) : 'ADMIN' }}
@@ -168,13 +164,30 @@
             </div>
 
             <div class="tab-nav">
-                <button class="tab-btn active" data-role="all" onclick="switchRole('all')"><i class="fas fa-th-list"></i> All <span class="count-pill" id="pill-all">0</span></button>
-                <button class="tab-btn" data-role="Administrator" onclick="switchRole('Administrator')"><i class="fas fa-shield-halved"></i> Administrator <span class="count-pill" id="pill-Administrator">0</span></button>
-                <button class="tab-btn" data-role="Registrar" onclick="switchRole('Registrar')"><i class="fas fa-id-card"></i> Registrar <span class="count-pill" id="pill-Registrar">0</span></button>
-                <button class="tab-btn" data-role="HAP" onclick="switchRole('HAP')"><i class="fas fa-building-user"></i> HAP <span class="count-pill" id="pill-HAP">0</span></button>
-                <button class="tab-btn" data-role="Faculty" onclick="switchRole('Faculty')"><i class="fas fa-chalkboard-user"></i> Faculty <span class="count-pill" id="pill-Faculty">0</span></button>
-                <button class="tab-btn" data-role="Student" onclick="switchRole('Student')"><i class="fas fa-user-graduate"></i> Student <span class="count-pill" id="pill-Student">0</span></button>
-                <button class="tab-btn" data-role="IT" onclick="switchRole('IT')"><i class="fas fa-laptop-code"></i> IT <span class="count-pill" id="pill-IT">0</span></button>
+                <button class="tab-btn active" data-role="all" onclick="switchRole('all')">
+                    <i class="fas fa-th-list"></i> All <span class="count-pill" id="pill-all">0</span>
+                </button>
+
+                <button class="tab-btn" data-role="Admin" onclick="switchRole('Admin')">
+                    <i class="fas fa-shield-halved"></i> Admin <span class="count-pill" id="pill-Admin">0</span>
+                </button>
+
+                <button class="tab-btn" data-role="Registrar" onclick="switchRole('Registrar')">
+                    <i class="fas fa-id-card"></i> Registrar <span class="count-pill" id="pill-Registrar">0</span>
+                </button>
+
+                <button class="tab-btn" data-role="HAP" onclick="switchRole('HAP')">
+                    <i class="fas fa-building-user"></i> HAP <span class="count-pill" id="pill-HAP">0</span>
+                </button>
+
+                <button class="tab-btn" data-role="Student Services" onclick="switchRole('Student Services')">
+                    <i class="fas fa-handshake-angle"></i> Student Services
+                    <span class="count-pill" id="pill-StudentServices">0</span>
+                </button>
+
+                <button class="tab-btn" data-role="Faculty" onclick="switchRole('Faculty')">
+                    <i class="fas fa-chalkboard-user"></i> Faculty <span class="count-pill" id="pill-Faculty">0</span>
+                </button>
             </div>
 
             <div class="filter-bar">
@@ -189,7 +202,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>#</th><th>User</th><th>User ID</th><th>Role</th><th>Department</th><th>Status</th><th>Last Login</th><th>Actions</th>
+                            <th>#</th><th>User</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="tbody"></tbody>
@@ -216,59 +229,60 @@
             </div>
 
             <div class="mbody">
-                <div class="frow">
-                    <div class="fg"><label>First Name <span class="req">*</span></label><input id="f-fn" placeholder="First name"></div>
-                    <div class="fg"><label>Last Name <span class="req">*</span></label><input id="f-ln" placeholder="Last name"></div>
-                </div>
+    <div class="frow">
+        <div class="fg">
+            <label>First Name <span class="req">*</span></label>
+            <input id="f-fn" placeholder="First name">
+        </div>
+        <div class="fg">
+            <label>Last Name <span class="req">*</span></label>
+            <input id="f-ln" placeholder="Last name">
+        </div>
+    </div>
 
-                <div class="frow">
-                    <div class="fg"><label>Email <span class="req">*</span></label><input type="email" id="f-em" placeholder="user@pup.edu.ph"></div>
-                    <div class="fg"><label>Phone</label><input id="f-ph" placeholder="+63 XXX XXX XXXX"></div>
-                </div>
+    <div class="frow">
+        <div class="fg">
+            <label>Email <span class="req">*</span></label>
+            <input type="email" id="f-em" placeholder="user@pup.edu.ph">
+        </div>
+        <div class="fg">
+            <label>Role <span class="req">*</span></label>
+            <select id="f-rl">
+                <option value="">Select Role</option>
+                <option>Admin</option>
+                <option>Registrar</option>
+                <option>HAP</option>
+                <option>Faculty</option>
+                <option>Student Services</option>
+            </select>
+        </div>
+    </div>
 
-                <div class="frow">
-                    <div class="fg"><label>User ID / Student No. <span class="req">*</span></label><input id="f-uid" placeholder="e.g. 2021-00001"></div>
-                    <div class="fg"><label>Role <span class="req">*</span></label>
-                        <select id="f-rl">
-                            <option value="">Select Role</option>
-                            <option>Administrator</option><option>Registrar</option><option>HAP</option><option>Faculty</option><option>Student</option><option>Library</option><option>IT</option>
-                        </select>
-                    </div>
-                </div>
+    <div class="frow">
+        <div class="fg" id="pwWrap">
+            <label>Temporary Password <span class="req">*</span></label>
+            <input type="password" id="f-pw" placeholder="Temporary password">
+        </div>
+        <div class="fg">
+            <label>Account Status <span class="req">*</span></label>
+            <select id="f-st">
+                <option value="">Select Status</option>
+                <option>Active</option>
+                <option>Inactive</option>
+                <option>Suspended</option>
+            </select>
+        </div>
+    </div>
 
-                <div class="frow">
-                    <div class="fg"><label>Department <span class="req">*</span></label>
-                        <select id="f-dp">
-                            <option value="">Select Department</option>
-                            <option>Administration</option><option>IT Department</option><option>College of Engineering</option><option>College of Science</option><option>College of Computer Science</option><option>Registrar's Office</option><option>Library</option>
-                        </select>
-                    </div>
-                    <div class="fg"><label>Position / Year Level</label><input id="f-pos" placeholder="e.g. Professor, 3rd Year"></div>
-                </div>
-
-                <div class="frow">
-                    <div class="fg"><label>Username <span class="req">*</span></label><input id="f-un" placeholder="Username"></div>
-                    <div class="fg" id="pwWrap"><label>Temporary Password <span class="req">*</span></label><input type="password" id="f-pw" placeholder="Temporary password"></div>
-                </div>
-
-                <div class="frow">
-                    <div class="fg"><label>Account Status <span class="req">*</span></label>
-                        <select id="f-st">
-                            <option value="">Select Status</option>
-                            <option>Active</option><option>Inactive</option><option>Pending</option><option>Suspended</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div class="fg">
-                    <div class="chkrow">
-                        <input type="checkbox" id="f-fc" checked>
-                        <label for="f-fc" style="margin:0;font-weight:500;font-size:13px;">Force password change on first login</label>
-                    </div>
-                </div>
-
-                <div class="fg"><label>Notes</label><textarea id="f-nt" placeholder="Optional notes..." rows="2"></textarea></div>
-            </div>
+    <div class="fg" id="forcePwWrap">
+    <div class="chkrow">
+        <input type="checkbox" id="f-fc" checked>
+        <label for="f-fc" style="margin:0;font-weight:500;font-size:13px;">
+            Force password change on first login
+        </label>
+    </div>
+</div>
+</div>
 
             <div class="mfoot">
                 <button class="btn-outline" type="button" onclick="closeM('userModal')"><i class="fas fa-times"></i> Cancel</button>
@@ -313,12 +327,31 @@
     </div>
 
 <script>
-const RC = {Administrator:'r-admin',Registrar:'r-registrar',HAP:'r-hap',Faculty:'r-faculty',Student:'r-student',Library:'r-library',IT:'r-it'};
+const RC = {
+  Admin: 'r-admin',
+  Registrar: 'r-registrar',
+  HAP: 'r-hap',
+  Faculty: 'r-faculty',
+  'Student Services': 'r-studentservices',
+  Library: 'r-library'
+};
 const SC = {Active:'sb-active',Inactive:'sb-inactive',Pending:'sb-pending',Suspended:'sb-suspended'};
 const SI = {Active:'fa-circle-check',Inactive:'fa-circle-minus',Pending:'fa-clock',Suspended:'fa-ban'};
 const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
 
+function normalizeRole(role){
+  const r = String(role || '').trim().toUpperCase();
+  if (r === 'ADMIN' || r === 'ADMINISTRATOR') return 'Admin';
+  if (r === 'STUDENT SERVICES' || r === 'STUDENT_SERVICES' || r === 'STUDENT-SERVICES') return 'Student Services';
+  if (r === 'FACULTY') return 'Faculty';
+  if (r === 'REGISTRAR') return 'Registrar';
+  if (r === 'HAP') return 'HAP';
+  if (r === 'LIBRARY') return 'Library';
+  return String(role || '').trim();
+}
+
 let users = {!! $usersJson ?? '[]' !!};
+users = users.map(u => ({ ...u, rl: normalizeRole(u.rl) }));
 
 let nid=4, curRole='all', editId=null, viewId=null, pg=1;
 const PP=10;
@@ -351,9 +384,7 @@ function render(){
             return `<tr>
                 <td style="color:#bbb;font-size:12px">${s+i+1}</td>
                 <td><div class="user-cell"><div class="avatar ${u.av}">${ini}</div><div><div class="uname">${u.fn} ${u.ln}</div><div class="uemail">${u.em}</div></div></div></td>
-                <td style="color:#666;font-size:12px">${u.uid}</td>
                 <td><span class="role-badge ${rc}">${u.rl}</span></td>
-                <td style="color:#666;font-size:12px">${u.dp}</td>
                 <td><span class="sbadge ${sc}"><i class="fas ${si}" style="font-size:9px"></i> ${u.st}</span></td>
                 <td style="color:#888;font-size:12px">${u.ll}</td>
                 <td><div class="actions">
@@ -371,17 +402,30 @@ function render(){
 }
 
 function updateCounts(){
-    const rc={},sc={Active:0,Inactive:0,Pending:0,Suspended:0};
-    users.forEach(u=>{ rc[u.rl]=(rc[u.rl]||0)+1; sc[u.st]=(sc[u.st]||0)+1; });
-    document.getElementById('cnt-total').textContent=users.length;
-    document.getElementById('cnt-active').textContent=sc.Active;
-    document.getElementById('cnt-inactive').textContent=sc.Inactive;
-    document.getElementById('cnt-pending').textContent=sc.Pending;
-    document.getElementById('cnt-suspended').textContent=sc.Suspended;
-    document.getElementById('pill-all').textContent=users.length;
-    ['Administrator','Registrar','HAP','Faculty','Student','IT'].forEach(r=>{
-        const el=document.getElementById('pill-'+r); if(el) el.textContent=rc[r]||0;
+    const rc = {};
+    const sc = {Active:0,Inactive:0,Pending:0,Suspended:0};
+
+    users.forEach(u=>{
+        rc[u.rl] = (rc[u.rl] || 0) + 1;
+        sc[u.st] = (sc[u.st] || 0) + 1;
     });
+
+    document.getElementById('cnt-total').textContent = users.length;
+    document.getElementById('cnt-active').textContent = sc.Active;
+    document.getElementById('cnt-inactive').textContent = sc.Inactive;
+    document.getElementById('cnt-pending').textContent = sc.Pending;
+    document.getElementById('cnt-suspended').textContent = sc.Suspended;
+
+    document.getElementById('pill-all').textContent = users.length;
+
+    // Match your actual pill IDs
+    const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+
+    setPill('pill-Admin', rc['Admin'] || 0);
+    setPill('pill-Registrar', rc['Registrar'] || 0);
+    setPill('pill-HAP', rc['HAP'] || 0);
+    setPill('pill-Faculty', rc['Faculty'] || 0);
+    setPill('pill-StudentServices', rc['Student Services'] || 0);
 }
 
 function applyFilters(){ pg=1; render(); }
@@ -389,35 +433,75 @@ function switchRole(r){ curRole=r; pg=1; document.querySelectorAll('[data-role]'
 function changePg(d){ const t=filtered().length, m=Math.ceil(t/PP); pg=Math.max(1,Math.min(pg+d,m)); render(); }
 
 function clrForm(){
-    ['f-fn','f-ln','f-em','f-ph','f-uid','f-un','f-pw','f-pos','f-nt'].forEach(x=>document.getElementById(x).value='');
-    document.getElementById('f-rl').value=''; document.getElementById('f-dp').value='';
-    document.getElementById('f-st').value='Active'; document.getElementById('f-fc').checked=true;
+    ['f-fn','f-ln','f-em','f-pw'].forEach(x => document.getElementById(x).value = '');
+    document.getElementById('f-rl').value = '';
+    document.getElementById('f-st').value = 'Active';
+    document.getElementById('f-fc').checked = true;
 }
-function openAdd(){ editId=null; clrForm(); document.getElementById('mTitle').innerHTML='<i class="fas fa-user-plus"></i> Add New User'; document.getElementById('saveLbl').textContent='Create User'; document.getElementById('pwWrap').style.display=''; openM('userModal'); }
-function openEdit(id){ editId=id; const u=users.find(x=>x.id===id); if(!u)return;
-    document.getElementById('f-fn').value=u.fn; document.getElementById('f-ln').value=u.ln;
-    document.getElementById('f-em').value=u.em; document.getElementById('f-ph').value=u.ph;
-    document.getElementById('f-uid').value=u.uid; document.getElementById('f-rl').value=u.rl;
-    document.getElementById('f-dp').value=u.dp; document.getElementById('f-pos').value=u.pos;
-    document.getElementById('f-un').value=u.un; document.getElementById('f-st').value=u.st;
-    document.getElementById('f-nt').value=u.nt; document.getElementById('f-pw').value='';
+function openAdd(){
+    editId=null;
+    clrForm();
+
+    document.getElementById('mTitle').innerHTML='<i class="fas fa-user-plus"></i> Add New User';
+    document.getElementById('saveLbl').textContent='Create User';
+
+    document.getElementById('pwWrap').style.display='';
+    document.getElementById('forcePwWrap').style.display='';   // show checkbox
+
+    openM('userModal');
+}
+function openEdit(id){
+    editId = id;
+    const u = users.find(x => x.id === id);
+    if(!u) return;
+
+    document.getElementById('f-fn').value = u.fn || '';
+    document.getElementById('f-ln').value = u.ln || '';
+    document.getElementById('f-em').value = u.em || '';
+    document.getElementById('f-rl').value = u.rl || '';
+    document.getElementById('f-st').value = u.st || 'Active';
+    document.getElementById('f-pw').value = '';
+
     document.getElementById('pwWrap').style.display='none';
-    document.getElementById('mTitle').innerHTML='<i class="fas fa-pen"></i> Edit User';
-    document.getElementById('saveLbl').textContent='Save Changes'; openM('userModal');
+    document.getElementById('forcePwWrap').style.display='none';
+    document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit User';
+    document.getElementById('saveLbl').textContent = 'Save Changes';
+    openM('userModal');
 }
 function saveUser(){
-    const fn=document.getElementById('f-fn').value.trim(), ln=document.getElementById('f-ln').value.trim(),
-          em=document.getElementById('f-em').value.trim(), uid=document.getElementById('f-uid').value.trim(),
-          rl=document.getElementById('f-rl').value, dp=document.getElementById('f-dp').value,
-          un=document.getElementById('f-un').value.trim(), st=document.getElementById('f-st').value;
-    if(!fn||!ln||!em||!uid||!rl||!dp||!un||!st){alert('Please fill in all required fields.');return;}
-    if(editId){
-        const u=users.find(x=>x.id===editId);
-        Object.assign(u,{fn,ln,em,ph:document.getElementById('f-ph').value,uid,rl,dp,pos:document.getElementById('f-pos').value,un,st,nt:document.getElementById('f-nt').value});
-    } else {
-        users.push({id:nid++,fn,ln,em,ph:document.getElementById('f-ph').value,uid,rl,dp,pos:document.getElementById('f-pos').value,un,st,ll:'Never',nt:document.getElementById('f-nt').value,av:AV[(nid-2)%6]});
+    const fn = document.getElementById('f-fn').value.trim();
+    const ln = document.getElementById('f-ln').value.trim();
+    const em = document.getElementById('f-em').value.trim();
+    const rl = document.getElementById('f-rl').value;
+    const st = document.getElementById('f-st').value;
+
+    if(!fn || !ln || !em || !rl || !st){
+        alert('Please fill in all required fields.');
+        return;
     }
-    closeM('userModal'); render();
+
+    if(!editId){
+        const pw = document.getElementById('f-pw').value.trim();
+        if(!pw){
+            alert('Temporary password is required.');
+            return;
+        }
+    }
+
+    if(editId){
+        const u = users.find(x => x.id === editId);
+        Object.assign(u, { fn, ln, em, rl, st });
+    } else {
+        users.push({
+            id: nid++,
+            fn, ln, em, rl, st,
+            ll: 'Never',
+            av: AV[(nid - 2) % 6]
+        });
+    }
+
+    closeM('userModal');
+    render();
 }
 
 function viewUser(id){
@@ -431,13 +515,8 @@ function viewUser(id){
     </div></div>
     <div class="mbody"><div class="vgrid">
         <div class="vf"><div class="vfl">Full Name</div><div class="vfv">${u.fn} ${u.ln}</div></div>
-        <div class="vf"><div class="vfl">User ID</div><div class="vfv">${u.uid}</div></div>
         <div class="vf"><div class="vfl">Email</div><div class="vfv">${u.em}</div></div>
-        <div class="vf"><div class="vfl">Phone</div><div class="vfv">${u.ph||'—'}</div></div>
-        <div class="vf"><div class="vfl">Username</div><div class="vfv">${u.un}</div></div>
         <div class="vf"><div class="vfl">Role</div><div class="vfv">${u.rl}</div></div>
-        <div class="vf"><div class="vfl">Department</div><div class="vfv">${u.dp}</div></div>
-        <div class="vf"><div class="vfl">Position / Year</div><div class="vfv">${u.pos||'—'}</div></div>
         <div class="vf"><div class="vfl">Status</div><div class="vfv">${u.st}</div></div>
         <div class="vf"><div class="vfl">Last Login</div><div class="vfv">${u.ll}</div></div>
         ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${u.nt}</div></div>`:''}

@@ -37,8 +37,11 @@ class AuthController extends Controller
         if ($storedPassword !== '' && hash_equals($storedPassword, (string) $request->password)) {
             $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
             DB::table('users')
-                ->where($idColumn, data_get($user, $idColumn))
-                ->update(['password' => Hash::make((string) $request->password)]);
+    ->where($idColumn, data_get($user, $idColumn))
+    ->update([
+        'last_login_at' => now(),
+        'password'      => Hash::make((string) $request->password)
+    ]);
         }
 
         session([

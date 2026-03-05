@@ -37,12 +37,10 @@
                     <span>Pending Approvals</span>
                 </a>
             </li>
-            @endif
 
-            @if(in_array($role, ['ADMIN']))
             <li class="nav-item">
                 <a href="{{ route('faculty.accounts') }}" class="nav-link">
-                    <i class="fas fa-clipboard-check"></i>
+                    <i class="fas fa-users-gear"></i>
                     <span>Manage Accounts</span>
                 </a>
             </li>
