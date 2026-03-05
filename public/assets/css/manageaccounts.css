@@ -592,9 +592,10 @@ tbody td {
 .r-registrar { background: rgba(212, 175, 55, 0.15);  color: #9a7a00; }
 .r-hap       { background: rgba(59, 130, 246, 0.12);  color: #2563eb; }
 .r-faculty   { background: rgba(168, 85, 247, 0.12);  color: #7c3aed; }
-.r-student   { background: rgba(34, 197, 94, 0.12);   color: #15803d; }
-.r-library   { background: rgba(249, 115, 22, 0.12);  color: #ea580c; }
-.r-it        { background: rgba(20, 184, 166, 0.12);  color: #0f766e; }
+.r-studentservices { 
+  background: rgba(236, 72, 153, 0.12); 
+  color: #ec4899; 
+}
 
 /* Status Badges */
 .sbadge {
