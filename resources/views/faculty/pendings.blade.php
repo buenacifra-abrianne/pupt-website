@@ -73,15 +73,6 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <form method="POST" action="{{ route('faculty.logout') }}">
-                    @csrf
-                    <button type="submit" class="nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </li>
         </ul>
     </nav>
 
@@ -731,5 +722,4 @@ window.addEventListener('click', function(e) {
 
 </body>
 </html>
-
 

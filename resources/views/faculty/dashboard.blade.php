@@ -423,37 +423,118 @@
 
             <!-- Tab: User Engagement -->
             <div class="tab-content" id="engagement">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <div class="stats-grid">
-                                <div class="stat-card">
-                                    <div class="stat-icon maroon"><i class="fas fa-layer-group"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Sessions</div>
-                                        <div class="stat-value" id="engSessions">0</div>
-                                    </div>
+                <div class="analytics-split-grid">
+                    <div class="card analytics-panel">
+                        <div class="analytics-panel-header">
+                            <h3 class="analytics-panel-title">User Engagement</h3>
+                        </div>
+
+                        <div class="analytics-engagement-grid">
+                            <div class="stat-card">
+                                <div class="stat-icon maroon"><i class="fas fa-layer-group"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-label">Sessions</div>
+                                    <div class="stat-value" id="engSessions">0</div>
                                 </div>
-
-                                <div class="stat-card">
-                                    <div class="stat-icon warning"><i class="fas fa-file-alt"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Page views</div>
-                                        <div class="stat-value" id="engPageviews">0</div>
-                                    </div>
-                                </div>
-
-                                <div class="stat-card">
-                                    <div class="stat-icon info"><i class="fas fa-clone"></i></div>
-                                    <div class="stat-info">
-                                        <div class="stat-label">Pages / Session</div>
-                                        <div class="stat-value" id="engPagesPerSession">0</div>
-                                    </div>
-                                </div>
-
-
                             </div>
 
+                            <div class="stat-card">
+                                <div class="stat-icon warning"><i class="fas fa-file-alt"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-label">Page views</div>
+                                    <div class="stat-value" id="engPageviews">0</div>
+                                </div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-icon info"><i class="fas fa-clone"></i></div>
+                                <div class="stat-info">
+                                    <div class="stat-label">Pages / Session</div>
+                                    <div class="stat-value" id="engPagesPerSession">0</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card analytics-panel">
+                        <div class="analytics-panel-header">
+                            <h3 class="analytics-panel-title">Feedback Result</h3>
+                        </div>
+
+                        <div class="feedback-pie-layout">
+                            <div class="feedback-question-panel">
+                                <h4 class="feedback-question-title">Per Question Results</h4>
+
+                                <div class="feedback-question-list">
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q1</span>
+                                        <span class="feedback-question-value" id="fbQ1Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q2</span>
+                                        <span class="feedback-question-value" id="fbQ2Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q3</span>
+                                        <span class="feedback-question-value" id="fbQ3Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q4</span>
+                                        <span class="feedback-question-value" id="fbQ4Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q5</span>
+                                        <span class="feedback-question-value" id="fbQ5Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q6</span>
+                                        <span class="feedback-question-value" id="fbQ6Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row total">
+                                        <span class="feedback-question-label">Total Average</span>
+                                        <span class="feedback-question-value" id="fbAverageTotal">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row final">
+                                        <span class="feedback-question-label">Final Result</span>
+                                        <span class="feedback-question-value" id="fbFinalResultText">No Data</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="feedback-chart-panel">
+                                <div class="feedback-chart-shell">
+                                    <div class="feedback-pie-wrap">
+                                        <div class="feedback-pie" id="feedbackPieChart">
+                                        </div>
+                                    </div>
+
+                                    <div class="feedback-legend">
+                                        <div class="feedback-legend-item">
+                                            <span class="feedback-legend-color outstanding"></span>
+                                            <span class="feedback-legend-label">Outstanding</span>
+                                            <span class="feedback-legend-value" id="fbOutstandingCount">0 (0%)</span>
+                                        </div>
+
+                                        <div class="feedback-legend-item">
+                                            <span class="feedback-legend-color very-satisfactory"></span>
+                                            <span class="feedback-legend-label">Very Satisfactory</span>
+                                            <span class="feedback-legend-value" id="fbVerySatisfactoryCount">0 (0%)</span>
+                                        </div>
+
+                                        <div class="feedback-legend-item">
+                                            <span class="feedback-legend-color satisfactory"></span>
+                                            <span class="feedback-legend-label">Satisfactory</span>
+                                            <span class="feedback-legend-value" id="fbSatisfactoryCount">0 (0%)</span>
+                                        </div>
+
+                                        <div class="feedback-legend-item">
+                                            <span class="feedback-legend-color unsatisfactory"></span>
+                                            <span class="feedback-legend-label">Unsatisfactory</span>
+                                            <span class="feedback-legend-value" id="fbUnsatisfactoryCount">0 (0%)</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -776,6 +857,93 @@
         el.textContent = `${value}%`;
     }
 
+    function ratingFromAverage(score) {
+        const avg = Number(score || 0);
+        if (avg >= 3.5) return 'Outstanding';
+        if (avg >= 2.5) return 'Very Satisfactory';
+        if (avg >= 1.5) return 'Satisfactory';
+        return 'Unsatisfactory';
+    }
+
+    function updateFeedbackResultsChart(results) {
+        const toSafeAvg = (value) => {
+            const n = Number(value);
+            if (!Number.isFinite(n) || n < 0) return 0;
+            return Math.min(4, n);
+        };
+
+        const toSafeCount = (value) => {
+            const n = Number(value);
+            if (!Number.isFinite(n) || n < 0) return 0;
+            return n;
+        };
+
+        const q1 = toSafeAvg(results.question_1_avg);
+        const q2 = toSafeAvg(results.question_2_avg);
+        const q3 = toSafeAvg(results.question_3_avg);
+        const q4 = toSafeAvg(results.question_4_avg);
+        const q5 = toSafeAvg(results.question_5_avg);
+        const q6 = toSafeAvg(results.question_6_avg);
+        const overallAverage = toSafeAvg(results.overall_average);
+        const totalResponses = toSafeCount(results.total_responses);
+
+        const outstanding = toSafeCount(results.outstanding);
+        const verySatisfactory = toSafeCount(results.very_satisfactory);
+        const satisfactory = toSafeCount(results.satisfactory);
+        const unsatisfactory = toSafeCount(results.unsatisfactory);
+
+        const ratingsTotal = outstanding + verySatisfactory + satisfactory + unsatisfactory;
+        const outstandingPct = ratingsTotal > 0 ? (outstanding / ratingsTotal) * 100 : 0;
+        const verySatisfactoryPct = ratingsTotal > 0 ? (verySatisfactory / ratingsTotal) * 100 : 0;
+        const satisfactoryPct = ratingsTotal > 0 ? (satisfactory / ratingsTotal) * 100 : 0;
+        const unsatisfactoryPct = ratingsTotal > 0 ? (unsatisfactory / ratingsTotal) * 100 : 0;
+
+        const finalResult = String(results.final_rating || '').trim() || ratingFromAverage(overallAverage);
+
+        setTextSafe('fbQ1Avg', `${q1.toFixed(2)} / 4`);
+        setTextSafe('fbQ2Avg', `${q2.toFixed(2)} / 4`);
+        setTextSafe('fbQ3Avg', `${q3.toFixed(2)} / 4`);
+        setTextSafe('fbQ4Avg', `${q4.toFixed(2)} / 4`);
+        setTextSafe('fbQ5Avg', `${q5.toFixed(2)} / 4`);
+        setTextSafe('fbQ6Avg', `${q6.toFixed(2)} / 4`);
+        setTextSafe('fbAverageTotal', `${overallAverage.toFixed(2)} / 4`);
+        setTextSafe('fbFinalResultText', finalResult);
+
+        setTextSafe('feedbackFinalResult', finalResult);
+        setTextSafe('feedbackAverageTotal', `${overallAverage.toFixed(2)} / 4`);
+        setTextSafe(
+            'feedbackTotalResponses',
+            `${totalResponses.toLocaleString()} response${totalResponses === 1 ? '' : 's'}`
+        );
+
+        setTextSafe('fbOutstandingCount', `${outstanding.toLocaleString()} (${Math.round(outstandingPct)}%)`);
+        setTextSafe('fbVerySatisfactoryCount', `${verySatisfactory.toLocaleString()} (${Math.round(verySatisfactoryPct)}%)`);
+        setTextSafe('fbSatisfactoryCount', `${satisfactory.toLocaleString()} (${Math.round(satisfactoryPct)}%)`);
+        setTextSafe('fbUnsatisfactoryCount', `${unsatisfactory.toLocaleString()} (${Math.round(unsatisfactoryPct)}%)`);
+
+        const pieEl = document.getElementById('feedbackPieChart');
+        if (!pieEl) return;
+
+        if (ratingsTotal === 0) {
+            pieEl.style.background = 'conic-gradient(#eceff1 0deg 360deg)';
+            return;
+        }
+
+        const outstandingDeg = outstandingPct * 3.6;
+        const verySatisfactoryDeg = verySatisfactoryPct * 3.6;
+        const satisfactoryDeg = satisfactoryPct * 3.6;
+        const stop1 = outstandingDeg;
+        const stop2 = stop1 + verySatisfactoryDeg;
+        const stop3 = stop2 + satisfactoryDeg;
+
+        pieEl.style.background = `conic-gradient(
+            #2fa54a 0deg ${stop1}deg,
+            #1f8fb8 ${stop1}deg ${stop2}deg,
+            #d4af37 ${stop2}deg ${stop3}deg,
+            #b03a48 ${stop3}deg 360deg
+        )`;
+    }
+
     window.applyAnalytics = async function () {
         const start = document.getElementById('analyticsStart')?.value || '';
         const end   = document.getElementById('analyticsEnd')?.value || '';
@@ -793,6 +961,9 @@
             setTextSafe('engSessions', Number(ue.sessions || 0).toLocaleString());
             setTextSafe('engPageviews', Number(ue.pageviews || 0).toLocaleString());
             setTextSafe('engPagesPerSession', ue.pages_per_session ?? 0);
+
+            const fr = json.feedback_results || {};
+            updateFeedbackResultsChart(fr);
 
             const ar = json.announcement_reach || {};
             setTextSafe('reachViews', Number(ar.views || 0).toLocaleString());
@@ -920,5 +1091,3 @@ function exportPdf() {
 </script>
 </body>
 </html>
-
-

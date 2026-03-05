@@ -83,6 +83,11 @@ margin-top: -0.5px;
     border-left: 4px solid #660000;
 }
 
+.nav-link:hover span,
+.nav-link:hover i {
+    color: #D4AF37;
+}
+
 .nav-link i {
     color: #FFFFFF;
     font-size: 18px;

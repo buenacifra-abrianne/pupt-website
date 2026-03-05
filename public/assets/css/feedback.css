@@ -21,6 +21,17 @@
   gap: 24px;
 }
 
+.feedback-error-banner {
+  padding: 12px 14px;
+  margin-bottom: 18px;
+  border: 1px solid #d26a6a;
+  border-radius: 8px;
+  background: #fff1f1;
+  color: #8b0000;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 .feedback-item {
   padding: 18px 22px;
   border: 1px solid #ddd;
@@ -97,6 +108,10 @@
   align-items: center;
   justify-content: center;
   z-index: 2000;
+}
+
+.modal-overlay.active {
+  display: flex;
 }
 
 .modal-box {
