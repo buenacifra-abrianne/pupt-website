@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Carbon\Carbon;
@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Schema;
 
 class AnalyticsController extends Controller
 {
-    public function adminApi(Request $request)
+    public function superadminApi(Request $request)
     {
         try {
             [$startAt, $endAt] = $this->resolveDateRange($request);
@@ -72,7 +72,7 @@ class AnalyticsController extends Controller
             'pages_per_session' => data_get($payload, 'user_engagement.pages_per_session', $request->input('pages_per_session', 0)),
         ];
 
-        return view('faculty.analytics.print', [
+        return view('superadmin.analytics.print', [
             'data' => $data,
             'start' => $request->input('start', ''),
             'end' => $request->input('end', ''),

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +59,7 @@ class DashboardController extends Controller
     ->limit(6)
     ->get();
 
-    return view('faculty.dashboard', compact(
+    return view('superadmin.dashboard', compact(
         'total_announcements',
         'recent_announcements',
         'recent_notifications',

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Staff;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -41,7 +41,7 @@ class AnnouncementController extends Controller
         ->values()
         ->all();
 
-    // ✅ LIVE = approved announcements created by this staff,
+    // ✅ LIVE = approved announcements created by this admin,
     // minus those with pending changes
     $myAnnouncements = DB::table('announcements')
         ->where('created_by', $userId)
@@ -66,7 +66,7 @@ $pendingNewsIds = DB::table('approval_requests')
     ->values()
     ->all();
 
-// ✅ LIVE = approved news created by this staff,
+// ✅ LIVE = approved news created by this admin,
 // minus those with pending changes
 $myNews = DB::table('news')
     ->where('created_by', $userId)
@@ -77,7 +77,7 @@ $myNews = DB::table('news')
     ->orderByDesc('created_at')
     ->get();
 
-    return view('staff.announcements', compact(
+    return view('admin.announcements', compact(
     'myRequests', 'myAnnouncements', 'myNews', 'email', 'name'
 ));
 }

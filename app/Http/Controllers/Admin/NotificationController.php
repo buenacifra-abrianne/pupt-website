@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -15,11 +15,10 @@ class NotificationController extends Controller
             abort(403, 'Missing user_id in session');
         }
 
-        // Filters (same as your old PHP)
-        $typeFilter   = strtoupper(trim($request->query('type', 'ALL')));
-        $statusFilter = strtoupper(trim($request->query('status', 'ALL')));
-        $rangeFilter  = strtoupper(trim($request->query('range', '7D')));
-        $q            = trim((string) $request->query('q', ''));
+        $q = $request->get('q', '');
+        $typeFilter = $request->get('type', 'ALL');
+        $statusFilter = $request->get('status', 'ALL');
+        $rangeFilter = $request->get('range', '30D');
 
         // Stats
         $statsRow = DB::table('notifications as n')
@@ -31,9 +30,11 @@ class NotificationController extends Controller
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
             })
-            ->where('n.channel', 'SYSTEM')
-            ->where('n.target_role', 'ADMIN')
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
             ->whereNull('nd.user_id')
+            
             ->selectRaw("SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count")
             ->selectRaw("COUNT(*) AS total_count")
             ->first();
@@ -53,8 +54,9 @@ class NotificationController extends Controller
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
             })
-            ->where('n.channel', 'SYSTEM')
-            ->where('n.target_role', 'ADMIN')
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
             ->whereNull('nd.user_id');
 
         // Type
@@ -111,15 +113,14 @@ class NotificationController extends Controller
             'INFO'    => ['info', 'fa-bullhorn'],
         ];
 
-        return view('faculty.notifications', compact(
-            'stats', 'totalFiltered', 'notifications',
-            'typeFilter', 'statusFilter', 'rangeFilter', 'q',
-            'iconMap'
+        return view('admin.notifications', compact(
+            'q','typeFilter','statusFilter','rangeFilter',
+            'notifications','stats','iconMap', 'totalFiltered'
         ));
+
     }
 
-    public function markRead(Request $request)
-    {
+    public function markRead(Request $request) {
         $userId = (int) session('user_id');
         if ($userId <= 0) {
             return response()->json(['ok' => false, 'error' => 'Missing user_id in session'], 400);
@@ -130,13 +131,15 @@ class NotificationController extends Controller
         // - mark all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
-                ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
-                    $join->on('nd.notification_id', '=', 'n.notification_id')
-                         ->where('nd.user_id', '=', $userId);
-                })
-                ->where('n.channel', 'SYSTEM')
-                ->whereNull('nd.user_id')
-                ->pluck('n.notification_id');
+            ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
+                $join->on('nd.notification_id', '=', 'n.notification_id')
+                    ->where('nd.user_id', '=', $userId);
+            })
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
+            ->whereNull('nd.user_id')
+            ->pluck('n.notification_id');
 
             if ($ids->isNotEmpty()) {
                 $rows = $ids->map(fn ($nid) => [
@@ -166,9 +169,7 @@ class NotificationController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    public function delete(Request $request)
-    {
-        $userId = (int) session('user_id');
+    public function delete(Request $request) { $userId = (int) session('user_id');
         if ($userId <= 0) {
             return response()->json(['ok' => false, 'error' => 'Missing user_id in session'], 400);
         }
@@ -178,13 +179,15 @@ class NotificationController extends Controller
         // - clear all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
-                ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
-                    $join->on('nd.notification_id', '=', 'n.notification_id')
-                         ->where('nd.user_id', '=', $userId);
-                })
-                ->where('n.channel', 'SYSTEM')
-                ->whereNull('nd.user_id')
-                ->pluck('n.notification_id');
+            ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
+                $join->on('nd.notification_id', '=', 'n.notification_id')
+                    ->where('nd.user_id', '=', $userId);
+            })
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+            ->where('n.target_user_id', $userId)
+            ->whereNull('nd.user_id')
+            ->pluck('n.notification_id');
 
             if ($ids->isNotEmpty()) {
                 $rows = $ids->map(fn ($nid) => [
@@ -214,22 +217,16 @@ class NotificationController extends Controller
         return response()->json(['ok' => true]);
     }
 
-    private function pushSystemNotif(
-    string $type,
-    string $title,
-    string $message,
-    ?string $targetRole,
-    ?int $targetUserId = null
-    ): void
+    private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole = null, ?int $targetUserId = null): void
     {
-        \DB::table('notifications')->insert([
-            'title'          => $title,
-            'message'        => $message,
-            'type'           => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
-            'channel'        => 'SYSTEM',
-            'target_role'    => $targetRole,         // 'ADMIN' or 'STAFF'
-            'target_user_id' => $targetUserId,       // required if STAFF-only
-            'created_at'     => now(),
+        DB::table('notifications')->insert([
+            'title'         => $title,
+            'message'       => $message,
+            'type'          => strtoupper($type),
+            'channel'       => 'SYSTEM',
+            'target_role'   => $targetRole,     // ADMIN / STAFF
+            'target_user_id'=> $targetUserId,   // only for STAFF
+            'created_at'    => now(),
         ]);
     }
 }

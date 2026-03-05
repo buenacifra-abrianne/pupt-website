@@ -21,47 +21,43 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('faculty.dashboard') }}" class="nav-link active">
+                <a href="{{ route('superadmin.dashboard') }}" class="nav-link active">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-            @php
-                $role = strtoupper(trim((string) session('user_role')));
-            @endphp
 
-            @if(in_array($role, ['ADMIN']))
             <li class="nav-item">
-                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link">
+                <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.accounts') }}" class="nav-link">
+                <a href="{{ route('superadmin.accounts') }}" class="nav-link">
                     <i class="fas fa-users-gear"></i>
                     <span>Manage Accounts</span>
                 </a>
             </li>
-            @endif
+
             <li class="nav-item">
                 {{-- update this route when you create announcements page --}}
-                <a href="{{ route('faculty.announcements') ?? '#' }}" class="nav-link">
+                <a href="{{ route('superadmin.announcements') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
             <li class="nav-item">
                 {{-- update this route when you create content management page --}}
-                <a href="{{ route('faculty.content') ?? '#' }}" class="nav-link">
+                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
             <li class="nav-item">
                 {{-- update this route when you create notifications page --}}
-                <a href="{{ route('faculty.notifications') ?? '#' }}" class="nav-link">
+                <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
@@ -101,7 +97,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-                    <form method="POST" action="{{ route('faculty.logout') }}">
+                    <form method="POST" action="{{ route('superadmin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -151,7 +147,7 @@
                         <div class="stat-change positive">
                             <i class="fas fa-database"></i> Live From Database
                             &nbsp;•&nbsp;
-                            <a href="{{ route('faculty.approvals.pending') }}" style="color:inherit; text-decoration:none;">
+                            <a href="{{ route('superadmin.approvals.pending') }}" style="color:inherit; text-decoration:none;">
                                 View
                             </a>
                         </div>
@@ -262,7 +258,7 @@
                     <div class="card-header">
                         <h2 class="card-title">Recent Notifications</h2>
                         <div style="display:flex; gap:10px;">
-                            <a class="btn btn-outline btn-sm" href="{{ route('faculty.notifications') ?? '#' }}">
+                            <a class="btn btn-outline btn-sm" href="{{ route('superadmin.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
@@ -370,7 +366,7 @@
                     </div>
                 </div>
 
-                <form id="exportPdfForm" method="POST" action="{{ route('faculty.analytics.exportPdf') }}" target="_blank" style="display:none;">
+                <form id="exportPdfForm" method="POST" action="{{ route('superadmin.analytics.exportPdf') }}" target="_blank" style="display:none;">
                 @csrf
                 <input type="hidden" name="start" id="exp_start">
                 <input type="hidden" name="end" id="exp_end">
@@ -809,7 +805,7 @@
     window.markNotificationRead = async function (id, btn) {
         try {
             btn.disabled = true;
-            await postJSON("{{ route('faculty.notifications.markRead') }}", { id });
+            await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
 
             const item = btn.closest('.notification-item');
             if (item) item.classList.remove('unread');
@@ -827,7 +823,7 @@
 
         try {
             btn.disabled = true;
-            await postJSON("{{ route('faculty.notifications.delete') }}", { id });
+            await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
 
             const item = btn.closest('.notification-item');
             if (item) item.remove();
@@ -949,7 +945,7 @@
         const end   = document.getElementById('analyticsEnd')?.value || '';
 
         try {
-            const json = await postJSON("{{ route('faculty.analytics.adminApi') }}", { start, end });
+            const json = await postJSON("{{ route('superadmin.analytics.superadminApi') }}", { start, end });
 
             const k = json.kpis;
 
@@ -1034,11 +1030,11 @@
     let url='';
 
     if(type==='pdf'){
-        url="{{ route('faculty.analytics.exportPdf') }}";
+        url="{{ route('superadmin.analytics.exportPdf') }}";
     }
 
     if(type==='excel'){
-        url="{{ route('faculty.analytics.exportExcel') }}";
+        url="{{ route('superadmin.analytics.exportExcel') }}";
     }
 
     const form=document.createElement('form');

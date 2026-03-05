@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -32,7 +32,7 @@ class AccountsController extends Controller
         ];
     });
 
-    return view('faculty.accounts', [
+    return view('superadmin.accounts', [
         'usersJson' => $mapped->toJson(),
     ]);
 }

@@ -27,47 +27,44 @@
         </div>
 
         <ul class="nav-menu">
+            
             <li class="nav-item">
-                <a href="{{ route('faculty.dashboard') }}" class="nav-link">
+                <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-            @php
-                $role = strtoupper(trim((string) session('user_role')));
-            @endphp
-
-            @if(in_array($role, ['ADMIN']))
+            
             <li class="nav-item">
-                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link active">
+                <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link active">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.accounts') }}" class="nav-link">
+                <a href="{{ route('superadmin.accounts') }}" class="nav-link">
                     <i class="fas fa-users-gear"></i>
                     <span>Manage Accounts</span>
                 </a>
             </li>
-            @endif
+
             <li class="nav-item">
-                <a href="{{ route('faculty.announcements') }}" class="nav-link">
+                <a href="{{ route('superadmin.announcements') }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.content') }}" class="nav-link">
+                <a href="{{ route('superadmin.content') }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.notifications') }}" class="nav-link">
+                <a href="{{ route('superadmin.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
@@ -110,7 +107,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-                    <form method="POST" action="{{ route('faculty.logout') }}">
+                    <form method="POST" action="{{ route('superadmin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -227,13 +224,13 @@
                                         {{-- Approve --}}
                                         <button type="button"
                                         class="btn btn-sm btn-success"
-                                        onclick="approveReq('{{ route('faculty.approvals.approve', $item->id) }}', {{ (int)$item->id }})">
+                                        onclick="approveReq('{{ route('superadmin.approvals.approve', $item->id) }}', {{ (int)$item->id }})">
                                         Approve
                                         </button>
 
                                         {{-- Reject (with reason prompt) --}}
                                         <button type="button" class="btn btn-sm btn-delete"
-                                        onclick="rejectReq('{{ route('faculty.approvals.reject', $item->id) }}', {{ (int)$item->id }})">
+                                        onclick="rejectReq('{{ route('superadmin.approvals.reject', $item->id) }}', {{ (int)$item->id }})">
                                         <i class="fas fa-times"></i> Reject
                                         </button>
                                     </td>

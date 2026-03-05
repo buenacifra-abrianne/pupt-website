@@ -16,9 +16,9 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'faculty.auth' => \App\Http\Middleware\FacultyAuth::class,
-            'admin.role' => \App\Http\Middleware\AdminRoleOnly::class,
-            'nonadmin.role' => \App\Http\Middleware\NonAdminRoleOnly::class,
+            'superadmin.auth' => \App\Http\Middleware\SuperadminAuth::class,
+            'superadmin.role' => \App\Http\Middleware\SuperadminRole::class,
+            'nonsuperadmin.role' => \App\Http\Middleware\NonSuperadminRoleOnly::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

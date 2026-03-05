@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminRoleOnly
+class NonSuperadminRoleOnly
 {
     /**
      * Handle an incoming request.
@@ -16,11 +16,12 @@ class AdminRoleOnly
     public function handle($request, \Closure $next)
     {
         if (!session('user_logged_in')) {
-            return redirect('/faculty/login');
+            return redirect('/superadmin/login');
         }
 
-        if (session('user_role') !== 'Admin') {
-            return redirect('/staff/dashboard');
+        $role = strtoupper(trim((string) session('user_role')));
+        if (!in_array($role, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'])) {
+            return redirect('/superadmin/dashboard');
         }
 
         return $next($request);

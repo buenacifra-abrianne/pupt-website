@@ -24,14 +24,14 @@
 
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('staff.dashboard') }}" class="nav-link">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('staff.announcements') }}" class="nav-link active">
+                <a href="{{ route('admin.announcements') }}" class="nav-link active">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
@@ -45,14 +45,14 @@
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('staff.notifications') }}" class="nav-link">
+                <a href="{{ route('admin.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <form method="POST" action="{{ route('faculty.logout') }}">
+                <form method="POST" action="{{ route('superadmin.logout') }}">
                     @csrf
                     <button type="submit" class="nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -97,7 +97,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-                    <form method="POST" action="{{ route('faculty.logout') }}">
+                    <form method="POST" action="{{ route('superadmin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -161,7 +161,7 @@
 
         <div id="announcementsList">
           @forelse($pendingReqs as $row)
-            @include('staff.partials.announcement_request_card', ['row' => $row])
+            @include('admin.partials.announcement_request_card', ['row' => $row])
           @empty
             <div style="padding: 14px; opacity:.75;">No pending requests.</div>
           @endforelse
@@ -173,7 +173,7 @@
 
         <div>
           @forelse($rejectedReqs as $row)
-            @include('staff.partials.announcement_request_card', ['row' => $row])
+            @include('admin.partials.announcement_request_card', ['row' => $row])
           @empty
             <div style="padding: 14px; opacity:.75;">No rejected requests.</div>
           @endforelse
@@ -295,7 +295,7 @@
 
         <div id="newsRequestsList">
           @forelse($pendingNewsReqs as $row)
-            @include('staff.partials.news_request_card', ['row' => $row])
+            @include('admin.partials.news_request_card', ['row' => $row])
           @empty
             <div style="padding: 14px; opacity:.75;">No pending news requests.</div>
           @endforelse
@@ -307,7 +307,7 @@
 
         <div>
           @forelse($rejectedNewsReqs as $row)
-            @include('staff.partials.news_request_card', ['row' => $row])
+            @include('admin.partials.news_request_card', ['row' => $row])
           @empty
             <div style="padding: 14px; opacity:.75;">No rejected news requests.</div>
           @endforelse
@@ -413,7 +413,7 @@
                 </button>
             </div>
 
-            <form id="announcementForm" method="POST" action="{{ route('staff.announcements.requestCreate') }}">
+            <form id="announcementForm" method="POST" action="{{ route('admin.announcements.requestCreate') }}">
                 @csrf
 
                 <div class="form-group">
@@ -455,7 +455,7 @@
                 </button>
             </div>
 
-            <form id="newsForm" action="{{ route('staff.news.requestCreate') }}" method="POST" enctype="multipart/form-data">
+            <form id="newsForm" action="{{ route('admin.news.requestCreate') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -590,7 +590,7 @@
 
   if (isNew) {
     form.reset();
-    form.action = "{{ route('staff.announcements.requestCreate') }}";
+    form.action = "{{ route('admin.announcements.requestCreate') }}";
     if (modalTitle) modalTitle.innerText = "New Announcement";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
 
@@ -618,15 +618,15 @@
         if (!confirm(`Request ${action} this announcement?`)) return;
 
         const url = isEnabled
-            ? "{{ route('staff.announcements.requestDisable') }}"
-            : "{{ route('staff.announcements.requestEnable') }}";
+            ? "{{ route('admin.announcements.requestDisable') }}"
+            : "{{ route('admin.announcements.requestEnable') }}";
 
         try {
             await postForm(url, {
                 announcement_id: id
             });
 
-            showToast("Request submitted. Please wait for admin approval.");
+            showToast("Request submitted. Please wait for superadmin approval.");
             window.location.reload();
         } catch (err) {
             console.error(err);
@@ -643,7 +643,7 @@
         if (!confirm('Request DELETE this announcement?')) return;
 
         try {
-            await postForm("{{ route('staff.announcements.requestDelete') }}", {
+            await postForm("{{ route('admin.announcements.requestDelete') }}", {
                 announcement_id: id,
                 title: title
             });
@@ -669,7 +669,7 @@
             setNewsPreview('');
             document.getElementById('news_existing_image_path').value = '';
             document.getElementById('newsRemoveImageBtn').style.display = 'none';
-            form.action = "{{ route('staff.news.requestCreate') }}";
+            form.action = "{{ route('admin.news.requestCreate') }}";
             if (modalTitle) modalTitle.innerText = "New News Article";
             if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
 
@@ -705,7 +705,7 @@
   if (modalTitle) modalTitle.innerText = "Edit News Article";
   if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
 
-  form.action = "{{ route('staff.news.requestUpdate') }}";
+  form.action = "{{ route('admin.news.requestUpdate') }}";
 
   form.querySelector('[name="title"]').value = title || '';
   form.querySelector('[name="content"]').value = content || '';
@@ -771,7 +771,7 @@
 
   if (!isNaN(nid) && nid > 0) {
     if (modalTitle) modalTitle.innerText = "Edit News Article";
-    form.action = "{{ route('staff.news.requestUpdate') }}";
+    form.action = "{{ route('admin.news.requestUpdate') }}";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
 
     let idInput = document.getElementById('edit_news_id');
@@ -786,7 +786,7 @@
 
   } else {
     if (modalTitle) modalTitle.innerText = "Edit Draft News Request";
-    form.action = "{{ route('staff.news.requestCreate') }}";
+    form.action = "{{ route('admin.news.requestCreate') }}";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Update Draft';
 
     const idInput = document.getElementById('edit_news_id');
@@ -804,7 +804,7 @@
         if (!confirm('Request DELETE this news?')) return;
 
         try {
-            await postForm("{{ route('staff.news.requestDelete') }}", {
+            await postForm("{{ route('admin.news.requestDelete') }}", {
                 news_id: id,
                 title: title
             });
@@ -885,7 +885,7 @@
   // ✅ If this is an existing announcement, submit UPDATE request
   if (!isNaN(annId) && annId > 0) {
     if (modalTitle) modalTitle.innerText = "Edit Announcement";
-    form.action = "{{ route('staff.announcements.requestUpdate') }}";
+    form.action = "{{ route('admin.announcements.requestUpdate') }}";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
 
     let idInput = document.getElementById('edit_announcement_id');
@@ -901,7 +901,7 @@
   } else {
     // ✅ Draft request (no announcement_id yet): resubmit as CREATE (update same request via request_id)
     if (modalTitle) modalTitle.innerText = "Edit Draft Request";
-    form.action = "{{ route('staff.announcements.requestCreate') }}";
+    form.action = "{{ route('admin.announcements.requestCreate') }}";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update Draft';
 
     const idInput = document.getElementById('edit_announcement_id');
@@ -921,13 +921,13 @@ async function deleteAnnouncementRequest(reqId, type, announcementId, title) {
   if (!confirm("Request DELETE this announcement?")) return;
 
   try {
-    await postForm("{{ route('staff.announcements.requestDelete') }}", {
+    await postForm("{{ route('admin.announcements.requestDelete') }}", {
       request_id: reqId,           // ✅ important (so it updates same request row if needed)
       announcement_id: annId,
       title: title
     });
 
-    showToast("Request submitted. Please wait for admin approval.");
+    showToast("Request submitted. Please wait for superadmin approval.");
     window.location.reload();
   } catch (err) {
     console.error(err);
@@ -1039,7 +1039,7 @@ function deleteApprovalRequestOnly(a, b) {
   console.log('DELETE URL =', deleteUrl);
 
   if (!deleteUrl || deleteUrl.trim() === '') {
-    alert('Delete URL is empty. (data-delete-url missing) — kaya napupunta sa staff/dashboard.');
+    alert('Delete URL is empty. (data-delete-url missing) — kaya napupunta sa admin/dashboard.');
     return;
   }
 
@@ -1079,7 +1079,7 @@ function requestToggleAnnouncement(announcementId, title, currentStatus) {
   const urlDisable = document.getElementById('urlReqDisable')?.value;
 
   if (!urlEnable || !urlDisable) {
-    alert('Missing staff toggle URLs. Check hidden inputs urlReqEnable/urlReqDisable.');
+    alert('Missing admin toggle URLs. Check hidden inputs urlReqEnable/urlReqDisable.');
     return;
   }
 
@@ -1113,7 +1113,7 @@ function requestToggleAnnouncement(announcementId, title, currentStatus) {
     if (!data.ok) {
       throw new Error(data.error || data.message || 'Request failed.');
     }
-    // ✅ refresh so staff sees updated "My Requests" immediately
+    // ✅ refresh so admin sees updated "My Requests" immediately
     window.location.reload();
   })
   .catch(err => alert('Request toggle failed: ' + err.message));
@@ -1174,8 +1174,8 @@ function clearNewsImage() {
 ">
   <div id="toastMsg"></div>
 </div>
-<input type="hidden" id="urlReqEnable" value="{{ route('staff.announcements.requestEnable') }}">
-<input type="hidden" id="urlReqDisable" value="{{ route('staff.announcements.requestDisable') }}">
+<input type="hidden" id="urlReqEnable" value="{{ route('admin.announcements.requestEnable') }}">
+<input type="hidden" id="urlReqDisable" value="{{ route('admin.announcements.requestDisable') }}">
 </body>
 </html>
 

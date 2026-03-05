@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -59,7 +59,7 @@ $history = $this->attachDisplayFields($history);
             ->distinct()
             ->pluck('type');
 
-        return view('faculty.pendings', compact('pending', 'history', 'types'));
+        return view('superadmin.pendings', compact('pending', 'history', 'types'));
     }
 
     public function approve(Request $request, $id)

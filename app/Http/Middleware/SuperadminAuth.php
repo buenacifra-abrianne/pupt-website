@@ -6,12 +6,12 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class FacultyAuth
+class SuperadminAuth
 {
     public function handle(Request $request, Closure $next): Response
     {
         if (!session()->get('user_logged_in')) {
-            return redirect()->route('faculty.login');
+            return redirect()->route('superadmin.login');
         }
 
         return $next($request);

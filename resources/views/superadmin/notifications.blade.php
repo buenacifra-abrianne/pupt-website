@@ -23,38 +23,44 @@
       <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
       <div class="logo-text">
         Hello,<br>
-        {{ session('user_first_name', 'Admin') }}!
+        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
       </div>
     </div>
     <ul class="nav-menu">
       <li class="nav-item">
-        <a href="{{ route('staff.dashboard') }}" class="nav-link">
+        <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
           <i class="fas fa-home"></i><span>Dashboard</span>
         </a>
       </li>
+
+            <li class="nav-item">
+                <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Pending Approvals</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('superadmin.accounts') }}" class="nav-link">
+                    <i class="fas fa-users-gear"></i>
+                    <span>Manage Accounts</span>
+                </a>
+            </li>
+
       <li class="nav-item">
-        <a href="{{ route('staff.announcements') }}" class="nav-link">
-          <i class="fas fa-bullhorn"></i><span>News & Announcements</span>
+        <a href="{{ route('superadmin.announcements') }}" class="nav-link">
+          <i class="fas fa-bullhorn"></i><span>Announcements</span>
         </a>
       </li>
       <li class="nav-item">
-        <a href="#" class="nav-link">
+        <a href="{{ route('superadmin.content') }}" class="nav-link">
           <i class="fas fa-file-alt"></i><span>Content Management</span>
         </a>
       </li>
       <li class="nav-item">
-        <a href="{{ route('staff.notifications') }}" class="nav-link active">
+        <a href="{{ route('superadmin.notifications') }}" class="nav-link active">
           <i class="fas fa-bell"></i><span>Notifications</span>
         </a>
-      </li>
-      <li class="nav-item">
-        <form method="POST" action="{{ route('faculty.logout') }}">
-            @csrf
-            <button type="submit" class="nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
-                <i class="fa-solid fa-right-from-bracket"></i>
-                <span>Logout</span>
-            </button>
-        </form>
       </li>
     </ul>
   </nav>
@@ -65,7 +71,7 @@
         <i class="fas fa-bars"></i>
       </button>
 
-      <form class="search-bar" method="GET" action="{{ route('staff.notifications') }}">
+      <form class="search-bar" method="GET" action="{{ route('superadmin.notifications') }}">
         <i class="fas fa-search"></i>
         <input name="q" value="{{ $q }}" type="text" placeholder="Search notifications...">
         <input type="hidden" name="type" value="{{ $typeFilter }}">
@@ -78,11 +84,18 @@
       <details class="user-menu">
         <summary class="user-profile">
           <div class="user-avatar">
-            {{ strtoupper(substr((string)session('user_first_name','A'), 0, 1)) }}
+            @php
+                $fn = session('user_first_name');
+                echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
+            @endphp
           </div>
           <div class="user-info">
-            <div class="user-name">{{ session('user_first_name', 'Admin User') }}</div>
-            <div class="user-role">{{ session('user_role', 'Staff') }}</div>
+            <div class="user-name">
+              {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
+            </div>
+            <div class="user-role">
+              {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
+            </div>
           </div>
           <i class="fas fa-chevron-down profile-chevron" style="color: #D4AF37;"></i>
         </summary>
@@ -91,7 +104,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-          <form method="POST" action="{{ route('faculty.logout') }}">
+          <form method="POST" action="{{ route('superadmin.logout') }}">
             @csrf
             <button type="submit" class="profile-dropdown-item">
               <i class="fa-solid fa-right-from-bracket"></i>
@@ -152,7 +165,7 @@
         </div>
 
         <div style="padding:0;">
-          <form class="filter-bar" method="GET" action="{{ route('staff.notifications') }}">
+          <form class="filter-bar" method="GET" action="{{ route('superadmin.notifications') }}">
             <select name="status">
               <option value="ALL" {{ $statusFilter==='ALL' ? 'selected' : '' }}>All Status</option>
               <option value="UNREAD" {{ $statusFilter==='UNREAD' ? 'selected' : '' }}>Unread Only</option>
@@ -298,7 +311,7 @@
     window.markNotificationRead = async function (id, btn) {
       try {
         btn.disabled = true;
-        await postJSON("{{ route('staff.notifications.markRead') }}", { id });
+        await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
 
         const item = btn.closest('.notification-item');
         if (item) item.classList.remove('unread');
@@ -313,7 +326,7 @@
       if (!confirm("Delete this notification?")) return;
       try {
         btn.disabled = true;
-        await postJSON("{{ route('staff.notifications.delete') }}", { id });
+        await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
 
         const item = btn.closest('.notification-item');
         if (item) item.remove();
@@ -326,7 +339,7 @@
     window.markAllRead = async function () {
       if (!confirm("Mark ALL notifications as read?")) return;
       try {
-        await postJSON("{{ route('staff.notifications.markRead') }}", { all: 1 });
+        await postJSON("{{ route('superadmin.notifications.markRead') }}", { all: 1 });
         location.reload();
       } catch (err) {
         alert("Mark all as read failed: " + err.message);
@@ -336,7 +349,7 @@
     window.clearAll = async function () {
       if (!confirm("Delete ALL notifications? This cannot be undone.")) return;
       try {
-        await postJSON("{{ route('staff.notifications.delete') }}", { all: 1 });
+        await postJSON("{{ route('superadmin.notifications.delete') }}", { all: 1 });
         location.reload();
       } catch (err) {
         alert("Clear all failed: " + err.message);
@@ -345,5 +358,4 @@
   </script>
 </body>
 </html>
-
 

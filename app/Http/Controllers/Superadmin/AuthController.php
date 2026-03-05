@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Faculty;
+namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -12,7 +12,7 @@ class AuthController extends Controller
 {
     public function show()
     {
-        return view('faculty.login');
+        return view('superadmin.login');
     }
 
     public function login(Request $request)
@@ -44,6 +44,9 @@ class AuthController extends Controller
     ]);
         }
 
+        $dbRole = strtoupper(trim((string) ($user->role ?? '')));
+        $dbRole = preg_replace('/\s+/', '_', $dbRole);
+
         session([
             'user_logged_in' => true,
             'user_id' => (int) ($user->user_id ?? $user->id ?? 0),
@@ -51,22 +54,23 @@ class AuthController extends Controller
             'user_first_name' => $user->first_name ?? '',
             'user_middle_name' => $user->middle_name ?? '',
             'user_last_name'  => $user->last_name ?? '',
-            'user_role' => $user->role ?? '',
+            'user_role' => $dbRole ?? '',
             'user_name' => $user->name ?? '',
             'user_profile_picture' => $user->profile_picture ?? '',
         ]);
 
-        if (($user->role ?? '') === 'ADMIN') {
-            return redirect()->route('faculty.dashboard');   // admin side
-        }
+        $isSuperadmin = in_array($dbRole, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN']);
 
-        return redirect()->route('staff.dashboard');        // non-admin side
+        if ($isSuperadmin) {
+            return redirect()->route('superadmin.dashboard');
+        }
+        return redirect()->route('admin.dashboard');
     }
 
     public function logout(Request $request)
     {
         $request->session()->flush();
-        return redirect()->route('faculty.login');
+        return redirect()->route('superadmin.login');
     }
 
     public function updateProfile(Request $request)

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Staff;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -52,14 +52,14 @@ class DashboardController extends Controller
             'nr.read_at'
         )
         ->where('n.channel', 'SYSTEM')
-        ->where('n.target_role', 'STAFF')      // ✅ only staff-targeted
-        ->where('n.target_user_id', $userId)   // ✅ only this staff
+        ->where('n.target_role', 'ADMIN')      // ✅ only admin-targeted
+        ->where('n.target_user_id', $userId)   // ✅ only this admin
         ->whereNull('nd.user_id')
         ->orderBy('n.created_at', 'desc')
         ->limit(6)
         ->get();
 
-        return view('staff.dashboard', compact(
+        return view('admin.dashboard', compact(
             'pending_requests',
             'approved_requests',
             'rejected_requests',

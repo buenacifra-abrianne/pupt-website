@@ -27,47 +27,42 @@
 
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('faculty.dashboard') }}" class="nav-link">
+                <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-            @php
-                $role = strtoupper(trim((string) session('user_role')));
-            @endphp
 
-            @if(in_array($role, ['ADMIN']))
             <li class="nav-item">
-                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link">
+                <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.accounts') }}" class="nav-link active">
+                <a href="{{ route('superadmin.accounts') }}" class="nav-link active">
                     <i class="fas fa-users-gear"></i>
                     <span>Manage Accounts</span>
                 </a>
             </li>
-            @endif
 
             <li class="nav-item">
-                <a href="{{ route('faculty.announcements') }}" class="nav-link">
+                <a href="{{ route('superadmin.announcements') }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.content') }}" class="nav-link">
+                <a href="{{ route('superadmin.content') }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.notifications') }}" class="nav-link">
+                <a href="{{ route('superadmin.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
@@ -75,7 +70,7 @@
 
             {{-- optional: add audit trail route if meron ka --}}
             {{-- <li class="nav-item">
-                <a href="{{ route('faculty.audit') }}" class="nav-link">
+                <a href="{{ route('superadmin.audit') }}" class="nav-link">
                     <i class="fa-solid fa-clock-rotate-left"></i>
                     <span>Audit Trail</span>
                 </a>
@@ -119,7 +114,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-                    <form method="POST" action="{{ route('faculty.logout') }}">
+                    <form method="POST" action="{{ route('superadmin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -480,7 +475,7 @@ function openEdit(id){
   openM('userModal');
 }
 
-const STORE_URL = "{{ route('faculty.accounts.store') }}";
+const STORE_URL = "{{ route('superadmin.accounts.store') }}";
 const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
 async function saveUser(){

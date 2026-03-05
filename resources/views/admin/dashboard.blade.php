@@ -21,13 +21,13 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('staff.dashboard') }}" class="nav-link active">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link active">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('staff.announcements') }}" class="nav-link">
+                <a href="{{ route('admin.announcements') }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
@@ -40,13 +40,13 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('staff.notifications') }}" class="nav-link">
+                <a href="{{ route('admin.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
             </li>
             <li class="nav-item">
-                <form method="POST" action="{{ route('faculty.logout') }}">
+                <form method="POST" action="{{ route('superadmin.logout') }}">
                     @csrf
                     <button type="submit" class="nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -88,7 +88,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-                    <form method="POST" action="{{ route('faculty.logout') }}">
+                    <form method="POST" action="{{ route('superadmin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -199,7 +199,7 @@
                     <div class="card-header">
                         <h2 class="card-title">Recent Notifications</h2>
                         <div style="display:flex; gap:10px;">
-                            <a class="btn btn-outline btn-sm" href="{{ route('staff.notifications') ?? '#' }}">
+                            <a class="btn btn-outline btn-sm" href="{{ route('admin.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
@@ -471,7 +471,7 @@
     window.markNotificationRead = async function (id, btn) {
         try {
             btn.disabled = true;
-            await postJSON("{{ route('staff.notifications.markRead') }}", { id });
+            await postJSON("{{ route('admin.notifications.markRead') }}", { id });
 
             const item = btn.closest('.notification-item');
             if (item) item.classList.remove('unread');
@@ -489,7 +489,7 @@
 
         try {
             btn.disabled = true;
-            await postJSON("{{ route('staff.notifications.delete') }}", { id });
+            await postJSON("{{ route('admin.notifications.delete') }}", { id });
 
             const item = btn.closest('.notification-item');
             if (item) item.remove();

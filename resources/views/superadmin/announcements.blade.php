@@ -24,46 +24,42 @@
 
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('faculty.dashboard') }}" class="nav-link">
+                <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-            @php
-                $role = strtoupper(trim((string) session('user_role')));
-            @endphp
 
-            @if(in_array($role, ['ADMIN']))
             <li class="nav-item">
-                <a href="{{ route('faculty.approvals.pending') }}" class="nav-link">
+                <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.accounts') }}" class="nav-link">
+                <a href="{{ route('superadmin.accounts') }}" class="nav-link">
                     <i class="fas fa-users-gear"></i>
                     <span>Manage Accounts</span>
                 </a>
             </li>
-            @endif
+
             <li class="nav-item">
-                <a href="{{ route('faculty.announcements') }}" class="nav-link active">
+                <a href="{{ route('superadmin.announcements') }}" class="nav-link active">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.content') }}" class="nav-link">
+                <a href="{{ route('superadmin.content') }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('faculty.notifications') }}" class="nav-link">
+                <a href="{{ route('superadmin.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
@@ -106,7 +102,7 @@
                         <i class="fas fa-user-pen"></i>
                         <span>Edit Profile</span>
                     </button>
-                    <form method="POST" action="{{ route('faculty.logout') }}">
+                    <form method="POST" action="{{ route('superadmin.logout') }}">
                         @csrf
                         <button type="submit" class="profile-dropdown-item">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -290,7 +286,7 @@
                 </button>
             </div>
 
-            <form id="announcementForm" method="POST" action="{{ route('faculty.announcements.save') }}">
+            <form id="announcementForm" method="POST" action="{{ route('superadmin.announcements.save') }}">
                 @csrf
 
                 <div class="form-group">
@@ -340,7 +336,7 @@
                 </button>
             </div>
 
-            <form id="newsForm" action="{{ route('faculty.news.save') }}" method="POST" enctype="multipart/form-data">
+            <form id="newsForm" action="{{ route('superadmin.news.save') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -473,7 +469,7 @@
 
     async function toggleAnnouncementStatus(id) {
         try {
-            await postForm("{{ route('faculty.announcements.toggle') }}", { id });
+            await postForm("{{ route('superadmin.announcements.toggle') }}", { id });
             window.location.reload();
         } catch (err) {
             console.error(err);
@@ -484,7 +480,7 @@
     async function deleteAnnouncement(id) {
         if (!confirm('Are you sure you want to delete this announcement?')) return;
         try {
-            await postForm("{{ route('faculty.announcements.delete') }}", { id });
+            await postForm("{{ route('superadmin.announcements.delete') }}", { id });
             window.location.reload();
         } catch (err) {
             console.error(err);
@@ -543,7 +539,7 @@
     async function deleteNews(id) {
         if (!confirm('Delete news?')) return;
         try {
-            await postForm("{{ route('faculty.news.delete') }}", { id });
+            await postForm("{{ route('superadmin.news.delete') }}", { id });
             window.location.reload();
         } catch (err) {
             console.error(err);

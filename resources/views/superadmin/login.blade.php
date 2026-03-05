@@ -27,7 +27,7 @@
                     {{ $errors->first('login') }}
                 </div>
             @endif
-            <form id="loginForm" method="POST" action="{{ route('faculty.login.submit') }}">
+            <form id="loginForm" method="POST" action="{{ route('superadmin.login.submit') }}">
                 @csrf
 
                 <div class="form-group">
