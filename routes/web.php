@@ -105,11 +105,19 @@ Route::prefix('faculty')->group(function () {
 
         Route::post('/analytics/api', [AnalyticsController::class, 'adminApi'])->name('faculty.analytics.adminApi');
 
+        // Accounts
+        Route::get('/accounts', [\App\Http\Controllers\Faculty\AccountsController::class, 'index'])
+            ->name('faculty.accounts');
+
+        // Notifications
+
         Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])
             ->name('faculty.notifications.markRead');
 
         Route::post('/notifications/delete', [NotificationController::class, 'delete'])
             ->name('faculty.notifications.delete');
+
+        // Announcements
 
         Route::post('/announcements/save', [AnnouncementController::class, 'save'])
             ->name('faculty.announcements.save');
@@ -120,12 +128,16 @@ Route::prefix('faculty')->group(function () {
         Route::post('/announcements/toggle', [AnnouncementController::class, 'toggle'])
             ->name('faculty.announcements.toggle');
 
+        // News
+
         Route::post('/news/save', [AnnouncementController::class, 'saveNews'])
             ->name('faculty.news.save');
 
         Route::post('/news/delete', [AnnouncementController::class, 'deleteNews'])
             ->name('faculty.news.delete');
 
+        // Approvals
+        
         Route::get('/approvals/pending', [ApprovalsController::class, 'pending'])
             ->name('faculty.approvals.pending');
 
@@ -137,6 +149,8 @@ Route::prefix('faculty')->group(function () {
 
         Route::delete('/approvals/{id}', [ApprovalsController::class, 'destroy'])
             ->name('faculty.approvals.destroy');
+
+        // Analytics
 
         Route::post('/analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])
             ->name('faculty.analytics.exportPdf');
