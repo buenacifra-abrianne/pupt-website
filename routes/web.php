@@ -1,5 +1,6 @@
 <?php
 
+// Admin
 use App\Http\Controllers\Faculty\AuthController;
 use App\Http\Controllers\Faculty\DashboardController;
 use App\Http\Controllers\Faculty\AnnouncementController;
@@ -9,10 +10,12 @@ use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\AnalyticsController;
 use App\Http\Controllers\Faculty\AccountsController;
 
+// Faculty
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
 use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
 
+// Public
 use App\Http\Controllers\Public\HomeController;
 use App\Http\Controllers\Public\AboutController;
 use App\Http\Controllers\Public\AcademicsController;
@@ -106,8 +109,8 @@ Route::prefix('faculty')->group(function () {
         Route::post('/analytics/api', [AnalyticsController::class, 'adminApi'])->name('faculty.analytics.adminApi');
 
         // Accounts
-        Route::get('/accounts', [\App\Http\Controllers\Faculty\AccountsController::class, 'index'])
-            ->name('faculty.accounts');
+        Route::post('/accounts', [AccountsController::class, 'store'])
+            ->name('faculty.accounts.store');
 
         // Notifications
 

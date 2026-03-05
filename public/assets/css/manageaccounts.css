@@ -973,4 +973,37 @@ tbody td {
     .search-bar {
         min-width: 140px;
     }
+
+    /* Make modal overlay sit above page but not block inside modal box */
+.modal{
+  position: fixed;
+  inset: 0;
+  display: none;            /* your code probably toggles .active */
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;            /* ensure on top */
+}
+
+.modal.active{ display: flex; }
+
+/* Ensure modal box is clickable */
+.modal .mbox{
+  position: relative;
+  z-index: 10000;
+  pointer-events: auto;
+}
+
+/* Make sure footer buttons can receive clicks */
+.modal .mfoot,
+.modal .mfoot button{
+  position: relative;
+  z-index: 10001;
+  pointer-events: auto;
+}
+
+/* If something in body overlaps footer, avoid it */
+.modal .mbody{
+  position: relative;
+  z-index: 10000;
+}
 }

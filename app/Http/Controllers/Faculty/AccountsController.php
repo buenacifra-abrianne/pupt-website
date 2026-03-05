@@ -3,54 +3,85 @@
 namespace App\Http\Controllers\Faculty;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class AccountsController extends Controller
 {
-    public function index(Request $request)
-    {
-        // adjust table name/columns based sa users table mo
-        $rows = DB::table('users')
-            ->select([
-                'user_id',        // if wala, palitan mo to with 'id'
-                'first_name',
-                'last_name',
-                'name',
-                'email',
-                'role',
-                'status',
-                'last_login_at',
-            ])
-            ->orderByDesc('user_id') // if wala, palitan with 'id'
-            ->get();
+    public function index()
+{
+    $rows = DB::table('users')
+        ->select('user_id','first_name','last_name','email','role','status','last_login_at')
+        ->orderBy('user_id', 'desc')
+        ->get();
 
-        // map to the fields your JS expects
-        $users = $rows->map(function ($u) {
-            $fn = $u->first_name ?? '';
-            $ln = $u->last_name ?? '';
-            $full = trim(($u->name ?? '') ?: ($fn . ' ' . $ln));
+    $mapped = $rows->map(function ($u) {
+        return [
+            'id' => (int) $u->user_id,
+            'fn' => (string) $u->first_name,
+            'ln' => (string) $u->last_name,
+            'em' => (string) $u->email,
+            'rl' => (string) $u->role,
+            'st' => (string) $u->status,
+            'll' => $u->last_login_at ? (string) $u->last_login_at : 'Never',
+            'av' => 'av-0',
+        ];
+    });
 
-            return [
-                'id' => (int)($u->user_id ?? 0),
-                'fn' => $fn,
-                'ln' => $ln,
-                'em' => $u->email ?? '',
-                'uid' => (string)($u->user_id ?? ''), // if may separate user_id/student_no column, dito ilagay
-                'rl' => $u->role ?? 'Student',
-                'dp' => $u->role ?? 'Student',        // sabi mo department = role
-                'st' => 'Active',                      // wala pa status column, default muna
-                'll' => '—',                            // wala pa last_login column, default muna
-                'ph' => '',
-                'pos' => '',
-                'un' => '',
-                'nt' => '',
-                'av' => 'av-0',
-            ];
-        })->values();
+    return view('faculty.accounts', [
+        'usersJson' => $mapped->toJson(),
+    ]);
+}
 
-        return view('faculty.accounts', [
-            'usersJson' => $users->toJson(JSON_UNESCAPED_UNICODE),
-        ]);
-    }
+    public function store(Request $request)
+{
+    $validRoles  = ['Admin','Registrar','HAP','Faculty','Student Services'];
+    $validStatus = ['Active','Inactive','Suspended'];
+    $name = trim($request->first_name . ' ' . $request->last_name);
+
+    $data = $request->validate([
+        'first_name' => ['required','string','max:80'],
+        'last_name'  => ['required','string','max:80'],
+        'email'      => ['required','email','max:190', Rule::unique('users','email')],
+        'role'       => ['required', Rule::in($validRoles)],
+        'status'     => ['required', Rule::in($validStatus)],
+    ]);
+
+    // ✅ create temp password (min 8 chars)
+    $tempPassword = Str::random(10);
+
+    $insert = [
+        'first_name' => $data['first_name'],
+        'last_name'  => $data['last_name'],
+        'email'      => $data['email'],
+        'role'       => $data['role'],
+        'status'     => $data['status'],
+        'password'   => Hash::make($tempPassword),  // ✅ stop 500
+        'last_login_at' => null,
+        'created_at' => now(),
+        'updated_at' => now(),
+        'name'          => $name,
+    ];
+
+    $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+    $newUserId = DB::table('users')->insertGetId($insert, $pk);
+
+    return response()->json([
+        'ok' => true,
+        'user' => [
+            'id' => (int) $newUserId,
+            'fn' => $data['first_name'],
+            'ln' => $data['last_name'],
+            'em' => $data['email'],
+            'rl' => $data['role'],
+            'st' => $data['status'],
+            'll' => 'Never',
+        ],
+        'temp_password' => $tempPassword, // so frontend can show it
+    ]);
+}
 }

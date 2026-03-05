@@ -259,10 +259,6 @@
     </div>
 
     <div class="frow">
-        <div class="fg" id="pwWrap">
-            <label>Temporary Password <span class="req">*</span></label>
-            <input type="password" id="f-pw" placeholder="Temporary password">
-        </div>
         <div class="fg">
             <label>Account Status <span class="req">*</span></label>
             <select id="f-st">
@@ -273,15 +269,6 @@
             </select>
         </div>
     </div>
-
-    <div class="fg" id="forcePwWrap">
-    <div class="chkrow">
-        <input type="checkbox" id="f-fc" checked>
-        <label for="f-fc" style="margin:0;font-weight:500;font-size:13px;">
-            Force password change on first login
-        </label>
-    </div>
-</div>
 </div>
 
             <div class="mfoot">
@@ -335,8 +322,8 @@ const RC = {
   'Student Services': 'r-studentservices',
   Library: 'r-library'
 };
-const SC = {Active:'sb-active',Inactive:'sb-inactive',Pending:'sb-pending',Suspended:'sb-suspended'};
-const SI = {Active:'fa-circle-check',Inactive:'fa-circle-minus',Pending:'fa-clock',Suspended:'fa-ban'};
+const SC = { Active:'sb-active', Inactive:'sb-inactive', Pending:'sb-pending', Suspended:'sb-suspended' };
+const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Pending:'fa-clock', Suspended:'fa-ban' };
 const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
 
 function normalizeRole(role){
@@ -350,204 +337,294 @@ function normalizeRole(role){
   return String(role || '').trim();
 }
 
-let users = {!! $usersJson ?? '[]' !!};
-users = users.map(u => ({ ...u, rl: normalizeRole(u.rl) }));
+/**
+ * Fix: normalize/shape user object so UI always uses:
+ * {id, fn, ln, em, rl, st, ll, nt, av}
+ */
+let nid = 4;
+function shapeUser(raw = {}) {
+  const fn = (raw.fn ?? raw.first_name ?? raw.user_first_name ?? '').toString();
+  const ln = (raw.ln ?? raw.last_name ?? raw.user_last_name ?? '').toString();
 
-let nid=4, curRole='all', editId=null, viewId=null, pg=1;
+  return {
+    id: raw.id ?? raw.user_id ?? raw.userid ?? raw.userId ?? 0,
+    fn,
+    ln,
+    em: (raw.em ?? raw.email ?? '').toString(),
+    rl: normalizeRole(raw.rl ?? raw.role ?? ''),
+    st: (raw.st ?? raw.status ?? 'Active').toString(),
+    ll: (raw.ll ?? raw.last_login_at ?? raw.lastLoginAt ?? '—') || '—',
+    nt: raw.nt ?? raw.notes ?? '',
+    av: raw.av ?? AV[(nid++) % AV.length],
+  };
+}
+
+let users = @json(json_decode($usersJson ?? '[]', true));
+users = (Array.isArray(users) ? users : []).map(shapeUser);
+
+let curRole='all', editId=null, viewId=null, pg=1;
 const PP=10;
 
 function filtered(){
-    const q=(document.getElementById('srch').value||'').toLowerCase();
-    const st=document.getElementById('stFil').value;
-    return users.filter(u=>{
-        const mr=curRole==='all'||u.rl===curRole;
-        const mq=!q||`${u.fn} ${u.ln} ${u.em} ${u.uid}`.toLowerCase().includes(q);
-        const ms=!st||u.st===st;
-        return mr&&mq&&ms;
-    });
+  const q=(document.getElementById('srch').value||'').toLowerCase();
+  const st=document.getElementById('stFil').value;
+  return users.filter(u=>{
+    const mr=curRole==='all'||u.rl===curRole;
+    const mq=!q||`${u.fn} ${u.ln} ${u.em} ${u.id}`.toLowerCase().includes(q);
+    const ms=!st||u.st===st;
+    return mr&&mq&&ms;
+  });
 }
 
 function render(){
-    const f=filtered(), tot=f.length, s=(pg-1)*PP, sl=f.slice(s,s+PP);
-    const tb=document.getElementById('tbody');
+  const f=filtered(), tot=f.length, s=(pg-1)*PP, sl=f.slice(s,s+PP);
+  const tb=document.getElementById('tbody');
 
-    if(!sl.length){
-        tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="fas fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
-    } else {
-        tb.innerHTML=sl.map((u,i)=>{
-            const ini=u.fn[0]+u.ln[0];
-            const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive', si=SI[u.st]||'fa-circle';
-            const susp=u.st==='Active'||u.st==='Pending';
-            const tb2=susp
-                ?`<button class="bico bi-suspend" title="Suspend" onclick="doConfirm(${u.id},'suspend')"><i class="fas fa-ban"></i></button>`
-                :`<button class="bico bi-activate" title="Activate" onclick="doConfirm(${u.id},'activate')"><i class="fas fa-circle-check"></i></button>`;
-            return `<tr>
-                <td style="color:#bbb;font-size:12px">${s+i+1}</td>
-                <td><div class="user-cell"><div class="avatar ${u.av}">${ini}</div><div><div class="uname">${u.fn} ${u.ln}</div><div class="uemail">${u.em}</div></div></div></td>
-                <td><span class="role-badge ${rc}">${u.rl}</span></td>
-                <td><span class="sbadge ${sc}"><i class="fas ${si}" style="font-size:9px"></i> ${u.st}</span></td>
-                <td style="color:#888;font-size:12px">${u.ll}</td>
-                <td><div class="actions">
-                    <button class="bico bi-view" title="View" onclick="viewUser(${u.id})"><i class="fas fa-eye"></i></button>
-                    <button class="bico bi-edit" title="Edit" onclick="openEdit(${u.id})"><i class="fas fa-pen"></i></button>
-                    ${tb2}
-                </div></td>
-            </tr>`;
-        }).join('');
-    }
+  if(!sl.length){
+    tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="fas fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
+  } else {
+    tb.innerHTML=sl.map((u,i)=>{
+      const ini = `${(u.fn || 'U').charAt(0)}${(u.ln || 'N').charAt(0)}`;
+      const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive', si=SI[u.st]||'fa-circle';
+      const susp=u.st==='Active'||u.st==='Pending';
+      const tb2=susp
+        ?`<button class="bico bi-suspend" title="Suspend" onclick="doConfirm(${u.id},'suspend')"><i class="fas fa-ban"></i></button>`
+        :`<button class="bico bi-activate" title="Activate" onclick="doConfirm(${u.id},'activate')"><i class="fas fa-circle-check"></i></button>`;
 
-    document.getElementById('pgInfo').textContent=tot?`Showing ${s+1}–${Math.min(s+PP,tot)} of ${tot} user${tot!==1?'s':''}`:'No users found';
-    document.getElementById('pgNum').textContent=pg;
-    updateCounts();
+      return `<tr>
+        <td style="color:#bbb;font-size:12px">${s+i+1}</td>
+        <td>
+          <div class="user-cell">
+            <div class="avatar ${u.av}">${ini}</div>
+            <div>
+              <div class="uname">${u.fn} ${u.ln}</div>
+              <div class="uemail">${u.em}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="role-badge ${rc}">${u.rl}</span></td>
+        <td><span class="sbadge ${sc}"><i class="fas ${si}" style="font-size:9px"></i> ${u.st}</span></td>
+        <td style="color:#888;font-size:12px">${u.ll}</td>
+        <td>
+          <div class="actions">
+            <button class="bico bi-view" title="View" onclick="viewUser(${u.id})"><i class="fas fa-eye"></i></button>
+            <button class="bico bi-edit" title="Edit" onclick="openEdit(${u.id})"><i class="fas fa-pen"></i></button>
+            ${tb2}
+          </div>
+        </td>
+      </tr>`;
+    }).join('');
+  }
+
+  document.getElementById('pgInfo').textContent =
+    tot ? `Showing ${s+1}–${Math.min(s+PP,tot)} of ${tot} user${tot!==1?'s':''}` : 'No users found';
+
+  document.getElementById('pgNum').textContent=pg;
+  updateCounts();
 }
 
 function updateCounts(){
-    const rc = {};
-    const sc = {Active:0,Inactive:0,Pending:0,Suspended:0};
+  const rc = {};
+  const sc = {Active:0,Inactive:0,Pending:0,Suspended:0};
 
-    users.forEach(u=>{
-        rc[u.rl] = (rc[u.rl] || 0) + 1;
-        sc[u.st] = (sc[u.st] || 0) + 1;
-    });
+  users.forEach(u=>{
+    rc[u.rl] = (rc[u.rl] || 0) + 1;
+    sc[u.st] = (sc[u.st] || 0) + 1;
+  });
 
-    document.getElementById('cnt-total').textContent = users.length;
-    document.getElementById('cnt-active').textContent = sc.Active;
-    document.getElementById('cnt-inactive').textContent = sc.Inactive;
-    document.getElementById('cnt-pending').textContent = sc.Pending;
-    document.getElementById('cnt-suspended').textContent = sc.Suspended;
+  document.getElementById('cnt-total').textContent = users.length;
+  document.getElementById('cnt-active').textContent = sc.Active;
+  document.getElementById('cnt-inactive').textContent = sc.Inactive;
+  document.getElementById('cnt-pending').textContent = sc.Pending;
+  document.getElementById('cnt-suspended').textContent = sc.Suspended;
 
-    document.getElementById('pill-all').textContent = users.length;
+  document.getElementById('pill-all').textContent = users.length;
 
-    // Match your actual pill IDs
-    const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-    setPill('pill-Admin', rc['Admin'] || 0);
-    setPill('pill-Registrar', rc['Registrar'] || 0);
-    setPill('pill-HAP', rc['HAP'] || 0);
-    setPill('pill-Faculty', rc['Faculty'] || 0);
-    setPill('pill-StudentServices', rc['Student Services'] || 0);
+  const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+  setPill('pill-Admin', rc['Admin'] || 0);
+  setPill('pill-Registrar', rc['Registrar'] || 0);
+  setPill('pill-HAP', rc['HAP'] || 0);
+  setPill('pill-Faculty', rc['Faculty'] || 0);
+  setPill('pill-StudentServices', rc['Student Services'] || 0);
 }
 
 function applyFilters(){ pg=1; render(); }
-function switchRole(r){ curRole=r; pg=1; document.querySelectorAll('[data-role]').forEach(b=>b.classList.toggle('active',b.dataset.role===r)); render(); }
-function changePg(d){ const t=filtered().length, m=Math.ceil(t/PP); pg=Math.max(1,Math.min(pg+d,m)); render(); }
+function switchRole(r){
+  curRole=r; pg=1;
+  document.querySelectorAll('[data-role]').forEach(b=>b.classList.toggle('active',b.dataset.role===r));
+  render();
+}
+function changePg(d){
+  const t=filtered().length, m=Math.ceil(t/PP)||1;
+  pg=Math.max(1,Math.min(pg+d,m));
+  render();
+}
 
 function clrForm(){
-    ['f-fn','f-ln','f-em','f-pw'].forEach(x => document.getElementById(x).value = '');
-    document.getElementById('f-rl').value = '';
-    document.getElementById('f-st').value = 'Active';
-    document.getElementById('f-fc').checked = true;
+  ['f-fn','f-ln','f-em'].forEach(x => document.getElementById(x).value='');
+  document.getElementById('f-rl').value='';
+  document.getElementById('f-st').value='Active';
 }
 function openAdd(){
-    editId=null;
-    clrForm();
-
-    document.getElementById('mTitle').innerHTML='<i class="fas fa-user-plus"></i> Add New User';
-    document.getElementById('saveLbl').textContent='Create User';
-
-    document.getElementById('pwWrap').style.display='';
-    document.getElementById('forcePwWrap').style.display='';   // show checkbox
-
-    openM('userModal');
+  editId = null;
+  clrForm();
+  document.getElementById('mTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New User';
+  document.getElementById('saveLbl').textContent = 'Create User';
+  openM('userModal');
 }
 function openEdit(id){
-    editId = id;
-    const u = users.find(x => x.id === id);
-    if(!u) return;
+  editId = id;
+  const u = users.find(x => x.id === id);
+  if(!u) return;
 
-    document.getElementById('f-fn').value = u.fn || '';
-    document.getElementById('f-ln').value = u.ln || '';
-    document.getElementById('f-em').value = u.em || '';
-    document.getElementById('f-rl').value = u.rl || '';
-    document.getElementById('f-st').value = u.st || 'Active';
-    document.getElementById('f-pw').value = '';
+  document.getElementById('f-fn').value = u.fn || '';
+  document.getElementById('f-ln').value = u.ln || '';
+  document.getElementById('f-em').value = u.em || '';
+  document.getElementById('f-rl').value = u.rl || '';
+  document.getElementById('f-st').value = u.st || 'Active';
 
-    document.getElementById('pwWrap').style.display='none';
-    document.getElementById('forcePwWrap').style.display='none';
-    document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit User';
-    document.getElementById('saveLbl').textContent = 'Save Changes';
-    openM('userModal');
+  document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit User';
+  document.getElementById('saveLbl').textContent = 'Save Changes';
+
+  openM('userModal');
 }
-function saveUser(){
-    const fn = document.getElementById('f-fn').value.trim();
-    const ln = document.getElementById('f-ln').value.trim();
-    const em = document.getElementById('f-em').value.trim();
-    const rl = document.getElementById('f-rl').value;
-    const st = document.getElementById('f-st').value;
 
-    if(!fn || !ln || !em || !rl || !st){
-        alert('Please fill in all required fields.');
-        return;
+const STORE_URL = "{{ route('faculty.accounts.store') }}";
+const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+async function saveUser(){
+  const fn=document.getElementById('f-fn').value.trim();
+  const ln=document.getElementById('f-ln').value.trim();
+  const em=document.getElementById('f-em').value.trim();
+  const rl=document.getElementById('f-rl').value;
+  const st=document.getElementById('f-st').value;
+
+  if(!fn||!ln||!em||!rl||!st){
+    alert('Please fill in all required fields.');
+    return;
+  }
+
+  try {
+    const res = await fetch(STORE_URL, {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest',
+        'X-CSRF-TOKEN': CSRF
+      },
+      body: JSON.stringify({
+        first_name: fn,
+        last_name: ln,
+        email: em,
+        role: rl,
+        status: st
+      })
+    });
+
+    // handle 419/500 that returns HTML instead of JSON
+    const text = await res.text();
+    let data = {};
+    try { data = JSON.parse(text); } catch(e) {}
+
+    if(!res.ok){
+      alert(`Request failed (${res.status}).\n${data.message || 'Check Network tab + server logs.'}`);
+      return;
     }
 
-    if(!editId){
-        const pw = document.getElementById('f-pw').value.trim();
-        if(!pw){
-            alert('Temporary password is required.');
-            return;
-        }
-    }
+    if(data.ok){
+      const newUser = shapeUser(data.user);
+      users.unshift(newUser);
 
-    if(editId){
-        const u = users.find(x => x.id === editId);
-        Object.assign(u, { fn, ln, em, rl, st });
+      closeM('userModal');
+      render();
+
+      alert(`User created successfully.\nTemporary Password: ${data.temp_password || '(not returned)'}`);
     } else {
-        users.push({
-            id: nid++,
-            fn, ln, em, rl, st,
-            ll: 'Never',
-            av: AV[(nid - 2) % 6]
-        });
+      alert(data.message || 'Failed to create user.');
     }
-
-    closeM('userModal');
-    render();
+  } catch (err){
+    console.error(err);
+    alert('Network/JS error. Check console.');
+  }
 }
 
 function viewUser(id){
-    viewId=id;
-    const u=users.find(x=>x.id===id); if(!u) return;
-    const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive';
-    document.getElementById('viewBody').innerHTML=`
-    <div class="vhead"><div class="vav ${u.av}">${u.fn[0]}${u.ln[0]}</div><div>
+  viewId=id;
+  const u=users.find(x=>x.id===id); if(!u) return;
+  const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive';
+
+  document.getElementById('viewBody').innerHTML=`
+    <div class="vhead">
+      <div class="vav ${u.av}">${(u.fn||'U').charAt(0)}${(u.ln||'N').charAt(0)}</div>
+      <div>
         <div class="vname">${u.fn} ${u.ln}</div>
-        <div class="vsub"><span class="role-badge ${rc}">${u.rl}</span><span class="sbadge ${sc}">${u.st}</span></div>
-    </div></div>
-    <div class="mbody"><div class="vgrid">
+        <div class="vsub">
+          <span class="role-badge ${rc}">${u.rl}</span>
+          <span class="sbadge ${sc}">${u.st}</span>
+        </div>
+      </div>
+    </div>
+    <div class="mbody">
+      <div class="vgrid">
         <div class="vf"><div class="vfl">Full Name</div><div class="vfv">${u.fn} ${u.ln}</div></div>
         <div class="vf"><div class="vfl">Email</div><div class="vfv">${u.em}</div></div>
         <div class="vf"><div class="vfl">Role</div><div class="vfv">${u.rl}</div></div>
         <div class="vf"><div class="vfl">Status</div><div class="vfv">${u.st}</div></div>
         <div class="vf"><div class="vfl">Last Login</div><div class="vfv">${u.ll}</div></div>
         ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${u.nt}</div></div>`:''}
-    </div></div>`;
-    openM('viewModal');
+      </div>
+    </div>`;
+
+  openM('viewModal');
 }
 function editFromView(){ closeM('viewModal'); openEdit(viewId); }
 
 function doConfirm(id, action){
-    const u=users.find(x=>x.id===id); if(!u)return;
-    const cfg={
-        suspend:{title:'Suspend User',msg:`Suspend <strong>${u.fn} ${u.ln}</strong>?<br><small style="color:#888">They will lose access until reactivated.</small>`,icon:'fa-ban',bg:'rgba(220,53,69,0.1)',col:'#dc3545',bs:'background:linear-gradient(135deg,#dc3545,#b02a37)',lbl:'Suspend'},
-        activate:{title:'Activate User',msg:`Activate <strong>${u.fn} ${u.ln}</strong>?<br><small style="color:#888">They will regain system access.</small>`,icon:'fa-circle-check',bg:'rgba(40,167,69,0.1)',col:'#28a745',bs:'background:linear-gradient(135deg,#28a745,#1e7e34)',lbl:'Activate'},
-    };
-    const c=cfg[action];
-    document.getElementById('cfTitle').innerHTML=`<i class="fas ${c.icon}" style="color:${c.col}"></i> ${c.title}`;
-    document.getElementById('cfIcon').style.cssText=`width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;background:${c.bg};color:${c.col}`;
-    document.getElementById('cfIcon').innerHTML=`<i class="fas ${c.icon}"></i>`;
-    document.getElementById('cfMsg').innerHTML=c.msg;
+  const u=users.find(x=>x.id===id); if(!u)return;
+  const cfg={
+    suspend:{
+      title:'Suspend User',
+      msg:`Suspend <strong>${u.fn} ${u.ln}</strong>?<br><small style="color:#888">They will lose access until reactivated.</small>`,
+      icon:'fa-ban',bg:'rgba(220,53,69,0.1)',col:'#dc3545',
+      bs:'background:linear-gradient(135deg,#dc3545,#b02a37)',lbl:'Suspend'
+    },
+    activate:{
+      title:'Activate User',
+      msg:`Activate <strong>${u.fn} ${u.ln}</strong>?<br><small style="color:#888">They will regain system access.</small>`,
+      icon:'fa-circle-check',bg:'rgba(40,167,69,0.1)',col:'#28a745',
+      bs:'background:linear-gradient(135deg,#28a745,#1e7e34)',lbl:'Activate'
+    },
+  };
+  const c=cfg[action];
 
-    const btn=document.getElementById('cfOk');
-    btn.style.cssText=c.bs+';color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:0.3s;';
-    btn.innerHTML=`<i class="fas ${c.icon}"></i> ${c.lbl}`;
-    btn.onclick=()=>{ u.st=action==='suspend'?'Suspended':'Active'; closeM('confirmModal'); render(); };
-    openM('confirmModal');
+  document.getElementById('cfTitle').innerHTML=`<i class="fas ${c.icon}" style="color:${c.col}"></i> ${c.title}`;
+  document.getElementById('cfIcon').style.cssText=
+    `width:64px;height:64px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;font-size:26px;background:${c.bg};color:${c.col}`;
+  document.getElementById('cfIcon').innerHTML=`<i class="fas ${c.icon}"></i>`;
+  document.getElementById('cfMsg').innerHTML=c.msg;
+
+  const btn=document.getElementById('cfOk');
+  btn.style.cssText=c.bs+';color:#fff;border:none;padding:10px 22px;border-radius:8px;cursor:pointer;font-size:13px;font-weight:600;font-family:inherit;display:inline-flex;align-items:center;gap:8px;transition:0.3s;';
+  btn.innerHTML=`<i class="fas ${c.icon}"></i> ${c.lbl}`;
+  btn.onclick=()=>{ u.st=action==='suspend'?'Suspended':'Active'; closeM('confirmModal'); render(); };
+
+  openM('confirmModal');
 }
 
 function openM(id){ const m=document.getElementById(id); if(m)m.classList.add('active'); }
 function closeM(id){ const m=document.getElementById(id); if(m)m.classList.remove('active'); }
-window.addEventListener('click',e=>{ document.querySelectorAll('.modal').forEach(m=>{ if(e.target===m)m.classList.remove('active'); }); });
-function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('collapsed'); }
+
+window.addEventListener('click',e=>{
+  document.querySelectorAll('.modal').forEach(m=>{
+    if(e.target===m) m.classList.remove('active');
+  });
+});
+
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('collapsed');
+}
 
 render();
 </script>
