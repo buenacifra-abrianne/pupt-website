@@ -301,11 +301,7 @@ const SC = {Active:'sb-active',Inactive:'sb-inactive',Pending:'sb-pending',Suspe
 const SI = {Active:'fa-circle-check',Inactive:'fa-circle-minus',Pending:'fa-clock',Suspended:'fa-ban'};
 const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
 
-let users = [
-    {id:1,fn:'Maria',ln:'Santos',em:'m.santos@pup.edu.ph',ph:'+63 912 345 6789',uid:'ADM-2021-001',rl:'Administrator',dp:'Administration',pos:'System Admin',un:'m.santos',st:'Active',ll:'Jan 10, 2025',nt:'',av:'av-0'},
-    {id:2,fn:'Juan',ln:'Dela Cruz',em:'j.delacruz@pup.edu.ph',ph:'+63 917 123 4567',uid:'ADM-2021-002',rl:'Administrator',dp:'Administration',pos:'Deputy Admin',un:'j.delacruz',st:'Active',ll:'Jan 9, 2025',nt:'',av:'av-1'},
-    {id:3,fn:'Ana',ln:'Reyes',em:'a.reyes@pup.edu.ph',ph:'+63 918 234 5678',uid:'REG-2020-001',rl:'Registrar',dp:"Registrar's Office",pos:'Senior Registrar',un:'a.reyes',st:'Active',ll:'Jan 8, 2025',nt:'',av:'av-2'},
-];
+let users = {!! $usersJson ?? '[]' !!};
 
 let nid=4, curRole='all', editId=null, viewId=null, pg=1;
 const PP=10;
