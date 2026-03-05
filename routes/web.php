@@ -7,6 +7,7 @@ use App\Http\Controllers\Faculty\ApprovalsController;
 use App\Http\Controllers\Faculty\CmsController;
 use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\AnalyticsController;
+use App\Http\Controllers\Faculty\AccountsController;
 
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
@@ -95,6 +96,8 @@ Route::prefix('faculty')->group(function () {
         Route::get('/content', [CmsController::class, 'page'])->name('faculty.content');
 
         Route::get('/notifications', [NotificationController::class, 'page'])->name('faculty.notifications');
+
+        Route::get('/accounts', [AccountsController::class, 'index'])->name('faculty.accounts');
 
         Route::post('/analytics/api', [AnalyticsController::class, 'adminApi'])->name('faculty.analytics.adminApi');
 

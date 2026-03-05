@@ -38,6 +38,15 @@
                 </a>
             </li>
             @endif
+
+            @if(in_array($role, ['ADMIN']))
+            <li class="nav-item">
+                <a href="{{ route('faculty.accounts') }}" class="nav-link">
+                    <i class="fas fa-clipboard-check"></i>
+                    <span>Manage Accounts</span>
+                </a>
+            </li>
+            @endif
             <li class="nav-item">
                 {{-- update this route when you create announcements page --}}
                 <a href="{{ route('faculty.announcements') ?? '#' }}" class="nav-link">
