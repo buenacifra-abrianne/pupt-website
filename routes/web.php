@@ -7,6 +7,7 @@ use App\Http\Controllers\Faculty\ApprovalsController;
 use App\Http\Controllers\Faculty\CmsController;
 use App\Http\Controllers\Faculty\NotificationController;
 use App\Http\Controllers\Faculty\AnalyticsController;
+use App\Http\Controllers\Faculty\AccountsController;
 
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
@@ -96,6 +97,8 @@ Route::prefix('faculty')->group(function () {
 
         Route::get('/notifications', [NotificationController::class, 'page'])->name('faculty.notifications');
 
+        Route::get('/accounts', [AccountsController::class, 'index'])->name('faculty.accounts');
+
         Route::post('/analytics/api', [AnalyticsController::class, 'adminApi'])->name('faculty.analytics.adminApi');
 
         Route::post('/notifications/mark-read', [NotificationController::class, 'markRead'])
@@ -130,5 +133,11 @@ Route::prefix('faculty')->group(function () {
 
         Route::delete('/approvals/{id}', [ApprovalsController::class, 'destroy'])
             ->name('faculty.approvals.destroy');
+
+        Route::post('/analytics/export/pdf', [AnalyticsController::class, 'exportPdf'])
+            ->name('faculty.analytics.exportPdf');
+
+        Route::post('/analytics/export/excel', [AnalyticsController::class, 'exportExcel'])
+            ->name('faculty.analytics.exportExcel');
     });
 });
