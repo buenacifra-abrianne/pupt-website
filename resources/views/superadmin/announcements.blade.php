@@ -360,6 +360,26 @@
     }
 
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const RELOAD_TOAST_KEY = 'superadminAnnouncementsToast';
+    const SERVER_SUCCESS_TOAST = @json(session('success'));
+
+    function queueReloadToast(message, type = 'success', title = 'Success') {
+        try {
+            sessionStorage.setItem(RELOAD_TOAST_KEY, JSON.stringify({ message, type, title }));
+        } catch (_) {}
+    }
+
+    function flushReloadToast() {
+        try {
+            const raw = sessionStorage.getItem(RELOAD_TOAST_KEY);
+            if (!raw) return;
+
+            sessionStorage.removeItem(RELOAD_TOAST_KEY);
+            const payload = JSON.parse(raw);
+            if (!payload || !payload.message) return;
+            showToast(payload.message, payload.type || 'success', payload.title || 'Success');
+        } catch (_) {}
+    }
 
     async function postForm(url, data) {
         const res = await fetch(url, {
@@ -382,6 +402,12 @@
         return json;
     }
 
+    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+        if (typeof window.confirmAction === 'function') {
+            return await window.confirmAction({ message, title, confirmText, tone });
+        }
+        return confirm(message);
+    }
     // Announcement Modal
     function openAnnouncementModal(isNew = false) {
         const modal = document.getElementById('announcementModal');
@@ -430,21 +456,23 @@
     async function toggleAnnouncementStatus(id) {
         try {
             await postForm("{{ route('superadmin.announcements.toggle') }}", { id });
+            queueReloadToast('Announcement status updated successfully.', 'success', 'Announcement');
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Toggle failed: " + err.message);
+            showToast("Toggle failed: " + err.message, 'error');
         }
     }
 
     async function deleteAnnouncement(id) {
-        if (!confirm('Are you sure you want to delete this announcement?')) return;
+        if (!(await askConfirm('Are you sure you want to delete this announcement?', 'Delete Announcement', 'Delete', 'danger'))) return;
         try {
             await postForm("{{ route('superadmin.announcements.delete') }}", { id });
+            queueReloadToast('Announcement deleted successfully.', 'success', 'Announcement');
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Delete failed: " + err.message);
+            showToast("Delete failed: " + err.message, 'error');
         }
     }
 
@@ -497,13 +525,14 @@
     }
 
     async function deleteNews(id) {
-        if (!confirm('Delete news?')) return;
+        if (!(await askConfirm('Delete news?', 'Delete News', 'Delete', 'danger'))) return;
         try {
             await postForm("{{ route('superadmin.news.delete') }}", { id });
+            queueReloadToast('News deleted successfully.', 'success', 'News');
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Delete failed: " + err.message);
+            showToast("Delete failed: " + err.message, 'error');
         }
     }
 
@@ -544,6 +573,11 @@
             const btn = document.querySelector(`.tab-btn[onclick*="${savedTab}"]`);
             if (btn) switchTab(savedTab, btn);
         }
+
+        flushReloadToast();
+        if (SERVER_SUCCESS_TOAST) {
+            showToast(SERVER_SUCCESS_TOAST, 'success', 'Success');
+        }
     });
 
     window.addEventListener('beforeunload', () => {
@@ -562,6 +596,7 @@
 
   const form = e.target;
   const url = form.action;
+  const isEdit = !!document.getElementById('edit_news_id');
 
   const fd = new FormData(form);
 
@@ -576,11 +611,12 @@
   try { json = JSON.parse(raw); } catch (_) {}
 
   if (!res.ok || !json || !json.ok) {
-    alert((json && (json.error || json.message)) || raw.slice(0, 200));
+    showToast((json && (json.error || json.message)) || raw.slice(0, 200), 'error');
     return;
   }
 
   closeNewsModal();
+  queueReloadToast(isEdit ? 'News updated successfully.' : 'News created successfully.', 'success', 'News');
   window.location.reload();
 });
 </script>

@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use App\Support\AuditLog;
 
 class AuthController extends Controller
@@ -62,6 +64,7 @@ class AuthController extends Controller
             'user_first_name' => $user->first_name ?? '',
             'user_middle_name' => $user->middle_name ?? '',
             'user_last_name'  => $user->last_name ?? '',
+            'user_suffix' => $user->suffix ?? '',
             'user_role' => $dbRole ?? '',
             'user_name' => $user->name ?? '',
             'user_profile_picture' => $user->profile_picture ?? '',
@@ -101,60 +104,230 @@ class AuthController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $request->validateWithBag('profile', [
-            'current_password' => ['required', 'string'],
-            'new_password' => ['required', 'string', 'min:6', 'different:current_password'],
-            'confirm_password' => ['required', 'same:new_password'],
-            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
+        $request->validateWithBag('profileInfo', [
+            'first_name' => ['nullable', 'string', 'max:100'],
+            'middle_name' => ['nullable', 'string', 'max:100'],
+            'last_name' => ['nullable', 'string', 'max:100'],
+            'suffix' => ['nullable', 'string', 'max:30'],
+            'profile_picture' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:3072'],
+            'avatar_image_data' => ['nullable', 'string'],
+            'reset_avatar' => ['nullable', 'boolean'],
         ]);
 
-        $userId = (int) session('user_id', 0);
-        $userEmail = (string) session('user_email', '');
-
-        if ($userId <= 0 && $userEmail === '') {
-            return back()->withErrors(['current_password' => 'Session expired. Please login again.'], 'profile');
-        }
-
-        $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
-        $userQuery = DB::table('users');
-        if ($userEmail !== '') {
-            $userQuery->where('email', $userEmail);
-        } else {
-            $userQuery->where($idColumn, $userId);
-        }
-        $user = $userQuery->first();
+        [$user, $idColumn] = $this->resolveSessionUser();
 
         if (!$user) {
-            return back()->withErrors(['current_password' => 'Account not found.'], 'profile');
+            return back()->withErrors(['profile' => 'Account not found or session expired.'], 'profileInfo');
         }
 
-        if (!$this->passwordMatches((string) $request->input('current_password'), (string) ($user->password ?? ''))) {
-            return back()->withErrors(['current_password' => 'Current password is incorrect.'], 'profile');
+        $updates = [];
+        $incomingFirstName = $this->normalizeProfileValue((string) $request->input('first_name', ''));
+        $incomingMiddleName = $this->normalizeProfileValue((string) $request->input('middle_name', ''));
+        $incomingLastName = $this->normalizeProfileValue((string) $request->input('last_name', ''));
+        $incomingSuffix = $this->normalizeProfileValue((string) $request->input('suffix', ''));
+
+        $currentFirstName = $this->normalizeProfileValue((string) data_get($user, 'first_name', ''));
+        $currentMiddleName = $this->normalizeProfileValue((string) data_get($user, 'middle_name', ''));
+        $currentLastName = $this->normalizeProfileValue((string) data_get($user, 'last_name', ''));
+        $currentSuffix = $this->normalizeProfileValue((string) data_get($user, 'suffix', ''));
+
+        if (Schema::hasColumn('users', 'first_name')) {
+            if ($incomingFirstName !== $currentFirstName) {
+                $updates['first_name'] = $incomingFirstName;
+            }
+        }
+        if (Schema::hasColumn('users', 'middle_name')) {
+            if ($incomingMiddleName !== $currentMiddleName) {
+                $updates['middle_name'] = $incomingMiddleName;
+            }
+        }
+        if (Schema::hasColumn('users', 'last_name')) {
+            if ($incomingLastName !== $currentLastName) {
+                $updates['last_name'] = $incomingLastName;
+            }
+        }
+        if (Schema::hasColumn('users', 'suffix')) {
+            if ($incomingSuffix !== $currentSuffix) {
+                $updates['suffix'] = $incomingSuffix;
+            }
         }
 
-        $updates = [
-            'password' => Hash::make((string) $request->input('new_password')),
-        ];
+        if (Schema::hasColumn('users', 'name')) {
+            $nameFirst = array_key_exists('first_name', $updates) ? $updates['first_name'] : $currentFirstName;
+            $nameMiddle = array_key_exists('middle_name', $updates) ? $updates['middle_name'] : $currentMiddleName;
+            $nameLast = array_key_exists('last_name', $updates) ? $updates['last_name'] : $currentLastName;
+            // Keep suffix visible in full name even if `suffix` column is unavailable in some environments.
+            $nameSuffix = Schema::hasColumn('users', 'suffix')
+                ? (array_key_exists('suffix', $updates) ? $updates['suffix'] : $currentSuffix)
+                : $incomingSuffix;
 
-        if ($request->hasFile('profile_picture') && Schema::hasColumn('users', 'profile_picture')) {
+            $fullName = trim(implode(' ', array_filter([$nameFirst, $nameMiddle, $nameLast, $nameSuffix], fn ($part) => trim((string) $part) !== '')));
+            $normalizedCurrentName = $this->normalizeProfileValue((string) data_get($user, 'name', ''));
+            $normalizedNextName = $this->normalizeProfileValue($fullName);
+
+            if ($normalizedNextName !== $normalizedCurrentName) {
+                $updates['name'] = $normalizedNextName;
+            }
+        }
+
+        $avatarImageData = (string) $request->input('avatar_image_data', '');
+        $shouldResetAvatar = $request->boolean('reset_avatar');
+        $oldProfilePicture = (string) data_get($user, 'profile_picture', '');
+
+        if ($shouldResetAvatar && Schema::hasColumn('users', 'profile_picture')) {
+            $updates['profile_picture'] = null;
+        }
+
+        if (!$shouldResetAvatar && $avatarImageData !== '') {
+            $storedAvatarPath = $this->storeAvatarFromDataUrl($avatarImageData);
+            if ($storedAvatarPath === null) {
+                return back()->withErrors(['profile_picture' => 'Unable to process avatar image. Please try another image.'], 'profileInfo');
+            }
+            if (Schema::hasColumn('users', 'profile_picture')) {
+                $updates['profile_picture'] = $storedAvatarPath;
+            }
+        }
+
+        if (!$shouldResetAvatar && !isset($updates['profile_picture']) && $request->hasFile('profile_picture') && Schema::hasColumn('users', 'profile_picture')) {
             $storedPath = $request->file('profile_picture')->store('profile_pictures', 'public');
             $updates['profile_picture'] = 'storage/' . $storedPath;
         }
 
+        if ($updates === []) {
+            return back()->with('profile_info_notice', 'No profile changes to save.');
+        }
+
         DB::table('users')->where($idColumn, data_get($user, $idColumn))->update($updates);
 
-        if (!empty($updates['profile_picture'])) {
-            session(['user_profile_picture' => $updates['profile_picture']]);
+        if (array_key_exists('profile_picture', $updates) && str_starts_with($oldProfilePicture, 'storage/profile_pictures/')) {
+            $newProfilePicture = (string) ($updates['profile_picture'] ?? '');
+            if ($newProfilePicture !== $oldProfilePicture) {
+                Storage::disk('public')->delete(substr($oldProfilePicture, strlen('storage/')));
+            }
+        }
+
+        if (array_key_exists('first_name', $updates)) {
+            session(['user_first_name' => $updates['first_name'] ?? '']);
+        }
+        if (array_key_exists('middle_name', $updates)) {
+            session(['user_middle_name' => $updates['middle_name'] ?? '']);
+        }
+        if (array_key_exists('last_name', $updates)) {
+            session(['user_last_name' => $updates['last_name'] ?? '']);
+        }
+        if (array_key_exists('suffix', $updates)) {
+            session(['user_suffix' => $updates['suffix'] ?? '']);
+        } elseif (!Schema::hasColumn('users', 'suffix')) {
+            session(['user_suffix' => $incomingSuffix ?? '']);
+        }
+        if (array_key_exists('name', $updates)) {
+            session(['user_name' => $updates['name'] ?? '']);
+        }
+        if (array_key_exists('profile_picture', $updates)) {
+            session(['user_profile_picture' => (string) ($updates['profile_picture'] ?? '')]);
         }
 
         AuditLog::record(
             'UPDATED',
             'ACCOUNT',
-            'User updated profile settings.',
+            'User updated profile information.',
             (int) data_get($user, $idColumn)
         );
 
-        return back()->with('profile_success', 'Profile updated successfully.');
+        return back()->with('profile_info_success', 'Profile updated successfully.');
+    }
+
+    public function updatePassword(Request $request)
+    {
+        $request->validateWithBag('profilePassword', [
+            'current_password' => ['required', 'string'],
+            'new_password' => ['required', 'string', 'min:6', 'different:current_password'],
+            'confirm_password' => ['required', 'same:new_password'],
+        ]);
+
+        [$user, $idColumn] = $this->resolveSessionUser();
+
+        if (!$user) {
+            return back()->withErrors(['current_password' => 'Session expired. Please login again.'], 'profilePassword');
+        }
+
+        if (!$this->passwordMatches((string) $request->input('current_password'), (string) ($user->password ?? ''))) {
+            return back()->withErrors(['current_password' => 'Current password is incorrect.'], 'profilePassword');
+        }
+
+        DB::table('users')
+            ->where($idColumn, data_get($user, $idColumn))
+            ->update([
+                'password' => Hash::make((string) $request->input('new_password')),
+            ]);
+
+        AuditLog::record(
+            'UPDATED',
+            'ACCOUNT',
+            'User updated account password.',
+            (int) data_get($user, $idColumn)
+        );
+
+        return back()->with('profile_password_success', 'Password changed successfully.');
+    }
+
+    private function resolveSessionUser(): array
+    {
+        $userId = (int) session('user_id', 0);
+        $userEmail = (string) session('user_email', '');
+
+        if ($userId <= 0 && $userEmail === '') {
+            return [null, Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id'];
+        }
+
+        $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+        $query = DB::table('users');
+
+        if ($userEmail !== '') {
+            $query->where('email', $userEmail);
+        } else {
+            $query->where($idColumn, $userId);
+        }
+
+        return [$query->first(), $idColumn];
+    }
+
+    private function normalizeProfileValue(string $value): ?string
+    {
+        $trimmed = trim($value);
+        return $trimmed === '' ? null : $trimmed;
+    }
+
+    private function storeAvatarFromDataUrl(string $dataUrl): ?string
+    {
+        if (!preg_match('/^data:image\/(png|jpe?g|webp);base64,/', $dataUrl, $matches)) {
+            return null;
+        }
+
+        $binary = base64_decode(substr($dataUrl, strpos($dataUrl, ',') + 1), true);
+        if ($binary === false || strlen($binary) === 0 || strlen($binary) > (6 * 1024 * 1024)) {
+            return null;
+        }
+
+        $imageInfo = @getimagesizefromstring($binary);
+        if ($imageInfo === false) {
+            return null;
+        }
+
+        $mime = strtolower((string) ($imageInfo['mime'] ?? ''));
+        if (!in_array($mime, ['image/png', 'image/jpeg', 'image/webp'], true)) {
+            return null;
+        }
+
+        $extension = strtolower((string) $matches[1]);
+        if ($extension === 'jpeg') {
+            $extension = 'jpg';
+        }
+
+        $filePath = 'profile_pictures/' . now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $extension;
+        Storage::disk('public')->put($filePath, $binary);
+
+        return 'storage/' . $filePath;
     }
 
     private function passwordMatches(string $input, string $stored): bool

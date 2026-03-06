@@ -259,6 +259,12 @@
     }
 
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+      if (typeof window.confirmAction === 'function') {
+        return await window.confirmAction({ message, title, confirmText, tone });
+      }
+      return confirm(message);
+    }
 
     async function postJSON(url, data = {}) {
       const res = await fetch(url, {
@@ -283,48 +289,79 @@
     window.markNotificationRead = async function (id, btn) {
       try {
         btn.disabled = true;
-        await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
+        const response = await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
 
         const item = btn.closest('.notification-item');
+        if (response.changed === false) {
+          if (item) item.classList.remove('unread');
+          btn.disabled = true;
+          showToast(response.message || "No notification changes found.", 'warning', 'No Changes');
+          return;
+        }
+
         if (item) item.classList.remove('unread');
         btn.disabled = true;
+        showToast(response.message || "Notification marked as read.", 'success', 'Success');
       } catch (err) {
-        alert("Mark as read failed: " + err.message);
+        showToast("Mark as read failed: " + err.message, 'error');
         btn.disabled = false;
       }
     };
 
     window.deleteNotification = async function (id, btn) {
-      if (!confirm("Delete this notification?")) return;
+      if (!(await askConfirm("Delete this notification?", "Delete Notification", "Delete", "danger"))) return;
       try {
         btn.disabled = true;
-        await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
+        const response = await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
 
         const item = btn.closest('.notification-item');
+        if (response.changed === false) {
+          showToast(response.message || "No notification changes found.", 'warning', 'No Changes');
+          btn.disabled = false;
+          return;
+        }
+
         if (item) item.remove();
+        showToast(response.message || "Notification deleted successfully.", 'success', 'Success');
       } catch (err) {
-        alert("Delete failed: " + err.message);
+        showToast("Delete failed: " + err.message, 'error');
         btn.disabled = false;
       }
     };
 
     window.markAllRead = async function () {
-      if (!confirm("Mark ALL notifications as read?")) return;
+      if (!(await askConfirm("Mark ALL notifications as read?", "Mark As Read", "Mark All", "info"))) return;
       try {
-        await postJSON("{{ route('superadmin.notifications.markRead') }}", { all: 1 });
+        const response = await postJSON("{{ route('superadmin.notifications.markRead') }}", { all: 1 });
+        if (response.changed === false) {
+          showToast(response.message || "No unread notifications found.", 'warning', 'No Changes');
+          return;
+        }
+
+        if (typeof window.queueToast === 'function') {
+          window.queueToast(response.message || "All notifications marked as read.", 'success', 'Success');
+        }
         location.reload();
       } catch (err) {
-        alert("Mark all as read failed: " + err.message);
+        showToast("Mark all as read failed: " + err.message, 'error');
       }
     };
 
     window.clearAll = async function () {
-      if (!confirm("Delete ALL notifications? This cannot be undone.")) return;
+      if (!(await askConfirm("Delete ALL notifications? This cannot be undone.", "Clear Notifications", "Clear All", "danger"))) return;
       try {
-        await postJSON("{{ route('superadmin.notifications.delete') }}", { all: 1 });
+        const response = await postJSON("{{ route('superadmin.notifications.delete') }}", { all: 1 });
+        if (response.changed === false) {
+          showToast(response.message || "No notifications to clear.", 'warning', 'No Changes');
+          return;
+        }
+
+        if (typeof window.queueToast === 'function') {
+          window.queueToast(response.message || "All notifications cleared successfully.", 'success', 'Success');
+        }
         location.reload();
       } catch (err) {
-        alert("Clear all failed: " + err.message);
+        showToast("Clear all failed: " + err.message, 'error');
       }
     };
   </script>

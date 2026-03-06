@@ -267,8 +267,6 @@
         </div>
     </div>
 
-    <div id="toastWrap" class="toast-wrap" aria-live="polite" aria-atomic="true"></div>
-
 <script>
 const RC = {
   GLOBAL_SUPERADMIN: 'r-admin',
@@ -607,63 +605,23 @@ const STATUS_URL_TPL = "{{ route('superadmin.accounts.status', ['id' => '__ID__'
 
 const urlWithId = (tpl, id) => tpl.replace('__ID__', String(id));
 const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-const TOAST_TIMEOUT = 3200;
-
 function showToast(message, type = 'success', title = '') {
-  const wrap = document.getElementById('toastWrap');
-  if (!wrap) {
-    alert(message);
+  if (typeof window.showToast === 'function' && window.showToast !== showToast) {
+    window.showToast(message, type, title);
     return;
   }
 
-  const toast = document.createElement('div');
-  toast.className = `toast-card toast-${type}`;
+  if (typeof window.cmsToast === 'function') {
+    window.cmsToast(message, type, title);
+    return;
+  }
 
-  const iconClass = type === 'error'
-    ? 'fa-circle-xmark'
-    : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check');
-  const heading = title || (type === 'error' ? 'Request Failed' : 'Success');
+  if (typeof window.__cmsNativeAlert === 'function') {
+    window.__cmsNativeAlert(message);
+    return;
+  }
 
-  const icon = document.createElement('div');
-  icon.className = 'toast-icon';
-  icon.innerHTML = `<i class="fas ${iconClass}"></i>`;
-
-  const body = document.createElement('div');
-  body.className = 'toast-body';
-
-  const titleEl = document.createElement('div');
-  titleEl.className = 'toast-title';
-  titleEl.textContent = heading;
-
-  const msgEl = document.createElement('div');
-  msgEl.className = 'toast-message';
-  msgEl.textContent = String(message || '');
-
-  const closeBtn = document.createElement('button');
-  closeBtn.type = 'button';
-  closeBtn.className = 'toast-close';
-  closeBtn.innerHTML = '<i class="fas fa-xmark"></i>';
-  closeBtn.setAttribute('aria-label', 'Close');
-
-  body.appendChild(titleEl);
-  body.appendChild(msgEl);
-  toast.appendChild(icon);
-  toast.appendChild(body);
-  toast.appendChild(closeBtn);
-  wrap.appendChild(toast);
-
-  requestAnimationFrame(() => toast.classList.add('show'));
-
-  const removeToast = () => {
-    toast.classList.remove('show');
-    setTimeout(() => toast.remove(), 220);
-  };
-
-  const timer = setTimeout(removeToast, TOAST_TIMEOUT);
-  closeBtn.addEventListener('click', () => {
-    clearTimeout(timer);
-    removeToast();
-  });
+  console.warn(message);
 }
 
 async function saveUser(){

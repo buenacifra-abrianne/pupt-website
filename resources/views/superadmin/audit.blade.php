@@ -85,10 +85,6 @@
                     <span>Audit Trail</span>
                 </div>
             </div>
-            <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-                <button class="export-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
-                <button class="export-btn" onclick="window.print()"><i class="fas fa-print"></i> Print</button>
-            </div>
         </div>
 
         <!-- Stats -->
@@ -104,7 +100,9 @@
                 <div class="card-title"><i class="fa-solid fa-clock-rotate-left"></i> Activity Log</div>
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                     <span style="font-size:13px;color:#888;" id="lastUpdated">Last updated: just now</span>
-                    <button class="action-btn" onclick="window.location.reload()"><i class="fas fa-rotate-right"></i> Refresh</button>
+                    <button class="action-btn" onclick="handleRefresh()"><i class="fas fa-rotate-right"></i> Refresh</button>
+                    <button class="export-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+                    <button class="export-btn" onclick="handlePrint()"><i class="fas fa-print"></i> Print</button>
                 </div>
             </div>
 
@@ -137,17 +135,27 @@
 
             <!-- Table -->
             <div class="table-wrap">
-                <table>
+                <table class="audit-table">
+                    <colgroup>
+                        <col class="col-idx">
+                        <col class="col-user">
+                        <col class="col-action">
+                        <col class="col-module">
+                        <col class="col-desc">
+                        <col class="col-ip">
+                        <col class="col-time">
+                        <col class="col-view">
+                    </colgroup>
                     <thead>
                         <tr>
-                            <th>#</th>
-                            <th>User</th>
-                            <th>Action</th>
-                            <th>Module</th>
-                            <th>Description</th>
-                            <th>IP Address</th>
-                            <th>Timestamp</th>
-                            <th></th>
+                            <th class="th-idx">#</th>
+                            <th class="th-user">User</th>
+                            <th class="th-action">Action</th>
+                            <th class="th-module">Module</th>
+                            <th class="th-desc">Description</th>
+                            <th class="th-ip">IP Address</th>
+                            <th class="th-time">Timestamp</th>
+                            <th class="th-view"></th>
                         </tr>
                     </thead>
                     <tbody id="logBody"></tbody>
@@ -209,7 +217,7 @@ const ACTION_META = {
 
 const ACCOUNT_ACTIONS = new Set(['LOGIN', 'LOGOUT', 'SECURITY', 'FAILED_LOGIN', 'UNAUTHORIZED', 'LOCKED']);
 const ACCOUNT_MODULES = new Set(['AUTHENTICATION', 'SECURITY']);
-const CMS_MODULES = new Set(['ACCOUNT', 'ACCOUNTS', 'ANNOUNCEMENT', 'ANNOUNCEMENTS', 'NEWS', 'CONTENT', 'CMS']);
+const CMS_MODULES = new Set(['ANNOUNCEMENT', 'ANNOUNCEMENTS', 'NEWS', 'CONTENT', 'CMS']);
 
 const CHANGE_ACTIONS = new Set([
     'CREATED', 'UPDATED', 'DELETED', 'ENABLED', 'DISABLED',
@@ -219,6 +227,16 @@ const CHANGE_ACTIONS = new Set([
 let curType = 'all';
 let pg = 1;
 const PP = 15;
+
+function showPageToast(message, type = 'info', title = 'Notice') {
+    if (typeof window.showToast === 'function') {
+        window.showToast(message, type, title);
+        return;
+    }
+    if (typeof window.cmsToast === 'function') {
+        window.cmsToast(message, type, title);
+    }
+}
 
 function norm(v) {
     return String(v || '').trim().toUpperCase();
@@ -255,9 +273,7 @@ function isAccountLog(log) {
 }
 
 function isAccountTabLog(log) {
-    const action = norm(log.action);
-    const module = norm(log.module);
-    return ACCOUNT_ACTIONS.has(action) || ACCOUNT_MODULES.has(module);
+    return isAccountLog(log);
 }
 
 function isContentLog(log) {
@@ -365,22 +381,22 @@ function render() {
             const am = ACTION_META[l.action] || ACTION_META.DEFAULT;
             const rowNo = s + i + 1;
             return `<tr>
-                <td style="color:#ccc;font-size:12px">${rowNo}</td>
-                <td>
+                <td class="col-idx-cell" style="color:#ccc;font-size:12px">${rowNo}</td>
+                <td class="col-user-cell">
                     <div class="user-cell">
                         <div class="avatar ${escapeHtml(l.av)}">${escapeHtml(initials(l.user))}</div>
                         <div><div class="uname">${escapeHtml(l.user)}</div><div class="urole">${escapeHtml(l.role)}</div></div>
                     </div>
                 </td>
-                <td><span class="action-badge ${escapeHtml(am.cls)}"><i class="fas ${escapeHtml(am.icon)}" style="font-size:10px"></i> ${escapeHtml(l.action)}</span></td>
-                <td><span class="mod-badge">${escapeHtml(l.module)}</span></td>
-                <td class="desc-cell"><div class="desc-text">${escapeHtml(l.desc)}</div></td>
-                <td><span class="ip-text">${escapeHtml(l.ip)}</span></td>
-                <td>
+                <td class="col-action-cell"><span class="action-badge ${escapeHtml(am.cls)}"><i class="fas ${escapeHtml(am.icon)}" style="font-size:10px"></i> ${escapeHtml(l.action)}</span></td>
+                <td class="col-module-cell"><span class="mod-badge">${escapeHtml(l.module)}</span></td>
+                <td class="desc-cell" title="${escapeHtml(l.desc)}"><div class="desc-text">${escapeHtml(l.desc)}</div></td>
+                <td class="col-ip-cell"><span class="ip-text">${escapeHtml(l.ip)}</span></td>
+                <td class="col-time-cell">
                     <div class="time-text">${escapeHtml(formatTs(l.ts))}</div>
                     <div class="time-ago">${escapeHtml(timeAgo(l.ts))}</div>
                 </td>
-                <td><button class="btn-view-sm" title="View Details" onclick="viewLog(${Number(l.id)})"><i class="fas fa-eye"></i></button></td>
+                <td class="col-view-cell"><button class="btn-view-sm" title="View Details" onclick="viewLog(${Number(l.id)})"><i class="fas fa-eye"></i></button></td>
             </tr>`;
         }).join('');
     }
@@ -416,9 +432,10 @@ function clearFilters() {
     document.getElementById('dateFil').value = '';
     pg = 1;
     render();
+    showPageToast('Filters cleared.', 'info', 'Audit Trail');
 }
 
-function switchType(t) {
+function switchType(t, silent = false) {
     curType = t;
     pg = 1;
     document.querySelectorAll('[data-type]').forEach((b) => b.classList.toggle('active', b.dataset.type === t));
@@ -476,6 +493,10 @@ function csvEscape(v) {
 
 function exportCSV() {
     const f = filtered();
+    if (!f.length) {
+        showPageToast('No logs to export.', 'warning', 'Export CSV');
+        return;
+    }
     const headers = ['#', 'User', 'Role', 'Action', 'Module', 'Description', 'IP Address', 'Timestamp'];
     const rows = f.map((l, i) => [
         i + 1,
@@ -492,6 +513,17 @@ function exportCSV() {
     a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
     a.download = `audit_trail_${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
+    showPageToast('CSV export started.', 'success', 'Export CSV');
+}
+
+function handlePrint() {
+    showPageToast('Opening print dialog...', 'info', 'Print');
+    setTimeout(() => window.print(), 80);
+}
+
+function handleRefresh() {
+    sessionStorage.setItem('audit_refresh_toast', '1');
+    window.location.reload();
 }
 
 function toggleSidebar() {
@@ -500,9 +532,14 @@ function toggleSidebar() {
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('filter') === 'announcements') {
-    switchType('CONTENT');
+    switchType('CONTENT', true);
 } else {
     render();
+}
+
+if (sessionStorage.getItem('audit_refresh_toast') === '1') {
+    sessionStorage.removeItem('audit_refresh_toast');
+    showPageToast('Audit trail refreshed.', 'success', 'Refresh');
 }
 </script>
 </body>

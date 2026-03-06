@@ -746,7 +746,7 @@
         switchTab('engagement');
     });
 
-    async function postJSON(url, data) {
+async function postJSON(url, data) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     const res = await fetch(url, {
@@ -769,35 +769,57 @@
     return json;
 }
 
+    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+        if (typeof window.confirmAction === 'function') {
+            return await window.confirmAction({ message, title, confirmText, tone });
+        }
+        return confirm(message);
+    }
+
     // ✅ Mark as Read
     window.markNotificationRead = async function (id, btn) {
         try {
             btn.disabled = true;
-            await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
+            const response = await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
 
             const item = btn.closest('.notification-item');
+            if (response.changed === false) {
+                if (item) item.classList.remove('unread');
+                btn.disabled = true;
+                showToast(response.message || "No notification changes found.", 'warning', 'No Changes');
+                return;
+            }
+
             if (item) item.classList.remove('unread');
             btn.disabled = true;
+            showToast(response.message || "Notification marked as read.", 'success', 'Success');
         } catch (err) {
             console.error(err);
-            alert("Mark as read failed: " + err.message);
+            showToast("Mark as read failed: " + err.message, 'error');
             btn.disabled = false;
         }
     };
 
     // ✅ Delete notification
     window.deleteNotification = async function (id, btn) {
-        if (!confirm("Delete this notification?")) return;
+        if (!(await askConfirm("Delete this notification?", "Delete Notification", "Delete", "danger"))) return;
 
         try {
             btn.disabled = true;
-            await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
+            const response = await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
 
             const item = btn.closest('.notification-item');
+            if (response.changed === false) {
+                showToast(response.message || "No notification changes found.", 'warning', 'No Changes');
+                btn.disabled = false;
+                return;
+            }
+
             if (item) item.remove();
+            showToast(response.message || "Notification deleted successfully.", 'success', 'Success');
         } catch (err) {
             console.error(err);
-            alert("Delete failed: " + err.message);
+            showToast("Delete failed: " + err.message, 'error');
             btn.disabled = false;
         }
     };
@@ -937,7 +959,7 @@
 
         } catch (err) {
             console.error(err);
-            alert("Analytics load failed: " + err.message);
+            showToast("Analytics load failed: " + err.message, 'error');
         }
     };
 
@@ -977,7 +999,24 @@
         applyAnalytics();
     }
 
+    function metricToNumber(rawValue) {
+        const cleaned = String(rawValue ?? '').replace(/[^0-9.\-]/g, '');
+        const n = Number(cleaned);
+        return Number.isFinite(n) ? n : 0;
+    }
+
+    function hasAnalyticsExportContent() {
+        const totalVisitors = metricToNumber(document.getElementById('kpiVisitors')?.textContent);
+        const sessions = metricToNumber(document.getElementById('engSessions')?.textContent);
+        const pageviews = metricToNumber(document.getElementById('engPageviews')?.textContent);
+        return totalVisitors > 0 || sessions > 0 || pageviews > 0;
+    }
+
     function exportAnalytics(type){
+    if (!hasAnalyticsExportContent()) {
+        showToast("No analytics content found to export.", 'warning', 'No Changes');
+        return;
+    }
 
     const start=document.getElementById('analyticsStart')?.value || '';
     const end=document.getElementById('analyticsEnd')?.value || '';
@@ -1005,6 +1044,11 @@
         url="{{ route('superadmin.analytics.exportExcel') }}";
     }
 
+    if(!url){
+        showToast("Unsupported export type.", 'error', 'Export Failed');
+        return;
+    }
+
     const form=document.createElement('form');
     form.method='POST';
     form.action=url;
@@ -1024,10 +1068,20 @@
     }
 
     document.body.appendChild(form);
+    if (type === 'excel') {
+        showToast("CSV export started.", 'info', 'Export');
+    } else {
+        showToast("Export started.", 'info', 'Export');
+    }
     form.submit();
 }
 
 function exportPdf() {
+  if (!hasAnalyticsExportContent()) {
+    showToast("No analytics content found to export.", 'warning', 'No Changes');
+    return;
+  }
+
   // grab date range currently used
   const start = document.getElementById('analyticsStart')?.value || '';
   const end   = document.getElementById('analyticsEnd')?.value || '';
@@ -1050,6 +1104,7 @@ function exportPdf() {
   document.getElementById('exp_end').value = end;
   document.getElementById('exp_payload').value = JSON.stringify(payload);
 
+  showToast("PDF export started.", 'info', 'Export');
   document.getElementById('exportPdfForm').submit();
 }
 </script>

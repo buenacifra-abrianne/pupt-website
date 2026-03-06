@@ -586,20 +586,41 @@ background: #f8f1f1;
 table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px;
+    min-width: 0;
 }
+
+.audit-table {
+    table-layout: fixed;
+    min-width: 0;
+}
+
+.audit-table col.col-idx { width: 42px; }
+.audit-table col.col-user { width: 210px; }
+.audit-table col.col-action { width: 120px; }
+.audit-table col.col-module { width: 110px; }
+.audit-table col.col-desc { width: auto; }
+.audit-table col.col-ip { width: 100px; }
+.audit-table col.col-time { width: 150px; }
+.audit-table col.col-view { width: 44px; }
 
 thead {
     background: linear-gradient(135deg, #800000, #6a0000);
 }
 
 thead th {
-    padding: 13px 15px;
+    padding: 12px 10px;
     color: #fff;
     font-size: 13px;
     font-weight: 600;
     text-align: left;
     white-space: nowrap;
+}
+
+.th-idx,
+.th-view,
+.col-idx-cell,
+.col-view-cell {
+    text-align: center;
 }
 
 tbody tr {
@@ -616,21 +637,35 @@ tbody tr:hover {
 }
 
 tbody td {
-    padding: 13px 15px;
+    padding: 11px 10px;
     font-size: 13px;
     vertical-align: middle;
+    overflow: hidden;
+}
+
+.col-action-cell,
+.col-module-cell,
+.desc-cell,
+.col-ip-cell,
+.col-time-cell {
+    min-width: 0;
 }
 
 /* User Cell */
 .user-cell {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
+    min-width: 0;
+}
+
+.user-cell > div:last-child {
+    min-width: 0;
 }
 
 .avatar {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -652,11 +687,15 @@ tbody td {
     font-weight: 600;
     color: #222;
     font-size: 13px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 .urole {
     color: #999;
     font-size: 11px;
+    overflow-wrap: anywhere;
+    word-break: break-word;
 }
 
 /* Action Type Badge */
@@ -669,6 +708,10 @@ tbody td {
     align-items: center;
     gap: 5px;
     white-space: nowrap;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
 .ab-login        { background: rgba(40, 167, 69, 0.1);    color: #28a745; }
@@ -682,6 +725,7 @@ tbody td {
 
 /* Module Badge */
 .mod-badge {
+    display: inline-block;
     padding: 3px 9px;
     border-radius: 6px;
     font-size: 11px;
@@ -689,17 +733,29 @@ tbody td {
     background: #f5f5f5;
     color: #555;
     border: 1px solid #e0e0e0;
+    max-width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
 }
 
 /* Description */
 .desc-cell {
-    max-width: 280px;
+    max-width: 100%;
 }
 
 .desc-text {
     color: #444;
     font-size: 13px;
     line-height: 1.4;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    hyphens: auto;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
 }
 
 .desc-meta {
@@ -713,19 +769,28 @@ tbody td {
     color: #888;
     font-size: 12px;
     font-family: monospace;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Time */
 .time-text {
     color: #555;
-    font-size: 12px;
+    font-size: 11px;
     white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .time-ago {
     color: #aaa;
-    font-size: 11px;
+    font-size: 10px;
     margin-top: 2px;
+    white-space: nowrap;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 /* View Button */
@@ -733,8 +798,8 @@ tbody td {
     background: rgba(128, 0, 0, 0.07);
     color: #800000;
     border: none;
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border-radius: 7px;
     cursor: pointer;
     display: inline-flex;

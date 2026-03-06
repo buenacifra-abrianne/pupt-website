@@ -471,31 +471,40 @@
 }
 
     // ✅ simple toast
-    function showToast(message, ms = 2200) {
-        let t = document.getElementById('toast');
-        if (!t) {
-            t = document.createElement('div');
-            t.id = 'toast';
-            t.style.cssText = `
-              position:fixed;right:18px;bottom:18px;z-index:9999;
-              min-width:280px;max-width:380px;padding:12px 14px;border-radius:12px;
-              background:#111;color:#fff;box-shadow:0 10px 25px rgba(0,0,0,.25);
-              display:none;font-size:14px;`;
-            document.body.appendChild(t);
+function showToast(message, typeOrMs = 'success', title = '') {
+        if (typeof window.showToast === 'function' && window.showToast !== showToast) {
+            window.showToast(message, typeOrMs, title);
+            return;
         }
-        t.textContent = message;
-        t.style.display = 'block';
-        t.style.opacity = '1';
-        clearTimeout(window.__toastTimer);
-        window.__toastTimer = setTimeout(() => {
-            t.style.opacity = '0';
-            setTimeout(() => t.style.display = 'none', 200);
-        }, ms);
+
+        if (typeof window.cmsToast === 'function') {
+            if (typeof typeOrMs === 'number') {
+                window.cmsToast(message, 'info', title, typeOrMs);
+                return;
+            }
+
+            window.cmsToast(message, (typeof typeOrMs === 'string' && typeOrMs) ? typeOrMs : 'success', title);
+            return;
+        }
+
+        if (typeof window.__cmsNativeAlert === 'function') {
+            window.__cmsNativeAlert(message);
+            return;
+        }
+
+        console.warn(message);
+    }
+
+    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+        if (typeof window.confirmAction === 'function') {
+            return await window.confirmAction({ message, title, confirmText, tone });
+        }
+        return confirm(message);
     }
 
     // ✅ Approve button handler
     async function approveReq(url, id) {
-  if (!confirm("Approve this request?")) return;
+  if (!(await askConfirm("Approve this request?", "Approve Request", "Approve", "info"))) return;
 
   console.log("APPROVE clicked -> id:", id, "url:", url);
 
@@ -519,7 +528,11 @@
       throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
     }
 
-    showToast("Approved.");
+    if (typeof window.queueToast === 'function') {
+      window.queueToast("Request approved successfully.", 'success', 'Success');
+    } else {
+      showToast("Request approved successfully.");
+    }
     window.location.reload();
   } catch (err) {
     console.error(err);
@@ -532,7 +545,7 @@
   const reason = prompt('Reason for rejection? (optional)');
   if (reason === null) return;
 
-  if (!confirm("Reject this request?")) return;
+  if (!(await askConfirm("Reject this request?", "Reject Request", "Reject", "danger"))) return;
 
   console.log("REJECT clicked -> id:", id, "url:", url, "reason:", reason);
 
@@ -558,7 +571,11 @@
       throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
     }
 
-    showToast("Rejected.");
+    if (typeof window.queueToast === 'function') {
+      window.queueToast("Request rejected successfully.", 'success', 'Success');
+    } else {
+      showToast("Request rejected successfully.");
+    }
     window.location.reload();
   } catch (err) {
     console.error(err);

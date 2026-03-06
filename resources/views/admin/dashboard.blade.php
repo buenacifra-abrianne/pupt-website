@@ -403,7 +403,7 @@
         });
     });
 
-    async function postJSON(url, data) {
+async function postJSON(url, data) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
     const res = await fetch(url, {
@@ -426,35 +426,57 @@
     return json;
 }
 
+    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+        if (typeof window.confirmAction === 'function') {
+            return await window.confirmAction({ message, title, confirmText, tone });
+        }
+        return confirm(message);
+    }
+
     // ✅ Mark as Read
     window.markNotificationRead = async function (id, btn) {
         try {
             btn.disabled = true;
-            await postJSON("{{ route('admin.notifications.markRead') }}", { id });
+            const response = await postJSON("{{ route('admin.notifications.markRead') }}", { id });
 
             const item = btn.closest('.notification-item');
+            if (response.changed === false) {
+                if (item) item.classList.remove('unread');
+                btn.disabled = true;
+                showToast(response.message || "No notification changes found.", 'warning', 'No Changes');
+                return;
+            }
+
             if (item) item.classList.remove('unread');
             btn.disabled = true;
+            showToast(response.message || "Notification marked as read.", 'success', 'Success');
         } catch (err) {
             console.error(err);
-            alert("Mark as read failed: " + err.message);
+            showToast("Mark as read failed: " + err.message, 'error');
             btn.disabled = false;
         }
     };
 
     // ✅ Delete notification
     window.deleteNotification = async function (id, btn) {
-        if (!confirm("Delete this notification?")) return;
+        if (!(await askConfirm("Delete this notification?", "Delete Notification", "Delete", "danger"))) return;
 
         try {
             btn.disabled = true;
-            await postJSON("{{ route('admin.notifications.delete') }}", { id });
+            const response = await postJSON("{{ route('admin.notifications.delete') }}", { id });
 
             const item = btn.closest('.notification-item');
+            if (response.changed === false) {
+                showToast(response.message || "No notification changes found.", 'warning', 'No Changes');
+                btn.disabled = false;
+                return;
+            }
+
             if (item) item.remove();
+            showToast(response.message || "Notification deleted successfully.", 'success', 'Success');
         } catch (err) {
             console.error(err);
-            alert("Delete failed: " + err.message);
+            showToast("Delete failed: " + err.message, 'error');
             btn.disabled = false;
         }
     };
@@ -477,4 +499,3 @@
 </script>
 </body>
 </html>
-

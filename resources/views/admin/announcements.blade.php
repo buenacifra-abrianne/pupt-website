@@ -530,7 +530,6 @@
 
         if (!res.ok || !json.ok) {
             throw new Error(json.error || ("Request failed (" + res.status + ")"));
-            window.location.reload();
         }
         return json;
     }
@@ -564,14 +563,14 @@
 
         async function toggleAnnouncementStatus(id, currentStatus) {
         if (!id) {
-            alert("No announcement_id found.");
+            showToast("No announcement_id found.", 'warning');
             return;
         }
 
         const isEnabled = String(currentStatus).toUpperCase() === 'ENABLED';
         const action = isEnabled ? 'DISABLE' : 'ENABLE';
 
-        if (!confirm(`Request ${action} this announcement?`)) return;
+        if (!(await askConfirm(`Request ${action} this announcement?`, `Request ${action}`, `Request ${action}`, 'info'))) return;
 
         const url = isEnabled
             ? "{{ route('admin.announcements.requestDisable') }}"
@@ -582,32 +581,32 @@
                 announcement_id: id
             });
 
-            showToast("Request submitted. Please wait for superadmin approval.");
+            queueSuccessToast("Request submitted. Please wait for superadmin approval.");
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Request toggle failed: " + err.message);
+            showToast("Request toggle failed: " + err.message, 'error');
         }
     }
 
     async function deleteAnnouncement(id, title = '') {
         if (!id) {
-            alert("No announcement_id found to request delete.");
+            showToast("No announcement_id found to request delete.", 'warning');
             return;
         }
 
-        if (!confirm('Request DELETE this announcement?')) return;
+        if (!(await askConfirm('Request DELETE this announcement?', 'Delete Request', 'Request Delete', 'danger'))) return;
 
         try {
             await postForm("{{ route('admin.announcements.requestDelete') }}", {
                 announcement_id: id,
                 title: title
             });
-            showToast("Request submitted. Please wait for admin approval.");
+            queueSuccessToast("Request submitted. Please wait for admin approval.");
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Request delete failed: " + err.message);
+            showToast("Request delete failed: " + err.message, 'error');
         }
     }
 
@@ -648,7 +647,7 @@
     function editNews(id, title, content, category, location, imagePath, imageUrl) {
   id = parseInt(id, 10);
   if (!id || id <= 0) {
-    alert("This request has no News ID yet. You can't submit an UPDATE. Please submit it as CREATE first (wait for admin approval), then edit from Live.");
+    showToast("This request has no News ID yet. You can't submit an UPDATE. Please submit it as CREATE first (wait for admin approval), then edit from Live.", 'warning');
     return;
   }
 
@@ -753,22 +752,22 @@
     async function deleteNews(id, title = '') {
         id = parseInt(id, 10);
         if (!id) {
-            alert("No news_id found to request delete.");
+            showToast("No news_id found to request delete.", 'warning');
             return;
         }
 
-        if (!confirm('Request DELETE this news?')) return;
+        if (!(await askConfirm('Request DELETE this news?', 'Delete Request', 'Request Delete', 'danger'))) return;
 
         try {
             await postForm("{{ route('admin.news.requestDelete') }}", {
                 news_id: id,
                 title: title
             });
-            showToast("Request submitted. Please wait for admin approval.");
+            queueSuccessToast("Request submitted. Please wait for admin approval.");
             window.location.reload();
         } catch (err) {
             console.error(err);
-            alert("Request delete failed: " + err.message);
+            showToast("Request delete failed: " + err.message, 'error');
         }
     }
 
@@ -870,11 +869,11 @@ async function deleteAnnouncementRequest(reqId, type, announcementId, title) {
 
   // If no target id, we can't request delete of a real announcement
   if (isNaN(annId) || annId <= 0) {
-    alert("This is a CREATE request (no announcement ID yet). You can’t request delete on it.");
+    showToast("This is a CREATE request (no announcement ID yet). You can't request delete on it.", 'warning');
     return;
   }
 
-  if (!confirm("Request DELETE this announcement?")) return;
+  if (!(await askConfirm("Request DELETE this announcement?", "Delete Request", "Request Delete", "danger"))) return;
 
   try {
     await postForm("{{ route('admin.announcements.requestDelete') }}", {
@@ -883,11 +882,11 @@ async function deleteAnnouncementRequest(reqId, type, announcementId, title) {
       title: title
     });
 
-    showToast("Request submitted. Please wait for superadmin approval.");
+    queueSuccessToast("Request submitted. Please wait for superadmin approval.");
     window.location.reload();
   } catch (err) {
     console.error(err);
-    alert("Request delete failed: " + err.message);
+    showToast("Request delete failed: " + err.message, 'error');
   }
 }
 
@@ -902,12 +901,12 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
     try {
         await postForm(url, data);
-        showToast("Request submitted. Please wait for admin approval.");
+        queueSuccessToast("Request submitted. Please wait for admin approval.");
         closeAnnouncementModal();
         window.location.reload();
     } catch (err) {
         console.error(err);
-        alert("Submit failed: " + err.message);
+        showToast("Submit failed: " + err.message, 'error');
     }
 });
 
@@ -939,32 +938,55 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
       throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
     }
 
-    showToast("Request submitted. Please wait for admin approval.");
+    queueSuccessToast("Request submitted. Please wait for admin approval.");
     closeNewsModal();
     window.location.reload();
   } catch (err) {
     console.error(err);
-    alert("Submit failed: " + err.message);
+    showToast("Submit failed: " + err.message, 'error');
   }
 });
 
-function showToast(message, ms = 2200) {
-  const t = document.getElementById('toast');
-  const m = document.getElementById('toastMsg');
-  if (!t || !m) return;
+function showToast(message, typeOrMs = 'success', title = '') {
+  if (typeof window.showToast === 'function' && window.showToast !== showToast) {
+    window.showToast(message, typeOrMs, title);
+    return;
+  }
 
-  m.textContent = message;
-  t.style.display = 'block';
-  t.style.opacity = '1';
+  if (typeof window.cmsToast === 'function') {
+    if (typeof typeOrMs === 'number') {
+      window.cmsToast(message, 'info', title, typeOrMs);
+      return;
+    }
 
-  clearTimeout(window.__toastTimer);
-  window.__toastTimer = setTimeout(() => {
-    t.style.opacity = '0';
-    setTimeout(() => { t.style.display = 'none'; }, 200);
-  }, ms);
+    window.cmsToast(message, (typeof typeOrMs === 'string' && typeOrMs) ? typeOrMs : 'success', title);
+    return;
+  }
+
+  if (typeof window.__cmsNativeAlert === 'function') {
+    window.__cmsNativeAlert(message);
+    return;
+  }
+
+  console.warn(message);
 }
 
-function deleteApprovalRequestOnly(a, b) {
+function queueSuccessToast(message, title = 'Success') {
+  if (typeof window.queueToast === 'function') {
+    window.queueToast(message, 'success', title);
+    return;
+  }
+  showToast(message, 'success', title);
+}
+
+async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+  if (typeof window.confirmAction === 'function') {
+    return await window.confirmAction({ message, title, confirmText, tone });
+  }
+  return confirm(message);
+}
+
+async function deleteApprovalRequestOnly(a, b) {
   // Works for both calls:
   // onclick="deleteApprovalRequestOnly(this)"
   // onclick="deleteApprovalRequestOnly(event, this)"
@@ -984,7 +1006,7 @@ function deleteApprovalRequestOnly(a, b) {
   }
 
   if (!btn || !btn.getAttribute) {
-    alert('Delete button reference is invalid. Check onclick signature.');
+    showToast('Delete button reference is invalid. Check onclick signature.', 'warning');
     return;
   }
 
@@ -995,11 +1017,11 @@ function deleteApprovalRequestOnly(a, b) {
   console.log('DELETE URL =', deleteUrl);
 
   if (!deleteUrl || deleteUrl.trim() === '') {
-    alert('Delete URL is empty. (data-delete-url missing) — kaya napupunta sa admin/dashboard.');
+    showToast('Delete URL is empty. (data-delete-url missing) — kaya napupunta sa admin/dashboard.', 'warning');
     return;
   }
 
-  if (!confirm(`Delete this request?\n\n"${title}"\n\nThis will NOT affect the live/approved announcement.`)) return;
+  if (!(await askConfirm(`Delete this request?\n\n"${title}"\n\nThis will NOT affect the live/approved announcement.`, 'Delete Pending Request', 'Delete', 'danger'))) return;
 
   fetch(deleteUrl, {
     method: 'DELETE',
@@ -1023,19 +1045,19 @@ function deleteApprovalRequestOnly(a, b) {
   .then(() => {
     const card = btn.closest('.announcement-item');
     if (card) card.remove();
-    alert('Request deleted.');
+    queueSuccessToast('Request deleted.');
     window.location.reload();
   })
-  .catch(err => alert(err.message));
+  .catch(err => showToast(err.message, 'error'));
 }
 
-function requestToggleAnnouncement(announcementId, title, currentStatus) {
+async function requestToggleAnnouncement(announcementId, title, currentStatus) {
   const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '';
   const urlEnable  = document.getElementById('urlReqEnable')?.value;
   const urlDisable = document.getElementById('urlReqDisable')?.value;
 
   if (!urlEnable || !urlDisable) {
-    alert('Missing admin toggle URLs. Check hidden inputs urlReqEnable/urlReqDisable.');
+    showToast('Missing admin toggle URLs. Check hidden inputs urlReqEnable/urlReqDisable.', 'warning');
     return;
   }
 
@@ -1043,7 +1065,7 @@ function requestToggleAnnouncement(announcementId, title, currentStatus) {
   const url = isDisabled ? urlEnable : urlDisable;
 
   const actionLabel = isDisabled ? 'ENABLE' : 'DISABLE';
-  if (!confirm(`Send request to ${actionLabel} this announcement?\n\n"${title}"`)) return;
+  if (!(await askConfirm(`Send request to ${actionLabel} this announcement?\n\n"${title}"`, `${actionLabel} Request`, `Request ${actionLabel}`, 'info'))) return;
 
   fetch(url, {
     method: 'POST',
@@ -1072,7 +1094,7 @@ function requestToggleAnnouncement(announcementId, title, currentStatus) {
     // ✅ refresh so admin sees updated "My Requests" immediately
     window.location.reload();
   })
-  .catch(err => alert('Request toggle failed: ' + err.message));
+  .catch(err => showToast('Request toggle failed: ' + err.message, 'error')); 
 }
 
 function setNewsPreview(src) {
@@ -1113,25 +1135,7 @@ function clearNewsImage() {
   setNewsPreview('');
 }
 </script>
-<div id="toast" style="
-  position: fixed;
-  right: 18px;
-  bottom: 18px;
-  z-index: 9999;
-  min-width: 280px;
-  max-width: 380px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  background: #111;
-  color: #fff;
-  box-shadow: 0 10px 25px rgba(0,0,0,.25);
-  display: none;
-  font-size: 14px;
-">
-  <div id="toastMsg"></div>
-</div>
 <input type="hidden" id="urlReqEnable" value="{{ route('admin.announcements.requestEnable') }}">
 <input type="hidden" id="urlReqDisable" value="{{ route('admin.announcements.requestDisable') }}">
 </body>
 </html>
-

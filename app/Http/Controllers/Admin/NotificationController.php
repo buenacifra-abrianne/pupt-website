@@ -131,6 +131,10 @@ class NotificationController extends Controller
         // - mark all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
+            ->leftJoin('notification_reads as nr', function ($join) use ($userId) {
+                $join->on('nr.notification_id', '=', 'n.notification_id')
+                    ->where('nr.user_id', '=', $userId);
+            })
             ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
@@ -139,34 +143,63 @@ class NotificationController extends Controller
             ->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
             ->where('n.target_user_id', $userId)
             ->whereNull('nd.user_id')
+            ->whereNull('nr.user_id')
             ->pluck('n.notification_id');
 
-            if ($ids->isNotEmpty()) {
-                $rows = $ids->map(fn ($nid) => [
-                    'notification_id' => $nid,
-                    'user_id'        => $userId,
-                    'read_at'         => now(),
-                ])->all();
-
-                DB::table('notification_reads')->upsert(
-                    $rows,
-                    ['notification_id', 'user_id'],
-                    ['read_at']
-                );
+            if ($ids->isEmpty()) {
+                return response()->json([
+                    'ok' => true,
+                    'changed' => false,
+                    'message' => 'No unread notifications found.',
+                ]);
             }
 
-            return response()->json(['ok' => true]);
+            $rows = $ids->map(fn ($nid) => [
+                'notification_id' => $nid,
+                'user_id'        => $userId,
+                'read_at'         => now(),
+            ])->all();
+
+            DB::table('notification_reads')->upsert(
+                $rows,
+                ['notification_id', 'user_id'],
+                ['read_at']
+            );
+
+            return response()->json([
+                'ok' => true,
+                'changed' => true,
+                'count' => count($rows),
+                'message' => 'All notifications marked as read.',
+            ]);
         }
 
         $request->validate(['id' => ['required', 'integer']]);
         $id = (int) $request->id;
+
+        $alreadyRead = DB::table('notification_reads')
+            ->where('notification_id', $id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        if ($alreadyRead) {
+            return response()->json([
+                'ok' => true,
+                'changed' => false,
+                'message' => 'Notification is already marked as read.',
+            ]);
+        }
 
         DB::table('notification_reads')->updateOrInsert(
             ['notification_id' => $id, 'user_id' => $userId],
             ['read_at' => now()]
         );
 
-        return response()->json(['ok' => true]);
+        return response()->json([
+            'ok' => true,
+            'changed' => true,
+            'message' => 'Notification marked as read.',
+        ]);
     }
 
     public function delete(Request $request) { $userId = (int) session('user_id');
@@ -189,32 +222,60 @@ class NotificationController extends Controller
             ->whereNull('nd.user_id')
             ->pluck('n.notification_id');
 
-            if ($ids->isNotEmpty()) {
-                $rows = $ids->map(fn ($nid) => [
-                    'notification_id' => $nid,
-                    'user_id'        => $userId,
-                    'dismissed_at'    => now(),
-                ])->all();
-
-                DB::table('notification_dismissed')->upsert(
-                    $rows,
-                    ['notification_id', 'user_id'],
-                    ['dismissed_at']
-                );
+            if ($ids->isEmpty()) {
+                return response()->json([
+                    'ok' => true,
+                    'changed' => false,
+                    'message' => 'No notifications to clear.',
+                ]);
             }
 
-            return response()->json(['ok' => true]);
+            $rows = $ids->map(fn ($nid) => [
+                'notification_id' => $nid,
+                'user_id'        => $userId,
+                'dismissed_at'    => now(),
+            ])->all();
+
+            DB::table('notification_dismissed')->upsert(
+                $rows,
+                ['notification_id', 'user_id'],
+                ['dismissed_at']
+            );
+
+            return response()->json([
+                'ok' => true,
+                'changed' => true,
+                'count' => count($rows),
+                'message' => 'All notifications cleared successfully.',
+            ]);
         }
 
         $request->validate(['id' => ['required', 'integer']]);
         $id = (int) $request->id;
+
+        $alreadyDismissed = DB::table('notification_dismissed')
+            ->where('notification_id', $id)
+            ->where('user_id', $userId)
+            ->exists();
+
+        if ($alreadyDismissed) {
+            return response()->json([
+                'ok' => true,
+                'changed' => false,
+                'message' => 'Notification is already cleared.',
+            ]);
+        }
 
         DB::table('notification_dismissed')->updateOrInsert(
             ['notification_id' => $id, 'user_id' => $userId],
             ['dismissed_at' => now()]
         );
 
-        return response()->json(['ok' => true]);
+        return response()->json([
+            'ok' => true,
+            'changed' => true,
+            'message' => 'Notification deleted successfully.',
+        ]);
     }
 
     private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole = null, ?int $targetUserId = null): void

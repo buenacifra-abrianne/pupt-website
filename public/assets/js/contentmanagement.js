@@ -71,6 +71,11 @@ function normalizeTime(t) {
 
 function showSuccess(msg = "Changes saved successfully!") {
   const el = document.getElementById("successMessage");
+  if (typeof window.showToast === "function") {
+    window.showToast(msg, "success", "Success");
+  } else if (typeof window.cmsToast === "function") {
+    window.cmsToast(msg, "success", "Success");
+  }
   if (!el) return;
 
   const span = el.querySelector("span");
@@ -78,6 +83,73 @@ function showSuccess(msg = "Changes saved successfully!") {
 
   el.classList.add("show");
   setTimeout(() => el.classList.remove("show"), 2000);
+}
+function showToast(message, type = "error", title = "") {
+  if (typeof window.cmsToast === "function") {
+    window.cmsToast(message, type, title);
+    return;
+  }
+
+  let wrap = document.getElementById("cmsJsToastWrap");
+  if (!wrap) {
+    wrap = document.createElement("div");
+    wrap.id = "cmsJsToastWrap";
+    wrap.style.position = "fixed";
+    wrap.style.top = "88px";
+    wrap.style.right = "20px";
+    wrap.style.zIndex = "3500";
+    wrap.style.display = "grid";
+    wrap.style.gap = "10px";
+    wrap.style.width = "min(380px, calc(100vw - 24px))";
+    (document.body || document.documentElement).appendChild(wrap);
+  }
+
+  const palette = {
+    success: { border: "#d3ead4", color: "#1f8f3a", label: "Success" },
+    warning: { border: "#f3e1bf", color: "#a26e0c", label: "Warning" },
+    info: { border: "#cfe0f6", color: "#2259ac", label: "Notice" },
+    error: { border: "#f2d4d4", color: "#b12a2a", label: "Request Failed" }
+  };
+
+  const key = String(type || "error").toLowerCase();
+  const tone = palette[key] || palette.error;
+
+  const toast = document.createElement("div");
+  toast.style.background = "#fff";
+  toast.style.border = "1px solid " + tone.border;
+  toast.style.borderRadius = "12px";
+  toast.style.boxShadow = "0 12px 30px rgba(0,0,0,.18)";
+  toast.style.padding = "12px";
+  toast.style.opacity = "0";
+  toast.style.transform = "translateY(-8px)";
+  toast.style.transition = "transform .2s ease, opacity .2s ease";
+
+  toast.innerHTML =
+    '<div style="font-size:13px;font-weight:700;color:' + tone.color + ';">' +
+    (title || tone.label) +
+    '</div>' +
+    '<div style="font-size:13px;color:#4e4e4e;line-height:1.35;margin-top:4px;">' +
+    String(message || "") +
+    '</div>';
+
+  wrap.appendChild(toast);
+  requestAnimationFrame(() => {
+    toast.style.opacity = "1";
+    toast.style.transform = "translateY(0)";
+  });
+
+  setTimeout(() => {
+    toast.style.opacity = "0";
+    toast.style.transform = "translateY(-8px)";
+    setTimeout(() => toast.remove(), 220);
+  }, 3200);
+}
+
+async function askConfirm(message, title = "Confirm Action", confirmText = "Confirm", tone = "warning") {
+  if (typeof window.confirmAction === "function") {
+    return await window.confirmAction({ message, title, confirmText, tone });
+  }
+  return confirm(message);
 }
 
 /* =========================
@@ -112,12 +184,12 @@ async function saveEdit(blockKey) {
     res = await fetch("../handlers/cms_update.php", { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error. Please check PHP logs.");
+    showToast("Server error. Please check PHP logs.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.error || "Failed to save.");
+    showToast(data.error || "Failed to save.");
     return;
   }
 
@@ -160,12 +232,12 @@ async function handleImageUpload(sectionId, input) {
     res = await fetch("../handlers/cms_upload_image.php", { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Upload failed: cannot reach server or invalid response.");
+    showToast("Upload failed: cannot reach server or invalid response.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.error || "Upload failed.");
+    showToast(data.error || "Upload failed.");
     return;
   }
 
@@ -179,7 +251,7 @@ async function handleImageUpload(sectionId, input) {
 }
 
 async function deleteImage(sectionId) {
-  if (!confirm("Are you sure you want to delete this image?")) return;
+  if (!(await askConfirm("Are you sure you want to delete this image?", "Delete Image", "Delete", "danger"))) return;
 
   const form = new FormData();
   form.append("block_key", sectionId);
@@ -189,12 +261,12 @@ async function deleteImage(sectionId) {
     res = await fetch("../handlers/cms_delete_image.php", { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Delete failed: cannot reach server or invalid response.");
+    showToast("Delete failed: cannot reach server or invalid response.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.error || "Delete failed.");
+    showToast(data.error || "Delete failed.");
     return;
   }
 
@@ -413,12 +485,12 @@ async function featureEvent(eventId) {
     res = await fetch(NEWS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while featuring event.");
+    showToast("Server error while featuring event.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to feature event.");
+    showToast(data.message || "Failed to feature event.");
     return;
   }
 
@@ -439,12 +511,12 @@ async function unsetFeatured(eventId) {
     res = await fetch(NEWS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while removing featured.");
+    showToast("Server error while removing featured.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to remove featured event.");
+    showToast(data.message || "Failed to remove featured event.");
     return;
   }
 
@@ -551,10 +623,10 @@ async function saveAddEvent() {
   const full_description = document.getElementById("addEventFullDesc").value.trim();
   const imageFile = document.getElementById("addEventImageFile").files[0];
 
-  if (!title) return alert("Title is required.");
-  if (!event_date) return alert("Date is required.");
-  if (!full_description) return alert("Full description is required.");
-  if (start_time && end_time && start_time > end_time) return alert("End time must be later than start time.");
+  if (!title) return showToast("Title is required.");
+  if (!event_date) return showToast("Date is required.");
+  if (!full_description) return showToast("Full description is required.");
+  if (start_time && end_time && start_time > end_time) return showToast("End time must be later than start time.");
 
   const form = new FormData();
   form.append("action", "create_event");
@@ -574,12 +646,12 @@ async function saveAddEvent() {
     res = await fetch(NEWS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while creating event.");
+    showToast("Server error while creating event.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to create event.");
+    showToast(data.message || "Failed to create event.");
     return;
   }
 
@@ -592,7 +664,7 @@ async function saveAddEvent() {
 function openEditEventModal(eventId) {
   const ev = ALL_EVENTS_CACHE.find(x => Number(x.event_id) === Number(eventId));
   if (!ev) {
-    alert("Event not found. Try refreshing the News tab.");
+    showToast("Event not found. Try refreshing the News tab.");
     return;
   }
 
@@ -658,7 +730,7 @@ async function saveEventEdit() {
   const imageFile = document.getElementById("editEventImageFile").files[0];
 
   if (!title || !event_date || !full_description) {
-    alert("Please fill: Title, Date, Full Description.");
+    showToast("Please fill: Title, Date, Full Description.");
     return;
   }
 
@@ -681,12 +753,12 @@ async function saveEventEdit() {
     res = await fetch(NEWS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while updating event.");
+    showToast("Server error while updating event.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to update event.");
+    showToast(data.message || "Failed to update event.");
     return;
   }
 
@@ -697,7 +769,7 @@ async function saveEventEdit() {
 }
 
 async function deleteEvent(eventId) {
-  if (!confirm("Delete this event?")) return;
+  if (!(await askConfirm("Delete this event?", "Delete Event", "Delete", "danger"))) return;
 
   const form = new FormData();
   form.append("action", "delete_event");
@@ -708,12 +780,12 @@ async function deleteEvent(eventId) {
     res = await fetch(NEWS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while deleting event.");
+    showToast("Server error while deleting event.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to delete event.");
+    showToast(data.message || "Failed to delete event.");
     return;
   }
 
@@ -732,8 +804,8 @@ function addStudentPortal() {
     renderStudentPortals();
 }
 
-function removeStudentPortal(id) {
-    if (confirm('Are you sure you want to remove this portal?')) {
+async function removeStudentPortal(id) {
+    if (await askConfirm('Are you sure you want to remove this portal?', 'Remove Portal', 'Remove', 'danger')) {
         studentPortalsData = studentPortalsData.filter(p => p.id !== id);
         renderStudentPortals();
         showSuccess();
@@ -807,8 +879,8 @@ function handlePortalImageUpload(id, type, input) {
     }
 }
 
-function deletePortalImage(id, type) {
-    if (confirm('Are you sure you want to delete this image?')) {
+async function deletePortalImage(id, type) {
+    if (await askConfirm('Are you sure you want to delete this image?', 'Delete Image', 'Delete', 'danger')) {
         const portalData = type === 'student' ? studentPortalsData : servicePortalsData;
         const portal = portalData.find(p => p.id === id);
         
@@ -922,8 +994,8 @@ function addServicePortal() {
     renderServicePortals();
 }
 
-function removeServicePortal(id) {
-    if (confirm('Are you sure you want to remove this service portal?')) {
+async function removeServicePortal(id) {
+    if (await askConfirm('Are you sure you want to remove this service portal?', 'Remove Service Portal', 'Remove', 'danger')) {
         servicePortalsData = servicePortalsData.filter(p => p.id !== id);
         renderServicePortals();
         showSuccess();
@@ -1145,14 +1217,14 @@ async function addPortalDb(type) {
   const res = await fetch(PORTALS_API, { method: "POST", body: form });
   const data = await res.json();
 
-  if (!data.ok) return alert(data.message || "Failed to create portal.");
+  if (!data.ok) return showToast(data.message || "Failed to create portal.");
 
   showSuccess("Portal added!");
   loadPortals(type);
 }
 
 async function deletePortalDb(portalId, type) {
-  if (!confirm("Remove this portal?")) return;
+  if (!(await askConfirm("Remove this portal?", "Remove Portal", "Remove", "danger"))) return;
 
   const form = new FormData();
   form.append("action", "delete");
@@ -1162,7 +1234,7 @@ async function deletePortalDb(portalId, type) {
   const res = await fetch(PORTALS_API, { method: "POST", body: form });
   const data = await res.json();
 
-  if (!data.ok) return alert(data.message || "Failed to remove portal.");
+  if (!data.ok) return showToast(data.message || "Failed to remove portal.");
 
   showSuccess("Portal removed!");
   loadPortals(type);
@@ -1186,7 +1258,7 @@ async function uploadPortalImageDb(portalId, type, input) {
   const data = await res.json();
 
   if (!data.ok) {
-    alert(data.message || "Failed to upload image.");
+    showToast(data.message || "Failed to upload image.");
     return;
   }
 
@@ -1205,7 +1277,7 @@ async function deletePortalImageDb(portalId, type) {
   const data = await res.json();
 
   if (!data.ok) {
-    alert(data.message || "Failed to delete image.");
+    showToast(data.message || "Failed to delete image.");
     return;
   }
 
@@ -1234,8 +1306,8 @@ async function saveAddPortalDb() {
   const link_url = document.getElementById("addPortalUrl").value.trim();
   const imageFile = document.getElementById("addPortalImage").files[0];
 
-  if (!title) return alert("Title is required.");
-  if (!description) return alert("Description is required.");
+  if (!title) return showToast("Title is required.");
+  if (!description) return showToast("Description is required.");
 
   const form = new FormData();
   form.append("action", "create");
@@ -1251,12 +1323,12 @@ async function saveAddPortalDb() {
     res = await fetch(PORTALS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while creating portal.");
+    showToast("Server error while creating portal.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to create portal.");
+    showToast(data.message || "Failed to create portal.");
     return;
   }
 
@@ -1272,12 +1344,12 @@ async function openEditPortalModal(portalId, type) {
     res = await fetch(`${PORTALS_API}?action=get_one&type=${encodeURIComponent(type)}&portal_id=${encodeURIComponent(portalId)}`, { cache: "no-store" });
     data = await res.json();
   } catch {
-    alert("Failed to load portal details.");
+    showToast("Failed to load portal details.");
     return;
   }
 
   if (!data.ok || !data.item) {
-    alert(data.message || "Portal not found.");
+    showToast(data.message || "Portal not found.");
     return;
   }
 
@@ -1330,8 +1402,8 @@ async function savePortalEditDb() {
   const link_url = document.getElementById("editPortalUrl").value.trim();
   const imageFile = document.getElementById("editPortalImageFile").files[0];
 
-  if (!title) return alert("Title is required.");
-  if (!description) return alert("Description is required.");
+  if (!title) return showToast("Title is required.");
+  if (!description) return showToast("Description is required.");
 
   const form = new FormData();
   form.append("action", "update");
@@ -1348,12 +1420,12 @@ async function savePortalEditDb() {
     res = await fetch(PORTALS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while saving portal.");
+    showToast("Server error while saving portal.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to update portal.");
+    showToast(data.message || "Failed to update portal.");
     return;
   }
 
@@ -1363,7 +1435,7 @@ async function savePortalEditDb() {
 }
 
 async function deletePortalImageDb(portalId, type) {
-  if (!confirm("Delete this portal image?")) return;
+  if (!(await askConfirm("Delete this portal image?", "Delete Portal Image", "Delete", "danger"))) return;
 
   const form = new FormData();
   form.append("action", "clear_image");
@@ -1375,12 +1447,12 @@ async function deletePortalImageDb(portalId, type) {
     res = await fetch(PORTALS_API, { method: "POST", body: form });
     data = await res.json();
   } catch {
-    alert("Server error while deleting portal image.");
+    showToast("Server error while deleting portal image.");
     return;
   }
 
   if (!data.ok) {
-    alert(data.message || "Failed to delete portal image.");
+    showToast(data.message || "Failed to delete portal image.");
     return;
   }
 

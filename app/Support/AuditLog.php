@@ -23,8 +23,6 @@ class AuditLog
     ];
 
     private const CMS_MODULES = [
-        'ACCOUNT',
-        'ACCOUNTS',
         'ANNOUNCEMENT',
         'ANNOUNCEMENTS',
         'NEWS',

@@ -49,6 +49,10 @@ Route::post('/profile/update', [AuthController::class, 'updateProfile'])
     ->middleware('superadmin.auth')
     ->name('profile.update');
 
+Route::post('/profile/password', [AuthController::class, 'updatePassword'])
+    ->middleware('superadmin.auth')
+    ->name('profile.password.update');
+
 // Staff Login
 Route::prefix('admin')
     ->name('admin.')
