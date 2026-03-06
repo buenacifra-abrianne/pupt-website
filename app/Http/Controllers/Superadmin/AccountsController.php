@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Mail;
@@ -297,7 +295,6 @@ private function logAccountEvent(string $action, int $targetUserId, string $desc
 
     $primaryRole = $requestedRoleCodes[0];
     $name = trim($data['first_name'] . ' ' . $data['last_name']);
-    $tempPassword = Str::random(10);
 
     $insert = [
         'first_name'    => $data['first_name'],
@@ -306,7 +303,6 @@ private function logAccountEvent(string $action, int $targetUserId, string $desc
         'email'         => $data['email'],
         'role'          => $primaryRole,
         'status'        => $data['status'],
-        'password'      => Hash::make($tempPassword),
         'last_login_at' => null,
         'created_at'    => now(),
         'updated_at'    => now(),
@@ -347,19 +343,16 @@ private function logAccountEvent(string $action, int $targetUserId, string $desc
     }
 
     return response()->json([
-        'ok' => true,
-        'user' => [
-            'id'    => (int) $newUserId,
-            'fn'    => $data['first_name'],
-            'ln'    => $data['last_name'],
-            'em'    => $data['email'],
-            'rl'    => $primaryRole,
-            'roles' => $requestedRoleCodes,
-            'st'    => $data['status'],
-            'll'    => 'Never',
-        ],
-        'email_sent' => $emailSent,
-        'temp_password' => $emailSent ? null : $tempPassword,
+    'ok' => true,
+    'user' => [
+        'id' => (int) $newUserId,
+        'fn' => $data['first_name'],
+        'ln' => $data['last_name'],
+        'em' => $data['email'],
+        'rl' => $primaryRole,
+        'st' => $data['status'],
+        'll' => 'Never',
+    ]
     ]);
 }
 

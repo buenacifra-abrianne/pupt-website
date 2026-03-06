@@ -8,6 +8,7 @@
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     {{-- move your css to public/assets/css/manageaccounts.css --}}
@@ -215,21 +216,29 @@
             </div>
 
             <div class="mbody">
+    <div class ="frow">
+      <div class="fg" style="width: 590px";>
+        <label>Select Faculty <span class="req">*</span></label>
+        <select id="facultySelect">
+            <option value="">Select Faculty</option>
+        </select>
+    </div>
+    </div>
     <div class="frow">
         <div class="fg">
             <label>First Name <span class="req">*</span></label>
-            <input id="f-fn" placeholder="Auto-filled from faculty record">
+            <input id="f-fn" placeholder="Auto-filled from faculty record" readOnly>
         </div>
         <div class="fg">
             <label>Last Name <span class="req">*</span></label>
-            <input id="f-ln" placeholder="Auto-filled from faculty record">
+            <input id="f-ln" placeholder="Auto-filled from faculty record" readOnly>
         </div>
     </div>
 
     <div class="frow">
     <div class="fg">
         <label>Email <span class="req">*</span></label>
-        <input type="email" id="f-em" placeholder="Auto-filled from faculty record">
+        <input type="email" id="f-em" placeholder="Auto-filled from faculty record" readOnly>
     </div>
 
     <div class="fg">
@@ -837,8 +846,54 @@ function toggleSidebar(){
 }
 
 render();
-</script>
 
+// Edit if API endpoint is given by Faculty Team
+const facultyList = [
+  {
+    id: "fac001",
+    first_name: "Juan",
+    last_name: "Dela Cruz",
+    email: "juan.delacruz@pup.edu.ph"
+  },
+  {
+    id: "fac002",
+    first_name: "Maria",
+    last_name: "Santos",
+    email: "maria.santos@pup.edu.ph"
+  }
+];
+
+function populateFaculty() {
+  const sel = document.getElementById('facultySelect');
+
+  facultyList.forEach(f => {
+    const opt = document.createElement('option');
+    opt.value = f.id;
+    opt.textContent = `${f.first_name} ${f.last_name}`;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('facultySelect').addEventListener('change', function () {
+  const f = facultyList.find(x => x.id === this.value);
+  if (!f) return;
+
+  document.getElementById('f-fn').value = f.first_name;
+  document.getElementById('f-ln').value = f.last_name;
+  document.getElementById('f-em').value = f.email;
+});
+
+populateFaculty();
+
+$(document).ready(function () {
+  $('#facultySelect').select2({
+    placeholder: "Search faculty by name or email",
+    width: '100%'
+  });
+});
+</script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 </html>
 
