@@ -31,8 +31,8 @@ class SsoController extends Controller
             abort(403, 'You do not have access to this system.');
         }
 
-        if (!in_array((string) $user->status, ['Active', 'Pending'], true)) {
-            abort(403, 'Your account is not active.');
+        if (!in_array((string) $user->status, ['Active', 'Suspended'], true)) {
+            abort(403, 'Your account is inactive/suspended.');
         }
 
         session([

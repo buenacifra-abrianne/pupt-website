@@ -47,23 +47,45 @@ class AccountsController extends Controller
     if (in_array('STUDENT', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:student';
 
     $rows = DB::table('users')
-        ->select('user_id','first_name','last_name','email','role','status','last_login_at')
-        ->whereIn('role', $acceptedCodes)
-        ->orderBy('user_id', 'desc')
-        ->get();
+    ->select('user_id','first_name','last_name','email','role','status','last_login_at')
+    ->whereIn('role', $acceptedCodes)
+    ->orderBy('user_id', 'desc')
+    ->get();
 
-    $mapped = $rows->map(function ($u) {
-        return [
-            'id' => (int) $u->user_id,
-            'fn' => (string) $u->first_name,
-            'ln' => (string) $u->last_name,
-            'em' => (string) $u->email,
-            'rl' => (string) $u->role,
-            'st' => (string) $u->status,
-            'll' => $u->last_login_at ? (string) $u->last_login_at : 'Never',
-            'av' => 'av-0',
-        ];
-    });
+$userIds = $rows->pluck('user_id')->map(fn($id) => (int) $id)->all();
+
+$rolesByUser = DB::table('user_roles')
+    ->select('user_id', 'role_code', 'is_primary')
+    ->whereIn('user_id', $userIds)
+    ->orderByDesc('is_primary')
+    ->orderBy('id')
+    ->get()
+    ->groupBy('user_id');
+
+$mapped = $rows->map(function ($u) use ($rolesByUser) {
+    $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
+
+    $roleCodes = $userRoleRows->pluck('role_code')
+        ->map(fn($r) => (string) $r)
+        ->values()
+        ->all();
+
+    if (empty($roleCodes) && !empty($u->role)) {
+        $roleCodes = [(string) $u->role];
+    }
+
+    return [
+        'id'    => (int) $u->user_id,
+        'fn'    => (string) $u->first_name,
+        'ln'    => (string) $u->last_name,
+        'em'    => (string) $u->email,
+        'rl'    => (string) ($roleCodes[0] ?? $u->role),
+        'roles' => $roleCodes,
+        'st'    => (string) $u->status,
+        'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
+        'av'    => 'av-0',
+    ];
+});
 
     return view('superadmin.accounts', [
         'usersJson' => $mapped->toJson(),
@@ -91,6 +113,71 @@ private function denyIfSystemTouchesGlobal(string $action, string $targetRole): 
     return null;
 }
 
+private function normalizeRoleCode(string $raw): string
+{
+    $raw = trim($raw);
+
+    if (str_contains($raw, ':')) {
+        return $raw;
+    }
+
+    return strtoupper(preg_replace('/\s+/', '_', $raw));
+}
+
+private function normalizeRoleCodesFromRequest(Request $request): array
+{
+    $roles = $request->input('roles', []);
+
+    if (!is_array($roles) || empty($roles)) {
+        $single = (string) $request->input('role', '');
+        if ($single !== '') {
+            $roles = [$single];
+        }
+    }
+
+    $roles = array_map(fn($r) => $this->normalizeRoleCode((string) $r), $roles);
+    $roles = array_values(array_unique(array_filter($roles)));
+
+    return $roles;
+}
+
+private function allowedRoleCodesForAccounts(): array
+{
+    $allowedCodes = DB::table('roles')
+        ->where('is_active', 1)
+        ->where('scope', 'CMS')
+        ->pluck('code')
+        ->map(fn($c) => (string) $c)
+        ->all();
+
+    if (in_array('FACULTY', $allowedCodes, true)) {
+        $allowedCodes[] = 'pupt:faculty';
+    }
+
+    return array_values(array_unique($allowedCodes));
+}
+
+private function saveUserRoles(int $userId, array $roleCodes): void
+{
+    DB::table('user_roles')->where('user_id', $userId)->delete();
+
+    $rows = [];
+    foreach ($roleCodes as $i => $code) {
+        $rows[] = [
+            'user_id'     => $userId,
+            'role_code'   => $code,
+            'is_primary'  => $i === 0 ? 1 : 0,
+            'assigned_by' => session('user_id') ? (int) session('user_id') : null,
+            'created_at'  => now(),
+            'updated_at'  => now(),
+        ];
+    }
+
+    if (!empty($rows)) {
+        DB::table('user_roles')->insert($rows);
+    }
+}
+
     public function store(Request $request)
 {
     $validStatus = ['Active','Inactive','Suspended'];
@@ -99,62 +186,59 @@ private function denyIfSystemTouchesGlobal(string $action, string $targetRole): 
         'first_name' => ['required','string','max:80'],
         'last_name'  => ['required','string','max:80'],
         'email'      => ['required','email','max:190', Rule::unique('users','email')],
-        'role'       => ['required','string','max:80'],
         'status'     => ['required', Rule::in($validStatus)],
+        'roles'      => ['nullable','array'],
+        'roles.*'    => ['string','max:80'],
+        'role'       => ['nullable','string','max:80'],
     ]);
 
     $creatorRole = strtoupper(trim((string) session('user_role')));
-    $requestedRoleRaw = trim((string) $data['role']);
+    $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
 
-    // Normalize: "Global Superadmin" => GLOBAL_SUPERADMIN (optional safety)
-    $requestedRoleCode = str_contains($requestedRoleRaw, ':')
-        ? $requestedRoleRaw
-        : strtoupper(preg_replace('/\s+/', '_', $requestedRoleRaw));
+    if (empty($requestedRoleCodes)) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Please select at least one role.'
+        ], 422);
+    }
 
-    // ✅ RULE: system_superadmin bawal gumawa ng global_superadmin
-    if ($resp = $this->denyIfSystemTouchesGlobal('create', $requestedRoleCode)) {
-    return $resp;
-}
-
-    // ✅ Never allow creating GLOBAL_SUPERADMIN at all (UI rule mo)
-    if ($requestedRoleCode === 'GLOBAL_SUPERADMIN') {
+    if (in_array('GLOBAL_SUPERADMIN', $requestedRoleCodes, true)) {
         return response()->json([
             'ok' => false,
             'message' => 'Global Superadmin cannot be created from this page.'
         ], 403);
     }
 
-    // ✅ Allowed roles (DB driven): scope CMS + active
-    $allowedCodes = DB::table('roles')
-    ->where('is_active', 1)
-    ->where('scope', 'CMS')
-    ->pluck('code')
-    ->map(fn($c) => (string) $c)
-    ->all();
-
-// allow base equivalents for saving
-if (in_array('FACULTY', $allowedCodes, true)) {
-    $allowedCodes[] = 'pupt:faculty';
-}
-
-    // Optional: allow creating SYSTEM_SUPERADMIN only if creator is GLOBAL_SUPERADMIN
-    // (remove this whole block if ayaw mo)
-    if ($requestedRoleCode === 'SYSTEM_SUPERADMIN' && $creatorRole !== 'GLOBAL_SUPERADMIN') {
+    if ($creatorRole === 'SYSTEM_SUPERADMIN' && in_array('SYSTEM_SUPERADMIN', $requestedRoleCodes, true)) {
         return response()->json([
             'ok' => false,
             'message' => 'Only Global Superadmin can create a System Superadmin account.'
         ], 403);
     }
 
-    if (!in_array($requestedRoleCode, $allowedCodes, true) && $requestedRoleCode !== 'SYSTEM_SUPERADMIN') {
-        return response()->json([
-            'ok' => false,
-            'message' => 'Invalid role selected.'
-        ], 422);
+    $allowedCodes = $this->allowedRoleCodesForAccounts();
+
+    foreach ($requestedRoleCodes as $code) {
+        if ($code === 'SYSTEM_SUPERADMIN') {
+            if ($creatorRole !== 'GLOBAL_SUPERADMIN') {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Only Global Superadmin can create a System Superadmin account.'
+                ], 403);
+            }
+            continue;
+        }
+
+        if (!in_array($code, $allowedCodes, true)) {
+            return response()->json([
+                'ok' => false,
+                'message' => "Invalid role selected: {$code}"
+            ], 422);
+        }
     }
 
+    $primaryRole = $requestedRoleCodes[0];
     $name = trim($data['first_name'] . ' ' . $data['last_name']);
-
     $tempPassword = Str::random(10);
 
     $insert = [
@@ -162,7 +246,7 @@ if (in_array('FACULTY', $allowedCodes, true)) {
         'last_name'     => $data['last_name'],
         'name'          => $name,
         'email'         => $data['email'],
-        'role'          => $requestedRoleCode,          // ✅ store CODE
+        'role'          => $primaryRole,
         'status'        => $data['status'],
         'password'      => Hash::make($tempPassword),
         'last_login_at' => null,
@@ -172,41 +256,45 @@ if (in_array('FACULTY', $allowedCodes, true)) {
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
     $newUserId = DB::table('users')->insertGetId($insert, $pk);
-    // ✅ send temp password via email
-$roleLabel = $requestedRoleCode;
-$roleRow = DB::table('roles')->where('code', $requestedRoleCode)->first();
-if ($roleRow && !empty($roleRow->name)) $roleLabel = (string) $roleRow->name;
 
-$emailSent = false;
-try {
-    Mail::to($data['email'])->queue(
-        new NewAccountTempPasswordMail(
-            $name,
-            $data['email'],
-            $roleLabel,
-            $tempPassword
-        )
-    );
-    $emailSent = true;
-} catch (\Throwable $e) {
-    \Log::error('Temp password email failed: '.$e->getMessage(), ['email' => $data['email']]);
-}
+    $this->saveUserRoles((int) $newUserId, $requestedRoleCodes);
+
+    $roleLabel = $primaryRole;
+    $roleRow = DB::table('roles')->where('code', $primaryRole)->first();
+    if ($roleRow && !empty($roleRow->name)) {
+        $roleLabel = (string) $roleRow->name;
+    }
+
+    $emailSent = false;
+    try {
+        Mail::to($data['email'])->queue(
+            new NewAccountTempPasswordMail(
+                $name,
+                $data['email'],
+                $roleLabel,
+                $tempPassword
+            )
+        );
+        $emailSent = true;
+    } catch (\Throwable $e) {
+        \Log::error('Temp password email failed: '.$e->getMessage(), ['email' => $data['email']]);
+    }
 
     return response()->json([
-    'ok' => true,
-    'user' => [
-        'id' => (int) $newUserId,
-        'fn' => $data['first_name'],
-        'ln' => $data['last_name'],
-        'em' => $data['email'],
-        'rl' => $requestedRoleCode,
-        'st' => $data['status'],
-        'll' => 'Never',
-    ],
-    'email_sent' => $emailSent,
-    // ✅ if email sent, don't return temp password (security)
-    'temp_password' => $emailSent ? null : $tempPassword,
-]);
+        'ok' => true,
+        'user' => [
+            'id'    => (int) $newUserId,
+            'fn'    => $data['first_name'],
+            'ln'    => $data['last_name'],
+            'em'    => $data['email'],
+            'rl'    => $primaryRole,
+            'roles' => $requestedRoleCodes,
+            'st'    => $data['status'],
+            'll'    => 'Never',
+        ],
+        'email_sent' => $emailSent,
+        'temp_password' => $emailSent ? null : $tempPassword,
+    ]);
 }
 
 public function setStatus(Request $request, $id)
@@ -268,46 +356,81 @@ public function update(Request $request, $id)
     if ($resp = $this->blockIfSystemTargetsGlobal($id, 'edit')) return $resp;
 
     $validStatus = ['Active','Inactive','Suspended'];
-
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
     $data = $request->validate([
         'first_name' => ['required','string','max:80'],
         'last_name'  => ['required','string','max:80'],
         'email'      => ['required','email','max:190', Rule::unique('users','email')->ignore($id, $pk)],
-        'role'       => ['required','string','max:80'],
         'status'     => ['required', Rule::in($validStatus)],
+        'roles'      => ['nullable','array'],
+        'roles.*'    => ['string','max:80'],
+        'role'       => ['nullable','string','max:80'],
     ]);
 
-    $requestedRoleRaw = trim((string) $data['role']);
-    $requestedRoleCode = str_contains($requestedRoleRaw, ':')
-        ? $requestedRoleRaw
-        : strtoupper(preg_replace('/\s+/', '_', $requestedRoleRaw));
+    $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
 
-    // optional: never allow setting global superadmin here
-    if ($requestedRoleCode === 'GLOBAL_SUPERADMIN') {
-        return response()->json(['ok'=>false,'message'=>'Global Superadmin cannot be set from this page.'], 403);
+    if (empty($requestedRoleCodes)) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Please select at least one role.'
+        ], 422);
     }
+
+    if (in_array('GLOBAL_SUPERADMIN', $requestedRoleCodes, true)) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Global Superadmin cannot be set from this page.'
+        ], 403);
+    }
+
+    $actorRole = strtoupper(trim((string) session('user_role')));
+    if (in_array('SYSTEM_SUPERADMIN', $requestedRoleCodes, true) && $actorRole !== 'GLOBAL_SUPERADMIN') {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Only Global Superadmin can assign the System Superadmin role.'
+        ], 403);
+    }
+
+    $allowedCodes = $this->allowedRoleCodesForAccounts();
+
+    foreach ($requestedRoleCodes as $code) {
+        if ($code === 'SYSTEM_SUPERADMIN') {
+            continue;
+        }
+
+        if (!in_array($code, $allowedCodes, true)) {
+            return response()->json([
+                'ok' => false,
+                'message' => "Invalid role selected: {$code}"
+            ], 422);
+        }
+    }
+
+    $primaryRole = $requestedRoleCodes[0];
 
     DB::table('users')->where($pk, $id)->update([
         'first_name' => $data['first_name'],
         'last_name'  => $data['last_name'],
         'name'       => trim($data['first_name'].' '.$data['last_name']),
         'email'      => $data['email'],
-        'role'       => $requestedRoleCode,
+        'role'       => $primaryRole,
         'status'     => $data['status'],
         'updated_at' => now(),
     ]);
 
+    $this->saveUserRoles($id, $requestedRoleCodes);
+
     return response()->json([
         'ok' => true,
         'user' => [
-            'id' => $id,
-            'fn' => $data['first_name'],
-            'ln' => $data['last_name'],
-            'em' => $data['email'],
-            'rl' => $requestedRoleCode,
-            'st' => $data['status'],
+            'id'    => $id,
+            'fn'    => $data['first_name'],
+            'ln'    => $data['last_name'],
+            'em'    => $data['email'],
+            'rl'    => $primaryRole,
+            'roles' => $requestedRoleCodes,
+            'st'    => $data['status'],
         ]
     ]);
 }

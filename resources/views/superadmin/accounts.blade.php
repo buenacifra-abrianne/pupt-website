@@ -231,29 +231,38 @@
     </div>
 
     <div class="frow">
-        <div class="fg">
-            <label>Email <span class="req">*</span></label>
-            <input type="email" id="f-em" placeholder="user@pup.edu.ph">
-        </div>
-        <div class="fg">
-            <label>Role <span class="req">*</span></label>
-            <select id="f-rl">
-                <option value="">Select Role</option>
-            </select>
-        </div>
+    <div class="fg">
+        <label>Email <span class="req">*</span></label>
+        <input type="email" id="f-em" placeholder="user@pup.edu.ph">
     </div>
 
-    <div class="frow">
-        <div class="fg">
-            <label>Account Status <span class="req">*</span></label>
-            <select id="f-st">
-                <option value="">Select Status</option>
-                <option>Active</option>
-                <option>Inactive</option>
-                <option>Suspended</option>
-            </select>
-        </div>
+    <div class="fg">
+        <label>Roles <span class="req">*</span></label>
+        <select id="rolePicker">
+            <option value="">Select Role</option>
+        </select>
     </div>
+</div>
+
+<div class="frow">
+    <div class="fg">
+        <label>Account Status <span class="req">*</span></label>
+        <select id="f-st">
+            <option value="">Select Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+            <option>Suspended</option>
+        </select>
+    </div>
+
+    <div class="fg">
+        <div id="roleChips" class="role-chips-wrap"></div>
+
+        <small class="role-help-text">
+            Select one or more roles. The first selected role will be the primary role.
+        </small>
+    </div>
+</div>
 </div>
 
             <div class="mfoot">
@@ -371,12 +380,15 @@ function shapeUser(raw = {}) {
   const fn = (raw.fn ?? raw.first_name ?? raw.user_first_name ?? '').toString();
   const ln = (raw.ln ?? raw.last_name ?? raw.user_last_name ?? '').toString();
 
-  return {
+    return {
     id: raw.id ?? raw.user_id ?? raw.userid ?? raw.userId ?? 0,
     fn,
     ln,
     em: (raw.em ?? raw.email ?? '').toString(),
     rl: normalizeRole(raw.rl ?? raw.role ?? ''),
+    roles: Array.isArray(raw.roles)
+      ? raw.roles.map(normalizeRole)
+      : ((raw.rl ?? raw.role) ? [normalizeRole(raw.rl ?? raw.role)] : []),
     st: (raw.st ?? raw.status ?? 'Active').toString(),
     ll: (raw.ll ?? raw.last_login_at ?? raw.lastLoginAt ?? '—') || '—',
     nt: raw.nt ?? raw.notes ?? '',
@@ -400,34 +412,77 @@ function roleLabel(code){
 }
 
 function fillRoleOptions() {
-  const sel = document.getElementById('f-rl');
+  const sel = document.getElementById('rolePicker');
   if (!sel) return;
 
-  // build options with overrides
   const opts = (ROLES || [])
-  .filter(r => String(r.code) !== 'LIBRARY')
-  .filter(r => String(r.code) !== 'GLOBAL_SUPERADMIN') // ✅ remove sa dropdown
-  .filter(r => !(CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && String(r.code) === 'SYSTEM_SUPERADMIN'))
-  .filter(r => !String(r.code).includes(':'))          // ✅ hide base roles
-  .map(r => {
-    const code = String(r.code);
-    const name = String(r.name);
+    .filter(r => String(r.code) !== 'LIBRARY')
+    .filter(r => String(r.code) !== 'GLOBAL_SUPERADMIN')
+    .filter(r => !(CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && String(r.code) === 'SYSTEM_SUPERADMIN'))
+    .filter(r => !String(r.code).includes(':'))
+    .map(r => {
+      const code = String(r.code);
+      const name = String(r.name);
 
-    // ✅ Faculty dropdown pero pupt:faculty ang isi-save
-    if (code === 'FACULTY') {
-      return `<option value="pupt:faculty">${name}</option>`;
-    }
+      if (code === 'FACULTY') {
+        return `<option value="pupt:faculty">${name}</option>`;
+      }
 
-    return `<option value="${code}">${name}</option>`;
-  })
-  .join('');
+      return `<option value="${code}">${name}</option>`;
+    })
+    .join('');
 
   sel.innerHTML = `<option value="">Select Role</option>` + opts;
 }
 fillRoleOptions();
+
+function renderRoleChips() {
+  const box = document.getElementById('roleChips');
+  if (!box) return;
+
+  if (!selectedRoles.length) {
+    box.innerHTML = '';
+    return;
+  }
+
+  box.innerHTML = selectedRoles.map((code, idx) => `
+    <span class="role-badge ${RC[code] || 'r-student'}" style="display:inline-flex;align-items:center;gap:8px;padding:8px 12px;margin:6px;">
+      ${roleLabel(code)}
+      ${idx === 0 ? '<small style="opacity:.8">(Primary)</small>' : ''}
+      <button
+        type="button"
+        onclick="removeRoleChip('${String(code).replace(/'/g, "\\'")}')"
+        style="border:none;background:transparent;color:inherit;cursor:pointer;font-size:14px;line-height:1;"
+      >&times;</button>
+    </span>
+  `).join('');
+}
+
+function addRoleChip(code) {
+  code = normalizeRole(code);
+  if (!code) return;
+  if (selectedRoles.includes(code)) return;
+
+  selectedRoles.push(code);
+  renderRoleChips();
+}
+
+function removeRoleChip(code) {
+  selectedRoles = selectedRoles.filter(r => r !== code);
+  renderRoleChips();
+}
+
+document.addEventListener('change', function(e){
+  if (e.target && e.target.id === 'rolePicker') {
+    const val = e.target.value;
+    if (val) addRoleChip(val);
+    e.target.value = '';
+  }
+});
 users = (Array.isArray(users) ? users : []).map(shapeUser);
 
 let curRole='all', editId=null, viewId=null, pg=1;
+let selectedRoles = [];
 const PP=10;
 
 function filtered(){
@@ -545,9 +600,14 @@ function changePg(d){
 
 function clrForm(){
   ['f-fn','f-ln','f-em'].forEach(x => document.getElementById(x).value='');
-  document.getElementById('f-rl').value='';
   document.getElementById('f-st').value='Active';
+  selectedRoles = [];
+  renderRoleChips();
+
+  const picker = document.getElementById('rolePicker');
+  if (picker) picker.value = '';
 }
+
 function openAdd(){
   editId = null;
   clrForm();
@@ -563,8 +623,15 @@ function openEdit(id){
   document.getElementById('f-fn').value = u.fn || '';
   document.getElementById('f-ln').value = u.ln || '';
   document.getElementById('f-em').value = u.em || '';
-  document.getElementById('f-rl').value = (u.rl === 'FACULTY') ? 'pupt:faculty' : (u.rl || '');
   document.getElementById('f-st').value = u.st || 'Active';
+
+  selectedRoles = Array.isArray(u.roles) && u.roles.length
+    ? [...u.roles]
+    : (u.rl ? [u.rl] : []);
+  renderRoleChips();
+
+  const picker = document.getElementById('rolePicker');
+  if (picker) picker.value = '';
 
   document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit User';
   document.getElementById('saveLbl').textContent = 'Save Changes';
@@ -583,10 +650,10 @@ async function saveUser(){
   const fn=document.getElementById('f-fn').value.trim();
   const ln=document.getElementById('f-ln').value.trim();
   const em=document.getElementById('f-em').value.trim();
-  const rl=document.getElementById('f-rl').value;
+  const roles = [...selectedRoles];
   const st=document.getElementById('f-st').value;
 
-  if(!fn||!ln||!em||!rl||!st){
+  if(!fn||!ln||!em||!roles.length||!st){
     alert('Please fill in all required fields.');
     return;
   }
@@ -606,12 +673,12 @@ async function saveUser(){
         'X-CSRF-TOKEN': CSRF
       },
       body: JSON.stringify({
-        first_name: fn,
-        last_name: ln,
-        email: em,
-        role: rl,
-        status: st
-      })
+  first_name: fn,
+  last_name: ln,
+  email: em,
+  roles: roles,
+  status: st
+})
     });
 
     const text = await res.text();
@@ -676,7 +743,7 @@ function viewUser(id){
       <div class="vgrid">
         <div class="vf"><div class="vfl">Full Name</div><div class="vfv">${u.fn} ${u.ln}</div></div>
         <div class="vf"><div class="vfl">Email</div><div class="vfv">${u.em}</div></div>
-        <div class="vf"><div class="vfl">Role</div><div class="vfv">${u.rl}</div></div>
+        <div class="vf"><div class="vfl">Roles</div><div class="vfv">${(u.roles || [u.rl]).map(roleLabel).join(', ')}</div></div>
         <div class="vf"><div class="vfl">Status</div><div class="vfv">${u.st}</div></div>
         <div class="vf"><div class="vfl">Last Login</div><div class="vfv">${u.ll}</div></div>
         ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${u.nt}</div></div>`:''}
