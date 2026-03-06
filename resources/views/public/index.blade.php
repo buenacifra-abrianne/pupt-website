@@ -48,7 +48,7 @@
         >
     </div>
 
-        <p class="kicker">Official Campus Portal</p>
+        <p class="kicker">Official Campus Website</p>
 
         <!-- Title -->
         <h2 class="Title">

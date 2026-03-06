@@ -24,6 +24,9 @@ use App\Http\Controllers\Public\EventsController;
 use App\Http\Controllers\Public\ResearchController;
 use App\Http\Controllers\Public\FeedbackController;
 
+// Endpoints
+use App\Http\Controllers\SsoController;
+
 Route::get('/', function () {
     return view('public.index'); // <-- ito yung index blade mo
 })->name('public.landing');
@@ -36,6 +39,10 @@ Route::get('/events', [EventsController::class, 'index'])->name('public.events')
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('public.feedback.submit');
+
+// One Portal Entry Point
+Route::get('/sso/login', [App\Http\Controllers\SsoController::class, 'login'])
+    ->name('sso.login');
 
 Route::post('/profile/update', [AuthController::class, 'updateProfile'])
     ->middleware('superadmin.auth')

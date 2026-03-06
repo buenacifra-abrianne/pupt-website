@@ -139,7 +139,6 @@
             <div class="stat-card"><div class="stat-icon si-total"><i class="fas fa-users"></i></div><div><div class="stat-val" id="cnt-total">0</div><div class="stat-lbl">Total Users</div></div></div>
             <div class="stat-card"><div class="stat-icon si-active"><i class="fas fa-circle-check"></i></div><div><div class="stat-val" id="cnt-active">0</div><div class="stat-lbl">Active</div></div></div>
             <div class="stat-card"><div class="stat-icon si-inactive"><i class="fas fa-circle-minus"></i></div><div><div class="stat-val" id="cnt-inactive">0</div><div class="stat-lbl">Inactive</div></div></div>
-            <div class="stat-card"><div class="stat-icon si-pending"><i class="fas fa-clock"></i></div><div><div class="stat-val" id="cnt-pending">0</div><div class="stat-lbl">Pending</div></div></div>
             <div class="stat-card"><div class="stat-icon si-suspended"><i class="fas fa-ban"></i></div><div><div class="stat-val" id="cnt-suspended">0</div><div class="stat-lbl">Suspended</div></div></div>
         </div>
 
@@ -185,7 +184,7 @@
                 <input type="text" id="srch" placeholder="Search by name, email or ID..." oninput="applyFilters()">
                 <select id="stFil" onchange="applyFilters()">
                     <option value="">All Status</option>
-                    <option>Active</option><option>Inactive</option><option>Pending</option><option>Suspended</option>
+                    <option>Active</option><option>Inactive</option><option>Suspended</option>
                 </select>
             </div>
 
@@ -312,8 +311,8 @@ const RC = {
   'pupt:faculty': 'r-faculty',
   'pupt:student': 'r-student'
 };
-const SC = { Active:'sb-active', Inactive:'sb-inactive', Pending:'sb-pending', Suspended:'sb-suspended' };
-const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Pending:'fa-clock', Suspended:'fa-ban' };
+const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended' };
+const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };
 const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
 const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
 
@@ -452,7 +451,7 @@ function render(){
     tb.innerHTML=sl.map((u,i)=>{
       const ini = `${(u.fn || 'U').charAt(0)}${(u.ln || 'N').charAt(0)}`;
       const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive', si=SI[u.st]||'fa-circle';
-      const susp = (u.st === 'Active' || u.st === 'Pending');
+      const susp = (u.st === 'Active');
 
 const allowEdit = canEditUser(u.rl);
 const allowSuspend = canSuspendUser(u.rl);
@@ -504,7 +503,7 @@ ${statusBtn}
 
 function updateCounts(){
   const rc = {};
-  const sc = {Active:0,Inactive:0,Pending:0,Suspended:0};
+  const sc = {Active:0,Inactive:0,Suspended:0};
 
   users.forEach(u=>{
     rc[u.rl] = (rc[u.rl] || 0) + 1;
@@ -514,7 +513,6 @@ function updateCounts(){
   document.getElementById('cnt-total').textContent = users.length;
   document.getElementById('cnt-active').textContent = sc.Active;
   document.getElementById('cnt-inactive').textContent = sc.Inactive;
-  document.getElementById('cnt-pending').textContent = sc.Pending;
   document.getElementById('cnt-suspended').textContent = sc.Suspended;
 
   document.getElementById('pill-all').textContent = users.length;
