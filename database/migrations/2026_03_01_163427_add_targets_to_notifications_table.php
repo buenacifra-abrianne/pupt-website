@@ -11,9 +11,25 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->string('target_role', 20)->nullable()->index(); // 'ADMIN' or 'STAFF'
-            $table->unsignedBigInteger('target_user_id')->nullable()->index(); // for STAFF-only
+        if (!Schema::hasTable('notifications')) {
+            return;
+        }
+
+        $hasTargetRole = Schema::hasColumn('notifications', 'target_role');
+        $hasTargetUserId = Schema::hasColumn('notifications', 'target_user_id');
+
+        if ($hasTargetRole && $hasTargetUserId) {
+            return;
+        }
+
+        Schema::table('notifications', function (Blueprint $table) use ($hasTargetRole, $hasTargetUserId) {
+            if (!$hasTargetRole) {
+                $table->string('target_role', 20)->nullable()->index(); // 'ADMIN' or 'STAFF'
+            }
+
+            if (!$hasTargetUserId) {
+                $table->unsignedBigInteger('target_user_id')->nullable()->index(); // for STAFF-only
+            }
         });
     }
 
@@ -22,8 +38,25 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('notifications', function (Blueprint $table) {
-            $table->dropColumn(['target_role', 'target_user_id']);
+        if (!Schema::hasTable('notifications')) {
+            return;
+        }
+
+        $hasTargetRole = Schema::hasColumn('notifications', 'target_role');
+        $hasTargetUserId = Schema::hasColumn('notifications', 'target_user_id');
+
+        if (!$hasTargetRole && !$hasTargetUserId) {
+            return;
+        }
+
+        Schema::table('notifications', function (Blueprint $table) use ($hasTargetRole, $hasTargetUserId) {
+            if ($hasTargetRole) {
+                $table->dropColumn('target_role');
+            }
+
+            if ($hasTargetUserId) {
+                $table->dropColumn('target_user_id');
+            }
         });
     }
 };

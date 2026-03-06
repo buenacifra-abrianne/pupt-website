@@ -62,7 +62,7 @@
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link">
-                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-clock-rotate-left"></i>
                     <span>Audit Trails</span>
                 </a>
             </li>
@@ -70,48 +70,7 @@
         </ul>
     </nav>
 
-    <!-- Top Bar -->
-    <header class="topbar">
-        <div class="topbar-left">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        <div class="topbar-right">
-            <details class="user-menu">
-                <summary class="user-profile">
-                    <div class="user-avatar">
-                        @php
-                            $fn = session('user_first_name');
-                            echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
-                        @endphp
-                    </div>
-                    <div class="user-info">
-                        <div class="user-name">
-                            {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
-                        </div>
-                        <div class="user-role">
-                            {{ session('user_role') ? e(session('user_role')) : 'Staff' }}
-                        </div>
-                    </div>
-                    <i class="fas fa-chevron-down profile-chevron" style="color: #D4AF37;"></i>
-                </summary>
-                <div class="profile-dropdown">
-                    <button type="button" class="profile-dropdown-item" onclick="openProfileModal(this)">
-                        <i class="fas fa-user-pen"></i>
-                        <span>Edit Profile</span>
-                    </button>
-                    <form method="POST" action="{{ route('superadmin.logout') }}">
-                        @csrf
-                        <button type="submit" class="profile-dropdown-item">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </div>
-            </details>
-        </div>
-    </header>
+    <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />
 
     @include('partials.profile_modal')
 

@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use App\Mail\NewAccountTempPasswordMail;
 use App\Support\AuditLog;
 
@@ -101,9 +103,10 @@ private function fetchRolesForUi()
             ->get();
     }
 
-    $fallbackCodes = [];
+    $fallbackRoles = collect($this->defaultCmsRolesForFallback());
+    $detectedCodes = [];
     if (Schema::hasTable('users')) {
-        $fallbackCodes = DB::table('users')
+        $detectedCodes = DB::table('users')
             ->whereNotNull('role')
             ->pluck('role')
             ->map(fn ($r) => $this->normalizeRoleCode((string) $r))
@@ -113,17 +116,32 @@ private function fetchRolesForUi()
             ->all();
     }
 
-    if (empty($fallbackCodes)) {
-        $fallbackCodes = ['FACULTY', 'SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'];
-    }
+    $fallbackCodes = $fallbackRoles->keys()
+        ->merge($detectedCodes)
+        ->unique()
+        ->values();
 
-    return collect($fallbackCodes)
+    return $fallbackCodes
         ->map(fn ($code) => (object) [
             'code' => $code,
-            'name' => Str::headline(str_replace('_', ' ', str_replace(':', ' ', strtolower($code)))),
+            'name' => $fallbackRoles->get($code)
+                ?? Str::headline(str_replace('_', ' ', str_replace(':', ' ', strtolower($code)))),
             'level' => 0,
         ])
         ->values();
+}
+
+private function defaultCmsRolesForFallback(): array
+{
+    return [
+        'REGISTRAR' => 'Registrar',
+        'HAP' => 'HAP',
+        'STUDENT_SERVICES' => 'Student Services',
+        'RESEARCH_EXTENSION' => 'Research and Extension',
+        'FACULTY' => 'Faculty',
+        'SYSTEM_SUPERADMIN' => 'System Superadmin',
+        'GLOBAL_SUPERADMIN' => 'Global Superadmin',
+    ];
 }
 
 private function denyIfSystemTouchesGlobal(string $action, string $targetRole): ?\Illuminate\Http\JsonResponse
@@ -184,9 +202,9 @@ private function allowedRoleCodesForAccounts(): array
             ->map(fn($c) => (string) $c)
             ->all();
     } else {
-        $allowedCodes = [];
+        $allowedCodes = array_keys($this->defaultCmsRolesForFallback());
         if (Schema::hasTable('users')) {
-            $allowedCodes = DB::table('users')
+            $detectedCodes = DB::table('users')
                 ->whereNotNull('role')
                 ->pluck('role')
                 ->map(fn ($r) => $this->normalizeRoleCode((string) $r))
@@ -194,6 +212,8 @@ private function allowedRoleCodesForAccounts(): array
                 ->unique()
                 ->values()
                 ->all();
+
+            $allowedCodes = array_values(array_unique(array_merge($allowedCodes, $detectedCodes)));
         }
     }
 
@@ -212,16 +232,29 @@ private function saveUserRoles(int $userId, array $roleCodes): void
 
     DB::table('user_roles')->where('user_id', $userId)->delete();
 
+    $hasAssignedBy = Schema::hasColumn('user_roles', 'assigned_by');
+    $hasCreatedAt = Schema::hasColumn('user_roles', 'created_at');
+    $hasUpdatedAt = Schema::hasColumn('user_roles', 'updated_at');
+
     $rows = [];
     foreach ($roleCodes as $i => $code) {
-        $rows[] = [
+        $row = [
             'user_id'     => $userId,
             'role_code'   => $code,
             'is_primary'  => $i === 0 ? 1 : 0,
-            'assigned_by' => session('user_id') ? (int) session('user_id') : null,
-            'created_at'  => now(),
-            'updated_at'  => now(),
         ];
+
+        if ($hasAssignedBy) {
+            $row['assigned_by'] = session('user_id') ? (int) session('user_id') : null;
+        }
+        if ($hasCreatedAt) {
+            $row['created_at'] = now();
+        }
+        if ($hasUpdatedAt) {
+            $row['updated_at'] = now();
+        }
+
+        $rows[] = $row;
     }
 
     if (!empty($rows)) {
@@ -232,6 +265,44 @@ private function saveUserRoles(int $userId, array $roleCodes): void
 private function logAccountEvent(string $action, int $targetUserId, string $description): void
 {
     AuditLog::record($action, 'ACCOUNTS', $description, $targetUserId);
+}
+
+private function usersColumnExists(string $column): bool
+{
+    return Schema::hasTable('users') && Schema::hasColumn('users', $column);
+}
+
+private function addUsersInsertTimestamps(array $payload): array
+{
+    if ($this->usersColumnExists('created_at')) {
+        $payload['created_at'] = now();
+    }
+
+    if ($this->usersColumnExists('updated_at')) {
+        $payload['updated_at'] = now();
+    }
+
+    return $payload;
+}
+
+private function addUsersUpdatedAt(array $payload): array
+{
+    if ($this->usersColumnExists('updated_at')) {
+        $payload['updated_at'] = now();
+    }
+
+    return $payload;
+}
+
+private function filterUsersPayload(array $payload): array
+{
+    if (!Schema::hasTable('users')) {
+        return $payload;
+    }
+
+    $columns = array_flip(Schema::getColumnListing('users'));
+
+    return array_intersect_key($payload, $columns);
 }
 
     public function store(Request $request)
@@ -295,6 +366,7 @@ private function logAccountEvent(string $action, int $targetUserId, string $desc
 
     $primaryRole = $requestedRoleCodes[0];
     $name = trim($data['first_name'] . ' ' . $data['last_name']);
+    $tempPassword = null;
 
     $insert = [
         'first_name'    => $data['first_name'],
@@ -304,9 +376,15 @@ private function logAccountEvent(string $action, int $targetUserId, string $desc
         'role'          => $primaryRole,
         'status'        => $data['status'],
         'last_login_at' => null,
-        'created_at'    => now(),
-        'updated_at'    => now(),
     ];
+
+    if ($this->usersColumnExists('password')) {
+        $tempPassword = Str::upper(Str::random(10));
+        $insert['password'] = Hash::make($tempPassword);
+    }
+
+    $insert = $this->addUsersInsertTimestamps($insert);
+    $insert = $this->filterUsersPayload($insert);
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
     $newUserId = DB::table('users')->insertGetId($insert, $pk);
@@ -329,15 +407,17 @@ private function logAccountEvent(string $action, int $targetUserId, string $desc
 
     $emailSent = false;
     try {
-        Mail::to($data['email'])->queue(
-            new NewAccountTempPasswordMail(
-                $name,
-                $data['email'],
-                $roleLabel,
-                $tempPassword
-            )
-        );
-        $emailSent = true;
+        if ($tempPassword !== null) {
+            Mail::to($data['email'])->queue(
+                new NewAccountTempPasswordMail(
+                    $name,
+                    $data['email'],
+                    $roleLabel,
+                    $tempPassword
+                )
+            );
+            $emailSent = true;
+        }
     } catch (\Throwable $e) {
         \Log::error('Temp password email failed: '.$e->getMessage(), ['email' => $data['email']]);
     }
@@ -381,10 +461,9 @@ public function setStatus(Request $request, $id)
         'status' => ['required', Rule::in($validStatus)],
     ]);
 
-    DB::table('users')->where($pk, (int)$id)->update([
+    DB::table('users')->where($pk, (int)$id)->update($this->filterUsersPayload($this->addUsersUpdatedAt([
         'status' => $newStatus,
-        'updated_at' => now(),
-    ]);
+    ])));
 
     if (strtoupper($newStatus) === 'SUSPENDED') {
         AuditLog::record(
@@ -479,15 +558,14 @@ public function update(Request $request, $id)
 
     $primaryRole = $requestedRoleCodes[0];
 
-    DB::table('users')->where($pk, $id)->update([
+    DB::table('users')->where($pk, $id)->update($this->filterUsersPayload($this->addUsersUpdatedAt([
         'first_name' => $data['first_name'],
         'last_name'  => $data['last_name'],
         'name'       => trim($data['first_name'].' '.$data['last_name']),
         'email'      => $data['email'],
         'role'       => $primaryRole,
         'status'     => $data['status'],
-        'updated_at' => now(),
-    ]);
+    ])));
 
     $this->saveUserRoles($id, $requestedRoleCodes);
 
@@ -525,10 +603,9 @@ public function updateStatus(Request $request, $id)
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
-    DB::table('users')->where($pk, $id)->update([
+    DB::table('users')->where($pk, $id)->update($this->filterUsersPayload($this->addUsersUpdatedAt([
         'status' => $data['status'],
-        'updated_at' => now(),
-    ]);
+    ])));
 
     if (strtoupper($data['status']) === 'SUSPENDED') {
         AuditLog::record(

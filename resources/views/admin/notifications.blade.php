@@ -59,12 +59,8 @@
     </ul>
   </nav>
 
-  <header class="topbar">
-    <div class="topbar-left">
-      <button class="menu-toggle" onclick="toggleSidebar()" type="button">
-        <i class="fas fa-bars"></i>
-      </button>
-
+  <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff">
+    <x-slot:left>
       <form class="search-bar" method="GET" action="{{ route('admin.notifications') }}">
         <i class="fas fa-search"></i>
         <input name="q" value="{{ $q }}" type="text" placeholder="Search notifications...">
@@ -72,36 +68,8 @@
         <input type="hidden" name="status" value="{{ $statusFilter }}">
         <input type="hidden" name="range" value="{{ $rangeFilter }}">
       </form>
-    </div>
-
-    <div class="topbar-right">
-      <details class="user-menu">
-        <summary class="user-profile">
-          <div class="user-avatar">
-            {{ strtoupper(substr((string)session('user_first_name','A'), 0, 1)) }}
-          </div>
-          <div class="user-info">
-            <div class="user-name">{{ session('user_first_name', 'Admin User') }}</div>
-            <div class="user-role">{{ session('user_role', 'Staff') }}</div>
-          </div>
-          <i class="fas fa-chevron-down profile-chevron" style="color: #D4AF37;"></i>
-        </summary>
-        <div class="profile-dropdown">
-          <button type="button" class="profile-dropdown-item" onclick="openProfileModal(this)">
-                        <i class="fas fa-user-pen"></i>
-                        <span>Edit Profile</span>
-                    </button>
-          <form method="POST" action="{{ route('superadmin.logout') }}">
-            @csrf
-            <button type="submit" class="profile-dropdown-item">
-              <i class="fa-solid fa-right-from-bracket"></i>
-              <span>Logout</span>
-            </button>
-          </form>
-        </div>
-      </details>
-    </div>
-  </header>
+    </x-slot>
+  </x-app.topbar>
 
     @include('partials.profile_modal')
 
@@ -345,5 +313,4 @@
   </script>
 </body>
 </html>
-
 

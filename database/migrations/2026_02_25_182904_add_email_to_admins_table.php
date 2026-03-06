@@ -11,6 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
+        if (!Schema::hasTable('admins') || Schema::hasColumn('admins', 'email')) {
+            return;
+        }
+
         Schema::table('admins', function (Blueprint $table) {
             $table->string('email')->nullable()->unique()->after('username');
         });
@@ -18,8 +22,11 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (!Schema::hasTable('admins') || !Schema::hasColumn('admins', 'email')) {
+            return;
+        }
+
         Schema::table('admins', function (Blueprint $table) {
-            $table->dropUnique(['email']);
             $table->dropColumn('email');
         });
     }

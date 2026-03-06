@@ -68,7 +68,7 @@
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link">
-                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-clock-rotate-left"></i>
                     <span>Audit Trails</span>
                 </a>
             </li>
@@ -76,52 +76,7 @@
         </ul>
     </nav>
 
-    <!-- Top Bar -->
-    <header class="topbar">
-        <div class="topbar-left">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-
-        <div class="topbar-right">
-            <details class="user-menu">
-                <summary class="user-profile">
-                    <div class="user-avatar">
-                        @php
-                            $fn = (string) session('user_first_name');
-                            $ini = ($fn ? strtoupper(substr($fn,0,1)) : 'A');
-                            echo $ini ?: 'AD';
-                        @endphp
-                    </div>
-
-                    <div class="user-info">
-                        <div class="user-name">
-                            {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
-                        </div>
-                        <div class="user-role">
-                            {{ session('user_role') ? e(session('user_role')) : 'ADMIN' }}
-                        </div>
-                    </div>
-
-                    <i class="fas fa-chevron-down profile-chevron" style="color: #D4AF37;"></i>
-                </summary>
-                <div class="profile-dropdown">
-                    <button type="button" class="profile-dropdown-item" onclick="openProfileModal(this)">
-                        <i class="fas fa-user-pen"></i>
-                        <span>Edit Profile</span>
-                    </button>
-                    <form method="POST" action="{{ route('superadmin.logout') }}">
-                        @csrf
-                        <button type="submit" class="profile-dropdown-item">
-                            <i class="fa-solid fa-right-from-bracket"></i>
-                            <span>Logout</span>
-                        </button>
-                    </form>
-                </div>
-            </details>
-        </div>
-    </header>
+    <x-app.topbar :logout-route="route('superadmin.logout')" default-role="ADMIN" />
 
     @include('partials.profile_modal')
 
@@ -311,6 +266,8 @@
             </div>
         </div>
     </div>
+
+    <div id="toastWrap" class="toast-wrap" aria-live="polite" aria-atomic="true"></div>
 
 <script>
 const RC = {
@@ -650,6 +607,64 @@ const STATUS_URL_TPL = "{{ route('superadmin.accounts.status', ['id' => '__ID__'
 
 const urlWithId = (tpl, id) => tpl.replace('__ID__', String(id));
 const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+const TOAST_TIMEOUT = 3200;
+
+function showToast(message, type = 'success', title = '') {
+  const wrap = document.getElementById('toastWrap');
+  if (!wrap) {
+    alert(message);
+    return;
+  }
+
+  const toast = document.createElement('div');
+  toast.className = `toast-card toast-${type}`;
+
+  const iconClass = type === 'error'
+    ? 'fa-circle-xmark'
+    : (type === 'warning' ? 'fa-triangle-exclamation' : 'fa-circle-check');
+  const heading = title || (type === 'error' ? 'Request Failed' : 'Success');
+
+  const icon = document.createElement('div');
+  icon.className = 'toast-icon';
+  icon.innerHTML = `<i class="fas ${iconClass}"></i>`;
+
+  const body = document.createElement('div');
+  body.className = 'toast-body';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'toast-title';
+  titleEl.textContent = heading;
+
+  const msgEl = document.createElement('div');
+  msgEl.className = 'toast-message';
+  msgEl.textContent = String(message || '');
+
+  const closeBtn = document.createElement('button');
+  closeBtn.type = 'button';
+  closeBtn.className = 'toast-close';
+  closeBtn.innerHTML = '<i class="fas fa-xmark"></i>';
+  closeBtn.setAttribute('aria-label', 'Close');
+
+  body.appendChild(titleEl);
+  body.appendChild(msgEl);
+  toast.appendChild(icon);
+  toast.appendChild(body);
+  toast.appendChild(closeBtn);
+  wrap.appendChild(toast);
+
+  requestAnimationFrame(() => toast.classList.add('show'));
+
+  const removeToast = () => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 220);
+  };
+
+  const timer = setTimeout(removeToast, TOAST_TIMEOUT);
+  closeBtn.addEventListener('click', () => {
+    clearTimeout(timer);
+    removeToast();
+  });
+}
 
 async function saveUser(){
   const fn=document.getElementById('f-fn').value.trim();
@@ -659,7 +674,7 @@ async function saveUser(){
   const st=document.getElementById('f-st').value;
 
   if(!fn||!ln||!em||!roles.length||!st){
-    alert('Please fill in all required fields.');
+    showToast('Please fill in all required fields.', 'warning', 'Incomplete Form');
     return;
   }
 
@@ -691,12 +706,12 @@ async function saveUser(){
     try { data = JSON.parse(text); } catch(e) {}
 
     if(!res.ok){
-      alert(`Request failed (${res.status}).\n${data.message || 'Check Network tab + server logs.'}`);
+      showToast(`(${res.status}) ${data.message || 'Check Network tab + server logs.'}`, 'error');
       return;
     }
 
     if(!data.ok){
-      alert(data.message || 'Failed.');
+      showToast(data.message || 'Failed.', 'error');
       return;
     }
 
@@ -709,18 +724,18 @@ async function saveUser(){
       editId = null;
       closeM('userModal');
       render();
-      alert('CMS access updated successfully.');
+      showToast('CMS access updated successfully.', 'success');
     } else {
       const newUser = shapeUser(data.user);
       users.unshift(newUser);
       closeM('userModal');
       render();
-      alert('CMS access assigned successfully.');
+      showToast('CMS access assigned successfully.', 'success');
     }
 
   } catch (err){
     console.error(err);
-    alert('Network/JS error. Check console.');
+    showToast('Network/JS error. Check console.', 'error');
   }
 }
 
@@ -809,12 +824,12 @@ function doConfirm(id, action){
     try { data = JSON.parse(text); } catch(e) {}
 
     if(!res.ok){
-      alert(`Request failed (${res.status}).\n${data.message || 'Check Network tab + server logs.'}`);
+      showToast(`(${res.status}) ${data.message || 'Check Network tab + server logs.'}`, 'error');
       return;
     }
 
     if(!data.ok){
-      alert(data.message || 'Failed.');
+      showToast(data.message || 'Failed.', 'error');
       return;
     }
 
@@ -822,10 +837,16 @@ function doConfirm(id, action){
     u.st = data.status || nextStatus;
     closeM('confirmModal');
     render();
+    showToast(
+      action === 'suspend'
+        ? 'CMS access suspended successfully.'
+        : 'CMS access activated successfully.',
+      'success'
+    );
 
   } catch (e) {
     console.error(e);
-    alert('Network/JS error. Check console.');
+    showToast('Network/JS error. Check console.', 'error');
   }
 };
 
@@ -896,4 +917,3 @@ $(document).ready(function () {
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 </html>
-

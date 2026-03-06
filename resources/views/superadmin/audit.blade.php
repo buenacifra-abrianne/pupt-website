@@ -61,7 +61,7 @@
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link active">
-                    <i class="fas fa-bell"></i>
+                    <i class="fas fa-clock-rotate-left"></i>
                     <span>Audit Trails</span>
                 </a>
             </li>
@@ -69,33 +69,8 @@
         </ul>
     </nav>
 
-    <!-- Top Bar -->
-    <header class="topbar">
-        <div class="topbar-left">
-            <button class="menu-toggle" onclick="toggleSidebar()">
-                <i class="fas fa-bars"></i>
-            </button>
-        </div>
-        <div class="topbar-right">
-            <div class="user-profile">
-                <div class="user-avatar">
-                    @php
-                        $fn = session('user_first_name');
-                        echo $fn ? strtoupper(substr($fn, 0, 1)) : 'A';
-                    @endphp
-                </div>
-                <div class="user-info">
-                    <div class="user-name">
-                        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}
-                    </div>
-                    <div class="user-role">
-                        {{ session('user_role') ? e(session('user_role')) : 'STAFF' }}
-                    </div>
-                </div>
-                <i class="fas fa-chevron-down" style="color: #D4AF37;"></i>
-            </div>
-        </div>
-    </header>
+    <x-app.topbar :logout-route="route('superadmin.logout')" default-role="STAFF" />
+    @include('partials.profile_modal')
 
     <!-- Main Content -->
     <main class="main-content">

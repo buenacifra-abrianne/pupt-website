@@ -9,8 +9,12 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up(): void
+public function up(): void
 {
+    if (Schema::hasTable('approval_requests')) {
+        return;
+    }
+
     Schema::create('approval_requests', function (Blueprint $table) {
         $table->id();
 
