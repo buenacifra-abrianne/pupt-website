@@ -33,10 +33,15 @@ class AnnouncementController extends Controller
 
     public function index()
     {
-        $announcements = DB::table('announcements')
-            ->orderByRaw("CASE WHEN status = 'ENABLED' THEN 0 ELSE 1 END")
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $announcements = DB::table('announcements as a')
+    ->leftJoin('users as u', 'a.created_by', '=', 'u.user_id')
+    ->select(
+        'a.*',
+        DB::raw("TRIM(CONCAT(COALESCE(u.first_name,''), ' ', COALESCE(u.last_name,''))) as created_by_name")
+    )
+    ->orderByRaw("CASE WHEN a.status = 'ENABLED' THEN 0 ELSE 1 END")
+    ->orderBy('a.created_at', 'desc')
+    ->get();
 
         $news_list = \DB::table('news')
             ->orderBy('created_at', 'desc')
