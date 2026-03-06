@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Support\AuditLog;
 
 class SsoController extends Controller
 {
@@ -12,6 +13,7 @@ class SsoController extends Controller
         $token = $request->query('token');
 
         if (!$token) {
+            AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: missing token.');
             abort(403, 'Missing SSO token.');
         }
 
@@ -20,6 +22,7 @@ class SsoController extends Controller
         $portalUser = $this->resolvePortalUserFromToken($token);
 
         if (!$portalUser || empty($portalUser['email'])) {
+            AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: invalid or expired token.');
             abort(403, 'Invalid or expired SSO token.');
         }
 
@@ -28,10 +31,12 @@ class SsoController extends Controller
             ->first();
 
         if (!$user) {
+            AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: unknown user '.$portalUser['email']);
             abort(403, 'You do not have access to this system.');
         }
 
         if (!in_array((string) $user->status, ['Active', 'Suspended'], true)) {
+            AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login for inactive account: '.$user->email);
             abort(403, 'Your account is inactive/suspended.');
         }
 
@@ -48,6 +53,17 @@ class SsoController extends Controller
             ->update([
                 'last_login_at' => now(),
             ]);
+
+        AuditLog::record(
+            'LOGIN',
+            'AUTHENTICATION',
+            'Successful SSO login for '.$user->email,
+            (int) ($user->user_id ?? $user->id ?? 0),
+            [
+                'user_id' => (int) ($user->user_id ?? $user->id ?? 0),
+                'user_name' => trim((string) ($user->first_name ?? '') . ' ' . (string) ($user->last_name ?? '')),
+            ]
+        );
 
         return $this->redirectByRole((string) $user->role);
     }

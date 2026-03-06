@@ -232,6 +232,7 @@ if ($reqUserId > 0) {
 }
 
         DB::commit();
+
         return response()->json(['ok' => true]);
 
     } catch (\Throwable $e) {
