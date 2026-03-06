@@ -266,7 +266,7 @@ private function saveUserRoles(int $userId, array $roleCodes): void
         'fn' => $data['first_name'],
         'ln' => $data['last_name'],
         'em' => $data['email'],
-        'rl' => $requestedRoleCode,
+        'rl' => $primaryRole,
         'st' => $data['status'],
         'll' => 'Never',
     ]
