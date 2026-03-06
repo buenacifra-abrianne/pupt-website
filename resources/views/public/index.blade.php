@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polytechnic University of the Philippines - Taguig Campus</title>
     <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
     <style>
@@ -48,7 +49,7 @@
         >
     </div>
 
-        <p class="kicker">Official Campus Website</p>
+        <p class="kicker">Official Campus Portal</p>
 
         <!-- Title -->
         <h2 class="Title">
@@ -110,13 +111,7 @@
         </div>
     </div>
 
-    <footer class="landing-footer">
-        <span class="footer-copy">&copy; 1998-{{ now()->year }} Polytechnic University of the Philippines</span>
-        <span class="footer-sep" aria-hidden="true">|</span>
-        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">Terms of Use</a>
-        <span class="footer-sep" aria-hidden="true">|</span>
-        <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">Privacy Statement</a>
-    </footer>
+    <x-landing-footer />
 
 </main>
 

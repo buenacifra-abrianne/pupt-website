@@ -42,16 +42,29 @@ body {
 }
 
 .landing-container {
-    width: min(100%, 470px);
+    width: min(100%, 420px);
     position: relative;
     z-index: 1;
     border-radius: 20px;
     padding: 24px 18px 18px;
-    background: rgba(255, 255, 255, 0.94);
+    background: #ffffff;
     border: 1px solid rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(6px);
     box-shadow: 0 28px 52px rgba(0, 0, 0, 0.45);
     overflow: hidden;
+    animation: landing-drop-in 0.7s ease-out both;
+    will-change: transform, opacity;
+}
+
+@keyframes landing-drop-in {
+    from {
+        opacity: 0;
+        transform: translateY(-44px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .landing-container::before {
@@ -170,7 +183,7 @@ body {
     color: var(--primary-color);
     font-size: 15px;
     font-weight: 600;
-    background: #ffffff;
+    background: rgba(255, 255, 255, 0.68);
     border: 1px solid rgba(139, 0, 0, 0.14);
     border-left: 6px solid #8b0000;
     box-shadow: 0 9px 18px rgba(0, 0, 0, 0.11);
@@ -222,51 +235,18 @@ body {
     outline-offset: 2px;
 }
 
-.landing-footer {
+.menu > .landing-footer {
     position: absolute;
     left: 0;
     right: 0;
     bottom: 0;
     transform: none;
     z-index: 2;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-    padding: 10px 16px;
-    border-radius: 0;
-    background: rgba(20, 27, 35, 0.92);
-    border: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.92);
-    font-size: 13px;
-    font-weight: 500;
-}
-
-.landing-footer .footer-copy {
-    font-weight: 600;
-    color: #ffffff;
-}
-
-.landing-footer a {
-    color: #f4f4f4;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.landing-footer a:hover {
-    color: #f0c85a;
-    text-decoration: underline;
-}
-
-.landing-footer .footer-sep {
-    opacity: 0.75;
 }
 
 @media (max-width: 768px) {
     .landing-container {
-        width: min(100%, 390px);
+        width: min(100%, 350px);
         border-radius: 16px;
         padding: 22px 14px 16px;
     }
@@ -306,13 +286,8 @@ body {
         font-size: 14px;
     }
 
-    .landing-footer {
+    .menu > .landing-footer {
         width: 100%;
         bottom: 0;
-        gap: 6px;
-        padding: 8px 10px;
-        font-size: 11px;
-        line-height: 1.35;
-        flex-wrap: wrap;
     }
 }
