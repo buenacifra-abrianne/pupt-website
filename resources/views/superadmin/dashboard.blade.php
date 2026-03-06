@@ -37,7 +37,7 @@
             <li class="nav-item">
                 <a href="{{ route('superadmin.accounts') }}" class="nav-link">
                     <i class="fas fa-users-gear"></i>
-                    <span>Manage Accounts</span>
+                    <span>Manage CMS Access</span>
                 </a>
             </li>
 
