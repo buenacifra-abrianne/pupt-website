@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
+use App\Support\AuditLog;
 
 class AuthController extends Controller
 {
@@ -27,6 +28,13 @@ class AuthController extends Controller
             ->first();
 
         if (!$user || !$this->passwordMatches((string) $request->password, (string) ($user->password ?? ''))) {
+            AuditLog::record(
+                'SECURITY',
+                'SECURITY',
+                'Failed login attempt for email: ' . (string) $request->email,
+                null,
+                ['user_name' => 'Unknown']
+            );
             return back()
                 ->withErrors(['login' => 'Invalid email or password'])
                 ->withInput();
@@ -61,6 +69,17 @@ class AuthController extends Controller
 
         $isSuperadmin = in_array($dbRole, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN']);
 
+        AuditLog::record(
+            'LOGIN',
+            'AUTHENTICATION',
+            'User logged in successfully: ' . (string) ($user->email ?? ''),
+            (int) ($user->user_id ?? $user->id ?? 0),
+            [
+                'user_id' => (int) ($user->user_id ?? $user->id ?? 0),
+                'user_name' => trim((string) ($user->first_name ?? '') . ' ' . (string) ($user->last_name ?? '')),
+            ]
+        );
+
         if ($isSuperadmin) {
             return redirect()->route('superadmin.dashboard');
         }
@@ -69,6 +88,13 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
+        AuditLog::record(
+            'LOGOUT',
+            'AUTHENTICATION',
+            'User logged out.',
+            (int) session('user_id', 0)
+        );
+
         $request->session()->flush();
         return redirect()->route('superadmin.login');
     }
@@ -120,6 +146,13 @@ class AuthController extends Controller
         if (!empty($updates['profile_picture'])) {
             session(['user_profile_picture' => $updates['profile_picture']]);
         }
+
+        AuditLog::record(
+            'UPDATED',
+            'ACCOUNT',
+            'User updated profile settings.',
+            (int) data_get($user, $idColumn)
+        );
 
         return back()->with('profile_success', 'Profile updated successfully.');
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
@@ -24,10 +25,13 @@ class DashboardController extends Controller
             ->count();
 
         // No activity_logs table in your DB → set empty for now
-        $recentActivities = DB::table('activity_logs')
-        ->orderByDesc('created_at')
-        ->limit(10)
-        ->get();
+        $recentActivities = collect();
+        if (Schema::hasTable('activity_logs')) {
+            $recentActivities = DB::table('activity_logs')
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get();
+        }
 
         // Recent notifications (latest 5)
         $userId = (int) session('user_id');

@@ -211,6 +211,11 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
+                    <div style="display:flex; gap:10px;">
+                        <a class="btn btn-outline btn-sm" href="{{ route('superadmin.audit') ?? '#' }}">
+                            <i class="fas fa-eye"></i> View All
+                        </a>
+                    </div>
                 </div>
 
                 <div class="card-body-scroll">

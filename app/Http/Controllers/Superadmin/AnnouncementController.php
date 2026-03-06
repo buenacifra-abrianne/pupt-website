@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Superadmin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Support\AuditLog;
 
 class AnnouncementController extends Controller
 {
@@ -27,15 +28,7 @@ class AnnouncementController extends Controller
 
     private function logActivity(string $action, string $module, ?int $targetId, string $description): void
     {
-        DB::table('activity_logs')->insert([
-            'user_id'    => (int) session('user_id'),
-            'user_name'  => trim((string) session('user_first_name', '') . ' ' . (string) session('user_last_name', '')),
-            'action'     => strtoupper($action),   // CREATED / UPDATED / DELETED / APPROVED / REJECTED / DISABLED etc.
-            'module'     => strtoupper($module),   // ANNOUNCEMENT / NEWS / ...
-            'target_id'  => $targetId,
-            'description'=> $description,
-            'created_at' => now(),
-        ]);
+        AuditLog::record($action, $module, $description, $targetId);
     }
 
     public function index()
@@ -78,6 +71,13 @@ class AnnouncementController extends Controller
             DB::table('announcements')
                 ->where('announcement_id', $request->announcement_id)
                 ->update($data);
+
+            $this->logActivity(
+                'UPDATED',
+                'ANNOUNCEMENT',
+                (int) $request->announcement_id,
+                'Updated announcement: '.$title
+            );
 
             // ✅ NOTIF: edited/updated
             $this->notifySystem(
@@ -151,6 +151,12 @@ class AnnouncementController extends Controller
 
     if ($newsId > 0) {
         DB::table('news')->where('news_id', $newsId)->update($data);
+        $this->logActivity(
+            'UPDATED',
+            'NEWS',
+            $newsId,
+            'Updated news: '.$request->title
+        );
     } else {
         // optional fields if meron kayo in table
         $data['created_at'] = now();
@@ -158,7 +164,13 @@ class AnnouncementController extends Controller
         $data['status']     = 'APPROVED';
         $data['created_by'] = (int) (session('user_id') ?? 0);
 
-        DB::table('news')->insert($data);
+        $newId = DB::table('news')->insertGetId($data, 'news_id');
+        $this->logActivity(
+            'CREATED',
+            'NEWS',
+            (int) $newId,
+            'Created news: '.$request->title
+        );
     }
 
     return response()->json(['ok' => true]);

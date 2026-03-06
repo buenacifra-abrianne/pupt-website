@@ -11,20 +11,13 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewAccountTempPasswordMail;
+use App\Support\AuditLog;
 
 class AccountsController extends Controller
 {
     public function index()
 {
-    $roles = DB::table('roles')
-        ->select('code', 'name', 'level')
-        ->where('is_active', 1)
-        ->where(function ($q) {
-            $q->where('scope', 'CMS')
-              ->orWhereIn('code', ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN']);
-        })
-        ->orderByDesc('level')
-        ->get();
+    $roles = $this->fetchRolesForUi();
 
     // ✅ ensure FACULTY exists for dropdown display
     if (!$roles->contains('code', 'FACULTY')) {
@@ -54,13 +47,16 @@ class AccountsController extends Controller
 
 $userIds = $rows->pluck('user_id')->map(fn($id) => (int) $id)->all();
 
-$rolesByUser = DB::table('user_roles')
-    ->select('user_id', 'role_code', 'is_primary')
-    ->whereIn('user_id', $userIds)
-    ->orderByDesc('is_primary')
-    ->orderBy('id')
-    ->get()
-    ->groupBy('user_id');
+$rolesByUser = collect();
+if (Schema::hasTable('user_roles') && !empty($userIds)) {
+    $rolesByUser = DB::table('user_roles')
+        ->select('user_id', 'role_code', 'is_primary')
+        ->whereIn('user_id', $userIds)
+        ->orderByDesc('is_primary')
+        ->orderBy('id')
+        ->get()
+        ->groupBy('user_id');
+}
 
 $mapped = $rows->map(function ($u) use ($rolesByUser) {
     $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
@@ -91,6 +87,45 @@ $mapped = $rows->map(function ($u) use ($rolesByUser) {
         'usersJson' => $mapped->toJson(),
         'rolesJson' => $roles->toJson(),
     ]);
+}
+
+private function fetchRolesForUi()
+{
+    if (Schema::hasTable('roles')) {
+        return DB::table('roles')
+            ->select('code', 'name', 'level')
+            ->where('is_active', 1)
+            ->where(function ($q) {
+                $q->where('scope', 'CMS')
+                  ->orWhereIn('code', ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN']);
+            })
+            ->orderByDesc('level')
+            ->get();
+    }
+
+    $fallbackCodes = [];
+    if (Schema::hasTable('users')) {
+        $fallbackCodes = DB::table('users')
+            ->whereNotNull('role')
+            ->pluck('role')
+            ->map(fn ($r) => $this->normalizeRoleCode((string) $r))
+            ->filter()
+            ->unique()
+            ->values()
+            ->all();
+    }
+
+    if (empty($fallbackCodes)) {
+        $fallbackCodes = ['FACULTY', 'SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'];
+    }
+
+    return collect($fallbackCodes)
+        ->map(fn ($code) => (object) [
+            'code' => $code,
+            'name' => Str::headline(str_replace('_', ' ', str_replace(':', ' ', strtolower($code)))),
+            'level' => 0,
+        ])
+        ->values();
 }
 
 private function denyIfSystemTouchesGlobal(string $action, string $targetRole): ?\Illuminate\Http\JsonResponse
@@ -143,12 +178,26 @@ private function normalizeRoleCodesFromRequest(Request $request): array
 
 private function allowedRoleCodesForAccounts(): array
 {
-    $allowedCodes = DB::table('roles')
-        ->where('is_active', 1)
-        ->where('scope', 'CMS')
-        ->pluck('code')
-        ->map(fn($c) => (string) $c)
-        ->all();
+    if (Schema::hasTable('roles')) {
+        $allowedCodes = DB::table('roles')
+            ->where('is_active', 1)
+            ->where('scope', 'CMS')
+            ->pluck('code')
+            ->map(fn($c) => (string) $c)
+            ->all();
+    } else {
+        $allowedCodes = [];
+        if (Schema::hasTable('users')) {
+            $allowedCodes = DB::table('users')
+                ->whereNotNull('role')
+                ->pluck('role')
+                ->map(fn ($r) => $this->normalizeRoleCode((string) $r))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+        }
+    }
 
     if (in_array('FACULTY', $allowedCodes, true)) {
         $allowedCodes[] = 'pupt:faculty';
@@ -159,6 +208,10 @@ private function allowedRoleCodesForAccounts(): array
 
 private function saveUserRoles(int $userId, array $roleCodes): void
 {
+    if (!Schema::hasTable('user_roles')) {
+        return;
+    }
+
     DB::table('user_roles')->where('user_id', $userId)->delete();
 
     $rows = [];
@@ -176,6 +229,11 @@ private function saveUserRoles(int $userId, array $roleCodes): void
     if (!empty($rows)) {
         DB::table('user_roles')->insert($rows);
     }
+}
+
+private function logAccountEvent(string $action, int $targetUserId, string $description): void
+{
+    AuditLog::record($action, 'ACCOUNTS', $description, $targetUserId);
 }
 
     public function store(Request $request)
@@ -259,10 +317,18 @@ private function saveUserRoles(int $userId, array $roleCodes): void
 
     $this->saveUserRoles((int) $newUserId, $requestedRoleCodes);
 
+    $this->logAccountEvent(
+        'CREATED',
+        (int) $newUserId,
+        'Created account for '.$data['email'].' with role '.$primaryRole
+    );
+
     $roleLabel = $primaryRole;
-    $roleRow = DB::table('roles')->where('code', $primaryRole)->first();
-    if ($roleRow && !empty($roleRow->name)) {
-        $roleLabel = (string) $roleRow->name;
+    if (Schema::hasTable('roles')) {
+        $roleRow = DB::table('roles')->where('code', $primaryRole)->first();
+        if ($roleRow && !empty($roleRow->name)) {
+            $roleLabel = (string) $roleRow->name;
+        }
     }
 
     $emailSent = false;
@@ -326,6 +392,17 @@ public function setStatus(Request $request, $id)
         'status' => $newStatus,
         'updated_at' => now(),
     ]);
+
+    if (strtoupper($newStatus) === 'SUSPENDED') {
+        AuditLog::record(
+            'SECURITY',
+            'SECURITY',
+            'Suspended account ID '.$id,
+            (int) $id
+        );
+    } else {
+        $this->logAccountEvent('UPDATED', (int) $id, 'Updated account status to '.$newStatus);
+    }
 
     return response()->json(['ok' => true]);
 }
@@ -421,6 +498,12 @@ public function update(Request $request, $id)
 
     $this->saveUserRoles($id, $requestedRoleCodes);
 
+    $this->logAccountEvent(
+        'UPDATED',
+        $id,
+        'Updated account '.$data['email'].' (roles: '.implode(', ', $requestedRoleCodes).')'
+    );
+
     return response()->json([
         'ok' => true,
         'user' => [
@@ -453,6 +536,17 @@ public function updateStatus(Request $request, $id)
         'status' => $data['status'],
         'updated_at' => now(),
     ]);
+
+    if (strtoupper($data['status']) === 'SUSPENDED') {
+        AuditLog::record(
+            'SECURITY',
+            'SECURITY',
+            'Suspended account ID '.$id,
+            $id
+        );
+    } else {
+        $this->logAccountEvent('UPDATED', $id, 'Updated account status to '.$data['status']);
+    }
 
     return response()->json(['ok'=>true,'status'=>$data['status']]);
 }
