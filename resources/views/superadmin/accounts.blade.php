@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>PUP Taguig - Manage Accounts</title>
+    <title>PUP Taguig - Manage CMS Access</title>
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -43,7 +43,7 @@
             <li class="nav-item">
                 <a href="{{ route('superadmin.accounts') }}" class="nav-link active">
                     <i class="fas fa-users-gear"></i>
-                    <span>Manage Accounts</span>
+                    <span>Manage CMS Access</span>
                 </a>
             </li>
 
@@ -131,8 +131,8 @@
     <!-- Main Content -->
     <main class="main-content">
         <div class="page-header">
-            <h1 class="page-title">Manage Accounts</h1>
-            <p class="page-subtitle">View, add, and manage all user accounts and their roles.</p>
+            <h1 class="page-title">Manage CMS Access</h1>
+            <p class="page-subtitle">View faculty access, assign CMS roles, and manage authorized users.</p>
         </div>
 
         <div class="stats-row">
@@ -144,8 +144,8 @@
 
         <div class="card">
             <div class="card-header">
-                <div class="card-title"><i class="fas fa-users-gear"></i> User Accounts</div>
-                <button class="action-btn" type="button" onclick="openAdd()"><i class="fas fa-user-plus"></i> Add New User</button>
+                <div class="card-title"><i class="fas fa-users-gear"></i> CMS Access List</div>
+                <button class="action-btn" type="button" onclick="openAdd()"><i class="fas fa-user-plus"></i> Assign Access</button>
             </div>
 
             <div class="tab-nav">
@@ -214,7 +214,7 @@
     <div class="modal" id="userModal">
         <div class="mbox">
             <div class="mhead">
-                <h2 id="mTitle"><i class="fas fa-user-plus"></i> Add New User</h2>
+                <h2 id="mTitle"><i class="fas fa-user-plus"></i> Assign CMS Access</h2>
                 <button class="cbtn" type="button" onclick="closeM('userModal')"><i class="fas fa-times"></i></button>
             </div>
 
@@ -222,22 +222,22 @@
     <div class="frow">
         <div class="fg">
             <label>First Name <span class="req">*</span></label>
-            <input id="f-fn" placeholder="First name">
+            <input id="f-fn" placeholder="Auto-filled from faculty record">
         </div>
         <div class="fg">
             <label>Last Name <span class="req">*</span></label>
-            <input id="f-ln" placeholder="Last name">
+            <input id="f-ln" placeholder="Auto-filled from faculty record">
         </div>
     </div>
 
     <div class="frow">
     <div class="fg">
         <label>Email <span class="req">*</span></label>
-        <input type="email" id="f-em" placeholder="user@pup.edu.ph">
+        <input type="email" id="f-em" placeholder="Auto-filled from faculty record">
     </div>
 
     <div class="fg">
-        <label>Roles <span class="req">*</span></label>
+        <label>CMS Roles <span class="req">*</span></label>
         <select id="rolePicker">
             <option value="">Select Role</option>
         </select>
@@ -246,7 +246,7 @@
 
 <div class="frow">
     <div class="fg">
-        <label>Account Status <span class="req">*</span></label>
+        <label>CMS Access Status <span class="req">*</span></label>
         <select id="f-st">
             <option value="">Select Status</option>
             <option>Active</option>
@@ -268,7 +268,7 @@
             <div class="mfoot">
                 <button class="btn-outline" type="button" onclick="closeM('userModal')"><i class="fas fa-times"></i> Cancel</button>
                 <button class="action-btn" type="button" onclick="saveUser()">
-                    <i class="fas fa-user-check"></i> <span id="saveLbl">Create User</span>
+                    <i class="fas fa-user-check"></i> <span id="saveLbl">Save Access</span>
                 </button>
             </div>
         </div>
@@ -278,13 +278,13 @@
     <div class="modal" id="viewModal">
         <div class="mbox">
             <div class="mhead">
-                <h2><i class="fas fa-eye"></i> User Details</h2>
+                <h2><i class="fas fa-eye"></i> Access Details</h2>
                 <button class="cbtn" type="button" onclick="closeM('viewModal')"><i class="fas fa-times"></i></button>
             </div>
             <div id="viewBody"></div>
             <div class="mfoot">
                 <button class="btn-outline" type="button" onclick="closeM('viewModal')">Close</button>
-                <button class="action-btn" type="button" onclick="editFromView()"><i class="fas fa-pen"></i> Edit User</button>
+                <button class="action-btn" type="button" onclick="editFromView()"><i class="fas fa-pen"></i> Edit Access</button>
             </div>
         </div>
     </div>
@@ -611,8 +611,8 @@ function clrForm(){
 function openAdd(){
   editId = null;
   clrForm();
-  document.getElementById('mTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New User';
-  document.getElementById('saveLbl').textContent = 'Create User';
+  document.getElementById('mTitle').innerHTML = '<i class="fas fa-user-plus"></i> Assign CMS Access';
+  document.getElementById('saveLbl').textContent = 'Save Access';
   openM('userModal');
 }
 function openEdit(id){
@@ -633,8 +633,8 @@ function openEdit(id){
   const picker = document.getElementById('rolePicker');
   if (picker) picker.value = '';
 
-  document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit User';
-  document.getElementById('saveLbl').textContent = 'Save Changes';
+  document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit CMS Access';
+  document.getElementById('saveLbl').textContent = 'Update Access';
 
   openM('userModal');
 }
@@ -704,17 +704,13 @@ async function saveUser(){
       editId = null;
       closeM('userModal');
       render();
-      alert('User updated successfully.');
+      alert('CMS access updated successfully.');
     } else {
       const newUser = shapeUser(data.user);
       users.unshift(newUser);
       closeM('userModal');
       render();
-      if (data.email_sent) {
-  alert('User created successfully. Temporary password sent to email.');
-} else {
-  alert(`User created successfully but email failed.\nTemporary Password: ${data.temp_password || '(not returned)'}`);
-}
+      alert('CMS access assigned successfully.');
     }
 
   } catch (err){
@@ -743,8 +739,8 @@ function viewUser(id){
       <div class="vgrid">
         <div class="vf"><div class="vfl">Full Name</div><div class="vfv">${u.fn} ${u.ln}</div></div>
         <div class="vf"><div class="vfl">Email</div><div class="vfv">${u.em}</div></div>
-        <div class="vf"><div class="vfl">Roles</div><div class="vfv">${(u.roles || [u.rl]).map(roleLabel).join(', ')}</div></div>
-        <div class="vf"><div class="vfl">Status</div><div class="vfv">${u.st}</div></div>
+        <div class="vf"><div class="vfl">CMS Roles</div><div class="vfv">${(u.roles || [u.rl]).map(roleLabel).join(', ')}</div></div>
+        <div class="vf"><div class="vfl">CMS Access Status</div><div class="vfv">${u.st}</div></div>
         <div class="vf"><div class="vfl">Last Login</div><div class="vfv">${u.ll}</div></div>
         ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${u.nt}</div></div>`:''}
       </div>
