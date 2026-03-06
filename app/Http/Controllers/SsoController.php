@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Support\AuditLog;
+use App\Support\CmsSections;
 
 class SsoController extends Controller
 {
@@ -87,16 +88,16 @@ class SsoController extends Controller
 
     private function redirectByRole(string $role)
     {
-        $role = strtoupper(trim($role));
+        $role = CmsSections::normalizeRole($role);
 
-        return match ($role) {
-            'GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN' => redirect()->route('superadmin.dashboard'),
-            'REGISTRAR' => redirect()->route('admin.dashboard'),
-            'HAP' => redirect()->route('admin.dashboard'),
-            'STUDENT_SERVICES' => redirect()->route('admin.dashboard'),
-            'RESEARCH_EXTENSION' => redirect()->route('admin.dashboard'),
-            'FACULTY', 'PUPT:FACULTY', 'pupt:faculty' => redirect()->route('admin.dashboard'),
-            default => redirect('/'),
-        };
+        if (in_array($role, ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN'], true)) {
+            return redirect()->route('superadmin.dashboard');
+        }
+
+        if (!empty(CmsSections::tabsForRole($role))) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect('/');
     }
 }

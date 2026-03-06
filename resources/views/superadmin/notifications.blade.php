@@ -76,17 +76,7 @@
         </ul>
     </nav>
 
-  <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff">
-    <x-slot:left>
-      <form class="search-bar" method="GET" action="{{ route('superadmin.notifications') }}">
-        <i class="fas fa-search"></i>
-        <input name="q" value="{{ $q }}" type="text" placeholder="Search notifications...">
-        <input type="hidden" name="type" value="{{ $typeFilter }}">
-        <input type="hidden" name="status" value="{{ $statusFilter }}">
-        <input type="hidden" name="range" value="{{ $rangeFilter }}">
-      </form>
-    </x-slot>
-  </x-app.topbar>
+  <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />
 
     @include('partials.profile_modal')
 
@@ -115,15 +105,7 @@
       </div>
     </div>
 
-    <div class="tab-navigation">
-      <button class="tab-btn active" onclick="switchTab('all-notifications')" type="button">
-        <i class="fas fa-bell"></i> All Notifications
-        <span class="tab-badge">{{ (int)$stats['unread'] }}</span>
-      </button>
-    </div>
-
-    <div class="tab-content active" id="all-notifications">
-      <div class="card">
+    <div class="card">
         <div class="card-header">
           <h3 class="card-title"><i class="fas fa-bell"></i> Notification Center</h3>
           <div style="display:flex; gap:10px;">
@@ -138,20 +120,33 @@
 
         <div style="padding:0;">
           <form class="filter-bar" method="GET" action="{{ route('superadmin.notifications') }}">
-            <select name="status">
-              <option value="ALL" {{ $statusFilter==='ALL' ? 'selected' : '' }}>All Status</option>
-              <option value="UNREAD" {{ $statusFilter==='UNREAD' ? 'selected' : '' }}>Unread Only</option>
-              <option value="READ" {{ $statusFilter==='READ' ? 'selected' : '' }}>Read Only</option>
-            </select>
+            <div class="filter-field filter-search">
+              <i class="fas fa-magnifying-glass"></i>
+              <input name="q" value="{{ $q }}" type="text" placeholder="Search notifications...">
+            </div>
 
-            <select name="range">
-              <option value="7D" {{ $rangeFilter==='7D' ? 'selected' : '' }}>Last 7 Days</option>
-              <option value="30D" {{ $rangeFilter==='30D' ? 'selected' : '' }}>Last 30 Days</option>
-              <option value="3M" {{ $rangeFilter==='3M' ? 'selected' : '' }}>Last 3 Months</option>
-              <option value="ALL" {{ $rangeFilter==='ALL' ? 'selected' : '' }}>All Time</option>
-            </select>
+            <div class="filter-field filter-select">
+              <i class="fas fa-circle-check"></i>
+              <select name="status">
+                <option value="ALL" {{ $statusFilter==='ALL' ? 'selected' : '' }}>All Status</option>
+                <option value="UNREAD" {{ $statusFilter==='UNREAD' ? 'selected' : '' }}>Unread Only</option>
+                <option value="READ" {{ $statusFilter==='READ' ? 'selected' : '' }}>Read Only</option>
+              </select>
+            </div>
 
-            <input type="hidden" name="q" value="{{ $q }}">
+            <div class="filter-field filter-select">
+              <i class="fas fa-calendar-days"></i>
+              <select name="range">
+                <option value="7D" {{ $rangeFilter==='7D' ? 'selected' : '' }}>Last 7 Days</option>
+                <option value="30D" {{ $rangeFilter==='30D' ? 'selected' : '' }}>Last 30 Days</option>
+                <option value="3M" {{ $rangeFilter==='3M' ? 'selected' : '' }}>Last 3 Months</option>
+                <option value="ALL" {{ $rangeFilter==='ALL' ? 'selected' : '' }}>All Time</option>
+              </select>
+            </div>
+
+            <a class="btn btn-outline btn-sm" href="{{ route('superadmin.notifications') }}">
+              <i class="fas fa-filter-circle-xmark"></i> Clear
+            </a>
 
             <button class="btn btn-primary btn-sm" type="submit">
               <i class="fas fa-filter"></i> Apply Filters
@@ -242,20 +237,12 @@
             </div>
           @endif
         </div>
-      </div>
     </div>
   </main>
 
   <script>
     function toggleSidebar() {
       document.getElementById('sidebar')?.classList.toggle('collapsed');
-    }
-
-    function switchTab(tabId) {
-      document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-      document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-      document.getElementById(tabId)?.classList.add('active');
-      event.target.closest('.tab-btn')?.classList.add('active');
     }
 
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

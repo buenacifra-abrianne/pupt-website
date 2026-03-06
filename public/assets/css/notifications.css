@@ -539,25 +539,101 @@ margin-top: -0.5px;
 
 /* Filter Bar */
 .filter-bar {
-    display: flex;
-    gap: 15px;
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) minmax(190px, 1fr) minmax(190px, 1fr) auto auto;
+    gap: 12px;
     margin-bottom: 20px;
-    flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
     padding: 20px;
     padding-bottom: 0;
 }
 
-.filter-bar select {
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    border-radius: 6px;
-    font-size: 14px;
+.filter-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 2px solid #e4e4e4;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff 0%, #fcfcfc 100%);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
 }
 
-.filter-bar select:focus {
+.filter-field i {
+    color: #8a8a8a;
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.filter-field select {
+    width: 100%;
+    min-height: 40px;
+    border: none;
     outline: none;
-    border-color: #D4AF37;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    appearance: none;
+}
+
+.filter-field input {
+    width: 100%;
+    min-height: 40px;
+    border: none;
+    outline: none;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: inherit;
+}
+
+.filter-field input::placeholder {
+    color: #9a9a9a;
+}
+
+.filter-field select option {
+    background: #fff;
+    color: #333;
+}
+
+.filter-field:focus-within {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    transform: translateY(-1px);
+}
+
+.filter-field:focus-within i {
+    color: #800000;
+}
+
+.filter-bar .btn {
+    min-height: 44px;
+}
+
+@media (max-width: 920px) {
+    .filter-bar {
+        grid-template-columns: 1fr 1fr 1fr;
+    }
+
+    .filter-bar .btn {
+        justify-self: stretch;
+    }
+}
+
+@media (max-width: 620px) {
+    .filter-bar {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-bar .btn {
+        width: 100%;
+        justify-content: center;
+    }
 }
 
 /* Notification Item */

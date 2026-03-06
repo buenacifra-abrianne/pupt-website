@@ -33,8 +33,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                {{-- update this route when you create content management page --}}
-                <a href="#" class="nav-link">
+                <a href="{{ route('admin.content') }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
@@ -44,15 +43,6 @@
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
-            </li>
-            <li class="nav-item">
-                <form method="POST" action="{{ route('superadmin.logout') }}">
-                    @csrf
-                    <button type="submit" class="nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
-                    </button>
-                </form>
             </li>
         </ul>
     </nav>
@@ -117,6 +107,7 @@
 
                         // map action to icon + color class (reuse your notif styles)
                         $iconClass = 'info'; $icon = 'fa-bullhorn';
+                        if ($action === 'PENDING')  { $iconClass = 'warning'; $icon = 'fa-hourglass-half'; }
                         if ($action === 'CREATED')  { $iconClass = 'primary'; $icon = 'fa-plus'; }
                         if ($action === 'UPDATED')  { $iconClass = 'primary'; $icon = 'fa-pen-to-square'; }
                         if ($action === 'APPROVED') { $iconClass = 'info';    $icon = 'fa-check-circle'; }

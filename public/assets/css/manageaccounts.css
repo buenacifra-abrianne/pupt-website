@@ -471,33 +471,73 @@ background: #f8f1f1;
 
 /* Filter Bar */
 .filter-bar {
-    display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    align-items: center;
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) minmax(190px, 1fr);
+    gap: 12px;
+    align-items: stretch;
     margin-bottom: 18px;
 }
 
-.filter-bar input,
-.filter-bar select {
-    padding: 9px 13px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: inherit;
-    transition: 0.3s;
+.filter-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 2px solid #e4e4e4;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff 0%, #fcfcfc 100%);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+}
+
+.filter-field i {
+    color: #8a8a8a;
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    min-height: 40px;
+    border: none;
     outline: none;
-    color: #333;
     background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: inherit;
 }
 
-.filter-bar input:focus,
-.filter-bar select:focus {
-    border-color: #D4AF37;
+.filter-field input::placeholder {
+    color: #9a9a9a;
 }
 
-.filter-bar input {
-    min-width: 220px;
+.filter-field select {
+    cursor: pointer;
+    appearance: none;
+}
+
+.filter-field select option {
+    background: #fff;
+    color: #333;
+}
+
+.filter-field:focus-within {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    transform: translateY(-1px);
+}
+
+.filter-field:focus-within i {
+    color: #800000;
+}
+
+@media (max-width: 760px) {
+    .filter-bar {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Table */
@@ -1012,4 +1052,140 @@ tbody td {
   position: relative;
   z-index: 10000;
 }
+}
+
+/* Assign CMS Access modal aligned with Edit Profile UI */
+#userModal .mbox {
+    max-width: 700px;
+    border-radius: 16px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    overflow: hidden;
+}
+
+#userModal .mhead {
+    background: #800000;
+    color: #fff;
+    border-bottom: 0;
+    padding: 14px 18px;
+    border-radius: 16px 16px 0 0;
+}
+
+#userModal .mhead h2 {
+    color: #fff;
+    font-size: 18px;
+    font-weight: 600;
+    gap: 10px;
+}
+
+#userModal .cbtn {
+    color: #fff;
+    font-size: 24px;
+}
+
+#userModal .cbtn:hover {
+    color: #f7d7d7;
+}
+
+#userModal .mbody {
+    padding: 18px 20px;
+    max-height: 68vh;
+    overflow-y: auto;
+    border-top: 1px solid #efe6e6;
+}
+
+#userModal .mfoot {
+    padding: 14px 20px 18px;
+    border-top: 1px solid #efe6e6;
+    background: #fff;
+}
+
+#userModal .fg {
+    margin-bottom: 12px;
+}
+
+#userModal .frow {
+    gap: 14px;
+}
+
+#userModal .frow-single {
+    grid-template-columns: 1fr;
+}
+
+#userModal .fg label {
+    font-size: 13px;
+    color: #6a3b3b;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+#userModal .fg input,
+#userModal .fg select,
+#userModal .fg textarea,
+#userModal .fg .cms-dropdown-trigger {
+    min-height: 46px;
+    border: 1px solid #d8cccc;
+    border-radius: 10px;
+    padding: 11px 12px;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+}
+
+#userModal .fg input::placeholder,
+#userModal .fg textarea::placeholder {
+    color: #8b8b8b;
+}
+
+#userModal .fg input:focus,
+#userModal .fg select:focus,
+#userModal .fg textarea:focus,
+#userModal .fg .cms-dropdown.open .cms-dropdown-trigger,
+#userModal .fg .cms-dropdown-trigger:focus-visible {
+    border-color: #b06b6b;
+    box-shadow: 0 0 0 2px rgba(176, 107, 107, 0.12);
+    outline: none;
+}
+
+#userModal .fg input[readonly] {
+    background: #fafafa;
+    color: #666;
+}
+
+#userModal .mfoot .btn-outline {
+    background: #f2f2f2 !important;
+    color: #444 !important;
+    border: 1px solid #e0e0e0 !important;
+}
+
+#userModal .mfoot .btn-outline:hover {
+    background: #e8e8e8 !important;
+    color: #333 !important;
+    border-color: #d0d0d0 !important;
+}
+
+#userModal .mfoot .action-btn {
+    background: #800000 !important;
+    color: #fff !important;
+    border: 1px solid #800000 !important;
+}
+
+#userModal .mfoot .action-btn:hover {
+    background: #670000 !important;
+    border-color: #670000 !important;
+}
+
+.role-help-text {
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    line-height: 1.4;
+    color: #6f6f6f;
+}
+
+.role-chips-wrap {
+    min-height: 44px;
+    border: 1px dashed #e3dede;
+    border-radius: 10px;
+    padding: 4px;
+    background: #fcfbfb;
 }

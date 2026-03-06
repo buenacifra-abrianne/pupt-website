@@ -446,33 +446,176 @@ background: #f8f1f1;
 
 /* Filter Bar */
 .filter-bar {
-    display: flex;
-    gap: 10px;
+    display: grid;
+    grid-template-columns: minmax(280px, 2fr) minmax(200px, 1.1fr) minmax(190px, 1fr) auto;
+    gap: 12px;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: stretch;
     margin-bottom: 20px;
 }
 
-.filter-bar input,
-.filter-bar select {
-    padding: 9px 13px;
-    border: 2px solid #e0e0e0;
-    border-radius: 8px;
-    font-size: 13px;
-    font-family: inherit;
-    transition: 0.3s;
-    outline: none;
-    color: #333;
-    background: #fff;
+.filter-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 44px;
+    padding: 0 12px;
+    border: 2px solid #e4e4e4;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fff 0%, #fcfcfc 100%);
+    transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
 }
 
-.filter-bar input:focus,
-.filter-bar select:focus {
-    border-color: #D4AF37;
+.filter-field i {
+    color: #8a8a8a;
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+    flex-shrink: 0;
+}
+
+.filter-field input,
+.filter-field select {
+    width: 100%;
+    border: none;
+    outline: none;
+    background: #fff;
+    color: #333;
+    font-size: 14px;
+    font-family: inherit;
+    min-height: 40px;
+}
+
+.filter-field select {
+    cursor: pointer;
+    appearance: none;
+}
+
+.filter-field select option {
+    background: #fff;
+    color: #333;
+}
+
+.cms-native-select {
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+}
+
+.cms-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+.cms-dropdown-trigger {
+    width: 100%;
+    min-height: 40px;
+    border: none;
+    background: transparent;
+    color: #333;
+    font-size: 14px;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 0;
+    cursor: pointer;
+}
+
+.cms-dropdown-trigger i {
+    color: #8a8a8a;
+    font-size: 12px;
+    transition: transform .2s ease, color .2s ease;
+}
+
+.cms-dropdown.open .cms-dropdown-trigger i {
+    transform: rotate(180deg);
+    color: #800000;
+}
+
+.cms-dropdown-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 100%;
+    min-width: 220px;
+    background: #fff;
+    border: 1px solid #ead8a0;
+    border-radius: 12px;
+    box-shadow: 0 14px 30px rgba(22, 29, 37, 0.16);
+    padding: 8px;
+    z-index: 1200;
+    display: none;
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.cms-dropdown.open .cms-dropdown-menu {
+    display: block;
+}
+
+.cms-dropdown-option {
+    width: 100%;
+    border: 0;
+    border-radius: 9px;
+    background: transparent;
+    color: #3d3d3d;
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background-color .18s ease, color .18s ease;
+}
+
+.cms-dropdown-option:hover {
+    background: rgba(128, 0, 0, 0.08);
+    color: #800000;
+}
+
+.cms-dropdown-option.active {
+    background: linear-gradient(135deg, #800000, #5c0000);
+    color: #fff;
+    font-weight: 600;
+}
+
+.filter-field:focus-within {
+    border-color: #d4af37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    transform: translateY(-1px);
+}
+
+.filter-field:focus-within i {
+    color: #800000;
+}
+
+.filter-field input::placeholder {
+    color: #9a9a9a;
 }
 
 .filter-bar input {
-    min-width: 220px;
+    min-width: 0;
+}
+
+.filter-bar .btn-outline {
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 12px;
+}
+
+@media (max-width: 980px) {
+    .filter-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 640px) {
+    .filter-bar {
+        grid-template-columns: 1fr;
+    }
 }
 
 /* Buttons */
@@ -795,8 +938,8 @@ tbody td {
 
 /* View Button */
 .btn-view-sm {
-    background: rgba(128, 0, 0, 0.07);
-    color: #800000;
+    background: rgba(30, 99, 214, 0.12);
+    color: #1e63d6;
     border: none;
     width: 28px;
     height: 28px;
@@ -810,7 +953,7 @@ tbody td {
 }
 
 .btn-view-sm:hover {
-    background: #800000;
+    background: #1e63d6;
     color: #fff;
 }
 

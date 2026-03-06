@@ -8,7 +8,6 @@
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
     {{-- move your css to public/assets/css/manageaccounts.css --}}
@@ -133,11 +132,17 @@
             </div>
 
             <div class="filter-bar">
-                <input type="text" id="srch" placeholder="Search by name, email or ID..." oninput="applyFilters()">
-                <select id="stFil" onchange="applyFilters()">
-                    <option value="">All Status</option>
-                    <option>Active</option><option>Inactive</option><option>Suspended</option>
-                </select>
+                <div class="filter-field filter-search">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input type="text" id="srch" placeholder="Search by name, email or ID..." oninput="applyFilters()">
+                </div>
+                <div class="filter-field filter-select">
+                    <i class="fas fa-circle-check"></i>
+                    <select id="stFil" onchange="applyFilters()">
+                        <option value="">All Status</option>
+                        <option>Active</option><option>Inactive</option><option>Suspended</option>
+                    </select>
+                </div>
             </div>
 
             <div class="table-wrap">
@@ -171,8 +176,8 @@
             </div>
 
             <div class="mbody">
-    <div class ="frow">
-      <div class="fg" style="width: 590px";>
+    <div class="frow frow-single">
+      <div class="fg">
         <label>Select Faculty <span class="req">*</span></label>
         <select id="facultySelect">
             <option value="">Select Faculty</option>
@@ -275,6 +280,7 @@ const RC = {
   REGISTRAR: 'r-registrar',
   HAP: 'r-hap',
   STUDENT_SERVICES: 'r-studentservices',
+  RESEARCH: 'r-research',
   RESEARCH_EXTENSION: 'r-research',
   FACULTY: 'r-faculty',
   'pupt:faculty': 'r-faculty',
@@ -290,8 +296,8 @@ const TAB_GROUPS = {
   'Registrar': ['REGISTRAR'],
   'HAP': ['HAP'],
   'Student Services': ['STUDENT_SERVICES'],
-  'Research and Extension': ['RESEARCH_EXTENSION'],
-  'Faculty': ['pupt:faculty'], // include base role pero label stays "Faculty"
+  'Research and Extension': ['RESEARCH_EXTENSION', 'RESEARCH'],
+  'Faculty': ['pupt:faculty', 'FACULTY'], // support both legacy and base faculty codes
 };
 
 function roleMatchesTab(roleCode, tabLabel){
@@ -368,6 +374,7 @@ function roleLabel(code){
   const c = String(code || '');
   if (c === 'pupt:faculty') return 'Faculty';
   if (c === 'pupt:student') return 'Student';
+  if (c === 'RESEARCH' || c === 'RESEARCH_EXTENSION') return 'Research & Extension';
   return ROLE_NAME_BY_CODE[c] || c;
 }
 
@@ -382,7 +389,9 @@ function fillRoleOptions() {
     .filter(r => !String(r.code).includes(':'))
     .map(r => {
       const code = String(r.code);
-      const name = String(r.name);
+      const name = (code === 'RESEARCH' || code === 'RESEARCH_EXTENSION')
+        ? 'Research & Extension'
+        : String(r.name);
 
       if (code === 'FACULTY') {
         return `<option value="pupt:faculty">${name}</option>`;
@@ -864,14 +873,6 @@ document.getElementById('facultySelect').addEventListener('change', function () 
 
 populateFaculty();
 
-$(document).ready(function () {
-  $('#facultySelect').select2({
-    placeholder: "Search faculty by name or email",
-    width: '100%'
-  });
-});
 </script>
-<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 </html>

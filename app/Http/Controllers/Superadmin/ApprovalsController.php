@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
+use App\Support\AuditLog;
+use App\Support\CmsSections;
 
 class ApprovalsController extends Controller
 {
@@ -149,6 +152,21 @@ $history = $this->attachDisplayFields($history);
         'updated_at' => now(),
     ]);
 }
+        elseif ($type === 'ANNOUNCEMENT_UPDATE') {
+            $aid = (int)($payload['announcement_id'] ?? 0);
+            if ($aid <= 0) {
+                throw new \Exception("Missing announcement_id in request details.");
+            }
+
+            DB::table('announcements')
+                ->where('announcement_id', $aid)
+                ->update([
+                    'title' => $payload['title'] ?? DB::raw('title'),
+                    'content' => $payload['content'] ?? DB::raw('content'),
+                    'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
+                    'updated_at' => now(),
+                ]);
+        }
         elseif ($type === 'ANNOUNCEMENT_DELETE') {
             $aid = (int)($payload['announcement_id'] ?? 0);
             if (!$aid) throw new \Exception("Missing announcement_id in request details.");
@@ -191,6 +209,52 @@ $history = $this->attachDisplayFields($history);
             if (!$nid) throw new \Exception("Missing news_id in request details.");
 
             DB::table('news')->where('news_id', $nid)->delete();
+        }
+        elseif (str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT')) {
+            if (!Schema::hasTable('cms_contents')) {
+                throw new \Exception("cms_contents table not found. Run migrations first.");
+            }
+
+            $tabKey = (string) ($payload['tab_key'] ?? CmsSections::tabForRequestType($type));
+            if ($tabKey === '' || !in_array($tabKey, CmsSections::allTabKeys(), true)) {
+                throw new \Exception("Invalid CMS tab in request details.");
+            }
+
+            $tabLabel = CmsSections::labelForTab($tabKey);
+            $title = trim((string) ($payload['title'] ?? ''));
+            if ($title === '') {
+                $title = $tabLabel.' Content';
+            }
+
+            $content = (string) ($payload['content'] ?? '');
+
+            $exists = DB::table('cms_contents')->where('tab_key', $tabKey)->exists();
+            if ($exists) {
+                DB::table('cms_contents')
+                    ->where('tab_key', $tabKey)
+                    ->update([
+                        'title' => $title,
+                        'content' => $content,
+                        'updated_by' => (int) (session('user_id') ?? 0),
+                        'updated_at' => now(),
+                    ]);
+            } else {
+                DB::table('cms_contents')->insert([
+                    'tab_key' => $tabKey,
+                    'title' => $title,
+                    'content' => $content,
+                    'updated_by' => (int) (session('user_id') ?? 0),
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            AuditLog::record(
+                'APPROVED',
+                'CONTENT',
+                'Approved CMS content edit for '.$tabLabel,
+                (int) (session('user_id') ?? 0)
+            );
         }
         else {
             throw new \Exception("Unknown request type: {$type}");
@@ -241,7 +305,7 @@ if ($reqUserId > 0) {
     }
 }
 
-    public function reject(Request $request, $id)
+public function reject(Request $request, $id)
 {
     $request->validate([
         'reason' => 'nullable|string|max:255'
@@ -265,6 +329,32 @@ if ($reqUserId > 0) {
         'rejection_reason' => $request->input('reason'),
         'updated_at' => now(),
     ]);
+
+    $rawType = strtoupper(trim((string) ($row->type ?? '')));
+    $requestTitle = trim((string) ($row->title ?? 'Request'));
+    $reasonText = trim((string) $request->input('reason', ''));
+    $reasonSuffix = $reasonText !== '' ? ' | Reason: '.$reasonText : '';
+
+    if (str_starts_with($rawType, 'CMS_') && str_ends_with($rawType, '_EDIT')) {
+        $tabKey = CmsSections::tabForRequestType($rawType);
+        $label = $tabKey ? CmsSections::labelForTab($tabKey) : 'Content';
+
+        AuditLog::record(
+            'REJECTED',
+            'CONTENT',
+            'Rejected CMS content edit for '.$label.$reasonSuffix,
+            (int) (session('user_id') ?? 0)
+        );
+    } else {
+        $module = str_starts_with($rawType, 'NEWS_') ? 'NEWS' : 'ANNOUNCEMENT';
+
+        AuditLog::record(
+            'REJECTED',
+            $module,
+            'Rejected '.$requestTitle.$reasonSuffix,
+            (int) (session('user_id') ?? 0)
+        );
+    }
 
     $reqEmail = strtolower(trim((string)($row->requester_email ?? '')));
 
@@ -360,6 +450,25 @@ private function attachDisplayFields($paginator)
                     $payload['category']   = $payload['category']   ?? ($n->category ?? null);
                     $payload['location']   = $payload['location']   ?? ($n->location ?? null);
                 }
+            }
+        }
+
+        if (str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT')) {
+            $tabKey = (string) ($payload['tab_key'] ?? CmsSections::tabForRequestType($type));
+            $tabLabel = CmsSections::labelForTab($tabKey);
+
+            $displayTitle = trim((string) ($payload['title'] ?? ''));
+            if ($displayTitle === '') {
+                $displayTitle = $tabLabel.' Content';
+            }
+
+            $requested = (string) ($payload['content'] ?? '');
+            $previous = (string) ($payload['previous_content'] ?? '');
+
+            if (trim($previous) !== '' && trim($previous) !== trim($requested)) {
+                $displayContent = "Previous:\n".$previous."\n\nRequested update:\n".$requested;
+            } else {
+                $displayContent = $requested;
             }
         }
 

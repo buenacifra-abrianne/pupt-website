@@ -15,6 +15,7 @@ use App\Http\Controllers\Superadmin\AuditController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\CmsController as AdminCmsController;
 
 // Public
 use App\Http\Controllers\Public\HomeController;
@@ -62,6 +63,9 @@ Route::prefix('admin')
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
         Route::get('/announcements', [AdminAnnouncementController::class, 'index'])->name('announcements');
+
+        Route::get('/content', [AdminCmsController::class, 'index'])->name('content');
+        Route::post('/content/request-edit', [AdminCmsController::class, 'requestEdit'])->name('content.requestEdit');
 
         Route::delete('/requests/{id}', [AdminAnnouncementController::class, 'deleteRequestOnly'])
             ->name('requests.delete');
@@ -114,6 +118,7 @@ Route::prefix('superadmin')->group(function () {
         Route::get('/announcements', [AnnouncementController::class, 'index'])->name('superadmin.announcements');
 
         Route::get('/content', [CmsController::class, 'page'])->name('superadmin.content');
+        Route::post('/content/save', [CmsController::class, 'save'])->name('superadmin.content.save');
 
         Route::get('/notifications', [NotificationController::class, 'page'])->name('superadmin.notifications');
 

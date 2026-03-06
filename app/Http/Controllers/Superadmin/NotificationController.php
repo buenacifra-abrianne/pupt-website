@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,13 +16,11 @@ class NotificationController extends Controller
             abort(403, 'Missing user_id in session');
         }
 
-        // Filters (same as your old PHP)
-        $typeFilter   = strtoupper(trim($request->query('type', 'ALL')));
+        $typeFilter = strtoupper(trim($request->query('type', 'ALL')));
         $statusFilter = strtoupper(trim($request->query('status', 'ALL')));
-        $rangeFilter  = strtoupper(trim($request->query('range', '7D')));
-        $q            = trim((string) $request->query('q', ''));
+        $rangeFilter = strtoupper(trim($request->query('range', '7D')));
+        $q = trim((string) $request->query('q', ''));
 
-        // Stats
         $statsRow = DB::table('notifications as n')
             ->leftJoin('notification_reads as nr', function ($join) use ($userId) {
                 $join->on('nr.notification_id', '=', 'n.notification_id')
@@ -31,19 +30,20 @@ class NotificationController extends Controller
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
             })
-            ->where('n.channel', 'SYSTEM')
-            ->where('n.target_role', 'ADMIN')
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->where(function ($scope) use ($userId) {
+                $this->applyAdminAudienceScope($scope, $userId);
+            })
             ->whereNull('nd.user_id')
-            ->selectRaw("SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count")
-            ->selectRaw("COUNT(*) AS total_count")
+            ->selectRaw('SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count')
+            ->selectRaw('COUNT(*) AS total_count')
             ->first();
 
         $stats = [
-            'unread' => (int)($statsRow->unread_count ?? 0),
-            'total'  => (int)($statsRow->total_count ?? 0),
+            'unread' => (int) ($statsRow->unread_count ?? 0),
+            'total' => (int) ($statsRow->total_count ?? 0),
         ];
 
-        // Base query
         $base = DB::table('notifications as n')
             ->leftJoin('notification_reads as nr', function ($join) use ($userId) {
                 $join->on('nr.notification_id', '=', 'n.notification_id')
@@ -53,23 +53,22 @@ class NotificationController extends Controller
                 $join->on('nd.notification_id', '=', 'n.notification_id')
                     ->where('nd.user_id', '=', $userId);
             })
-            ->where('n.channel', 'SYSTEM')
-            ->where('n.target_role', 'ADMIN')
+            ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+            ->where(function ($scope) use ($userId) {
+                $this->applyAdminAudienceScope($scope, $userId);
+            })
             ->whereNull('nd.user_id');
 
-        // Type
         if ($typeFilter !== 'ALL' && $typeFilter !== '') {
             $base->whereRaw('UPPER(n.type) = ?', [$typeFilter]);
         }
 
-        // Status
         if ($statusFilter === 'UNREAD') {
             $base->whereNull('nr.user_id');
         } elseif ($statusFilter === 'READ') {
             $base->whereNotNull('nr.user_id');
         }
 
-        // Date range
         if ($rangeFilter === '7D') {
             $base->where('n.created_at', '>=', now()->subDays(7));
         } elseif ($rangeFilter === '30D') {
@@ -78,17 +77,15 @@ class NotificationController extends Controller
             $base->where('n.created_at', '>=', now()->subMonths(3));
         }
 
-        // Search
         if ($q !== '') {
             $base->where(function ($w) use ($q) {
                 $w->where('n.title', 'like', "%{$q}%")
-                  ->orWhere('n.message', 'like', "%{$q}%");
+                    ->orWhere('n.message', 'like', "%{$q}%");
             });
         }
 
         $totalFiltered = (clone $base)->count();
 
-        // IMPORTANT: paginate() so $notifications->links() is valid
         $notifications = $base
             ->select([
                 'n.notification_id',
@@ -99,21 +96,26 @@ class NotificationController extends Controller
                 'n.created_at',
                 'nr.read_at',
             ])
-            ->selectRaw("CASE WHEN nr.user_id IS NULL THEN 0 ELSE 1 END AS is_read")
+            ->selectRaw('CASE WHEN nr.user_id IS NULL THEN 0 ELSE 1 END AS is_read')
             ->orderByDesc('n.created_at')
             ->paginate(10)
             ->appends($request->query());
 
         $iconMap = [
-            'DANGER'  => ['danger', 'fa-exclamation-triangle'],
+            'DANGER' => ['danger', 'fa-exclamation-triangle'],
             'WARNING' => ['warning', 'fa-database'],
             'PRIMARY' => ['primary', 'fa-sync'],
-            'INFO'    => ['info', 'fa-bullhorn'],
+            'INFO' => ['info', 'fa-bullhorn'],
         ];
 
         return view('superadmin.notifications', compact(
-            'stats', 'totalFiltered', 'notifications',
-            'typeFilter', 'statusFilter', 'rangeFilter', 'q',
+            'stats',
+            'totalFiltered',
+            'notifications',
+            'typeFilter',
+            'statusFilter',
+            'rangeFilter',
+            'q',
             'iconMap'
         ));
     }
@@ -125,9 +127,6 @@ class NotificationController extends Controller
             return response()->json(['ok' => false, 'error' => 'Missing user_id in session'], 400);
         }
 
-        // ✅ supports both:
-        // - mark one: {id: 1}
-        // - mark all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
                 ->leftJoin('notification_reads as nr', function ($join) use ($userId) {
@@ -136,10 +135,12 @@ class NotificationController extends Controller
                 })
                 ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
                     $join->on('nd.notification_id', '=', 'n.notification_id')
-                         ->where('nd.user_id', '=', $userId);
+                        ->where('nd.user_id', '=', $userId);
                 })
-                ->where('n.channel', 'SYSTEM')
-                ->where('n.target_role', 'ADMIN')
+                ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+                ->where(function ($scope) use ($userId) {
+                    $this->applyAdminAudienceScope($scope, $userId);
+                })
                 ->whereNull('nd.user_id')
                 ->whereNull('nr.user_id')
                 ->pluck('n.notification_id');
@@ -154,8 +155,8 @@ class NotificationController extends Controller
 
             $rows = $ids->map(fn ($nid) => [
                 'notification_id' => $nid,
-                'user_id'        => $userId,
-                'read_at'         => now(),
+                'user_id' => $userId,
+                'read_at' => now(),
             ])->all();
 
             DB::table('notification_reads')->upsert(
@@ -207,17 +208,16 @@ class NotificationController extends Controller
             return response()->json(['ok' => false, 'error' => 'Missing user_id in session'], 400);
         }
 
-        // ✅ supports both:
-        // - delete one: {id: 1}
-        // - clear all: {all: 1}
         if ($request->boolean('all')) {
             $ids = DB::table('notifications as n')
                 ->leftJoin('notification_dismissed as nd', function ($join) use ($userId) {
                     $join->on('nd.notification_id', '=', 'n.notification_id')
-                         ->where('nd.user_id', '=', $userId);
+                        ->where('nd.user_id', '=', $userId);
                 })
-                ->where('n.channel', 'SYSTEM')
-                ->where('n.target_role', 'ADMIN')
+                ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
+                ->where(function ($scope) use ($userId) {
+                    $this->applyAdminAudienceScope($scope, $userId);
+                })
                 ->whereNull('nd.user_id')
                 ->pluck('n.notification_id');
 
@@ -231,8 +231,8 @@ class NotificationController extends Controller
 
             $rows = $ids->map(fn ($nid) => [
                 'notification_id' => $nid,
-                'user_id'        => $userId,
-                'dismissed_at'    => now(),
+                'user_id' => $userId,
+                'dismissed_at' => now(),
             ])->all();
 
             DB::table('notification_dismissed')->upsert(
@@ -278,21 +278,37 @@ class NotificationController extends Controller
     }
 
     private function pushSystemNotif(
-    string $type,
-    string $title,
-    string $message,
-    ?string $targetRole,
-    ?int $targetUserId = null
-    ): void
-    {
+        string $type,
+        string $title,
+        string $message,
+        ?string $targetRole,
+        ?int $targetUserId = null
+    ): void {
         \DB::table('notifications')->insert([
-            'title'          => $title,
-            'message'        => $message,
-            'type'           => strtoupper($type),   // INFO / PRIMARY / WARNING / DANGER
-            'channel'        => 'SYSTEM',
-            'target_role'    => $targetRole,         // 'ADMIN' or 'STAFF'
-            'target_user_id' => $targetUserId,       // required if STAFF-only
-            'created_at'     => now(),
+            'title' => $title,
+            'message' => $message,
+            'type' => strtoupper($type),
+            'channel' => 'SYSTEM',
+            'target_role' => $targetRole,
+            'target_user_id' => $targetUserId,
+            'created_at' => now(),
         ]);
+    }
+
+    private function applyAdminAudienceScope(Builder $query, int $userId): void
+    {
+        $query->where(function ($adminBroadcast) {
+            $adminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
+                ->whereNull('n.target_user_id');
+        })->orWhere(function ($adminDirect) use ($userId) {
+            $adminDirect->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
+                ->where('n.target_user_id', $userId);
+        })->orWhere(function ($legacyBroadcast) {
+            $legacyBroadcast->whereNull('n.target_role')
+                ->whereNull('n.target_user_id');
+        })->orWhere(function ($legacyDirect) use ($userId) {
+            $legacyDirect->whereNull('n.target_role')
+                ->where('n.target_user_id', $userId);
+        });
     }
 }

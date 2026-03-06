@@ -115,21 +115,52 @@
 
             <!-- Filters -->
             <div class="filter-bar">
-                <input type="text" id="srch" placeholder="Search logs..." oninput="applyFilters()">
-                <select id="actFil" onchange="applyFilters()">
-                    <option value="">All Actions</option>
-                    <option value="LOGIN">Login</option>
-                    <option value="LOGOUT">Logout</option>
-                    <option value="SECURITY">Security</option>
-                    <option value="CREATED">Created</option>
-                    <option value="UPDATED">Updated</option>
-                    <option value="DELETED">Deleted</option>
-                    <option value="APPROVED">Approved</option>
-                    <option value="REJECTED">Rejected</option>
-                    <option value="DISABLED">Disabled</option>
-                    <option value="ENABLED">Enabled</option>
-                </select>
-                <input type="date" id="dateFil" onchange="applyFilters()" title="Filter by date">
+                <div class="filter-field filter-search">
+                    <i class="fas fa-magnifying-glass"></i>
+                    <input type="text" id="srch" placeholder="Search logs..." oninput="applyFilters()">
+                </div>
+
+                <div class="filter-field filter-select">
+                    <i class="fas fa-bolt"></i>
+                    <div class="cms-dropdown" id="auditActionDropdown">
+                        <button type="button" class="cms-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+                            <span class="cms-dropdown-label">All Actions</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="cms-dropdown-menu" role="listbox">
+                            <button type="button" class="cms-dropdown-option active" data-value="">All Actions</button>
+                            <button type="button" class="cms-dropdown-option" data-value="LOGIN">Login</button>
+                            <button type="button" class="cms-dropdown-option" data-value="LOGOUT">Logout</button>
+                            <button type="button" class="cms-dropdown-option" data-value="SECURITY">Security</button>
+                            <button type="button" class="cms-dropdown-option" data-value="CREATED">Created</button>
+                            <button type="button" class="cms-dropdown-option" data-value="UPDATED">Updated</button>
+                            <button type="button" class="cms-dropdown-option" data-value="DELETED">Deleted</button>
+                            <button type="button" class="cms-dropdown-option" data-value="APPROVED">Approved</button>
+                            <button type="button" class="cms-dropdown-option" data-value="REJECTED">Rejected</button>
+                            <button type="button" class="cms-dropdown-option" data-value="DISABLED">Disabled</button>
+                            <button type="button" class="cms-dropdown-option" data-value="ENABLED">Enabled</button>
+                        </div>
+                        <select id="actFil" onchange="applyFilters()" tabindex="-1" aria-hidden="true" class="cms-native-select">
+                            <option value="">All Actions</option>
+                            <option value="LOGIN">Login</option>
+                            <option value="LOGOUT">Logout</option>
+                            <option value="SECURITY">Security</option>
+                            <option value="CREATED">Created</option>
+                            <option value="UPDATED">Updated</option>
+                            <option value="DELETED">Deleted</option>
+                            <option value="APPROVED">Approved</option>
+                            <option value="REJECTED">Rejected</option>
+                            <option value="DISABLED">Disabled</option>
+                            <option value="ENABLED">Enabled</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="filter-field filter-date">
+                    <i class="fas fa-calendar-days"></i>
+                    <input type="date" id="dateFil" onchange="applyFilters()" title="Filter by date">
+                </div>
+
                 <button class="btn-outline" onclick="clearFilters()"><i class="fas fa-filter-circle-xmark"></i> Clear</button>
             </div>
 
@@ -426,9 +457,57 @@ function applyFilters() {
     render();
 }
 
+function setupCmsDropdown(dropdownId, selectId, onChange) {
+    const dropdown = document.getElementById(dropdownId);
+    const select = document.getElementById(selectId);
+    if (!dropdown || !select) return;
+
+    const trigger = dropdown.querySelector('.cms-dropdown-trigger');
+    const label = dropdown.querySelector('.cms-dropdown-label');
+    const options = Array.from(dropdown.querySelectorAll('.cms-dropdown-option'));
+
+    const syncFromValue = (value) => {
+        let activeOption = options.find((opt) => String(opt.dataset.value) === String(value));
+        if (!activeOption) activeOption = options[0] || null;
+
+        options.forEach((opt) => opt.classList.toggle('active', opt === activeOption));
+        if (label && activeOption) label.textContent = activeOption.textContent.trim();
+    };
+
+    const setValue = (value, emit = true) => {
+        select.value = value;
+        syncFromValue(select.value);
+        if (emit && typeof onChange === 'function') onChange(select.value);
+    };
+    dropdown.__syncFromSelect = () => syncFromValue(select.value);
+
+    trigger?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const willOpen = !dropdown.classList.contains('open');
+        document.querySelectorAll('.cms-dropdown.open').forEach((el) => el.classList.remove('open'));
+        dropdown.classList.toggle('open', willOpen);
+        trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    options.forEach((opt) => {
+        opt.addEventListener('click', () => {
+            setValue(opt.dataset.value ?? '', true);
+            dropdown.classList.remove('open');
+            trigger?.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    select.addEventListener('change', () => syncFromValue(select.value));
+    syncFromValue(select.value);
+
+    return { setValue };
+}
+
 function clearFilters() {
     document.getElementById('srch').value = '';
-    document.getElementById('actFil').value = '';
+    const actSelect = document.getElementById('actFil');
+    actSelect.value = '';
+    document.getElementById('auditActionDropdown').__syncFromSelect?.();
     document.getElementById('dateFil').value = '';
     pg = 1;
     render();
@@ -529,6 +608,17 @@ function handleRefresh() {
 function toggleSidebar() {
     document.getElementById('sidebar').classList.toggle('collapsed');
 }
+
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.cms-dropdown')) {
+        document.querySelectorAll('.cms-dropdown.open').forEach((el) => {
+            el.classList.remove('open');
+            el.querySelector('.cms-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+        });
+    }
+});
+
+setupCmsDropdown('auditActionDropdown', 'actFil', () => applyFilters());
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('filter') === 'announcements') {

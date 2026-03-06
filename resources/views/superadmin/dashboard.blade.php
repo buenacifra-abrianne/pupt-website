@@ -105,14 +105,15 @@
                         <i class="fas fa-check-circle"></i>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-label">Pending Approvals</div>
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:5px;">
+                            <div class="stat-label" style="margin-bottom:0;">Pending Approvals</div>
+                            <a class="btn btn-outline btn-sm" href="{{ route('superadmin.approvals.pending') }}">
+                                <i class="fas fa-eye"></i> View All
+                            </a>
+                        </div>
                         <div class="stat-value">{{ $pendingApprovals ?? 0 }}</div>
                         <div class="stat-change positive">
                             <i class="fas fa-database"></i> Live From Database
-                            &nbsp;•&nbsp;
-                            <a href="{{ route('superadmin.approvals.pending') }}" style="color:inherit; text-decoration:none;">
-                                View
-                            </a>
                         </div>
                     </div>
                 </div>
@@ -314,20 +315,43 @@
                 <div class="date-range-selector">
                     <label>Date Range:</label>
 
-                    <select id="analyticsPreset" onchange="handleDatePreset(this.value)">
-                        <option value="7">Last 7 Days</option>
-                        <option value="30" selected>Last 30 Days</option>
-                        <option value="90">Last 3 Months</option>
-                        <option value="180">Last 6 Months</option>
-                        <option value="365">Last Year</option>
-                        <option value="custom">Custom Range</option>
-                    </select>
+                    <div class="filter-field filter-select">
+                        <i class="fas fa-calendar-days"></i>
+                        <div class="cms-dropdown" id="analyticsPresetDropdown">
+                            <button type="button" class="cms-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+                                <span class="cms-dropdown-label">Last 30 Days</span>
+                                <i class="fas fa-chevron-down"></i>
+                            </button>
+                            <div class="cms-dropdown-menu" role="listbox">
+                                <button type="button" class="cms-dropdown-option" data-value="7">Last 7 Days</button>
+                                <button type="button" class="cms-dropdown-option active" data-value="30">Last 30 Days</button>
+                                <button type="button" class="cms-dropdown-option" data-value="90">Last 3 Months</button>
+                                <button type="button" class="cms-dropdown-option" data-value="180">Last 6 Months</button>
+                                <button type="button" class="cms-dropdown-option" data-value="365">Last Year</button>
+                                <button type="button" class="cms-dropdown-option" data-value="custom">Custom Range</button>
+                            </div>
+                            <select id="analyticsPreset" onchange="handleDatePreset(this.value)" tabindex="-1" aria-hidden="true" class="cms-native-select">
+                                <option value="7">Last 7 Days</option>
+                                <option value="30" selected>Last 30 Days</option>
+                                <option value="90">Last 3 Months</option>
+                                <option value="180">Last 6 Months</option>
+                                <option value="365">Last Year</option>
+                                <option value="custom">Custom Range</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <!-- 👇 Only shown when Custom is selected -->
-                    <div id="customDateInputs" style="display:none;">
-                        <input type="date" id="analyticsStart">
-                        <span style="color:#666;">to</span>
-                        <input type="date" id="analyticsEnd">
+                    <div id="customDateInputs" class="date-range-custom" style="display:none;">
+                        <div class="filter-field filter-date">
+                            <i class="fas fa-calendar"></i>
+                            <input type="date" id="analyticsStart">
+                        </div>
+                        <span class="date-range-separator">to</span>
+                        <div class="filter-field filter-date">
+                            <i class="fas fa-calendar"></i>
+                            <input type="date" id="analyticsEnd">
+                        </div>
                         <button class="btn btn-primary btn-sm" type="button" onclick="applyAnalytics()">
                             <i class="fas fa-filter"></i> Apply
                         </button>
@@ -393,7 +417,7 @@
                             <h3 class="analytics-panel-title">User Engagement</h3>
                         </div>
 
-                        <div class="analytics-engagement-grid">
+                        <div class="analytics-engagement-grid vertical">
                             <div class="stat-card">
                                 <div class="stat-icon maroon"><i class="fas fa-layer-group"></i></div>
                                 <div class="stat-info">
@@ -727,8 +751,61 @@
         });
     });
 
+    function setupCmsDropdown(dropdownId, selectId, onChange) {
+        const dropdown = document.getElementById(dropdownId);
+        const select = document.getElementById(selectId);
+        if (!dropdown || !select) return;
+
+        const trigger = dropdown.querySelector('.cms-dropdown-trigger');
+        const label = dropdown.querySelector('.cms-dropdown-label');
+        const options = Array.from(dropdown.querySelectorAll('.cms-dropdown-option'));
+
+        const syncFromValue = (value) => {
+            let activeOption = options.find((opt) => String(opt.dataset.value) === String(value));
+            if (!activeOption) activeOption = options[0] || null;
+
+            options.forEach((opt) => opt.classList.toggle('active', opt === activeOption));
+            if (label && activeOption) label.textContent = activeOption.textContent.trim();
+        };
+
+        const setValue = (value, emit = true) => {
+            select.value = value;
+            syncFromValue(select.value);
+            if (emit && typeof onChange === 'function') onChange(select.value);
+        };
+
+        trigger?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const willOpen = !dropdown.classList.contains('open');
+            document.querySelectorAll('.cms-dropdown.open').forEach((el) => el.classList.remove('open'));
+            dropdown.classList.toggle('open', willOpen);
+            trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+        });
+
+        options.forEach((opt) => {
+            opt.addEventListener('click', () => {
+                setValue(opt.dataset.value ?? '', true);
+                dropdown.classList.remove('open');
+                trigger?.setAttribute('aria-expanded', 'false');
+            });
+        });
+
+        select.addEventListener('change', () => syncFromValue(select.value));
+        syncFromValue(select.value);
+    }
+
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.cms-dropdown')) {
+            document.querySelectorAll('.cms-dropdown.open').forEach((el) => {
+                el.classList.remove('open');
+                el.querySelector('.cms-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
+            });
+        }
+    });
+
     // ✅ Restore last selected top-level tab on load
     document.addEventListener('DOMContentLoaded', () => {
+        setupCmsDropdown('analyticsPresetDropdown', 'analyticsPreset', (value) => handleDatePreset(value));
         handleDatePreset(document.getElementById('analyticsPreset').value);
 
         const saved = localStorage.getItem('activeDashboardTopTab');

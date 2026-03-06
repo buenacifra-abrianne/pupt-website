@@ -87,19 +87,15 @@
             <p class="page-subtitle">Review and approve or reject submitted requests</p>
         </div>
 
-        {{-- Search (client-side) --}}
-        <div class="tab-navigation" style="justify-content: flex-end;">
-            <div class="search-bar">
-                <i class="fas fa-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search approvals...">
-            </div>
-        </div>
-
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Requests Awaiting Approval</h3>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <span class="status-badge status-enabled">
+                    <div class="search-bar search-inline">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="globalSearch" placeholder="Search approvals...">
+                    </div>
+                    <span class="status-badge status-enabled" style="white-space: nowrap;">
                         Total: {{ $pending->total() }}
                     </span>
                 </div>
@@ -118,8 +114,8 @@
                     </div>
                 @endif
 
-                <div style="overflow-x:auto;">
-                    <table class="table" style="width:100%; border-collapse: collapse;">
+                <div class="table-wrap approvals-table-wrap">
+                    <table class="table approvals-table">
                         <thead>
                             <tr>
                                 <th style="text-align:left; padding:10px;">Date</th>
@@ -169,6 +165,12 @@
                                         'NEWS_CREATE' => 'Create News',
                                         'NEWS_UPDATE' => 'Edit News',
                                         'NEWS_DELETE' => 'Delete News',
+                                        'CMS_HOME_EDIT' => 'Edit Home Content',
+                                        'CMS_ABOUT_EDIT' => 'Edit About Content',
+                                        'CMS_ACADEMICS_EDIT' => 'Edit Academics Content',
+                                        'CMS_STUDENTS_EDIT' => 'Edit Students Content',
+                                        'CMS_RESEARCH_EXTENSION_EDIT' => 'Edit Research & Extension Content',
+                                        'CMS_EVENTS_EDIT' => 'Edit Events Content',
                                         ];
                                         $rawType = strtoupper((string)($item->type ?? ''));
                                         $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
@@ -252,15 +254,15 @@
             <div class="card-header">
                 <h3 class="card-title">Processed Requests</h3>
                 <div style="display:flex; gap:10px; align-items:center;">
-                    <span class="status-badge status-enabled">
+                    <span class="status-badge status-enabled" style="white-space: nowrap;">
                         Total: {{ $history->total() }}
                     </span>
                 </div>
             </div>
 
             <div style="padding: 15px;">
-                <div style="overflow-x:auto;">
-                    <table class="table" style="width:100%; border-collapse: collapse;">
+                <div class="table-wrap approvals-table-wrap">
+                    <table class="table approvals-table">
                         <thead>
                             <tr>
                                 <th style="text-align:left; padding:10px;">Date</th>
@@ -284,6 +286,12 @@
                                         'NEWS_CREATE' => 'Create News',
                                         'NEWS_UPDATE' => 'Edit News',
                                         'NEWS_DELETE' => 'Delete News',
+                                        'CMS_HOME_EDIT' => 'Edit Home Content',
+                                        'CMS_ABOUT_EDIT' => 'Edit About Content',
+                                        'CMS_ACADEMICS_EDIT' => 'Edit Academics Content',
+                                        'CMS_STUDENTS_EDIT' => 'Edit Students Content',
+                                        'CMS_RESEARCH_EXTENSION_EDIT' => 'Edit Research & Extension Content',
+                                        'CMS_EVENTS_EDIT' => 'Edit Events Content',
                                     ];
                                     $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
 
@@ -429,8 +437,101 @@
   </div>
 </div>
 
+<div id="rejectModal" class="modal">
+  <div class="modal-content" style="max-width:560px;">
+    <div class="modal-header">
+      <h2 class="modal-title">Reject Request</h2>
+      <button class="close-modal" type="button" onclick="closeRejectModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div style="padding: 10px 0;">
+      <div style="margin-bottom:8px; color:#666; font-size:14px;">
+        Provide reason for rejection (optional).
+      </div>
+      <textarea id="rejectReasonInput"
+        style="width:100%; min-height:120px; padding:12px; border:1px solid #ddd; border-radius:10px; font-family:inherit; font-size:14px;"
+        placeholder="Enter rejection reason..."></textarea>
+    </div>
+
+    <div style="display:flex; justify-content:flex-end; gap:10px; margin-top: 14px;">
+      <button type="button" class="btn btn-sm btn-outline" onclick="closeRejectModal()">Cancel</button>
+      <button id="confirmRejectBtn" type="button" class="btn btn-sm reject-btn-danger" onclick="submitRejectReq()">
+        <i class="fas fa-times"></i> Reject Request
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  .approvals-table-wrap {
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid #f0f0f0;
+    background: #fff;
+  }
+
+  .approvals-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 980px;
+  }
+
+  .approvals-table thead {
+    background: linear-gradient(135deg, #800000, #6a0000);
+  }
+
+  .approvals-table thead th {
+    padding: 12px 10px !important;
+    color: #fff !important;
+    font-size: 13px;
+    font-weight: 600;
+    text-align: left !important;
+    white-space: nowrap;
+    border: none;
+  }
+
+  .approvals-table tbody tr {
+    border-bottom: 1px solid #f5f5f5;
+    transition: background-color .2s ease;
+  }
+
+  .approvals-table tbody tr:hover {
+    background: #fcfbf8;
+  }
+
+  .approvals-table tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .approvals-table tbody td {
+    padding: 12px 10px !important;
+    color: #333;
+    border: none;
+    vertical-align: middle;
+  }
+
+  .approvals-table .btn {
+    text-decoration: none;
+  }
+
+  #rejectModal .reject-btn-danger {
+    background: #fff;
+    color: #800000;
+    border: 2px solid rgba(128, 0, 0, 0.25);
+  }
+
+  #rejectModal .reject-btn-danger:hover {
+    background: #b00020;
+    border-color: #b00020;
+    color: #fff;
+  }
+</style>
+
 <script>
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let rejectCtx = { url: '', id: 0 };
 
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
@@ -541,15 +642,32 @@ function showToast(message, typeOrMs = 'success', title = '') {
 }
 
     // Reject button handler
-    async function rejectReq(url, id) {
-  const reason = prompt('Reason for rejection? (optional)');
-  if (reason === null) return;
+    function rejectReq(url, id) {
+  rejectCtx = { url, id };
+  const modal = document.getElementById('rejectModal');
+  const input = document.getElementById('rejectReasonInput');
+  if (input) input.value = '';
+  if (modal) modal.classList.add('active');
+}
 
+function closeRejectModal() {
+  const modal = document.getElementById('rejectModal');
+  if (modal) modal.classList.remove('active');
+}
+
+async function submitRejectReq() {
+  const url = rejectCtx.url;
+  if (!url) return;
+
+  const reason = (document.getElementById('rejectReasonInput')?.value || '').trim();
   if (!(await askConfirm("Reject this request?", "Reject Request", "Reject", "danger"))) return;
 
-  console.log("REJECT clicked -> id:", id, "url:", url, "reason:", reason);
+  console.log("REJECT clicked -> id:", rejectCtx.id, "url:", url, "reason:", reason);
 
   try {
+    const btn = document.getElementById('confirmRejectBtn');
+    if (btn) btn.disabled = true;
+
     const res = await fetch(url, {
       method: 'POST',
       headers: {
@@ -576,10 +694,14 @@ function showToast(message, typeOrMs = 'success', title = '') {
     } else {
       showToast("Request rejected successfully.");
     }
+    closeRejectModal();
     window.location.reload();
   } catch (err) {
     console.error(err);
     showToast("Reject failed: " + err.message, 3500);
+  } finally {
+    const btn = document.getElementById('confirmRejectBtn');
+    if (btn) btn.disabled = false;
   }
 }
 
@@ -619,6 +741,12 @@ function prettyType(rawType) {
     'NEWS_CREATE': 'Create News',
     'NEWS_UPDATE': 'Edit News',
     'NEWS_DELETE': 'Delete News',
+    'CMS_HOME_EDIT': 'Edit Home Content',
+    'CMS_ABOUT_EDIT': 'Edit About Content',
+    'CMS_ACADEMICS_EDIT': 'Edit Academics Content',
+    'CMS_STUDENTS_EDIT': 'Edit Students Content',
+    'CMS_RESEARCH_EXTENSION_EDIT': 'Edit Research & Extension Content',
+    'CMS_EVENTS_EDIT': 'Edit Events Content',
   };
   const key = String(rawType || '').toUpperCase();
   return m[key] || rawType || 'General';
@@ -634,10 +762,10 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
   // ✅ show badge ONLY for announcements
   const badge = document.getElementById('dPriority');
   const rawType = String(type || '').toUpperCase();
-  const isNews = rawType.startsWith('NEWS_');
+  const isAnnouncement = rawType.startsWith('ANNOUNCEMENT_');
 
   if (badge) {
-    if (isNews) {
+    if (!isAnnouncement) {
       badge.style.display = 'none';
     } else {
       badge.style.display = 'inline-flex';
@@ -690,6 +818,9 @@ function formatValue(v) {
 window.addEventListener('click', function(e) {
   const modal = document.getElementById('detailsModal');
   if (e.target === modal) closeDetails();
+
+  const rejectModal = document.getElementById('rejectModal');
+  if (e.target === rejectModal) closeRejectModal();
 });
 </script>
 

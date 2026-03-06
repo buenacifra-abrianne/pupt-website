@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Support\CmsSections;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -19,9 +20,14 @@ class NonSuperadminRoleOnly
             return redirect('/superadmin/login');
         }
 
-        $role = strtoupper(trim((string) session('user_role')));
-        if (!in_array($role, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'])) {
+        $role = CmsSections::normalizeRole((string) session('user_role'));
+
+        if (in_array($role, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'], true)) {
             return redirect('/superadmin/dashboard');
+        }
+
+        if (empty(CmsSections::tabsForRole($role))) {
+            abort(403, 'Unauthorized (staff role required).');
         }
 
         return $next($request);

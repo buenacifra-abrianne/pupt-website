@@ -38,8 +38,8 @@
             </li>
 
             <li class="nav-item">
-                <a href="#" class="nav-link">
-                    <i class="fas fa-bell"></i>
+                <a href="{{ route('admin.content') }}" class="nav-link">
+                    <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
@@ -51,15 +51,6 @@
                 </a>
             </li>
 
-            <li class="nav-item">
-                <form method="POST" action="{{ route('superadmin.logout') }}">
-                    @csrf
-                    <button type="submit" class="nav-link" style="background:none;border:none;width:100%;text-align:left;cursor:pointer;">
-                        <i class="fa-solid fa-right-from-bracket"></i>
-                        <span>Logout</span>
-                    </button>
-                </form>
-            </li>
         </ul>
     </nav>
 
@@ -75,7 +66,7 @@
         </div>
 
         <!-- Tab Navigation -->
-        <div class="tab-navigation">
+        <div class="tab-navigation cms-tab-style">
             <button class="tab-btn active" onclick="switchTab('announcements', this)">
                 <i class="fas fa-bullhorn"></i>
                 Announcements

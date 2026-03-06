@@ -346,6 +346,63 @@ body {
     flex-wrap: wrap;
 }
 
+.tab-navigation .search-bar {
+    margin-left: auto;
+    width: 100%;
+    max-width: 360px;
+    min-width: 260px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.tab-navigation .search-bar:focus-within {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+
+/* Reusable page toolbar (search/actions) for non-tab sections */
+.cms-toolbar {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.cms-toolbar .search-bar {
+    margin-left: auto;
+    width: 100%;
+    max-width: 360px;
+    min-width: 260px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.cms-toolbar .search-bar:focus-within {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+
+.search-bar.search-inline {
+    width: 100%;
+    max-width: 360px;
+    min-width: 260px;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    padding: 10px 14px;
+}
+
+.search-bar.search-inline:focus-within {
+    border-color: #D4AF37;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+}
+
 .tab-btn {
     padding: 12px 25px;
     background: none;
@@ -377,6 +434,56 @@ body {
     right: 0;
     height: 3px;
     background: #D4AF37;
+}
+
+/* Content-management style tabs (scoped) */
+.tab-navigation.cms-tab-style {
+    gap: 8px;
+    margin-bottom: 20px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+}
+
+.tab-navigation.cms-tab-style .tab-btn {
+    background: #fff;
+    color: #666;
+    border: 2px solid #e0e0e0;
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: 0.3s;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-family: inherit;
+}
+
+.tab-navigation.cms-tab-style .tab-btn:hover {
+    border-color: #D4AF37;
+    color: #800000;
+    transform: none;
+}
+
+.tab-navigation.cms-tab-style .tab-btn.active {
+    background: linear-gradient(135deg, #800000, #5c0000);
+    color: #fff;
+    border-color: #800000;
+    box-shadow: none;
+    font-weight: 600;
+}
+
+.tab-navigation.cms-tab-style .tab-btn.active i {
+    color: #fff;
+}
+
+.tab-navigation.cms-tab-style .tab-btn::after,
+.tab-navigation.cms-tab-style .tab-btn.active::after {
+    display: none !important;
+    content: none !important;
 }
 
 .tab-content {

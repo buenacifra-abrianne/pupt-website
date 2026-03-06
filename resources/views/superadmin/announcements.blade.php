@@ -84,7 +84,7 @@
         </div>
 
         <!-- Tab Navigation -->
-        <div class="tab-navigation">
+        <div class="tab-navigation cms-tab-style">
             <button class="tab-btn active" onclick="switchTab('announcements', this)">
                 <i class="fas fa-bullhorn"></i>
                 Announcements
