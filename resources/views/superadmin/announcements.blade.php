@@ -21,7 +21,6 @@
                 {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
             </div>
         </div>
-
         <ul class="nav-menu">
             <li class="nav-item">
                 <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
@@ -45,23 +44,28 @@
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('superadmin.announcements') }}" class="nav-link active">
+                <a href="{{ route('superadmin.announcements') ?? '#' }}" class="nav-link active">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="{{ route('superadmin.content') }}" class="nav-link">
+                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="{{ route('superadmin.notifications') }}" class="nav-link">
+                <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Audit Trails</span>
                 </a>
             </li>
 

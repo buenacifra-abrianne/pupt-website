@@ -17,21 +17,21 @@
 </head>
 <body>
 
-  {{-- TODO: Replace sidebar links with your real route names --}}
   <nav class="sidebar" id="sidebar">
-    <div class="logo-section">
-      <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
-      <div class="logo-text">
-        Hello,<br>
-        {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
-      </div>
-    </div>
-    <ul class="nav-menu">
-      <li class="nav-item">
-        <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
-          <i class="fas fa-home"></i><span>Dashboard</span>
-        </a>
-      </li>
+        <div class="logo-section">
+            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
+            <div class="logo-text">
+                Hello,<br>
+                {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
+            </div>
+        </div>
+        <ul class="nav-menu">
+            <li class="nav-item">
+                <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
 
             <li class="nav-item">
                 <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link">
@@ -47,23 +47,34 @@
                 </a>
             </li>
 
-      <li class="nav-item">
-        <a href="{{ route('superadmin.announcements') }}" class="nav-link">
-          <i class="fas fa-bullhorn"></i><span>Announcements</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="{{ route('superadmin.content') }}" class="nav-link">
-          <i class="fas fa-file-alt"></i><span>Content Management</span>
-        </a>
-      </li>
-      <li class="nav-item">
-        <a href="{{ route('superadmin.notifications') }}" class="nav-link active">
-          <i class="fas fa-bell"></i><span>Notifications</span>
-        </a>
-      </li>
-    </ul>
-  </nav>
+            <li class="nav-item">
+                <a href="{{ route('superadmin.announcements') ?? '#' }}" class="nav-link">
+                    <i class="fas fa-bullhorn"></i>
+                    <span>News & Announcements</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
+                    <i class="fas fa-file-alt"></i>
+                    <span>Content Management</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link active">
+                    <i class="fas fa-bell"></i>
+                    <span>Notifications</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Audit Trails</span>
+                </a>
+            </li>
+
+        </ul>
+    </nav>
 
   <header class="topbar">
     <div class="topbar-left">

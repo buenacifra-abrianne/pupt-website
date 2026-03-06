@@ -9,8 +9,9 @@ use App\Http\Controllers\Superadmin\CmsController;
 use App\Http\Controllers\Superadmin\NotificationController;
 use App\Http\Controllers\Superadmin\AnalyticsController;
 use App\Http\Controllers\Superadmin\AccountsController;
+use App\Http\Controllers\Superadmin\AuditController;
 
-// Faculty
+// Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
@@ -113,6 +114,8 @@ Route::prefix('superadmin')->group(function () {
         Route::get('/notifications', [NotificationController::class, 'page'])->name('superadmin.notifications');
 
         Route::get('/accounts', [AccountsController::class, 'index'])->name('superadmin.accounts');
+
+        Route::get('/audit', [AuditController::class, 'index'])->name('superadmin.audit');
 
         Route::post('/analytics/api', [AnalyticsController::class, 'superadminApi'])->name('superadmin.analytics.superadminApi');
 

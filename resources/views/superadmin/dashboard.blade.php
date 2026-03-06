@@ -42,24 +42,28 @@
             </li>
 
             <li class="nav-item">
-                {{-- update this route when you create announcements page --}}
                 <a href="{{ route('superadmin.announcements') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
             <li class="nav-item">
-                {{-- update this route when you create content management page --}}
                 <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
             <li class="nav-item">
-                {{-- update this route when you create notifications page --}}
                 <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
+                <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link">
+                    <i class="fas fa-bell"></i>
+                    <span>Audit Trails</span>
                 </a>
             </li>
 
