@@ -184,7 +184,7 @@
 
                                 <span>
                                     <i class="fas fa-user"></i>
-                                    By: {{ e(session('user_name') ?? '') }}
+                                    By: {{ e($row->created_by_name ?? 'Unknown') }}
                                 </span>
                             </div>
 
