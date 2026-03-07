@@ -16,15 +16,19 @@
     default => 'Request',
   };
 
-$title = $payload['title'] ?? $row->title ?? 'Request';
-$content = $payload['content'] ?? '';
-$priority = strtoupper($payload['priority'] ?? 'LOW');
+$requestTitle = $payload['title'] ?? $row->title ?? 'Request';
+$requestContent = $payload['content'] ?? '';
+$requestPriority = strtoupper((string)($payload['priority'] ?? 'LOW'));
+
+$title = $requestTitle;
+$content = $requestContent;
+$priority = $requestPriority;
 
 // ✅ If this request targets an existing announcement (enable/disable/delete/update),
 // show LIVE announcement title/priority/content on the card.
 $targetAnnId = (int)($payload['announcement_id'] ?? 0);
 
-if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_UPDATE'], true)) {
+if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
   $live = \DB::table('announcements')->where('announcement_id', $targetAnnId)->first();
   if ($live) {
     $title = (string)($live->title ?? $title);
@@ -32,6 +36,10 @@ if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DIS
     $priority = strtoupper((string)($live->priority ?? $priority));
   }
 }
+
+$editTitle = $requestTitle ?: $title;
+$editContent = $requestContent !== '' ? $requestContent : $content;
+$editPriority = $requestPriority ?: $priority;
 
   $reqStatus = strtolower(trim((string)$row->status));
   $statusClass = $reqStatus;
@@ -89,14 +97,14 @@ if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DIS
   <p class="announcement-description">{{ e($content) }}</p>
 
   <div class="announcement-actions">
-    <button class="btn btn-sm btn-primary"
+    <button type="button" class="btn btn-sm btn-primary"
       onclick="editAnnouncementRequest(
         {{ $reqId }},
-        '{{ $type }}',
+        {{ \Illuminate\Support\Js::from($type) }},
         {{ $targetId ? (int)$targetId : 0 }},
-        '{{ addslashes($title) }}',
-        '{{ addslashes($content) }}',
-        '{{ $priority }}'
+        {{ \Illuminate\Support\Js::from($editTitle) }},
+        {{ \Illuminate\Support\Js::from($editContent) }},
+        {{ \Illuminate\Support\Js::from($editPriority) }}
       )">
       <i class="fas fa-edit"></i> Edit
     </button>
@@ -112,7 +120,7 @@ if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DIS
     @endif
 
     <button type="button" class="btn btn-sm btn-delete"
-    data-delete-url="{{ url('/staff/requests/'.$reqId) }}"
+    data-delete-url="{{ route('admin.requests.delete', ['id' => $reqId]) }}"
     data-title="{{ e($title) }}"
     onclick="deleteApprovalRequestOnly(event, this)">
     <i class="fas fa-trash"></i>

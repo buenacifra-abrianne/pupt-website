@@ -71,20 +71,20 @@ $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
       type="button"
       onclick="editNewsRequest(
       {{ $reqId }},
-      '{{ $type }}',
+      {{ \Illuminate\Support\Js::from($type) }},
       {{ $targetNewsId }},
-      '{{ addslashes($title) }}',
-      '{{ addslashes($content) }}',
-      '{{ addslashes($category) }}',
-      '{{ addslashes($location) }}',
-      '{{ $imagePath ? addslashes($imagePath) : '' }}',
-      '{{ $imageUrl ? addslashes($imageUrl) : '' }}'
+      {{ \Illuminate\Support\Js::from($title) }},
+      {{ \Illuminate\Support\Js::from($content) }},
+      {{ \Illuminate\Support\Js::from($category) }},
+      {{ \Illuminate\Support\Js::from($location) }},
+      {{ \Illuminate\Support\Js::from($imagePath) }},
+      {{ \Illuminate\Support\Js::from($imageUrl) }}
     )">
       <i class="fas fa-edit"></i> Edit
     </button>
 
     <button type="button" class="btn btn-sm btn-delete"
-      data-delete-url="{{ url('/staff/requests/'.$reqId) }}"
+      data-delete-url="{{ route('admin.requests.delete', ['id' => $reqId]) }}"
       data-title="{{ e($title) }}"
       onclick="deleteApprovalRequestOnly(event, this)">
       <i class="fas fa-trash"></i>

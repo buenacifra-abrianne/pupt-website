@@ -158,14 +158,18 @@ $history = $this->attachDisplayFields($history);
                 throw new \Exception("Missing announcement_id in request details.");
             }
 
+            $announcementUpdate = [
+                'title' => $payload['title'] ?? DB::raw('title'),
+                'content' => $payload['content'] ?? DB::raw('content'),
+                'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
+            ];
+            if (Schema::hasColumn('announcements', 'updated_at')) {
+                $announcementUpdate['updated_at'] = now();
+            }
+
             DB::table('announcements')
                 ->where('announcement_id', $aid)
-                ->update([
-                    'title' => $payload['title'] ?? DB::raw('title'),
-                    'content' => $payload['content'] ?? DB::raw('content'),
-                    'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
-                    'updated_at' => now(),
-                ]);
+                ->update($announcementUpdate);
         }
         elseif ($type === 'ANNOUNCEMENT_DELETE') {
             $aid = (int)($payload['announcement_id'] ?? 0);

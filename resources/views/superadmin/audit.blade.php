@@ -316,7 +316,7 @@ function isContentLog(log) {
 }
 
 function includeLog(log) {
-    return isAccountLog(log) || isContentLog(log);
+    return true;
 }
 
 function computeStatsFromLogs() {
@@ -388,7 +388,7 @@ function filtered() {
     const act = norm(document.getElementById('actFil').value);
     const date = document.getElementById('dateFil').value;
 
-    return NORMALIZED_LOGS.filter((l) => {
+    const base = NORMALIZED_LOGS.filter((l) => {
         const matchQ = !q || `${l.user} ${l.action} ${l.module} ${l.desc} ${l.ip}`.toLowerCase().includes(q);
         const matchAct = !act || l.action === act;
         const matchTypeResult = matchType(l);
@@ -396,6 +396,42 @@ function filtered() {
         const matchDate = !date || isoDate === date;
         return matchQ && matchAct && matchTypeResult && matchDate;
     });
+
+    if (curType !== 'all') {
+        return base;
+    }
+
+    const accountLogs = [];
+    const contentLogs = [];
+    const otherLogs = [];
+
+    base.forEach((log) => {
+        const account = isAccountTabLog(log);
+        const content = isContentLog(log);
+
+        if (account && !content) {
+            accountLogs.push(log);
+            return;
+        }
+        if (content && !account) {
+            contentLogs.push(log);
+            return;
+        }
+        if (account && content) {
+            accountLogs.push(log);
+            return;
+        }
+        otherLogs.push(log);
+    });
+
+    const mixed = [];
+    const maxLen = Math.max(accountLogs.length, contentLogs.length);
+    for (let i = 0; i < maxLen; i += 1) {
+        if (accountLogs[i]) mixed.push(accountLogs[i]);
+        if (contentLogs[i]) mixed.push(contentLogs[i]);
+    }
+
+    return mixed.concat(otherLogs);
 }
 
 function render() {
@@ -634,4 +670,3 @@ if (sessionStorage.getItem('audit_refresh_toast') === '1') {
 </script>
 </body>
 </html>
-

@@ -169,11 +169,11 @@
                         type="button"
                         onclick="editAnnouncementRequest(
                           0,
-                          'ANNOUNCEMENT_UPDATE',
+                          {{ \Illuminate\Support\Js::from('ANNOUNCEMENT_UPDATE') }},
                           {{ (int)$a->announcement_id }},
-                          '{{ addslashes($a->title ?? '') }}',
-                          '{{ addslashes($a->content ?? '') }}',
-                          '{{ strtoupper($a->priority ?? 'LOW') }}'
+                          {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                          {{ \Illuminate\Support\Js::from($a->content ?? '') }},
+                          {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
                         )">
                   <i class="fas fa-edit"></i> Edit
                 </button>
@@ -182,8 +182,8 @@
                     type="button"
                     onclick="requestToggleAnnouncement(
                         {{ (int)$a->announcement_id }},
-                        '{{ addslashes($a->title ?? '') }}',
-                        '{{ strtoupper($a->status ?? 'ENABLED') }}'
+                        {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                        {{ \Illuminate\Support\Js::from(strtoupper((string)($a->status ?? 'ENABLED'))) }}
                     )">
                     <i class="fas {{ ($a->status ?? '') === 'DISABLED' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
                     {{ ($a->status ?? '') === 'DISABLED' ? 'Enable' : 'Disable' }}
@@ -191,7 +191,7 @@
 
                 <button class="btn btn-sm btn-delete"
                         type="button"
-                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, '{{ addslashes($a->title ?? '') }}')">
+                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from($a->title ?? '') }})">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -278,7 +278,7 @@
               $imgUrl = !empty($n->image_path) ? asset('storage/' . ltrim($n->image_path,'/')) : null;
             @endphp
 
-            <div class="announcement-item style="margin-bottom:14px;">
+            <div class="announcement-item" style="margin-bottom:14px;">
               <div class="announcement-header">
                 <div class="title-row">
                   <h3 class="announcement-title">{{ e($n->title) }}</h3>
@@ -314,19 +314,19 @@
                   type="button"
                   onclick="editNews(
                   {{ (int)$n->news_id }},
-                  '{{ addslashes($n->title ?? '') }}',
-                  '{{ addslashes($n->content ?? '') }}',
-                  '{{ addslashes($n->category ?? '') }}',
-                  '{{ addslashes($n->location ?? '') }}',
-                  '{{ $n->image_path ? addslashes($n->image_path) : '' }}',
-                  '{{ $imgUrl ? addslashes($imgUrl) : '' }}'
+                  {{ \Illuminate\Support\Js::from($n->title ?? '') }},
+                  {{ \Illuminate\Support\Js::from($n->content ?? '') }},
+                  {{ \Illuminate\Support\Js::from($n->category ?? '') }},
+                  {{ \Illuminate\Support\Js::from($n->location ?? '') }},
+                  {{ \Illuminate\Support\Js::from($n->image_path ?? '') }},
+                  {{ \Illuminate\Support\Js::from($imgUrl ?? '') }}
                 )">
                   <i class="fas fa-edit"></i> Edit
                 </button>
 
                 <button class="btn btn-sm btn-delete"
                   type="button"
-                  onclick="deleteNews({{ (int)$n->news_id }}, '{{ addslashes($n->title ?? '') }}')">
+                  onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from($n->title ?? '') }})">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -503,6 +503,52 @@
     }
 
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let announcementEditSnapshot = null;
+    let newsEditSnapshot = null;
+
+    function normalizeText(value) {
+        return String(value ?? '').trim();
+    }
+
+    function normalizeUpper(value) {
+        return normalizeText(value).toUpperCase();
+    }
+
+    function hasNoAnnouncementChanges(form) {
+        if (!announcementEditSnapshot) return false;
+
+        const current = {
+            title: normalizeText(form.querySelector('[name="title"]')?.value),
+            content: normalizeText(form.querySelector('[name="content"]')?.value),
+            priority: normalizeUpper(form.querySelector('[name="priority"]')?.value),
+        };
+
+        return current.title === announcementEditSnapshot.title
+            && current.content === announcementEditSnapshot.content
+            && current.priority === announcementEditSnapshot.priority;
+    }
+
+    function hasNoNewsChanges(form) {
+        if (!newsEditSnapshot) return false;
+
+        const fileInput = document.getElementById('newsImageInput');
+        const hasNewUpload = !!(fileInput && fileInput.files && fileInput.files.length > 0);
+
+        const current = {
+            title: normalizeText(form.querySelector('[name="title"]')?.value),
+            content: normalizeText(form.querySelector('[name="content"]')?.value),
+            category: normalizeText(form.querySelector('[name="category"]')?.value),
+            location: normalizeText(form.querySelector('[name="location"]')?.value),
+            imagePath: normalizeText(document.getElementById('news_existing_image_path')?.value),
+        };
+
+        return !hasNewUpload
+            && current.title === newsEditSnapshot.title
+            && current.content === newsEditSnapshot.content
+            && current.category === newsEditSnapshot.category
+            && current.location === newsEditSnapshot.location
+            && current.imagePath === newsEditSnapshot.imagePath;
+    }
 
     async function postForm(url, data) {
         const res = await fetch(url, {
@@ -539,6 +585,7 @@
     form.action = "{{ route('admin.announcements.requestCreate') }}";
     if (modalTitle) modalTitle.innerText = "New Announcement";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
+    announcementEditSnapshot = null;
 
     const idInput = document.getElementById('edit_announcement_id');
     if (idInput) idInput.remove();
@@ -618,6 +665,7 @@
             form.action = "{{ route('admin.news.requestCreate') }}";
             if (modalTitle) modalTitle.innerText = "New News Article";
             if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
+            newsEditSnapshot = null;
 
             const fileInput = document.getElementById('newsImageInput');
             if (fileInput) fileInput.value = '';
@@ -646,6 +694,13 @@
   const form = document.getElementById('newsForm');
   const modalTitle = modal.querySelector('.modal-title');
   const submitBtn = document.getElementById('newsSubmitBtn');
+  newsEditSnapshot = {
+    title: normalizeText(title),
+    content: normalizeText(content),
+    category: normalizeText(category),
+    location: normalizeText(location),
+    imagePath: normalizeText(imagePath),
+  };
 
   modal.classList.add('active');
   if (modalTitle) modalTitle.innerText = "Edit News Article";
@@ -684,6 +739,13 @@
   const form = document.getElementById('newsForm');
   const modalTitle = modal.querySelector('.modal-title');
   const submitBtn = document.getElementById('newsSubmitBtn');
+  newsEditSnapshot = {
+    title: normalizeText(title),
+    content: normalizeText(content),
+    category: normalizeText(category),
+    location: normalizeText(location),
+    imagePath: normalizeText(imagePath),
+  };
 
   modal.classList.add('active');
 
@@ -806,6 +868,11 @@
   const form = document.getElementById('announcementForm');
   const modalTitle = modal.querySelector('.modal-title');
   const submitBtn = document.getElementById('announcementSubmitBtn');
+  announcementEditSnapshot = {
+    title: normalizeText(title),
+    content: normalizeText(content),
+    priority: normalizeUpper(priority || 'MEDIUM'),
+  };
 
   modal.classList.add('active');
 
@@ -887,6 +954,12 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
     const form = e.target;
     const url = form.action;
+    const isEditMode = !!document.getElementById('edit_announcement_id') || !!document.getElementById('edit_request_id');
+
+    if (isEditMode && hasNoAnnouncementChanges(form)) {
+        showToast('No changes detected.', 'warning', 'No Changes');
+        return;
+    }
 
     const data = Object.fromEntries(new FormData(form).entries());
 
@@ -907,6 +980,12 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
 
   const form = e.target;
   const url = form.action;
+  const isEditMode = !!document.getElementById('edit_news_id') || !!document.getElementById('edit_news_request_id');
+
+  if (isEditMode && hasNoNewsChanges(form)) {
+    showToast('No changes detected.', 'warning', 'No Changes');
+    return;
+  }
 
   try {
     const fd = new FormData(form);

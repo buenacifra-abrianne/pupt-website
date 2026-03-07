@@ -105,7 +105,7 @@ class AuditLog
 
     public static function includeInAudit(?string $action, ?string $module): bool
     {
-        return self::isAccountEvent($action, $module) || self::isContentEvent($action, $module);
+        return true;
     }
 
     public static function isAccountEvent(?string $action, ?string $module): bool
