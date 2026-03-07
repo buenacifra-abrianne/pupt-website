@@ -28,7 +28,18 @@
     }
 
     $profileInitials = '';
-    $parts = preg_split('/\s+/', $profileName) ?: [];
+
+    // Keep initials consistent with audit trail: prioritize first_name + last_name.
+    $profileInitialSource = trim(implode(' ', array_filter([
+        $profileFirst,
+        $profileLast,
+    ], fn ($part) => trim((string) $part) !== '')));
+
+    if ($profileInitialSource === '') {
+        $profileInitialSource = $profileName;
+    }
+
+    $parts = preg_split('/\s+/', $profileInitialSource) ?: [];
     foreach ($parts as $part) {
         $trimmed = trim((string) $part);
         if ($trimmed === '') {
@@ -152,8 +163,8 @@
     height: 150px;
     border-radius: 50%;
     padding: 5px;
-    background: linear-gradient(145deg, #d4af37, #800000);
-    box-shadow: 0 10px 24px rgba(128, 0, 0, 0.25);
+    background: linear-gradient(145deg, #d4af37, #c5a028);
+    box-shadow: 0 10px 24px rgba(128, 0, 0, 0.18);
     position: relative;
   }
 
@@ -184,7 +195,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: #800000;
+    background: #8e2f2f;
     color: #fff;
     display: flex;
     align-items: center;

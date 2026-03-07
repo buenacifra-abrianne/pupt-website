@@ -9,7 +9,18 @@
     $displayName = (string) (session('user_first_name') ?: $defaultName);
     $displayRole = (string) (session('user_role') ?: $defaultRole);
     $profilePicture = (string) session('user_profile_picture', '');
-    $nameTokens = preg_split('/\s+/', trim((string) session('user_name', $displayName))) ?: [];
+
+    // Keep initials consistent with audit trail: prioritize first_name + last_name.
+    $avatarNameSource = trim(implode(' ', array_filter([
+        (string) session('user_first_name', ''),
+        (string) session('user_last_name', ''),
+    ], fn ($part) => trim((string) $part) !== '')));
+
+    if ($avatarNameSource === '') {
+        $avatarNameSource = trim((string) session('user_name', $displayName));
+    }
+
+    $nameTokens = preg_split('/\s+/', $avatarNameSource) ?: [];
     $avatarAbbrev = '';
     foreach ($nameTokens as $token) {
         $trimmed = trim((string) $token);
@@ -317,6 +328,7 @@
 </header>
 
 <x-app.toast />
+<x-calendar-assets />
 <script>
 (() => {
     if (window.__cmsUnifiedDropdownInit) return;

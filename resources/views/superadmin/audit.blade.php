@@ -102,7 +102,6 @@
                     <span style="font-size:13px;color:#888;" id="lastUpdated">Last updated: just now</span>
                     <button class="action-btn" onclick="handleRefresh()"><i class="fas fa-rotate-right"></i> Refresh</button>
                     <button class="export-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
-                    <button class="export-btn" onclick="handlePrint()"><i class="fas fa-print"></i> Print</button>
                 </div>
             </div>
 
@@ -156,9 +155,23 @@
                     </div>
                 </div>
 
-                <div class="filter-field filter-date">
-                    <i class="fas fa-calendar-days"></i>
-                    <input type="date" id="dateFil" onchange="applyFilters()" title="Filter by date">
+                <div class="audit-date-range-wrap">
+                    <x-date-range-selector
+                        label="Date Range:"
+                        preset-id="auditRangePreset"
+                        dropdown-id="auditRangeDropdown"
+                        start-id="auditRangeStart"
+                        end-id="auditRangeEnd"
+                        default-preset="ALL"
+                        :include-all="true"
+                        all-label="All Dates"
+                        :include-custom="true"
+                        custom-label="Custom Range"
+                        custom-value="CUSTOM"
+                        custom-start-id="auditRangeCustomStart"
+                        custom-end-id="auditRangeCustomEnd"
+                        custom-wrap-id="auditRangeCustomWrap"
+                    />
                 </div>
 
                 <button class="btn-outline" onclick="clearFilters()"><i class="fas fa-filter-circle-xmark"></i> Clear</button>
@@ -258,6 +271,7 @@ const CHANGE_ACTIONS = new Set([
 let curType = 'all';
 let pg = 1;
 const PP = 15;
+const MODULE_ACRONYMS = new Set(['CMS', 'API', 'IP', 'SSO', 'OTP', 'ID']);
 
 function showPageToast(message, type = 'info', title = 'Notice') {
     if (typeof window.showToast === 'function') {
@@ -284,6 +298,21 @@ function initials(name) {
     return words.map((w) => w[0]).join('').slice(0, 2).toUpperCase();
 }
 
+function prettifyModule(v) {
+    const raw = norm(v || 'UNKNOWN');
+    const words = raw
+        .replace(/[_-]+/g, ' ')
+        .split(/\s+/)
+        .filter(Boolean);
+
+    if (!words.length) return 'Unknown';
+
+    return words.map((word) => {
+        if (MODULE_ACRONYMS.has(word)) return word;
+        return word.slice(0, 1) + word.slice(1).toLowerCase();
+    }).join(' ');
+}
+
 function escapeHtml(v) {
     return String(v ?? '')
         .replaceAll('&', '&amp;')
@@ -295,7 +324,7 @@ function escapeHtml(v) {
 
 function isAccountLog(log) {
     const action = norm(log.action);
-    const module = norm(log.module);
+    const module = norm(log.moduleKey || log.module);
 
     if (ACCOUNT_ACTIONS.has(action)) return true;
     if (ACCOUNT_MODULES.has(module)) return true;
@@ -309,7 +338,7 @@ function isAccountTabLog(log) {
 
 function isContentLog(log) {
     const action = norm(log.action);
-    const module = norm(log.module);
+    const module = norm(log.moduleKey || log.module);
 
     if (!CMS_MODULES.has(module)) return false;
     return CHANGE_ACTIONS.has(action);
@@ -331,16 +360,20 @@ function computeStatsFromLogs() {
 }
 
 function normalizeLog(log) {
+    const moduleKey = norm(log.module || 'UNKNOWN');
+
     return {
         id: Number(log.id || 0),
         user: displayText(log.user || 'System'),
         role: displayText(log.role || 'SYSTEM'),
         action: norm(log.action || 'SYSTEM'),
-        module: norm(log.module || 'UNKNOWN'),
+        module: prettifyModule(log.module || 'UNKNOWN'),
+        moduleKey,
         desc: String(log.desc || ''),
         ip: String(log.ip || '-'),
         ts: String(log.ts || ''),
         av: String(log.av || 'av-0'),
+        avatarUrl: String(log.avatar_url || ''),
     };
 }
 
@@ -369,6 +402,29 @@ function formatTs(ts) {
     });
 }
 
+function matchDateRange(isoDate, rangeStart, rangeEnd) {
+    if (!isoDate) return false;
+    if (!rangeStart || !rangeEnd) return true;
+    return isoDate >= rangeStart && isoDate <= rangeEnd;
+}
+
+function renderAvatar(log, size = 'sm') {
+    const extraSizeClass = size === 'lg' ? 'avatar-lg' : '';
+    const safeAvatarClass = escapeHtml(log.av || 'av-0');
+    const safeInitials = escapeHtml(initials(log.user));
+    const safeAlt = escapeHtml(log.user || 'User');
+    const safeUrl = escapeHtml(log.avatarUrl || '');
+
+    if (!safeUrl) {
+        return `<div class="avatar ${safeAvatarClass} ${extraSizeClass}">${safeInitials}</div>`;
+    }
+
+    return `<div class="avatar ${safeAvatarClass} ${extraSizeClass} avatar-photo">
+        <img src="${safeUrl}" alt="${safeAlt}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+        <span class="avatar-fallback">${safeInitials}</span>
+    </div>`;
+}
+
 function matchType(log) {
     if (curType === 'all') return true;
 
@@ -386,52 +442,24 @@ function matchType(log) {
 function filtered() {
     const q = (document.getElementById('srch').value || '').toLowerCase();
     const act = norm(document.getElementById('actFil').value);
-    const date = document.getElementById('dateFil').value;
+    const rangeStart = document.getElementById('auditRangeStart')?.value || '';
+    const rangeEnd = document.getElementById('auditRangeEnd')?.value || '';
 
     const base = NORMALIZED_LOGS.filter((l) => {
-        const matchQ = !q || `${l.user} ${l.action} ${l.module} ${l.desc} ${l.ip}`.toLowerCase().includes(q);
+        const matchQ = !q || `${l.user} ${l.action} ${l.module} ${l.moduleKey} ${l.desc} ${l.ip}`.toLowerCase().includes(q);
         const matchAct = !act || l.action === act;
         const matchTypeResult = matchType(l);
         const isoDate = l.ts ? l.ts.slice(0, 10) : '';
-        const matchDate = !date || isoDate === date;
+        const matchDate = matchDateRange(isoDate, rangeStart, rangeEnd);
         return matchQ && matchAct && matchTypeResult && matchDate;
     });
 
-    if (curType !== 'all') {
-        return base;
-    }
-
-    const accountLogs = [];
-    const contentLogs = [];
-    const otherLogs = [];
-
-    base.forEach((log) => {
-        const account = isAccountTabLog(log);
-        const content = isContentLog(log);
-
-        if (account && !content) {
-            accountLogs.push(log);
-            return;
-        }
-        if (content && !account) {
-            contentLogs.push(log);
-            return;
-        }
-        if (account && content) {
-            accountLogs.push(log);
-            return;
-        }
-        otherLogs.push(log);
+    // Always show newest first for every tab, especially "All activity logs".
+    return base.slice().sort((a, b) => {
+        const aMs = Number.isFinite(new Date(a.ts).getTime()) ? new Date(a.ts).getTime() : 0;
+        const bMs = Number.isFinite(new Date(b.ts).getTime()) ? new Date(b.ts).getTime() : 0;
+        return bMs - aMs;
     });
-
-    const mixed = [];
-    const maxLen = Math.max(accountLogs.length, contentLogs.length);
-    for (let i = 0; i < maxLen; i += 1) {
-        if (accountLogs[i]) mixed.push(accountLogs[i]);
-        if (contentLogs[i]) mixed.push(contentLogs[i]);
-    }
-
-    return mixed.concat(otherLogs);
 }
 
 function render() {
@@ -442,7 +470,7 @@ function render() {
     const tb = document.getElementById('logBody');
 
     if (!sl.length) {
-        tb.innerHTML = `<tr><td colspan="8"><div class="empty"><i class="fas fa-magnifying-glass"></i><p>No logs found.</p></div></td></tr>`;
+        tb.innerHTML = `<tr><td colspan="8"><div class="empty"><i class="fas fa-magnifying-glass"></i><p>No logs/data found.</p></div></td></tr>`;
     } else {
         tb.innerHTML = sl.map((l, i) => {
             const am = ACTION_META[l.action] || ACTION_META.DEFAULT;
@@ -451,12 +479,12 @@ function render() {
                 <td class="col-idx-cell" style="color:#ccc;font-size:12px">${rowNo}</td>
                 <td class="col-user-cell">
                     <div class="user-cell">
-                        <div class="avatar ${escapeHtml(l.av)}">${escapeHtml(initials(l.user))}</div>
+                        ${renderAvatar(l)}
                         <div><div class="uname">${escapeHtml(l.user)}</div><div class="urole">${escapeHtml(l.role)}</div></div>
                     </div>
                 </td>
                 <td class="col-action-cell"><span class="action-badge ${escapeHtml(am.cls)}"><i class="fas ${escapeHtml(am.icon)}" style="font-size:10px"></i> ${escapeHtml(l.action)}</span></td>
-                <td class="col-module-cell"><span class="mod-badge">${escapeHtml(l.module)}</span></td>
+                <td class="col-module-cell"><span class="mod-badge" title="${escapeHtml(l.module)}">${escapeHtml(l.module)}</span></td>
                 <td class="desc-cell" title="${escapeHtml(l.desc)}"><div class="desc-text">${escapeHtml(l.desc)}</div></td>
                 <td class="col-ip-cell"><span class="ip-text">${escapeHtml(l.ip)}</span></td>
                 <td class="col-time-cell">
@@ -473,7 +501,7 @@ function render() {
 
     document.getElementById('pgInfo').textContent = tot
         ? `Showing ${s + 1}-${Math.min(s + PP, tot)} of ${tot} log${tot !== 1 ? 's' : ''}`
-        : 'No logs found';
+        : 'Showing 0 of 0 logs';
     document.getElementById('pgNum').textContent = String(pg);
     document.getElementById('prevBtn').disabled = pg === 1;
     document.getElementById('nextBtn').disabled = pg >= max;
@@ -544,7 +572,11 @@ function clearFilters() {
     const actSelect = document.getElementById('actFil');
     actSelect.value = '';
     document.getElementById('auditActionDropdown').__syncFromSelect?.();
-    document.getElementById('dateFil').value = '';
+    const rangeSelect = document.getElementById('auditRangePreset');
+    if (rangeSelect) {
+        rangeSelect.value = 'ALL';
+        rangeSelect.dispatchEvent(new Event('change'));
+    }
     pg = 1;
     render();
     showPageToast('Filters cleared.', 'info', 'Audit Trail');
@@ -571,7 +603,7 @@ function viewLog(id) {
     const am = ACTION_META[l.action] || ACTION_META.DEFAULT;
     document.getElementById('logDetail').innerHTML = `
         <div style="background:linear-gradient(135deg,rgba(128,0,0,0.04),rgba(212,175,55,0.06));padding:16px 25px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;">
-            <div style="width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;" class="avatar ${escapeHtml(l.av)}">${escapeHtml(initials(l.user))}</div>
+            ${renderAvatar(l, 'lg')}
             <div>
                 <div style="font-weight:700;color:#800000;font-size:16px;">${escapeHtml(l.user)}</div>
                 <div style="font-size:12px;color:#999;">${escapeHtml(l.role)}</div>
@@ -631,11 +663,6 @@ function exportCSV() {
     showPageToast('CSV export started.', 'success', 'Export CSV');
 }
 
-function handlePrint() {
-    showPageToast('Opening print dialog...', 'info', 'Print');
-    setTimeout(() => window.print(), 80);
-}
-
 function handleRefresh() {
     sessionStorage.setItem('audit_refresh_toast', '1');
     window.location.reload();
@@ -655,6 +682,20 @@ document.addEventListener('click', (e) => {
 });
 
 setupCmsDropdown('auditActionDropdown', 'actFil', () => applyFilters());
+if (window.CmsDateRange && typeof window.CmsDateRange.init === 'function') {
+    window.CmsDateRange.init({
+        presetId: 'auditRangePreset',
+        dropdownId: 'auditRangeDropdown',
+        startId: 'auditRangeStart',
+        endId: 'auditRangeEnd',
+        defaultPreset: 'ALL',
+        customValue: 'CUSTOM',
+        customStartId: 'auditRangeCustomStart',
+        customEndId: 'auditRangeCustomEnd',
+        customWrapId: 'auditRangeCustomWrap',
+        onChange: () => applyFilters(),
+    });
+}
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('filter') === 'announcements') {

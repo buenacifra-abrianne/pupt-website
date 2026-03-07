@@ -79,9 +79,17 @@ class AuditController extends Controller
 
             if (!empty($userIds) && Schema::hasTable('users')) {
                 $userPk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+                $userSelect = array_values(array_filter([
+                    $userPk,
+                    'first_name',
+                    'last_name',
+                    'name',
+                    'role',
+                    Schema::hasColumn('users', 'profile_picture') ? 'profile_picture' : null,
+                ]));
                 $userRows = DB::table('users')
                     ->whereIn($userPk, $userIds)
-                    ->select($userPk, 'first_name', 'last_name', 'name', 'role')
+                    ->select($userSelect)
                     ->get();
 
                 foreach ($userRows as $user) {
@@ -93,6 +101,7 @@ class AuditController extends Controller
                     $userMap[(int) $user->{$userPk}] = [
                         'name' => $name,
                         'role' => strtoupper((string) ($user->role ?? '')),
+                        'avatar_url' => $this->resolveAvatarUrl((string) ($user->profile_picture ?? '')),
                     ];
                 }
             }
@@ -130,6 +139,7 @@ class AuditController extends Controller
                 'ip' => (string) ($row->ip_address ?? '-'),
                 'ts' => $parsedTs->toIso8601String(),
                 'av' => 'av-0',
+                'avatar_url' => $userId > 0 && isset($userMap[$userId]) ? $userMap[$userId]['avatar_url'] : '',
             ];
         }
 
@@ -145,5 +155,23 @@ class AuditController extends Controller
         }
 
         return $columns[0] ?? 'id';
+    }
+
+    private function resolveAvatarUrl(string $profilePicture): string
+    {
+        $profilePicture = trim($profilePicture);
+        if ($profilePicture === '') {
+            return '';
+        }
+
+        if (
+            str_starts_with($profilePicture, 'http://')
+            || str_starts_with($profilePicture, 'https://')
+            || str_starts_with($profilePicture, 'data:')
+        ) {
+            return $profilePicture;
+        }
+
+        return asset(ltrim($profilePicture, '/'));
     }
 }

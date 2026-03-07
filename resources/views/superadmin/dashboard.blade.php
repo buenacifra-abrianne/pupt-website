@@ -312,51 +312,22 @@
 
             <!-- Date Range Selector -->
             <div class="date-range-bar">
-                <div class="date-range-selector">
-                    <label>Date Range:</label>
-
-                    <div class="filter-field filter-select">
-                        <i class="fas fa-calendar-days"></i>
-                        <div class="cms-dropdown" id="analyticsPresetDropdown">
-                            <button type="button" class="cms-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
-                                <span class="cms-dropdown-label">Last 30 Days</span>
-                                <i class="fas fa-chevron-down"></i>
-                            </button>
-                            <div class="cms-dropdown-menu" role="listbox">
-                                <button type="button" class="cms-dropdown-option" data-value="7">Last 7 Days</button>
-                                <button type="button" class="cms-dropdown-option active" data-value="30">Last 30 Days</button>
-                                <button type="button" class="cms-dropdown-option" data-value="90">Last 3 Months</button>
-                                <button type="button" class="cms-dropdown-option" data-value="180">Last 6 Months</button>
-                                <button type="button" class="cms-dropdown-option" data-value="365">Last Year</button>
-                                <button type="button" class="cms-dropdown-option" data-value="custom">Custom Range</button>
-                            </div>
-                            <select id="analyticsPreset" onchange="handleDatePreset(this.value)" tabindex="-1" aria-hidden="true" class="cms-native-select">
-                                <option value="7">Last 7 Days</option>
-                                <option value="30" selected>Last 30 Days</option>
-                                <option value="90">Last 3 Months</option>
-                                <option value="180">Last 6 Months</option>
-                                <option value="365">Last Year</option>
-                                <option value="custom">Custom Range</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- 👇 Only shown when Custom is selected -->
-                    <div id="customDateInputs" class="date-range-custom" style="display:none;">
-                        <div class="filter-field filter-date">
-                            <i class="fas fa-calendar"></i>
-                            <input type="date" id="analyticsStart">
-                        </div>
-                        <span class="date-range-separator">to</span>
-                        <div class="filter-field filter-date">
-                            <i class="fas fa-calendar"></i>
-                            <input type="date" id="analyticsEnd">
-                        </div>
-                        <button class="btn btn-primary btn-sm" type="button" onclick="applyAnalytics()">
-                            <i class="fas fa-filter"></i> Apply
-                        </button>
-                    </div>
-                </div>
+                <x-date-range-selector
+                    label="Date Range:"
+                    preset-id="analyticsPreset"
+                    dropdown-id="analyticsPresetDropdown"
+                    start-id="analyticsStart"
+                    end-id="analyticsEnd"
+                    default-preset="ALL"
+                    :include-all="true"
+                    all-label="All Dates"
+                    :include-custom="true"
+                    custom-label="Custom Range"
+                    custom-value="CUSTOM"
+                    custom-start-id="analyticsRangeCustomStart"
+                    custom-end-id="analyticsRangeCustomEnd"
+                    custom-wrap-id="analyticsRangeCustomWrap"
+                />
 
                 <form id="exportPdfForm" method="POST" action="{{ route('superadmin.analytics.exportPdf') }}" target="_blank" style="display:none;">
                 @csrf
@@ -374,6 +345,10 @@
                 <i class="fas fa-file-excel"></i> Export CSV
                 </button>
                 </div>
+            </div>
+
+            <div id="analyticsEmptyState" class="analytics-empty-state" style="display:none;">
+                <i class="fas fa-circle-info"></i> No logs/data found.
             </div>
 
             <!-- Key Statistics -->
@@ -805,8 +780,20 @@
 
     // ✅ Restore last selected top-level tab on load
     document.addEventListener('DOMContentLoaded', () => {
-        setupCmsDropdown('analyticsPresetDropdown', 'analyticsPreset', (value) => handleDatePreset(value));
-        handleDatePreset(document.getElementById('analyticsPreset').value);
+        if (window.CmsDateRange && typeof window.CmsDateRange.init === 'function') {
+            window.CmsDateRange.init({
+                presetId: 'analyticsPreset',
+                dropdownId: 'analyticsPresetDropdown',
+                startId: 'analyticsStart',
+                endId: 'analyticsEnd',
+                defaultPreset: 'ALL',
+                customValue: 'CUSTOM',
+                customStartId: 'analyticsRangeCustomStart',
+                customEndId: 'analyticsRangeCustomEnd',
+                customWrapId: 'analyticsRangeCustomWrap',
+                onChange: () => applyAnalytics(),
+            });
+        }
 
         const saved = localStorage.getItem('activeDashboardTopTab');
         if (saved) {
@@ -1007,6 +994,12 @@ async function postJSON(url, data) {
         )`;
     }
 
+    function setAnalyticsEmptyState(show) {
+        const el = document.getElementById('analyticsEmptyState');
+        if (!el) return;
+        el.style.display = show ? 'flex' : 'none';
+    }
+
     window.applyAnalytics = async function () {
         const start = document.getElementById('analyticsStart')?.value || '';
         const end   = document.getElementById('analyticsEnd')?.value || '';
@@ -1034,47 +1027,22 @@ async function postJSON(url, data) {
             setTextSafe('reachClicks', Number(ar.clicks || 0).toLocaleString());
             setPctSafe('reachCTR', ar.ctr_pct ?? 0);
 
+            const hasData =
+                Number(k.total_visitors || 0) > 0
+                || Number(ue.sessions || 0) > 0
+                || Number(ue.pageviews || 0) > 0
+                || Number(fr.total_responses || 0) > 0
+                || Number(ar.views || 0) > 0
+                || Number(ar.unique_viewers || 0) > 0
+                || Number(ar.clicks || 0) > 0;
+            setAnalyticsEmptyState(!hasData);
+
         } catch (err) {
             console.error(err);
             showToast("Analytics load failed: " + err.message, 'error');
+            setAnalyticsEmptyState(false);
         }
     };
-
-    function formatDate(d) {
-        return d.toISOString().slice(0, 10);
-    }
-
-    function handleDatePreset(value) {
-        const customBox = document.getElementById('customDateInputs');
-        const analyticsStart = document.getElementById('analyticsStart');
-        const analyticsEnd = document.getElementById('analyticsEnd');
-
-        if (value === 'custom') {
-            customBox.style.display = 'inline-flex';
-
-            if (!analyticsStart.value || !analyticsEnd.value) {
-                const end = new Date();
-                const start = new Date();
-                start.setDate(end.getDate() - 30);
-
-                analyticsStart.value = formatDate(start);
-                analyticsEnd.value = formatDate(end);
-            }
-            return;
-        }
-
-        customBox.style.display = 'none';
-
-        const days = Number(value);
-        const end = new Date();
-        const start = new Date();
-        start.setDate(end.getDate() - days);
-
-        analyticsStart.value = formatDate(start);
-        analyticsEnd.value = formatDate(end);
-
-        applyAnalytics();
-    }
 
     function metricToNumber(rawValue) {
         const cleaned = String(rawValue ?? '').replace(/[^0-9.\-]/g, '');
