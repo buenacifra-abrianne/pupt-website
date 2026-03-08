@@ -603,14 +603,43 @@ tbody td {
     font-size: 14px;
     color: #fff;
     flex-shrink: 0;
+    background: #8e2f2f;
+    border: 3px solid #d4af37;
+    outline: 1px solid #ffffff;
+    box-shadow: 0 0 0 1px rgba(128, 0, 0, 0.18), 0 4px 10px rgba(128, 0, 0, 0.15);
+    overflow: hidden;
 }
 
-.av-0 { background: linear-gradient(135deg, #800000, #5c0000); }
-.av-1 { background: linear-gradient(135deg, #D4AF37, #C5A028); }
-.av-2 { background: linear-gradient(135deg, #3b82f6, #2563eb); }
-.av-3 { background: linear-gradient(135deg, #22c55e, #16a34a); }
-.av-4 { background: linear-gradient(135deg, #a855f7, #7c3aed); }
-.av-5 { background: linear-gradient(135deg, #f97316, #ea580c); }
+.av-0,
+.av-1,
+.av-2,
+.av-3,
+.av-4,
+.av-5 { background: #8e2f2f; }
+.avatar-lg {
+    width: 58px;
+    height: 58px;
+    font-size: 22px;
+}
+.avatar-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+.avatar-photo .avatar-fallback {
+    display: none;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #8e2f2f;
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
 
 .uname {
     font-weight: 600;

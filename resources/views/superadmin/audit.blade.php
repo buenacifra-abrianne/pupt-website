@@ -374,6 +374,7 @@ function normalizeLog(log) {
         ts: String(log.ts || ''),
         av: String(log.av || 'av-0'),
         avatarUrl: String(log.avatar_url || ''),
+        avatarInitials: String(log.avatar_initials || initials(log.user || 'System')),
     };
 }
 
@@ -411,7 +412,7 @@ function matchDateRange(isoDate, rangeStart, rangeEnd) {
 function renderAvatar(log, size = 'sm') {
     const extraSizeClass = size === 'lg' ? 'avatar-lg' : '';
     const safeAvatarClass = escapeHtml(log.av || 'av-0');
-    const safeInitials = escapeHtml(initials(log.user));
+    const safeInitials = escapeHtml(log.avatarInitials || initials(log.user));
     const safeAlt = escapeHtml(log.user || 'User');
     const safeUrl = escapeHtml(log.avatarUrl || '');
 

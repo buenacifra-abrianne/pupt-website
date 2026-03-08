@@ -287,7 +287,7 @@ const RC = {
 };
 const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended' };
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };
-const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
+const AV = ['av-0'];
 const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
 
 const TAB_GROUPS = {
@@ -328,11 +328,46 @@ function canSuspendUser(targetRole){
   return true;
 }
 
+function escapeHtml(v) {
+  return String(v ?? '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function initialsFromName(firstName, lastName, fallback = 'U') {
+  const words = `${String(firstName || '').trim()} ${String(lastName || '').trim()}`.trim().split(/\s+/).filter(Boolean);
+  if (words.length > 0) {
+    return words.map((w) => w[0]).join('').slice(0, 2).toUpperCase();
+  }
+
+  const fb = String(fallback || '').trim();
+  return (fb ? fb.charAt(0) : 'U').toUpperCase();
+}
+
+function renderUserAvatar(u, size = 'sm') {
+  const sizeClass = size === 'lg' ? 'avatar-lg' : '';
+  const colorClass = escapeHtml(String(u.av || 'av-0'));
+  const avatarInitials = escapeHtml(String(u.avatarInitials || initialsFromName(u.fn, u.ln, u.em)));
+  const avatarUrl = escapeHtml(String(u.avatarUrl || ''));
+  const safeAlt = escapeHtml(`${String(u.fn || '').trim()} ${String(u.ln || '').trim()}`.trim() || 'User');
+
+  if (!avatarUrl) {
+    return `<div class="avatar ${colorClass} ${sizeClass}">${avatarInitials}</div>`;
+  }
+
+  return `<div class="avatar ${colorClass} ${sizeClass} avatar-photo">
+    <img src="${avatarUrl}" alt="${safeAlt}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <span class="avatar-fallback">${avatarInitials}</span>
+  </div>`;
+}
+
 /**
  * Fix: normalize/shape user object so UI always uses:
  * {id, fn, ln, em, rl, st, ll, nt, av}
  */
-let nid = 4;
 function shapeUser(raw = {}) {
   const fn = (raw.fn ?? raw.first_name ?? raw.user_first_name ?? '').toString();
   const ln = (raw.ln ?? raw.last_name ?? raw.user_last_name ?? '').toString();
@@ -347,9 +382,11 @@ function shapeUser(raw = {}) {
       ? raw.roles.map(normalizeRole)
       : ((raw.rl ?? raw.role) ? [normalizeRole(raw.rl ?? raw.role)] : []),
     st: (raw.st ?? raw.status ?? 'Active').toString(),
-    ll: (raw.ll ?? raw.last_login_at ?? raw.lastLoginAt ?? '—') || '—',
+    ll: (raw.ll ?? raw.last_login_at ?? raw.lastLoginAt ?? 'Never') || 'Never',
     nt: raw.nt ?? raw.notes ?? '',
-    av: raw.av ?? AV[(nid++) % AV.length],
+    av: raw.av ?? AV[0],
+    avatarUrl: (raw.avatar_url ?? raw.avatarUrl ?? '').toString(),
+    avatarInitials: (raw.avatar_initials ?? raw.avatarInitials ?? initialsFromName(fn, ln, raw.email ?? raw.em ?? 'U')).toString(),
   };
 }
 
@@ -462,9 +499,13 @@ function render(){
     tb.innerHTML=`<tr><td colspan="8"><div class="empty"><i class="fas fa-users-slash"></i><p>No users found.</p></div></td></tr>`;
   } else {
     tb.innerHTML=sl.map((u,i)=>{
-      const ini = `${(u.fn || 'U').charAt(0)}${(u.ln || 'N').charAt(0)}`;
       const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive', si=SI[u.st]||'fa-circle';
       const susp = (u.st === 'Active');
+      const safeName = escapeHtml(`${u.fn} ${u.ln}`.trim());
+      const safeEmail = escapeHtml(u.em);
+      const safeRoleLabel = escapeHtml(roleLabel(u.rl));
+      const safeStatus = escapeHtml(u.st);
+      const safeLastLogin = escapeHtml(u.ll);
 
 const allowEdit = canEditUser(u.rl);
 const allowSuspend = canSuspendUser(u.rl);
@@ -486,16 +527,16 @@ if (allowSuspend) {
         <td style="color:#bbb;font-size:12px">${s+i+1}</td>
         <td>
           <div class="user-cell">
-            <div class="avatar ${u.av}">${ini}</div>
+            ${renderUserAvatar(u)}
             <div>
-              <div class="uname">${u.fn} ${u.ln}</div>
-              <div class="uemail">${u.em}</div>
+              <div class="uname">${safeName}</div>
+              <div class="uemail">${safeEmail}</div>
             </div>
           </div>
         </td>
-        <td><span class="role-badge ${rc}">${roleLabel(u.rl)}</span></td>
-        <td><span class="sbadge ${sc}"><i class="fas ${si}" style="font-size:9px"></i> ${u.st}</span></td>
-        <td style="color:#888;font-size:12px">${u.ll}</td>
+        <td><span class="role-badge ${rc}">${safeRoleLabel}</span></td>
+        <td><span class="sbadge ${sc}"><i class="fas ${si}" style="font-size:9px"></i> ${safeStatus}</span></td>
+        <td style="color:#888;font-size:12px">${safeLastLogin}</td>
         <td>
           <div class="actions">
             <button class="bico bi-view" title="View" onclick="viewUser(${u.id})"><i class="fas fa-eye"></i></button>
@@ -699,26 +740,31 @@ function viewUser(id){
   viewId=id;
   const u=users.find(x=>x.id===id); if(!u) return;
   const rc=RC[u.rl]||'r-student', sc=SC[u.st]||'sb-inactive';
+  const safeName = escapeHtml(`${u.fn} ${u.ln}`.trim());
+  const safeEmail = escapeHtml(u.em);
+  const safeStatus = escapeHtml(u.st);
+  const safeLastLogin = escapeHtml(u.ll);
+  const safeRoles = escapeHtml((u.roles || [u.rl]).map(roleLabel).join(', '));
 
   document.getElementById('viewBody').innerHTML=`
     <div class="vhead">
-      <div class="vav ${u.av}">${(u.fn||'U').charAt(0)}${(u.ln||'N').charAt(0)}</div>
+      ${renderUserAvatar(u, 'lg')}
       <div>
-        <div class="vname">${u.fn} ${u.ln}</div>
+        <div class="vname">${safeName}</div>
         <div class="vsub">
-          <span class="role-badge ${rc}">${roleLabel(u.rl)}</span>
-          <span class="sbadge ${sc}">${u.st}</span>
+          <span class="role-badge ${rc}">${escapeHtml(roleLabel(u.rl))}</span>
+          <span class="sbadge ${sc}">${safeStatus}</span>
         </div>
       </div>
     </div>
     <div class="mbody">
       <div class="vgrid">
-        <div class="vf"><div class="vfl">Full Name</div><div class="vfv">${u.fn} ${u.ln}</div></div>
-        <div class="vf"><div class="vfl">Email</div><div class="vfv">${u.em}</div></div>
-        <div class="vf"><div class="vfl">CMS Roles</div><div class="vfv">${(u.roles || [u.rl]).map(roleLabel).join(', ')}</div></div>
-        <div class="vf"><div class="vfl">CMS Access Status</div><div class="vfv">${u.st}</div></div>
-        <div class="vf"><div class="vfl">Last Login</div><div class="vfv">${u.ll}</div></div>
-        ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${u.nt}</div></div>`:''}
+        <div class="vf"><div class="vfl">Full Name</div><div class="vfv">${safeName}</div></div>
+        <div class="vf"><div class="vfl">Email</div><div class="vfv">${safeEmail}</div></div>
+        <div class="vf"><div class="vfl">CMS Roles</div><div class="vfv">${safeRoles}</div></div>
+        <div class="vf"><div class="vfl">CMS Access Status</div><div class="vfv">${safeStatus}</div></div>
+        <div class="vf"><div class="vfl">Last Login</div><div class="vfv">${safeLastLogin}</div></div>
+        ${u.nt?`<div class="vf" style="grid-column:1/-1"><div class="vfl">Notes</div><div class="vfv">${escapeHtml(u.nt)}</div></div>`:''}
       </div>
     </div>`;
 

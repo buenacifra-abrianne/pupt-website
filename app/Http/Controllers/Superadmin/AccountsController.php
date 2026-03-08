@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Mail\NewAccountTempPasswordMail;
 use App\Support\AuditLog;
+use App\Support\Avatar;
 
 class AccountsController extends Controller
 {
@@ -39,8 +40,13 @@ class AccountsController extends Controller
     if (in_array('FACULTY', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:faculty';
     if (in_array('STUDENT', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:student';
 
+    $userSelect = ['user_id', 'first_name', 'last_name', 'email', 'role', 'status', 'last_login_at'];
+    if (Schema::hasColumn('users', 'profile_picture')) {
+        $userSelect[] = 'profile_picture';
+    }
+
     $rows = DB::table('users')
-    ->select('user_id','first_name','last_name','email','role','status','last_login_at')
+    ->select($userSelect)
     ->whereIn('role', $acceptedCodes)
     ->orderBy('user_id', 'desc')
     ->get();
@@ -70,6 +76,11 @@ $mapped = $rows->map(function ($u) use ($rolesByUser) {
         $roleCodes = [(string) $u->role];
     }
 
+    $fullName = trim((string) $u->first_name . ' ' . (string) $u->last_name);
+    if ($fullName === '') {
+        $fullName = (string) ($u->email ?? 'User');
+    }
+
     return [
         'id'    => (int) $u->user_id,
         'fn'    => (string) $u->first_name,
@@ -80,6 +91,12 @@ $mapped = $rows->map(function ($u) use ($rolesByUser) {
         'st'    => (string) $u->status,
         'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
         'av'    => 'av-0',
+        'avatar_url' => Avatar::resolveUrl((string) ($u->profile_picture ?? '')),
+        'avatar_initials' => Avatar::initials(
+            $fullName,
+            (string) $u->first_name,
+            (string) $u->last_name
+        ),
     ];
 });
 
@@ -458,6 +475,12 @@ foreach ($requestedRoleCodes as $code) {
         'roles' => $requestedRoleCodes,
         'st'    => $data['status'],
         'll'    => 'Never',
+        'avatar_url' => '',
+        'avatar_initials' => Avatar::initials(
+            trim($data['first_name'].' '.$data['last_name']),
+            $data['first_name'],
+            $data['last_name']
+        ),
     ]
 ]);
 }
@@ -618,6 +641,11 @@ $this->logAccountEvent(
             'rl'    => $primaryRole,
             'roles' => $requestedRoleCodes,
             'st'    => $data['status'],
+            'avatar_initials' => Avatar::initials(
+                trim($data['first_name'].' '.$data['last_name']),
+                $data['first_name'],
+                $data['last_name']
+            ),
         ]
     ]);
 }

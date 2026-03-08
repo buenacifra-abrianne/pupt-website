@@ -27,34 +27,6 @@
         $profileName = trim(implode(' ', array_filter([$profileFirst, $profileMiddle, $profileLast, $profileSuffix], fn ($part) => trim((string) $part) !== '')));
     }
 
-    $profileInitials = '';
-
-    // Keep initials consistent with audit trail: prioritize first_name + last_name.
-    $profileInitialSource = trim(implode(' ', array_filter([
-        $profileFirst,
-        $profileLast,
-    ], fn ($part) => trim((string) $part) !== '')));
-
-    if ($profileInitialSource === '') {
-        $profileInitialSource = $profileName;
-    }
-
-    $parts = preg_split('/\s+/', $profileInitialSource) ?: [];
-    foreach ($parts as $part) {
-        $trimmed = trim((string) $part);
-        if ($trimmed === '') {
-            continue;
-        }
-        $profileInitials .= strtoupper(substr($trimmed, 0, 1));
-        if (strlen($profileInitials) >= 2) {
-            break;
-        }
-    }
-
-    if ($profileInitials === '') {
-        $base = $profileFirst ?: ($profileLast ?: 'U');
-        $profileInitials = strtoupper(substr($base, 0, 1));
-    }
 @endphp
 
 <style>
@@ -400,13 +372,17 @@
 
             <label for="profile_picture" class="profile-photo-click">
               <div class="profile-photo-ring">
-                @if($profilePicture)
-                  <img id="profilePicturePreview" class="profile-photo-preview" src="{{ asset($profilePicture) }}" alt="Profile Picture">
-                  <div id="profilePictureFallback" class="profile-photo-fallback" style="display:none;">{{ $profileInitials }}</div>
-                @else
-                  <img id="profilePicturePreview" class="profile-photo-preview" src="" alt="Profile Picture" style="display:none;">
-                  <div id="profilePictureFallback" class="profile-photo-fallback">{{ $profileInitials }}</div>
-                @endif
+                <x-app.avatar
+                  :name="$profileName"
+                  :first-name="$profileFirst"
+                  :last-name="$profileLast"
+                  :src="$profilePicture"
+                  alt="Profile Picture"
+                  image-id="profilePicturePreview"
+                  fallback-id="profilePictureFallback"
+                  image-class="profile-photo-preview"
+                  fallback-class="profile-photo-fallback"
+                />
                 <span class="profile-photo-badge"><i class="fas fa-camera"></i></span>
               </div>
               <span class="profile-photo-label">Click profile picture to change</span>
