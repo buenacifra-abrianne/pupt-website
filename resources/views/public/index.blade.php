@@ -83,7 +83,7 @@
 </svg>
 
                 </span>
-                <span class="text">Faculty</span>
+                <span class="text">Faculty/Admin</span>
             </a>
 
             <a href="{{ route('public.students') }}" class="portal-button">
