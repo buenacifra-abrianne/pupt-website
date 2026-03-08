@@ -97,7 +97,7 @@ private function fetchRolesForUi()
             ->where('is_active', 1)
             ->where(function ($q) {
                 $q->where('scope', 'CMS')
-                  ->orWhereIn('code', ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN']);
+                  ->orWhereIn('code', ['SUPERADMIN']);
             })
             ->orderByDesc('level')
             ->get();
@@ -139,23 +139,21 @@ private function defaultCmsRolesForFallback(): array
         'STUDENT_SERVICES' => 'Student Services',
         'RESEARCH_EXTENSION' => 'Research and Extension',
         'FACULTY' => 'Faculty',
-        'SYSTEM_SUPERADMIN' => 'System Superadmin',
-        'GLOBAL_SUPERADMIN' => 'Global Superadmin',
+        'SUPERADMIN' => 'Superadmin',
     ];
 }
 
-private function denyIfSystemTouchesGlobal(string $action, string $targetRole): ?\Illuminate\Http\JsonResponse
+private function denyIfNonSuperadminTargetsSuperadmin(string $action, string $targetRole): ?\Illuminate\Http\JsonResponse
 {
     $actorRole = strtoupper(trim((string) session('user_role')));
     $targetRole = strtoupper(trim($targetRole));
 
-    // RULE: SYSTEM_SUPERADMIN cannot create/edit/suspend GLOBAL_SUPERADMIN
-    if ($actorRole === 'SYSTEM_SUPERADMIN' && $targetRole === 'GLOBAL_SUPERADMIN') {
+    if ($actorRole !== 'SUPERADMIN' && $targetRole === 'SUPERADMIN') {
         $msg = match ($action) {
-            'create' => 'You are not allowed to create a Global Superadmin account.',
-            'edit'   => 'You are not allowed to edit a Global Superadmin account.',
-            'suspend'=> 'You are not allowed to suspend a Global Superadmin account.',
-            default  => 'You are not allowed to perform this action on a Global Superadmin account.',
+            'create' => 'You are not allowed to create a Superadmin account.',
+            'edit'   => 'You are not allowed to edit a Superadmin account.',
+            'suspend'=> 'You are not allowed to suspend a Superadmin account.',
+            default  => 'You are not allowed to perform this action on a Superadmin account.',
         };
 
         return response()->json(['ok' => false, 'message' => $msg], 403);
@@ -220,6 +218,8 @@ private function allowedRoleCodesForAccounts(): array
     if (in_array('FACULTY', $allowedCodes, true)) {
         $allowedCodes[] = 'pupt:faculty';
     }
+
+    $allowedCodes = array_values(array_filter($allowedCodes, fn ($code) => $code !== 'SUPERADMIN'));
 
     return array_values(array_unique($allowedCodes));
 }
@@ -319,50 +319,32 @@ private function filterUsersPayload(array $payload): array
         'role'       => ['nullable','string','max:80'],
     ]);
 
-    $creatorRole = strtoupper(trim((string) session('user_role')));
     $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
 
-    if (empty($requestedRoleCodes)) {
+if (empty($requestedRoleCodes)) {
+    return response()->json([
+        'ok' => false,
+        'message' => 'Please select at least one role.'
+    ], 422);
+}
+
+if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
+    return response()->json([
+        'ok' => false,
+        'message' => 'Superadmin cannot be created from this page.'
+    ], 403);
+}
+
+$allowedCodes = $this->allowedRoleCodesForAccounts();
+
+foreach ($requestedRoleCodes as $code) {
+    if (!in_array($code, $allowedCodes, true)) {
         return response()->json([
             'ok' => false,
-            'message' => 'Please select at least one role.'
+            'message' => "Invalid role selected: {$code}"
         ], 422);
     }
-
-    if (in_array('GLOBAL_SUPERADMIN', $requestedRoleCodes, true)) {
-        return response()->json([
-            'ok' => false,
-            'message' => 'Global Superadmin cannot be created from this page.'
-        ], 403);
-    }
-
-    if ($creatorRole === 'SYSTEM_SUPERADMIN' && in_array('SYSTEM_SUPERADMIN', $requestedRoleCodes, true)) {
-        return response()->json([
-            'ok' => false,
-            'message' => 'Only Global Superadmin can create a System Superadmin account.'
-        ], 403);
-    }
-
-    $allowedCodes = $this->allowedRoleCodesForAccounts();
-
-    foreach ($requestedRoleCodes as $code) {
-        if ($code === 'SYSTEM_SUPERADMIN') {
-            if ($creatorRole !== 'GLOBAL_SUPERADMIN') {
-                return response()->json([
-                    'ok' => false,
-                    'message' => 'Only Global Superadmin can create a System Superadmin account.'
-                ], 403);
-            }
-            continue;
-        }
-
-        if (!in_array($code, $allowedCodes, true)) {
-            return response()->json([
-                'ok' => false,
-                'message' => "Invalid role selected: {$code}"
-            ], 422);
-        }
-    }
+}
 
     $primaryRole = $requestedRoleCodes[0];
     $name = trim($data['first_name'] . ' ' . $data['last_name']);
@@ -448,12 +430,12 @@ public function setStatus(Request $request, $id)
     $newStatus = (string) $request->input('status', '');
     $newStatusUpper = strtoupper(trim($newStatus));
 
-    // Only block if they are trying to SUSPEND a GLOBAL_SUPERADMIN
+    // Only block if they are trying to SUSPEND a SUPERADMIN
     if ($newStatusUpper === 'SUSPENDED') {
-        if ($resp = $this->denyIfSystemTouchesGlobal('suspend', (string)$target->role)) {
-            return $resp;
-        }
+    if ($resp = $this->denyIfNonSuperadminTargetsSuperadmin('suspend', (string) $target->role)) {
+        return $resp;
     }
+}
 
     // validate allowed statuses
     $validStatus = ['Active','Inactive','Suspended'];
@@ -479,21 +461,30 @@ public function setStatus(Request $request, $id)
     return response()->json(['ok' => true]);
 }
 
-private function blockIfSystemTargetsGlobal(int $targetId, string $action)
+private function blockIfNonSuperadminTargetsSuperadmin(int $targetId, string $action)
 {
     $actorRole = strtoupper(trim((string) session('user_role')));
-    if ($actorRole !== 'SYSTEM_SUPERADMIN') return null;
+    if ($actorRole === 'SUPERADMIN') {
+        return null;
+    }
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
-    $target = DB::table('users')->select($pk.' as id', 'role')->where($pk, $targetId)->first();
-    if (!$target) return response()->json(['ok'=>false,'message'=>'User not found.'], 404);
+    $target = DB::table('users')
+        ->select($pk . ' as id', 'role')
+        ->where($pk, $targetId)
+        ->first();
 
-    if (strtoupper(trim((string)$target->role)) === 'GLOBAL_SUPERADMIN') {
+    if (!$target) {
+        return response()->json(['ok' => false, 'message' => 'User not found.'], 404);
+    }
+
+    if (strtoupper(trim((string) $target->role)) === 'SUPERADMIN') {
         $msg = $action === 'edit'
-            ? 'You are not allowed to edit a Global Superadmin account.'
-            : 'You are not allowed to suspend a Global Superadmin account.';
-        return response()->json(['ok'=>false,'message'=>$msg], 403);
+            ? 'You are not allowed to edit a Superadmin account.'
+            : 'You are not allowed to suspend a Superadmin account.';
+
+        return response()->json(['ok' => false, 'message' => $msg], 403);
     }
 
     return null;
@@ -502,7 +493,7 @@ private function blockIfSystemTargetsGlobal(int $targetId, string $action)
 public function update(Request $request, $id)
 {
     $id = (int) $id;
-    if ($resp = $this->blockIfSystemTargetsGlobal($id, 'edit')) return $resp;
+if ($resp = $this->blockIfNonSuperadminTargetsSuperadmin($id, 'edit')) return $resp;
 
     $validStatus = ['Active','Inactive','Suspended'];
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
@@ -526,35 +517,23 @@ public function update(Request $request, $id)
         ], 422);
     }
 
-    if (in_array('GLOBAL_SUPERADMIN', $requestedRoleCodes, true)) {
+    if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
+    return response()->json([
+        'ok' => false,
+        'message' => 'Superadmin cannot be assigned from this page.'
+    ], 403);
+}
+
+$allowedCodes = $this->allowedRoleCodesForAccounts();
+
+foreach ($requestedRoleCodes as $code) {
+    if (!in_array($code, $allowedCodes, true)) {
         return response()->json([
             'ok' => false,
-            'message' => 'Global Superadmin cannot be set from this page.'
-        ], 403);
+            'message' => "Invalid role selected: {$code}"
+        ], 422);
     }
-
-    $actorRole = strtoupper(trim((string) session('user_role')));
-    if (in_array('SYSTEM_SUPERADMIN', $requestedRoleCodes, true) && $actorRole !== 'GLOBAL_SUPERADMIN') {
-        return response()->json([
-            'ok' => false,
-            'message' => 'Only Global Superadmin can assign the System Superadmin role.'
-        ], 403);
-    }
-
-    $allowedCodes = $this->allowedRoleCodesForAccounts();
-
-    foreach ($requestedRoleCodes as $code) {
-        if ($code === 'SYSTEM_SUPERADMIN') {
-            continue;
-        }
-
-        if (!in_array($code, $allowedCodes, true)) {
-            return response()->json([
-                'ok' => false,
-                'message' => "Invalid role selected: {$code}"
-            ], 422);
-        }
-    }
+}
 
     $primaryRole = $requestedRoleCodes[0];
 
@@ -598,8 +577,8 @@ public function updateStatus(Request $request, $id)
     ]);
 
     if (strtolower($data['status']) === 'suspended') {
-        if ($resp = $this->blockIfSystemTargetsGlobal($id, 'suspend')) return $resp;
-    }
+    if ($resp = $this->blockIfNonSuperadminTargetsSuperadmin($id, 'suspend')) return $resp;
+}
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
