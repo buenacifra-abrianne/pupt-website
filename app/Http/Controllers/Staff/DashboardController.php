@@ -10,20 +10,24 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $pending_requests = \DB::table('approval_requests')
-            ->whereRaw("LOWER(status) = 'pending'")
-            ->count();
+        $userEmail = strtolower(trim((string) session('user_email')));
 
-        $approved_requests = \DB::table('approval_requests')
-            ->whereRaw("LOWER(status) = 'approved'")
-            ->count();
+$pending_requests = \DB::table('approval_requests')
+    ->whereRaw("LOWER(status) = 'pending'")
+    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+    ->count();
 
-        $rejected_requests = \DB::table('approval_requests')
-            ->whereRaw("LOWER(status) = 'rejected'")
-            ->count();
+$approved_requests = \DB::table('approval_requests')
+    ->whereRaw("LOWER(status) = 'approved'")
+    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+    ->count();
+
+$rejected_requests = \DB::table('approval_requests')
+    ->whereRaw("LOWER(status) = 'rejected'")
+    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+    ->count();
 
         $recentActivities = collect();
-        $userEmail = strtolower(trim((string) session('user_email')));
         $userDisplayName = trim((string) session('user_first_name', '').' '.(string) session('user_last_name', ''));
         if ($userDisplayName === '') {
             $userDisplayName = 'Staff';
