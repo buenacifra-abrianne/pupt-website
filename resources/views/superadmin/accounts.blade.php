@@ -274,8 +274,7 @@
 
 <script>
 const RC = {
-  GLOBAL_SUPERADMIN: 'r-admin',
-  SYSTEM_SUPERADMIN: 'r-admin',
+  SUPERADMIN: 'r-admin',
 
   REGISTRAR: 'r-registrar',
   HAP: 'r-hap',
@@ -292,7 +291,7 @@ const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
 const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
 
 const TAB_GROUPS = {
-  'Admin': ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN'],
+  'Admin': ['SUPERADMIN'],
   'Registrar': ['REGISTRAR'],
   'HAP': ['HAP'],
   'Student Services': ['STUDENT_SERVICES'],
@@ -317,23 +316,15 @@ function normalizeRole(role){
   return r;
 }
 
-function isGlobalSuperadmin(roleCode){
-  return normalizeRole(roleCode) === 'GLOBAL_SUPERADMIN';
-}
-
-function isSystemSuperadmin(roleCode){
-  return normalizeRole(roleCode) === 'SYSTEM_SUPERADMIN';
+function isSuperadmin(roleCode){
+  return normalizeRole(roleCode) === 'SUPERADMIN';
 }
 
 function canEditUser(targetRole){
-  // SYSTEM_SUPERADMIN cannot edit GLOBAL_SUPERADMIN
-  if (CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && isGlobalSuperadmin(targetRole)) return false;
   return true;
 }
 
 function canSuspendUser(targetRole){
-  // SYSTEM_SUPERADMIN cannot suspend GLOBAL_SUPERADMIN
-  if (CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && isGlobalSuperadmin(targetRole)) return false;
   return true;
 }
 
@@ -373,7 +364,6 @@ const ROLE_NAME_BY_CODE = (ROLES || []).reduce((acc, r) => {
 function roleLabel(code){
   const c = String(code || '');
   if (c === 'pupt:faculty') return 'Faculty';
-  if (c === 'pupt:student') return 'Student';
   if (c === 'RESEARCH' || c === 'RESEARCH_EXTENSION') return 'Research & Extension';
   return ROLE_NAME_BY_CODE[c] || c;
 }
@@ -384,8 +374,7 @@ function fillRoleOptions() {
 
   const opts = (ROLES || [])
     .filter(r => String(r.code) !== 'LIBRARY')
-    .filter(r => String(r.code) !== 'GLOBAL_SUPERADMIN')
-    .filter(r => !(CURRENT_ROLE === 'SYSTEM_SUPERADMIN' && String(r.code) === 'SYSTEM_SUPERADMIN'))
+    .filter(r => String(r.code) !== 'SUPERADMIN')
     .filter(r => !String(r.code).includes(':'))
     .map(r => {
       const code = String(r.code);
