@@ -14,8 +14,8 @@ class CmsController extends Controller
 {
     public function index()
     {
-        $role = CmsSections::normalizeRole((string) session('user_role'));
-        $allowedTabs = CmsSections::tabsForRole($role);
+        $roles = session('user_roles', [session('user_role')]);
+$allowedTabs = CmsSections::tabsForRoles($roles);
 
         if (empty($allowedTabs)) {
             abort(403, 'No CMS tabs are assigned to your role.');
@@ -40,8 +40,8 @@ class CmsController extends Controller
 
     public function requestEdit(Request $request)
     {
-        $role = CmsSections::normalizeRole((string) session('user_role'));
-        $allowedTabs = CmsSections::tabsForRole($role);
+        $roles = session('user_roles', [session('user_role')]);
+$allowedTabs = CmsSections::tabsForRoles($roles);
 
         if (empty($allowedTabs)) {
             return response()->json([

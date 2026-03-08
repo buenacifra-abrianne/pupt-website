@@ -55,22 +55,41 @@ class AuthController extends Controller
         }
 
         $dbRole = strtoupper(trim((string) ($user->role ?? '')));
-        $dbRole = preg_replace('/\s+/', '_', $dbRole);
+$dbRole = preg_replace('/\s+/', '_', $dbRole);
 
-        session([
-            'user_logged_in' => true,
-            'user_id' => (int) ($user->user_id ?? $user->id ?? 0),
-            'user_email' => $user->email ?? '',
-            'user_first_name' => $user->first_name ?? '',
-            'user_middle_name' => $user->middle_name ?? '',
-            'user_last_name'  => $user->last_name ?? '',
-            'user_suffix' => $user->suffix ?? '',
-            'user_role' => $dbRole ?? '',
-            'user_name' => $user->name ?? '',
-            'user_profile_picture' => $user->profile_picture ?? '',
-        ]);
+$userId = (int) ($user->user_id ?? $user->id ?? 0);
 
-        $isSuperadmin = in_array($dbRole, ['SUPERADMIN']);
+$assignedRoles = [];
+if (Schema::hasTable('user_roles') && $userId > 0) {
+    $assignedRoles = DB::table('user_roles')
+        ->where('user_id', $userId)
+        ->orderByDesc('is_primary')
+        ->orderBy('id')
+        ->pluck('role_code')
+        ->map(function ($role) {
+            return strtoupper(trim((string) $role));
+        })
+        ->values()
+        ->all();
+}
+
+if (empty($assignedRoles) && !empty($dbRole)) {
+    $assignedRoles = [$dbRole];
+}
+
+session([
+    'user_logged_in' => true,
+    'user_id' => $userId,
+    'user_email' => $user->email ?? '',
+    'user_first_name' => $user->first_name ?? '',
+    'user_middle_name' => $user->middle_name ?? '',
+    'user_last_name'  => $user->last_name ?? '',
+    'user_suffix' => $user->suffix ?? '',
+    'user_role' => $dbRole ?? '',
+    'user_roles' => $assignedRoles,
+    'user_name' => $user->name ?? '',
+    'user_profile_picture' => $user->profile_picture ?? '',
+]);
 
         AuditLog::record(
             'LOGIN',
@@ -91,9 +110,21 @@ if ($dbRole === 'ADMIN') {
     return redirect()->route('admin.dashboard');
 }
 
-if ($dbRole === 'REGISTRAR' | $dbRole === 'HAP' | $dbRole === 'ACADEMICS' |$dbRole === 'STUDENT_SERVICES' | $dbRole === 'RESEARCH_EXTENSION' | $dbRole === 'FACULTY') {
+if (
+    $dbRole === 'REGISTRAR' ||
+    $dbRole === 'HAP' ||
+    $dbRole === 'STUDENT_SERVICES' ||
+    $dbRole === 'RESEARCH_EXTENSION' ||
+    $dbRole === 'FACULTY'
+) {
     return redirect()->route('staff.dashboard');
 }
+
+$request->session()->flush();
+
+return back()->withErrors([
+    'login' => 'Unauthorized role: ' . $dbRole
+])->withInput();
 
 $request->session()->flush();
 

@@ -73,9 +73,21 @@ class CmsSections
         return self::ROLE_ACCESS[$normalized] ?? [];
     }
 
+    public static function tabsForRoles(array $roles): array
+{
+    $mergedTabs = [];
+
+    foreach ($roles as $role) {
+        $tabs = self::tabsForRole((string) $role);
+        $mergedTabs = array_merge($mergedTabs, $tabs);
+    }
+
+    return array_values(array_unique($mergedTabs));
+}
+
     public static function superadminTabs(): array
     {
-        return self::tabsForRole('GLOBAL_SUPERADMIN');
+        return self::tabsForRole('SUPERADMIN');
     }
 
     public static function tabDefinitions(?array $tabKeys = null): array

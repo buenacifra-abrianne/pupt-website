@@ -407,15 +407,16 @@ foreach ($requestedRoleCodes as $code) {
     return response()->json([
     'ok' => true,
     'user' => [
-        'id' => (int) $newUserId,
-        'fn' => $data['first_name'],
-        'ln' => $data['last_name'],
-        'em' => $data['email'],
-        'rl' => $primaryRole,
-        'st' => $data['status'],
-        'll' => 'Never',
+        'id'    => (int) $newUserId,
+        'fn'    => $data['first_name'],
+        'ln'    => $data['last_name'],
+        'em'    => $data['email'],
+        'rl'    => $primaryRole,
+        'roles' => $requestedRoleCodes,
+        'st'    => $data['status'],
+        'll'    => 'Never',
     ]
-    ]);
+]);
 }
 
 public function setStatus(Request $request, $id)
@@ -548,11 +549,17 @@ foreach ($requestedRoleCodes as $code) {
 
     $this->saveUserRoles($id, $requestedRoleCodes);
 
-    $this->logAccountEvent(
-        'UPDATED',
-        $id,
-        'Updated account '.$data['email'].' (roles: '.implode(', ', $requestedRoleCodes).')'
-    );
+if ((int) session('user_id') === $id) {
+    session([
+        'user_roles' => $requestedRoleCodes,
+    ]);
+}
+
+$this->logAccountEvent(
+    'UPDATED',
+    $id,
+    'Updated account '.$data['email'].' (roles: '.implode(', ', $requestedRoleCodes).')'
+);
 
     return response()->json([
         'ok' => true,

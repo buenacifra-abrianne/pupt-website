@@ -21,14 +21,15 @@ class NonSuperadminRoleOnly
         }
 
         $role = CmsSections::normalizeRole((string) session('user_role'));
+        $roles = session('user_roles', [session('user_role')]);
 
         if (in_array($role, ['SUPERADMIN'], true)) {
             return redirect('/superadmin/dashboard');
         }
 
-        if (empty(CmsSections::tabsForRole($role))) {
-            abort(403, 'Unauthorized (staff role required).');
-        }
+        if (empty(CmsSections::tabsForRoles($roles))) {
+    abort(403, 'Unauthorized (staff role required).');
+}
 
         return $next($request);
     }
