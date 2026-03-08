@@ -633,6 +633,10 @@ tbody td {
     white-space: nowrap;
 }
 
+.r-superadmin {
+  background: rgba(153, 27, 27, 0.12);
+  color: #991b1b;
+}
 .r-admin     { background: rgba(128, 0, 0, 0.1);      color: #800000; }
 .r-registrar { background: rgba(212, 175, 55, 0.15);  color: #9a7a00; }
 .r-hap       { background: rgba(59, 130, 246, 0.12);  color: #2563eb; }

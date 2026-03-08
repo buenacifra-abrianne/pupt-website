@@ -274,8 +274,8 @@
 
 <script>
 const RC = {
-  SUPERADMIN: 'r-admin',
-
+  SUPERADMIN: 'r-superadmin',
+  ADMIN: 'r-admin',
   REGISTRAR: 'r-registrar',
   HAP: 'r-hap',
   STUDENT_SERVICES: 'r-studentservices',
@@ -291,7 +291,7 @@ const AV = ['av-0','av-1','av-2','av-3','av-4','av-5'];
 const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
 
 const TAB_GROUPS = {
-  'Admin': ['SUPERADMIN'],
+  'Admin': ['SUPERADMIN', 'ADMIN'],
   'Registrar': ['REGISTRAR'],
   'HAP': ['HAP'],
   'Student Services': ['STUDENT_SERVICES'],

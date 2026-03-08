@@ -97,7 +97,7 @@ private function fetchRolesForUi()
             ->where('is_active', 1)
             ->where(function ($q) {
                 $q->where('scope', 'CMS')
-                  ->orWhereIn('code', ['SUPERADMIN']);
+                  ->orWhereIn('code', ['SUPERADMIN', 'ADMIN']);
             })
             ->orderByDesc('level')
             ->get();
@@ -140,6 +140,7 @@ private function defaultCmsRolesForFallback(): array
         'RESEARCH_EXTENSION' => 'Research and Extension',
         'FACULTY' => 'Faculty',
         'SUPERADMIN' => 'Superadmin',
+        'ADMIN' => 'Admin',
     ];
 }
 
@@ -166,8 +167,14 @@ private function normalizeRoleCode(string $raw): string
 {
     $raw = trim($raw);
 
-    if (str_contains($raw, ':')) {
-        return $raw;
+    if ($raw === '') {
+        return '';
+    }
+
+    $lower = strtolower($raw);
+
+    if ($lower === 'pupt:faculty') {
+        return 'FACULTY';
     }
 
     return strtoupper(preg_replace('/\s+/', '_', $raw));
@@ -188,6 +195,38 @@ private function normalizeRoleCodesFromRequest(Request $request): array
     $roles = array_values(array_unique(array_filter($roles)));
 
     return $roles;
+}
+
+private function validateTopLevelRoleMix(array $requestedRoleCodes): ?\Illuminate\Http\JsonResponse
+{
+    $hasSuperadmin = in_array('SUPERADMIN', $requestedRoleCodes, true);
+    $hasAdmin = in_array('ADMIN', $requestedRoleCodes, true);
+
+    $staffRoles = array_diff($requestedRoleCodes, ['SUPERADMIN', 'ADMIN']);
+    $hasStaffRoles = !empty($staffRoles);
+
+    if ($hasSuperadmin && count($requestedRoleCodes) > 1) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Superadmin cannot be combined with staff roles.'
+        ], 422);
+    }
+
+    if ($hasAdmin && count($requestedRoleCodes) > 1) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Admin cannot be combined with staff roles.'
+        ], 422);
+    }
+
+    if (($hasSuperadmin || $hasAdmin) && $hasStaffRoles) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Admin or Superadmin accounts cannot be assigned staff roles.'
+        ], 422);
+    }
+
+    return null;
 }
 
 private function allowedRoleCodesForAccounts(): array
@@ -326,6 +365,10 @@ if (empty($requestedRoleCodes)) {
         'ok' => false,
         'message' => 'Please select at least one role.'
     ], 422);
+}
+
+if ($resp = $this->validateTopLevelRoleMix($requestedRoleCodes)) {
+    return $resp;
 }
 
 if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
@@ -511,14 +554,18 @@ if ($resp = $this->blockIfNonSuperadminTargetsSuperadmin($id, 'edit')) return $r
 
     $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
 
-    if (empty($requestedRoleCodes)) {
-        return response()->json([
-            'ok' => false,
-            'message' => 'Please select at least one role.'
-        ], 422);
-    }
+if (empty($requestedRoleCodes)) {
+    return response()->json([
+        'ok' => false,
+        'message' => 'Please select at least one role.'
+    ], 422);
+}
 
-    if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
+if ($resp = $this->validateTopLevelRoleMix($requestedRoleCodes)) {
+    return $resp;
+}
+
+if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
     return response()->json([
         'ok' => false,
         'message' => 'Superadmin cannot be assigned from this page.'
