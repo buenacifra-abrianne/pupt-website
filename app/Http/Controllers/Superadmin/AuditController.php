@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Support\AuditLog;
+use App\Support\Avatar;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -101,7 +102,12 @@ class AuditController extends Controller
                     $userMap[(int) $user->{$userPk}] = [
                         'name' => $name,
                         'role' => strtoupper((string) ($user->role ?? '')),
-                        'avatar_url' => $this->resolveAvatarUrl((string) ($user->profile_picture ?? '')),
+                        'avatar_url' => Avatar::resolveUrl((string) ($user->profile_picture ?? '')),
+                        'avatar_initials' => Avatar::initials(
+                            $name,
+                            (string) ($user->first_name ?? ''),
+                            (string) ($user->last_name ?? '')
+                        ),
                     ];
                 }
             }
@@ -140,6 +146,9 @@ class AuditController extends Controller
                 'ts' => $parsedTs->toIso8601String(),
                 'av' => 'av-0',
                 'avatar_url' => $userId > 0 && isset($userMap[$userId]) ? $userMap[$userId]['avatar_url'] : '',
+                'avatar_initials' => $userId > 0 && isset($userMap[$userId])
+                    ? $userMap[$userId]['avatar_initials']
+                    : Avatar::initials($userName !== '' ? $userName : 'System'),
             ];
         }
 
@@ -155,23 +164,5 @@ class AuditController extends Controller
         }
 
         return $columns[0] ?? 'id';
-    }
-
-    private function resolveAvatarUrl(string $profilePicture): string
-    {
-        $profilePicture = trim($profilePicture);
-        if ($profilePicture === '') {
-            return '';
-        }
-
-        if (
-            str_starts_with($profilePicture, 'http://')
-            || str_starts_with($profilePicture, 'https://')
-            || str_starts_with($profilePicture, 'data:')
-        ) {
-            return $profilePicture;
-        }
-
-        return asset(ltrim($profilePicture, '/'));
     }
 }

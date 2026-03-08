@@ -1,0 +1,52 @@
+/* Shared avatar/profile UI styles used across topbar, audit, and accounts pages. */
+
+:root {
+    --cms-avatar-bg: #8e2f2f;
+    --cms-avatar-ring: #d4af37;
+    --cms-avatar-shadow: rgba(128, 0, 0, 0.18);
+}
+
+.user-avatar {
+    border: 3px solid var(--cms-avatar-ring) !important;
+    outline: 1px solid #ffffff !important;
+    box-shadow: 0 0 0 1px var(--cms-avatar-shadow), 0 4px 12px rgba(128, 0, 0, 0.15) !important;
+    overflow: hidden;
+}
+
+.avatar {
+    background: var(--cms-avatar-bg);
+    border: 3px solid var(--cms-avatar-ring);
+    outline: 1px solid #ffffff;
+    box-shadow: 0 0 0 1px var(--cms-avatar-shadow), 0 4px 10px rgba(128, 0, 0, 0.15);
+    overflow: hidden;
+}
+
+.avatar-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    display: block;
+}
+
+.avatar-photo .avatar-fallback {
+    display: none;
+    width: 100%;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--cms-avatar-bg);
+    color: #fff;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+}
+
+.av-0,
+.av-1,
+.av-2,
+.av-3,
+.av-4,
+.av-5 {
+    background: var(--cms-avatar-bg) !important;
+}

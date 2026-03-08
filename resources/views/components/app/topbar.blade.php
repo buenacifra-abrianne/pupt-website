@@ -9,33 +9,11 @@
     $displayName = (string) (session('user_first_name') ?: $defaultName);
     $displayRole = (string) (session('user_role') ?: $defaultRole);
     $profilePicture = (string) session('user_profile_picture', '');
-
-    // Keep initials consistent with audit trail: prioritize first_name + last_name.
-    $avatarNameSource = trim(implode(' ', array_filter([
-        (string) session('user_first_name', ''),
-        (string) session('user_last_name', ''),
-    ], fn ($part) => trim((string) $part) !== '')));
-
-    if ($avatarNameSource === '') {
-        $avatarNameSource = trim((string) session('user_name', $displayName));
-    }
-
-    $nameTokens = preg_split('/\s+/', $avatarNameSource) ?: [];
-    $avatarAbbrev = '';
-    foreach ($nameTokens as $token) {
-        $trimmed = trim((string) $token);
-        if ($trimmed === '') {
-            continue;
-        }
-        $avatarAbbrev .= strtoupper(substr($trimmed, 0, 1));
-        if (strlen($avatarAbbrev) >= 2) {
-            break;
-        }
-    }
-    if ($avatarAbbrev === '') {
-        $avatarAbbrev = strtoupper(substr($displayName !== '' ? $displayName : 'U', 0, 1));
-    }
 @endphp
+
+@once
+    <link rel="stylesheet" href="{{ asset('assets/css/shared/profile-avatar.css') }}">
+@endonce
 
 <style id="cms-unified-button-theme">
     :root {
@@ -124,12 +102,6 @@
         opacity: .6;
         cursor: not-allowed;
         transform: none !important;
-    }
-
-    .user-avatar {
-        border: 3px solid var(--cms-btn-gold) !important;
-        outline: 2px solid #ffffff !important;
-        box-shadow: 0 0 0 1px rgba(128, 0, 0, 0.18), 0 4px 12px rgba(128, 0, 0, 0.15) !important;
     }
 
     .stat-icon.primary,
@@ -286,21 +258,15 @@
         <details class="user-menu">
             <summary class="user-profile">
                 <div class="user-avatar">
-                    @if($profilePicture !== '')
-                        <img
-                            src="{{ asset($profilePicture) }}"
-                            alt="{{ e($displayName) }}"
-                            style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"
-                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                        >
-                        <span style="display:none;width:100%;height:100%;align-items:center;justify-content:center;background:#8e2f2f;border-radius:50%;color:#fff;font-weight:700;font-size:13px;letter-spacing:0.04em;">
-                            {{ $avatarAbbrev }}
-                        </span>
-                    @else
-                        <span style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#8e2f2f;border-radius:50%;color:#fff;font-weight:700;font-size:13px;letter-spacing:0.04em;">
-                            {{ $avatarAbbrev }}
-                        </span>
-                    @endif
+                    <x-app.avatar
+                        :name="$displayName"
+                        :first-name="(string) session('user_first_name', '')"
+                        :last-name="(string) session('user_last_name', '')"
+                        :src="$profilePicture"
+                        :alt="$displayName"
+                        image-style="width:100%;height:100%;object-fit:cover;border-radius:50%;display:block;"
+                        fallback-style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:#8e2f2f;border-radius:50%;color:#fff;font-weight:700;font-size:13px;letter-spacing:0.04em;"
+                    />
                 </div>
 
                 <div class="user-info">
