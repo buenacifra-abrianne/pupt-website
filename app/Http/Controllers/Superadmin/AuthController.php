@@ -70,7 +70,7 @@ class AuthController extends Controller
             'user_profile_picture' => $user->profile_picture ?? '',
         ]);
 
-        $isSuperadmin = in_array($dbRole, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN']);
+        $isSuperadmin = in_array($dbRole, ['SUPERADMIN']);
 
         AuditLog::record(
             'LOGIN',

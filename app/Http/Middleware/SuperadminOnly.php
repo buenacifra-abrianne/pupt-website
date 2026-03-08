@@ -11,7 +11,7 @@ class SuperadminOnly
     {
         // Adjust the allowed role value to match your system exactly (e.g., 'Superadmin', 'SUPERADMIN', 'SuperAdministrator')
         $role = strtoupper(trim((string) session('user_role')));
-        if (!in_array($role, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'])) {
+        if (!in_array($role, ['SUPERADMIN'])) {
             abort(403);
         }
 

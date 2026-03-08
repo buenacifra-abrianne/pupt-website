@@ -12,7 +12,7 @@ class SuperadminRole
         $role = strtoupper(trim((string) session('user_role')));
         $role = preg_replace('/\s+/', '_', $role);
 
-        if (!in_array($role, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'], true)) {
+        if (!in_array($role, ['SUPERADMIN'], true)) {
             abort(403, 'Unauthorized (superadmin role required).');
         }
 

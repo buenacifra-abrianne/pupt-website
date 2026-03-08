@@ -22,7 +22,7 @@ class NonSuperadminRoleOnly
 
         $role = CmsSections::normalizeRole((string) session('user_role'));
 
-        if (in_array($role, ['SYSTEM_SUPERADMIN', 'GLOBAL_SUPERADMIN'], true)) {
+        if (in_array($role, ['SUPERADMIN'], true)) {
             return redirect('/superadmin/dashboard');
         }
 
