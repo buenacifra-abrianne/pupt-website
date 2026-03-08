@@ -83,10 +83,23 @@ class AuthController extends Controller
             ]
         );
 
-        if ($isSuperadmin) {
-            return redirect()->route('superadmin.dashboard');
-        }
-        return redirect()->route('admin.dashboard');
+        if ($dbRole === 'SUPERADMIN') {
+    return redirect()->route('superadmin.dashboard');
+}
+
+if ($dbRole === 'ADMIN') {
+    return redirect()->route('admin.dashboard');
+}
+
+if ($dbRole === 'REGISTRAR' | $dbRole === 'HAP' | $dbRole === 'ACADEMICS' |$dbRole === 'STUDENT_SERVICES' | $dbRole === 'RESEARCH_EXTENSION' | $dbRole === 'FACULTY') {
+    return redirect()->route('staff.dashboard');
+}
+
+$request->session()->flush();
+
+return back()->withErrors([
+    'login' => 'Unauthorized role: ' . $dbRole
+])->withInput();
     }
 
     public function logout(Request $request)

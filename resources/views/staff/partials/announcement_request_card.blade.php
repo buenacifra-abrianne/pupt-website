@@ -120,7 +120,7 @@ $editPriority = $requestPriority ?: $priority;
     @endif
 
     <button type="button" class="btn btn-sm btn-delete"
-    data-delete-url="{{ route('admin.requests.delete', ['id' => $reqId]) }}"
+    data-delete-url="{{ route('staff.requests.delete', ['id' => $reqId]) }}"
     data-title="{{ e($title) }}"
     onclick="deleteApprovalRequestOnly(event, this)">
     <i class="fas fa-trash"></i>

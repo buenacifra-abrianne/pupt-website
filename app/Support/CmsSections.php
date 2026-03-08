@@ -32,8 +32,8 @@ class CmsSections
     ];
 
     private const ROLE_ACCESS = [
-        'GLOBAL_SUPERADMIN' => ['home', 'about', 'academics', 'students', 'research_extension', 'events'],
-        'SYSTEM_SUPERADMIN' => ['home', 'about', 'academics', 'students', 'research_extension', 'events'],
+        'SUPERADMIN' => ['home', 'about', 'academics', 'students', 'research_extension', 'events'],
+        'ADMIN' => ['home', 'about', 'academics', 'students', 'research_extension', 'events'],
         'REGISTRAR' => ['home', 'about', 'events'],
         'HAP' => ['home', 'academics', 'events'],
         'STUDENT_SERVICES' => ['home', 'students', 'events'],
@@ -56,7 +56,7 @@ class CmsSections
             'RESEARCH' => 'RESEARCH_EXTENSION',
             'RESEARCH_&_EXTENSION' => 'RESEARCH_EXTENSION',
             'RESEARCH_AND_EXTENSION' => 'RESEARCH_EXTENSION',
-            'PUPT_FACULTY' => 'PUPT:FACULTY',
+            'PUPT_FACULTY' => 'FACULTY',
             default => $normalized,
         };
     }

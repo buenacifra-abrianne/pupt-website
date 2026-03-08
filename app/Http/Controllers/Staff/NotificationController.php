@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Query\Builder;
@@ -16,10 +16,10 @@ class NotificationController extends Controller
             abort(403, 'Missing user_id in session');
         }
 
-        $typeFilter = strtoupper(trim($request->query('type', 'ALL')));
-        $statusFilter = strtoupper(trim($request->query('status', 'ALL')));
-        $rangeFilter = strtoupper(trim($request->query('range', '7D')));
-        $q = trim((string) $request->query('q', ''));
+        $q = $request->get('q', '');
+        $typeFilter = $request->get('type', 'ALL');
+        $statusFilter = $request->get('status', 'ALL');
+        $rangeFilter = $request->get('range', '30D');
 
         $statsRow = DB::table('notifications as n')
             ->leftJoin('notification_reads as nr', function ($join) use ($userId) {
@@ -32,10 +32,10 @@ class NotificationController extends Controller
             })
             ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
             ->where(function ($scope) use ($userId) {
-                $this->applyAdminAudienceScope($scope, $userId);
+                $this->applyStaffAudienceScope($scope, $userId);
             })
             ->whereNull('nd.user_id')
-            ->selectRaw('SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count')
+            ->selectRaw("SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count")
             ->selectRaw('COUNT(*) AS total_count')
             ->first();
 
@@ -55,7 +55,7 @@ class NotificationController extends Controller
             })
             ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
             ->where(function ($scope) use ($userId) {
-                $this->applyAdminAudienceScope($scope, $userId);
+                $this->applyStaffAudienceScope($scope, $userId);
             })
             ->whereNull('nd.user_id');
 
@@ -108,15 +108,15 @@ class NotificationController extends Controller
             'INFO' => ['info', 'fa-bullhorn'],
         ];
 
-        return view('admin.notifications', compact(
-            'stats',
-            'totalFiltered',
-            'notifications',
+        return view('staff.notifications', compact(
+            'q',
             'typeFilter',
             'statusFilter',
             'rangeFilter',
-            'q',
-            'iconMap'
+            'notifications',
+            'stats',
+            'iconMap',
+            'totalFiltered'
         ));
     }
 
@@ -139,7 +139,7 @@ class NotificationController extends Controller
                 })
                 ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
                 ->where(function ($scope) use ($userId) {
-                    $this->applyAdminAudienceScope($scope, $userId);
+                    $this->applyStaffAudienceScope($scope, $userId);
                 })
                 ->whereNull('nd.user_id')
                 ->whereNull('nr.user_id')
@@ -216,7 +216,7 @@ class NotificationController extends Controller
                 })
                 ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
                 ->where(function ($scope) use ($userId) {
-                    $this->applyAdminAudienceScope($scope, $userId);
+                    $this->applyStaffAudienceScope($scope, $userId);
                 })
                 ->whereNull('nd.user_id')
                 ->pluck('n.notification_id');
@@ -277,14 +277,9 @@ class NotificationController extends Controller
         ]);
     }
 
-    private function pushSystemNotif(
-        string $type,
-        string $title,
-        string $message,
-        ?string $targetRole,
-        ?int $targetUserId = null
-    ): void {
-        \DB::table('notifications')->insert([
+    private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole = null, ?int $targetUserId = null): void
+    {
+        DB::table('notifications')->insert([
             'title' => $title,
             'message' => $message,
             'type' => strtoupper($type),
@@ -295,19 +290,16 @@ class NotificationController extends Controller
         ]);
     }
 
-    private function applyAdminAudienceScope(Builder $query, int $userId): void
+    private function applyStaffAudienceScope(Builder $query, int $userId): void
     {
-        $query->where(function ($adminBroadcast) {
-            $adminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                ->whereNull('n.target_user_id');
-        })->orWhere(function ($adminDirect) use ($userId) {
-            $adminDirect->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
+        $query->where(function ($staff) use ($userId) {
+            $staff->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
                 ->where('n.target_user_id', $userId);
-        })->orWhere(function ($legacyBroadcast) {
-            $legacyBroadcast->whereNull('n.target_role')
-                ->whereNull('n.target_user_id');
-        })->orWhere(function ($legacyDirect) use ($userId) {
-            $legacyDirect->whereNull('n.target_role')
+        })->orWhere(function ($legacy) use ($userId) {
+            $legacy->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
+                ->where('n.target_user_id', $userId);
+        })->orWhere(function ($direct) use ($userId) {
+            $direct->whereNull('n.target_role')
                 ->where('n.target_user_id', $userId);
         });
     }

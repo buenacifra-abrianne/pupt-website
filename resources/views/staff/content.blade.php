@@ -21,38 +21,29 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('admin.dashboard') }}" class="nav-link">
+                <a href="{{ route('staff.dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="{{ route('admin.approvals.pending') }}" class="nav-link">
-                    <i class="fas fa-clipboard-check"></i>
-                    <span>Pending Approvals</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('admin.announcements') ?? '#' }}" class="nav-link">
+                <a href="{{ route('staff.announcements') }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.content') ?? '#' }}" class="nav-link active">
+                <a href="{{ route('staff.content') }}" class="nav-link active">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link">
+                <a href="{{ route('staff.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
             </li>
-
         </ul>
     </nav>
 
@@ -63,27 +54,22 @@
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Content Management</h1>
-            <p class="page-subtitle">Global content editor for superadmin. Staff edits are reviewed in Pending Approvals.</p>
+            <p class="page-subtitle">Role-based content editing. Every change is sent to admin pending approvals.</p>
         </div>
 
         <div class="stats-grid" style="margin-bottom:18px;">
             <div class="stat-card">
                 <div class="stat-icon maroon"><i class="fas fa-layer-group"></i></div>
                 <div class="stat-info">
-                    <div class="stat-label">Total Contents</div>
-                    <div class="stat-value">{{ (int) ($totalLiveContents ?? 0) }}</div>
+                    <div class="stat-label">Accessible Tabs</div>
+                    <div class="stat-value">{{ count($allowedTabs ?? []) }}</div>
                 </div>
             </div>
             <div class="stat-card">
                 <div class="stat-icon yellow"><i class="fas fa-hourglass-half"></i></div>
                 <div class="stat-info">
-                    <div class="stat-label">Pending CMS Requests</div>
-                    <div class="stat-value">{{ (int) ($totalPending ?? 0) }}</div>
-                    <div class="stat-change positive">
-                        <a href="{{ route('superadmin.approvals.pending') }}" style="color:inherit;text-decoration:none;">
-                            Review pending approvals
-                        </a>
-                    </div>
+                    <div class="stat-label">My Pending Requests</div>
+                    <div class="stat-value">{{ (int) ($pendingCount ?? 0) }}</div>
                 </div>
             </div>
         </div>
@@ -93,10 +79,6 @@
                 <button class="cms-tab-btn {{ $loop->first ? 'active' : '' }}" type="button" onclick="switchCmsTab('{{ $tabKey }}', this)">
                     <i class="fas fa-pen-to-square"></i>
                     {{ $tabDef['label'] }}
-                    @php $pendingForTab = (int)($pendingByTab[$tabKey] ?? 0); @endphp
-                    @if($pendingForTab > 0)
-                        <span class="tab-badge">{{ $pendingForTab }}</span>
-                    @endif
                 </button>
             @endforeach
         </div>
@@ -104,37 +86,75 @@
         @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
             @php
                 $live = $contentsByTab[$tabKey] ?? ['title' => $tabDef['label'].' Content', 'content' => ''];
+                $draft = $requestDraftsByTab[$tabKey] ?? null;
+                $status = strtolower((string)($draft['status'] ?? ''));
+                $badgeClass = $status === 'pending' ? 'status-pending' : ($status === 'rejected' ? 'status-disabled' : 'status-enabled');
+                $prefillTitle = $draft['title'] ?? $live['title'];
+                $prefillContent = $draft['content'] ?? $live['content'];
             @endphp
 
             <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Manage {{ $tabDef['label'] }} Content</h3>
-                        <span class="status-badge status-enabled">Live Update</span>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Live {{ $tabDef['label'] }} Content</h3>
+                        </div>
+                        <div style="padding:14px;">
+                            <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Title</div>
+                            <div style="font-weight:700;margin-bottom:12px;">{{ $live['title'] ?: ($tabDef['label'].' Content') }}</div>
+
+                            <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Content</div>
+                            <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:180px;">{{ $live['content'] !== '' ? $live['content'] : 'No live content yet.' }}</div>
+                        </div>
                     </div>
 
-                    <div style="padding:14px;">
-                        <form class="cms-save-form" method="POST" action="{{ route('superadmin.content.save') }}">
-                            @csrf
-                            <input type="hidden" name="tab_key" value="{{ $tabKey }}">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Request Edit - {{ $tabDef['label'] }}</h3>
+                            @if($draft)
+                                <span class="status-badge {{ $badgeClass }}">{{ ucfirst($status) }}</span>
+                            @else
+                                <span class="status-badge status-enabled">No Draft</span>
+                            @endif
+                        </div>
+                        <div style="padding:14px;">
+                            @if($draft && !empty($draft['updated_at']))
+                                <div style="font-size:13px;opacity:.75;margin-bottom:10px;">
+                                    Last updated: {{ \Carbon\Carbon::parse($draft['updated_at'])->format('M d, Y h:i A') }}
+                                </div>
+                            @endif
 
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" maxlength="255" value="{{ $live['title'] }}">
-                            </div>
+                            @if($status === 'rejected' && !empty($draft['rejection_reason']))
+                                <div style="margin-bottom:10px;padding:10px 12px;border-radius:10px;background:#fff3f3;color:#932525;font-size:13px;">
+                                    Rejection reason: {{ $draft['rejection_reason'] }}
+                                </div>
+                            @endif
 
-                            <div class="form-group">
-                                <label>Content</label>
-                                <textarea name="content" rows="13">{{ $live['content'] }}</textarea>
-                            </div>
+                            <form class="cms-edit-form" method="POST" action="{{ route('staff.content.requestEdit') }}">
+                                @csrf
+                                <input type="hidden" name="tab_key" value="{{ $tabKey }}">
+                                @if($draft && !empty($draft['id']))
+                                    <input type="hidden" name="request_id" value="{{ (int) $draft['id'] }}">
+                                @endif
 
-                            <div style="display:flex;justify-content:flex-end;">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    Save Live Content
-                                </button>
-                            </div>
-                        </form>
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="title" maxlength="255" value="{{ $prefillTitle }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Content</label>
+                                    <textarea name="content" rows="11">{{ $prefillContent }}</textarea>
+                                </div>
+
+                                <div style="display:flex;justify-content:flex-end;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-paper-plane"></i>
+                                        {{ $status === 'pending' ? 'Update Pending Request' : 'Submit for Approval' }}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -222,18 +242,12 @@
 
     .stat-label { font-size: 12px; opacity: .8; }
     .stat-value { font-size: 24px; font-weight: 700; line-height: 1.1; }
-    .stat-change { font-size: 12px; opacity: .85; margin-top: 4px; }
 
-    .tab-badge {
-        margin-left: 6px;
-        background: #d4af37;
-        color: #3b2a00;
-        border-radius: 999px;
-        padding: 1px 7px;
-        font-size: 11px;
-        font-weight: 700;
+    @media (max-width: 980px) {
+        .cms-tab-panel > div[style*="grid-template-columns"] {
+            grid-template-columns: 1fr !important;
+        }
     }
-
 </style>
 
 <script>
@@ -249,10 +263,10 @@
 
         btn.classList.add('active');
         document.getElementById('cms-tab-' + tabKey)?.classList.add('active');
-        localStorage.setItem('activeSuperadminCmsTab', tabKey);
+        localStorage.setItem('activeAdminCmsTab', tabKey);
     }
 
-    async function submitSave(form) {
+    async function postForm(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
 
@@ -275,29 +289,29 @@
                 throw new Error(json.message || json.error || raw.slice(0, 180) || ('Request failed (' + res.status + ')'));
             }
 
-            if (typeof window.showToast === 'function') {
-                window.showToast(json.message || 'Content saved.', 'success', 'Success');
+            if (typeof window.queueToast === 'function') {
+                window.queueToast(json.message || 'Request submitted for approval.', 'success', 'Success');
             }
+            window.location.reload();
         } catch (err) {
             if (typeof window.showToast === 'function') {
                 window.showToast(err.message, 'error', 'Request Failed');
             } else {
                 alert(err.message);
             }
-        } finally {
             if (submitBtn) submitBtn.disabled = false;
         }
     }
 
-    document.querySelectorAll('.cms-save-form').forEach((form) => {
+    document.querySelectorAll('.cms-edit-form').forEach((form) => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            submitSave(form);
+            postForm(form);
         });
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        const saved = localStorage.getItem('activeSuperadminCmsTab');
+        const saved = localStorage.getItem('activeAdminCmsTab');
         if (!saved) return;
 
         const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))

@@ -17,50 +17,38 @@
 </head>
 <body>
 
+  {{-- TODO: Replace sidebar links with your real route names --}}
   <nav class="sidebar" id="sidebar">
-        <div class="logo-section">
-            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
-            <div class="logo-text">
-                Hello,<br>
-                {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
-            </div>
-        </div>
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="{{ route('admin.dashboard') }}" class="nav-link">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('admin.approvals.pending') }}" class="nav-link">
-                    <i class="fas fa-clipboard-check"></i>
-                    <span>Pending Approvals</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('admin.announcements') ?? '#' }}" class="nav-link">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>News & Announcements</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.content') ?? '#' }}" class="nav-link">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Content Management</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link active">
-                    <i class="fas fa-bell"></i>
-                    <span>Notifications</span>
-                </a>
-            </li>
-
-        </ul>
-    </nav>
+    <div class="logo-section">
+      <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
+      <div class="logo-text">
+        Hello,<br>
+        {{ session('user_first_name', 'Admin') }}!
+      </div>
+    </div>
+    <ul class="nav-menu">
+      <li class="nav-item">
+        <a href="{{ route('staff.dashboard') }}" class="nav-link">
+          <i class="fas fa-home"></i><span>Dashboard</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('staff.announcements') }}" class="nav-link">
+          <i class="fas fa-bullhorn"></i><span>News & Announcements</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('staff.content') }}" class="nav-link">
+          <i class="fas fa-file-alt"></i><span>Content Management</span>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a href="{{ route('staff.notifications') }}" class="nav-link active">
+          <i class="fas fa-bell"></i><span>Notifications</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
 
   <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />
 
@@ -105,7 +93,7 @@
         </div>
 
         <div style="padding:0;">
-          <form class="filter-bar" method="GET" action="{{ route('superadmin.notifications') }}">
+          <form class="filter-bar" method="GET" action="{{ route('staff.notifications') }}">
             <div class="filter-field filter-search">
               <i class="fas fa-magnifying-glass"></i>
               <input name="q" value="{{ $q }}" type="text" placeholder="Search notifications...">
@@ -130,7 +118,7 @@
               </select>
             </div>
 
-            <a class="btn btn-outline btn-sm" href="{{ route('superadmin.notifications') }}">
+            <a class="btn btn-outline btn-sm" href="{{ route('staff.notifications') }}">
               <i class="fas fa-filter-circle-xmark"></i> Clear
             </a>
 
@@ -262,7 +250,7 @@
     window.markNotificationRead = async function (id, btn) {
       try {
         btn.disabled = true;
-        const response = await postJSON("{{ route('superadmin.notifications.markRead') }}", { id });
+        const response = await postJSON("{{ route('staff.notifications.markRead') }}", { id });
 
         const item = btn.closest('.notification-item');
         if (response.changed === false) {
@@ -285,7 +273,7 @@
       if (!(await askConfirm("Delete this notification?", "Delete Notification", "Delete", "danger"))) return;
       try {
         btn.disabled = true;
-        const response = await postJSON("{{ route('superadmin.notifications.delete') }}", { id });
+        const response = await postJSON("{{ route('staff.notifications.delete') }}", { id });
 
         const item = btn.closest('.notification-item');
         if (response.changed === false) {
@@ -305,7 +293,7 @@
     window.markAllRead = async function () {
       if (!(await askConfirm("Mark ALL notifications as read?", "Mark As Read", "Mark All", "info"))) return;
       try {
-        const response = await postJSON("{{ route('superadmin.notifications.markRead') }}", { all: 1 });
+        const response = await postJSON("{{ route('staff.notifications.markRead') }}", { all: 1 });
         if (response.changed === false) {
           showToast(response.message || "No unread notifications found.", 'warning', 'No Changes');
           return;
@@ -323,7 +311,7 @@
     window.clearAll = async function () {
       if (!(await askConfirm("Delete ALL notifications? This cannot be undone.", "Clear Notifications", "Clear All", "danger"))) return;
       try {
-        const response = await postJSON("{{ route('superadmin.notifications.delete') }}", { all: 1 });
+        const response = await postJSON("{{ route('staff.notifications.delete') }}", { all: 1 });
         if (response.changed === false) {
           showToast(response.message || "No notifications to clear.", 'warning', 'No Changes');
           return;

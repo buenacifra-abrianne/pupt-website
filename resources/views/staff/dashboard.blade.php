@@ -5,7 +5,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
-    <title>PUP Taguig - Admin Dashboard</title>
+    <title>PUP Taguig - Staff Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}">
 </head>
@@ -21,38 +21,29 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('admin.dashboard') }}" class="nav-link active">
+                <a href="{{ route('staff.dashboard') }}" class="nav-link active">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
-
             <li class="nav-item">
-                <a href="{{ route('admin.approvals.pending') }}" class="nav-link">
-                    <i class="fas fa-clipboard-check"></i>
-                    <span>Pending Approvals</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('admin.announcements') ?? '#' }}" class="nav-link">
+                <a href="{{ route('staff.announcements') }}" class="nav-link">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.content') ?? '#' }}" class="nav-link">
+                <a href="{{ route('staff.content') }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link">
+                <a href="{{ route('staff.notifications') }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
                 </a>
             </li>
-
         </ul>
     </nav>
 
@@ -62,12 +53,9 @@
 
     <!-- Main Content -->
     <main class="main-content">
-
         <!-- ========================= -->
         <!-- ✅ TAB 1: DASHBOARD -->
         <!-- ========================= -->
-        <div id="dashboardTab" class="top-tab-content active">
-
             <div class="page-header">
                 <h1 class="page-title">Dashboard Overview</h1>
                 <p class="page-subtitle">Welcome back! Here's what's happening with your systems today.</p>
@@ -75,70 +63,32 @@
 
             <!-- Stats Cards -->
             <div class="stats-grid">
-
-                <div class="stat-card">
-                    <div class="stat-icon maroon">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:5px;">
-                            <div class="stat-label" style="margin-bottom:0;">Pending Approvals</div>
-                            <a class="btn btn-outline btn-sm" href="{{ route('admin.approvals.pending') }}">
-                                <i class="fas fa-eye"></i> View All
-                            </a>
-                        </div>
-                        <div class="stat-value">{{ $pendingApprovals ?? 0 }}</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-database"></i> Live From Database
-                        </div>
-                    </div>
+            <div class="stat-card">
+                <div class="stat-icon maroon">
+                    <i class="fas fa-hourglass-half"></i>
                 </div>
-
-                <div class="stat-card">
-                    <div class="stat-icon yellow">
-                        <i class="fas fa-chart-line"></i>
-                    </div>
-                    <div class="stat-info">
-                        <div class="stat-label">System Uptime</div>
-                        <div class="stat-value">{{ $uptime['percent'] ?? '—' }}</div>
-                        <div class="stat-change positive">
-                            <i class="fas fa-check-circle"></i>
-                            {{ ($uptime['ok'] ?? false) ? 'All systems operational' : 'Check system health' }}
-                            &nbsp;•&nbsp; Up for {{ $uptime['human'] ?? '—' }}
-                        </div>
+                <div class="stat-info">
+                    <div class="stat-label">Pending Requests</div>
+                    <div class="stat-value">{{ $pending_requests ?? 0 }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-clock"></i> Awaiting admin review
                     </div>
                 </div>
             </div>
 
-            <!-- Content Grid 
-            <div class="content-grid">
-                <div class="card">
-                    <div class="card-header">
-                        <h2 class="card-title">Recent Announcements</h2>
-                    </div>
-
-                    @if(!empty($recent_announcements) && count($recent_announcements) > 0)
-                        @foreach($recent_announcements as $row)
-                            <div class="announcement-item">
-                                <div class="announcement-header">
-                                    <div class="announcement-title">{{ e($row->title) }}</div>
-                                    <span class="announcement-badge {{ strtolower($row->priority) }}">
-                                        {{ e($row->priority) }}
-                                    </span>
-                                </div>
-                                <p class="announcement-text">{{ e($row->content) }}</p>
-                                <div class="announcement-meta">
-                                    <i class="far fa-clock"></i> {{ \Carbon\Carbon::parse($row->created_at)->format('M d, Y') }}
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="announcement-item">
-                            <p class="announcement-text" style="text-align: center; color: #666;">No recent announcements to show.</p>
-                        </div>
-                    @endif
+            <div class="stat-card">
+                <div class="stat-icon info">
+                    <i class="fas fa-check-circle"></i>
                 </div>
-            </div> -->
+                <div class="stat-info">
+                    <div class="stat-label">Approved Requests</div>
+                    <div class="stat-value">{{ $approved_requests ?? 0 }}</div>
+                    <div class="stat-change positive">
+                        <i class="fas fa-check"></i> Approved by admin
+                    </div>
+                </div>
+            </div>
+        </div>
 
             <!-- ✅ Recent Activity + Recent Notifications SIDE-BY-SIDE -->
             <div class="two-col-grid">
@@ -147,8 +97,6 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
-                    <div style="display:flex; gap:10px;">
-                    </div>
                 </div>
 
                 <div class="card-body-scroll">
@@ -159,6 +107,7 @@
 
                         // map action to icon + color class (reuse your notif styles)
                         $iconClass = 'info'; $icon = 'fa-bullhorn';
+                        if ($action === 'PENDING')  { $iconClass = 'warning'; $icon = 'fa-hourglass-half'; }
                         if ($action === 'CREATED')  { $iconClass = 'primary'; $icon = 'fa-plus'; }
                         if ($action === 'UPDATED')  { $iconClass = 'primary'; $icon = 'fa-pen-to-square'; }
                         if ($action === 'APPROVED') { $iconClass = 'info';    $icon = 'fa-check-circle'; }
@@ -182,7 +131,7 @@
                         </div>
 
                         <div class="notification-time">
-                            <i class="fas fa-user"></i> {{ session('user_name') ?: 'Admin' }}
+                            <i class="fas fa-user"></i> {{ $a->user_name ?? 'Admin' }}
                             &nbsp; • &nbsp;
                             <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($a->created_at)->format('M d, Y g:i A') }}
                         </div>
@@ -200,7 +149,7 @@
                     <div class="card-header">
                         <h2 class="card-title">Recent Notifications</h2>
                         <div style="display:flex; gap:10px;">
-                            <a class="btn btn-outline btn-sm" href="{{ route('admin.notifications') ?? '#' }}">
+                            <a class="btn btn-outline btn-sm" href="{{ route('staff.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
@@ -268,7 +217,6 @@
                 </div>
 
             </div>
-        </div>
     </main>
 
     <div class="modal" id="addUserModal">
@@ -446,58 +394,6 @@
         });
     });
 
-    function setupCmsDropdown(dropdownId, selectId, onChange) {
-        const dropdown = document.getElementById(dropdownId);
-        const select = document.getElementById(selectId);
-        if (!dropdown || !select) return;
-
-        const trigger = dropdown.querySelector('.cms-dropdown-trigger');
-        const label = dropdown.querySelector('.cms-dropdown-label');
-        const options = Array.from(dropdown.querySelectorAll('.cms-dropdown-option'));
-
-        const syncFromValue = (value) => {
-            let activeOption = options.find((opt) => String(opt.dataset.value) === String(value));
-            if (!activeOption) activeOption = options[0] || null;
-
-            options.forEach((opt) => opt.classList.toggle('active', opt === activeOption));
-            if (label && activeOption) label.textContent = activeOption.textContent.trim();
-        };
-
-        const setValue = (value, emit = true) => {
-            select.value = value;
-            syncFromValue(select.value);
-            if (emit && typeof onChange === 'function') onChange(select.value);
-        };
-
-        trigger?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const willOpen = !dropdown.classList.contains('open');
-            document.querySelectorAll('.cms-dropdown.open').forEach((el) => el.classList.remove('open'));
-            dropdown.classList.toggle('open', willOpen);
-            trigger.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
-        });
-
-        options.forEach((opt) => {
-            opt.addEventListener('click', () => {
-                setValue(opt.dataset.value ?? '', true);
-                dropdown.classList.remove('open');
-                trigger?.setAttribute('aria-expanded', 'false');
-            });
-        });
-
-        select.addEventListener('change', () => syncFromValue(select.value));
-        syncFromValue(select.value);
-    }
-
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.cms-dropdown')) {
-            document.querySelectorAll('.cms-dropdown.open').forEach((el) => {
-                el.classList.remove('open');
-                el.querySelector('.cms-dropdown-trigger')?.setAttribute('aria-expanded', 'false');
-            });
-        }
-    });
-
 async function postJSON(url, data) {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
@@ -532,7 +428,7 @@ async function postJSON(url, data) {
     window.markNotificationRead = async function (id, btn) {
         try {
             btn.disabled = true;
-            const response = await postJSON("{{ route('admin.notifications.markRead') }}", { id });
+            const response = await postJSON("{{ route('staff.notifications.markRead') }}", { id });
 
             const item = btn.closest('.notification-item');
             if (response.changed === false) {
@@ -558,7 +454,7 @@ async function postJSON(url, data) {
 
         try {
             btn.disabled = true;
-            const response = await postJSON("{{ route('admin.notifications.delete') }}", { id });
+            const response = await postJSON("{{ route('staff.notifications.delete') }}", { id });
 
             const item = btn.closest('.notification-item');
             if (response.changed === false) {
@@ -576,13 +472,6 @@ async function postJSON(url, data) {
         }
     };
 
-    function formatDuration(sec) {
-        sec = Number(sec || 0);
-        const m = Math.floor(sec / 60);
-        const s = sec % 60;
-        return `${m}m ${s}s`;
-    }
-
     function setTextSafe(id, value) {
         const el = document.getElementById(id);
         if (!el) return;
@@ -595,106 +484,9 @@ async function postJSON(url, data) {
         el.textContent = `${value}%`;
     }
 
-    function ratingFromAverage(score) {
-        const avg = Number(score || 0);
-        if (avg >= 3.5) return 'Outstanding';
-        if (avg >= 2.5) return 'Very Satisfactory';
-        if (avg >= 1.5) return 'Satisfactory';
-        return 'Unsatisfactory';
+    function formatDate(d) {
+        return d.toISOString().slice(0, 10);
     }
-
-    function updateFeedbackResultsChart(results) {
-        const toSafeAvg = (value) => {
-            const n = Number(value);
-            if (!Number.isFinite(n) || n < 0) return 0;
-            return Math.min(4, n);
-        };
-
-        const toSafeCount = (value) => {
-            const n = Number(value);
-            if (!Number.isFinite(n) || n < 0) return 0;
-            return n;
-        };
-
-        const q1 = toSafeAvg(results.question_1_avg);
-        const q2 = toSafeAvg(results.question_2_avg);
-        const q3 = toSafeAvg(results.question_3_avg);
-        const q4 = toSafeAvg(results.question_4_avg);
-        const q5 = toSafeAvg(results.question_5_avg);
-        const q6 = toSafeAvg(results.question_6_avg);
-        const overallAverage = toSafeAvg(results.overall_average);
-        const totalResponses = toSafeCount(results.total_responses);
-
-        const outstanding = toSafeCount(results.outstanding);
-        const verySatisfactory = toSafeCount(results.very_satisfactory);
-        const satisfactory = toSafeCount(results.satisfactory);
-        const unsatisfactory = toSafeCount(results.unsatisfactory);
-
-        const ratingsTotal = outstanding + verySatisfactory + satisfactory + unsatisfactory;
-        const outstandingPct = ratingsTotal > 0 ? (outstanding / ratingsTotal) * 100 : 0;
-        const verySatisfactoryPct = ratingsTotal > 0 ? (verySatisfactory / ratingsTotal) * 100 : 0;
-        const satisfactoryPct = ratingsTotal > 0 ? (satisfactory / ratingsTotal) * 100 : 0;
-        const unsatisfactoryPct = ratingsTotal > 0 ? (unsatisfactory / ratingsTotal) * 100 : 0;
-
-        const finalResult = String(results.final_rating || '').trim() || ratingFromAverage(overallAverage);
-
-        setTextSafe('fbQ1Avg', `${q1.toFixed(2)} / 4`);
-        setTextSafe('fbQ2Avg', `${q2.toFixed(2)} / 4`);
-        setTextSafe('fbQ3Avg', `${q3.toFixed(2)} / 4`);
-        setTextSafe('fbQ4Avg', `${q4.toFixed(2)} / 4`);
-        setTextSafe('fbQ5Avg', `${q5.toFixed(2)} / 4`);
-        setTextSafe('fbQ6Avg', `${q6.toFixed(2)} / 4`);
-        setTextSafe('fbAverageTotal', `${overallAverage.toFixed(2)} / 4`);
-        setTextSafe('fbFinalResultText', finalResult);
-
-        setTextSafe('feedbackFinalResult', finalResult);
-        setTextSafe('feedbackAverageTotal', `${overallAverage.toFixed(2)} / 4`);
-        setTextSafe(
-            'feedbackTotalResponses',
-            `${totalResponses.toLocaleString()} response${totalResponses === 1 ? '' : 's'}`
-        );
-
-        setTextSafe('fbOutstandingCount', `${outstanding.toLocaleString()} (${Math.round(outstandingPct)}%)`);
-        setTextSafe('fbVerySatisfactoryCount', `${verySatisfactory.toLocaleString()} (${Math.round(verySatisfactoryPct)}%)`);
-        setTextSafe('fbSatisfactoryCount', `${satisfactory.toLocaleString()} (${Math.round(satisfactoryPct)}%)`);
-        setTextSafe('fbUnsatisfactoryCount', `${unsatisfactory.toLocaleString()} (${Math.round(unsatisfactoryPct)}%)`);
-
-        const pieEl = document.getElementById('feedbackPieChart');
-        if (!pieEl) return;
-
-        if (ratingsTotal === 0) {
-            pieEl.style.background = 'conic-gradient(#eceff1 0deg 360deg)';
-            return;
-        }
-
-        const outstandingDeg = outstandingPct * 3.6;
-        const verySatisfactoryDeg = verySatisfactoryPct * 3.6;
-        const satisfactoryDeg = satisfactoryPct * 3.6;
-        const stop1 = outstandingDeg;
-        const stop2 = stop1 + verySatisfactoryDeg;
-        const stop3 = stop2 + satisfactoryDeg;
-
-        pieEl.style.background = `conic-gradient(
-            #2fa54a 0deg ${stop1}deg,
-            #1f8fb8 ${stop1}deg ${stop2}deg,
-            #d4af37 ${stop2}deg ${stop3}deg,
-            #b03a48 ${stop3}deg 360deg
-        )`;
-    }
-
-    function metricToNumber(rawValue) {
-        const cleaned = String(rawValue ?? '').replace(/[^0-9.\-]/g, '');
-        const n = Number(cleaned);
-        return Number.isFinite(n) ? n : 0;
-    }
-
-    function hasAnalyticsExportContent() {
-        const totalVisitors = metricToNumber(document.getElementById('kpiVisitors')?.textContent);
-        const sessions = metricToNumber(document.getElementById('engSessions')?.textContent);
-        const pageviews = metricToNumber(document.getElementById('engPageviews')?.textContent);
-        return totalVisitors > 0 || sessions > 0 || pageviews > 0;
-    }
-
 </script>
 </body>
 </html>

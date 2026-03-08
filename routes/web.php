@@ -1,4 +1,5 @@
 <?php
+use Illuminate\Support\Facades\Route;
 
 // Superadmin
 use App\Http\Controllers\Superadmin\AuthController;
@@ -14,8 +15,15 @@ use App\Http\Controllers\Superadmin\AuditController;
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementController;
-use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\ApprovalsController as AdminApprovalsController;
 use App\Http\Controllers\Admin\CmsController as AdminCmsController;
+use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+
+// Staff
+use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
+use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
+use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
+use App\Http\Controllers\Staff\CmsController as StaffCmsController;
 
 // Public
 use App\Http\Controllers\Public\HomeController;
@@ -55,6 +63,57 @@ Route::post('/profile/password', [AuthController::class, 'updatePassword'])
     ->name('profile.password.update');
 
 // Staff Login
+Route::prefix('staff')
+    ->name('staff.')
+    ->middleware(['superadmin.auth', 'nonsuperadmin.role'])
+    ->group(function () {
+
+        Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
+
+        Route::get('/announcements', [StaffAnnouncementController::class, 'index'])->name('announcements');
+
+        Route::get('/content', [StaffCmsController::class, 'index'])->name('content');
+        Route::post('/content/request-edit', [StaffCmsController::class, 'requestEdit'])->name('content.requestEdit');
+
+        Route::delete('/requests/{id}', [StaffAnnouncementController::class, 'deleteRequestOnly'])
+            ->name('requests.delete');
+
+        // Requests (Announcements)
+        Route::post('/announcements/request-create', [StaffAnnouncementController::class, 'requestCreateAnnouncement'])
+            ->name('announcements.requestCreate');
+        Route::post('/announcements/request-update', [StaffAnnouncementController::class, 'requestUpdateAnnouncement'])
+            ->name('announcements.requestUpdate');
+        Route::post('/announcements/request-delete', [StaffAnnouncementController::class, 'requestDeleteAnnouncement'])
+            ->name('announcements.requestDelete');
+
+        // Requests (Announcement Toggle)
+        Route::post('/announcements/request-enable',  [StaffAnnouncementController::class, 'requestEnableAnnouncement'])
+            ->name('announcements.requestEnable');
+
+        Route::post('/announcements/request-disable', [StaffAnnouncementController::class, 'requestDisableAnnouncement'])
+            ->name('announcements.requestDisable');
+
+        // Requests (News)
+        Route::post('/news/request-create', [StaffAnnouncementController::class, 'requestCreateNews'])
+            ->name('news.requestCreate');
+        Route::post('/news/request-update', [StaffAnnouncementController::class, 'requestUpdateNews'])
+            ->name('news.requestUpdate');
+        Route::post('/news/request-delete', [StaffAnnouncementController::class, 'requestDeleteNews'])
+            ->name('news.requestDelete');
+
+        // Notifications
+        Route::get('/notifications', [StaffNotificationController::class, 'page'])
+            ->name('notifications');
+
+        Route::post('/notifications/mark-read', [StaffNotificationController::class, 'markRead'])
+            ->name('notifications.markRead');
+
+        Route::post('/notifications/delete', [StaffNotificationController::class, 'delete'])
+            ->name('notifications.delete');
+
+    });
+
+// Admin Login
 Route::prefix('admin')
     ->name('admin.')
     ->middleware(['superadmin.auth', 'nonsuperadmin.role'])
@@ -64,38 +123,10 @@ Route::prefix('admin')
 
         Route::get('/announcements', [AdminAnnouncementController::class, 'index'])->name('announcements');
 
-        Route::get('/content', [AdminCmsController::class, 'index'])->name('content');
-        Route::post('/content/request-edit', [AdminCmsController::class, 'requestEdit'])->name('content.requestEdit');
+        Route::get('/content', [AdminCmsController::class, 'page'])->name('content');
+        Route::post('/content/save', [AdminCmsController::class, 'save'])->name('content.save');
 
-        Route::delete('/requests/{id}', [AdminAnnouncementController::class, 'deleteRequestOnly'])
-            ->name('requests.delete');
-
-        // Requests (Announcements)
-        Route::post('/announcements/request-create', [AdminAnnouncementController::class, 'requestCreateAnnouncement'])
-            ->name('announcements.requestCreate');
-        Route::post('/announcements/request-update', [AdminAnnouncementController::class, 'requestUpdateAnnouncement'])
-            ->name('announcements.requestUpdate');
-        Route::post('/announcements/request-delete', [AdminAnnouncementController::class, 'requestDeleteAnnouncement'])
-            ->name('announcements.requestDelete');
-
-        // Requests (Announcement Toggle)
-        Route::post('/announcements/request-enable',  [AdminAnnouncementController::class, 'requestEnableAnnouncement'])
-            ->name('announcements.requestEnable');
-
-        Route::post('/announcements/request-disable', [AdminAnnouncementController::class, 'requestDisableAnnouncement'])
-            ->name('announcements.requestDisable');
-
-        // Requests (News)
-        Route::post('/news/request-create', [AdminAnnouncementController::class, 'requestCreateNews'])
-            ->name('news.requestCreate');
-        Route::post('/news/request-update', [AdminAnnouncementController::class, 'requestUpdateNews'])
-            ->name('news.requestUpdate');
-        Route::post('/news/request-delete', [AdminAnnouncementController::class, 'requestDeleteNews'])
-            ->name('news.requestDelete');
-
-        // Notifications
-        Route::get('/notifications', [AdminNotificationController::class, 'page'])
-            ->name('notifications');
+        Route::get('/notifications', [AdminNotificationController::class, 'page'])->name('notifications');
 
         Route::post('/notifications/mark-read', [AdminNotificationController::class, 'markRead'])
             ->name('notifications.markRead');
@@ -103,9 +134,35 @@ Route::prefix('admin')
         Route::post('/notifications/delete', [AdminNotificationController::class, 'delete'])
             ->name('notifications.delete');
 
+        Route::post('/announcements/save', [AdminAnnouncementController::class, 'save'])
+            ->name('announcements.save');
+
+        Route::post('/announcements/delete', [AdminAnnouncementController::class, 'delete'])
+            ->name('announcements.delete');
+
+        Route::post('/announcements/toggle', [AdminAnnouncementController::class, 'toggle'])
+            ->name('announcements.toggle');
+
+        Route::post('/news/save', [AdminAnnouncementController::class, 'saveNews'])
+            ->name('news.save');
+
+        Route::post('/news/delete', [AdminAnnouncementController::class, 'deleteNews'])
+            ->name('news.delete');
+
+        Route::get('/approvals/pending', [AdminApprovalsController::class, 'pending'])
+            ->name('approvals.pending');
+
+        Route::post('/approvals/{id}/approve', [AdminApprovalsController::class, 'approve'])
+            ->name('approvals.approve');
+
+        Route::post('/approvals/{id}/reject', [AdminApprovalsController::class, 'reject'])
+            ->name('approvals.reject');
+
+        Route::delete('/approvals/{id}', [AdminApprovalsController::class, 'destroy'])
+            ->name('approvals.destroy');
     });
 
-// Faculty Login
+// Superadmin Login
 Route::prefix('superadmin')->group(function () {
     Route::get('/login', [AuthController::class, 'show'])->name('superadmin.login');
     Route::post('/login', [AuthController::class, 'login'])->name('superadmin.login.submit');
@@ -129,9 +186,6 @@ Route::prefix('superadmin')->group(function () {
         Route::post('/analytics/api', [AnalyticsController::class, 'superadminApi'])->name('superadmin.analytics.superadminApi');
 
         // Accounts
-        Route::post('/accounts', [AccountsController::class, 'store'])
-            ->name('superadmin.accounts.store');
-
         Route::post('/accounts', [AccountsController::class, 'store'])
             ->name('superadmin.accounts.store');
 
@@ -190,4 +244,6 @@ Route::prefix('superadmin')->group(function () {
         Route::post('/analytics/export/excel', [AnalyticsController::class, 'exportExcel'])
             ->name('superadmin.analytics.exportExcel');
     });
+
+    
 });

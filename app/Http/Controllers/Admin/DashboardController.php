@@ -3,52 +3,33 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ApprovalRequest;
 use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        $pending_requests = \DB::table('approval_requests')
-            ->whereRaw("LOWER(status) = 'pending'")
-            ->count();
+        $pendingApprovals = ApprovalRequest::where('status', 'pending')->count();
 
-        $approved_requests = \DB::table('approval_requests')
-            ->whereRaw("LOWER(status) = 'approved'")
-            ->count();
+        $uptime = $this->getSystemUptime();
 
-        $rejected_requests = \DB::table('approval_requests')
-            ->whereRaw("LOWER(status) = 'rejected'")
-            ->count();
+        $total_announcements = \DB::table('announcements')->count();
+
+        $recent_announcements = \DB::table('announcements')
+            ->orderBy('created_at', 'desc')
+            ->limit(5)
+            ->get();
 
         $recentActivities = collect();
-        $userEmail = strtolower(trim((string) session('user_email')));
-        $userDisplayName = trim((string) session('user_first_name', '').' '.(string) session('user_last_name', ''));
-        if ($userDisplayName === '') {
-            $userDisplayName = 'Staff';
-        }
-
-        if ($userEmail !== '') {
-            $recentActivities = DB::table('approval_requests')
-                ->select('type', 'title', 'status', 'updated_at', 'created_at')
-                ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
-                ->orderByDesc('updated_at')
-                ->orderByDesc('id')
+        if (Schema::hasTable('activity_logs')) {
+            $recentActivities = DB::table('activity_logs')
+                ->orderByDesc('created_at')
                 ->limit(10)
-                ->get()
-                ->map(function ($row) use ($userDisplayName) {
-                    $type = strtoupper(trim((string) ($row->type ?? '')));
-                    $status = strtoupper(trim((string) ($row->status ?? 'PENDING')));
-
-                    return (object) [
-                        'action' => $status !== '' ? $status : 'PENDING',
-                        'module' => $this->moduleFromRequestType($type),
-                        'description' => $this->activityDescription($type, (string) ($row->title ?? '')),
-                        'user_name' => $userDisplayName,
-                        'created_at' => $row->updated_at ?? $row->created_at ?? now(),
-                    ];
-                });
+                ->get();
         }
 
         $userId = (int) session('user_id');
@@ -73,8 +54,8 @@ class DashboardController extends Controller
                 'nr.read_at'
             )
             ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
-            ->where(function ($q) use ($userId) {
-                $this->applyStaffAudienceScope($q, $userId);
+            ->where(function ($scope) use ($userId) {
+                $this->applyAdminAudienceScope($scope, $userId);
             })
             ->whereNull('nd.user_id')
             ->orderBy('n.created_at', 'desc')
@@ -82,66 +63,84 @@ class DashboardController extends Controller
             ->get();
 
         return view('admin.dashboard', compact(
-            'pending_requests',
-            'approved_requests',
-            'rejected_requests',
-            'recentActivities',
-            'recent_notifications'
+            'total_announcements',
+            'recent_announcements',
+            'recent_notifications',
+            'pendingApprovals',
+            'uptime',
+            'recentActivities'
         ));
     }
 
-    private function applyStaffAudienceScope(Builder $query, int $userId): void
+    private function applyAdminAudienceScope(Builder $query, int $userId): void
     {
-        $query->where(function ($staff) use ($userId) {
-            $staff->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
+        $query->where(function ($adminBroadcast) {
+            $adminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
+                ->whereNull('n.target_user_id');
+        })->orWhere(function ($adminDirect) use ($userId) {
+            $adminDirect->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
                 ->where('n.target_user_id', $userId);
-        })->orWhere(function ($legacy) use ($userId) {
-            $legacy->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                ->where('n.target_user_id', $userId);
-        })->orWhere(function ($direct) use ($userId) {
-            $direct->whereNull('n.target_role')
+        })->orWhere(function ($legacyBroadcast) {
+            $legacyBroadcast->whereNull('n.target_role')
+                ->whereNull('n.target_user_id');
+        })->orWhere(function ($legacyDirect) use ($userId) {
+            $legacyDirect->whereNull('n.target_role')
                 ->where('n.target_user_id', $userId);
         });
     }
 
-    private function moduleFromRequestType(string $type): string
+    private function getSystemUptime(): array
     {
-        if (str_starts_with($type, 'ANNOUNCEMENT_')) {
-            return 'ANNOUNCEMENTS';
-        }
+        $seconds = $this->getUptimeSeconds();
 
-        if (str_starts_with($type, 'NEWS_')) {
-            return 'NEWS';
-        }
-
-        if (str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT')) {
-            return 'CONTENT';
-        }
-
-        return 'REQUEST';
+        return [
+            'seconds' => $seconds,
+            'human' => $this->humanUptime($seconds),
+            'percent' => '100%',
+            'ok' => true,
+        ];
     }
 
-    private function activityDescription(string $type, string $title): string
+    private function getUptimeSeconds(): int
     {
-        $title = trim($title);
-
-        $label = match (true) {
-            str_starts_with($type, 'ANNOUNCEMENT_CREATE') => 'Create announcement request',
-            str_starts_with($type, 'ANNOUNCEMENT_UPDATE') => 'Edit announcement request',
-            str_starts_with($type, 'ANNOUNCEMENT_DELETE') => 'Delete announcement request',
-            str_starts_with($type, 'ANNOUNCEMENT_ENABLE') => 'Enable announcement request',
-            str_starts_with($type, 'ANNOUNCEMENT_DISABLE') => 'Disable announcement request',
-            str_starts_with($type, 'NEWS_CREATE') => 'Create news request',
-            str_starts_with($type, 'NEWS_UPDATE') => 'Edit news request',
-            str_starts_with($type, 'NEWS_DELETE') => 'Delete news request',
-            str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT') => 'Content edit request',
-            default => 'Request update',
-        };
-
-        if ($title === '') {
-            return $label.'.';
+        if (is_readable('/proc/uptime')) {
+            $raw = trim((string) @file_get_contents('/proc/uptime'));
+            if ($raw !== '') {
+                $parts = preg_split('/\s+/', $raw);
+                $sec = (int) floor((float) ($parts[0] ?? 0));
+                if ($sec > 0) {
+                    return $sec;
+                }
+            }
         }
 
-        return $label.' "'.$title.'".';
+        $boot = Cache::rememberForever('app_boot_at', fn () => now()->toDateTimeString());
+        try {
+            return now()->diffInSeconds(\Carbon\Carbon::parse($boot));
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    private function humanUptime(int $seconds): string
+    {
+        $seconds = max(0, $seconds);
+
+        $days = intdiv($seconds, 86400);
+        $seconds %= 86400;
+
+        $hours = intdiv($seconds, 3600);
+        $seconds %= 3600;
+
+        $mins = intdiv($seconds, 60);
+
+        if ($days > 0) {
+            return "{$days}d {$hours}h {$mins}m";
+        }
+        if ($hours > 0) {
+            return "{$hours}h {$mins}m";
+        }
+
+        return "{$mins}m";
     }
 }
