@@ -32,7 +32,7 @@ class NotificationController extends Controller
             })
             ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
             ->where(function ($scope) use ($userId) {
-                $this->applyAdminAudienceScope($scope, $userId);
+                $this->applySuperadminAudienceScope($scope, $userId);
             })
             ->whereNull('nd.user_id')
             ->selectRaw('SUM(CASE WHEN nr.user_id IS NULL THEN 1 ELSE 0 END) AS unread_count')
@@ -55,7 +55,7 @@ class NotificationController extends Controller
             })
             ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
             ->where(function ($scope) use ($userId) {
-                $this->applyAdminAudienceScope($scope, $userId);
+                $this->applySuperadminAudienceScope($scope, $userId);
             })
             ->whereNull('nd.user_id');
 
@@ -139,7 +139,7 @@ class NotificationController extends Controller
                 })
                 ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
                 ->where(function ($scope) use ($userId) {
-                    $this->applyAdminAudienceScope($scope, $userId);
+                    $this->applySuperadminAudienceScope($scope, $userId);
                 })
                 ->whereNull('nd.user_id')
                 ->whereNull('nr.user_id')
@@ -216,7 +216,7 @@ class NotificationController extends Controller
                 })
                 ->whereRaw('UPPER(n.channel) = ?', ['SYSTEM'])
                 ->where(function ($scope) use ($userId) {
-                    $this->applyAdminAudienceScope($scope, $userId);
+                    $this->applySuperadminAudienceScope($scope, $userId);
                 })
                 ->whereNull('nd.user_id')
                 ->pluck('n.notification_id');
@@ -295,9 +295,15 @@ class NotificationController extends Controller
         ]);
     }
 
-    private function applyAdminAudienceScope(Builder $query, int $userId): void
+    private function applySuperadminAudienceScope(Builder $query, int $userId): void
     {
-        $query->where(function ($adminBroadcast) {
+        $query->where(function ($superadminBroadcast) {
+            $superadminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['SUPERADMIN'])
+                ->whereNull('n.target_user_id');
+        })->orWhere(function ($superadminDirect) use ($userId) {
+            $superadminDirect->whereRaw('UPPER(n.target_role) = ?', ['SUPERADMIN'])
+                ->where('n.target_user_id', $userId);
+        })->orWhere(function ($adminBroadcast) {
             $adminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
                 ->whereNull('n.target_user_id');
         })->orWhere(function ($adminDirect) use ($userId) {
