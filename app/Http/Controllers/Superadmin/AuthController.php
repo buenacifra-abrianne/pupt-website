@@ -89,6 +89,7 @@ session([
     'user_roles' => $assignedRoles,
     'user_name' => $user->name ?? '',
     'user_profile_picture' => $user->profile_picture ?? '',
+    'terms_accepted' => false,
 ]);
 
         AuditLog::record(

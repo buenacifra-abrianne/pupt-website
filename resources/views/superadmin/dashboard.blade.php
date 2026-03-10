@@ -655,6 +655,12 @@
         sidebar.classList.toggle('collapsed');
     }
 
+    function isTermsConsentPending() {
+        if (window.__cmsTermsPending === true) return true;
+        const overlay = document.getElementById('cmsTermsOverlay');
+        return overlay?.dataset?.needsConsent === '1';
+    }
+
     // ✅ NEW: top-level tab switching (Dashboard / Analytics)
     function switchTopTab(tabId, btn) {
         document.querySelectorAll('.top-tab-content').forEach(t => t.classList.remove('active'));
@@ -667,7 +673,7 @@
         // remember choice (same style as your announcements page)
         localStorage.setItem('activeDashboardTopTab', tabId);
 
-        if (tabId === 'analyticsTab') {
+        if (tabId === 'analyticsTab' && !isTermsConsentPending()) {
             applyAnalytics();
         }
 
@@ -791,11 +797,15 @@
                 customStartId: 'analyticsRangeCustomStart',
                 customEndId: 'analyticsRangeCustomEnd',
                 customWrapId: 'analyticsRangeCustomWrap',
-                onChange: () => applyAnalytics(),
+                onChange: () => {
+                    if (!isTermsConsentPending()) applyAnalytics();
+                },
             });
         }
 
-        const saved = localStorage.getItem('activeDashboardTopTab');
+        const saved = isTermsConsentPending()
+            ? 'dashboardTab'
+            : localStorage.getItem('activeDashboardTopTab');
         if (saved) {
             const btn = document.querySelector(`.top-tab-btn[onclick*="${saved}"]`);
             if (btn) switchTopTab(saved, btn);
@@ -1001,6 +1011,8 @@ async function postJSON(url, data) {
     }
 
     window.applyAnalytics = async function () {
+        if (isTermsConsentPending()) return;
+
         const start = document.getElementById('analyticsStart')?.value || '';
         const end   = document.getElementById('analyticsEnd')?.value || '';
 
@@ -1039,7 +1051,9 @@ async function postJSON(url, data) {
 
         } catch (err) {
             console.error(err);
-            showToast("Analytics load failed: " + err.message, 'error');
+            if (!isTermsConsentPending()) {
+                showToast("Analytics load failed: " + err.message, 'error');
+            }
             setAnalyticsEmptyState(false);
         }
     };

@@ -36,6 +36,7 @@ use App\Http\Controllers\Public\FeedbackController;
 
 // Endpoints
 use App\Http\Controllers\SsoController;
+use App\Http\Controllers\CmsTermsController;
 
 Route::get('/', function () {
     return view('public.index'); // <-- ito yung index blade mo
@@ -70,10 +71,15 @@ Route::post('/profile/password', [AuthController::class, 'updatePassword'])
     ->middleware('superadmin.auth')
     ->name('profile.password.update');
 
+Route::middleware('superadmin.auth')->group(function () {
+    Route::post('/cms/terms/accept', [CmsTermsController::class, 'accept'])->name('cms.terms.accept');
+    Route::get('/cms/terms/blocked', [CmsTermsController::class, 'blocked'])->name('cms.terms.blocked');
+});
+
 // Staff Login
 Route::prefix('staff')
     ->name('staff.')
-    ->middleware(['superadmin.auth', 'nonsuperadmin.role'])
+    ->middleware(['superadmin.auth', 'nonsuperadmin.role', 'cms.terms.accepted'])
     ->group(function () {
 
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
@@ -124,7 +130,7 @@ Route::prefix('staff')
 // Admin Login
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['superadmin.auth', 'nonsuperadmin.role'])
+    ->middleware(['superadmin.auth', 'nonsuperadmin.role', 'cms.terms.accepted'])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -176,7 +182,7 @@ Route::prefix('superadmin')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('superadmin.login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('superadmin.logout');
 
-    Route::middleware(['superadmin.auth', 'superadmin.role'])->group(function () {
+    Route::middleware(['superadmin.auth', 'superadmin.role', 'cms.terms.accepted'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('superadmin.dashboard');
 

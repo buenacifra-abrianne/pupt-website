@@ -210,7 +210,7 @@ class PUPFooter extends HTMLElement {
   ` : ""}
 
   <div class="footer-legal">
-    <span class="footer-copy">&copy; 1998-${year} Polytechnic University of the Philippines</span>
+    <span class="footer-copy">&copy; 1992-${year} Polytechnic University of the Philippines</span>
     <span class="footer-sep" aria-hidden="true">|</span>
     <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">Terms of Use</a>
     <span class="footer-sep" aria-hidden="true">|</span>
