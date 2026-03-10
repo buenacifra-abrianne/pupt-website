@@ -102,7 +102,7 @@
         </div>
         <div class="terms-blocked-body">
             <p>You cannot access the CMS because you did not agree to the Terms and Conditions.</p>
-            <p>Please continue using the link below. The destination is still in progress.</p>
+            <p>You will now be redirected to One Portal's dashboard.</p>
 
             <div class="terms-blocked-actions">
                 <a href="" class="terms-blocked-btn">Continue</a>
