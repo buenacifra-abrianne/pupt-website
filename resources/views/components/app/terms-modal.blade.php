@@ -36,7 +36,7 @@
         border-radius: 6px;
         overflow: hidden;
         box-shadow: 0 20px 48px rgba(11, 16, 22, 0.4);
-        border: 1px solid #d9d9d9;
+        border: none;
     }
 
     .cms-terms-header {
