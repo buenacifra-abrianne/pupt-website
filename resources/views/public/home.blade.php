@@ -7,89 +7,82 @@
   <meta name="theme-color" content="#8B0000" />
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
-  <!-- GLOBAL LAYOUT -->
   <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}"/>
-
-  <!-- PAGE-SPECIFIC -->
   <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}" />
 </head>
 
 <body>
-
-  <!-- HEADER COMPONENT -->
   <pup-header
-  data-home="{{ route('public.home') }}"
-  data-about="{{ route('public.about') }}"
-  data-academics="{{ route('public.academics') }}"
-  data-students="{{ route('public.students') }}"
-  data-news-events="{{ route('public.events') }}"
-  data-research="{{ route('public.research') }}"
-  data-assets="{{ asset('assets') }}"
-></pup-header>
+    data-home="{{ route('public.home') }}"
+    data-about="{{ route('public.about') }}"
+    data-academics="{{ route('public.academics') }}"
+    data-students="{{ route('public.students') }}"
+    data-news-events="{{ route('public.events') }}"
+    data-research="{{ route('public.research') }}"
+    data-assets="{{ asset('assets') }}"
+  ></pup-header>
+
+  @php
+    $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
+    $slides = $homeCms['carousel_slides'] ?? [];
+    if (empty($slides)) {
+        $slides = \App\Support\HomeCmsContent::defaults()['carousel_slides'];
+    }
+
+    $campusImage = \App\Support\HomeCmsContent::resolveImagePath(
+        $homeCms['campus_image'] ?? '',
+        'assets/static_img/pupillar.jpeg'
+    );
+  @endphp
 
   <main class="main-content">
-    <button class="message-button" title="Chat with AI Assistant">💬</button>
+    <button class="message-button" title="Chat with AI Assistant">&#128172;</button>
 
-    <!-- Carousel -->
     <section class="carousel-section">
       <div class="carousel">
+        @foreach($slides as $slide)
+          @php
+            $slideTitle = trim((string) ($slide['title'] ?? ''));
+            $slideSubtitle = trim((string) ($slide['subtitle'] ?? ''));
+            $slideImage = \App\Support\HomeCmsContent::resolveImagePath(
+                (string) ($slide['image'] ?? ''),
+                'assets/static_img/pupillar.jpeg'
+            );
+          @endphp
 
-        <div class="carousel-slide fade">
-          <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Announcement 1" />
-          <div class="carousel-caption">
-            <h2>Welcome to PUP Taguig Campus</h2>
-            <p>Excellence in Technical Education</p>
+          <div class="carousel-slide fade">
+            <img src="{{ $slideImage }}" alt="{{ $slideTitle !== '' ? $slideTitle : 'Carousel slide '.$loop->iteration }}" />
+            <div class="carousel-caption">
+              <h2>{{ $slideTitle !== '' ? $slideTitle : ('Slide '.$loop->iteration) }}</h2>
+              <p>{{ $slideSubtitle }}</p>
+            </div>
           </div>
-        </div>
-
-        <div class="carousel-slide fade">
-          <img src="{{ asset('assets/static_img/graduates.jpg') }}" alt="Announcement 2" />
-          <div class="carousel-caption">
-            <h2>Academic Excellence</h2>
-            <p>Preparing Leaders for Tomorrow</p>
-          </div>
-        </div>
-
-        <div class="carousel-slide fade">
-          <img src="{{ asset('assets/static_img/studentbody.jpg') }}" alt="Announcement 3" />
-          <div class="carousel-caption">
-            <h2>Student Life</h2>
-            <p>Building Community and Character</p>
-          </div>
-        </div>
+        @endforeach
 
         <a class="carousel-prev" onclick="changeSlide(-1)">&#10094;</a>
         <a class="carousel-next" onclick="changeSlide(1)">&#10095;</a>
 
         <div class="carousel-indicators">
-          <span class="indicator" onclick="goToSlide(1)"></span>
-          <span class="indicator" onclick="goToSlide(2)"></span>
-          <span class="indicator" onclick="goToSlide(3)"></span>
+          @foreach($slides as $slide)
+            <span class="indicator" onclick="goToSlide({{ $loop->iteration }})"></span>
+          @endforeach
         </div>
       </div>
     </section>
 
-    <!-- About Section -->
     <section class="about-pup reveal">
       <div class="about-content reveal">
         <h2>PUP TAGUIG CAMPUS</h2>
 
         <div class="about-image">
-          <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP Taguig Campus Building" />
+          <img src="{{ $campusImage }}" alt="PUP Taguig Campus Building" />
         </div>
 
-        <p>
-          Quality and relevant education. These are the key words and
-          the main objective for the establishment of the Polytechnic
-          University of the Philippines Taguig Campus.
-        </p>
+        <p>{!! nl2br(e($homeCms['campus_description'])) !!}</p>
       </div>
     </section>
 
-    <!-- Announcements & News -->
     <section class="news-announcements reveal">
-
-      <!-- ANNOUNCEMENTS -->
       <div class="announcements-panel">
         <h3>ANNOUNCEMENTS & ADVISORIES</h3>
 
@@ -97,7 +90,6 @@
           @if($announcements->count())
             @foreach($announcements as $a)
               <div class="announcement-item">
-
                 <h4>{{ e($a->title) }}</h4>
 
                 <p>{!! nl2br(e(\Illuminate\Support\Str::limit($a->content, 200))) !!}</p>
@@ -109,25 +101,22 @@
                 <time>
                   {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}
                 </time>
-
               </div>
             @endforeach
           @else
             <div class="announcement-item">
-              <p style="text-align:center; opacity:.7;">No announcements available.</p>
+              <p style="text-align:center; opacity:.7;">No announcements and advisories posted yet.</p>
             </div>
           @endif
         </div>
       </div>
 
-      <!-- NEWS -->
       <div class="latest-news-panel">
         <h3>LATEST NEWS</h3>
 
         <div class="news-scroll">
           @if($news->count())
             @foreach($news as $n)
-
               @php
                 $imgUrl = !empty($n->image_path)
                   ? asset('storage/' . ltrim($n->image_path,'/'))
@@ -137,8 +126,7 @@
               @endphp
 
               <article class="news-card">
-
-                <img src="{{ $imgUrl }}" alt="News image" />
+                <img src="{{ $imgUrl }}" alt="{{ $n->title }}" />
 
                 <div class="card-body">
                   <h4>{{ e($n->title) }}</h4>
@@ -149,26 +137,20 @@
                     {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}
                   </time>
                 </div>
-
               </article>
-
             @endforeach
           @else
             <p style="text-align:center; opacity:.7;">No news posted yet.</p>
           @endif
         </div>
       </div>
-
     </section>
 
     <a href="{{ route('public.feedback') }}" class="submit-btn">Feedback Form</a>
-
   </main>
 
-  <!-- FOOTER -->
   <pup-footer></pup-footer>
 
-  <!-- Scripts -->
   <script src="{{ asset('assets/js/pup-components.js') }}" defer></script>
   <script src="{{ asset('assets/js/script.js') }}" defer></script>
 

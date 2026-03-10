@@ -63,31 +63,8 @@
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Content Management</h1>
-            <p class="page-subtitle">Global content editor for superadmin. Staff edits are reviewed in Pending Approvals.</p>
+            <p class="page-subtitle">Global content editor for admin. Staff edits are reviewed in Pending Approvals.</p>
         </div>
-
-        <div class="stats-grid" style="margin-bottom:18px;">
-            <div class="stat-card">
-                <div class="stat-icon maroon"><i class="fas fa-layer-group"></i></div>
-                <div class="stat-info">
-                    <div class="stat-label">Total Contents</div>
-                    <div class="stat-value">{{ (int) ($totalLiveContents ?? 0) }}</div>
-                </div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon yellow"><i class="fas fa-hourglass-half"></i></div>
-                <div class="stat-info">
-                    <div class="stat-label">Pending CMS Requests</div>
-                    <div class="stat-value">{{ (int) ($totalPending ?? 0) }}</div>
-                    <div class="stat-change positive">
-                        <a href="{{ route('superadmin.approvals.pending') }}" style="color:inherit;text-decoration:none;">
-                            Review pending approvals
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div class="tab-navigation">
             @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
                 <button class="cms-tab-btn {{ $loop->first ? 'active' : '' }}" type="button" onclick="switchCmsTab('{{ $tabKey }}', this)">
@@ -104,6 +81,9 @@
         @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
             @php
                 $live = $contentsByTab[$tabKey] ?? ['title' => $tabDef['label'].' Content', 'content' => ''];
+                $homeLive = $tabKey === 'home'
+                    ? \App\Support\HomeCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
             @endphp
 
             <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
@@ -114,27 +94,109 @@
                     </div>
 
                     <div style="padding:14px;">
-                        <form class="cms-save-form" method="POST" action="{{ route('superadmin.content.save') }}">
-                            @csrf
-                            <input type="hidden" name="tab_key" value="{{ $tabKey }}">
+                        @if($tabKey === 'home')
+                            <form class="cms-save-form home-section-form" method="POST" action="{{ route('admin.content.save') }}" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="tab_key" value="{{ $tabKey }}">
+                                <input type="hidden" name="section_key" value="description">
 
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" maxlength="255" value="{{ $live['title'] }}">
-                            </div>
+                                <section class="home-cms-section">
+                                    <h4 class="home-cms-title">Description</h4>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea name="home[campus_description]" rows="6">{{ $homeLive['campus_description'] ?? '' }}</textarea>
+                                    </div>
+                                    <div class="form-group" style="margin-bottom:0;">
+                                        @php
+                                            $campusInputId = 'admin-home-campus-image';
+                                            $campusPreview = \App\Support\HomeCmsContent::resolveImagePath($homeLive['campus_image'] ?? '', 'assets/static_img/pupillar.jpeg');
+                                        @endphp
+                                        <label>Description Image</label>
+                                        <input type="hidden" name="home[campus_image]" value="{{ $homeLive['campus_image'] ?? '' }}">
+                                        <label class="home-dropzone campus-dropzone" for="{{ $campusInputId }}">
+                                            <img src="{{ $campusPreview }}" alt="Description image preview" class="campus-preview" data-preview-for="{{ $campusInputId }}">
+                                            <span class="dropzone-file-name" data-file-name-for="{{ $campusInputId }}">Drop image here or click to replace</span>
+                                        </label>
+                                        <input id="{{ $campusInputId }}" class="home-dropzone-input" type="file" name="home[campus_image_file]" accept="image/*">
+                                    </div>
+                                </section>
 
-                            <div class="form-group">
-                                <label>Content</label>
-                                <textarea name="content" rows="13">{{ $live['content'] }}</textarea>
-                            </div>
+                                <div style="display:flex;justify-content:flex-end;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i>
+                                        Save Description
+                                    </button>
+                                </div>
+                            </form>
 
-                            <div style="display:flex;justify-content:flex-end;">
-                                <button type="submit" class="btn btn-primary">
-                                    <i class="fas fa-save"></i>
-                                    Save Live Content
-                                </button>
-                            </div>
-                        </form>
+                            <form class="cms-save-form home-section-form" method="POST" action="{{ route('admin.content.save') }}" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="tab_key" value="{{ $tabKey }}">
+                                <input type="hidden" name="section_key" value="carousel">
+
+                                <section class="home-cms-section">
+                                    <h4 class="home-cms-title">Carousel Manager</h4>
+                                    <div class="carousel-manager-grid">
+                                        @for($idx = 0; $idx < 3; $idx++)
+                                            @php
+                                                $slide = $homeLive['carousel_slides'][$idx] ?? ['title' => '', 'subtitle' => '', 'image' => ''];
+                                                $slideInputId = 'admin-home-slide-'.$idx;
+                                                $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
+                                            @endphp
+                                            <div class="carousel-manager-item">
+                                                <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}">
+                                                <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}">
+                                                    <img src="{{ $slidePreview }}" alt="Slide {{ $idx + 1 }} preview" class="slide-preview" data-preview-for="{{ $slideInputId }}">
+                                                    <span class="dropzone-label">Slide {{ $idx + 1 }}</span>
+                                                    <span class="dropzone-file-name" data-file-name-for="{{ $slideInputId }}">Drop image here or click to replace</span>
+                                                </label>
+                                                <input id="{{ $slideInputId }}" class="home-dropzone-input" type="file" name="home[carousel][{{ $idx }}][image_file]" accept="image/*">
+
+                                                <div class="slide-meta">
+                                                    <div class="form-group">
+                                                        <label>Title</label>
+                                                        <input type="text" name="home[carousel][{{ $idx }}][title]" maxlength="255" value="{{ $slide['title'] }}">
+                                                    </div>
+                                                    <div class="form-group" style="margin-bottom:0;">
+                                                        <label>Description</label>
+                                                        <textarea name="home[carousel][{{ $idx }}][subtitle]" rows="2">{{ $slide['subtitle'] }}</textarea>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endfor
+                                    </div>
+                                </section>
+
+                                <div style="display:flex;justify-content:flex-end;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i>
+                                        Save Carousel
+                                    </button>
+                                </div>
+                            </form>
+                        @else
+                            <form class="cms-save-form" method="POST" action="{{ route('admin.content.save') }}" enctype="multipart/form-data">
+                                @csrf
+                                <input type="hidden" name="tab_key" value="{{ $tabKey }}">
+
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="title" maxlength="255" value="{{ $live['title'] }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Content</label>
+                                    <textarea name="content" rows="13">{{ $live['content'] }}</textarea>
+                                </div>
+
+                                <div style="display:flex;justify-content:flex-end;">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-save"></i>
+                                        Save Live Content
+                                    </button>
+                                </div>
+                            </form>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -234,6 +296,116 @@
         font-weight: 700;
     }
 
+    .home-dropzone {
+        border: 1px dashed #d4af37;
+        border-radius: 10px;
+        padding: 12px;
+        display: block;
+        cursor: pointer;
+        background: #fffdf6;
+    }
+
+    .dropzone-label {
+        display: block;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: #5c0000;
+    }
+
+    .dropzone-file-name {
+        display: block;
+        font-size: 12px;
+        color: #666;
+        word-break: break-all;
+    }
+
+    .home-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .home-dropzone-input {
+        display: none;
+    }
+
+    .home-cms-section {
+        margin-bottom: 18px;
+        padding: 12px;
+        border: 1px solid #ececec;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .home-cms-title {
+        margin: 0 0 10px;
+        font-size: 14px;
+        color: #5c0000;
+    }
+
+    .home-section-form + .home-section-form {
+        margin-top: 12px;
+    }
+
+    .carousel-manager-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+    }
+
+    .carousel-manager-item {
+        min-width: 0;
+        border: 1px solid #f0f0f0;
+        border-radius: 12px;
+        padding: 10px;
+        background: #fff;
+    }
+
+    .slide-dropzone {
+        min-height: 180px;
+        text-align: center;
+    }
+
+    .slide-preview {
+        width: 100%;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: #f1f1f1;
+    }
+
+    .slide-meta {
+        margin-top: 10px;
+    }
+
+    .slide-meta .form-group {
+        margin-bottom: 8px;
+    }
+
+    .slide-meta textarea {
+        resize: vertical;
+        min-height: 56px;
+    }
+
+    .campus-dropzone {
+        text-align: center;
+    }
+
+    .campus-preview {
+        width: min(100%, 460px);
+        height: 220px;
+        object-fit: cover;
+        border-radius: 8px;
+        margin-bottom: 8px;
+        background: #f1f1f1;
+    }
+
+    @media (max-width: 1024px) {
+        .carousel-manager-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
 </style>
 
 <script>
@@ -252,6 +424,57 @@
         localStorage.setItem('activeSuperadminCmsTab', tabKey);
     }
 
+    function getTrackableFields(form) {
+        const ignored = new Set(['_token', 'tab_key', 'section_key', 'request_id']);
+        return Array.from(form.elements).filter((field) => {
+            if (!(field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement)) {
+                return false;
+            }
+
+            if (!field.name || ignored.has(field.name)) {
+                return false;
+            }
+
+            const type = (field.type || '').toLowerCase();
+            if (type === 'submit' || type === 'button' || type === 'reset') {
+                return false;
+            }
+
+            return true;
+        });
+    }
+
+    function fieldValue(field) {
+        if (field instanceof HTMLInputElement) {
+            const type = (field.type || '').toLowerCase();
+            if (type === 'checkbox' || type === 'radio') {
+                return field.checked ? '1' : '0';
+            }
+        }
+
+        return field.value ?? '';
+    }
+
+    function captureFormSnapshot(form) {
+        getTrackableFields(form).forEach((field) => {
+            if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
+                return;
+            }
+
+            field.dataset.initialValue = fieldValue(field);
+        });
+    }
+
+    function formHasChanges(form) {
+        return getTrackableFields(form).some((field) => {
+            if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
+                return !!(field.files && field.files.length > 0);
+            }
+
+            return (field.dataset.initialValue ?? '') !== fieldValue(field);
+        });
+    }
+
     async function submitSave(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
@@ -264,7 +487,7 @@
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                 },
-                body: new URLSearchParams(new FormData(form))
+                body: new FormData(form)
             });
 
             const raw = await res.text();
@@ -276,7 +499,15 @@
             }
 
             if (typeof window.showToast === 'function') {
-                window.showToast(json.message || 'Content saved.', 'success', 'Success');
+                if (json.no_changes) {
+                    window.showToast(json.message || 'No changes detected.', 'info', 'No Changes');
+                } else {
+                    window.showToast(json.message || 'Content saved.', 'success', 'Success');
+                }
+            }
+
+            if (!json.no_changes) {
+                window.location.reload();
             }
         } catch (err) {
             if (typeof window.showToast === 'function') {
@@ -292,21 +523,80 @@
     document.querySelectorAll('.cms-save-form').forEach((form) => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
+            if (!formHasChanges(form)) {
+                if (typeof window.showToast === 'function') {
+                    window.showToast('No changes detected.', 'info', 'No Changes');
+                } else {
+                    alert('No changes detected.');
+                }
+                return;
+            }
             submitSave(form);
         });
     });
 
+    function initHomeDropzones() {
+        document.querySelectorAll('.home-dropzone-input').forEach((input) => {
+            const label = document.querySelector(`.home-dropzone[for="${input.id}"]`);
+            const fileNameEl = document.querySelector(`[data-file-name-for="${input.id}"]`);
+            const previewEl = document.querySelector(`[data-preview-for="${input.id}"]`);
+            if (!label || !fileNameEl) return;
+
+            const applyFile = (file) => {
+                if (!file) return;
+                fileNameEl.textContent = `Selected: ${file.name}`;
+
+                if (previewEl) {
+                    const url = URL.createObjectURL(file);
+                    previewEl.src = url;
+                }
+            };
+
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0] ? input.files[0] : null;
+                applyFile(file);
+            });
+
+            label.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                label.classList.add('dragover');
+            });
+
+            label.addEventListener('dragleave', () => {
+                label.classList.remove('dragover');
+            });
+
+            label.addEventListener('drop', (e) => {
+                e.preventDefault();
+                label.classList.remove('dragover');
+
+                const files = e.dataTransfer?.files;
+                if (!files || files.length === 0) return;
+
+                const file = files[0];
+                const dt = new DataTransfer();
+                dt.items.add(file);
+                input.files = dt.files;
+                applyFile(file);
+            });
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         const saved = localStorage.getItem('activeSuperadminCmsTab');
-        if (!saved) return;
+        if (saved) {
+            const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))
+                .find((el) => (el.getAttribute('onclick') || '').includes("'" + saved + "'"));
 
-        const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))
-            .find((el) => (el.getAttribute('onclick') || '').includes("'" + saved + "'"));
-
-        if (btn) {
-            switchCmsTab(saved, btn);
+            if (btn) {
+                switchCmsTab(saved, btn);
+            }
         }
+
+        initHomeDropzones();
+        document.querySelectorAll('.cms-save-form').forEach((form) => captureFormSnapshot(form));
     });
 </script>
 </body>
 </html>
+

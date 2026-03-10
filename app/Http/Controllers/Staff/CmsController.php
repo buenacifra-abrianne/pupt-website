@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\HomeCmsContent;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -15,7 +17,7 @@ class CmsController extends Controller
     public function index()
     {
         $roles = session('user_roles', [session('user_role')]);
-$allowedTabs = CmsSections::tabsForRoles($roles);
+        $allowedTabs = CmsSections::tabsForRoles($roles);
 
         if (empty($allowedTabs)) {
             abort(403, 'No CMS tabs are assigned to your role.');
@@ -41,7 +43,7 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
     public function requestEdit(Request $request)
     {
         $roles = session('user_roles', [session('user_role')]);
-$allowedTabs = CmsSections::tabsForRoles($roles);
+        $allowedTabs = CmsSections::tabsForRoles($roles);
 
         if (empty($allowedTabs)) {
             return response()->json([
@@ -52,9 +54,19 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
 
         $data = $request->validate([
             'tab_key' => ['required', Rule::in($allowedTabs)],
+            'section_key' => ['nullable', Rule::in(['description', 'carousel'])],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
             'request_id' => ['nullable', 'integer'],
+            'home' => ['nullable', 'array'],
+            'home.campus_description' => ['nullable', 'string'],
+            'home.campus_image' => ['nullable', 'string', 'max:2048'],
+            'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
+            'home.carousel' => ['nullable', 'array'],
+            'home.carousel.*.title' => ['nullable', 'string', 'max:255'],
+            'home.carousel.*.subtitle' => ['nullable', 'string', 'max:255'],
+            'home.carousel.*.image' => ['nullable', 'string', 'max:2048'],
+            'home.carousel.*.image_file' => ['nullable', 'image', 'max:5120'],
         ]);
 
         $email = trim((string) session('user_email'));
@@ -68,6 +80,10 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
+        $sectionKey = $tabKey === 'home'
+            ? strtolower(trim((string) ($data['section_key'] ?? '')))
+            : '';
+        $sectionLabel = $this->homeSectionLabel($sectionKey);
         $type = CmsSections::requestTypeForTab($tabKey);
 
         if ($type === null) {
@@ -78,11 +94,66 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
         }
 
         $live = $this->loadSingleContent($tabKey);
+        $editableRequest = $this->loadEditableRequest($email, $type, $data['request_id'] ?? null);
+        $editablePayload = $this->extractRequestPayload($editableRequest);
+
+        $baseTitle = trim((string) ($editablePayload['title'] ?? $live['title'] ?? ''));
+        if ($baseTitle === '') {
+            $baseTitle = $tabLabel.' Content';
+        }
+
+        $baseContent = (string) ($editablePayload['content'] ?? $live['content'] ?? '');
         $title = trim((string) ($data['title'] ?? ''));
         $content = (string) ($data['content'] ?? '');
 
-        if ($title === '') {
+        if ($tabKey === 'home') {
+            $baseHome = HomeCmsContent::fromStored($baseContent);
+            $baseHomeEncoded = HomeCmsContent::encode($baseHome);
+            $homeInput = is_array($data['home'] ?? null) ? $data['home'] : [];
+
+            if ($sectionKey === 'description') {
+                unset($homeInput['carousel'], $homeInput['carousel_slides']);
+            } elseif ($sectionKey === 'carousel') {
+                unset($homeInput['campus_description'], $homeInput['campus_image'], $homeInput['campus_title']);
+            }
+
+            if ($sectionKey !== 'carousel') {
+                $campusImageUpload = $request->file('home.campus_image_file');
+                if ($campusImageUpload instanceof UploadedFile) {
+                    $homeInput['campus_image'] = $campusImageUpload->store('home/description', 'public');
+                }
+            }
+
+            if ($sectionKey !== 'description') {
+                $carouselUploads = $request->file('home.carousel', []);
+
+                if (is_array($carouselUploads)) {
+                    foreach ($carouselUploads as $index => $slideUpload) {
+                        $upload = is_array($slideUpload) ? ($slideUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $homeInput['carousel'][$index]['image'] = $upload->store('home/carousel', 'public');
+                    }
+                }
+            }
+
+            $content = HomeCmsContent::encode(
+                HomeCmsContent::fromInput($homeInput, $baseHomeEncoded)
+            );
+            $title = $baseTitle;
+            $baseContent = $baseHomeEncoded;
+        } elseif ($title === '') {
             $title = $tabLabel.' Content';
+        }
+
+        if ($title === $baseTitle && $content === $baseContent) {
+            return response()->json([
+                'ok' => true,
+                'no_changes' => true,
+                'message' => 'No changes detected.',
+            ]);
         }
 
         $payload = [
@@ -92,6 +163,8 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
             'content' => $content,
             'previous_title' => (string) ($live['title'] ?? ''),
             'previous_content' => (string) ($live['content'] ?? ''),
+            'section_key' => $sectionKey !== '' ? $sectionKey : null,
+            'section_label' => $sectionLabel,
         ];
 
         $rowData = [
@@ -133,14 +206,21 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
         AuditLog::record(
             'UPDATED',
             'CONTENT',
-            'Submitted CMS edit request for '.$tabLabel,
+            $tabKey === 'home' && $sectionLabel !== ''
+                ? 'Submitted CMS edit request for Home ('.$sectionLabel.')'
+                : 'Submitted CMS edit request for '.$tabLabel,
             (int) (session('user_id') ?? 0)
         );
+
+        $successMessage = 'Content request submitted for admin approval.';
+        if ($tabKey === 'home' && $sectionLabel !== '') {
+            $successMessage = 'Home '.$sectionLabel.' request submitted for approval.';
+        }
 
         return response()->json([
             'ok' => true,
             'request_id' => $requestId,
-            'message' => 'Content request submitted for admin approval.',
+            'message' => $successMessage,
         ]);
     }
 
@@ -249,6 +329,7 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
                 ->where('id', $requestId)
                 ->where('requester_email', $email)
                 ->where('type', $type)
+                ->whereIn('status', ['pending', 'rejected'])
                 ->update($rowData);
 
             if ($updated > 0) {
@@ -275,6 +356,52 @@ $allowedTabs = CmsSections::tabsForRoles($roles);
         $rowData['created_at'] = now();
 
         return (int) DB::table('approval_requests')->insertGetId($rowData);
+    }
+
+    private function loadEditableRequest(string $email, string $type, mixed $requestIdFromInput): ?object
+    {
+        $requestId = is_numeric($requestIdFromInput) ? (int) $requestIdFromInput : 0;
+
+        if ($requestId > 0) {
+            $row = DB::table('approval_requests')
+                ->where('id', $requestId)
+                ->where('requester_email', $email)
+                ->where('type', $type)
+                ->whereIn('status', ['pending', 'rejected'])
+                ->first();
+
+            if ($row) {
+                return $row;
+            }
+        }
+
+        return DB::table('approval_requests')
+            ->where('requester_email', $email)
+            ->where('type', $type)
+            ->whereIn('status', ['pending', 'rejected'])
+            ->orderByDesc('updated_at')
+            ->orderByDesc('id')
+            ->first();
+    }
+
+    private function extractRequestPayload(?object $requestRow): array
+    {
+        if (!$requestRow) {
+            return [];
+        }
+
+        $payload = json_decode((string) ($requestRow->details ?? '{}'), true);
+
+        return is_array($payload) ? $payload : [];
+    }
+
+    private function homeSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'description' => 'Description',
+            'carousel' => 'Carousel',
+            default => '',
+        };
     }
 
     private function pushSystemNotif(
