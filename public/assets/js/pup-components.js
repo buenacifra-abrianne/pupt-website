@@ -39,8 +39,8 @@ class PUPHeader extends HTMLElement {
       <li><a href="${about}" data-key="about">ABOUT</a></li>
       <li><a href="${academics}" data-key="academics">ACADEMICS</a></li>
       <li><a href="${students}" data-key="students">STUDENTS</a></li>
-      <li><a href="${newsEvents}" data-key="news-events">NEWS & EVENTS</a></li>
-      <li><a href="${research}" data-key="research">RESEARCH</a></li>
+      <li><a href="${newsEvents}" data-key="news-events">EVENTS</a></li>
+      <li><a href="${research}" data-key="research">RESEARCH & EXTENSION</a></li>
     </ul>
   </nav>
 </header>
