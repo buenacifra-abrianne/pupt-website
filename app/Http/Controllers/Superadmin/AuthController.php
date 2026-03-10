@@ -143,7 +143,8 @@ return back()->withErrors([
         );
 
         $request->session()->flush();
-        return redirect()->route('superadmin.login');
+
+        return redirect('/');
     }
 
     public function updateProfile(Request $request)
@@ -390,5 +391,26 @@ return back()->withErrors([
         }
 
         return false;
+    }
+
+        public function callback(Request $request)
+    {
+        $token = $request->query('token') ?? $request->input('token');
+
+        \Log::info('IDP callback received', [
+            'query' => $request->query(),
+            'input' => $request->all(),
+            'ip' => $request->ip()
+        ]);
+
+        if (!$token) {
+            return redirect('/')->with('error', 'No authentication token received.');
+        }
+
+        // temporary response habang wala pang IDP specs
+        return response()->json([
+            'message' => 'Token received',
+            'token_preview' => substr($token, 0, 20) . '...'
+        ]);
     }
 }

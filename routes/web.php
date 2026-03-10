@@ -50,6 +50,14 @@ Route::get('/research', [ResearchController::class, 'index'])->name('public.rese
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('public.feedback.submit');
 
+// Endpoints
+
+Route::get('/auth/callback', [AuthController::class, 'callback'])->name('auth.callback');
+
+// Logout
+
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
 // One Portal Entry Point
 Route::get('/sso/login', [App\Http\Controllers\SsoController::class, 'login'])
     ->name('sso.login');
