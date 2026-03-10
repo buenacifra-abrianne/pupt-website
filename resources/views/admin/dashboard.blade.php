@@ -182,7 +182,7 @@
                         </div>
 
                         <div class="notification-time">
-                            <i class="fas fa-user"></i> {{ session('user_name') ?: 'Admin' }}
+                            <i class="fas fa-user"></i> {{ trim((string) ($a->user_name ?? '')) !== '' ? $a->user_name : 'System' }}
                             &nbsp; • &nbsp;
                             <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($a->created_at)->format('M d, Y g:i A') }}
                         </div>
