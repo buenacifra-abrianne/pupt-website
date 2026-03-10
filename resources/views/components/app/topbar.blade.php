@@ -294,6 +294,7 @@
 </header>
 
 <x-app.toast />
+<x-app.terms-modal />
 <x-calendar-assets />
 <script>
 (() => {

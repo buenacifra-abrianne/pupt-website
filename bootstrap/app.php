@@ -19,6 +19,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'superadmin.auth' => \App\Http\Middleware\SuperadminAuth::class,
             'superadmin.role' => \App\Http\Middleware\SuperadminRole::class,
             'nonsuperadmin.role' => \App\Http\Middleware\NonSuperadminRoleOnly::class,
+            'cms.terms.accepted' => \App\Http\Middleware\EnsureCmsTermsAccepted::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

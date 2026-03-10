@@ -42,11 +42,14 @@ class SsoController extends Controller
         }
 
         session([
+            'user_logged_in' => true,
             'user_id' => $user->user_id ?? $user->id,
             'user_first_name' => $user->first_name,
             'user_role' => $user->role,
+            'user_roles' => [(string) ($user->role ?? '')],
             'user_email' => $user->email,
             'sso_logged_in' => true,
+            'terms_accepted' => false,
         ]);
 
         DB::table('users')
