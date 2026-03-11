@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use App\Support\AuditLog;
 
 class OnePortalController extends Controller
 {
@@ -145,11 +146,35 @@ class OnePortalController extends Controller
             'user_middle_name' => $middleName,
         ]);
 
+        AuditLog::record(
+            'LOGIN',
+            'AUTHENTICATION',
+            'User logged in successfully: ' . (string) ($email ?? $user->email ?? ''),
+            (int) ($user->user_id ?? $user->id ?? 0),
+            [
+                'user_id' => (int) ($user->user_id ?? $user->id ?? 0),
+                'user_name' => trim((string) $firstName . ' ' . (string) $lastName),
+                'ip_address' => $request->ip(),
+            ]
+        );
+
         return $this->redirectByRole($user->role);
     }
 
     public function logout(Request $request)
     {
+        AuditLog::record(
+            'LOGOUT',
+            'AUTHENTICATION',
+            'User logged out.',
+            (int) session('user_id', 0),
+            [
+                'user_id' => (int) session('user_id', 0),
+                'user_name' => (string) session('user_name', 'Unknown'),
+                'ip_address' => $request->ip(),
+            ]
+        );
+
         $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
