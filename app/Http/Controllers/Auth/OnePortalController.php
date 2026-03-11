@@ -107,6 +107,7 @@ class OnePortalController extends Controller
         if ($email) {
             $user = DB::table('users')
                 ->where('email', $email)
+                ->$idpRole = strtoupper($userData['role'] ?? '')
                 ->first();
         }
 
@@ -133,9 +134,9 @@ class OnePortalController extends Controller
             'user_id' => $user->user_id,
             'email' => $email ?? $user->email,
             'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
-            'user_role' => strtoupper($user->role),
+            'user_role' => $idpRole,
             'role' => $user->role,
-            'user_roles' => [strtoupper($user->role)],
+            'user_roles' => [$idpRole],
             'oneportal_id' => $id,
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
@@ -157,7 +158,7 @@ class OnePortalController extends Controller
             ]
         );
 
-        return $this->redirectByRole($user->role);
+        return $this->redirectByRole($idpRole);
     }
 
     public function logout(Request $request)
