@@ -147,24 +147,15 @@ class OnePortalController extends Controller
 
     $idpRoles = array_map('strtoupper', $roles);
 
-$idpRole = null;
-foreach ($idpRoles as $role) {
-    if (in_array($role, $allowedRoles, true)) {
-        $idpRole = $role;
-        break;
+    $idpRole = null;
+    foreach ($idpRoles as $role) {
+        if (in_array($role, $allowedRoles, true)) {
+            $idpRole = $role;
+            break;
+        }
     }
-}
 
-$finalRole = $idpRole;
-
-if (!$finalRole) {
-    dd([
-        'FAILED' => 'No valid CMS role found in IDP roles',
-        'idp_roles_raw' => $roles,
-        'idp_roles_upper' => $idpRoles,
-        'local_db_role' => $user->role ?? null,
-    ]);
-}
+    $finalRole = $idpRole ?: strtoupper((string) $user->role);
 
     session([
         'user_logged_in' => true,
