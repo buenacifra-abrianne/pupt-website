@@ -15,7 +15,10 @@ class OnePortalController extends Controller
             return $this->redirectByRole(session('role'));
         }
 
-        return redirect()->away(rtrim(config('services.idp.base_url'), '/'));
+        $clientId = config('services.idp.client_id');
+        $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/authorize?client_id=' . urlencode($clientId);
+
+        return redirect()->away($authorizeUrl);
     }
 
     public function callback(Request $request)
@@ -75,7 +78,7 @@ class OnePortalController extends Controller
                 ->with('error', 'Access token missing.');
         }
 
-        $meResponse = Http::withToken($accessToken)->get(
+        $meResponse = Http::withoutVerifying()->withToken($accessToken)->get(
             rtrim(config('services.idp.base_url'), '/') . '/api/v1/me'
         );
 
@@ -98,30 +101,12 @@ class OnePortalController extends Controller
         $lastName = $userData['last_name'] ?? '';
         $roles = $userData['roles'] ?? [];
 
-        if (!$id && !$email) {
-            return redirect()->route('public.landing')
-                ->with('error', 'User identity missing from IDP response.');
-        }
-
-        // Priority 1: oneportal_id match
         $user = null;
 
-        if ($id) {
-            $user = DB::table('users')
-                ->where('oneportal_id', $id)
-                ->first();
-        }
-
-        // Fallback: email match
-        if (!$user && $email) {
+        if ($email) {
             $user = DB::table('users')
                 ->where('email', $email)
                 ->first();
-        }
-
-        if (!$user) {
-            return redirect()->route('public.landing')
-                ->with('error', 'You do not have CMS access.');
         }
 
         if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
@@ -147,11 +132,14 @@ class OnePortalController extends Controller
             'user_id' => $user->user_id,
             'email' => $email ?? $user->email,
             'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
+            'user_role' => strtoupper($user->role),
             'role' => $user->role,
+            'user_roles' => [strtoupper($user->role)],
             'oneportal_id' => $id,
             'access_token' => $accessToken,
             'refresh_token' => $refreshToken,
             'idp_roles' => $roles,
+            'user_logged_in' => true,
         ]);
 
         return $this->redirectByRole($user->role);
