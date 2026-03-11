@@ -111,6 +111,19 @@ $history = $this->attachDisplayFields($history);
         'created_by' => $creatorId,
     ], 'announcement_id');
 
+    AuditLog::record(
+        'CREATED',
+        'ANNOUNCEMENT',
+        'Created announcement: '.($payload['title'] ?? $row->title ?? 'Announcement').' (approved request)',
+        (int) $newAnnouncementId,
+        [
+            'user_id' => $creatorId > 0 ? $creatorId : null,
+            'user_name' => trim((string) ($row->requester_name ?? '')) !== ''
+                ? trim((string) $row->requester_name)
+                : 'Staff',
+        ]
+    );
+
     // ✅ Save announcement_id back into approval_requests.details (so future edits become UPDATE)
     $payload['announcement_id'] = (int) $newAnnouncementId;
 
@@ -143,6 +156,19 @@ $history = $this->attachDisplayFields($history);
         'status' => 'APPROVED',
         'created_by' => $creatorId,
     ], 'news_id');
+
+    AuditLog::record(
+        'CREATED',
+        'NEWS',
+        'Created news: '.($payload['title'] ?? $row->title ?? 'News').' (approved request)',
+        (int) $newNewsId,
+        [
+            'user_id' => $creatorId > 0 ? $creatorId : null,
+            'user_name' => trim((string) ($row->requester_name ?? '')) !== ''
+                ? trim((string) $row->requester_name)
+                : 'Staff',
+        ]
+    );
 
     // ✅ Save news_id back into approval_requests.details
     $payload['news_id'] = (int) $newNewsId;

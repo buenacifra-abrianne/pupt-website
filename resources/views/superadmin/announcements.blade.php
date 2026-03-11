@@ -140,7 +140,7 @@
 
                                 <span>
                                     <i class="fas fa-user"></i>
-                                    By: {{ e($row->created_by_name ?? 'Unknown') }}
+                                    By: {{ e(trim((string) ($row->created_by_name ?? '')) !== '' ? $row->created_by_name : 'Unknown') }}
                                 </span>
                             </div>
 
@@ -362,6 +362,9 @@
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const RELOAD_TOAST_KEY = 'superadminAnnouncementsToast';
     const SERVER_SUCCESS_TOAST = @json(session('success'));
+    const SERVER_INFO_TOAST = @json(session('info'));
+    let announcementBaseline = null;
+    let newsBaseline = null;
 
     function queueReloadToast(message, type = 'success', title = 'Success') {
         try {
@@ -422,6 +425,7 @@
 
             const idInput = document.getElementById('edit_announcement_id');
             if (idInput) idInput.remove();
+            announcementBaseline = null;
         }
     }
 
@@ -451,6 +455,13 @@
             form.appendChild(idInput);
         }
         idInput.value = id;
+
+        announcementBaseline = {
+            title: (title || '').trim(),
+            content: (content || '').trim(),
+            priority: (priority || '').trim(),
+            status: (status || '').trim(),
+        };
     }
 
     async function toggleAnnouncementStatus(id) {
@@ -490,6 +501,7 @@
 
             const idInput = document.getElementById('edit_news_id');
             if (idInput) idInput.remove();
+            newsBaseline = null;
         }
     }
 
@@ -522,6 +534,13 @@
 
         const fileInput = document.getElementById('imageUpload');
         if (fileInput) fileInput.value = '';
+
+        newsBaseline = {
+            title: (title || '').trim(),
+            content: (content || '').trim(),
+            category: (category || '').trim(),
+            location: (location || '').trim(),
+        };
     }
 
     async function deleteNews(id) {
@@ -578,6 +597,9 @@
         if (SERVER_SUCCESS_TOAST) {
             showToast(SERVER_SUCCESS_TOAST, 'success', 'Success');
         }
+        if (SERVER_INFO_TOAST) {
+            showToast(SERVER_INFO_TOAST, 'info', 'No Changes');
+        }
     });
 
     window.addEventListener('beforeunload', () => {
@@ -591,12 +613,46 @@
         }
     });
 
+    function announcementHasChanges(form) {
+        if (!announcementBaseline) return true;
+
+        return (form.querySelector('[name="title"]')?.value || '').trim() !== announcementBaseline.title
+            || (form.querySelector('[name="content"]')?.value || '').trim() !== announcementBaseline.content
+            || (form.querySelector('[name="priority"]')?.value || '').trim() !== announcementBaseline.priority
+            || (form.querySelector('[name="status"]')?.value || '').trim() !== announcementBaseline.status;
+    }
+
+    function newsHasChanges(form) {
+        if (!newsBaseline) return true;
+
+        const hasFile = !!(form.querySelector('#imageUpload')?.files?.length);
+        if (hasFile) return true;
+
+        return (form.querySelector('[name="title"]')?.value || '').trim() !== newsBaseline.title
+            || (form.querySelector('[name="content"]')?.value || '').trim() !== newsBaseline.content
+            || (form.querySelector('[name="category"]')?.value || '').trim() !== newsBaseline.category
+            || (form.querySelector('[name="location"]')?.value || '').trim() !== newsBaseline.location;
+    }
+
+    document.getElementById('announcementForm').addEventListener('submit', function (e) {
+        const isEdit = !!document.getElementById('edit_announcement_id');
+        if (isEdit && !announcementHasChanges(e.target)) {
+            e.preventDefault();
+            showToast('No changes detected.', 'info', 'No Changes');
+        }
+    });
+
     document.getElementById('newsForm').addEventListener('submit', async function (e) {
   e.preventDefault();
 
   const form = e.target;
   const url = form.action;
   const isEdit = !!document.getElementById('edit_news_id');
+
+  if (isEdit && !newsHasChanges(form)) {
+    showToast('No changes detected.', 'info', 'No Changes');
+    return;
+  }
 
   const fd = new FormData(form);
 
@@ -612,6 +668,11 @@
 
   if (!res.ok || !json || !json.ok) {
     showToast((json && (json.error || json.message)) || raw.slice(0, 200), 'error');
+    return;
+  }
+
+  if (json.no_changes) {
+    showToast(json.message || 'No changes detected.', 'info', 'No Changes');
     return;
   }
 

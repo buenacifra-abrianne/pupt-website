@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\HomeCmsContent;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
@@ -25,7 +27,7 @@ class CmsController extends Controller
         $contentsByTab = $this->loadContents($allowedTabs);
         $pendingByTab = $this->loadPendingCountsByTab();
         $totalPending = array_sum($pendingByTab);
-        $totalLiveContents = $this->countLiveContents();
+        $totalLiveContents = $this->countTotalContents($allowedTabs);
 
         return view('admin.content', [
             'tabDefs' => $tabDefs,
@@ -44,8 +46,18 @@ class CmsController extends Controller
 
         $data = $request->validate([
             'tab_key' => ['required', Rule::in($allowedTabs)],
+            'section_key' => ['nullable', Rule::in(['description', 'carousel'])],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
+            'home' => ['nullable', 'array'],
+            'home.campus_description' => ['nullable', 'string'],
+            'home.campus_image' => ['nullable', 'string', 'max:2048'],
+            'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
+            'home.carousel' => ['nullable', 'array'],
+            'home.carousel.*.title' => ['nullable', 'string', 'max:255'],
+            'home.carousel.*.subtitle' => ['nullable', 'string', 'max:255'],
+            'home.carousel.*.image' => ['nullable', 'string', 'max:2048'],
+            'home.carousel.*.image_file' => ['nullable', 'image', 'max:5120'],
         ]);
 
         if (!Schema::hasTable('cms_contents')) {
@@ -57,15 +69,75 @@ class CmsController extends Controller
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
+        $sectionKey = $tabKey === 'home'
+            ? strtolower(trim((string) ($data['section_key'] ?? '')))
+            : '';
+        $sectionLabel = $this->homeSectionLabel($sectionKey);
+
+        $existing = DB::table('cms_contents')
+            ->where('tab_key', $tabKey)
+            ->first();
+
+        $currentTitle = trim((string) ($existing->title ?? ''));
+        if ($currentTitle === '') {
+            $currentTitle = $tabLabel.' Content';
+        }
+
+        $currentContent = (string) ($existing->content ?? '');
         $title = trim((string) ($data['title'] ?? ''));
         $content = (string) ($data['content'] ?? '');
 
-        if ($title === '') {
+        if ($tabKey === 'home') {
+            $baseHome = HomeCmsContent::fromStored((string) ($existing->content ?? ''));
+            $baseHomeEncoded = HomeCmsContent::encode($baseHome);
+            $homeInput = is_array($data['home'] ?? null) ? $data['home'] : [];
+
+            if ($sectionKey === 'description') {
+                unset($homeInput['carousel'], $homeInput['carousel_slides']);
+            } elseif ($sectionKey === 'carousel') {
+                unset($homeInput['campus_description'], $homeInput['campus_image'], $homeInput['campus_title']);
+            }
+
+            if ($sectionKey !== 'carousel') {
+                $campusImageUpload = $request->file('home.campus_image_file');
+                if ($campusImageUpload instanceof UploadedFile) {
+                    $homeInput['campus_image'] = $campusImageUpload->store('home/description', 'public');
+                }
+            }
+
+            if ($sectionKey !== 'description') {
+                $carouselUploads = $request->file('home.carousel', []);
+
+                if (is_array($carouselUploads)) {
+                    foreach ($carouselUploads as $index => $slideUpload) {
+                        $upload = is_array($slideUpload) ? ($slideUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $homeInput['carousel'][$index]['image'] = $upload->store('home/carousel', 'public');
+                    }
+                }
+            }
+
+            $content = HomeCmsContent::encode(
+                HomeCmsContent::fromInput($homeInput, $baseHomeEncoded)
+            );
+            $title = $currentTitle;
+            $currentContent = $baseHomeEncoded;
+        } elseif ($title === '') {
             $title = $tabLabel.' Content';
         }
 
-        $exists = DB::table('cms_contents')->where('tab_key', $tabKey)->exists();
-        if ($exists) {
+        if ($title === $currentTitle && $content === $currentContent) {
+            return response()->json([
+                'ok' => true,
+                'no_changes' => true,
+                'message' => 'No changes detected.',
+            ]);
+        }
+
+        if ($existing) {
             DB::table('cms_contents')
                 ->where('tab_key', $tabKey)
                 ->update([
@@ -85,17 +157,36 @@ class CmsController extends Controller
             ]);
         }
 
+        $auditMessage = 'Updated '.$tabLabel.' content directly as admin.';
+        if ($tabKey === 'home' && $sectionLabel !== '') {
+            $auditMessage = 'Updated Home content ('.$sectionLabel.') directly as admin.';
+        }
+
         AuditLog::record(
             'UPDATED',
             'CONTENT',
-            'Updated '.$tabLabel.' content directly as admin.',
+            $auditMessage,
             (int) (session('user_id') ?? 0)
         );
 
+        $successMessage = $tabLabel.' content saved successfully.';
+        if ($tabKey === 'home' && $sectionLabel !== '') {
+            $successMessage = 'Home '.$sectionLabel.' saved successfully.';
+        }
+
         return response()->json([
             'ok' => true,
-            'message' => $tabLabel.' content saved successfully.',
+            'message' => $successMessage,
         ]);
+    }
+
+    private function homeSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'description' => 'Description',
+            'carousel' => 'Carousel',
+            default => '',
+        };
     }
 
     private function loadContents(array $tabKeys): array
@@ -172,21 +263,8 @@ class CmsController extends Controller
         return $out;
     }
 
-    private function countLiveContents(): int
+    private function countTotalContents(array $tabKeys): int
     {
-        if (!Schema::hasTable('cms_contents')) {
-            return 0;
-        }
-
-        return (int) DB::table('cms_contents')
-            ->where(function ($q) {
-                $q->whereNotNull('title')
-                    ->whereRaw('TRIM(title) <> ? ', [''])
-                    ->orWhere(function ($qq) {
-                        $qq->whereNotNull('content')
-                           ->whereRaw('TRIM(content) <> ? ', ['']);
-                    });
-            })
-            ->count();
+        return count($tabKeys);
     }
 }
