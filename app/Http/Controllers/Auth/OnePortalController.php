@@ -140,6 +140,9 @@ class OnePortalController extends Controller
             'refresh_token' => $refreshToken,
             'idp_roles' => $roles,
             'user_logged_in' => true,
+            'user_first_name' => $firstName,
+            'user_last_name' => $lastName,
+            'user_middle_name' => $middleName,
         ]);
 
         return $this->redirectByRole($user->role);
