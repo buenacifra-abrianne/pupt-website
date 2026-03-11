@@ -35,4 +35,10 @@ return [
         ],
     ],
 
+    'idp' => [
+        'base_url' => env('IDP_BASE_URL'),
+        'client_id' => env('IDP_CLIENT_ID'),
+        'client_secret' => env('IDP_CLIENT_SECRET'),
+    ],
+
 ];

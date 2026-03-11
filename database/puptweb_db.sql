@@ -31,6 +31,7 @@ CREATE TABLE `activity_logs` (
   `user_name` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `module` varchar(100) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `target_id` int DEFAULT NULL,
+  `ip_address` varchar(45) COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -172,7 +173,7 @@ CREATE TABLE `failed_jobs` (
   `failed_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uuid` (`uuid`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -181,8 +182,38 @@ CREATE TABLE `failed_jobs` (
 
 LOCK TABLES `failed_jobs` WRITE;
 /*!40000 ALTER TABLE `failed_jobs` DISABLE KEYS */;
-INSERT INTO `failed_jobs` VALUES (1,'40e6e76c-2b4a-4cd5-84a1-9095f04b679c','database','default','{\"uuid\":\"40e6e76c-2b4a-4cd5-84a1-9095f04b679c\",\"displayName\":\"App\\\\Mail\\\\NewAccountTempPasswordMail\",\"job\":\"Illuminate\\\\Queue\\\\CallQueuedHandler@call\",\"maxTries\":null,\"maxExceptions\":null,\"failOnTimeout\":false,\"backoff\":null,\"timeout\":null,\"retryUntil\":null,\"data\":{\"commandName\":\"Illuminate\\\\Mail\\\\SendQueuedMailable\",\"command\":\"O:34:\\\"Illuminate\\\\Mail\\\\SendQueuedMailable\\\":17:{s:8:\\\"mailable\\\";O:35:\\\"App\\\\Mail\\\\NewAccountTempPasswordMail\\\":6:{s:8:\\\"fullName\\\";s:10:\\\"Iya Bernas\\\";s:5:\\\"email\\\";s:16:\\\"i27xya@gmail.com\\\";s:9:\\\"roleLabel\\\";s:17:\\\"System Superadmin\\\";s:12:\\\"tempPassword\\\";s:10:\\\"QfsUhM0uBe\\\";s:2:\\\"to\\\";a:1:{i:0;a:2:{s:4:\\\"name\\\";N;s:7:\\\"address\\\";s:16:\\\"i27xya@gmail.com\\\";}}s:6:\\\"mailer\\\";s:4:\\\"smtp\\\";}s:5:\\\"tries\\\";N;s:7:\\\"timeout\\\";N;s:13:\\\"maxExceptions\\\";N;s:17:\\\"shouldBeEncrypted\\\";b:0;s:10:\\\"connection\\\";N;s:5:\\\"queue\\\";N;s:12:\\\"messageGroup\\\";N;s:12:\\\"deduplicator\\\";N;s:5:\\\"delay\\\";N;s:11:\\\"afterCommit\\\";N;s:10:\\\"middleware\\\";a:0:{}s:7:\\\"chained\\\";a:0:{}s:15:\\\"chainConnection\\\";N;s:10:\\\"chainQueue\\\";N;s:19:\\\"chainCatchCallbacks\\\";N;s:3:\\\"job\\\";N;}\",\"batchId\":null},\"createdAt\":1772742183,\"delay\":null}','Symfony\\Component\\Mailer\\Exception\\TransportException: Failed to authenticate on SMTP server with username \"axisbsit@gmail.com\" using the following authenticators: \"LOGIN\", \"PLAIN\", \"XOAUTH2\". Authenticator \"LOGIN\" returned \"Expected response code \"235\" but got code \"535\", with message \"535-5.7.8 Username and Password not accepted. For more information, go to\r\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2adfb5b48f4sm233044685ad.13 - gsmtp\".\". Authenticator \"PLAIN\" returned \"Expected response code \"235\" but got code \"535\", with message \"535-5.7.8 Username and Password not accepted. For more information, go to\r\n535 5.7.8  https://support.google.com/mail/?p=BadCredentials d9443c01a7336-2adfb5b48f4sm233044685ad.13 - gsmtp\".\". Authenticator \"XOAUTH2\" returned \"Expected response code \"235\" but got code \"334\", with message \"334 eyJzdGF0dXMiOiI0MDAiLCJzY2hlbWVzIjoiQmVhcmVyIiwic2NvcGUiOiJodHRwczovL21haWwuZ29vZ2xlLmNvbS8ifQ==\".\". in C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\EsmtpTransport.php:269\nStack trace:\n#0 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\EsmtpTransport.php(199): Symfony\\Component\\Mailer\\Transport\\Smtp\\EsmtpTransport->handleAuth()\n#1 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\EsmtpTransport.php(150): Symfony\\Component\\Mailer\\Transport\\Smtp\\EsmtpTransport->doEhloCommand()\n#2 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\SmtpTransport.php(244): Symfony\\Component\\Mailer\\Transport\\Smtp\\EsmtpTransport->executeCommand()\n#3 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\SmtpTransport.php(270): Symfony\\Component\\Mailer\\Transport\\Smtp\\SmtpTransport->doHeloCommand()\n#4 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\SmtpTransport.php(200): Symfony\\Component\\Mailer\\Transport\\Smtp\\SmtpTransport->start()\n#5 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\AbstractTransport.php(69): Symfony\\Component\\Mailer\\Transport\\Smtp\\SmtpTransport->doSend()\n#6 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\mailer\\Transport\\Smtp\\SmtpTransport.php(138): Symfony\\Component\\Mailer\\Transport\\AbstractTransport->send()\n#7 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Mail\\Mailer.php(584): Symfony\\Component\\Mailer\\Transport\\Smtp\\SmtpTransport->send()\n#8 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Mail\\Mailer.php(331): Illuminate\\Mail\\Mailer->sendSymfonyMessage()\n#9 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Mail\\Mailable.php(207): Illuminate\\Mail\\Mailer->send()\n#10 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Support\\Traits\\Localizable.php(19): Illuminate\\Mail\\Mailable->{closure:Illuminate\\Mail\\Mailable::send():200}()\n#11 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Mail\\Mailable.php(200): Illuminate\\Mail\\Mailable->withLocale()\n#12 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Mail\\SendQueuedMailable.php(82): Illuminate\\Mail\\Mailable->send()\n#13 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Mail\\SendQueuedMailable->handle()\n#14 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()\n#15 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()\n#16 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()\n#17 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(799): Illuminate\\Container\\BoundMethod::call()\n#18 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Bus\\Dispatcher.php(129): Illuminate\\Container\\Container->call()\n#19 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(180): Illuminate\\Bus\\Dispatcher->{closure:Illuminate\\Bus\\Dispatcher::dispatchNow():126}()\n#20 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()\n#21 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Bus\\Dispatcher.php(133): Illuminate\\Pipeline\\Pipeline->then()\n#22 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\CallQueuedHandler.php(136): Illuminate\\Bus\\Dispatcher->dispatchNow()\n#23 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(180): Illuminate\\Queue\\CallQueuedHandler->{closure:Illuminate\\Queue\\CallQueuedHandler::dispatchThroughMiddleware():129}()\n#24 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Pipeline\\Pipeline.php(137): Illuminate\\Pipeline\\Pipeline->{closure:Illuminate\\Pipeline\\Pipeline::prepareDestination():178}()\n#25 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\CallQueuedHandler.php(129): Illuminate\\Pipeline\\Pipeline->then()\n#26 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\CallQueuedHandler.php(70): Illuminate\\Queue\\CallQueuedHandler->dispatchThroughMiddleware()\n#27 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\Jobs\\Job.php(102): Illuminate\\Queue\\CallQueuedHandler->call()\n#28 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\Worker.php(485): Illuminate\\Queue\\Jobs\\Job->fire()\n#29 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\Worker.php(435): Illuminate\\Queue\\Worker->process()\n#30 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\Worker.php(201): Illuminate\\Queue\\Worker->runJob()\n#31 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\Console\\WorkCommand.php(148): Illuminate\\Queue\\Worker->daemon()\n#32 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Queue\\Console\\WorkCommand.php(131): Illuminate\\Queue\\Console\\WorkCommand->runWorker()\n#33 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(36): Illuminate\\Queue\\Console\\WorkCommand->handle()\n#34 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Util.php(43): Illuminate\\Container\\BoundMethod::{closure:Illuminate\\Container\\BoundMethod::call():35}()\n#35 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(96): Illuminate\\Container\\Util::unwrapIfClosure()\n#36 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()\n#37 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Container\\Container.php(799): Illuminate\\Container\\BoundMethod::call()\n#38 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(211): Illuminate\\Container\\Container->call()\n#39 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\console\\Command\\Command.php(341): Illuminate\\Console\\Command->execute()\n#40 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Console\\Command.php(180): Symfony\\Component\\Console\\Command\\Command->run()\n#41 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\console\\Application.php(1102): Illuminate\\Console\\Command->run()\n#42 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\console\\Application.php(356): Symfony\\Component\\Console\\Application->doRunCommand()\n#43 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\symfony\\console\\Application.php(195): Symfony\\Component\\Console\\Application->doRun()\n#44 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Console\\Kernel.php(198): Symfony\\Component\\Console\\Application->run()\n#45 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php(1235): Illuminate\\Foundation\\Console\\Kernel->handle()\n#46 C:\\Users\\abria\\Documents\\Github\\CAPSTONE-2027\\laravel_backup\\artisan(16): Illuminate\\Foundation\\Application->handleCommand()\n#47 {main}','2026-03-05 20:23:09');
 /*!40000 ALTER TABLE `failed_jobs` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `job_batches`
+--
+
+DROP TABLE IF EXISTS `job_batches`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `job_batches` (
+  `id` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `name` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `total_jobs` int NOT NULL,
+  `pending_jobs` int NOT NULL,
+  `failed_jobs` int NOT NULL,
+  `failed_job_ids` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
+  `options` mediumtext COLLATE utf8mb4_unicode_ci,
+  `cancelled_at` int DEFAULT NULL,
+  `created_at` int NOT NULL,
+  `finished_at` int DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `job_batches`
+--
+
+LOCK TABLES `job_batches` WRITE;
+/*!40000 ALTER TABLE `job_batches` DISABLE KEYS */;
+/*!40000 ALTER TABLE `job_batches` ENABLE KEYS */;
 UNLOCK TABLES;
 
 --
@@ -201,7 +232,7 @@ CREATE TABLE `jobs` (
   `available_at` int unsigned NOT NULL,
   `created_at` int unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -225,7 +256,7 @@ CREATE TABLE `migrations` (
   `migration` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
   `batch` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -234,6 +265,7 @@ CREATE TABLE `migrations` (
 
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
+INSERT INTO `migrations` VALUES (1,'0001_01_01_000000_create_users_table',1),(2,'0001_01_01_000001_create_cache_table',1),(3,'0001_01_01_000002_create_jobs_table',1),(4,'2026_02_24_092537_create_approval_requests_table',1),(5,'2026_02_25_170907_add_role_to_users_table',1),(6,'2026_02_25_182904_add_email_to_admins_table',1),(7,'2026_03_01_163427_add_targets_to_notifications_table',1),(8,'2026_03_05_120000_add_profile_fields_to_users_table',1);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -351,6 +383,30 @@ LOCK TABLES `notifications` WRITE;
 UNLOCK TABLES;
 
 --
+-- Table structure for table `password_reset_tokens`
+--
+
+DROP TABLE IF EXISTS `password_reset_tokens`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `token` varchar(255) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `created_at` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `password_reset_tokens`
+--
+
+LOCK TABLES `password_reset_tokens` WRITE;
+/*!40000 ALTER TABLE `password_reset_tokens` DISABLE KEYS */;
+/*!40000 ALTER TABLE `password_reset_tokens` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
 -- Table structure for table `roles`
 --
 
@@ -458,10 +514,12 @@ CREATE TABLE `users` (
   `email` varchar(255) NOT NULL,
   `password` varchar(255) DEFAULT NULL,
   `role` varchar(80) NOT NULL DEFAULT 'pupt:faculty',
+  `profile_picture` varchar(255) DEFAULT NULL,
   `status` enum('Active','Inactive','Pending','Suspended') NOT NULL DEFAULT 'Active',
   `last_login_at` datetime DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
+  `oneportal_id` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -473,7 +531,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'Abrianne','Viduya','Buenacifra','Abrianne Viduya Buenacifra','abriannevbuenacifra@iskolarngbayan.pup.edu.ph','$2y$12$Mql4ZEZODm.O2eV669drPeJR2LU4onzk/vjXgLTeOQ9BJfpBpP/nS','superadmin','Active','2026-03-06 17:23:05',NULL,NULL),(2,'Ernesto','Pineda','Bernas','Ernesto Bernas III','ernestopbernasiii@iskolarngbayan.pup.edu.ph','$2y$12$xjofhUBcGEPn/SKanm09OeU40zq3/fsxkJ17P.zEPQbJtt4KwfIQS','superadmin','Active','2026-03-06 17:21:01',NULL,NULL),(3,'John','','Doe','John Doe','johndoe@test.com','johndoe123','admin','Active',NULL,NULL,NULL),(4,'Jane',NULL,'Doe','Jane Doe','janedoe@test.com','janedoe123','faculty','Active',NULL,NULL,NULL);
+INSERT INTO `users` VALUES (1,'Abrianne','Viduya','Buenacifra','Abrianne Viduya Buenacifra','abriannevbuenacifra@iskolarngbayan.pup.edu.ph','$2y$12$Mql4ZEZODm.O2eV669drPeJR2LU4onzk/vjXgLTeOQ9BJfpBpP/nS','superadmin',NULL,'Active','2026-03-06 17:23:05',NULL,NULL),(2,'Ernesto','Pineda','Bernas','Ernesto Bernas III','ernestopbernasiii@iskolarngbayan.pup.edu.ph','$2y$12$xjofhUBcGEPn/SKanm09OeU40zq3/fsxkJ17P.zEPQbJtt4KwfIQS','superadmin',NULL,'Active','2026-03-06 17:21:01',NULL,NULL),(3,'John','','Doe','John Doe','johndoe@test.com','johndoe123','admin',NULL,'Active',NULL,NULL,NULL),(4,'Jane',NULL,'Doe','Jane Doe','janedoe@test.com','janedoe123','faculty',NULL,'Active',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -486,4 +544,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-08 23:59:06
+-- Dump completed on 2026-03-10 21:02:57

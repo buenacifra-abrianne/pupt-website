@@ -281,7 +281,7 @@
                     <i class="fas fa-user-pen"></i>
                     <span>Edit Profile</span>
                 </button>
-                <form method="POST" action="{{ $logoutRoute }}">
+                <form method="POST" action="{{ route('oneportal.logout') }}">
                     @csrf
                     <button type="submit" class="profile-dropdown-item">
                         <i class="fa-solid fa-right-from-bracket"></i>

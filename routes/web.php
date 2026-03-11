@@ -1,6 +1,8 @@
 <?php
 use Illuminate\Support\Facades\Route;
 
+use App\Http\Controllers\CmsTermsController;
+
 // Superadmin
 use App\Http\Controllers\Superadmin\AuthController;
 use App\Http\Controllers\Superadmin\DashboardController;
@@ -36,7 +38,7 @@ use App\Http\Controllers\Public\FeedbackController;
 
 // Endpoints
 use App\Http\Controllers\SsoController;
-use App\Http\Controllers\CmsTermsController;
+use App\Http\Controllers\Auth\OnePortalController;
 
 Route::get('/', function () {
     return view('public.index'); // <-- ito yung index blade mo
@@ -53,7 +55,10 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('public.fee
 
 // Endpoints
 
-Route::get('/auth/callback', [AuthController::class, 'callback'])->name('auth.callback');
+Route::get('/auth/redirect', [OnePortalController::class, 'redirectToIdp'])->name('oneportal.redirect');
+Route::get('/auth/callback', [OnePortalController::class, 'callback'])->name('oneportal.callback');
+Route::post('/auth/process', [OnePortalController::class, 'process'])->name('oneportal.process');
+Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('oneportal.logout');
 
 // Logout
 
