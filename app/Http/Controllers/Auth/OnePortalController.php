@@ -42,113 +42,123 @@ class OnePortalController extends Controller
     }
 
     public function process(Request $request)
-{
-    $code = $request->input('code');
+    {
+        $code = $request->input('code');
 
-    if (!$code) {
-        dd('FAILED: Authorization code missing.');
+        if (!$code) {
+            return redirect()->route('public.landing')
+                ->with('error', 'Authorization code missing.');
+        }
+
+        $tokenResponse = Http::withoutVerifying()->asJson()->post(
+            rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/token',
+            [
+                'client_id' => config('services.idp.client_id'),
+                'client_secret' => config('services.idp.client_secret'),
+                'code' => $code,
+            ]
+        );
+
+        if (!$tokenResponse->successful()) {
+            $errorBody = $tokenResponse->json();
+            $errorMessage = is_array($errorBody) && isset($errorBody['error'])
+                ? $errorBody['error']
+                : 'Token exchange failed.';
+
+            return redirect()->route('public.landing')
+                ->with('error', $errorMessage);
+        }
+
+        $tokenData = $tokenResponse->json();
+
+        $accessToken = $tokenData['access_token'] ?? null;
+        $refreshToken = $tokenData['refresh_token'] ?? null;
+
+        if (!$accessToken) {
+            return redirect()->route('public.landing')
+                ->with('error', 'Access token missing.');
+        }
+
+         $meResponse = Http::withoutVerifying()->withToken($accessToken)->get(
+            rtrim(config('services.idp.base_url'), '/') . '/api/v1/me'
+        );
+
+        if (!$meResponse->successful()) {
+            $errorBody = $meResponse->json();
+            $errorMessage = is_array($errorBody) && isset($errorBody['error'])
+                ? $errorBody['error']
+                : 'Unable to fetch user information.';
+
+                return redirect()->route('public.landing')
+                ->with('error', $errorMessage);
+        }
+
+         $userData = $meResponse->json();
+
+          $id = $userData['id'] ?? null;
+        $email = $userData['email'] ?? null;
+        $firstName = $userData['first_name'] ?? '';
+        $middleName = $userData['middle_name'] ?? '';
+        $lastName = $userData['last_name'] ?? '';
+        $roles = $userData['roles'] ?? [];
+
+        $user = null;
+
+        if ($email) {
+            $user = DB::table('users')
+                ->where('email', $email)
+                ->first();
+        }
+
+         if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
+            return redirect()->route('public.landing')
+                ->with('error', 'Your CMS account is not active.');
+        }
+
+         // Optional sync of oneportal_id if local record was matched by email
+        if ($id && empty($user->oneportal_id)) {
+            DB::table('users')
+                ->where('user_id', $user->user_id)
+                ->update([
+                    'oneportal_id' => $id,
+                    'updated_at' => now(),
+                ]);
+
+            $user = DB::table('users')
+                ->where('user_id', $user->user_id)
+                ->first();
+        }
+
+        session([
+            'user_id' => $user->user_id,
+            'email' => $email ?? $user->email,
+            'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
+            'user_role' => strtoupper($user->role),
+            'role' => $user->role,
+            'user_roles' => [strtoupper($user->role)],
+            'oneportal_id' => $id,
+            'access_token' => $accessToken,
+            'refresh_token' => $refreshToken,
+            'idp_roles' => $roles,
+            'user_logged_in' => true,
+            'user_first_name' => $firstName,
+            'user_last_name' => $lastName,
+            'user_middle_name' => $middleName,
+         ]);
+            AuditLog::record(
+            'LOGIN',
+            'AUTHENTICATION',
+            'User logged in successfully: ' . (string) ($email ?? $user->email ?? ''),
+            (int) ($user->user_id ?? $user->id ?? 0),
+            [
+                'user_id' => (int) ($user->user_id ?? $user->id ?? 0),
+                'user_name' => trim((string) $firstName . ' ' . (string) $lastName),
+                'ip_address' => $request->ip(),
+            ]
+        );
+
+        return $this->redirectByRole($user->role);
     }
-
-    $tokenResponse = Http::withoutVerifying()->asJson()->post(
-        rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/token',
-        [
-            'client_id' => config('services.idp.client_id'),
-            'client_secret' => config('services.idp.client_secret'),
-            'code' => $code,
-        ]
-    );
-
-    if (!$tokenResponse->successful()) {
-        dd([
-            'FAILED' => 'token exchange',
-            'status' => $tokenResponse->status(),
-            'body' => $tokenResponse->json(),
-            'raw' => $tokenResponse->body(),
-        ]);
-    }
-
-    $tokenData = $tokenResponse->json();
-
-    $accessToken = $tokenData['access_token'] ?? null;
-    $refreshToken = $tokenData['refresh_token'] ?? null;
-
-    if (!$accessToken) {
-        dd([
-            'FAILED' => 'access token missing',
-            'tokenData' => $tokenData,
-        ]);
-    }
-
-    $meResponse = Http::withoutVerifying()->withToken($accessToken)->get(
-        rtrim(config('services.idp.base_url'), '/') . '/api/v1/me'
-    );
-
-    if (!$meResponse->successful()) {
-        dd([
-            'FAILED' => '/me request',
-            'status' => $meResponse->status(),
-            'body' => $meResponse->json(),
-            'raw' => $meResponse->body(),
-        ]);
-    }
-
-    $userData = $meResponse->json();
-
-    $id = $userData['id'] ?? null;
-    $email = $userData['email'] ?? null;
-    $firstName = $userData['first_name'] ?? '';
-    $middleName = $userData['middle_name'] ?? '';
-    $lastName = $userData['last_name'] ?? '';
-    $roles = $userData['roles'] ?? [];
-
-    if (!$email) {
-        dd([
-            'FAILED' => 'email missing from /me',
-            'userData' => $userData,
-        ]);
-    }
-
-    $user = DB::table('users')
-        ->where('email', $email)
-        ->first();
-
-    dd([
-        'SUCCESS_SO_FAR' => true,
-        'email_used_for_lookup' => $email,
-        'matched_local_user' => $user,
-        'user_status' => $user->status ?? null,
-        'user_role' => $user->role ?? null,
-        'idp_user' => $userData,
-    ]);
-
-    if (!$user) {
-        return redirect()->route('public.landing')
-            ->with('error', 'You do not have CMS access.');
-    }
-
-    if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
-        return redirect()->route('public.landing')
-            ->with('error', 'Your CMS account is not active.');
-    }
-
-    session([
-        'user_logged_in' => true,
-        'user_id' => $user->user_id,
-        'user_email' => $email ?? $user->email ?? '',
-        'user_first_name' => $firstName,
-        'user_middle_name' => $middleName,
-        'user_last_name' => $lastName,
-        'user_role' => strtoupper($user->role),
-        'user_roles' => [strtoupper($user->role)],
-        'user_name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
-        'oneportal_id' => $id,
-        'access_token' => $accessToken,
-        'refresh_token' => $refreshToken,
-        'idp_roles' => $roles,
-    ]);
-
-    return $this->redirectByRole($user->role);
-}
 
     public function logout(Request $request)
     {
