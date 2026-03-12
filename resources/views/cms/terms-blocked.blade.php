@@ -139,11 +139,11 @@
         </div>
         <div class="cms-terms-body">
             <p>You cannot access the CMS because you did not agree to the <strong>Terms and Conditions</strong>.</p>
-            <p>You will now be redirected to <strong>One Portal's dashboard</strong>.</p>
+            <p>You will now be redirected to <strong>PUP-T Website's landing page</strong>.</p>
         </div>
 
         <div class="cms-terms-footer">
-            <a href="" class="cms-terms-btn">Continue</a>
+            <a href="{{ route('public.landing') }}" class="cms-terms-btn">Continue</a>
         </div>
     </section>
 </body>
