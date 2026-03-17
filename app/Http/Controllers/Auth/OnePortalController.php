@@ -17,6 +17,7 @@ class OnePortalController extends Controller
         }
 
         $clientId = config('services.idp.client_id');
+        // IDP Authorize Endpoint
         $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/authorize?client_id=' . urlencode($clientId);
 
         return redirect()->away($authorizeUrl);
@@ -36,6 +37,7 @@ class OnePortalController extends Controller
                 ->with('error', 'Authorization code missing.');
         }
 
+        //balik sa own callback URL kasama authorization code
         return view('auth.callback', [
             'code' => $code
         ]);
@@ -43,6 +45,7 @@ class OnePortalController extends Controller
 
     public function process(Request $request)
 {
+    // get authorization code
     $code = $request->input('code');
 
     if (!$code) {
@@ -50,6 +53,7 @@ class OnePortalController extends Controller
             ->with('error', 'Authorization code missing.');
     }
 
+    // exchange auth code for access token
     $tokenResponse = Http::withoutVerifying()->asJson()->post(
         rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/token',
         [
@@ -69,6 +73,7 @@ class OnePortalController extends Controller
             ->with('error', $errorMessage);
     }
 
+    // get access and refresh token from response
     $tokenData = $tokenResponse->json();
 
     $accessToken = $tokenData['access_token'] ?? null;
@@ -79,6 +84,7 @@ class OnePortalController extends Controller
             ->with('error', 'Access token missing.');
     }
 
+    // call /me endpoint using access token
     $meResponse = Http::withoutVerifying()->withToken($accessToken)->get(
         rtrim(config('services.idp.base_url'), '/') . '/api/v1/me'
     );
@@ -93,6 +99,7 @@ class OnePortalController extends Controller
             ->with('error', $errorMessage);
     }
 
+    // get user data from /me response
     $userData = $meResponse->json();
 
     $id = $userData['id'] ?? null;
@@ -102,39 +109,12 @@ class OnePortalController extends Controller
     $lastName = $userData['last_name'] ?? '';
     $roles = $userData['roles'] ?? [];
 
-    $user = null;
-
-    if ($email) {
-        $user = DB::table('users')
-            ->where('email', $email)
-            ->first();
-    }
-
-    if (!$user) {
+    if (!$email) {
         return redirect()->route('public.landing')
-            ->with('error', 'You do not have CMS access.');
+            ->with('error', 'Email not found from IDP.');
     }
 
-    if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
-        return redirect()->route('public.landing')
-            ->with('error', 'Your CMS account is not active.');
-    }
-
-    // Optional sync of oneportal_id if local record was matched by email
-    if ($id && empty($user->oneportal_id)) {
-        DB::table('users')
-            ->where('user_id', $user->user_id)
-            ->update([
-                'oneportal_id' => $id,
-                'updated_at' => now(),
-            ]);
-
-        $user = DB::table('users')
-            ->where('user_id', $user->user_id)
-            ->first();
-    }
-
-    // Use IDP role as source of truth
+    // get role from IDP if available, otherwise fallback to FACULTY
     $allowedRoles = [
         'SUPERADMIN',
         'ADMIN',
@@ -149,14 +129,66 @@ class OnePortalController extends Controller
 
     $idpRole = null;
     foreach ($idpRoles as $role) {
+        // if roles are namespaced like PUPTWEB:REGISTRAR
+        if (str_starts_with($role, 'PUPTWEB:')) {
+            $role = str_replace('PUPTWEB:', '', $role);
+        }
+
         if (in_array($role, $allowedRoles, true)) {
             $idpRole = $role;
             break;
         }
     }
 
-    $finalRole = $idpRole ?: strtoupper((string) $user->role);
+    // fallback role if none returned by IDP
+    $finalRole = $idpRole ?: 'FACULTY';
 
+    // check local user by email
+    $user = DB::table('users')
+        ->where('email', $email)
+        ->first();
+
+    // if user does not exist locally, auto-create local user
+    if (!$user) {
+        DB::table('users')->insert([
+            'first_name' => $firstName,
+            'middle_name' => $middleName,
+            'last_name' => $lastName,
+            'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
+            'email' => $email,
+            'role' => strtolower($finalRole),
+            'status' => 'Active',
+            'oneportal_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $user = DB::table('users')
+            ->where('email', $email)
+            ->first();
+    }
+
+    // if user exists but oneportal_id is still empty, update it
+    if ($id && empty($user->oneportal_id)) {
+        DB::table('users')
+            ->where('user_id', $user->user_id)
+            ->update([
+                'oneportal_id' => $id,
+                'updated_at' => now(),
+            ]);
+
+        $user = DB::table('users')
+            ->where('user_id', $user->user_id)
+            ->first();
+    }
+
+    // if account is inactive, deny access
+    if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
+        return redirect()->route('public.landing')
+            ->with('error', 'Your CMS account is not active.');
+    }
+
+    // create local session
     session([
         'user_logged_in' => true,
         'user_id' => $user->user_id,
@@ -174,6 +206,7 @@ class OnePortalController extends Controller
         'idp_roles' => $idpRoles,
     ]);
 
+    // record login in audit trail
     AuditLog::record(
         'LOGIN',
         'AUTHENTICATION',
