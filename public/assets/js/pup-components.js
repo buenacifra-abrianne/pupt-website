@@ -21,7 +21,7 @@ class PUPHeader extends HTMLElement {
       <img src="${logoUrl}" alt="PUP Logo" class="logo">
       <div class="header-text">
         <h1>POLYTECHNIC UNIVERSITY OF THE PHILIPPINES - TAGUIG CAMPUS</h1>
-        <p class="tagline">THE COUNTRY'S 1ST POLYTECHNIC</p>
+        <p class="tagline">A Leading Comprehensive Polytechnic University in Asia</p>
       </div>
     </div>
     <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
