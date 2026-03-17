@@ -27,10 +27,6 @@ class NonSuperadminRoleOnly
             return redirect('/superadmin/dashboard');
         }
 
-        if (in_array($role, ['ADMIN'], true)) {
-            return redirect('/admin/dashboard');
-        }
-
         if (empty(CmsSections::tabsForRoles($roles))) {
     abort(403, 'Unauthorized (staff role required).');
 }

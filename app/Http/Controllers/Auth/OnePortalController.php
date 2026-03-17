@@ -102,6 +102,8 @@ class OnePortalController extends Controller
     // get user data from /me response
     $userData = $meResponse->json();
 
+    dd($userData);
+
     $id = $userData['id'] ?? null;
     $email = $userData['email'] ?? null;
     $firstName = $userData['first_name'] ?? '';
