@@ -141,7 +141,7 @@ class OnePortalController extends Controller
     }
 
     // fallback role if none returned by IDP
-    $finalRole = $idpRole ?: 'FACULTY';
+    $finalRole = strtoupper((string) $user->role);
 
     // check local user by email
     $user = DB::table('users')
