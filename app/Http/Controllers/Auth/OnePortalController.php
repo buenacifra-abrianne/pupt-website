@@ -114,7 +114,7 @@ class OnePortalController extends Controller
             ->with('error', 'Email not found from IDP.');
     }
 
-    // get role from IDP if available, otherwise fallback to FACULTY
+    // parse IDP roles if available
     $allowedRoles = [
         'SUPERADMIN',
         'ADMIN',
@@ -129,7 +129,7 @@ class OnePortalController extends Controller
 
     $idpRole = null;
     foreach ($idpRoles as $role) {
-        // if roles are namespaced like PUPTWEB:REGISTRAR
+        // handle namespaced roles like PUPTWEB:REGISTRAR
         if (str_starts_with($role, 'PUPTWEB:')) {
             $role = str_replace('PUPTWEB:', '', $role);
         }
@@ -140,15 +140,12 @@ class OnePortalController extends Controller
         }
     }
 
-    // fallback role if none returned by IDP
-    $finalRole = strtoupper((string) $user->role);
-
     // check local user by email
     $user = DB::table('users')
         ->where('email', $email)
         ->first();
 
-    // if user does not exist locally, auto-create local user
+    // if user does not exist locally, auto-create local user with default faculty role
     if (!$user) {
         DB::table('users')->insert([
             'first_name' => $firstName,
@@ -156,7 +153,7 @@ class OnePortalController extends Controller
             'last_name' => $lastName,
             'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
             'email' => $email,
-            'role' => strtolower($finalRole),
+            'role' => 'faculty',
             'status' => 'Active',
             'oneportal_id' => $id,
             'created_at' => now(),
@@ -187,6 +184,9 @@ class OnePortalController extends Controller
         return redirect()->route('public.landing')
             ->with('error', 'Your CMS account is not active.');
     }
+
+    // IDP role first, fallback to local DB role
+    $finalRole = $idpRole ?: strtoupper((string) $user->role);
 
     // create local session
     session([
