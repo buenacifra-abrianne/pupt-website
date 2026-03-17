@@ -17,7 +17,7 @@ class NonSuperadminRoleOnly
     public function handle($request, \Closure $next)
     {
         if (!session('user_logged_in')) {
-            return redirect('/superadmin/login');
+            return redirect('public.landing');
         }
 
         $role = CmsSections::normalizeRole((string) session('user_role'));

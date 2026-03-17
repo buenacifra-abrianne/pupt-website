@@ -11,7 +11,7 @@ class SuperadminAuth
     public function handle(Request $request, Closure $next): Response
     {
         if (!session()->get('user_logged_in')) {
-            return redirect()->route('superadmin.login');
+            return redirect()->route('public.landing');
         }
 
         return $next($request);
