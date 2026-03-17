@@ -102,8 +102,6 @@ class OnePortalController extends Controller
     // get user data from /me response
     $userData = $meResponse->json();
 
-    dd($userData);
-
     $id = $userData['id'] ?? null;
     $email = $userData['email'] ?? null;
     $firstName = $userData['first_name'] ?? '';
@@ -116,46 +114,39 @@ class OnePortalController extends Controller
             ->with('error', 'Email not found from IDP.');
     }
 
-    // parse IDP roles if available
-    $allowedRoles = [
-        'SUPERADMIN',
-        'ADMIN',
-        'REGISTRAR',
-        'HAP',
-        'STUDENT_SERVICES',
-        'RESEARCH_EXTENSION',
-        'FACULTY',
-    ];
+    // parse IDP roles
+    $idpRolesRaw = $roles ?? [];
+    $idpRoles = [];
 
-    $idpRoles = array_map('strtoupper', $roles);
+    foreach ($idpRolesRaw as $role) {
+        $role = strtoupper($role);
 
-    $idpRole = null;
-    foreach ($idpRoles as $role) {
-        // handle namespaced roles like PUPTWEB:REGISTRAR
         if (str_starts_with($role, 'PUPTWEB:')) {
             $role = str_replace('PUPTWEB:', '', $role);
         }
 
-        if (in_array($role, $allowedRoles, true)) {
-            $idpRole = $role;
-            break;
-        }
+        $idpRoles[] = $role;
     }
+
+    // first parsed IDP role
+    $idpRole = $idpRoles[0] ?? null;
 
     // check local user by email
     $user = DB::table('users')
         ->where('email', $email)
         ->first();
 
-    // if user does not exist locally, auto-create local user with default faculty role
+    // if user does not exist locally, auto-create using IDP role if available
     if (!$user) {
+        $newUserRole = strtolower($idpRole ?: 'faculty');
+
         DB::table('users')->insert([
             'first_name' => $firstName,
             'middle_name' => $middleName,
             'last_name' => $lastName,
             'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
             'email' => $email,
-            'role' => 'faculty',
+            'role' => $newUserRole,
             'status' => 'Active',
             'oneportal_id' => $id,
             'created_at' => now(),
@@ -201,7 +192,7 @@ class OnePortalController extends Controller
         'user_name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
         'user_role' => $finalRole,
         'role' => $finalRole,
-        'user_roles' => $idpRoles ?: [$finalRole],
+        'user_roles' => [$idpRole ?: $finalRole],
         'oneportal_id' => $id,
         'access_token' => $accessToken,
         'refresh_token' => $refreshToken,
@@ -221,7 +212,10 @@ class OnePortalController extends Controller
         ]
     );
 
-    return $this->redirectByRole($finalRole);
+    // redirect and save tokens as browser cookies
+    return $this->redirectByRole($finalRole)
+        ->cookie('access_token', $accessToken, 60, '/', null, $request->isSecure(), true, false, 'Lax')
+        ->cookie('refresh_token', $refreshToken ?? '', 60, '/', null, $request->isSecure(), true, false, 'Lax');
 }
 
     public function logout(Request $request)
@@ -238,6 +232,7 @@ class OnePortalController extends Controller
             ]
         );
 
+        // clear local session
         $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
