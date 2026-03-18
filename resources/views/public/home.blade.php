@@ -98,10 +98,18 @@
                   $dp = $a->date_published ?? $a->created_at;
                 @endphp
 
-                <time>
-                  {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}
-                </time>
-              </div>
+                <div class="announcement-footer">
+                    <time>
+                        {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}
+                    </time>
+
+                    @if(!empty($a->link))
+                        <a href="{{ $a->link }}" target="_blank" rel="noopener noreferrer" class="announcement-read-more">
+                            Read More
+                        </a>
+                    @endif
+                </div>
+            </div>
             @endforeach
           @else
             <div class="announcement-item">

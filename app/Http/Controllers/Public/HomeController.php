@@ -22,10 +22,17 @@ class HomeController extends Controller
 
         // Announcements: ENABLED only (latest first)
         $announcements = DB::table('announcements')
-            ->select('announcement_id','title','content','date_published','created_at')
+            ->select('announcement_id','title','content','link','date_published','created_at')
             ->whereRaw("UPPER(TRIM(status)) = 'ENABLED'")
-            ->orderByDesc('date_published')
-            ->orderByDesc('created_at')
+            ->orderByRaw("
+                CASE 
+                    WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0
+                    WHEN UPPER(TRIM(priority)) = 'MEDIUM' THEN 1
+                    WHEN UPPER(TRIM(priority)) = 'LOW' THEN 2
+                    ELSE 3
+                END
+            ")
+            ->orderByRaw("COALESCE(date_published, created_at) DESC")
             ->limit(10)
             ->get();
 

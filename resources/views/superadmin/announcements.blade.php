@@ -131,14 +131,6 @@
 
                             <p class="announcement-description">{{ e($row->content) }}</p>
 
-                                @if(!empty($row->link))
-                                    <div class="announcement-read-more" style="margin-top: 10px;">
-                                        <a href="{{ ($row->link) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-external-link-alt"></i> Read More
-                                        </a>
-                                    </div>
-                                @endif
-
                             <div class="announcement-meta">
                                 <span>
                                     <i class="fas fa-calendar"></i>
@@ -179,6 +171,14 @@
                                     title="Delete Announcement">
                                     <i class="fas fa-trash"></i>
                                 </button>
+
+                                @if(!empty($row->link))
+                                    <div class="announcement-read-more" style="margin-top: 10px;">
+                                        <a href="{{ ($row->link) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-external-link-alt"></i> Read More
+                                        </a>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                     @endforeach

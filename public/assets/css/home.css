@@ -1364,3 +1364,22 @@ body.scroll-up .reveal:not(.active) {
   text-align: center;
   transition: background 0.2s ease, transform 0.2s ease;
 }
+
+.announcement-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.announcement-read-more {
+    margin-left: auto;
+    color: #8B0000;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.announcement-read-more:hover {
+    text-decoration: underline;
+}

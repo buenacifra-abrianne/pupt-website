@@ -660,6 +660,10 @@ body {
     flex-wrap: wrap;
 }
 
+.announcement-read-more {
+    margin-left: auto;
+}
+
 .priority-badge {
     display: inline-block;
     padding: 4px 10px;
