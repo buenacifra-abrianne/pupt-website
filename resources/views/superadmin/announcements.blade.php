@@ -117,7 +117,7 @@
                         @endphp
 
                         <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($row->priority) }}-priority"
-                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
+                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '($row->link ?? '')' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
 
                             <div class="announcement-header">
                                 <div class="title-row">
@@ -130,6 +130,14 @@
                             </div>
 
                             <p class="announcement-description">{{ e($row->content) }}</p>
+
+                                @if(!empty($row->link))
+                                    <div class="announcement-read-more" style="margin-top: 10px;">
+                                        <a href="{{ ($row->link) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
+                                            <i class="fas fa-external-link-alt"></i> Read More
+                                        </a>
+                                    </div>
+                                @endif
 
                             <div class="announcement-meta">
                                 <span>
@@ -150,6 +158,7 @@
                                         '{{ $row->announcement_id }}',
                                         '{{ addslashes($row->title) }}',
                                         '{{ addslashes($row->content) }}',
+                                        '{{ addslashes($row->link ?? '') }}',
                                         '{{ $row->priority }}',
                                         '{{ $row->status }}'
                                     )">
@@ -257,6 +266,17 @@
                 <div class="form-group">
                     <label>Description *</label>
                     <textarea name="content" required placeholder="Enter announcement description"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label for="link">Link</label>
+                    <input 
+                        type="url" 
+                        name="link" 
+                        id="link"
+                        class="form-control"
+                        placeholder="https://example.com"
+                    >
                 </div>
 
                 <div class="form-group">
@@ -433,7 +453,7 @@
         document.getElementById('announcementModal').classList.remove('active');
     }
 
-    function editAnnouncement(id, title, content, priority, status) {
+    function editAnnouncement(id, title, content, link, priority, status) {
         const modal = document.getElementById('announcementModal');
         const form = document.getElementById('announcementForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -443,6 +463,7 @@
 
         form.querySelector('[name="title"]').value = title;
         form.querySelector('[name="content"]').value = content;
+        form.querySelector('[name="link"]').value = link || '';
         form.querySelector('[name="priority"]').value = priority;
         form.querySelector('[name="status"]').value = status;
 
@@ -459,6 +480,7 @@
         announcementBaseline = {
             title: (title || '').trim(),
             content: (content || '').trim(),
+            link: (link || '').trim(),
             priority: (priority || '').trim(),
             status: (status || '').trim(),
         };
@@ -618,6 +640,7 @@
 
         return (form.querySelector('[name="title"]')?.value || '').trim() !== announcementBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== announcementBaseline.content
+            || (form.querySelector('[name="link"]')?.value || '').trim() !== announcementBaseline.link
             || (form.querySelector('[name="priority"]')?.value || '').trim() !== announcementBaseline.priority
             || (form.querySelector('[name="status"]')?.value || '').trim() !== announcementBaseline.status;
     }

@@ -55,6 +55,7 @@ class AnnouncementController extends Controller
         $request->validate([
             'title' => 'required|string',
             'content' => 'required|string',
+            'link' => 'nullable|url|max:255',
             'priority' => 'required|string',
             'status' => 'required|string',
             'announcement_id' => 'nullable|integer',
@@ -62,12 +63,14 @@ class AnnouncementController extends Controller
 
         $title = trim((string) $request->input('title'));
         $content = trim((string) $request->input('content'));
+        $link = trim((string) $request->input('link'));
         $priority = strtoupper(trim((string) $request->input('priority')));
         $status = strtoupper(trim((string) $request->input('status')));
 
         $data = [
             'title' => $title,
             'content' => $content,
+            'link' => $link !== '' ? $link : null,
             'priority' => $priority,
             'status' => $status,
         ];
@@ -91,6 +94,7 @@ class AnnouncementController extends Controller
 
             $isNoChange = trim((string) ($existing->title ?? '')) === $title
                 && trim((string) ($existing->content ?? '')) === $content
+                && trim((string) ($existing->link ?? '')) === ($link !== '' ? $link : '')
                 && strtoupper(trim((string) ($existing->priority ?? ''))) === $priority
                 && strtoupper(trim((string) ($existing->status ?? ''))) === $status;
 
