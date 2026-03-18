@@ -117,7 +117,7 @@
                         @endphp
 
                         <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($row->priority) }}-priority"
-                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '($row->link ?? '')' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
+                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '.($row->link ?? '').' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
 
                             <div class="announcement-header">
                                 <div class="title-row">
@@ -154,14 +154,14 @@
 
                             <div class="announcement-actions">
                                 <button class="btn btn-sm btn-primary"
-                                    onclick="editAnnouncement(
-                                        {{ $row->announcement_id }},
+                                    onclick='editAnnouncement(
+                                        {{ (int) $row->announcement_id }},
                                         @json($row->title),
                                         @json($row->content),
-                                        @json($row->link),
+                                        @json($row->link ?? ""),
                                         @json($row->priority),
                                         @json($row->status)
-                                    )">
+                                    )'>
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
 
