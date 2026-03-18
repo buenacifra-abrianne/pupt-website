@@ -155,12 +155,12 @@
                             <div class="announcement-actions">
                                 <button class="btn btn-sm btn-primary"
                                     onclick="editAnnouncement(
-                                        '{{ $row->announcement_id }}',
-                                        '{{ addslashes($row->title) }}',
-                                        '{{ addslashes($row->content) }}',
-                                        '{{ addslashes($row->link ?? '') }}',
-                                        '{{ $row->priority }}',
-                                        '{{ $row->status }}'
+                                        {{ $row->announcement_id }},
+                                        @json($row->title),
+                                        @json($row->content),
+                                        @json($row->link),
+                                        @json($row->priority),
+                                        @json($row->status)
                                     )">
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
