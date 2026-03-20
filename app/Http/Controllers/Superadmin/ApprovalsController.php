@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\RichText;
 
 class ApprovalsController extends Controller
 {
@@ -103,7 +104,7 @@ $history = $this->attachDisplayFields($history);
     // ✅ Insert and get the new announcement_id
     $newAnnouncementId = DB::table('announcements')->insertGetId([
         'title' => $payload['title'] ?? $row->title ?? 'Announcement',
-        'content' => $payload['content'] ?? '',
+        'content' => RichText::sanitize($payload['content'] ?? ''),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
         'created_at' => now(),
         'status' => 'ENABLED',
@@ -146,7 +147,7 @@ $history = $this->attachDisplayFields($history);
     // ✅ Insert and get the new news_id
     $newNewsId = DB::table('news')->insertGetId([
         'title' => $payload['title'] ?? $row->title ?? 'News',
-        'content' => $payload['content'] ?? '',
+        'content' => RichText::sanitize($payload['content'] ?? ''),
         'category' => $payload['category'] ?? 'Other',
         'location' => $payload['location'] ?? null,
         'image_path' => $payload['image_path'] ?? null,
@@ -186,7 +187,7 @@ $history = $this->attachDisplayFields($history);
 
             $announcementUpdate = [
                 'title' => $payload['title'] ?? DB::raw('title'),
-                'content' => $payload['content'] ?? DB::raw('content'),
+                'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                 'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
             ];
             if (Schema::hasColumn('announcements', 'updated_at')) {
@@ -227,7 +228,7 @@ $history = $this->attachDisplayFields($history);
                 ->where('news_id', $nid)
                 ->update([
                     'title' => $payload['title'] ?? DB::raw('title'),
-                    'content' => $payload['content'] ?? DB::raw('content'),
+                    'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                     'category' => $payload['category'] ?? DB::raw('category'),
                     'location' => $payload['location'] ?? DB::raw('location'),
                     'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),

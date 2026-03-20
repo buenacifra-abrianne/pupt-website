@@ -150,7 +150,7 @@
                                         {{ e($row->priority) }}
                                     </span>
                                 </div>
-                                <p class="announcement-text">{{ e($row->content) }}</p>
+                                <div class="announcement-text rich-text-content">{!! \App\Support\RichText::sanitize($row->content) !!}</div>
                                 <div class="announcement-meta">
                                     <i class="far fa-clock"></i> {{ \Carbon\Carbon::parse($row->created_at)->format('M d, Y') }}
                                 </div>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\RichText;
 use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +62,7 @@ class AnnouncementController extends Controller
         ]);
 
         $title = trim((string) $request->input('title'));
-        $content = trim((string) $request->input('content'));
+        $content = RichText::sanitize($request->input('content'));
         $priority = strtoupper(trim((string) $request->input('priority')));
         $status = strtoupper(trim((string) $request->input('status')));
 
@@ -183,7 +184,7 @@ class AnnouncementController extends Controller
         }
 
         $incomingTitle = trim((string) $request->input('title'));
-        $incomingContent = trim((string) $request->input('content'));
+        $incomingContent = RichText::sanitize($request->input('content'));
         $incomingCategory = trim((string) $request->input('category'));
         $incomingLocation = trim((string) $request->input('location'));
         $hasNewImage = $request->hasFile('image');

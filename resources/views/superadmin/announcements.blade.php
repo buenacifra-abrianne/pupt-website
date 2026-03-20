@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.rich_text_editor_assets')
 </head>
 <body>
     <!-- Sidebar -->
@@ -129,7 +130,7 @@
                                 </div>
                             </div>
 
-                            <p class="announcement-description">{{ e($row->content) }}</p>
+                            <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($row->content) !!}</div>
 
                             <div class="announcement-meta">
                                 <span>
@@ -172,13 +173,11 @@
                                     <i class="fas fa-trash"></i>
                                 </button>
 
-                                @if(!empty($row->link))
-                                    <div class="announcement-read-more" style="margin-top: 10px;">
-                                        <a href="{{ ($row->link) }}" target="_blank" rel="noopener noreferrer" class="btn btn-sm btn-primary">
-                                            <i class="fas fa-external-link-alt"></i> Read More
-                                        </a>
-                                    </div>
-                                @endif
+                                <button class="btn btn-sm btn-view-icon" type="button" title="View"
+                                    onclick='openReadMoreModal(@json($row->title), @json($row->content), @json($row->link ?? null))'>
+                                    <i class="fas fa-eye"></i>
+                                </button>
+
                             </div>
                         </div>
                     @endforeach
@@ -234,6 +233,11 @@
                                         onclick="deleteNews({{ (int)$news->news_id }})">
                                         <i class="fas fa-trash"></i>
                                     </button>
+
+                                    <button type="button" class="btn btn-sm btn-view-icon" title="View"
+                                        onclick='openReadMoreModal(@json($news->title), @json($news->content))'>
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -244,6 +248,23 @@
             </div>
         </div>
     </main>
+
+    <div id="readMoreModal" class="modal">
+        <div class="modal-content read-more-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="readMoreTitle">Read More</h2>
+                <button class="close-modal" type="button" onclick="closeReadMoreModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+            <div id="readMoreLinkWrap" style="display:none; margin-top:18px;">
+                <a id="readMoreLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                    <i class="fas fa-external-link-alt"></i> Open Link
+                </a>
+            </div>
+        </div>
+    </div>
 
     <!-- Announcement Modal -->
     <div id="announcementModal" class="modal">
@@ -265,19 +286,33 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea name="content" required placeholder="Enter announcement description"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
                 </div>
 
-                <div class="form-group">
-                    <label for="link">Link</label>
-                    <input 
-                        type="url" 
-                        name="link" 
-                        id="link"
-                        class="form-control"
-                        placeholder="https://example.com"
-                    >
-                </div>
+                @if($hasAnnouncementLinkColumn)
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <div class="announcement-link-row">
+                            <input 
+                                type="url" 
+                                name="link" 
+                                id="link"
+                                class="form-control"
+                                placeholder="https://example.com"
+                            >
+                            <button type="button" class="announcement-link-paste" id="pasteAnnouncementLinkBtn" title="Paste link" aria-label="Paste link">
+                                <i class="fas fa-paste"></i>
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-group">
+                        <label>Link</label>
+                        <div class="announcement-link-unavailable">
+                            Link saving is unavailable in this local database because the `announcements.link` column does not exist.
+                        </div>
+                    </div>
+                @endif
 
                 <div class="form-group">
                     <label>Priority *</label>
@@ -326,7 +361,7 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea name="content" required placeholder="Content"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
                 </div>
 
                 <div class="form-group">
@@ -364,6 +399,47 @@
     </div>
 
 <script>
+    const announcementLinkStyles = document.createElement('style');
+    announcementLinkStyles.textContent = `
+        .announcement-link-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .announcement-link-row .form-control {
+            flex: 1;
+        }
+
+        .announcement-link-paste {
+            width: 42px;
+            height: 42px;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .announcement-link-paste:hover {
+            background: #eef2f7;
+            color: #1f2937;
+        }
+
+        .announcement-link-unavailable {
+            border: 1px dashed #d7dbe2;
+            border-radius: 10px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+        }
+    `;
+    document.head.appendChild(announcementLinkStyles);
+
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('collapsed');
@@ -441,6 +517,7 @@
 
         if (isNew) {
             form.reset();
+            syncRichTextEditors(form);
             if (modalTitle) modalTitle.innerText = "New Announcement";
 
             const idInput = document.getElementById('edit_announcement_id');
@@ -462,8 +539,11 @@
         if (modalTitle) modalTitle.innerText = "Edit Announcement";
 
         form.querySelector('[name="title"]').value = title;
-        form.querySelector('[name="content"]').value = content;
-        form.querySelector('[name="link"]').value = link || '';
+        setRichTextEditorValue(form.querySelector('[name="content"]'), content);
+        const linkInput = form.querySelector('[name="link"]');
+        if (linkInput) {
+            linkInput.value = link || '';
+        }
         form.querySelector('[name="priority"]').value = priority;
         form.querySelector('[name="status"]').value = status;
 
@@ -519,6 +599,7 @@
 
         if (isNew) {
             form.reset();
+            syncRichTextEditors(form);
             if (modalTitle) modalTitle.innerText = "New News Article";
 
             const idInput = document.getElementById('edit_news_id');
@@ -531,6 +612,31 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
+    function openReadMoreModal(title, content, link = null) {
+        const modal = document.getElementById('readMoreModal');
+        const titleEl = document.getElementById('readMoreTitle');
+        const contentEl = document.getElementById('readMoreContent');
+        const linkWrap = document.getElementById('readMoreLinkWrap');
+        const linkEl = document.getElementById('readMoreLink');
+
+        titleEl.textContent = title || 'Read More';
+        contentEl.innerHTML = content || '<p>No content available.</p>';
+
+        if (link) {
+            linkEl.href = link;
+            linkWrap.style.display = '';
+        } else {
+            linkEl.href = '#';
+            linkWrap.style.display = 'none';
+        }
+
+        modal.classList.add('active');
+    }
+
+    function closeReadMoreModal() {
+        document.getElementById('readMoreModal').classList.remove('active');
+    }
+
     function editNews(id, title, content, category, location) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
@@ -540,7 +646,7 @@
         if (modalTitle) modalTitle.innerText = "Edit News Article";
 
         form.querySelector('[name="title"]').value = title;
-        form.querySelector('[name="content"]').value = content;
+        setRichTextEditorValue(form.querySelector('[name="content"]'), content);
         form.querySelector('[name="category"]').value = category;
         form.querySelector('[name="location"]').value = location;
 
@@ -622,6 +728,27 @@
         if (SERVER_INFO_TOAST) {
             showToast(SERVER_INFO_TOAST, 'info', 'No Changes');
         }
+
+        const pasteAnnouncementLinkBtn = document.getElementById('pasteAnnouncementLinkBtn');
+        const announcementLinkInput = document.getElementById('link');
+        if (pasteAnnouncementLinkBtn && announcementLinkInput) {
+            pasteAnnouncementLinkBtn.addEventListener('click', async () => {
+                try {
+                    if (navigator.clipboard?.readText) {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                            announcementLinkInput.value = text.trim();
+                            return;
+                        }
+                    }
+                } catch (_) {}
+
+                const fallback = window.prompt('Paste the link URL');
+                if (fallback) {
+                    announcementLinkInput.value = fallback.trim();
+                }
+            });
+        }
     });
 
     window.addEventListener('beforeunload', () => {
@@ -640,9 +767,12 @@
 
         return (form.querySelector('[name="title"]')?.value || '').trim() !== announcementBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== announcementBaseline.content
-            || (form.querySelector('[name="link"]')?.value || '').trim() !== announcementBaseline.link
             || (form.querySelector('[name="priority"]')?.value || '').trim() !== announcementBaseline.priority
-            || (form.querySelector('[name="status"]')?.value || '').trim() !== announcementBaseline.status;
+            || (form.querySelector('[name="status"]')?.value || '').trim() !== announcementBaseline.status
+            @if($hasAnnouncementLinkColumn)
+            || (form.querySelector('[name="link"]')?.value || '').trim() !== announcementBaseline.link
+            @endif
+        ;
     }
 
     function newsHasChanges(form) {
@@ -658,6 +788,7 @@
     }
 
     document.getElementById('announcementForm').addEventListener('submit', function (e) {
+        syncRichTextEditors(e.target);
         const isEdit = !!document.getElementById('edit_announcement_id');
         if (isEdit && !announcementHasChanges(e.target)) {
             e.preventDefault();
@@ -669,6 +800,7 @@
   e.preventDefault();
 
   const form = e.target;
+  syncRichTextEditors(form);
   const url = form.action;
   const isEdit = !!document.getElementById('edit_news_id');
 

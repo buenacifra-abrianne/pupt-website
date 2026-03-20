@@ -6,6 +6,8 @@
     $profileSuffix = (string) session('user_suffix', '');
     $profilePicture = (string) session('user_profile_picture', '');
     $profileName = trim((string) session('user_name', ''));
+    $profileEmail = (string) session('user_email', '');
+    $profileRole = (string) session('user_role', '');
 
     if ($profileUserId > 0) {
         $profileIdColumn = \Illuminate\Support\Facades\Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
@@ -20,6 +22,7 @@
             $profileSuffix = (string) (data_get($profileUser, 'suffix') ?: $profileSuffix);
             $profilePicture = (string) (data_get($profileUser, 'profile_picture') ?: $profilePicture);
             $profileName = trim((string) (data_get($profileUser, 'name') ?: $profileName));
+            $profileEmail = (string) (data_get($profileUser, 'email') ?: $profileEmail);
         }
     }
 
@@ -27,6 +30,13 @@
         $profileName = trim(implode(' ', array_filter([$profileFirst, $profileMiddle, $profileLast, $profileSuffix], fn ($part) => trim((string) $part) !== '')));
     }
 
+    $profileDetails = [
+        'First Name' => $profileFirst,
+        'Middle Name' => $profileMiddle,
+        'Last Name' => $profileLast,
+        'Suffix' => $profileSuffix,
+        'Email' => $profileEmail,
+    ];
 @endphp
 
 <style>
@@ -38,7 +48,7 @@
     align-items: center;
     justify-content: center;
     z-index: 2500;
-    padding: 16px;
+    padding: 22px;
   }
 
   .profile-edit-modal.active {
@@ -47,11 +57,11 @@
 
   .profile-edit-dialog {
     width: 100%;
-    max-width: 620px;
+    max-width: 920px;
     background: #ffffff;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 28px 60px rgba(0, 0, 0, 0.28);
   }
 
   .profile-edit-head {
@@ -60,84 +70,74 @@
     justify-content: space-between;
     background: #800000;
     color: #fff;
-    padding: 14px 18px;
+    padding: 16px 22px;
   }
 
   .profile-edit-title {
-    font-size: 18px;
-    font-weight: 600;
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
   }
 
   .profile-edit-close {
     border: none;
     background: transparent;
     color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
     font-size: 24px;
     line-height: 1;
     cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.18s ease;
+  }
+
+  .profile-edit-close:hover {
+    background: rgba(255, 255, 255, 0.14);
+    transform: scale(1.04);
   }
 
   .profile-edit-body {
-    padding: 22px 20px 18px;
-    max-height: 70vh;
+    padding: 20px;
+    max-height: 85vh;
     overflow-y: auto;
-    display: grid;
-    gap: 20px;
   }
 
   .profile-card {
-    border: 1px solid #efe6e6;
-    border-radius: 12px;
+    border: 1px solid #eadfdf;
+    border-radius: 18px;
     overflow: hidden;
-    background: #fff;
-  }
-
-  .profile-card-title {
-    margin: 0;
-    padding: 10px 14px;
-    background: #faf6f6;
-    border-bottom: 1px solid #efe6e6;
-    font-size: 13px;
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
-    color: #7a4949;
-    font-weight: 700;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 10px 30px rgba(87, 25, 25, 0.08);
   }
 
   .profile-card-body {
-    padding: 14px;
+    padding: 18px;
     display: grid;
-    gap: 14px;
+    grid-template-columns: 260px minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
   }
 
   .profile-photo-center {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-  }
-
-  .profile-photo-input {
-    display: none;
-  }
-
-  .profile-photo-click {
-    cursor: pointer;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    user-select: none;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 18px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fcf5f5 0%, #f9f2f2 100%);
+    border: 1px solid #f0e2e2;
   }
 
   .profile-photo-ring {
-    width: 150px;
-    height: 150px;
+    width: 140px;
+    height: 140px;
     border-radius: 50%;
     padding: 5px;
     background: linear-gradient(145deg, #d4af37, #c5a028);
     box-shadow: 0 10px 24px rgba(128, 0, 0, 0.18);
-    position: relative;
   }
 
   .profile-photo-preview,
@@ -160,185 +160,134 @@
     letter-spacing: 0.03em;
   }
 
-  .profile-photo-badge {
-    position: absolute;
-    right: 8px;
-    bottom: 8px;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    background: #8e2f2f;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid #fff;
-    font-size: 14px;
-  }
-
   .profile-photo-label {
     font-size: 13px;
     font-weight: 600;
     color: #5f2323;
   }
 
-  .profile-photo-note {
-    color: #666;
-    font-size: 12px;
+  .profile-name {
+    text-align: center;
+    display: grid;
+    gap: 4px;
+    width: 100%;
   }
 
-  .profile-photo-actions {
-    margin-top: 6px;
+  .profile-name strong {
+    color: #4f1717;
+    font-size: 18px;
+    line-height: 1.25;
+  }
+
+  .profile-name span {
+    justify-self: center;
+    min-height: 30px;
+    padding: 6px 14px;
+    border-radius: 999px;
+    background: rgba(128, 0, 0, 0.08);
+    color: #7a4949;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .profile-details {
+    display: grid;
+    gap: 12px;
+    align-content: start;
+    min-width: 0;
+    align-self: start;
   }
 
   .profile-form-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-
-  .profile-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: start;
+    gap: 16px 18px;
   }
 
   .profile-form-group.full {
     grid-column: 1 / -1;
   }
 
+  .profile-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+  }
+
   .profile-form-group label {
-    font-size: 13px;
-    color: #6a3b3b;
-    font-weight: 600;
+    font-size: 12px;
+    color: #815555;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding-left: 2px;
   }
 
-  .profile-form-group input {
-    border: 1px solid #d8cccc;
-    border-radius: 10px;
-    padding: 11px 12px;
+  .profile-static-value {
+    min-height: 42px;
+    border: 1px solid #e3d3d3;
+    border-radius: 12px;
+    padding: 12px 14px;
     font-size: 14px;
-    outline: none;
-    transition: border-color 0.15s ease;
+    color: #2f2f2f;
+    background: linear-gradient(180deg, #ffffff 0%, #fbf8f8 100%);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    width: 100%;
+    overflow-wrap: anywhere;
   }
 
-  .profile-form-group input:focus {
-    border-color: #b06b6b;
+  .profile-static-value.empty {
+    color: #8e7777;
+    font-style: italic;
   }
 
   .profile-edit-foot {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    margin-top: 0;
+    padding-top: 10px;
+    border-top: 1px solid #f1e7e7;
   }
 
   .profile-btn {
     border: none;
-    border-radius: 8px;
-    padding: 10px 14px;
+    border-radius: 10px;
+    padding: 10px 16px;
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
+    transition: background-color 0.18s ease, transform 0.18s ease;
   }
 
   .profile-btn.cancel {
-    background: #f2f2f2;
-    color: #444;
+    background: #f4eeee;
+    color: #6b2d2d;
+    border: 1px solid #e4d2d2;
   }
 
-  .profile-btn.save {
-    background: #800000;
-    color: #fff;
+  .profile-btn.cancel:hover {
+    background: #efe4e4;
+    transform: translateY(-1px);
   }
 
-  .profile-edit-alerts {
-    display: grid;
-    gap: 8px;
-  }
+  @media (max-width: 860px) {
+    .profile-edit-dialog {
+      max-width: 680px;
+    }
 
-  .profile-form-alert {
-    border-radius: 8px;
-    padding: 10px 12px;
-    font-size: 13px;
-  }
+    .profile-card-body {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
 
-  .profile-form-alert.success {
-    background: #edf8ed;
-    color: #1e6a1e;
-    border: 1px solid #b9deb9;
-  }
-
-  .profile-form-alert.error {
-    background: #fff1f1;
-    color: #8f1f1f;
-    border: 1px solid #f0b4b4;
-  }
-
-  .avatar-crop-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.65);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    z-index: 2600;
-  }
-
-  .avatar-crop-overlay.active {
-    display: flex;
-  }
-
-  .avatar-crop-dialog {
-    width: 100%;
-    max-width: 360px;
-    background: #fff;
-    border-radius: 14px;
-    overflow: hidden;
-    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.25);
-  }
-
-  .avatar-crop-head {
-    padding: 12px 14px;
-    background: #faf6f6;
-    border-bottom: 1px solid #efe6e6;
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: #7a4949;
-  }
-
-  .avatar-crop-body {
-    padding: 14px;
-    display: grid;
-    gap: 12px;
-  }
-
-  .avatar-crop-canvas-wrap {
-    width: 100%;
-    display: flex;
-    justify-content: center;
-  }
-
-  .avatar-crop-canvas {
-    width: 280px;
-    height: 280px;
-    border-radius: 12px;
-    background: #f4f4f4;
-    border: 1px solid #e6e0e0;
-    touch-action: none;
-    cursor: grab;
-  }
-
-  .avatar-crop-canvas.dragging {
-    cursor: grabbing;
-  }
-
-  .avatar-crop-foot {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
+    .profile-photo-center {
+      padding: 16px 14px;
+    }
   }
 
   @media (max-width: 640px) {
@@ -350,155 +299,65 @@
       width: 132px;
       height: 132px;
     }
+
+    .profile-edit-body {
+      padding: 14px;
+    }
+
+    .profile-card-body {
+      padding: 16px 14px;
+    }
   }
 </style>
 
 <div id="profileEditModal" class="profile-edit-modal" role="dialog" aria-modal="true" aria-labelledby="profileEditTitle">
   <div class="profile-edit-dialog">
     <div class="profile-edit-head">
-      <h3 id="profileEditTitle" class="profile-edit-title">Edit Profile</h3>
+      <h3 id="profileEditTitle" class="profile-edit-title">Profile Information</h3>
       <button type="button" class="profile-edit-close" onclick="closeProfileModal()">&times;</button>
     </div>
 
     <div class="profile-edit-body">
-      <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="profile-card">
-        @csrf
-        <h4 class="profile-card-title">Profile Information</h4>
+      <div class="profile-card">
         <div class="profile-card-body">
           <div class="profile-photo-center">
-            <input id="profile_picture" class="profile-photo-input" name="profile_picture" type="file" accept=".jpg,.jpeg,.png,.webp">
-            <input id="avatar_image_data" name="avatar_image_data" type="hidden" value="">
-            <input id="reset_avatar" name="reset_avatar" type="hidden" value="0">
+            <div class="profile-photo-ring">
+              <x-app.avatar
+                :name="$profileName"
+                :first-name="$profileFirst"
+                :last-name="$profileLast"
+                :src="$profilePicture"
+                alt="Profile Picture"
+                image-id="profilePicturePreview"
+                fallback-id="profilePictureFallback"
+                image-class="profile-photo-preview"
+                fallback-class="profile-photo-fallback"
+              />
+            </div>
 
-            <label for="profile_picture" class="profile-photo-click">
-              <div class="profile-photo-ring">
-                <x-app.avatar
-                  :name="$profileName"
-                  :first-name="$profileFirst"
-                  :last-name="$profileLast"
-                  :src="$profilePicture"
-                  alt="Profile Picture"
-                  image-id="profilePicturePreview"
-                  fallback-id="profilePictureFallback"
-                  image-class="profile-photo-preview"
-                  fallback-class="profile-photo-fallback"
-                />
-                <span class="profile-photo-badge"><i class="fas fa-camera"></i></span>
-              </div>
-              <span class="profile-photo-label">Click profile picture to change</span>
-              <span class="profile-photo-note">JPG, PNG, WEBP (max 3MB)</span>
-            </label>
-            <div class="profile-photo-actions">
-              <button id="resetAvatarButton" type="button" class="profile-btn cancel">Reset Avatar</button>
+            <div class="profile-name">
+              <strong>{{ $profileName !== '' ? $profileName : 'No profile name available' }}</strong>
+              <span>{{ $profileRole !== '' ? $profileRole : 'No role assigned' }}</span>
             </div>
           </div>
 
-          <div class="profile-form-grid">
-            <div class="profile-form-group">
-              <label for="last_name">Last Name</label>
-              <input id="last_name" name="last_name" type="text" value="{{ old('last_name', $profileLast) }}" maxlength="100">
-            </div>
-
-            <div class="profile-form-group">
-              <label for="first_name">First Name</label>
-              <input id="first_name" name="first_name" type="text" value="{{ old('first_name', $profileFirst) }}" maxlength="100">
-            </div>
-
-            <div class="profile-form-group">
-              <label for="middle_name">Middle Name (Optional)</label>
-              <input id="middle_name" name="middle_name" type="text" value="{{ old('middle_name', $profileMiddle) }}" maxlength="100">
-            </div>
-
-            <div class="profile-form-group">
-              <label for="suffix">Suffix (Optional)</label>
-              <input id="suffix" name="suffix" type="text" value="{{ old('suffix', $profileSuffix) }}" maxlength="30" placeholder="Jr., Sr., III">
-            </div>
-          </div>
-
-          <div class="profile-edit-foot">
-            <button type="button" class="profile-btn cancel" onclick="closeProfileModal()">Cancel</button>
-            <button type="submit" class="profile-btn save">Save Profile</button>
-          </div>
-
-          @if(session('profile_info_success') || session('profile_info_notice') || $errors->profileInfo->any())
-            <div class="profile-edit-alerts">
-              @if(session('profile_info_success'))
-                <div class="profile-form-alert success">{{ session('profile_info_success') }}</div>
-              @endif
-
-              @if(session('profile_info_notice'))
-                <div class="profile-form-alert error">{{ session('profile_info_notice') }}</div>
-              @endif
-
-              @if($errors->profileInfo->any())
-                <div class="profile-form-alert error">
-                  @foreach($errors->profileInfo->all() as $error)
-                    <div>{{ $error }}</div>
-                  @endforeach
+          <div class="profile-details">
+            <div class="profile-form-grid">
+              @foreach($profileDetails as $label => $value)
+                <div class="profile-form-group{{ in_array($label, ['Email'], true) ? ' full' : '' }}">
+                  <label>{{ $label }}</label>
+                  <div class="profile-static-value{{ trim((string) $value) === '' ? ' empty' : '' }}">
+                    {{ trim((string) $value) !== '' ? $value : 'Not provided' }}
+                  </div>
                 </div>
-              @endif
-            </div>
-          @endif
-        </div>
-      </form>
-
-      <form method="POST" action="{{ route('profile.password.update') }}" class="profile-card">
-        @csrf
-        <h4 class="profile-card-title">Change Password</h4>
-        <div class="profile-card-body">
-          <div class="profile-form-grid">
-            <div class="profile-form-group full">
-              <label for="current_password">Current Password</label>
-              <input id="current_password" name="current_password" type="password" placeholder="Enter your current login password" required>
+              @endforeach
             </div>
 
-            <div class="profile-form-group">
-              <label for="new_password">New Password</label>
-              <input id="new_password" name="new_password" type="password" placeholder="Enter new password" required>
-            </div>
-
-            <div class="profile-form-group">
-              <label for="confirm_password">Confirm Password</label>
-              <input id="confirm_password" name="confirm_password" type="password" placeholder="Re-enter new password" required>
+            <div class="profile-edit-foot">
+              <button type="button" class="profile-btn cancel" onclick="closeProfileModal()">Close</button>
             </div>
           </div>
-
-          <div class="profile-edit-foot">
-            <button type="submit" class="profile-btn save">Change Password</button>
-          </div>
-
-          @if(session('profile_password_success') || $errors->profilePassword->any())
-            <div class="profile-edit-alerts">
-              @if(session('profile_password_success'))
-                <div class="profile-form-alert success">{{ session('profile_password_success') }}</div>
-              @endif
-
-              @if($errors->profilePassword->any())
-                <div class="profile-form-alert error">
-                  @foreach($errors->profilePassword->all() as $error)
-                    <div>{{ $error }}</div>
-                  @endforeach
-                </div>
-              @endif
-            </div>
-          @endif
         </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-<div id="avatarCropModal" class="avatar-crop-overlay" role="dialog" aria-modal="true" aria-label="Crop profile picture">
-  <div class="avatar-crop-dialog">
-    <div class="avatar-crop-head">Crop Profile Picture</div>
-    <div class="avatar-crop-body">
-      <div class="avatar-crop-canvas-wrap">
-        <canvas id="avatarCropCanvas" class="avatar-crop-canvas" width="280" height="280"></canvas>
-      </div>
-      <input id="avatarCropZoom" type="range" min="1" max="3" step="0.01" value="1">
-      <div class="avatar-crop-foot">
-        <button id="avatarCropCancel" type="button" class="profile-btn cancel">Cancel</button>
-        <button id="avatarCropApply" type="button" class="profile-btn save">Apply Crop</button>
       </div>
     </div>
   </div>
@@ -519,247 +378,6 @@
     if (modal) modal.classList.remove('active');
   }
 
-  (function initAvatarCropper() {
-    const fileInput = document.getElementById('profile_picture');
-    const hiddenInput = document.getElementById('avatar_image_data');
-    const resetAvatarInput = document.getElementById('reset_avatar');
-    const resetAvatarButton = document.getElementById('resetAvatarButton');
-    const preview = document.getElementById('profilePicturePreview');
-    const fallback = document.getElementById('profilePictureFallback');
-    const cropModal = document.getElementById('avatarCropModal');
-    const canvas = document.getElementById('avatarCropCanvas');
-    const zoomInput = document.getElementById('avatarCropZoom');
-    const applyBtn = document.getElementById('avatarCropApply');
-    const cancelBtn = document.getElementById('avatarCropCancel');
-
-    if (!fileInput || !hiddenInput || !resetAvatarInput || !resetAvatarButton || !preview || !fallback || !cropModal || !canvas || !zoomInput || !applyBtn || !cancelBtn) {
-      return;
-    }
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      return;
-    }
-
-    const cropState = {
-      image: null,
-      baseScale: 1,
-      scale: 1,
-      x: 0,
-      y: 0,
-      dragging: false,
-      pointerId: null,
-      startX: 0,
-      startY: 0,
-      startOffsetX: 0,
-      startOffsetY: 0
-    };
-
-    function openCropper() {
-      cropModal.classList.add('active');
-    }
-
-    function closeCropper() {
-      cropModal.classList.remove('active');
-      cropState.dragging = false;
-      cropState.pointerId = null;
-      canvas.classList.remove('dragging');
-      if (fileInput) {
-        fileInput.value = '';
-      }
-    }
-    window.__closeAvatarCropper = closeCropper;
-
-    function clampPosition() {
-      if (!cropState.image) return;
-      const renderedWidth = cropState.image.width * cropState.scale;
-      const renderedHeight = cropState.image.height * cropState.scale;
-
-      const minX = Math.min(0, canvas.width - renderedWidth);
-      const minY = Math.min(0, canvas.height - renderedHeight);
-      const maxX = 0;
-      const maxY = 0;
-
-      cropState.x = Math.max(minX, Math.min(maxX, cropState.x));
-      cropState.y = Math.max(minY, Math.min(maxY, cropState.y));
-    }
-
-    function drawCropper() {
-      if (!cropState.image) return;
-
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(
-        cropState.image,
-        cropState.x,
-        cropState.y,
-        cropState.image.width * cropState.scale,
-        cropState.image.height * cropState.scale
-      );
-
-      const radius = Math.min(canvas.width, canvas.height) / 2 - 8;
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-
-      ctx.save();
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.45)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.globalCompositeOperation = 'destination-out';
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.restore();
-
-      ctx.save();
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    function initCrop(image) {
-      cropState.image = image;
-      cropState.baseScale = Math.max(canvas.width / image.width, canvas.height / image.height);
-      cropState.scale = cropState.baseScale;
-      zoomInput.value = '1';
-      cropState.x = (canvas.width - image.width * cropState.scale) / 2;
-      cropState.y = (canvas.height - image.height * cropState.scale) / 2;
-      clampPosition();
-      drawCropper();
-      openCropper();
-    }
-
-    fileInput.addEventListener('change', function () {
-      const file = fileInput.files && fileInput.files[0];
-      if (!file) return;
-      resetAvatarInput.value = '0';
-
-      if (!/^image\/(jpeg|png|webp)$/i.test(file.type)) {
-        alert('Please select a JPG, PNG, or WEBP image.');
-        fileInput.value = '';
-        return;
-      }
-
-      if (file.size > 3 * 1024 * 1024) {
-        alert('Selected image is too large. Maximum is 3MB.');
-        fileInput.value = '';
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = function (event) {
-        const img = new Image();
-        img.onload = function () {
-          initCrop(img);
-        };
-        img.src = event.target && event.target.result ? String(event.target.result) : '';
-      };
-      reader.readAsDataURL(file);
-    });
-
-    zoomInput.addEventListener('input', function () {
-      if (!cropState.image) return;
-      const zoomMultiplier = Number(zoomInput.value || '1');
-      const previousScale = cropState.scale;
-      const nextScale = cropState.baseScale * zoomMultiplier;
-
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const imageXAtCenter = (centerX - cropState.x) / previousScale;
-      const imageYAtCenter = (centerY - cropState.y) / previousScale;
-
-      cropState.scale = nextScale;
-      cropState.x = centerX - imageXAtCenter * nextScale;
-      cropState.y = centerY - imageYAtCenter * nextScale;
-      clampPosition();
-      drawCropper();
-    });
-
-    canvas.addEventListener('pointerdown', function (event) {
-      if (!cropState.image) return;
-      cropState.dragging = true;
-      cropState.pointerId = event.pointerId;
-      cropState.startX = event.clientX;
-      cropState.startY = event.clientY;
-      cropState.startOffsetX = cropState.x;
-      cropState.startOffsetY = cropState.y;
-      canvas.classList.add('dragging');
-      canvas.setPointerCapture(event.pointerId);
-    });
-
-    canvas.addEventListener('pointermove', function (event) {
-      if (!cropState.dragging || cropState.pointerId !== event.pointerId) return;
-      const deltaX = event.clientX - cropState.startX;
-      const deltaY = event.clientY - cropState.startY;
-      cropState.x = cropState.startOffsetX + deltaX;
-      cropState.y = cropState.startOffsetY + deltaY;
-      clampPosition();
-      drawCropper();
-    });
-
-    function stopDrag(event) {
-      if (!cropState.dragging) return;
-      if (event && cropState.pointerId !== null && cropState.pointerId !== event.pointerId) return;
-      cropState.dragging = false;
-      cropState.pointerId = null;
-      canvas.classList.remove('dragging');
-    }
-
-    canvas.addEventListener('pointerup', stopDrag);
-    canvas.addEventListener('pointercancel', stopDrag);
-    canvas.addEventListener('lostpointercapture', stopDrag);
-
-    cancelBtn.addEventListener('click', closeCropper);
-    cropModal.addEventListener('click', function (event) {
-      if (event.target === cropModal) {
-        closeCropper();
-      }
-    });
-
-    applyBtn.addEventListener('click', function () {
-      if (!cropState.image) return;
-      const output = document.createElement('canvas');
-      output.width = 320;
-      output.height = 320;
-      const outputCtx = output.getContext('2d');
-      if (!outputCtx) return;
-
-      const ratio = output.width / canvas.width;
-
-      outputCtx.save();
-      outputCtx.beginPath();
-      outputCtx.arc(output.width / 2, output.height / 2, output.width / 2 - 2, 0, Math.PI * 2);
-      outputCtx.closePath();
-      outputCtx.clip();
-      outputCtx.drawImage(
-        cropState.image,
-        cropState.x * ratio,
-        cropState.y * ratio,
-        cropState.image.width * cropState.scale * ratio,
-        cropState.image.height * cropState.scale * ratio
-      );
-      outputCtx.restore();
-
-      const dataUrl = output.toDataURL('image/png', 0.95);
-      hiddenInput.value = dataUrl;
-      resetAvatarInput.value = '0';
-      preview.src = dataUrl;
-      preview.style.display = 'block';
-      fallback.style.display = 'none';
-      closeCropper();
-    });
-
-    resetAvatarButton.addEventListener('click', function () {
-      hiddenInput.value = '';
-      resetAvatarInput.value = '1';
-      fileInput.value = '';
-      preview.removeAttribute('src');
-      preview.style.display = 'none';
-      fallback.style.display = 'flex';
-    });
-  })();
-
   document.addEventListener('click', function (e) {
     const modal = document.getElementById('profileEditModal');
     if (modal && e.target === modal) {
@@ -769,44 +387,7 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-      const cropModal = document.getElementById('avatarCropModal');
-      if (cropModal && cropModal.classList.contains('active')) {
-        if (typeof window.__closeAvatarCropper === 'function') {
-          window.__closeAvatarCropper();
-        } else {
-          cropModal.classList.remove('active');
-        }
-        return;
-      }
       closeProfileModal();
     }
   });
-
-  @if($errors->profileInfo->any() || $errors->profilePassword->any())
-    document.addEventListener('DOMContentLoaded', function () {
-      openProfileModal();
-    });
-  @endif
-
-  @if(session('profile_info_success') || session('profile_info_notice') || session('profile_password_success'))
-    document.addEventListener('DOMContentLoaded', function () {
-      @if(session('profile_info_success'))
-        if (typeof window.showToast === 'function') {
-          window.showToast(@json(session('profile_info_success')), 'success', 'Profile Updated');
-        }
-      @endif
-
-      @if(session('profile_info_notice'))
-        if (typeof window.showToast === 'function') {
-          window.showToast(@json(session('profile_info_notice')), 'warning', 'No Profile Changes');
-        }
-      @endif
-
-      @if(session('profile_password_success'))
-        if (typeof window.showToast === 'function') {
-          window.showToast(@json(session('profile_password_success')), 'success', 'Password Updated');
-        }
-      @endif
-    });
-  @endif
 </script>

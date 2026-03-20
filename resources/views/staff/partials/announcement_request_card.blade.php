@@ -94,7 +94,7 @@ $editPriority = $requestPriority ?: $priority;
   </div>
 </div>
 
-  <p class="announcement-description">{{ e($content) }}</p>
+  <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($content) !!}</div>
 
   <div class="announcement-actions">
     <button type="button" class="btn btn-sm btn-primary"
@@ -124,6 +124,11 @@ $editPriority = $requestPriority ?: $priority;
     data-title="{{ e($title) }}"
     onclick="deleteApprovalRequestOnly(event, this)">
     <i class="fas fa-trash"></i>
+    </button>
+
+    <button type="button" class="btn btn-sm btn-view-icon" title="View"
+      onclick='openReadMoreModal(@json($title), @json($content))'>
+      <i class="fas fa-eye"></i>
     </button>
   </div>
 

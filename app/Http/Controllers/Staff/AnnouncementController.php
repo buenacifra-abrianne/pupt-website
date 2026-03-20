@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Support\RichText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\ApprovalRequest;
@@ -108,7 +109,7 @@ $myNews = DB::table('news')
             $request->input('title'),
             [
                 'title' => $request->input('title'),
-                'content' => $request->input('content'),
+                'content' => RichText::sanitize($request->input('content')),
                 'priority' => $request->input('priority'),
             ]
         );
@@ -131,7 +132,7 @@ $myNews = DB::table('news')
             [
                 'announcement_id' => (int)$request->announcement_id,
                 'title' => $request->input('title'),
-                'content' => $request->input('content'),
+                'content' => RichText::sanitize($request->input('content')),
                 'priority' => $request->input('priority'),
             ]
         );
@@ -242,7 +243,7 @@ $myNews = DB::table('news')
         $request->input('title'),
         [
             'title' => $request->input('title'),
-            'content' => $request->input('content'),
+            'content' => RichText::sanitize($request->input('content')),
             'category' => $request->input('category'),
             'location' => $request->input('location'),
             'image_path' => $imagePath, // ✅ now preserved
@@ -271,7 +272,7 @@ if ($request->hasFile('image')) {
 $payload = [
     'news_id' => (int)$request->input('news_id'),
     'title' => $request->input('title'),
-    'content' => $request->input('content'),
+    'content' => RichText::sanitize($request->input('content')),
     'category' => $request->input('category'),
     'location' => $request->input('location'),
 ];

@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.rich_text_editor_assets')
 </head>
 <body>
     <!-- Sidebar -->
@@ -161,7 +162,7 @@
                     </div>
                 </div>
 
-              <p class="announcement-description">{{ e($a->content ?? '') }}</p>
+              <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($a->content ?? '') !!}</div>
 
               <div class="announcement-actions">
                 {{-- These still SUBMIT REQUESTS --}}
@@ -193,6 +194,13 @@
                         type="button"
                         onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from($a->title ?? '') }})">
                   <i class="fas fa-trash"></i>
+                </button>
+
+                <button class="btn btn-sm btn-view-icon"
+                        type="button"
+                        title="View"
+                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""))'>
+                  <i class="fas fa-eye"></i>
                 </button>
               </div>
 
@@ -307,7 +315,7 @@
   </div>
 @endif
 
-              <p class="announcement-description">{{ e($n->content ?? '') }}</p>
+              <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($n->content ?? '') !!}</div>
 
               <div class="announcement-actions">
                 <button class="btn btn-sm btn-primary"
@@ -328,6 +336,13 @@
                   type="button"
                   onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from($n->title ?? '') }})">
                   <i class="fas fa-trash"></i>
+                </button>
+
+                <button class="btn btn-sm btn-view-icon"
+                  type="button"
+                  title="View"
+                  onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""))'>
+                  <i class="fas fa-eye"></i>
                 </button>
               </div>
             </div>
@@ -350,6 +365,18 @@
 </div>
     </main>
 
+    <div id="readMoreModal" class="modal">
+        <div class="modal-content read-more-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="readMoreTitle">Read More</h2>
+                <button class="close-modal" type="button" onclick="closeReadMoreModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+        </div>
+    </div>
+
     <!-- Announcement Modal -->
     <div id="announcementModal" class="modal">
         <div class="modal-content">
@@ -370,7 +397,7 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea name="content" required placeholder="Enter announcement description"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
                 </div>
 
                 <div class="form-group">
@@ -412,7 +439,7 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea name="content" required placeholder="Content"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
                 </div>
 
                 <div class="form-group">
@@ -582,6 +609,7 @@
 
   if (isNew) {
     form.reset();
+    syncRichTextEditors(form);
     form.action = "{{ route('staff.announcements.requestCreate') }}";
     if (modalTitle) modalTitle.innerText = "New Announcement";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
@@ -659,6 +687,7 @@
 
         if (isNew) {
             form.reset();
+            syncRichTextEditors(form);
             setNewsPreview('');
             document.getElementById('news_existing_image_path').value = '';
             document.getElementById('newsRemoveImageBtn').style.display = 'none';
@@ -681,6 +710,16 @@
 
     function closeNewsModal() {
         document.getElementById('newsModal').classList.remove('active');
+    }
+
+    function openReadMoreModal(title, content) {
+        document.getElementById('readMoreTitle').textContent = title || 'Read More';
+        document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
+        document.getElementById('readMoreModal').classList.add('active');
+    }
+
+    function closeReadMoreModal() {
+        document.getElementById('readMoreModal').classList.remove('active');
     }
 
     function editNews(id, title, content, category, location, imagePath, imageUrl) {
@@ -709,7 +748,7 @@
   form.action = "{{ route('staff.news.requestUpdate') }}";
 
   form.querySelector('[name="title"]').value = title || '';
-  form.querySelector('[name="content"]').value = content || '';
+  setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="category"]').value = category || '';
   form.querySelector('[name="location"]').value = location || '';
 
@@ -750,7 +789,7 @@
   modal.classList.add('active');
 
   form.querySelector('[name="title"]').value = title || '';
-  form.querySelector('[name="content"]').value = content || '';
+  setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="category"]').value = category || '';
   form.querySelector('[name="location"]').value = location || '';
 
@@ -878,7 +917,7 @@
 
   // fill fields
   form.querySelector('[name="title"]').value = title || '';
-  form.querySelector('[name="content"]').value = content || '';
+  setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="priority"]').value = priority || 'MEDIUM';
 
   // ✅ always attach request_id so backend UPDATES same request (no duplicates)
@@ -953,6 +992,7 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
     e.preventDefault();
 
     const form = e.target;
+    syncRichTextEditors(form);
     const url = form.action;
     const isEditMode = !!document.getElementById('edit_announcement_id') || !!document.getElementById('edit_request_id');
 
@@ -979,6 +1019,7 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
   e.preventDefault();
 
   const form = e.target;
+  syncRichTextEditors(form);
   const url = form.action;
   const isEditMode = !!document.getElementById('edit_news_id') || !!document.getElementById('edit_news_request_id');
 

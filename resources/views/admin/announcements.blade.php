@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.rich_text_editor_assets')
 </head>
 <body>
     <!-- Sidebar -->
@@ -115,7 +116,7 @@
                                 </div>
                             </div>
 
-                            <p class="announcement-description">{{ e($row->content) }}</p>
+                            <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($row->content) !!}</div>
 
                             <div class="announcement-meta">
                                 <span>
@@ -155,6 +156,11 @@
                                     onclick="deleteAnnouncement({{ (int)$row->announcement_id }})"
                                     title="Delete Announcement">
                                     <i class="fas fa-trash"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-view-icon" type="button" title="View"
+                                    onclick='openReadMoreModal(@json($row->title), @json($row->content))'>
+                                    <i class="fas fa-eye"></i>
                                 </button>
                             </div>
                         </div>
@@ -211,6 +217,11 @@
                                         onclick="deleteNews({{ (int)$news->news_id }})">
                                         <i class="fas fa-trash"></i>
                                     </button>
+
+                                    <button type="button" class="btn btn-sm btn-view-icon" title="View"
+                                        onclick='openReadMoreModal(@json($news->title), @json($news->content))'>
+                                        <i class="fas fa-eye"></i>
+                                    </button>
                                 </div>
                             </div>
 
@@ -221,6 +232,18 @@
             </div>
         </div>
     </main>
+
+    <div id="readMoreModal" class="modal">
+        <div class="modal-content read-more-modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="readMoreTitle">Read More</h2>
+                <button class="close-modal" type="button" onclick="closeReadMoreModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+        </div>
+    </div>
 
     <!-- Announcement Modal -->
     <div id="announcementModal" class="modal">
@@ -242,7 +265,7 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea name="content" required placeholder="Enter announcement description"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
                 </div>
 
                 <div class="form-group">
@@ -292,7 +315,7 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    <textarea name="content" required placeholder="Content"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
                 </div>
 
                 <div class="form-group">
@@ -407,6 +430,7 @@
 
         if (isNew) {
             form.reset();
+            syncRichTextEditors(form);
             if (modalTitle) modalTitle.innerText = "New Announcement";
 
             const idInput = document.getElementById('edit_announcement_id');
@@ -428,7 +452,7 @@
         if (modalTitle) modalTitle.innerText = "Edit Announcement";
 
         form.querySelector('[name="title"]').value = title;
-        form.querySelector('[name="content"]').value = content;
+        setRichTextEditorValue(form.querySelector('[name="content"]'), content);
         form.querySelector('[name="priority"]').value = priority;
         form.querySelector('[name="status"]').value = status;
 
@@ -483,6 +507,7 @@
 
         if (isNew) {
             form.reset();
+            syncRichTextEditors(form);
             if (modalTitle) modalTitle.innerText = "New News Article";
 
             const idInput = document.getElementById('edit_news_id');
@@ -495,6 +520,16 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
+    function openReadMoreModal(title, content) {
+        document.getElementById('readMoreTitle').textContent = title || 'Read More';
+        document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
+        document.getElementById('readMoreModal').classList.add('active');
+    }
+
+    function closeReadMoreModal() {
+        document.getElementById('readMoreModal').classList.remove('active');
+    }
+
     function editNews(id, title, content, category, location) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
@@ -504,7 +539,7 @@
         if (modalTitle) modalTitle.innerText = "Edit News Article";
 
         form.querySelector('[name="title"]').value = title;
-        form.querySelector('[name="content"]').value = content;
+        setRichTextEditorValue(form.querySelector('[name="content"]'), content);
         form.querySelector('[name="category"]').value = category;
         form.querySelector('[name="location"]').value = location;
 
@@ -621,6 +656,7 @@
     }
 
     document.getElementById('announcementForm').addEventListener('submit', function (e) {
+        syncRichTextEditors(e.target);
         const isEdit = !!document.getElementById('edit_announcement_id');
         if (isEdit && !announcementHasChanges(e.target)) {
             e.preventDefault();
@@ -632,6 +668,7 @@
   e.preventDefault();
 
   const form = e.target;
+  syncRichTextEditors(form);
   const url = form.action;
   const isEdit = !!document.getElementById('edit_news_id');
 

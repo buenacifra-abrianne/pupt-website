@@ -64,7 +64,7 @@ $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
   </div>
 @endif
 
-  <p class="announcement-description">{{ e($content) }}</p>
+  <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($content) !!}</div>
 
   <div class="announcement-actions">
     <button class="btn btn-sm btn-primary"
@@ -88,6 +88,13 @@ $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
       data-title="{{ e($title) }}"
       onclick="deleteApprovalRequestOnly(event, this)">
       <i class="fas fa-trash"></i>
+    </button>
+
+    <button class="btn btn-sm btn-view-icon"
+      type="button"
+      title="View"
+      onclick='openReadMoreModal(@json($title), @json($content))'>
+      <i class="fas fa-eye"></i>
     </button>
   </div>
 

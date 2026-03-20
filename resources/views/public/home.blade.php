@@ -92,7 +92,7 @@
               <div class="announcement-item">
                 <h4>{{ e($a->title) }}</h4>
 
-                <p>{!! nl2br(e(\Illuminate\Support\Str::limit($a->content, 200))) !!}</p>
+                <p>{{ \App\Support\RichText::excerpt($a->content, 200) }}</p>
 
                 @php
                   $dp = $a->date_published ?? $a->created_at;
@@ -139,7 +139,7 @@
                 <div class="card-body">
                   <h4>{{ e($n->title) }}</h4>
 
-                  <p>{!! nl2br(e(\Illuminate\Support\Str::limit($n->content, 200))) !!}</p>
+                  <p>{{ \App\Support\RichText::excerpt($n->content, 200) }}</p>
 
                   <time>
                     {{ \Carbon\Carbon::parse($dp)->format('F d, Y') }}

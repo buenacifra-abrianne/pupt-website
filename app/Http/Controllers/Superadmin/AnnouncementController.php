@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Support\RichText;
 use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AnnouncementController extends Controller
 {
@@ -33,6 +35,8 @@ class AnnouncementController extends Controller
 
     public function index()
     {
+        $hasAnnouncementLinkColumn = Schema::hasColumn('announcements', 'link');
+
         $announcements = DB::table('announcements as a')
             ->leftJoin('users as u', 'a.created_by', '=', 'u.user_id')
             ->select(
@@ -47,7 +51,7 @@ class AnnouncementController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('superadmin.announcements', compact('announcements', 'news_list'));
+        return view('superadmin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn'));
     }
 
     public function save(Request $request)
@@ -62,18 +66,22 @@ class AnnouncementController extends Controller
         ]);
 
         $title = trim((string) $request->input('title'));
-        $content = trim((string) $request->input('content'));
+        $content = RichText::sanitize($request->input('content'));
         $link = trim((string) $request->input('link'));
         $priority = strtoupper(trim((string) $request->input('priority')));
         $status = strtoupper(trim((string) $request->input('status')));
+        $hasLinkColumn = Schema::hasColumn('announcements', 'link');
 
         $data = [
             'title' => $title,
             'content' => $content,
-            'link' => $link !== '' ? $link : null,
             'priority' => $priority,
             'status' => $status,
         ];
+
+        if ($hasLinkColumn) {
+            $data['link'] = $link !== '' ? $link : null;
+        }
 
         if ($request->filled('announcement_id')) {
             $announcementId = (int) $request->announcement_id;
@@ -94,9 +102,13 @@ class AnnouncementController extends Controller
 
             $isNoChange = trim((string) ($existing->title ?? '')) === $title
                 && trim((string) ($existing->content ?? '')) === $content
-                && trim((string) ($existing->link ?? '')) === ($link !== '' ? $link : '')
                 && strtoupper(trim((string) ($existing->priority ?? ''))) === $priority
                 && strtoupper(trim((string) ($existing->status ?? ''))) === $status;
+
+            if ($hasLinkColumn) {
+                $isNoChange = $isNoChange
+                    && trim((string) ($existing->link ?? '')) === ($link !== '' ? $link : '');
+            }
 
             if ($isNoChange) {
                 if ($request->expectsJson() || $request->ajax()) {
@@ -187,7 +199,7 @@ class AnnouncementController extends Controller
         }
 
         $incomingTitle = trim((string) $request->input('title'));
-        $incomingContent = trim((string) $request->input('content'));
+        $incomingContent = RichText::sanitize($request->input('content'));
         $incomingCategory = trim((string) $request->input('category'));
         $incomingLocation = trim((string) $request->input('location'));
         $hasNewImage = $request->hasFile('image');

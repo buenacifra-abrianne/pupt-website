@@ -278,8 +278,8 @@
             </summary>
             <div class="profile-dropdown">
                 <button type="button" class="profile-dropdown-item" onclick="openProfileModal(this)">
-                    <i class="fas fa-user-pen"></i>
-                    <span>Edit Profile</span>
+                    <i class="fas fa-user"></i>
+                    <span>View Profile</span>
                 </button>
                 <form method="POST" action="{{ route('oneportal.logout') }}">
                     @csrf

@@ -658,6 +658,142 @@ body {
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
+}
+
+.news-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    align-items: stretch;
+}
+
+.announcement-actions .btn,
+.news-actions .btn {
+    min-height: 48px;
+    width: 140px;
+    min-width: 140px;
+    padding: 0 18px;
+    border-radius: 14px;
+    font-size: 13px;
+    font-weight: 600;
+    justify-content: center;
+    flex: 0 0 140px;
+}
+
+.announcement-actions .btn-sm,
+.news-actions .btn-sm {
+    min-height: 48px;
+    width: 140px;
+    min-width: 140px;
+    padding: 0 18px;
+    flex: 0 0 140px;
+}
+
+.announcement-actions .btn-delete,
+.news-actions .btn-delete {
+    width: 140px;
+    min-width: 140px;
+    padding: 0 18px;
+    flex: 0 0 140px;
+}
+
+.announcement-actions .btn-primary,
+.announcement-actions .btn-warning,
+.announcement-actions .btn-success {
+    width: 116px;
+    min-width: 116px;
+    flex: 0 0 116px;
+    padding: 0 14px;
+}
+
+.announcement-actions .btn-delete {
+    width: 56px;
+    min-width: 56px;
+    flex: 0 0 56px;
+    padding: 0;
+}
+
+.announcement-actions .btn-view-icon {
+    width: 56px;
+    min-width: 56px;
+    flex: 0 0 56px;
+    padding: 0;
+    margin-left: auto;
+}
+
+.btn-view-icon {
+    background: #e8f1ff;
+    color: #2563eb;
+    border: 1px solid #bfd4ff;
+}
+
+.btn-view-icon:hover {
+    background: #dbeafe;
+    color: #1d4ed8;
+}
+
+.news-actions .btn,
+.news-actions .btn-sm,
+.news-actions .btn-delete {
+    width: 100%;
+    min-width: 0;
+    flex: initial;
+    min-height: 40px;
+    height: 40px;
+    border-radius: 12px;
+    font-size: 12px;
+    padding: 0 12px;
+}
+
+.news-actions .btn-primary,
+.news-actions .btn-delete {
+    width: 56px;
+    min-width: 56px;
+    padding: 0;
+    justify-self: start;
+}
+
+.news-actions .btn-view-icon {
+    grid-column: auto;
+    margin-left: 0;
+    min-height: 40px;
+    height: 40px;
+    gap: 0;
+    padding: 0;
+    width: 56px;
+    min-width: 56px;
+    justify-self: start;
+    display: inline-flex;
+    white-space: nowrap;
+}
+
+.announcement-actions .btn-view-icon i,
+.news-actions .btn-view-icon i {
+    font-size: 15px;
+}
+
+.read-more-modal-content {
+    max-width: 760px;
+}
+
+.read-more-body {
+    color: #4b5563;
+    line-height: 1.7;
+}
+
+.read-more-body p {
+    margin: 0 0 0.8rem;
+}
+
+.read-more-body p:last-child {
+    margin-bottom: 0;
+}
+
+.read-more-body ul,
+.read-more-body ol {
+    padding-left: 1.4rem;
+    margin: 0.45rem 0 0.8rem;
 }
 
 .announcement-read-more {
