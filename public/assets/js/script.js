@@ -233,6 +233,68 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
+// =========================
+// HOME ADVISORY DETAILS MODAL
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+  const modal = document.getElementById("advisoryDetailsModal");
+  if (!modal) return;
+
+  const closeBtn = modal.querySelector(".advisory-modal-close");
+  const title = document.getElementById("advisoryModalTitle");
+  const date = document.getElementById("advisoryModalDate");
+  const text = document.getElementById("advisoryModalText");
+  const link = document.getElementById("advisoryModalLink");
+
+  function openModal() {
+    modal.classList.add("show");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("modal-open");
+  }
+
+  function closeModal() {
+    modal.classList.remove("show");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("modal-open");
+  }
+
+  document.addEventListener("click", (event) => {
+    const trigger = event.target.closest("[data-advisory-modal='true']");
+    if (!trigger) return;
+
+    event.preventDefault();
+
+    title.textContent = trigger.dataset.title || "";
+    date.textContent = trigger.dataset.date || "";
+    text.textContent = trigger.dataset.content || "";
+
+    const advisoryLink = trigger.dataset.link || "";
+    if (advisoryLink) {
+      link.href = advisoryLink;
+      link.hidden = false;
+    } else {
+      link.href = "#";
+      link.hidden = true;
+    }
+
+    openModal();
+  });
+
+  closeBtn?.addEventListener("click", closeModal);
+
+  modal.addEventListener("click", (event) => {
+    if (event.target === modal) {
+      closeModal();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("show")) {
+      closeModal();
+    }
+  });
+});
+
 // Track Announcement View
 
 function trackAnnouncementView(announcementId) {

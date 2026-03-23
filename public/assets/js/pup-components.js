@@ -48,6 +48,7 @@ class PUPHeader extends HTMLElement {
 
     this.#setActiveLink();
     this.#initHeaderMenu();
+    this.#initAccessibilityWidget();
   }
 
   #setActiveLink() {
@@ -64,20 +65,142 @@ class PUPHeader extends HTMLElement {
     const hamburger = this.querySelector("#hamburger");
     const navMenu = this.querySelector("#navMenu");
     const closeBtn = this.querySelector("#closeSidebar");
+    const header = this.querySelector(".header");
 
     if (!hamburger || !navMenu) return;
 
-    hamburger.addEventListener("click", () => {
-      navMenu.classList.toggle("open");
-      hamburger.classList.toggle("open");
-    });
+    hamburger.setAttribute("type", "button");
+    hamburger.setAttribute("aria-controls", "navMenu");
+    hamburger.setAttribute("aria-expanded", "false");
+    hamburger.setAttribute("aria-label", "Open menu");
+    hamburger.innerHTML = "<span></span><span></span><span></span>";
 
     if (closeBtn) {
-      closeBtn.addEventListener("click", () => {
-        navMenu.classList.remove("open");
-        hamburger.classList.remove("open");
-      });
+      closeBtn.setAttribute("type", "button");
+      closeBtn.setAttribute("aria-label", "Close menu");
+      closeBtn.innerHTML = "&times;";
     }
+
+    let overlay = this.querySelector(".nav-overlay");
+    if (!overlay) {
+      overlay = document.createElement("button");
+      overlay.type = "button";
+      overlay.className = "nav-overlay";
+      overlay.setAttribute("aria-label", "Close menu overlay");
+      header?.appendChild(overlay);
+    }
+
+    const navLogo = navMenu.querySelector(".nav-logo");
+    const existingMenuHeader = navMenu.querySelector(".nav-menu-header");
+    if (!existingMenuHeader && navLogo && closeBtn) {
+      const menuHeader = document.createElement("li");
+      menuHeader.className = "nav-menu-header";
+      navMenu.insertBefore(menuHeader, navMenu.firstChild);
+      menuHeader.appendChild(navLogo);
+      menuHeader.appendChild(closeBtn);
+      const oldCloseItem = navMenu.querySelector(".close-btn");
+      if (oldCloseItem) {
+        oldCloseItem.remove();
+      }
+    }
+
+    if (closeBtn) {
+      closeBtn.classList.add("nav-close");
+    }
+
+    const navLinks = this.querySelectorAll(".nav-menu a");
+
+    const closeMenu = () => {
+      navMenu.classList.remove("open");
+      hamburger.classList.remove("open");
+      overlay?.classList.remove("open");
+      hamburger.setAttribute("aria-expanded", "false");
+      document.body.classList.remove("nav-open");
+    };
+
+    const openMenu = () => {
+      navMenu.classList.add("open");
+      hamburger.classList.add("open");
+      overlay?.classList.add("open");
+      hamburger.setAttribute("aria-expanded", "true");
+      document.body.classList.add("nav-open");
+    };
+
+    const toggleMenu = () => {
+      if (navMenu.classList.contains("open")) {
+        closeMenu();
+      } else {
+        openMenu();
+      }
+    };
+
+    this._syncHeaderOffset = () => {
+      const headerHeight = header?.offsetHeight || 0;
+      document.documentElement.style.setProperty("--pup-header-offset", `${headerHeight}px`);
+    };
+
+    this._handleHeaderScroll = () => {
+      header?.classList.toggle("header-scrolled", window.scrollY > 12);
+    };
+
+    this._handleHeaderResize = () => {
+      if (window.innerWidth > 900) {
+        closeMenu();
+      }
+      this._syncHeaderOffset?.();
+    };
+
+    this._handleHeaderKeydown = (event) => {
+      if (event.key === "Escape") {
+        closeMenu();
+      }
+    };
+
+    hamburger.addEventListener("click", toggleMenu);
+
+    if (closeBtn) {
+      closeBtn.addEventListener("click", closeMenu);
+    }
+
+    overlay.addEventListener("click", closeMenu);
+    navLinks.forEach((link) => link.addEventListener("click", closeMenu));
+    window.addEventListener("scroll", this._handleHeaderScroll, { passive: true });
+    window.addEventListener("resize", this._handleHeaderResize);
+    window.addEventListener("load", this._syncHeaderOffset);
+    document.addEventListener("keydown", this._handleHeaderKeydown);
+    this._syncHeaderOffset();
+    this._handleHeaderScroll();
+  }
+
+  disconnectedCallback() {
+    if (this._handleHeaderScroll) {
+      window.removeEventListener("scroll", this._handleHeaderScroll);
+    }
+
+    if (this._handleHeaderResize) {
+      window.removeEventListener("resize", this._handleHeaderResize);
+    }
+
+    if (this._syncHeaderOffset) {
+      window.removeEventListener("load", this._syncHeaderOffset);
+    }
+
+    if (this._handleHeaderKeydown) {
+      document.removeEventListener("keydown", this._handleHeaderKeydown);
+    }
+
+    document.documentElement.style.removeProperty("--pup-header-offset");
+    document.body.classList.remove("nav-open");
+  }
+
+  #initAccessibilityWidget() {
+    const existing = document.querySelector("script[data-accessible-web-widget='true']");
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.src = "https://cdn.jsdelivr.net/gh/ifrederico/accessible-web-widget@1.1.4/dist/accessible-web-widget.min.js";
+    script.dataset.accessibleWebWidget = "true";
+    document.body.appendChild(script);
   }
 }
 

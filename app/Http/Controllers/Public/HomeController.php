@@ -22,7 +22,7 @@ class HomeController extends Controller
 
         // Announcements: ENABLED only (latest first)
         $announcements = DB::table('announcements')
-            ->select('announcement_id','title','content','link','date_published','created_at')
+            ->select('announcement_id','title','content','link','priority','date_published','created_at')
             ->whereRaw("UPPER(TRIM(status)) = 'ENABLED'")
             ->orderByRaw("
                 CASE 
@@ -38,8 +38,16 @@ class HomeController extends Controller
 
         // News: APPROVED only (latest first)
         $news = DB::table('news')
-            ->select('news_id','title','content','category','location','image_path','date_published','created_at')
+            ->select('news_id','title','content','category','location','image_path','priority','date_published','created_at')
             ->whereRaw("UPPER(TRIM(status)) = 'APPROVED'")
+            ->orderByRaw("
+                CASE 
+                    WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0
+                    WHEN UPPER(TRIM(priority)) = 'MEDIUM' THEN 1
+                    WHEN UPPER(TRIM(priority)) = 'LOW' THEN 2
+                    ELSE 3
+                END
+            ")
             ->orderByDesc('date_published')
             ->orderByDesc('created_at')
             ->limit(10)
