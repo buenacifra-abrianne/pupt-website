@@ -65,7 +65,8 @@ Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('onepo
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // One Portal Entry Point
-Route::get('/sso/login', [OnePortalController::class, 'redirectToIdp'])->name('sso.login');
+Route::get('/sso/login', [App\Http\Controllers\SsoController::class, 'login'])
+    ->name('sso.login');
 
 Route::post('/profile/update', [AuthController::class, 'updateProfile'])
     ->middleware('superadmin.auth')
