@@ -55,9 +55,7 @@ Route::post('/feedback', [FeedbackController::class, 'store'])->name('public.fee
 
 // Endpoints
 
-Route::get('/auth/redirect', function () {
-    return redirect()->route('superadmin.login');
-})->name('oneportal.redirect');
+Route::get('/auth/redirect', [OnePortalController::class, 'redirectToIdp'])->name('oneportal.redirect');
 Route::get('/auth/callback', [OnePortalController::class, 'callback'])->name('oneportal.callback');
 Route::post('/auth/process', [OnePortalController::class, 'process'])->name('oneportal.process');
 Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('oneportal.logout');
@@ -67,9 +65,7 @@ Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('onepo
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // One Portal Entry Point
-Route::get('/sso/login', function () {
-    return redirect()->route('superadmin.login');
-})->name('sso.login');
+Route::get('/sso/login', [OnePortalController::class, 'redirectToIdp'])->name('sso.login');
 
 Route::post('/profile/update', [AuthController::class, 'updateProfile'])
     ->middleware('superadmin.auth')
