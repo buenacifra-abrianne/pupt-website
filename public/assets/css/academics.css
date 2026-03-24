@@ -1026,7 +1026,12 @@ html, body {
         right: 15px;
         top: 20px;
         z-index: 1001;
-        color: #660000;
+        padding: 10px 12px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        border-radius: 14px;
+        background: linear-gradient(135deg, rgba(20, 27, 35, 0.96) 0%, rgba(47, 15, 18, 0.94) 100%);
+        color: #fffaf4;
+        box-shadow: 0 10px 22px rgba(12, 15, 20, 0.22);
     }
 
     /* Sidebar menu */

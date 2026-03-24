@@ -2,30 +2,125 @@
 // 1) Carousel
 // =======================
 let currentSlide = 1;
+let carouselAnimating = false;
+let carouselAutoplay = null;
+const carouselDurationMs = 900;
+const carouselIntervalMs = 5000;
 
 function changeSlide(n) {
-  showSlide((currentSlide += n));
+  showSlide(currentSlide + n, n >= 0 ? 1 : -1);
 }
 
 function goToSlide(n) {
-  showSlide((currentSlide = n));
+  const direction = n > currentSlide ? 1 : -1;
+  showSlide(n, direction);
 }
 
-function showSlide(n) {
+function resetCarouselAutoplay() {
+  window.clearInterval(carouselAutoplay);
+  carouselAutoplay = window.setInterval(() => changeSlide(1), carouselIntervalMs);
+}
+
+function showSlide(n, direction = 1) {
   const slides = document.querySelectorAll(".carousel-slide");
   const indicators = document.querySelectorAll(".indicator");
 
   // If the page has no carousel, do nothing safely.
-  if (!slides.length) return;
+  if (!slides.length || carouselAnimating) return;
 
-  if (n > slides.length) currentSlide = 1;
-  if (n < 1) currentSlide = slides.length;
+  let nextIndex = n;
+  if (nextIndex > slides.length) nextIndex = 1;
+  if (nextIndex < 1) nextIndex = slides.length;
 
-  slides.forEach((s) => s.classList.remove("active"));
-  indicators.forEach((i) => i.classList.remove("active"));
+  if (nextIndex === currentSlide && slides[currentSlide - 1]?.classList.contains("active")) {
+    resetCarouselAutoplay();
+    return;
+  }
 
-  slides[currentSlide - 1]?.classList.add("active");
-  indicators[currentSlide - 1]?.classList.add("active");
+  const current = slides[currentSlide - 1];
+  const next = slides[nextIndex - 1];
+  if (!next) return;
+
+  carouselAnimating = true;
+  const currentSplit = current?.querySelector(".carousel-split");
+  const nextSplit = next.querySelector(".carousel-split");
+  if (!nextSplit) {
+    carouselAnimating = false;
+    return;
+  }
+
+  [currentSplit, nextSplit].forEach((split) => {
+    if (!split?.getAnimations) return;
+    split.getAnimations().forEach((animation) => animation.cancel());
+  });
+
+  slides.forEach((slide, index) => {
+    if (index !== currentSlide - 1 && index !== nextIndex - 1) {
+      slide.classList.remove("active");
+    }
+  });
+
+  next.classList.add("active");
+  next.style.zIndex = "2";
+  if (current) {
+    current.classList.add("active");
+    current.style.zIndex = "1";
+  }
+
+  indicators.forEach((indicator, index) => {
+    indicator.classList.toggle("active", index === nextIndex - 1);
+  });
+
+  currentSlide = nextIndex;
+  resetCarouselAutoplay();
+
+  const incomingFrom = direction > 0 ? "10%" : "-10%";
+  const outgoingTo = direction > 0 ? "-10%" : "10%";
+
+  const incomingAnimation = nextSplit.animate(
+    [
+      { transform: `translateX(${incomingFrom})`, opacity: 0.35, offset: 0 },
+      { transform: "translateX(0)", opacity: 1, offset: 1 },
+    ],
+    {
+      duration: carouselDurationMs,
+      easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+      fill: "forwards",
+    }
+  );
+
+  const outgoingAnimation = currentSplit
+    ? currentSplit.animate(
+        [
+          { transform: "translateX(0)", opacity: 1, offset: 0 },
+          { transform: `translateX(${outgoingTo})`, opacity: 0.25, offset: 1 },
+        ],
+        {
+          duration: carouselDurationMs,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          fill: "forwards",
+        }
+      )
+    : null;
+
+  Promise.all(
+    [incomingAnimation?.finished, outgoingAnimation?.finished].filter(Boolean)
+  ).finally(() => {
+    slides.forEach((slide, index) => {
+      slide.style.zIndex = "";
+      if (index !== currentSlide - 1) {
+        slide.classList.remove("active");
+      }
+    });
+
+    [currentSplit, nextSplit].forEach((split) => {
+      if (!split) return;
+      split.style.transform = "";
+      split.style.opacity = "";
+    });
+
+    carouselAnimating = false;
+  });
 }
 
 // =======================
@@ -90,8 +185,22 @@ function initReadMore() {
 // =======================
 document.addEventListener("DOMContentLoaded", () => {
   // Carousel (only if it exists on this page)
-  showSlide(1);
-  setInterval(() => changeSlide(1), 5000);
+  const slides = document.querySelectorAll(".carousel-slide");
+  const indicators = document.querySelectorAll(".indicator");
+  if (slides.length) {
+    slides.forEach((slide, index) => {
+      slide.classList.remove("active");
+      slide.style.zIndex = "";
+      if (index === 0) {
+        slide.classList.add("active");
+      }
+    });
+    indicators.forEach((indicator, index) => {
+      indicator.classList.toggle("active", index === 0);
+    });
+    currentSlide = 1;
+    resetCarouselAutoplay();
+  }
 
   // Reveal animations
   revealOnScroll();
@@ -100,6 +209,193 @@ document.addEventListener("DOMContentLoaded", () => {
   // Extras
   initNewsDragScroll();
   initReadMore();
+});
+
+// =======================
+// 5.1) News card hover state
+// =======================
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".news-mini-card").forEach((card) => {
+    const back = card.querySelector(".news-mini-card-back");
+    const copy = card.querySelector(".news-mini-card-copy");
+    const img = card.querySelector(".news-mini-card-front img");
+    const overlayCopy = card.querySelector(".updates-card-overlay-copy");
+    const action = card.querySelector(".updates-card-action");
+
+    if (!back || !copy || !img || !overlayCopy || !action) return;
+
+    const setRestState = () => {
+      back.style.opacity = "0";
+      back.style.transform = "translateY(112%)";
+      back.style.pointerEvents = "none";
+
+      overlayCopy.style.opacity = "0";
+      overlayCopy.style.transform = "translateY(18px)";
+
+      action.style.opacity = "0";
+      action.style.transform = "translateY(18px)";
+
+      copy.style.opacity = "1";
+      copy.style.transform = "translateY(0)";
+
+      img.style.transform = "scale(1)";
+      img.style.filter = "brightness(1)";
+    };
+
+    const cancelAnimations = () => {
+      [back, copy, img, overlayCopy, action].forEach((el) => {
+        if (!el?.getAnimations) return;
+        el.getAnimations().forEach((animation) => animation.cancel());
+      });
+    };
+
+    const animateIn = () => {
+      cancelAnimations();
+      card.classList.add("is-hovered");
+      back.style.pointerEvents = "auto";
+
+      back.animate(
+        [
+          { opacity: 0, transform: "translateY(112%)" },
+          { opacity: 1, transform: "translateY(0)" },
+        ],
+        {
+          duration: 560,
+          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+          fill: "forwards",
+        }
+      );
+
+      overlayCopy.animate(
+        [
+          { opacity: 0, transform: "translateY(18px)" },
+          { opacity: 1, transform: "translateY(0)" },
+        ],
+        {
+          duration: 360,
+          delay: 130,
+          easing: "ease-out",
+          fill: "forwards",
+        }
+      );
+
+      action.animate(
+        [
+          { opacity: 0, transform: "translateY(18px)" },
+          { opacity: 1, transform: "translateY(0)" },
+        ],
+        {
+          duration: 360,
+          delay: 210,
+          easing: "ease-out",
+          fill: "forwards",
+        }
+      );
+
+      copy.animate(
+        [
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(18px)" },
+        ],
+        {
+          duration: 260,
+          easing: "ease-out",
+          fill: "forwards",
+        }
+      );
+
+      img.animate(
+        [
+          { transform: "scale(1)", filter: "brightness(1)" },
+          { transform: "scale(1.06)", filter: "brightness(0.62)" },
+        ],
+        {
+          duration: 560,
+          easing: "ease-out",
+          fill: "forwards",
+        }
+      );
+    };
+
+    const animateOut = () => {
+      cancelAnimations();
+      card.classList.remove("is-hovered");
+
+      overlayCopy.animate(
+        [
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(12px)" },
+        ],
+        {
+          duration: 180,
+          easing: "ease-in",
+          fill: "forwards",
+        }
+      );
+
+      action.animate(
+        [
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(12px)" },
+        ],
+        {
+          duration: 160,
+          easing: "ease-in",
+          fill: "forwards",
+        }
+      );
+
+      back.animate(
+        [
+          { opacity: 1, transform: "translateY(0)" },
+          { opacity: 0, transform: "translateY(112%)" },
+        ],
+        {
+          duration: 360,
+          easing: "ease-in",
+          fill: "forwards",
+        }
+      );
+
+      copy.animate(
+        [
+          { opacity: 0, transform: "translateY(18px)" },
+          { opacity: 1, transform: "translateY(0)" },
+        ],
+        {
+          duration: 240,
+          easing: "ease-out",
+          fill: "forwards",
+        }
+      );
+
+      img.animate(
+        [
+          { transform: "scale(1.06)", filter: "brightness(0.62)" },
+          { transform: "scale(1)", filter: "brightness(1)" },
+        ],
+        {
+          duration: 360,
+          easing: "ease-out",
+          fill: "forwards",
+        }
+      );
+
+      window.setTimeout(() => {
+        back.style.pointerEvents = "none";
+      }, 360);
+    };
+
+    setRestState();
+
+    ["pointerenter", "mouseenter", "focusin"].forEach((eventName) => {
+      card.addEventListener(eventName, animateIn);
+    });
+
+    ["pointerleave", "mouseleave", "focusout"].forEach((eventName) => {
+      card.addEventListener(eventName, animateOut);
+    });
+  });
 });
 
 // =======================

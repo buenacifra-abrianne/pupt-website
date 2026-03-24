@@ -8,7 +8,7 @@
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
   <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}"/>
-  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ filemtime(public_path('assets/css/home.css')) }}" />
 </head>
 
 <body>
@@ -117,51 +117,52 @@
     <section class="hero-shell reveal">
       <section class="carousel-section">
         <div class="carousel full-carousel">
-          @foreach($slides as $slide)
-            @php
-              $nextSlide = $slides[($loop->index + 1) % max($slideCount, 1)] ?? $slide;
-              $slideTitle = trim((string) ($slide['title'] ?? ''));
-              $slideSubtitle = trim((string) ($slide['subtitle'] ?? ''));
-              $leftSlideImage = \App\Support\HomeCmsContent::resolveImagePath(
-                  (string) ($slide['image'] ?? ''),
-                  'assets/static_img/pupillar.jpeg'
-              );
-              $rightSlideImage = \App\Support\HomeCmsContent::resolveImagePath(
-                  (string) ($nextSlide['image'] ?? ''),
-                  'assets/static_img/pupillar.jpeg'
-              );
-            @endphp
+          <div class="carousel-stage">
+            @foreach($slides as $slide)
+              @php
+                $nextSlide = $slides[($loop->index + 1) % max($slideCount, 1)] ?? $slide;
+                $slideTitle = trim((string) ($slide['title'] ?? ''));
+                $slideSubtitle = trim((string) ($slide['subtitle'] ?? ''));
+                $leftSlideImage = \App\Support\HomeCmsContent::resolveImagePath(
+                    (string) ($slide['image'] ?? ''),
+                    'assets/static_img/pupillar.jpeg'
+                );
+                $rightSlideImage = \App\Support\HomeCmsContent::resolveImagePath(
+                    (string) ($nextSlide['image'] ?? ''),
+                    'assets/static_img/pupillar.jpeg'
+                );
+              @endphp
 
-            <div class="carousel-slide fade{{ $loop->first ? ' active' : '' }}">
-              <div class="carousel-split" aria-hidden="true">
-                <img
-                  src="{{ $leftSlideImage }}"
-                  alt=""
-                  class="carousel-half carousel-half-left"
-                />
-                <img
-                  src="{{ $rightSlideImage }}"
-                  alt=""
-                  class="carousel-half carousel-half-right"
-                />
+              <div class="carousel-slide fade{{ $loop->first ? ' active' : '' }}">
+                <div class="carousel-split" aria-hidden="true">
+                  <img
+                    src="{{ $leftSlideImage }}"
+                    alt=""
+                    class="carousel-half carousel-half-left"
+                  />
+                  <img
+                    src="{{ $rightSlideImage }}"
+                    alt=""
+                    class="carousel-half carousel-half-right"
+                  />
+                </div>
               </div>
+            @endforeach
+          </div>
 
-              <div class="carousel-crest-wrap">
-                <article class="carousel-crest">
-                  <div class="crest-inner">
-                    <div class="crest-icon" aria-hidden="true">
-                      <svg viewBox="0 0 64 64" role="img" focusable="false">
-                        <path d="M10 24h44M16 24V46M26 24V46M38 24V46M48 24V46M12 46h40M8 54h48v6H8zM14 24V18l18-8 18 8v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
-                      </svg>
-                    </div>
-                    <h1>A LEADING<br>COMPREHESIVE<br>POLYTECHNIC<br>UNIVERSITY IN<br>ASIA</h1>
-                    <p class="crest-year">2026</p>
-                  </div>
-                </article>
-
+          <div class="carousel-crest-wrap">
+            <article class="carousel-crest">
+              <div class="crest-inner">
+                <div class="crest-icon" aria-hidden="true">
+                  <svg viewBox="0 0 64 64" role="img" focusable="false">
+                    <path d="M10 24h44M16 24V46M26 24V46M38 24V46M48 24V46M12 46h40M8 54h48v6H8zM14 24V18l18-8 18 8v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
+                  </svg>
+                </div>
+                <h1>A LEADING<br>COMPREHESIVE<br>POLYTECHNIC<br>UNIVERSITY IN<br>ASIA</h1>
+                <p class="crest-year">2026</p>
               </div>
-            </div>
-          @endforeach
+            </article>
+          </div>
 
           <button type="button" class="carousel-prev" onclick="changeSlide(-1)" aria-label="Previous slide">&#10094;</button>
           <button type="button" class="carousel-next" onclick="changeSlide(1)" aria-label="Next slide">&#10095;</button>
@@ -186,6 +187,9 @@
           <p class="story-summary">
             {!! nl2br(e((string) ($homeCms['campus_description'] ?? ''))) !!}
           </p>
+          <div class="campus-story-actions">
+            <a href="{{ route('public.about') }}" class="text-link campus-story-link">Branch Profile</a>
+          </div>
         </article>
 
         <aside class="campus-story-visual">
@@ -197,7 +201,6 @@
     <section class="updates-section reveal">
       <div class="section-heading">
         <p class="section-tag">Updates</p>
-        <h2>News and Announcements</h2>
       </div>
 
       <div class="updates-shared-shell">
@@ -216,11 +219,23 @@
               @endphp
 
               <article class="news-mini-card">
-                <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
-                <div class="news-mini-card-copy">
-                  <time>{{ $storyDate }}</time>
-                  <h4>{{ e($n->title) }}</h4>
-                  <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
+                <div class="news-mini-card-inner">
+                  <div class="news-mini-card-front">
+                    <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
+                    <div class="news-mini-card-copy">
+                      <time>{{ $storyDate }}</time>
+                      <h4>{{ e($n->title) }}</h4>
+                    </div>
+                  </div>
+
+                  <div class="news-mini-card-back">
+                    <div class="updates-card-overlay-copy">
+                      <time>{{ $storyDate }}</time>
+                      <h4>{{ e($n->title) }}</h4>
+                      <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
+                    </div>
+                    <a href="{{ route('public.events') }}" class="updates-card-action">Read more</a>
+                  </div>
                 </div>
               </article>
 
@@ -284,7 +299,7 @@
     <section class="quick-links reveal">
       <div class="section-heading">
         <p class="section-tag">Explore</p>
-        <h2>Navigate the campus experience with clarity</h2>
+        <h2>Navigate the campus experience now</h2>
       </div>
 
       <div class="quick-links-grid">
@@ -335,7 +350,7 @@
   <pup-footer></pup-footer>
 
   <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-  <script src="{{ asset('assets/js/script.js') }}" defer></script>
+  <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
 
 </body>
 </html>
