@@ -194,6 +194,30 @@ class PUPHeader extends HTMLElement {
   }
 
   #initAccessibilityWidget() {
+    const assets = this.dataset.assets || "/assets";
+    const existingStylesheet = document.querySelector("link[data-accessibility-widget-styles='true']");
+    if (!existingStylesheet) {
+      const link = document.createElement("link");
+      link.rel = "stylesheet";
+      link.href = `${assets}/css/accessibility_widget.css`;
+      link.dataset.accessibilityWidgetStyles = "true";
+      document.head.appendChild(link);
+    }
+
+    const existingOptions = window.AccessibleWebWidgetOptions || {};
+    window.AccessibleWebWidgetOptions = {
+      ...existingOptions,
+      theme: {
+        ...(existingOptions.theme || {}),
+        primaryColor: "#800000",
+        primaryColorLight: "#a11d23",
+        primaryColorDark: "#5c0000",
+        hoverColor: "#a11d23",
+        activeColor: "#5c0000",
+        focusRingColor: "#800000",
+      },
+    };
+
     const existing = document.querySelector("script[data-accessible-web-widget='true']");
     if (existing) return;
 

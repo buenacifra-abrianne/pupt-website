@@ -23,8 +23,6 @@
   ></pup-header>
 
   @php
-    use Illuminate\Support\Str;
-
     $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
     $slides = $homeCms['carousel_slides'] ?? [];
 
@@ -33,82 +31,10 @@
     }
 
     $slideCount = count($slides);
-
-    $campusImage = \App\Support\HomeCmsContent::resolveImagePath(
-        $homeCms['campus_image'] ?? '',
-        'assets/static_img/pupillar.jpeg'
-    );
-
-    $primarySlide = $slides[0] ?? ['title' => $homeCms['campus_title'], 'subtitle' => '', 'image' => $homeCms['campus_image'] ?? ''];
-    $heroTitle = trim((string) ($primarySlide['title'] ?? '')) ?: (string) ($homeCms['campus_title'] ?? 'PUP Taguig Campus');
-    $heroSubtitle = trim((string) ($primarySlide['subtitle'] ?? ''));
-    $heroSummary = $heroSubtitle !== ''
-        ? $heroSubtitle
-        : Str::limit(preg_replace('/\s+/', ' ', (string) ($homeCms['campus_description'] ?? '')), 160);
-    $heroDisplayTitle = preg_replace('/\s+Campus$/', "\nCampus", $heroTitle, 1);
-    $heroDisplayTitle = preg_replace('/\bto\s+/i', "to\n", (string) $heroDisplayTitle, 1);
-
-    $featureCards = collect($slides)
-        ->map(function (array $slide): array {
-            return [
-                'title' => trim((string) ($slide['title'] ?? '')),
-                'subtitle' => trim((string) ($slide['subtitle'] ?? '')),
-                'image' => \App\Support\HomeCmsContent::resolveImagePath(
-                    (string) ($slide['image'] ?? ''),
-                    'assets/static_img/pupillar.jpeg'
-                ),
-            ];
-        })
-        ->filter(fn (array $slide): bool => $slide['title'] !== '' || $slide['subtitle'] !== '')
-        ->values();
-
-    $featuredNews = $news->first();
     $newsFeed = $news->take(5)->values();
-    $announcementFeed = $announcements->take(10);
     $priorityAnnouncementFeed = $announcements
         ->filter(fn ($item) => strtoupper(trim((string) ($item->priority ?? ''))) === 'HIGH')
         ->values();
-
-    $quickLinks = [
-        [
-            'label' => 'About',
-            'title' => 'Know the campus',
-            'text' => 'Explore the campus profile, identity, and institutional story.',
-            'href' => route('public.about'),
-        ],
-        [
-            'label' => 'Academics',
-            'title' => 'Browse programs',
-            'text' => 'See the academic offerings and learning environment available to students.',
-            'href' => route('public.academics'),
-        ],
-        [
-            'label' => 'Students',
-            'title' => 'Student services',
-            'text' => 'Access student-centered information, updates, and support channels.',
-            'href' => route('public.students'),
-        ],
-        [
-            'label' => 'News',
-            'title' => 'Campus stories',
-            'text' => 'Follow university news, announcements, and event highlights.',
-            'href' => route('public.events'),
-        ],
-        [
-            'label' => 'Research & Extension',
-            'title' => 'Research tools',
-            'text' => 'Open the PUP research and extension portals, tools, and institutional resources.',
-            'href' => route('public.research'),
-        ],
-    ];
-
-    $latestAnnouncementDate = $announcements->count()
-        ? \Carbon\Carbon::parse($announcements->first()->date_published ?? $announcements->first()->created_at)->format('M d')
-        : 'N/A';
-
-    $latestNewsDate = $featuredNews
-        ? \Carbon\Carbon::parse($featuredNews->date_published ?? $featuredNews->created_at)->format('M d')
-        : 'N/A';
   @endphp
 
   <main class="main-content">
@@ -174,28 +100,6 @@
           </div>
         </div>
       </section>
-    </section>
-
-    <section class="campus-story reveal" id="campus-story">
-      <div class="section-heading">
-        <p class="section-tag">Campus Story</p>
-        <h2>{{ $homeCms['campus_title'] ?? 'PUP Taguig Campus' }}</h2>
-      </div>
-
-      <div class="campus-story-grid">
-        <article class="campus-story-copy">
-          <p class="story-summary">
-            {!! nl2br(e((string) ($homeCms['campus_description'] ?? ''))) !!}
-          </p>
-          <div class="campus-story-actions">
-            <a href="{{ route('public.about') }}" class="text-link campus-story-link">Branch Profile</a>
-          </div>
-        </article>
-
-        <aside class="campus-story-visual">
-          <img src="{{ $campusImage }}" alt="PUP Taguig Campus Building" />
-        </aside>
-      </div>
     </section>
 
     <section class="updates-section reveal">
@@ -293,23 +197,6 @@
             @endforelse
           </div>
         </div>
-      </div>
-    </section>
-
-    <section class="quick-links reveal">
-      <div class="section-heading">
-        <p class="section-tag">Explore</p>
-        <h2>Navigate the campus experience now</h2>
-      </div>
-
-      <div class="quick-links-grid">
-        @foreach($quickLinks as $link)
-          <a href="{{ $link['href'] }}" class="quick-link-card">
-            <span class="quick-link-label">{{ $link['label'] }}</span>
-            <h3>{{ $link['title'] }}</h3>
-            <p>{{ $link['text'] }}</p>
-          </a>
-        @endforeach
       </div>
     </section>
 

@@ -13,6 +13,7 @@
 
 @once
     <link rel="stylesheet" href="{{ asset('assets/css/shared/profile-avatar.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}" data-accessibility-widget-styles="true">
 @endonce
 
 <style id="cms-unified-button-theme">
@@ -418,5 +419,33 @@
     } else {
         enhanceAllSelects();
     }
+})();
+</script>
+<script>
+(() => {
+    if (window.__cmsAccessibilityWidgetInit) return;
+    window.__cmsAccessibilityWidgetInit = true;
+
+    const existingOptions = window.AccessibleWebWidgetOptions || {};
+    window.AccessibleWebWidgetOptions = {
+        ...existingOptions,
+        theme: {
+            ...(existingOptions.theme || {}),
+            primaryColor: '#800000',
+            primaryColorLight: '#a11d23',
+            primaryColorDark: '#5c0000',
+            hoverColor: '#a11d23',
+            activeColor: '#5c0000',
+            focusRingColor: '#800000',
+        },
+    };
+
+    const existingScript = document.querySelector('script[data-accessible-web-widget="true"]');
+    if (existingScript) return;
+
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/gh/ifrederico/accessible-web-widget@1.1.4/dist/accessible-web-widget.min.js';
+    script.dataset.accessibleWebWidget = 'true';
+    document.body.appendChild(script);
 })();
 </script>
