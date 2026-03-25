@@ -20,7 +20,11 @@ class PUPHeader extends HTMLElement {
     <div class="logo-section">
       <img src="${logoUrl}" alt="PUP Logo" class="logo">
       <div class="header-text">
-        <h1>POLYTECHNIC UNIVERSITY OF THE PHILIPPINES - TAGUIG CAMPUS</h1>
+        <h1>
+          <span class="header-title-main">POLYTECHNIC UNIVERSITY OF THE PHILIPPINES</span>
+          <span class="header-title-campus">TAGUIG CAMPUS</span>
+          <span class="header-title-mobile">PUP - TAGUIG CAMPUS</span>
+        </h1>
         <p class="tagline">A Leading Comprehensive Polytechnic University in Asia</p>
       </div>
     </div>
@@ -35,12 +39,18 @@ class PUPHeader extends HTMLElement {
         <button id="closeSidebar" aria-label="Close menu">âœ–</button>
       </li>
 
+      <li class="nav-mobile-intro">
+        <span class="nav-mobile-school">Polytechnic University of the Philippines</span>
+        <strong class="nav-mobile-campus">Taguig Campus</strong>
+      </li>
+
       <li><a href="${home}" data-key="home">HOME</a></li>
       <li><a href="${about}" data-key="about">ABOUT</a></li>
       <li><a href="${academics}" data-key="academics">ACADEMICS</a></li>
       <li><a href="${students}" data-key="students">STUDENTS</a></li>
       <li><a href="${newsEvents}" data-key="news-events">EVENTS</a></li>
       <li><a href="${research}" data-key="research">RESEARCH & EXTENSION</a></li>
+      <li class="nav-mobile-footer">Mula Sa'yo, Para sa Bayan</li>
     </ul>
   </nav>
 </header>
@@ -239,7 +249,7 @@ class PUPFooter extends HTMLElement {
     this.innerHTML = `
 <style>
   .footer {
-    background: #800000;
+    background: linear-gradient(90deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
     color: #fff;
   }
 
@@ -442,6 +452,14 @@ class PUPFooter extends HTMLElement {
     color: #ffffff;
   }
 
+  .footer-legal-links {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   .footer-legal a {
     color: #f4f4f4;
     text-decoration: none;
@@ -458,7 +476,7 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer.footer-landing {
-    background: rgba(20, 27, 35, 0.92);
+    background: linear-gradient(90deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
     color: #fff;
     position: absolute;
     left: 0;
@@ -478,112 +496,119 @@ class PUPFooter extends HTMLElement {
 
   @media (max-width: 768px) {
     .footer-shell {
-      padding: 24px 16px 0;
+      padding: 14px 12px 0;
     }
 
     .footer-content {
       grid-template-columns: 1fr;
-      gap: 24px;
+      gap: 12px;
     }
 
     .footer-brand {
       justify-items: center;
-      gap: 16px;
+      gap: 8px;
     }
 
     .footer-brand-logo {
-      width: 128px;
-      height: 128px;
+      width: 76px;
+      height: 76px;
     }
 
     .footer-column-title {
-      margin-bottom: 14px;
-      font-size: 14px;
+      margin-bottom: 8px;
+      font-size: 11px;
       text-align: left;
     }
 
     .footer-services-grid {
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 10px;
     }
 
     .footer-services,
     .footer-contact {
-      gap: 16px;
+      gap: 10px;
     }
 
     .footer-service-link {
-      gap: 10px;
-      font-size: 15px;
+      gap: 8px;
+      font-size: 12px;
     }
 
     .footer-service-icon {
-      width: 36px;
-      height: 36px;
-      flex-basis: 36px;
+      width: 32px;
+      height: 32px;
+      flex-basis: 32px;
       border-radius: 10px;
     }
 
     .footer-service-icon svg {
-      width: 17px;
-      height: 17px;
+      width: 15px;
+      height: 15px;
     }
 
     .footer-contact-group {
-      gap: 8px;
+      gap: 6px;
     }
 
     .footer-contact-item {
-      gap: 10px;
-      font-size: 14px;
-      line-height: 1.5;
+      gap: 8px;
+      font-size: 11px;
+      line-height: 1.35;
     }
 
     .footer-socials-row {
       justify-content: center;
-      padding-top: 6px;
+      padding-top: 2px;
     }
 
     .footer-socials {
       flex-direction: row;
-      gap: 8px;
+      gap: 6px;
     }
 
     .footer-social-link {
-      width: 36px;
-      height: 36px;
+      width: 30px;
+      height: 30px;
     }
 
     .footer-social-link svg {
-      width: 17px;
-      height: 17px;
+      width: 14px;
+      height: 14px;
     }
 
     .footer-legal {
-      gap: 6px;
-      padding: 10px 10px 14px;
-      font-size: 11px;
-      line-height: 1.35;
+      gap: 5px;
+      margin-top: 12px;
+      padding: 6px 8px 8px;
+      font-size: 9px;
+      line-height: 1.25;
+    }
+
+    .footer-legal .footer-copy,
+    .footer-legal .footer-legal-links {
+      width: 100%;
+      justify-content: center;
     }
   }
 
   @media (max-width: 420px) {
     .footer-shell {
-      padding: 22px 14px 0;
+      padding: 12px 10px 0;
     }
 
     .footer-socials {
-      gap: 6px;
+      gap: 5px;
     }
 
     .footer-social-link {
-      width: 34px;
-      height: 34px;
+      width: 30px;
+      height: 30px;
     }
 
     .footer-social-link svg {
-      width: 16px;
-      height: 16px;
+      width: 14px;
+      height: 14px;
     }
   }
 </style>
@@ -667,10 +692,11 @@ class PUPFooter extends HTMLElement {
 
   <div class="footer-legal">
     <span class="footer-copy">&copy; 1992-${year} Polytechnic University of the Philippines</span>
-    <span class="footer-sep" aria-hidden="true">|</span>
-    <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">Terms of Use</a>
-    <span class="footer-sep" aria-hidden="true">|</span>
-    <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">Privacy Statement</a>
+    <span class="footer-legal-links">
+      <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">Terms of Use</a>
+      <span class="footer-sep" aria-hidden="true">|</span>
+      <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">Privacy Statement</a>
+    </span>
   </div>
 </footer>
     `.trim();

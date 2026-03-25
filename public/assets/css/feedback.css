@@ -137,3 +137,33 @@
   text-decoration: none;
   border-radius: 10px;
 }
+
+@media (max-width: 768px) {
+  .feedback-container {
+    margin: 20px 16px;
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .feedback-title {
+    font-size: 1.6rem;
+    margin-bottom: 22px;
+  }
+
+  .feedback-item {
+    padding: 16px;
+  }
+
+  .options {
+    grid-template-columns: 1fr;
+  }
+
+  .submit-btn {
+    width: 100%;
+    max-width: 320px;
+  }
+
+  .modal-box {
+    padding: 24px 18px;
+  }
+}

@@ -1231,27 +1231,62 @@ html, body {
 
 .reveal {
     opacity: 0;
-    /* Default: Start from bottom (50px) */
-    transform: translateY(50px); 
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    transform: translateY(40px);
+    transition: opacity 0.72s ease-out, transform 0.72s ease-out;
     will-change: opacity, transform;
 }
 
-/* Active State: Always visible and centered */
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* CONTEXT: SCROLLING UP
-   When the body has the 'scroll-up' class, hidden elements 
-   should start from the TOP (-50px) so they slide DOWN into view.
-   This prevents the "falling" effect.
-*/
-body.scroll-up .reveal:not(.active) {
-    transform: translateY(-50px);
+body.scroll-down .reveal:not(.active) {
+    transform: translateY(40px);
 }
 
-/* Optional delays */
+body.scroll-up .reveal:not(.active) {
+    transform: translateY(-40px);
+}
+
 .reveal.delay-100 { transition-delay: 0.1s; }
 .reveal.delay-200 { transition-delay: 0.2s; }
+
+@media (max-width: 1024px) {
+  .main-content,
+  .page-content {
+    display: block;
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+
+  .about-pup {
+    padding: 22px;
+    border-radius: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content,
+  .page-content {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+
+  .about-pup {
+    padding: 18px;
+  }
+
+  .about-pup h1,
+  .about-pup h2,
+  .page-section h1,
+  .content-block h2 {
+    font-size: clamp(1.35rem, 5vw, 1.8rem);
+  }
+
+  .about-pup p,
+  .content-block p {
+    font-size: 0.95rem;
+    line-height: 1.7;
+  }
+}

@@ -494,8 +494,8 @@ body.modal-open {
 ========================= */
 .reveal {
   opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  transform: translateY(40px);
+  transition: opacity 0.72s ease-out, transform 0.72s ease-out;
   will-change: opacity, transform;
 }
 
@@ -504,8 +504,12 @@ body.modal-open {
   transform: translateY(0);
 }
 
+body.scroll-down .reveal:not(.active) {
+  transform: translateY(40px);
+}
+
 body.scroll-up .reveal:not(.active) {
-  transform: translateY(-50px);
+  transform: translateY(-40px);
 }
 
 .reveal.delay-100 { transition-delay: 0.1s; }
@@ -654,6 +658,50 @@ body.scroll-up .reveal:not(.active) {
 
 .featured-event-body, .event-body {
   padding: 14px 16px;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+
+  #featuredEventMount,
+  .event-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .event-image,
+  .event-image img {
+    height: 220px;
+  }
+
+  .event-content {
+    padding: 18px 16px 20px;
+  }
+
+  .event-content h2 {
+    font-size: clamp(1.35rem, 5vw, 1.75rem);
+  }
+
+  .event-button {
+    align-self: stretch;
+    text-align: center;
+  }
+
+  .upcoming-events {
+    padding: 20px 16px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-bar {
+    margin-left: 0;
+  }
 }
 
 .featured-event-meta, .event-meta {

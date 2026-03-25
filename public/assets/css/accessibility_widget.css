@@ -29,9 +29,9 @@
     background: linear-gradient(135deg, var(--home-maroon, var(--acc-maroon)) 0%, var(--home-maroon-deep, var(--acc-maroon-dark)) 100%) !important;
     color: #fffaf4 !important;
     font-size: 1.65rem !important;
-    box-shadow: 0 20px 30px rgba(79, 9, 12, 0.28) !important;
+    box-shadow: none !important;
     cursor: pointer !important;
-    transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+    transition: transform 0.22s ease !important;
     z-index: 999 !important;
 }
 
@@ -47,7 +47,7 @@
 
 .acc-container .acc-toggle-btn:hover {
     transform: translateY(-4px);
-    box-shadow: 0 24px 36px rgba(79, 9, 12, 0.32) !important;
+    box-shadow: none !important;
 }
 
 .acc-container .acc-toggle-icon,
@@ -57,7 +57,7 @@
 }
 
 .acc-container .acc-toggle-icon svg {
-    filter: drop-shadow(0 2px 6px rgba(255, 255, 255, 0.35)) !important;
+    filter: none !important;
 }
 
 .acc-container .acc-header,
@@ -160,4 +160,22 @@
 
 .acc-container .acc-violation-bubble {
     display: none !important;
+}
+
+@media (max-width: 768px) {
+    .acc-container .acc-toggle-btn {
+        right: 16px !important;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+        width: 52px !important;
+        height: 52px !important;
+        min-width: 52px !important;
+        min-height: 52px !important;
+        font-size: 1.35rem !important;
+    }
+
+    .acc-container .acc-toggle-icon,
+    .acc-container .acc-toggle-icon svg {
+        width: 1.35rem !important;
+        height: 1.35rem !important;
+    }
 }
