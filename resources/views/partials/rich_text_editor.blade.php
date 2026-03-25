@@ -6,7 +6,116 @@
             <button type="button" class="rich-editor-btn" data-command="underline" title="Underline"><u>U</u></button>
             <button type="button" class="rich-editor-btn" data-command="strikeThrough" title="Strike"><s>S</s></button>
         </div>
+
         <div class="rich-editor-separator" aria-hidden="true"></div>
+
+        <div class="rich-editor-group">
+            <div class="rich-editor-fontsize-wrap">
+                <button
+                    type="button"
+                    class="rich-editor-btn rich-editor-fontsize-trigger js-font-size-trigger"
+                    title="Font Size"
+                    aria-label="Font Size"
+                >
+                    <span class="js-font-size-label">14px</span>
+                    <i class="fas fa-chevron-down"></i>
+                </button>
+
+                <div class="rich-editor-fontsize-popover js-font-size-popover" hidden>
+                    <div class="rich-editor-fontsize-title">Font Size</div>
+
+                    <div class="rich-editor-fontsize-options">
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="12px">12px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option is-active" data-size="14px">14px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="16px">16px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="18px">18px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="20px">20px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="24px">24px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="28px">28px</button>
+                        <button type="button" class="rich-editor-fontsize-option js-font-size-option" data-size="32px">32px</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rich-editor-color-wrap">
+                <button
+                    type="button"
+                    class="rich-editor-btn rich-editor-btn-icon js-text-color-trigger"
+                    title="Text Color"
+                    aria-label="Text Color"
+                >
+                    <i class="fas fa-palette"></i>
+                </button>
+
+                <div class="rich-editor-color-popover js-text-color-popover" hidden>
+                    <div class="rich-editor-color-popover-title">Text Color</div>
+
+                    <div class="rich-editor-color-preview-wrap">
+                        <div class="rich-editor-color-preview-label">Preview</div>
+                        <div class="rich-editor-color-preview js-text-color-preview">Sample text</div>
+                    </div>
+
+                    <div class="rich-editor-color-section">
+                        <div class="rich-editor-color-section-title">Theme Colors</div>
+                        <div class="rich-editor-color-grid js-theme-color-grid">
+                            <button type="button" class="rich-editor-swatch" data-color="#000000" style="background:#000000;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#44546A" style="background:#44546A;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#5B9BD5" style="background:#5B9BD5;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#70AD47" style="background:#70AD47;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#FFC000" style="background:#FFC000;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#ED7D31" style="background:#ED7D31;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#C00000" style="background:#C00000;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#7030A0" style="background:#7030A0;"></button>
+
+                            <button type="button" class="rich-editor-swatch" data-color="#F2F2F2" style="background:#F2F2F2;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#D9E2F3" style="background:#D9E2F3;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#DDEBF7" style="background:#DDEBF7;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#E2F0D9" style="background:#E2F0D9;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#FFF2CC" style="background:#FFF2CC;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#FCE4D6" style="background:#FCE4D6;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#F4CCCC" style="background:#F4CCCC;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#EADCF4" style="background:#EADCF4;"></button>
+                        </div>
+                    </div>
+
+                    <div class="rich-editor-color-section">
+                        <div class="rich-editor-color-section-title">Standard Colors</div>
+                        <div class="rich-editor-color-grid js-standard-color-grid">
+                            <button type="button" class="rich-editor-swatch" data-color="#C00000" style="background:#C00000;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#FF0000" style="background:#FF0000;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#FFC000" style="background:#FFC000;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#FFFF00" style="background:#FFFF00;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#92D050" style="background:#92D050;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#00B050" style="background:#00B050;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#00B0F0" style="background:#00B0F0;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#0070C0" style="background:#0070C0;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#002060" style="background:#002060;"></button>
+                            <button type="button" class="rich-editor-swatch" data-color="#7030A0" style="background:#7030A0;"></button>
+                        </div>
+                    </div>
+
+                    <div class="rich-editor-color-section js-recent-colors-section" hidden>
+                        <div class="rich-editor-color-section-title">Recent Colors</div>
+                        <div class="rich-editor-color-grid js-recent-color-grid"></div>
+                    </div>
+
+                    <div class="rich-editor-color-meta">
+                        <button type="button" class="rich-editor-color-link js-text-color-auto">Automatic</button>
+                        <button type="button" class="rich-editor-color-link js-text-color-none">No color</button>
+                        <button type="button" class="rich-editor-color-link js-text-color-more">More colors...</button>
+                        <input type="color" class="js-text-color-native rich-editor-native-color-anchor" value="#000000">
+                    </div>
+
+                    <div class="rich-editor-color-actions">
+                        <button type="button" class="rich-editor-color-cancel js-text-color-cancel">Cancel</button>
+                        <button type="button" class="rich-editor-color-confirm js-text-color-confirm">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rich-editor-separator" aria-hidden="true"></div>
+
         <div class="rich-editor-group">
             <button type="button" class="rich-editor-btn rich-editor-btn-icon" data-command="justifyLeft" title="Align Left" aria-label="Align Left">
                 <i class="fas fa-align-left"></i>
@@ -18,7 +127,9 @@
                 <i class="fas fa-align-right"></i>
             </button>
         </div>
+
         <div class="rich-editor-separator" aria-hidden="true"></div>
+
         <div class="rich-editor-group">
             <button type="button" class="rich-editor-btn rich-editor-btn-icon" data-command="insertUnorderedList" title="Bullet List" aria-label="Bullet List">
                 <i class="fas fa-list-ul"></i>
@@ -36,7 +147,9 @@
                 <i class="fas fa-quote-right"></i>
             </button>
         </div>
+
         <div class="rich-editor-separator" aria-hidden="true"></div>
+
         <div class="rich-editor-group">
             <button type="button" class="rich-editor-btn rich-editor-btn-icon" data-command="undo" title="Undo" aria-label="Undo">
                 <i class="fas fa-undo"></i>
