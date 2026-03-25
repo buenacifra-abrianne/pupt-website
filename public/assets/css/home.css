@@ -234,7 +234,7 @@ body {
   top: 0;
   left: 50%;
   width: clamp(320px, 23vw, 450px);
-  height: calc(100% + 118px);
+  height: calc(100% + 82px);
   min-width: 0;
   padding: 18px 18px 0;
   background: #9b1309;
@@ -277,7 +277,7 @@ body {
   z-index: 1;
   width: 100%;
   min-height: 100%;
-  padding: 58px 38px 158px;
+  padding: 58px 38px 120px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1236,12 +1236,12 @@ body.scroll-up .reveal:not(.active) {
 
   .carousel-crest {
     width: clamp(300px, 31vw, 390px);
-    height: calc(100% + 104px);
+    height: calc(100% + 72px);
     padding-top: 16px;
   }
 
   .crest-inner {
-    padding-bottom: 138px;
+    padding-bottom: 104px;
   }
 
   .carousel,
@@ -1288,7 +1288,7 @@ body.scroll-up .reveal:not(.active) {
 
   .carousel-crest {
     width: min(72vw, 332px);
-    height: calc(100% + 90px);
+    height: calc(100% + 64px);
     padding: 14px 12px 0;
     transform: translate(-50%, -1px);
   }
@@ -1312,7 +1312,7 @@ body.scroll-up .reveal:not(.active) {
   }
 
   .crest-inner {
-    padding: 34px 22px 112px;
+    padding: 34px 22px 88px;
   }
 
   .carousel-crest h1 {
@@ -1413,11 +1413,11 @@ body.scroll-up .reveal:not(.active) {
 
   .carousel-crest {
     width: min(74vw, 304px);
-    height: calc(100% + 74px);
+    height: calc(100% + 54px);
   }
 
   .crest-inner {
-    padding: 28px 18px 88px;
+    padding: 28px 18px 70px;
   }
 
   .crest-icon {

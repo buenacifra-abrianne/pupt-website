@@ -1,0 +1,163 @@
+:root {
+    --acc-maroon: #800000;
+    --acc-maroon-dark: #5c0000;
+    --acc-maroon-soft: rgba(128, 0, 0, 0.14);
+}
+
+.acc-container .acc-toggle-btn,
+.acc-container .acc-header,
+.acc-container .acc-footer-reset,
+.acc-container .acc-btn.acc-selected,
+.acc-container .acc-btn[aria-pressed="true"],
+.acc-container .acc-lang-item.selected,
+.acc-container .acc-text-scale-btn.active {
+    background: var(--acc-maroon) !important;
+    color: #ffffff !important;
+}
+
+.acc-container .acc-toggle-btn {
+    position: fixed !important;
+    right: 28px !important;
+    bottom: 28px !important;
+    width: 60px !important;
+    height: 60px !important;
+    min-width: 60px !important;
+    min-height: 60px !important;
+    border: none !important;
+    border-radius: 50% !important;
+    padding: 0 !important;
+    background: linear-gradient(135deg, var(--home-maroon, var(--acc-maroon)) 0%, var(--home-maroon-deep, var(--acc-maroon-dark)) 100%) !important;
+    color: #fffaf4 !important;
+    font-size: 1.65rem !important;
+    box-shadow: 0 20px 30px rgba(79, 9, 12, 0.28) !important;
+    cursor: pointer !important;
+    transition: transform 0.22s ease, box-shadow 0.22s ease !important;
+    z-index: 999 !important;
+}
+
+.acc-container .acc-toggle-btn:hover,
+.acc-container .acc-header button:hover,
+.acc-container .acc-footer-reset:hover,
+.acc-container .acc-btn.acc-selected:hover,
+.acc-container .acc-btn[aria-pressed="true"]:hover,
+.acc-container .acc-lang-item.selected:hover,
+.acc-container .acc-text-scale-btn.active:hover {
+    background: var(--acc-maroon-dark) !important;
+}
+
+.acc-container .acc-toggle-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 36px rgba(79, 9, 12, 0.32) !important;
+}
+
+.acc-container .acc-toggle-icon,
+.acc-container .acc-toggle-icon svg {
+    width: 1.65rem !important;
+    height: 1.65rem !important;
+}
+
+.acc-container .acc-toggle-icon svg {
+    filter: drop-shadow(0 2px 6px rgba(255, 255, 255, 0.35)) !important;
+}
+
+.acc-container .acc-header,
+.acc-container .acc-header .acc-label,
+.acc-container .acc-header button,
+.acc-container .acc-menu-close,
+.acc-container .acc-menu-close svg,
+.acc-container .acc-footer-reset,
+.acc-container .acc-toggle-btn,
+.acc-container .acc-btn.acc-selected,
+.acc-container .acc-btn[aria-pressed="true"],
+.acc-container .acc-lang-item.selected,
+.acc-container .acc-text-scale-btn.active {
+    color: #ffffff !important;
+}
+
+.acc-container .acc-btn.acc-selected:hover,
+.acc-container .acc-btn[aria-pressed="true"]:hover,
+.acc-container .acc-lang-item.selected:hover,
+.acc-container .acc-text-scale-btn.active:hover,
+.acc-container .acc-btn.acc-selected *,
+.acc-container .acc-btn[aria-pressed="true"] *,
+.acc-container .acc-lang-item.selected *,
+.acc-container .acc-text-scale-btn.active * {
+    color: #ffffff !important;
+}
+
+.acc-container .acc-toggle-icon svg,
+.acc-container .acc-toggle-icon svg *,
+.acc-container .acc-menu-close svg *,
+.acc-container .acc-btn.acc-selected svg,
+.acc-container .acc-btn.acc-selected svg *,
+.acc-container .acc-btn[aria-pressed="true"] svg,
+.acc-container .acc-btn[aria-pressed="true"] svg *,
+.acc-container .acc-text-scale-btn.active svg,
+.acc-container .acc-text-scale-btn.active svg *,
+.acc-container .acc-btn.acc-selected:hover svg,
+.acc-container .acc-btn.acc-selected:hover svg *,
+.acc-container .acc-btn[aria-pressed="true"]:hover svg,
+.acc-container .acc-btn[aria-pressed="true"]:hover svg *,
+.acc-container .acc-lang-item.selected:hover svg,
+.acc-container .acc-lang-item.selected:hover svg *,
+.acc-container .acc-text-scale-btn.active:hover svg,
+.acc-container .acc-text-scale-btn.active:hover svg * {
+    fill: currentColor !important;
+}
+
+.acc-container .acc-section-title,
+.acc-container .acc-btn:hover:not(.acc-selected):not([aria-pressed="true"]),
+.acc-container .acc-footer-lang-toggle:hover,
+.acc-container .acc-lang-item:hover:not(.selected),
+.acc-container .acc-text-scale-btn:hover:not(.active) {
+    color: var(--acc-maroon) !important;
+}
+
+.acc-container .acc-btn.acc-selected:hover,
+.acc-container .acc-btn[aria-pressed="true"]:hover,
+.acc-container .acc-lang-item.selected:hover,
+.acc-container .acc-text-scale-btn.active:hover,
+.acc-container .acc-btn.acc-selected:active,
+.acc-container .acc-btn[aria-pressed="true"]:active,
+.acc-container .acc-lang-item.selected:active,
+.acc-container .acc-text-scale-btn.active:active,
+.acc-container .acc-btn.acc-selected:hover *,
+.acc-container .acc-btn[aria-pressed="true"]:hover *,
+.acc-container .acc-lang-item.selected:hover *,
+.acc-container .acc-text-scale-btn.active:hover *,
+.acc-container .acc-btn.acc-selected:active *,
+.acc-container .acc-btn[aria-pressed="true"]:active *,
+.acc-container .acc-lang-item.selected:active *,
+.acc-container .acc-text-scale-btn.active:active * {
+    color: #ffffff !important;
+}
+
+.acc-container .acc-btn.acc-selected:hover .acc-label,
+.acc-container .acc-btn[aria-pressed="true"]:hover .acc-label,
+.acc-container .acc-btn.acc-selected:active .acc-label,
+.acc-container .acc-btn[aria-pressed="true"]:active .acc-label,
+.acc-container .acc-btn.acc-selected:hover span,
+.acc-container .acc-btn[aria-pressed="true"]:hover span,
+.acc-container .acc-btn.acc-selected:active span,
+.acc-container .acc-btn[aria-pressed="true"]:active span {
+    color: #ffffff !important;
+}
+
+.acc-container .acc-text-scale-range {
+    accent-color: var(--acc-maroon);
+}
+
+.acc-container .acc-btn:focus-visible,
+.acc-container .acc-footer-reset:focus-visible,
+.acc-container .acc-footer-lang-toggle:focus-visible,
+.acc-container .acc-lang-item:focus-visible,
+.acc-container .acc-text-scale-btn:focus-visible,
+.acc-container #acc-lang-search:focus-visible {
+    outline: none !important;
+    border-color: var(--acc-maroon) !important;
+    box-shadow: 0 0 0 3px var(--acc-maroon-soft) !important;
+}
+
+.acc-container .acc-violation-bubble {
+    display: none !important;
+}

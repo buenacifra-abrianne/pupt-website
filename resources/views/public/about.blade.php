@@ -9,6 +9,14 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
+    @php
+        $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
+        $campusImage = \App\Support\HomeCmsContent::resolveImagePath(
+            $homeCms['campus_image'] ?? '',
+            'assets/static_img/pupillar.jpeg'
+        );
+    @endphp
+
     <!-- Header -->
     <pup-header
   data-home="{{ route('public.home') }}"
@@ -26,6 +34,18 @@
         <section class="about-pup">
             <div class="about-content">
             <h1>About PUP</h1>
+
+            <section class="campus-story-block">
+                <div class="campus-story-copy-block">
+                    <p class="campus-story-tag">Campus Story</p>
+                    <h2>{{ $homeCms['campus_title'] ?? 'PUP Taguig Campus' }}</h2>
+                    <p>{!! nl2br(e((string) ($homeCms['campus_description'] ?? ''))) !!}</p>
+                </div>
+
+                <div class="campus-story-image-block">
+                    <img src="{{ $campusImage }}" alt="PUP Taguig Campus Building">
+                </div>
+            </section>
 
             <div id="vision" class="content-block">
                 <div id="aboutPUP">
