@@ -3,12 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Support\NewsImage;
 use App\Support\RichText;
 use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
 {
@@ -101,14 +101,10 @@ class AnnouncementController extends Controller
                 return back()->with('error', 'Announcement not found.');
             }
 
-            $removeImage = (string) $request->input('remove_image', '0') === '1';
-
-            $isNoChange = !$hasNewImage
-                && !$removeImage
-                && trim((string) ($existing->title ?? '')) === $incomingTitle
-                && trim((string) ($existing->content ?? '')) === $incomingContent
-                && trim((string) ($existing->category ?? '')) === $incomingCategory
-                && trim((string) ($existing->location ?? '')) === $incomingLocation;
+            $isNoChange = trim((string) ($existing->title ?? '')) === $title
+                && trim((string) ($existing->content ?? '')) === $content
+                && strtoupper(trim((string) ($existing->priority ?? ''))) === $priority
+                && strtoupper(trim((string) ($existing->status ?? ''))) === $status;
 
             if ($hasLinkColumn) {
                 $isNoChange = $isNoChange
@@ -243,14 +239,14 @@ class AnnouncementController extends Controller
         $removeImage = (string) $request->input('remove_image', '0') === '1';
 
         if ($removeImage && $imagePath) {
-            Storage::disk('s3')->delete($imagePath);
+            NewsImage::delete($imagePath);
             $imagePath = null;
         }
 
         if ($hasNewImage) {
             $oldImagePath = $imagePath;
 
-            $uploadedPath = $request->file('image')->store('news', 's3');
+            $uploadedPath = NewsImage::store($request->file('image'));
 
             if (!$uploadedPath) {
                 return response()->json([
@@ -262,7 +258,7 @@ class AnnouncementController extends Controller
             $imagePath = $uploadedPath;
 
             if ($oldImagePath) {
-                Storage::disk('s3')->delete($oldImagePath);
+                NewsImage::delete($oldImagePath);
             }
         }
 
@@ -333,7 +329,7 @@ class AnnouncementController extends Controller
         }
 
         if (!empty($news->image_path)) {
-            Storage::disk('s3')->delete($news->image_path);
+            NewsImage::delete($news->image_path);
         }
 
         DB::table('news')->where('news_id', $id)->delete();
