@@ -149,6 +149,7 @@ class OnePortalController extends Controller
 
     // if user does not exist locally, deny access
     if (!$user) {
+        $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -179,7 +180,7 @@ class OnePortalController extends Controller
     }
 
     // local DB role
-    $finalRole = strtoupper((string) $user->role);
+    $finalRole = strtoupper(trim((string) $user->role));
 
     $allowedRoles = [
         'SUPERADMIN',
@@ -191,8 +192,8 @@ class OnePortalController extends Controller
         'FACULTY',
     ];
 
-    // if user has no valid role in local system, deny access
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
+        $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
@@ -202,7 +203,7 @@ class OnePortalController extends Controller
             ->withoutCookie('refresh_token');
     }
 
-    // create local session
+    // create local session only after role is valid
     session([
         'user_logged_in' => true,
         'user_id' => $user->user_id,
@@ -213,14 +214,13 @@ class OnePortalController extends Controller
         'user_name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
         'user_role' => $finalRole,
         'role' => $finalRole,
-        'user_roles' => [$idpRole ?: $finalRole],
+        'user_roles' => [$finalRole],
         'oneportal_id' => $id,
         'access_token' => $accessToken,
         'refresh_token' => $refreshToken,
         'idp_roles' => $idpRoles,
     ]);
 
-    // record login in audit trail
     AuditLog::record(
         'LOGIN',
         'AUTHENTICATION',
@@ -233,7 +233,6 @@ class OnePortalController extends Controller
         ]
     );
 
-    // redirect and save tokens as browser cookies
     return $this->redirectByRole($finalRole)
         ->cookie('access_token', $accessToken, 60, '/', null, $request->isSecure(), true, false, 'Lax')
         ->cookie('refresh_token', $refreshToken ?? '', 60, '/', null, $request->isSecure(), true, false, 'Lax');

@@ -147,9 +147,15 @@ return back()->withErrors([
             (int) session('user_id', 0)
         );
 
+        // clear local session
         $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
+        
     }
 
     public function updateProfile(Request $request)
