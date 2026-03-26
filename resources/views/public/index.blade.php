@@ -72,10 +72,22 @@
             Select your destination to continue.
         </p>
 
+        @if (session('no_role_error'))
+            <div class="landing-alert landing-alert-error">
+                {{ session('no_role_error') }}
+            </div>
+        @endif
+
+        @if (session('error'))
+            <div class="landing-alert landing-alert-error">
+                {{ session('error') }}
+            </div>
+        @endif
+
         <!-- Buttons -->
         <div class="button-container">
 
-            <a href="{{ route('superadmin.login') }}" class="portal-button">
+            <a href="{{ route('oneportal.redirect') }}" class="portal-button">
                 <span class="icon">
                     <!-- users -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">

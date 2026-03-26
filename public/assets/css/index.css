@@ -291,3 +291,19 @@ body {
         bottom: 0;
     }
 }
+
+.landing-alert {
+    width: min(720px, 92%);
+    margin: 14px auto 20px;
+    padding: 14px 18px;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    text-align: center;
+}
+
+.landing-alert-error {
+    background: rgba(139, 0, 0, 0.10);
+    color: #7a1111;
+    border: 1px solid rgba(139, 0, 0, 0.22);
+}

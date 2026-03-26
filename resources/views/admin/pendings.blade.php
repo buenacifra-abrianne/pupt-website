@@ -171,13 +171,13 @@
                                         {{-- Approve --}}
                                         <button type="button"
                                         class="btn btn-sm btn-success"
-                                        onclick="approveReq('{{ route('superadmin.approvals.approve', $item->id) }}', {{ (int)$item->id }})">
+                                        onclick="approveReq('{{ route('admin.approvals.approve', $item->id) }}', {{ (int)$item->id }})">
                                         Approve
                                         </button>
 
                                         {{-- Reject (with reason prompt) --}}
                                         <button type="button" class="btn btn-sm btn-delete"
-                                        onclick="rejectReq('{{ route('superadmin.approvals.reject', $item->id) }}', {{ (int)$item->id }})">
+                                        onclick="rejectReq('{{ route('admin.approvals.reject', $item->id) }}', {{ (int)$item->id }})">
                                         <i class="fas fa-times"></i> Reject
                                         </button>
                                     </td>

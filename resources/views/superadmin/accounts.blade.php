@@ -104,6 +104,10 @@
                     <i class="fas fa-th-list"></i> All <span class="count-pill" id="pill-all">0</span>
                 </button>
 
+                <button class="tab-btn" data-role="Superadmin" onclick="switchRole('Superadmin')">
+                    <i class="fas fa-shield"></i> Superadmin <span class="count-pill" id="pill-Superadmin">0</span>
+                </button>
+
                 <button class="tab-btn" data-role="Admin" onclick="switchRole('Admin')">
                     <i class="fas fa-shield-halved"></i> Admin <span class="count-pill" id="pill-Admin">0</span>
                 </button>
@@ -178,9 +182,9 @@
             <div class="mbody">
     <div class="frow frow-single">
       <div class="fg">
-        <label>Select Faculty <span class="req">*</span></label>
+        <label>Select User <span class="req">*</span></label>
         <select id="facultySelect">
-            <option value="">Select Faculty</option>
+            <option value="">Select User</option>
         </select>
     </div>
     </div>
@@ -291,7 +295,8 @@ const AV = ['av-0'];
 const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
 
 const TAB_GROUPS = {
-  'Admin': ['SUPERADMIN', 'ADMIN'],
+  'Superadmin': ['SUPERADMIN'],
+  'Admin': ['ADMIN'],
   'Registrar': ['REGISTRAR'],
   'HAP': ['HAP'],
   'Student Services': ['STUDENT_SERVICES'],
@@ -410,9 +415,14 @@ function fillRoleOptions() {
   if (!sel) return;
 
   const opts = (ROLES || [])
-    .filter(r => String(r.code) !== 'LIBRARY')
-    .filter(r => String(r.code) !== 'SUPERADMIN')
-    .filter(r => !String(r.code).includes(':'))
+  .filter(r => String(r.code) !== 'LIBRARY')
+  .filter(r => {
+    const code = String(r.code);
+    if (code === 'SUPERADMIN' && CURRENT_ROLE !== 'SUPERADMIN') {
+      return false;
+    }
+    return !code.includes(':');
+  })
     .map(r => {
       const code = String(r.code);
       const name = (code === 'RESEARCH' || code === 'RESEARCH_EXTENSION')
@@ -577,6 +587,7 @@ const countByTab = (tabLabel) => {
 
 const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
 
+setPill('pill-Superadmin', countByTab('Superadmin'));
 setPill('pill-Admin', countByTab('Admin'));
 setPill('pill-Registrar', countByTab('Registrar'));
 setPill('pill-HAP', countByTab('HAP'));
@@ -870,44 +881,43 @@ function toggleSidebar(){
 
 render();
 
-// Edit if API endpoint is given by Faculty Team
-const facultyList = [
-  {
-    id: "fac001",
-    first_name: "Juan",
-    last_name: "Dela Cruz",
-    email: "juan.delacruz@pup.edu.ph"
-  },
-  {
-    id: "fac002",
-    first_name: "Maria",
-    last_name: "Santos",
-    email: "maria.santos@pup.edu.ph"
-  }
-];
+const facultyDirectory = @json(json_decode($facultyDirectoryJson ?? '[]', true));
 
 function populateFaculty() {
   const sel = document.getElementById('facultySelect');
+  if (!sel) return;
 
-  facultyList.forEach(f => {
+  sel.innerHTML = '<option value="">Select Faculty</option>';
+
+  facultyDirectory.forEach(f => {
     const opt = document.createElement('option');
-    opt.value = f.id;
-    opt.textContent = `${f.first_name} ${f.last_name}`;
+    opt.value = String(f.id || '');
+    opt.textContent = f.label || [f.first_name, f.last_name].filter(Boolean).join(' ');
+    opt.dataset.firstName = f.first_name || '';
+    opt.dataset.middleName = f.middle_name || '';
+    opt.dataset.lastName = f.last_name || '';
+    opt.dataset.suffix = f.suffix || '';
+    opt.dataset.email = f.email || '';
     sel.appendChild(opt);
   });
 }
 
 document.getElementById('facultySelect').addEventListener('change', function () {
-  const f = facultyList.find(x => x.id === this.value);
-  if (!f) return;
+  const selected = facultyDirectory.find(x => String(x.id) === String(this.value));
 
-  document.getElementById('f-fn').value = f.first_name;
-  document.getElementById('f-ln').value = f.last_name;
-  document.getElementById('f-em').value = f.email;
+  if (!selected) {
+    document.getElementById('f-fn').value = '';
+    document.getElementById('f-ln').value = '';
+    document.getElementById('f-em').value = '';
+    return;
+  }
+
+  document.getElementById('f-fn').value = selected.first_name || '';
+  document.getElementById('f-ln').value = selected.last_name || '';
+  document.getElementById('f-em').value = selected.email || '';
 });
 
 populateFaculty();
-
 </script>
 </body>
 </html>

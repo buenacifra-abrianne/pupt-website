@@ -203,7 +203,7 @@
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
-                                    <img src="{{ asset('storage/' . ltrim($news->image_path,'/')) }}" style="width:100%; height:150px; object-fit:cover;">
+                                    <img src="{{ Storage::disk('s3')->url($news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
                                 @else
                                     <i class="fas fa-newspaper"></i>
                                 @endif
@@ -219,14 +219,15 @@
 
                                 <div class="news-actions">
                                     <button type="button" class="btn btn-sm btn-primary"
-                                        onclick="editNews(
-                                            '{{ $news->news_id }}',
-                                            '{{ addslashes($news->title) }}',
-                                            '{{ addslashes($news->content) }}',
-                                            '{{ addslashes($news->category) }}',
-                                            '{{ addslashes($news->location) }}',
-                                            '{{ addslashes($news->link ?? '') }}'
-                                        )">
+                                        onclick='editNews(
+                                            @json($news->news_id),
+                                            @json($news->title),
+                                            @json($news->content),
+                                            @json($news->category),
+                                            @json($news->location),
+                                            @json($news->link ?? ""),
+                                            @json(!empty($news->image_path) ? Storage::disk("s3")->url($news->image_path) : "")
+                                        )'>
                                         <i class="fas fa-edit"></i>
                                     </button>
 
@@ -366,6 +367,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Category *</label>
+                    <select name="category" required>
+                        <option value="">Select category</option>
+                        <option value="Campus">Campus</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Event">Event</option>
+                        <option value="Announcement">Announcement</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="news_link">Link</label>
                     <div class="announcement-link-row">
                         <input 
@@ -382,25 +395,37 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Category *</label>
-                    <select name="category" required>
-                        <option value="">Select category</option>
-                        <option value="Campus">Campus</option>
-                        <option value="Academic">Academic</option>
-                        <option value="Event">Event</option>
-                        <option value="Announcement">Announcement</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-
-                <div class="form-group">
                     <label>Location</label>
                     <input type="text" name="location" placeholder="Location">
                 </div>
 
                 <div class="form-group">
                     <label>Featured Image</label>
-                    <input type="file" id="imageUpload" name="image" accept="image/*">
+
+                    <input type="file" id="imageUpload" name="image" accept="image/*" hidden>
+                    <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
+                    <input type="hidden" id="existingImagePath" value="">
+
+                    <div id="imagePreviewWrap" class="image-preview-wrap">
+                        <div id="imageEmptyState" class="image-empty-state">
+                            <i class="fas fa-image"></i>
+                            <span>No image selected</span>
+                        </div>
+
+                        <img id="imagePreview" src="" alt="Selected image preview" class="image-preview" style="display:none;">
+
+                        <div class="image-preview-actions">
+                            <button type="button" class="btn btn-sm btn-primary" id="addImageBtn">
+                                <i class="fas fa-plus"></i> Add Image
+                            </button>
+
+                            <span id="removeImageSlot" style="display:none;">
+                                <button type="button" class="btn btn-sm btn-warning" id="removeImageBtn">
+                                    <i class="fas fa-trash-alt"></i> Remove Image
+                                </button>
+                            </span>
+                        </div>
+                    </div>
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
@@ -621,11 +646,15 @@
 
             const idInput = document.getElementById('edit_news_id');
             if (idInput) idInput.remove();
+
+            resetNewsImageUI('new');
+
             newsBaseline = null;
         }
     }
 
     function closeNewsModal() {
+        resetNewsImageUI(!!document.getElementById('edit_news_id') ? 'edit' : 'new');
         document.getElementById('newsModal').classList.remove('active');
     }
 
@@ -654,7 +683,7 @@
         document.getElementById('readMoreModal').classList.remove('active');
     }
 
-    function editNews(id, title, content, category, location, link) {
+    function editNews(id, title, content, category, location, link, imagePath) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -666,6 +695,7 @@
         setRichTextEditorValue(form.querySelector('[name="content"]'), content);
         form.querySelector('[name="category"]').value = category;
         form.querySelector('[name="location"]').value = location;
+
         const linkInput = form.querySelector('[name="link"]');
         if (linkInput) {
             linkInput.value = link || '';
@@ -681,8 +711,13 @@
         }
         idInput.value = id;
 
-        const fileInput = document.getElementById('imageUpload');
-        if (fileInput) fileInput.value = '';
+        resetNewsImageUI('edit');
+
+        if (imagePath) {
+            showNewsImagePreview(imagePath, 'edit', true);
+        } else {
+            setNewsImageButtonLabel('Add New Image');
+        }
 
         newsBaseline = {
             title: (title || '').trim(),
@@ -730,9 +765,21 @@
         }
     });
 
-    window.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            e.target.classList.remove('active');
+    window.addEventListener('click', function (e) {
+        if (!e.target.classList.contains('modal')) return;
+
+        if (e.target.id === 'newsModal') {
+            closeNewsModal();
+            return;
+        }
+
+        if (e.target.id === 'announcementModal') {
+            closeAnnouncementModal();
+            return;
+        }
+
+        if (e.target.id === 'readMoreModal') {
+            closeReadMoreModal();
         }
     });
 
@@ -771,6 +818,40 @@
                 }
             });
         }
+
+        const imageUpload = document.getElementById('imageUpload');
+        const addImageBtn = document.getElementById('addImageBtn');
+        const removeImageBtn = document.getElementById('removeImageBtn');
+        const removeImageFlag = document.getElementById('removeImageFlag');
+
+        if (addImageBtn && imageUpload) {
+            addImageBtn.addEventListener('click', function () {
+                imageUpload.click();
+            });
+        }
+
+        if (imageUpload) {
+            imageUpload.addEventListener('change', function () {
+                const file = this.files && this.files[0] ? this.files[0] : null;
+                const isEdit = !!document.getElementById('edit_news_id');
+
+                if (!file) {
+                    return;
+                }
+
+                handleNewsImageSelection(file, isEdit ? 'edit' : 'new');
+            });
+        }
+
+        if (removeImageBtn) {
+            removeImageBtn.addEventListener('click', function () {
+                const isEdit = !!document.getElementById('edit_news_id');
+                resetNewsImageUI(isEdit ? 'edit' : 'new');
+                if (removeImageFlag) removeImageFlag.value = '1';
+            });
+        }
+
+        resetNewsImageUI('new');
 
         const pasteNewsLinkBtn = document.getElementById('pasteNewsLinkBtn');
         const newsLinkInput = document.getElementById('news_link');
@@ -822,7 +903,9 @@
         if (!newsBaseline) return true;
 
         const hasFile = !!(form.querySelector('#imageUpload')?.files?.length);
-        if (hasFile) return true;
+        const wantsRemoveImage = (form.querySelector('#removeImageFlag')?.value || '0') === '1';
+
+        if (hasFile || wantsRemoveImage) return true;
 
         return (form.querySelector('[name="title"]')?.value || '').trim() !== newsBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== newsBaseline.content
@@ -879,6 +962,87 @@
   queueReloadToast(isEdit ? 'News updated successfully.' : 'News created successfully.', 'success', 'News');
   window.location.reload();
 });
+
+function setNewsImageButtonLabel(text) {
+        const addBtn = document.getElementById('addImageBtn');
+        if (addBtn) {
+            addBtn.innerHTML = `<i class="fas fa-plus"></i> ${text}`;
+        }
+    }
+
+    function resetNewsImageUI(mode = 'new') {
+        const fileInput = document.getElementById('imageUpload');
+        const previewImg = document.getElementById('imagePreview');
+        const emptyState = document.getElementById('imageEmptyState');
+        const removeBtn = document.getElementById('removeImageBtn');
+        const removeSlot = document.getElementById('removeImageSlot');
+        const removeFlag = document.getElementById('removeImageFlag');
+        const existingImagePath = document.getElementById('existingImagePath');
+
+        if (fileInput) fileInput.value = '';
+        if (previewImg) {
+            previewImg.src = '';
+            previewImg.style.display = 'none';
+        }
+        if (emptyState) emptyState.style.display = 'flex';
+        if (removeBtn) {
+            removeBtn.hidden = true;
+            removeBtn.setAttribute('aria-hidden', 'true');
+            removeBtn.style.display = 'none';
+        }
+        if (removeSlot) {
+            removeSlot.style.display = 'none';
+        }
+        if (removeFlag) removeFlag.value = '0';
+        if (existingImagePath) existingImagePath.value = '';
+
+        setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
+    }
+
+    function showNewsImagePreview(src, mode = 'new', isExisting = false) {
+        const previewImg = document.getElementById('imagePreview');
+        const emptyState = document.getElementById('imageEmptyState');
+        const removeBtn = document.getElementById('removeImageBtn');
+        const removeSlot = document.getElementById('removeImageSlot');
+        const removeFlag = document.getElementById('removeImageFlag');
+        const existingImagePath = document.getElementById('existingImagePath');
+
+        const hasImage = !!src;
+
+        if (previewImg) {
+            previewImg.src = hasImage ? src : '';
+            previewImg.style.display = hasImage ? 'block' : 'none';
+        }
+        if (emptyState) emptyState.style.display = hasImage ? 'none' : 'flex';
+        if (removeBtn) {
+            removeBtn.hidden = !hasImage;
+            removeBtn.setAttribute('aria-hidden', hasImage ? 'false' : 'true');
+            removeBtn.style.display = hasImage ? 'inline-flex' : 'none';
+        }
+        if (removeSlot) {
+            removeSlot.style.display = hasImage ? 'inline-flex' : 'none';
+        }
+        if (removeFlag) removeFlag.value = '0';
+
+        if (existingImagePath) {
+            existingImagePath.value = isExisting && hasImage ? src : '';
+        }
+
+        setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
+    }
+
+    function handleNewsImageSelection(file, mode = 'new') {
+        if (!file || !file.type.startsWith('image/')) {
+            resetNewsImageUI(mode);
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            showNewsImagePreview(e.target.result, mode, false);
+        };
+        reader.readAsDataURL(file);
+    }
 </script>
 </body>
 </html>

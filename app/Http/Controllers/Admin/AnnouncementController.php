@@ -8,6 +8,7 @@ use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 
 class AnnouncementController extends Controller
 {
@@ -100,10 +101,14 @@ class AnnouncementController extends Controller
                 return back()->with('error', 'Announcement not found.');
             }
 
-            $isNoChange = trim((string) ($existing->title ?? '')) === $title
-                && trim((string) ($existing->content ?? '')) === $content
-                && strtoupper(trim((string) ($existing->priority ?? ''))) === $priority
-                && strtoupper(trim((string) ($existing->status ?? ''))) === $status;
+            $removeImage = (string) $request->input('remove_image', '0') === '1';
+
+            $isNoChange = !$hasNewImage
+                && !$removeImage
+                && trim((string) ($existing->title ?? '')) === $incomingTitle
+                && trim((string) ($existing->content ?? '')) === $incomingContent
+                && trim((string) ($existing->category ?? '')) === $incomingCategory
+                && trim((string) ($existing->location ?? '')) === $incomingLocation;
 
             if ($hasLinkColumn) {
                 $isNoChange = $isNoChange
@@ -234,10 +239,31 @@ class AnnouncementController extends Controller
             }
         }
 
-        $imagePath = $existing ? $existing->image_path : null;
+        $imagePath = $existing?->image_path;
+        $removeImage = (string) $request->input('remove_image', '0') === '1';
+
+        if ($removeImage && $imagePath) {
+            Storage::disk('s3')->delete($imagePath);
+            $imagePath = null;
+        }
 
         if ($hasNewImage) {
-            $imagePath = $request->file('image')->store('news', 'public');
+            $oldImagePath = $imagePath;
+
+            $uploadedPath = $request->file('image')->store('news', 's3');
+
+            if (!$uploadedPath) {
+                return response()->json([
+                    'ok' => false,
+                    'error' => 'Image upload failed.',
+                ], 500);
+            }
+
+            $imagePath = $uploadedPath;
+
+            if ($oldImagePath) {
+                Storage::disk('s3')->delete($oldImagePath);
+            }
         }
 
         $data = [
@@ -307,10 +333,7 @@ class AnnouncementController extends Controller
         }
 
         if (!empty($news->image_path)) {
-            $path = public_path('assets/uploads/'.$news->image_path);
-            if (file_exists($path)) {
-                @unlink($path);
-            }
+            Storage::disk('s3')->delete($news->image_path);
         }
 
         DB::table('news')->where('news_id', $id)->delete();

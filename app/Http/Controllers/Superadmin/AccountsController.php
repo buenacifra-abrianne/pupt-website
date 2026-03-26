@@ -13,98 +13,95 @@ use Illuminate\Support\Str;
 use App\Mail\NewAccountTempPasswordMail;
 use App\Support\AuditLog;
 use App\Support\Avatar;
+use App\Services\Flss\FacultyDirectoryService;
 
 class AccountsController extends Controller
 {
-    public function index()
-{
-    $roles = $this->fetchRolesForUi();
+    public function index(FacultyDirectoryService $facultyDirectoryService)
+    {
+        $roles = $this->fetchRolesForUi();
 
-    // ✅ ensure FACULTY exists for dropdown display
-    if (!$roles->contains('code', 'FACULTY')) {
-        $roles->push((object)[
-            'code' => 'FACULTY',
-            'name' => 'Faculty',
-            'level' => 0,
+        if (!$roles->contains('code', 'FACULTY')) {
+            $roles->push((object)[
+                'code' => 'FACULTY',
+                'name' => 'Faculty',
+                'level' => 0,
+            ]);
+        }
+
+        $acceptedCodes = $roles->pluck('code')->map(fn($c) => (string)$c)->all();
+
+        if (in_array('FACULTY', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:faculty';
+        if (in_array('STUDENT', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:student';
+
+        $userSelect = ['user_id', 'first_name', 'last_name', 'email', 'role', 'status', 'last_login_at'];
+        if (Schema::hasColumn('users', 'profile_picture')) {
+            $userSelect[] = 'profile_picture';
+        }
+
+        $rows = DB::table('users')
+            ->select($userSelect)
+            ->whereIn('role', $acceptedCodes)
+            ->orderBy('user_id', 'desc')
+            ->get();
+
+        $userIds = $rows->pluck('user_id')->map(fn($id) => (int) $id)->all();
+
+        $rolesByUser = collect();
+        if (Schema::hasTable('user_roles') && !empty($userIds)) {
+            $rolesByUser = DB::table('user_roles')
+                ->select('user_id', 'role_code', 'is_primary')
+                ->whereIn('user_id', $userIds)
+                ->orderByDesc('is_primary')
+                ->orderBy('id')
+                ->get()
+                ->groupBy('user_id');
+        }
+
+        $mapped = $rows->map(function ($u) use ($rolesByUser) {
+            $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
+
+            $roleCodes = $userRoleRows->pluck('role_code')
+                ->map(fn($r) => (string) $r)
+                ->values()
+                ->all();
+
+            if (empty($roleCodes) && !empty($u->role)) {
+                $roleCodes = [(string) $u->role];
+            }
+
+            $fullName = trim((string) $u->first_name . ' ' . (string) $u->last_name);
+            if ($fullName === '') {
+                $fullName = (string) ($u->email ?? 'User');
+            }
+
+            return [
+                'id'    => (int) $u->user_id,
+                'fn'    => (string) $u->first_name,
+                'ln'    => (string) $u->last_name,
+                'em'    => (string) $u->email,
+                'rl'    => (string) ($roleCodes[0] ?? $u->role),
+                'roles' => $roleCodes,
+                'st'    => (string) $u->status,
+                'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
+                'av'    => 'av-0',
+                'avatar_url' => Avatar::resolveUrl((string) ($u->profile_picture ?? '')),
+                'avatar_initials' => Avatar::initials(
+                    $fullName,
+                    (string) $u->first_name,
+                    (string) $u->last_name
+                ),
+            ];
+        });
+
+        $facultyDirectory = $facultyDirectoryService->getActiveFacultyForDropdown();
+
+        return view('superadmin.accounts', [
+            'usersJson' => $mapped->toJson(),
+            'rolesJson' => $roles->toJson(),
+            'facultyDirectoryJson' => json_encode($facultyDirectory),
         ]);
     }
-
-    // (optional) same idea if you want Student dropdown mapping later
-    // if (!$roles->contains('code', 'STUDENT')) {
-    //     $roles->push((object)['code'=>'STUDENT','name'=>'Student','level'=>0]);
-    // }
-
-    $acceptedCodes = $roles->pluck('code')->map(fn($c) => (string)$c)->all();
-
-    // ✅ allow users stored as base role codes
-    if (in_array('FACULTY', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:faculty';
-    if (in_array('STUDENT', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:student';
-
-    $userSelect = ['user_id', 'first_name', 'last_name', 'email', 'role', 'status', 'last_login_at'];
-    if (Schema::hasColumn('users', 'profile_picture')) {
-        $userSelect[] = 'profile_picture';
-    }
-
-    $rows = DB::table('users')
-    ->select($userSelect)
-    ->whereIn('role', $acceptedCodes)
-    ->orderBy('user_id', 'desc')
-    ->get();
-
-$userIds = $rows->pluck('user_id')->map(fn($id) => (int) $id)->all();
-
-$rolesByUser = collect();
-if (Schema::hasTable('user_roles') && !empty($userIds)) {
-    $rolesByUser = DB::table('user_roles')
-        ->select('user_id', 'role_code', 'is_primary')
-        ->whereIn('user_id', $userIds)
-        ->orderByDesc('is_primary')
-        ->orderBy('id')
-        ->get()
-        ->groupBy('user_id');
-}
-
-$mapped = $rows->map(function ($u) use ($rolesByUser) {
-    $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
-
-    $roleCodes = $userRoleRows->pluck('role_code')
-        ->map(fn($r) => (string) $r)
-        ->values()
-        ->all();
-
-    if (empty($roleCodes) && !empty($u->role)) {
-        $roleCodes = [(string) $u->role];
-    }
-
-    $fullName = trim((string) $u->first_name . ' ' . (string) $u->last_name);
-    if ($fullName === '') {
-        $fullName = (string) ($u->email ?? 'User');
-    }
-
-    return [
-        'id'    => (int) $u->user_id,
-        'fn'    => (string) $u->first_name,
-        'ln'    => (string) $u->last_name,
-        'em'    => (string) $u->email,
-        'rl'    => (string) ($roleCodes[0] ?? $u->role),
-        'roles' => $roleCodes,
-        'st'    => (string) $u->status,
-        'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
-        'av'    => 'av-0',
-        'avatar_url' => Avatar::resolveUrl((string) ($u->profile_picture ?? '')),
-        'avatar_initials' => Avatar::initials(
-            $fullName,
-            (string) $u->first_name,
-            (string) $u->last_name
-        ),
-    ];
-});
-
-    return view('superadmin.accounts', [
-        'usersJson' => $mapped->toJson(),
-        'rolesJson' => $roles->toJson(),
-    ]);
-}
 
 private function fetchRolesForUi()
 {
@@ -246,17 +243,26 @@ private function validateTopLevelRoleMix(array $requestedRoleCodes): ?\Illuminat
     return null;
 }
 
+private function actorIsSuperadmin(): bool
+{
+    return strtoupper(trim((string) session('user_role'))) === 'SUPERADMIN';
+}
+
 private function allowedRoleCodesForAccounts(): array
 {
     if (Schema::hasTable('roles')) {
         $allowedCodes = DB::table('roles')
             ->where('is_active', 1)
-            ->where('scope', 'CMS')
+            ->where(function ($q) {
+                $q->where('scope', 'CMS')
+                  ->orWhere('code', 'SUPERADMIN');
+            })
             ->pluck('code')
             ->map(fn($c) => (string) $c)
             ->all();
     } else {
         $allowedCodes = array_keys($this->defaultCmsRolesForFallback());
+
         if (Schema::hasTable('users')) {
             $detectedCodes = DB::table('users')
                 ->whereNotNull('role')
@@ -275,7 +281,9 @@ private function allowedRoleCodesForAccounts(): array
         $allowedCodes[] = 'pupt:faculty';
     }
 
-    $allowedCodes = array_values(array_filter($allowedCodes, fn ($code) => $code !== 'SUPERADMIN'));
+    if (!$this->actorIsSuperadmin()) {
+        $allowedCodes = array_values(array_filter($allowedCodes, fn ($code) => $code !== 'SUPERADMIN'));
+    }
 
     return array_values(array_unique($allowedCodes));
 }
@@ -388,10 +396,10 @@ if ($resp = $this->validateTopLevelRoleMix($requestedRoleCodes)) {
     return $resp;
 }
 
-if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
+if (in_array('SUPERADMIN', $requestedRoleCodes, true) && !$this->actorIsSuperadmin()) {
     return response()->json([
         'ok' => false,
-        'message' => 'Superadmin cannot be created from this page.'
+        'message' => 'You are not allowed to create a Superadmin account.'
     ], 403);
 }
 
@@ -588,10 +596,10 @@ if ($resp = $this->validateTopLevelRoleMix($requestedRoleCodes)) {
     return $resp;
 }
 
-if (in_array('SUPERADMIN', $requestedRoleCodes, true)) {
+if (in_array('SUPERADMIN', $requestedRoleCodes, true) && !$this->actorIsSuperadmin()) {
     return response()->json([
         'ok' => false,
-        'message' => 'Superadmin cannot be assigned from this page.'
+        'message' => 'You are not allowed to assign the Superadmin role.'
     ], 403);
 }
 

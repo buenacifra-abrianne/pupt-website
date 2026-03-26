@@ -44,15 +44,19 @@ class AuthController extends Controller
 
         // Auto-upgrade legacy plain-text passwords to hashed passwords after successful login.
         $storedPassword = (string) ($user->password ?? '');
+        $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+
+        $updates = [
+            'last_login_at' => now(),
+        ];
+
         if ($storedPassword !== '' && hash_equals($storedPassword, (string) $request->password)) {
-            $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
-            DB::table('users')
-    ->where($idColumn, data_get($user, $idColumn))
-    ->update([
-        'last_login_at' => now(),
-        'password'      => Hash::make((string) $request->password)
-    ]);
+            $updates['password'] = Hash::make((string) $request->password);
         }
+
+        DB::table('users')
+            ->where($idColumn, data_get($user, $idColumn))
+            ->update($updates);
 
         $dbRole = strtoupper(trim((string) ($user->role ?? '')));
 $dbRole = preg_replace('/\s+/', '_', $dbRole);
@@ -143,9 +147,15 @@ return back()->withErrors([
             (int) session('user_id', 0)
         );
 
+        // clear local session
         $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-        return redirect('/');
+        return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
+        
     }
 
     public function updateProfile(Request $request)
@@ -395,23 +405,172 @@ return back()->withErrors([
     }
 
         public function callback(Request $request)
-    {
-        $token = $request->query('token') ?? $request->input('token');
+{
+    $token = $request->query('token') ?? $request->input('token');
 
-        \Log::info('IDP callback received', [
-            'query' => $request->query(),
-            'input' => $request->all(),
-            'ip' => $request->ip()
-        ]);
+    \Log::info('IDP callback received', [
+        'query' => $request->query(),
+        'input' => $request->all(),
+        'ip' => $request->ip(),
+    ]);
 
-        if (!$token) {
-            return redirect('/')->with('error', 'No authentication token received.');
+    if (!$token) {
+        return redirect('/')
+            ->with('error', 'No authentication token received.');
+    }
+
+    try {
+        /**
+         * STEP 1:
+         * Decode / validate the token here based on your IDP spec.
+         * You need to extract at least the user's email.
+         *
+         * Example only:
+         * $payload = YourIdpService::decodeToken($token);
+         * $email = strtolower(trim((string) ($payload['email'] ?? '')));
+         */
+
+        $payload = $this->decodeIdpToken($token); // create this helper/service
+        $email = strtolower(trim((string) ($payload['email'] ?? '')));
+
+        if ($email === '') {
+            $this->clearAuthState($request);
+
+            return redirect('/')
+                ->with('error', 'Unable to identify account from identity provider.');
         }
 
-        // temporary response habang wala pang IDP specs
-        return response()->json([
-            'message' => 'Token received',
-            'token_preview' => substr($token, 0, 20) . '...'
+        $user = DB::table('users')
+            ->whereRaw('LOWER(email) = ?', [$email])
+            ->first();
+
+        if (!$user) {
+            $this->clearAuthState($request);
+
+            return redirect('/')
+                ->with('error', 'You have no role in this system. Please check with the superadmin.');
+        }
+
+        $dbRole = strtoupper(trim((string) ($user->role ?? '')));
+        $dbRole = preg_replace('/\s+/', '_', $dbRole);
+
+        $userId = (int) ($user->user_id ?? $user->id ?? 0);
+
+        $assignedRoles = [];
+        if (Schema::hasTable('user_roles') && $userId > 0) {
+            $assignedRoles = DB::table('user_roles')
+                ->where('user_id', $userId)
+                ->orderByDesc('is_primary')
+                ->orderBy('id')
+                ->pluck('role_code')
+                ->map(function ($role) {
+                    return strtoupper(trim((string) $role));
+                })
+                ->filter()
+                ->values()
+                ->all();
+        }
+
+        if (empty($assignedRoles) && !empty($dbRole)) {
+            $assignedRoles = [$dbRole];
+        }
+
+        $allowedRoles = [
+            'SUPERADMIN',
+            'ADMIN',
+            'REGISTRAR',
+            'HAP',
+            'STUDENT_SERVICES',
+            'RESEARCH_EXTENSION',
+            'FACULTY',
+        ];
+
+        $validRoles = array_values(array_intersect($assignedRoles, $allowedRoles));
+
+        if (empty($validRoles)) {
+            $this->clearAuthState($request);
+
+            return redirect('/')
+                ->with('error', 'You have no role in this system. Please check with the superadmin.');
+        }
+
+        DB::table('users')
+            ->where(Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id', $userId)
+            ->update([
+                'last_login_at' => now(),
+            ]);
+
+        session([
+            'user_logged_in' => true,
+            'user_id' => $userId,
+            'user_email' => $user->email ?? '',
+            'user_first_name' => $user->first_name ?? '',
+            'user_middle_name' => $user->middle_name ?? '',
+            'user_last_name' => $user->last_name ?? '',
+            'user_suffix' => $user->suffix ?? '',
+            'user_role' => $validRoles[0],
+            'user_roles' => $validRoles,
+            'user_name' => $user->name ?? '',
+            'user_profile_picture' => $user->profile_picture ?? '',
+            'terms_accepted' => false,
         ]);
+
+        AuditLog::record(
+            'LOGIN',
+            'AUTHENTICATION',
+            'User logged in successfully via IDP: ' . (string) ($user->email ?? ''),
+            $userId,
+            [
+                'user_id' => $userId,
+                'user_name' => trim((string) ($user->first_name ?? '') . ' ' . (string) ($user->last_name ?? '')),
+            ]
+        );
+
+        $primaryRole = $validRoles[0];
+
+        if ($primaryRole === 'SUPERADMIN') {
+            return redirect()->route('superadmin.dashboard');
+        }
+
+        if ($primaryRole === 'ADMIN') {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return redirect()->route('staff.dashboard');
+
+    } catch (\Throwable $e) {
+        \Log::error('IDP callback failed', [
+            'message' => $e->getMessage(),
+        ]);
+
+        $this->clearAuthState($request);
+
+        return redirect('/')
+            ->with('error', 'Authentication failed. Please try again.');
     }
+}
+
+private function clearAuthState(Request $request): void
+{
+    $request->session()->forget([
+        'user_logged_in',
+        'user_id',
+        'user_email',
+        'user_first_name',
+        'user_middle_name',
+        'user_last_name',
+        'user_suffix',
+        'user_role',
+        'user_roles',
+        'user_name',
+        'user_profile_picture',
+        'terms_accepted',
+        'idp_token',
+        'access_token',
+        'refresh_token',
+    ]);
+
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+}
 }
