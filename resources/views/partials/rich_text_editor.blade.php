@@ -1,10 +1,10 @@
 <div class="rich-editor js-rich-editor" data-placeholder="{{ $placeholder ?? 'Write here...' }}">
     <div class="rich-editor-toolbar" role="toolbar" aria-label="Text formatting">
         <div class="rich-editor-group">
-            <button type="button" class="rich-editor-btn" data-command="bold" title="Bold"><strong>B</strong></button>
-            <button type="button" class="rich-editor-btn" data-command="italic" title="Italic"><em>I</em></button>
-            <button type="button" class="rich-editor-btn" data-command="underline" title="Underline"><u>U</u></button>
-            <button type="button" class="rich-editor-btn" data-command="strikeThrough" title="Strike"><s>S</s></button>
+            <button type="button" class="rich-editor-btn" data-command="bold" data-active-command="bold" title="Bold"><strong>B</strong></button>
+            <button type="button" class="rich-editor-btn" data-command="italic" data-active-command="italic" title="Italic"><em>I</em></button>
+            <button type="button" class="rich-editor-btn" data-command="underline" data-active-command="underline" title="Underline"><u>U</u></button>
+            <button type="button" class="rich-editor-btn" data-command="strikeThrough" data-active-command="strikeThrough" title="Strike"><s>S</s></button>
         </div>
 
         <div class="rich-editor-separator" aria-hidden="true"></div>
@@ -48,13 +48,6 @@
                 </button>
 
                 <div class="rich-editor-color-popover js-text-color-popover" hidden>
-                    <div class="rich-editor-color-popover-title">Text Color</div>
-
-                    <div class="rich-editor-color-preview-wrap">
-                        <div class="rich-editor-color-preview-label">Preview</div>
-                        <div class="rich-editor-color-preview js-text-color-preview">Sample text</div>
-                    </div>
-
                     <div class="rich-editor-color-section">
                         <div class="rich-editor-color-section-title">Theme Colors</div>
                         <div class="rich-editor-color-grid js-theme-color-grid">
@@ -92,23 +85,6 @@
                             <button type="button" class="rich-editor-swatch" data-color="#002060" style="background:#002060;"></button>
                             <button type="button" class="rich-editor-swatch" data-color="#7030A0" style="background:#7030A0;"></button>
                         </div>
-                    </div>
-
-                    <div class="rich-editor-color-section js-recent-colors-section" hidden>
-                        <div class="rich-editor-color-section-title">Recent Colors</div>
-                        <div class="rich-editor-color-grid js-recent-color-grid"></div>
-                    </div>
-
-                    <div class="rich-editor-color-meta">
-                        <button type="button" class="rich-editor-color-link js-text-color-auto">Automatic</button>
-                        <button type="button" class="rich-editor-color-link js-text-color-none">No color</button>
-                        <button type="button" class="rich-editor-color-link js-text-color-more">More colors...</button>
-                        <input type="color" class="js-text-color-native rich-editor-native-color-anchor" value="#000000">
-                    </div>
-
-                    <div class="rich-editor-color-actions">
-                        <button type="button" class="rich-editor-color-cancel js-text-color-cancel">Cancel</button>
-                        <button type="button" class="rich-editor-color-confirm js-text-color-confirm">Confirm</button>
                     </div>
                 </div>
             </div>
