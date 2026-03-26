@@ -189,7 +189,7 @@
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
-                                    <img src="{{ asset('storage/' . ltrim($news->image_path,'/')) }}" style="width:100%; height:150px; object-fit:cover;">
+                                    <img src="{{ Storage::disk('s3')->url($news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
                                 @else
                                     <i class="fas fa-newspaper"></i>
                                 @endif
@@ -212,7 +212,7 @@
                                             @json($news->category),
                                             @json($news->location),
                                             @json($news->link ?? ""),
-                                            @json(!empty($news->image_path) ? asset("storage/" . ltrim($news->image_path, "/")) : "")
+                                            @json(!empty($news->image_path) ? Storage::disk("s3")->url($news->image_path) : "") 
                                         )'>
                                         <i class="fas fa-edit"></i>
                                     </button>

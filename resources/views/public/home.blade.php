@@ -157,7 +157,7 @@
               <article class="news-mini-card">
                 <div class="news-mini-card-inner">
                   <div class="news-mini-card-front">
-                    <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
+                    <img src="{{ Storage::disk('s3')->url($n->image_path) }}" alt="{{ e($n->title) }}">
                     <div class="news-mini-card-copy">
                       <time>{{ $storyDate }}</time>
                       <h4>{{ e($n->title) }}</h4>
