@@ -203,7 +203,7 @@
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
-                                    <img src="{{ asset('storage/' . ltrim($news->image_path,'/')) }}" style="width:100%; height:150px; object-fit:cover;">
+                                    <img src="{{ Storage::disk('s3')->url($news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
                                 @else
                                     <i class="fas fa-newspaper"></i>
                                 @endif
@@ -226,7 +226,7 @@
                                             @json($news->category),
                                             @json($news->location),
                                             @json($news->link ?? ""),
-                                            @json(!empty($news->image_path) ? asset("storage/" . ltrim($news->image_path, "/")) : "")
+                                            @json(!empty($news->image_path) ? Storage::disk("s3")->url($news->image_path) : "")
                                         )'>
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -367,6 +367,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Category *</label>
+                    <select name="category" required>
+                        <option value="">Select category</option>
+                        <option value="Campus">Campus</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Event">Event</option>
+                        <option value="Announcement">Announcement</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="news_link">Link</label>
                     <div class="announcement-link-row">
                         <input 
@@ -380,18 +392,6 @@
                             <i class="fas fa-paste"></i>
                         </button>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Category *</label>
-                    <select name="category" required>
-                        <option value="">Select category</option>
-                        <option value="Campus">Campus</option>
-                        <option value="Academic">Academic</option>
-                        <option value="Event">Event</option>
-                        <option value="Announcement">Announcement</option>
-                        <option value="Other">Other</option>
-                    </select>
                 </div>
 
                 <div class="form-group">

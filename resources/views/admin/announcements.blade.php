@@ -353,6 +353,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label>Category *</label>
+                    <select name="category" required>
+                        <option value="">Select category</option>
+                        <option value="Campus">Campus</option>
+                        <option value="Academic">Academic</option>
+                        <option value="Event">Event</option>
+                        <option value="Announcement">Announcement</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
                     <label for="news_link">Link</label>
                     <div class="announcement-link-row">
                         <input 
@@ -366,18 +378,6 @@
                             <i class="fas fa-paste"></i>
                         </button>
                     </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Category *</label>
-                    <select name="category" required>
-                        <option value="">Select category</option>
-                        <option value="Campus">Campus</option>
-                        <option value="Academic">Academic</option>
-                        <option value="Event">Event</option>
-                        <option value="Announcement">Announcement</option>
-                        <option value="Other">Other</option>
-                    </select>
                 </div>
 
                 <div class="form-group">
