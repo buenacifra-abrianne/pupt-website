@@ -219,6 +219,10 @@ $myNews = DB::table('news')
         'existing_image_path' => ['nullable','string'], // ✅ add this
     ]);
 
+    if ($message = NewsImage::validationError($request->file('image'))) {
+        throw ValidationException::withMessages(['image' => $message]);
+    }
+
     $requestId = $request->input('request_id') ? (int)$request->input('request_id') : null;
 
     // ✅ Start with existing image (from hidden input OR from old request row)
@@ -258,6 +262,10 @@ $myNews = DB::table('news')
 
     public function requestUpdateNews(Request $request)
 {
+    if (!$request->hasFile('image')) {
+        $request->request->remove('image');
+    }
+
     $request->validate([
     'request_id' => ['nullable','integer'],
     'news_id' => ['required','integer','gt:0'],
@@ -265,9 +273,12 @@ $myNews = DB::table('news')
     'content' => ['required','string'],
     'category' => ['required','string','max:100'],
     'location' => ['nullable','string','max:255'],
-    'image' => ['nullable','image','max:5120'],
     'existing_image_path' => ['nullable','string'], // ✅ add
 ]);
+
+if ($message = NewsImage::validationError($request->file('image'))) {
+    throw ValidationException::withMessages(['image' => $message]);
+}
 
 $imagePath = null;
 if ($request->hasFile('image')) {
