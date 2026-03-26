@@ -598,32 +598,77 @@
         return json;
     }
 
+    function resetAnnouncementFormState() {
+  const form = document.getElementById('announcementForm');
+  const modal = document.getElementById('announcementModal');
+  const modalTitle = modal?.querySelector('.modal-title');
+  const submitBtn = document.getElementById('announcementSubmitBtn');
+
+  if (!form) return;
+
+  form.reset();
+  setRichTextEditorValue(form.querySelector('[name="content"]'), '');
+  form.action = "{{ route('staff.announcements.requestCreate') }}";
+
+  if (modalTitle) modalTitle.innerText = "New Announcement";
+  if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
+
+  const idInput = document.getElementById('edit_announcement_id');
+  if (idInput) idInput.remove();
+
+  const reqInput = document.getElementById('edit_request_id');
+  if (reqInput) reqInput.remove();
+
+  announcementEditSnapshot = null;
+}
+
+    function resetNewsFormState() {
+        const form = document.getElementById('newsForm');
+        const modal = document.getElementById('newsModal');
+        const modalTitle = modal?.querySelector('.modal-title');
+        const submitBtn = document.getElementById('newsSubmitBtn');
+
+        if (!form) return;
+
+        form.reset();
+        setRichTextEditorValue(form.querySelector('[name="content"]'), '');
+        form.action = "{{ route('staff.news.requestCreate') }}";
+
+        if (modalTitle) modalTitle.innerText = "New News Article";
+        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
+
+        const fileInput = document.getElementById('newsImageInput');
+        if (fileInput) fileInput.value = '';
+
+        const idInput = document.getElementById('edit_news_id');
+        if (idInput) idInput.remove();
+
+        const reqInput = document.getElementById('edit_news_request_id');
+        if (reqInput) reqInput.remove();
+
+        const hidden = document.getElementById('news_existing_image_path');
+        if (hidden) hidden.value = '';
+
+        const removeBtn = document.getElementById('newsRemoveImageBtn');
+        if (removeBtn) removeBtn.style.display = 'none';
+
+        setNewsPreview('');
+        newsEditSnapshot = null;
+    }
+
     // Announcement Modal
     function openAnnouncementModal(isNew = false) {
   const modal = document.getElementById('announcementModal');
-  const form = document.getElementById('announcementForm');
-  const modalTitle = modal.querySelector('.modal-title');
-  const submitBtn = document.getElementById('announcementSubmitBtn');
-
-  modal.classList.add('active');
 
   if (isNew) {
-    form.reset();
-    syncRichTextEditors(form);
-    form.action = "{{ route('staff.announcements.requestCreate') }}";
-    if (modalTitle) modalTitle.innerText = "New Announcement";
-    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
-    announcementEditSnapshot = null;
-
-    const idInput = document.getElementById('edit_announcement_id');
-    if (idInput) idInput.remove();
-
-    const reqInput = document.getElementById('edit_request_id');
-    if (reqInput) reqInput.remove();
+    resetAnnouncementFormState();
   }
+
+  modal.classList.add('active');
 }
 
     function closeAnnouncementModal() {
+        resetAnnouncementFormState();
         document.getElementById('announcementModal').classList.remove('active');
     }
 
@@ -679,36 +724,16 @@
     // News Modal
     function openNewsModal(isNew = false) {
         const modal = document.getElementById('newsModal');
-        const form = document.getElementById('newsForm');
-        const modalTitle = modal.querySelector('.modal-title');
-        const submitBtn = document.getElementById('newsSubmitBtn');
-
-        modal.classList.add('active');
 
         if (isNew) {
-            form.reset();
-            syncRichTextEditors(form);
-            setNewsPreview('');
-            document.getElementById('news_existing_image_path').value = '';
-            document.getElementById('newsRemoveImageBtn').style.display = 'none';
-            form.action = "{{ route('staff.news.requestCreate') }}";
-            if (modalTitle) modalTitle.innerText = "New News Article";
-            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request New';
-            newsEditSnapshot = null;
-
-            const fileInput = document.getElementById('newsImageInput');
-            if (fileInput) fileInput.value = '';
-
-            const idInput = document.getElementById('edit_news_id');
-            if (idInput) idInput.remove();
-
-            const reqInput = document.getElementById('edit_news_request_id');
-            if (reqInput) reqInput.remove();
-
+            resetNewsFormState();
         }
+
+        modal.classList.add('active');
     }
 
     function closeNewsModal() {
+        resetNewsFormState();
         document.getElementById('newsModal').classList.remove('active');
     }
 
@@ -889,8 +914,20 @@
     });
 
     window.addEventListener('click', function(e) {
-        if (e.target.classList.contains('modal')) {
-            e.target.classList.remove('active');
+        if (!e.target.classList.contains('modal')) return;
+
+        if (e.target.id === 'announcementModal') {
+            closeAnnouncementModal();
+            return;
+        }
+
+        if (e.target.id === 'newsModal') {
+            closeNewsModal();
+            return;
+        }
+
+        if (e.target.id === 'readMoreModal') {
+            closeReadMoreModal();
         }
     });
 

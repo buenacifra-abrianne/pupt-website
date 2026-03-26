@@ -2,6 +2,7 @@
 
 namespace App\Support;
 
+use Illuminate\Support\Facades\App;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
@@ -68,6 +69,15 @@ class NewsImage
             return asset($normalized);
         }
 
+        if (App::environment('local')) {
+            try {
+                if (Storage::disk(self::FALLBACK_DISK)->exists($normalized)) {
+                    return asset('storage/'.$normalized);
+                }
+            } catch (Throwable) {
+            }
+        }
+
         foreach (self::candidateDisks() as $disk) {
             if ($disk === self::FALLBACK_DISK) {
                 continue;
@@ -120,7 +130,9 @@ class NewsImage
 
     private static function candidateDisks(): array
     {
-        $disks = [self::PRIMARY_DISK, self::FALLBACK_DISK];
+        $disks = App::environment('local')
+            ? [self::FALLBACK_DISK, self::PRIMARY_DISK]
+            : [self::PRIMARY_DISK, self::FALLBACK_DISK];
 
         return array_values(array_unique(array_filter($disks, static fn ($disk) => is_string($disk) && $disk !== '')));
     }

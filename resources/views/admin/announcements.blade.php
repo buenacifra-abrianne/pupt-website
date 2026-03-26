@@ -535,26 +535,48 @@
         }
         return confirm(message);
     }
+    function resetAnnouncementFormState() {
+        const form = document.getElementById('announcementForm');
+        if (!form) return;
+
+        form.reset();
+        setRichTextEditorValue(form.querySelector('[name="content"]'), '');
+
+        const idInput = document.getElementById('edit_announcement_id');
+        if (idInput) idInput.remove();
+
+        announcementBaseline = null;
+    }
+
+    function resetNewsFormState() {
+        const form = document.getElementById('newsForm');
+        if (!form) return;
+
+        form.reset();
+        setRichTextEditorValue(form.querySelector('[name="content"]'), '');
+
+        const idInput = document.getElementById('edit_news_id');
+        if (idInput) idInput.remove();
+
+        resetNewsImageUI('new');
+        newsBaseline = null;
+    }
+
     // Announcement Modal
     function openAnnouncementModal(isNew = false) {
         const modal = document.getElementById('announcementModal');
-        const form = document.getElementById('announcementForm');
         const modalTitle = modal.querySelector('.modal-title');
 
-        modal.classList.add('active');
-
         if (isNew) {
-            form.reset();
-            syncRichTextEditors(form);
+            resetAnnouncementFormState();
             if (modalTitle) modalTitle.innerText = "New Announcement";
-
-            const idInput = document.getElementById('edit_announcement_id');
-            if (idInput) idInput.remove();
-            announcementBaseline = null;
         }
+
+        modal.classList.add('active');
     }
 
     function closeAnnouncementModal() {
+        resetAnnouncementFormState();
         document.getElementById('announcementModal').classList.remove('active');
     }
 
@@ -620,27 +642,18 @@
     // News Modal
         function openNewsModal(isNew = false) {
         const modal = document.getElementById('newsModal');
-        const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
 
-        modal.classList.add('active');
-
         if (isNew) {
-            form.reset();
-            syncRichTextEditors(form);
+            resetNewsFormState();
             if (modalTitle) modalTitle.innerText = "New News Article";
-
-            const idInput = document.getElementById('edit_news_id');
-            if (idInput) idInput.remove();
-
-            resetNewsImageUI('new');
-
-            newsBaseline = null;
         }
+
+        modal.classList.add('active');
     }
 
     function closeNewsModal() {
-        resetNewsImageUI(!!document.getElementById('edit_news_id') ? 'edit' : 'new');
+        resetNewsFormState();
         document.getElementById('newsModal').classList.remove('active');
     }
 
