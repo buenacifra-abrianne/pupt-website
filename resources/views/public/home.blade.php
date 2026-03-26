@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#8B0000" />
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
-  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}"/>
+  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}"/>
   <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ filemtime(public_path('assets/css/home.css')) }}" />
 </head>
 
@@ -35,12 +35,44 @@
     $priorityAnnouncementFeed = $announcements
         ->filter(fn ($item) => strtoupper(trim((string) ($item->priority ?? ''))) === 'HIGH')
         ->values();
+    $quickLinks = [
+        [
+            'label' => 'About',
+            'title' => 'Know the campus',
+            'text' => 'Explore the campus profile, identity, and institutional story.',
+            'href' => route('public.about'),
+        ],
+        [
+            'label' => 'Academics',
+            'title' => 'Browse programs',
+            'text' => 'See the academic offerings and learning environment available to students.',
+            'href' => route('public.academics'),
+        ],
+        [
+            'label' => 'Students',
+            'title' => 'Student services',
+            'text' => 'Access student-centered information, updates, and support channels.',
+            'href' => route('public.students'),
+        ],
+        [
+            'label' => 'Events',
+            'title' => 'Events',
+            'text' => 'View all Events from Upcoming and Incoming events of the Campus.',
+            'href' => route('public.events'),
+        ],
+        [
+            'label' => 'Research & Extension',
+            'title' => 'Research Tools',
+            'text' => 'Open the PUP research and extension portals, tools, and institutional resources.',
+            'href' => route('public.research'),
+        ],
+    ];
   @endphp
 
   <main class="main-content">
     <button class="message-button" title="Chat with AI Assistant">&#128172;</button>
 
-    <section class="hero-shell reveal">
+    <section class="hero-shell">
       <section class="carousel-section">
         <div class="carousel full-carousel">
           <div class="carousel-stage">
@@ -103,14 +135,15 @@
     </section>
 
     <section class="updates-section reveal">
-      <div class="section-heading">
-        <p class="section-tag">Updates</p>
+      <div class="section-heading updates-heading reveal">
+          <p class="section-tag">Home</p>
+          <h2>Campus Updates</h2>
       </div>
 
       <div class="updates-shared-shell">
-        <div class="updates-shared-group">
+        <div class="updates-shared-group reveal delay-100">
           <div class="panel-header">
-            <h3>News</h3>
+            <h3>NEWS</h3>
           </div>
 
           <div class="updates-cards-row news-cards-row">
@@ -159,9 +192,9 @@
           </div>
         </div>
 
-        <div class="updates-shared-group">
+        <div class="updates-shared-group reveal delay-200">
           <div class="panel-header">
-            <h3>Announcements</h3>
+            <h3>ANNOUNCEMENTS</h3>
           </div>
 
           <div class="updates-cards-row announcements-cards-row">
@@ -197,6 +230,23 @@
             @endforelse
           </div>
         </div>
+      </div>
+    </section>
+
+    <section class="quick-links reveal">
+      <div class="section-heading">
+        <p class="section-tag">Explore</p>
+        <h2>Navigate the campus experience.</h2>
+      </div>
+
+      <div class="quick-links-grid">
+        @foreach($quickLinks as $link)
+          <a href="{{ $link['href'] }}" class="quick-link-card">
+            <span class="quick-link-label">{{ $link['label'] }}</span>
+            <h3>{{ $link['title'] }}</h3>
+            <p>{{ $link['text'] }}</p>
+          </a>
+        @endforeach
       </div>
     </section>
 

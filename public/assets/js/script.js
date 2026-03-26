@@ -126,13 +126,73 @@ function showSlide(n, direction = 1) {
 // =======================
 // 2) Reveal on scroll
 // =======================
+function initGlobalRevealTargets() {
+  if (!document.querySelector("pup-header")) return;
+
+  const excludedSelector = [
+    ".hero-shell",
+    ".carousel-section",
+    ".carousel",
+    ".full-carousel",
+    ".carousel-stage",
+    ".carousel-slide",
+    ".carousel-split",
+    ".carousel-crest-wrap",
+    ".carousel-crest",
+    ".carousel-prev",
+    ".carousel-next",
+    ".carousel-indicators",
+    ".advisory-modal-overlay",
+    ".modal",
+  ].join(", ");
+
+  const candidateSelector = [
+    "main > section",
+    "main > article",
+    "main > div",
+    "main section .content-block",
+    "main .page-section",
+    "main .cards-container",
+    "main .campus-story-block",
+    "main .updates-shared-group",
+    "main .announcement-item",
+    "main .news-mini-card",
+    "main .quick-link-card",
+  ].join(", ");
+
+  document.querySelectorAll(candidateSelector).forEach((el) => {
+    if (!(el instanceof HTMLElement)) return;
+    if (el.matches(excludedSelector) || el.closest(excludedSelector)) return;
+
+    const revealAncestor = el.parentElement?.closest(".reveal, [data-auto-reveal='true']");
+    if (revealAncestor) return;
+
+    el.classList.add("reveal");
+    el.dataset.autoReveal = "true";
+  });
+}
+
+let lastRevealScrollY = window.scrollY || 0;
+
+function syncRevealDirection() {
+  const currentScrollY = window.scrollY || 0;
+  const isScrollingUp = currentScrollY < lastRevealScrollY;
+
+  document.body.classList.toggle("scroll-up", isScrollingUp);
+  document.body.classList.toggle("scroll-down", !isScrollingUp);
+
+  lastRevealScrollY = currentScrollY;
+}
+
 function revealOnScroll() {
   const reveals = document.querySelectorAll(".reveal");
   const windowH = window.innerHeight;
+  const threshold = Math.max(80, Math.round(windowH * 0.12));
 
   reveals.forEach((el) => {
-    const top = el.getBoundingClientRect().top;
-    if (top < windowH - 80) el.classList.add("active");
+    const rect = el.getBoundingClientRect();
+    const isVisible = rect.top < windowH - threshold && rect.bottom > threshold;
+    el.classList.toggle("active", isVisible);
   });
 }
 
@@ -181,6 +241,66 @@ function initReadMore() {
 }
 
 // =======================
+// 4.1) Scroll navigation button
+// =======================
+function initScrollNavButtons() {
+  if (!document.body || document.querySelector(".scroll-nav-button")) return;
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "scroll-nav-button";
+  button.innerHTML = `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path d="m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"></path>
+    </svg>
+  `.trim();
+
+  const iconPath = button.querySelector("path");
+
+  const syncButton = () => {
+    const scrollTop = window.scrollY || 0;
+    const viewportHeight = window.innerHeight || 0;
+    const documentHeight = Math.max(
+      document.body.scrollHeight,
+      document.documentElement.scrollHeight
+    );
+    const maxScroll = Math.max(0, documentHeight - viewportHeight);
+    const midpoint = maxScroll * 0.5;
+    const showButton = maxScroll > 420;
+    const direction = scrollTop >= midpoint ? "up" : "down";
+
+    button.classList.toggle("is-visible", showButton);
+    button.dataset.direction = direction;
+    button.setAttribute(
+      "aria-label",
+      direction === "up" ? "Scroll to top" : "Scroll to bottom"
+    );
+
+    if (iconPath) {
+      iconPath.setAttribute(
+        "d",
+        direction === "up"
+          ? "M12 5.2 4.6 12.6l1.4 1.4 5-5v9h2v-9l5 5 1.4-1.4L12 5.2Z"
+          : "m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"
+      );
+    }
+  };
+
+  button.addEventListener("click", () => {
+    const direction = button.dataset.direction === "up" ? "up" : "down";
+    window.scrollTo({
+      top: direction === "up" ? 0 : document.documentElement.scrollHeight,
+      behavior: "smooth",
+    });
+  });
+
+  window.addEventListener("scroll", syncButton, { passive: true });
+  window.addEventListener("resize", syncButton);
+  document.body.appendChild(button);
+  syncButton();
+}
+
+// =======================
 // 5) Boot
 // =======================
 document.addEventListener("DOMContentLoaded", () => {
@@ -203,12 +323,19 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Reveal animations
+  initGlobalRevealTargets();
+  syncRevealDirection();
   revealOnScroll();
-  window.addEventListener("scroll", revealOnScroll);
+  window.addEventListener("scroll", () => {
+    syncRevealDirection();
+    revealOnScroll();
+  }, { passive: true });
+  window.addEventListener("resize", revealOnScroll);
 
   // Extras
   initNewsDragScroll();
   initReadMore();
+  initScrollNavButtons();
 });
 
 // =======================

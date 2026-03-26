@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>News & Events - Polytechnic University of the Philippines</title>
-    <link rel="stylesheet" href="../assets/styles/layout.css">
-    <link rel="stylesheet" href="../assets/css/news&events.css">
+    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/news&events.css') }}?v={{ filemtime(public_path('assets/css/news&events.css')) }}">
     <link rel="icon" type="image/png" href="../assets/static_img/logo.png" sizes="32x32">
 </head>
 <body>
@@ -42,18 +42,18 @@
       <section class="upcoming-events">
   <h2>EVENTS</h2>
 
-  <div class="events-layout reveal">
+  <div class="events-layout">
     <!-- LEFT: Ongoing Events -->
-    <div class="events-column ongoing-column reveal">
-      <div class="event-item ongoing-event reveal">
+    <div class="events-column ongoing-column">
+      <div class="event-item ongoing-event">
         <span class="event-date">DEC 23</span>
         <p class="event-title">Ongoing Event Title 1</p>
       </div>
-      <div class="event-item ongoing-event reveal">
+      <div class="event-item ongoing-event">
         <span class="event-date">DEC 24</span>
         <p class="event-title">Ongoing Event Title 2</p>
       </div>
-      <div class="event-item ongoing-event reveal">
+      <div class="event-item ongoing-event">
         <span class="event-date">DEC 25</span>
         <p class="event-title">Ongoing Event Title 3</p>
       </div>
@@ -61,15 +61,15 @@
 
     <!-- RIGHT: Upcoming Events -->
     <div class="events-column upcoming-column">
-      <div class="event-item reveal">
+      <div class="event-item">
         <span class="event-date">DEC 26</span>
         <p class="event-title">Upcoming Event Title 1</p>
       </div>
-      <div class="event-item reveal delay-100">
+      <div class="event-item">
         <span class="event-date">DEC 28</span>
         <p class="event-title">Upcoming Event Title 2</p>
       </div>
-      <div class="event-item reveal delay-200">
+      <div class="event-item">
         <span class="event-date">JAN 03</span>
         <p class="event-title">Upcoming Event Title 3</p>
       </div>
@@ -80,7 +80,7 @@
 
     </main>
   <!-- CARD GRID -->
-   <div class="filter-bar reveal">
+   <div class="filter-bar">
             <span class="filter-label">Filter By:</span>
             <div class="filters">
                 <button class="filter active">All</button>
@@ -93,7 +93,7 @@
   <section class="card-grid">
 
     <!-- CARD -->
-    <article class="card reveal">
+    <article class="card">
       <div class="card-image">
         <img src="../assets/static_img/pupillar.jpeg" alt="Announcement 1">
       </div>
@@ -116,7 +116,7 @@
     </article>
 
     <!-- duplicate cards as needed -->
-    <article class="card reveal">
+    <article class="card">
       <div class="card-image">
         <img src="../assets/static_img/pupillar.jpeg" alt="Announcement 1">
       </div>
@@ -135,7 +135,7 @@
       </div>
     </article>
 
-    <article class="card reveal">
+    <article class="card">
       <div class="card-image">
         <img src="../assets/static_img/pupillar.jpeg" alt="Announcement 1">
       </div>
@@ -154,7 +154,7 @@
       </div>
     </article>
 
-    <article class="card reveal">
+    <article class="card">
       <div class="card-image">
         <img src="../assets/static_img/pupillar.jpeg" alt="Announcement 1">
       </div>
@@ -173,7 +173,7 @@
       </div>
     </article>
 
-    <article class="card reveal">
+    <article class="card">
       <div class="card-image">
         <img src="../assets/static_img/pupillar.jpeg" alt="Announcement 1">
       </div>
@@ -192,7 +192,7 @@
       </div>
     </article>
 
-    <article class="card reveal">
+    <article class="card">
       <div class="card-image">
         <img src="../assets/static_img/pupillar.jpeg" alt="Announcement 1">
       </div>

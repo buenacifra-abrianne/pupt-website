@@ -1189,18 +1189,76 @@ html, body {
 /* Initial state: Hidden and pushed down slightly */
 .reveal {
     opacity: 0;
-    transform: translateY(50px); /* Moves element down 50px */
-    transition: all 0.8s ease-out; /* Smooth transition duration */
-    will-change: opacity, transform; /* Performance optimization */
+    transform: translateY(40px);
+    transition: opacity 0.72s ease-out, transform 0.72s ease-out;
+    will-change: opacity, transform;
 }
 
-/* Active state: Visible and back to original position */
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* Optional: Staggered animation for cards (if applied to grid items) */
+body.scroll-down .reveal:not(.active) {
+    transform: translateY(40px);
+}
+
+body.scroll-up .reveal:not(.active) {
+    transform: translateY(-40px);
+}
+
 .reveal.delay-100 { transition-delay: 0.1s; }
 .reveal.delay-200 { transition-delay: 0.2s; }
 .reveal.delay-300 { transition-delay: 0.3s; }
+
+@media (max-width: 1024px) {
+  .main-content {
+    display: block;
+    margin: 24px auto;
+    padding: 0 20px;
+  }
+
+  .about-pup {
+    flex-direction: column;
+    gap: 24px;
+    padding: 24px;
+  }
+
+  .campus-story-block {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 0 16px;
+    margin: 20px auto;
+  }
+
+  .about-pup {
+    padding: 18px;
+    border-radius: 16px;
+  }
+
+  .about-pup h1,
+  .about-content h1,
+  .campus-story-copy-block h2 {
+    font-size: clamp(1.5rem, 6vw, 2rem);
+  }
+
+  .carousel-slide img {
+    height: 260px;
+  }
+
+  .carousel-caption {
+    padding: 22px 14px 14px;
+  }
+
+  .carousel-caption h2 {
+    font-size: clamp(1.2rem, 5vw, 1.6rem);
+  }
+
+  .campus-story-image-block img {
+    min-height: 220px;
+  }
+}

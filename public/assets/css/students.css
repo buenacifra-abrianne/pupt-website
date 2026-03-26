@@ -493,27 +493,97 @@ body {
 
 .reveal {
     opacity: 0;
-    /* Default: Start from bottom (50px) */
-    transform: translateY(50px); 
-    transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+    transform: translateY(40px);
+    transition: opacity 0.72s ease-out, transform 0.72s ease-out;
     will-change: opacity, transform;
 }
 
-/* Active State: Always visible and centered */
 .reveal.active {
     opacity: 1;
     transform: translateY(0);
 }
 
-/* CONTEXT: SCROLLING UP
-   When the body has the 'scroll-up' class, hidden elements 
-   should start from the TOP (-50px) so they slide DOWN into view.
-   This prevents the "falling" effect.
-*/
-body.scroll-up .reveal:not(.active) {
-    transform: translateY(-50px);
+body.scroll-down .reveal:not(.active) {
+    transform: translateY(40px);
 }
 
-/* Optional delays */
+body.scroll-up .reveal:not(.active) {
+    transform: translateY(-40px);
+}
+
 .reveal.delay-100 { transition-delay: 0.1s; }
 .reveal.delay-200 { transition-delay: 0.2s; }
+
+@media (max-width: 1200px) {
+  .page-section {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 28px;
+    padding: 20px;
+  }
+
+  .cards-container {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 24px;
+    justify-items: center;
+  }
+
+  .ords-container {
+    margin: 0;
+    align-items: center;
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .page-section {
+    padding: 16px;
+    gap: 24px;
+  }
+
+  .cards-container {
+    grid-template-columns: 1fr !important;
+  }
+
+  .card {
+    width: min(100%, 320px);
+    height: auto;
+    aspect-ratio: 2 / 3;
+  }
+
+  .card-title {
+    bottom: 0;
+    height: auto;
+    min-height: 118px;
+    padding: 18px 16px;
+  }
+
+  .card-title h2 {
+    margin-top: 0;
+    font-size: clamp(1rem, 4.5vw, 1.25rem);
+  }
+
+  .card-overlay {
+    inset: auto 0 0 0;
+    height: auto;
+    min-height: 52%;
+    padding: 16px;
+  }
+
+  .card:hover .card-overlay {
+    transform: translateY(0);
+  }
+
+  .ords-container,
+  .ords-footer {
+    margin: 0;
+    text-align: center;
+    justify-content: center;
+  }
+
+  .ords-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px 20px;
+  }
+}
