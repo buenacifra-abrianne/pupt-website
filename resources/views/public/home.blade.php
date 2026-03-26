@@ -111,9 +111,7 @@
             <article class="carousel-crest">
               <div class="crest-inner">
                 <div class="crest-icon" aria-hidden="true">
-                  <svg viewBox="0 0 64 64" role="img" focusable="false">
-                    <path d="M10 24h44M16 24V46M26 24V46M38 24V46M48 24V46M12 46h40M8 54h48v6H8zM14 24V18l18-8 18 8v6" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="4"/>
-                  </svg>
+                  <img src="{{ asset('assets/static_img/logo.png') }}" alt="" role="presentation">
                 </div>
                 <h1>A LEADING<br>COMPREHESIVE<br>POLYTECHNIC<br>UNIVERSITY IN<br>ASIA</h1>
                 <p class="crest-year">2026</p>
@@ -258,7 +256,7 @@
           <p class="advisory-modal-date" id="advisoryModalDate"></p>
           <h3 class="advisory-modal-title" id="advisoryModalTitle"></h3>
           <div class="advisory-modal-divider"></div>
-          <p class="advisory-modal-text" id="advisoryModalText"></p>
+          <div class="advisory-modal-text" id="advisoryModalText"></div>
           <a
             href="#"
             id="advisoryModalLink"

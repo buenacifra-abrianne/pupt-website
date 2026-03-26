@@ -249,7 +249,7 @@ class PUPFooter extends HTMLElement {
     this.innerHTML = `
 <style>
   .footer {
-    background: linear-gradient(90deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
+    background: linear-gradient(180deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
     color: #fff;
   }
 
@@ -284,6 +284,7 @@ class PUPFooter extends HTMLElement {
     align-items: center;
     justify-content: center;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
+    animation: footer-logo-float 4s ease-in-out infinite;
   }
 
   .footer-brand-logo:hover {
@@ -296,6 +297,19 @@ class PUPFooter extends HTMLElement {
     height: 100%;
     object-fit: contain;
     display: block;
+    filter:
+      drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
+      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
+  }
+
+  @keyframes footer-logo-float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
   }
 
   .footer-column-title {
@@ -445,6 +459,7 @@ class PUPFooter extends HTMLElement {
     font-size: 13px;
     font-weight: 500;
     line-height: 1.4;
+    background: rgba(20, 4, 6, 0.18);
   }
 
   .footer-legal .footer-copy {
@@ -476,7 +491,7 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer.footer-landing {
-    background: linear-gradient(90deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
+    background: linear-gradient(180deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
     color: #fff;
     position: absolute;
     left: 0;

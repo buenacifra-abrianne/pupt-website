@@ -46,6 +46,7 @@ Route::get('/', function () {
 
 Route::get('/home', [HomeController::class, 'index'])->name('public.home');
 Route::get('/about', [AboutController::class, 'index'])->name('public.about');
+Route::get('/about/{section}', [AboutController::class, 'show'])->name('public.about.section');
 Route::get('/academics', [AcademicsController::class, 'index'])->name('public.academics');
 Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');

@@ -11,6 +11,11 @@
 :root {
   --primary-color: #8b0000;
   --primary-dark: #660000;
+  --maroon-light: #a11d23;
+  --maroon-medium: #7f1113;
+  --maroon-dark: #3f070b;
+  --maroon-gradient-vertical: linear-gradient(180deg, var(--maroon-light) 0%, var(--maroon-medium) 52%, var(--maroon-dark) 100%);
+  --maroon-gradient-deep: linear-gradient(180deg, #8f171d 0%, #690f12 50%, #2f0508 100%);
   --accent-color: #ffd700;
   --text-color: #696969;
   --light-bg: #ffffff;
@@ -168,36 +173,42 @@ body.nav-open .scroll-nav-button {
 
 /* ========== Navbar (Desktop) ========== */
 .navbar {
-  background-color: var(--primary-color);
+  background: #991b21;
   padding: 0;
 }
 
 .nav-menu {
   display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 28px;
   list-style: none;
-  max-width: 1400px;
+  width: min(100%, 1480px);
+  max-width: 1480px;
   margin: 0 auto;
+  padding: 0 18px;
 }
 
 .nav-menu li {
   position: relative;
-  flex: 1;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.24s ease, box-shadow 0.24s ease;
 }
 
 .nav-menu li:hover,
 .nav-menu li:has(a.active) {
-  background-color: var(--primary-dark);
+  background: #7f1113;
+  box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
 }
 
 .nav-menu a {
   display: block;
-  padding: 15px 20px;
+  padding: 17px 36px;
   color: var(--white);
   text-decoration: none;
   text-align: center;
   font-weight: 600;
-  font-size: 13px;
+  font-size: 12.5px;
+  letter-spacing: 0.06em;
   transition: transform 0.3s ease, color 0.3s ease;
   will-change: transform;
 }
@@ -215,7 +226,7 @@ body.nav-open .scroll-nav-button {
 .dropdown-content {
   display: none;
   position: absolute;
-  background-color: var(--primary-dark);
+  background: #991b21;
   min-width: 200px;
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
   z-index: 10;
@@ -262,7 +273,7 @@ body.nav-open .scroll-nav-button {
 
 /* ========== Footer ========== */
 .footer {
-  background-color: var(--primary-color);
+  background: linear-gradient(180deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
   color: var(--white);
   margin-top: 20px;
 }
@@ -337,7 +348,7 @@ body.nav-open .scroll-nav-button {
 }
 
 .footer-bottom {
-  background-color: var(--primary-dark);
+  background-color: #3f070b;
   text-align: center;
   padding: 4px 8px;
   font-size: 10px;
@@ -404,7 +415,7 @@ body.nav-open .scroll-nav-button {
     right: -280px; /* hidden */
     width: 280px;
     height: 100vh;
-    background-color: var(--primary-color);
+    background: #991b21;
     flex-direction: column;
     padding-top: 80px;
     transition: right 0.3s ease;
@@ -599,29 +610,25 @@ body :is(
 }
 
 pup-header .navbar {
-  background: linear-gradient(
-    90deg,
-    #3f070b 0%,
-    #3f070b 25%,
-    #a11d23 50%,
-    #a11d23 75%,
-    #3f070b 100%
-  );
+  background: #991b21;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 pup-header .nav-menu {
   display: flex;
+  justify-content: center;
   align-items: stretch;
+  gap: 28px;
   list-style: none;
-  max-width: 1400px;
+  width: 100%;
+  max-width: 1480px;
   margin: 0 auto;
   padding: 0 18px;
 }
 
 pup-header .nav-menu li {
   position: relative;
-  flex: 1 1 0;
+  transition: background-color 0.24s ease, box-shadow 0.24s ease;
 }
 
 pup-header .nav-menu-header {
@@ -635,7 +642,8 @@ pup-header .nav-mobile-footer {
 
 pup-header .nav-menu li:hover,
 pup-header .nav-menu li:has(a.active) {
-  background: rgba(34, 4, 6, 0.28);
+  background: #7f1113;
+  box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
 }
 
 pup-header .nav-menu a {
@@ -643,14 +651,14 @@ pup-header .nav-menu a {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 54px;
-  padding: 14px 18px;
+  min-height: 58px;
+  padding: 16px 36px;
   color: #fff;
   text-decoration: none;
   text-align: center;
-  font-size: 0.84rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.055em;
   text-transform: uppercase;
   transition: background 0.2s ease, color 0.2s ease;
 }
@@ -829,7 +837,7 @@ pup-header .nav-overlay {
     gap: 8px;
     padding: 18px 14px 20px;
     margin: 0;
-    background: linear-gradient(180deg, #8b0000 0%, #6d080d 100%);
+    background: #991b21;
     box-shadow: -18px 0 36px rgba(22, 6, 6, 0.22);
     transform: translateX(100%);
     transition: transform 0.24s ease;
