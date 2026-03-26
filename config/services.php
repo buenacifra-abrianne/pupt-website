@@ -41,4 +41,10 @@ return [
         'client_secret' => env('IDP_CLIENT_SECRET'),
     ],
 
+    'flss' => [
+            'base_url' => env('FLSS_API_BASE_URL'),
+            'api_key'  => env('FLSS_API_KEY'),
+            'timeout'  => env('FLSS_API_TIMEOUT', 15),
+        ],
+
 ];
