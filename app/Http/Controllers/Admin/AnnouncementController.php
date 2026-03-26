@@ -51,7 +51,7 @@ class AnnouncementController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('superadmin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn'));
+        return view('admin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn'));
     }
 
     public function save(Request $request)

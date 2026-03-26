@@ -24,49 +24,35 @@
         </div>
         <ul class="nav-menu">
             <li class="nav-item">
-                <a href="{{ route('superadmin.dashboard') }}" class="nav-link">
+                <a href="{{ route('admin.dashboard') }}" class="nav-link">
                     <i class="fas fa-home"></i>
                     <span>Dashboard</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link">
+                <a href="{{ route('admin.approvals.pending') }}" class="nav-link">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
                 </a>
             </li>
 
             <li class="nav-item">
-                <a href="{{ route('superadmin.accounts') }}" class="nav-link">
-                    <i class="fas fa-users-gear"></i>
-                    <span>Manage CMS Access</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('superadmin.announcements') ?? '#' }}" class="nav-link active">
+                <a href="{{ route('admin.announcements') ?? '#' }}" class="nav-link active">
                     <i class="fas fa-bullhorn"></i>
                     <span>News & Announcements</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
+                <a href="{{ route('admin.content') ?? '#' }}" class="nav-link">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
+                <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
-                </a>
-            </li>
-
-            <li class="nav-item">
-                <a href="{{ route('superadmin.audit') ?? '#' }}" class="nav-link">
-                    <i class="fas fa-clock-rotate-left"></i>
-                    <span>Audit Trails</span>
                 </a>
             </li>
 
@@ -277,7 +263,7 @@
                 </button>
             </div>
 
-            <form id="announcementForm" method="POST" action="{{ route('superadmin.announcements.save') }}">
+            <form id="announcementForm" method="POST" action="{{ route('admin.announcements.save') }}">
                 @csrf
 
                 <div class="form-group">
@@ -352,7 +338,7 @@
                 </button>
             </div>
 
-            <form id="newsForm" action="{{ route('superadmin.news.save') }}" method="POST" enctype="multipart/form-data">
+            <form id="newsForm" action="{{ route('admin.news.save') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -473,7 +459,7 @@
     }
 
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const RELOAD_TOAST_KEY = 'superadminAnnouncementsToast';
+    const RELOAD_TOAST_KEY = 'adminAnnouncementsToast';
     const SERVER_SUCCESS_TOAST = @json(session('success'));
     const SERVER_INFO_TOAST = @json(session('info'));
     let announcementBaseline = null;
@@ -585,7 +571,7 @@
 
     async function toggleAnnouncementStatus(id) {
         try {
-            await postForm("{{ route('superadmin.announcements.toggle') }}", { id });
+            await postForm("{{ route('admin.announcements.toggle') }}", { id });
             queueReloadToast('Announcement status updated successfully.', 'success', 'Announcement');
             window.location.reload();
         } catch (err) {
@@ -597,7 +583,7 @@
     async function deleteAnnouncement(id) {
         if (!(await askConfirm('Are you sure you want to delete this announcement?', 'Delete Announcement', 'Delete', 'danger'))) return;
         try {
-            await postForm("{{ route('superadmin.announcements.delete') }}", { id });
+            await postForm("{{ route('admin.announcements.delete') }}", { id });
             queueReloadToast('Announcement deleted successfully.', 'success', 'Announcement');
             window.location.reload();
         } catch (err) {
@@ -696,7 +682,7 @@
     async function deleteNews(id) {
         if (!(await askConfirm('Delete news?', 'Delete News', 'Delete', 'danger'))) return;
         try {
-            await postForm("{{ route('superadmin.news.delete') }}", { id });
+            await postForm("{{ route('admin.news.delete') }}", { id });
             queueReloadToast('News deleted successfully.', 'success', 'News');
             window.location.reload();
         } catch (err) {
