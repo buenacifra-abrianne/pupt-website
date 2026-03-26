@@ -9,6 +9,11 @@
 :root {
     --primary-color: #8B0000;
     --primary-dark: #660000;
+    --maroon-light: #a11d23;
+    --maroon-medium: #7f1113;
+    --maroon-dark: #3f070b;
+    --maroon-gradient-vertical: linear-gradient(180deg, var(--maroon-light) 0%, var(--maroon-medium) 52%, var(--maroon-dark) 100%);
+    --maroon-gradient-deep: linear-gradient(180deg, #8f171d 0%, #690f12 50%, #2f0508 100%);
     --accent-color: #FFD700;
     --text-color: #696969;
     --light-bg: #ffffff;
@@ -88,36 +93,42 @@ body {
 
 /* Navigation Bar */
 .navbar {
-    background-color: var(--primary-color);
+    background: #991b21;
     padding: 0;
 }
 
 .nav-menu {
     display: flex;
+    justify-content: center;
+    align-items: stretch;
+    gap: 28px;
     list-style: none;
-    max-width: 1400px;
+    width: min(100%, 1480px);
+    max-width: 1480px;
     margin: 0 auto;
+    padding: 0 18px;
 }
 
 .nav-menu li {
     position: relative;
-    flex: 1;
-    transition: background-color 0.3s ease; 
+    transition: background-color 0.24s ease, box-shadow 0.24s ease; 
 }
 
 .nav-menu li:hover,
 .nav-menu li:has(a.active) {
-    background-color: var(--primary-dark);
+    background: #7f1113;
+    box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
 }
 
 .nav-menu a {
     display: block;
-    padding: 15px 20px;
+    padding: 17px 36px;
     color: var(--white);
     text-decoration: none;
     text-align: center;
     font-weight: 600;
-    font-size: 13px;
+    font-size: 12.5px;
+    letter-spacing: 0.06em;
     transition: transform 0.3s ease, color 0.3s ease;
     will-change: transform;
 }
@@ -135,7 +146,7 @@ body {
 .dropdown-content {
     display: none;
     position: absolute;
-    background-color: var(--primary-dark);
+    background: #991b21;
     min-width: 200px;
     box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 1;
@@ -359,7 +370,7 @@ body {
 
 /* Footer */
 .footer {
-    background-color: var(--primary-color);
+    background: var(--maroon-gradient-vertical);
     color: var(--white);
     margin-top: 20px;
 }
@@ -434,7 +445,7 @@ body {
 }
 
 .footer-bottom {
-    background-color: var(--primary-dark);
+    background: linear-gradient(180deg, rgba(79, 9, 12, 0.92) 0%, rgba(32, 4, 6, 0.98) 100%);
     text-align: center;
     padding: 4px 8px;
     font-size: 10px;
@@ -559,7 +570,7 @@ body {
 /* LEFT: Announcements */
 .announcements-panel {
   flex: 0 0 320px;               
-  background: var(--primary-color);
+  background: var(--maroon-gradient-vertical);
   color: #fff;
   border-radius: 14px;
   padding: 22px;
@@ -829,7 +840,7 @@ html, body {
   top: 200px;         /* distance from top when scrolling */
   width: 280px;
   flex-shrink: 0;     /* prevents shrinking in flex layout */
-  background: var(--primary-color);
+  background: var(--maroon-gradient-vertical);
   border-radius: 16px;
   padding: 28px 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
@@ -1179,7 +1190,7 @@ html, body {
         right: -280px;           /* hidden */
         width: 280px;
         height: 100vh;
-        background-color: var(--primary-color);
+        background: #991b21;
         flex-direction: column;
         padding-top: 80px;
         transition: right 0.3s ease;

@@ -11,177 +11,190 @@
 <body>
     @php
         $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
-        $campusImage = \App\Support\HomeCmsContent::resolveImagePath(
-            $homeCms['campus_image'] ?? '',
-            'assets/static_img/pupillar.jpeg'
-        );
+        $campusStoryDescription = <<<'TEXT'
+The Polytechnic University of the Philippines (PUP) is a government educational institution governed by Republic Act Number 8292 known as the Higher Education Modernization Act of 1997, and its Implementing Rules and Regulations contained in the Commission on Higher Education Memorandum Circular No. 4, series 1997. PUP is one of the country's highly competent educational institutions. The PUP Community is composed of the Board of Regents, University Officials, Administrative and Academic Personnel, Students, various Organizations, and the Alumni.
+
+Governance of PUP is vested upon the Board of Regents, which exercises policy-making functions to carry out the mission and programs of the University by virtue of RA 8292 granted by the Commission on Higher Education. The University is administered by an appointed President by virtue of RA 8292 and is assisted by an Executive Vice President and the Vice Presidents for Academic Affairs, Student Services, Administration, Research, Extension and Development, and Finance.
+TEXT;
+        $historyMovedParagraphs = [
+            'Government and University officials envisioned PUP Taguig to become the main source of commercial and industrial managers and employers that will fill in the job vacancies in the area, particularly now that the region is fast becoming an industrial zone that can employ thousands of workers.',
+            'Twenty years ago, upon the request of then Philippine College of Commerce President, Dr. Nemesio Prudente, former President Ferdinand Marcos issued proclamation No. 469, which excluded from the operation of Proclamation No. 423, dated July 12, 1957 a certain portion of land (10 hectares) situated in the Municipality of Taguig for school purposes of the PCC, now Polytechnic University of the Philippines. This proclamation was issued on September 30, 1968.',
+        ];
     @endphp
 
-    <!-- Header -->
     <pup-header
-  data-home="{{ route('public.home') }}"
-  data-about="{{ route('public.about') }}"
-  data-academics="{{ route('public.academics') }}"
-  data-students="{{ route('public.students') }}"
-  data-news-events="{{ route('public.events') }}"
-  data-research="{{ route('public.research') }}"
-  data-assets="{{ asset('assets') }}"
-></pup-header>
+        data-home="{{ route('public.home') }}"
+        data-about="{{ route('public.about') }}"
+        data-academics="{{ route('public.academics') }}"
+        data-students="{{ route('public.students') }}"
+        data-news-events="{{ route('public.events') }}"
+        data-research="{{ route('public.research') }}"
+        data-assets="{{ asset('assets') }}"
+    ></pup-header>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <section class="about-pup">
-            <div class="about-content">
-            <h1>About PUP</h1>
+        <section class="hero-shell">
+            <section class="carousel-section">
+                <div class="carousel full-carousel">
+                    <div class="carousel-stage">
+                        <div class="carousel-slide active">
+                            <div class="carousel-split" aria-hidden="true">
+                                <img src="{{ asset('assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                            </div>
 
-            <section class="campus-story-block">
-                <div class="campus-story-copy-block">
-                    <p class="campus-story-tag">Campus Story</p>
-                    <h2>{{ $homeCms['campus_title'] ?? 'PUP Taguig Campus' }}</h2>
-                    <p>{!! nl2br(e((string) ($homeCms['campus_description'] ?? ''))) !!}</p>
-                </div>
-
-                <div class="campus-story-image-block">
-                    <img src="{{ $campusImage }}" alt="PUP Taguig Campus Building">
+                            <div class="carousel-caption">
+                                <h2>ABOUT THE CAMPUS</h2>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
-
-            <div id="vision" class="content-block">
-                <div id="aboutPUP">
-                    <p>The Polytechnic University of the Philippines (PUP) is a government educational institution governed by Republic Act Number 8292 known as the Higher Education Modernization Act of 1997, and its Implementing Rules and Regulations contained in the Commission on Higher Education Memorandum Circular No. 4, series 1997. PUP is one of the country's highly competent educational institutions. The PUP Community is composed of the Board of Regents, University Officials, Administrative and Academic Personnel, Students, various Organizations, and the Alumni.</p>
-                    <p>Governance of PUP is vested upon the Board of Regents, which exercises policy-making functions to carry out the mission and programs of the University by virtue of RA 8292 granted by the Commission on Higher Education. The University is administered by an appointed President by virtue of RA 8292 and is assisted by an Executive Vice President and the Vice Presidents for Academic Affairs, Student Services, Administration, Research, Extension and Development, and Finance.</p>
-                </div>
-            </div>
-        
-
-            <div class="carousel">
-                <div class="carousel-slide fade">
-                    <img id="about_welcomeTaguig_img" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Announcement 1">
-                    <div class="carousel-caption">
-                        <h2>Welcome to PUP Taguig Campus</h2>
-                        <h7 id="about_welcomeTaguig">Excellence in Technical Education</h7>
-                    </div>
-                </div>
-                <div class="carousel-slide fade">
-                    <img id="about_academicExcellence_img" src="{{ asset('assets/static_img/graduates.jpg') }}" alt="Announcement 2">
-                    <div class="carousel-caption">
-                        <h2>Academic Excellence</h2>
-                        <h7 id="about_academicExcellence">Preparing Leaders for Tomorrow</h7>
-                    </div>
-                </div>
-                <div class="carousel-slide fade">
-                    <img id="about_studentLife_img" src="{{ asset('assets/static_img/studentbody.jpg') }}" alt="Announcement 3">
-                    <div class="carousel-caption">
-                        <h2>Student Life</h2>
-                        <h7 id="about_studentLife">Building Community and Character</h7>
-                    </div>
-                </div>
-
-                <!-- Carousel Controls -->
-                <a class="carousel-prev" onclick="changeSlide(-1)">&#10094;</a>
-                <a class="carousel-next" onclick="changeSlide(1)">&#10095;</a>
-
-                <!-- Carousel Indicators -->
-                <div class="carousel-indicators">
-                    <span class="indicator" onclick="goToSlide(1)"></span>
-                    <span class="indicator" onclick="goToSlide(2)"></span>
-                    <span class="indicator" onclick="goToSlide(3)"></span>
-                </div>
-            </div>
         </section>
 
-        <aside class="contents-sidebar">
-            <h2 class="contents-title">CONTENTS</h2>
-            <nav class="contents-nav reveal">
-                <a class="contents-link">Vision and Mission
-                    <span class="popout" id = "visionMission">
-                        Overview of the university vision and mission.
-                    </span>
-                </a>
-                <a class="contents-link">Logo and Symbols
-                    <span class="popout" id = "logoSymbols">
-                        Overview of the university logo and symbols.
-                    </span>
-                </a>
-                <a class="contents-link">Hymn
-                    <span class="popout" id = "hymn">
-                        Overview of the university hymn.
-                    </span>
-                </a>
-                <a href="https://maps.app.goo.gl/RDAwxBvDzyGzUbVN7" class="contents-link">Maps
-                    <span class="popout" id = "maps">
-                        Overview of the university location.
-                    </span>
-                </a>
-                <a class="contents-link">Campus Officials
-                    <span class="popout" id = "campusOfficials">
-                        Overview of the university campus officials.
-                    </span>
-                </a>
-                <a class="contents-link">Strategic Development Plan
-                    <span class="popout" id = "strategicPlan">
-                        Overview of the university strategic development plan.
-                    </span>
-                </a>
-                <a class="contents-link">University Calendar
-                    <span class="popout" id = "universityCalendar">
-                        Overview of the university calendar.
-                    </span>
-                </a>
+        <section class="about-shell">
+            <nav class="about-breadcrumb reveal" aria-label="Breadcrumb">
+                <a href="{{ route('public.home') }}">Home</a>
+                <span>&gt;</span>
+                @if($selectedSection)
+                    <a href="{{ route('public.about') }}">About</a>
+                    <span>&gt;</span>
+                    <strong>{{ $selectedSection['label'] }}</strong>
+                @else
+                    <strong>About</strong>
+                @endif
             </nav>
-        </aside>
 
-    </main>
-
-    <main class="main-content">
-        
-            <section class="about-pup read-more-container reveal">
-                <div class="about-content reveal">
-                    <div id="vision" class="content-block">
-                        <button class="read-more-btn">Read More</button>
-                            <div class="read-more-content reveal">
-                                <div id = "about_readMore">
-                                    <p>This institution started as the Manila Business School (MBS), founded in October 19, 1904 as part of the city school system under the superintendence of G.A. O'Reilley, which responds to the demand for training personnel for government service and the felt need to provide skills essential for private employment. In 1908, it was renamed as Philippine School of Commerce (PSC) and merged with the Philippine Normal School (PNS) in 1933 to 1946. By virtue of Republic Act 778, the PSC was again changed to Philippine College of Commerce (PCC) in 1952. Subsequently, the Philippine College of Commerce (PCC) was converted into a chartered state university, now known as the Polytechnic University of the Philippines by virtue of Presidential Decree Number 1341 issued by the President of the Philippines on April 1, 1978.</p>
-                                    <p>PUP is a public, non-sectarian, non-profit institution of higher learning primarily tasked with harnessing the tremendous human resources potential of the nation by improving the physical, intellectual and material well-being of the individual through higher occupational, technical and professional instruction and training in the applied arts and sciences related to the fields of commerce, business administration, and technology.</p>
-                                    <p>The University promotes applied research, advanced studies and progressive leadership in the stated fields. We also offer ladder-type higher vocational, distance learning (open university system), technical and professional programs in the area of business and distributive arts, education and the social sciences related to the fields of commerce, business administration and other polytechnic areas. Furthermore, the University takes steps to enrich the academic program in other fields of study and adopts a polytechnic program of education designed to provide the individual with employable skills and managerial know-how in order to make them creative, productive and self-reliant.</p>
-                                    <p>PUP operates year-round with two semesters and a summer. Summer sessions depend on the course and on the campus.  The University employs 2,042 full-time and part-time faculty members with a few of the full-time faculty holding administrative positions. There are 1,381 regular and casual administrative employees who provide support services to the University population. The faculty spends two-thirds of their time in teaching and one-third in research and extension activities.</p>
-                                    <p>One of the major functions of the University is research, a key component of scholarship and teaching. During the years under review, PUP received and allotted government and private funding to research.</p>
-                                    <p>With more than twenty campuses serving more than 97,000 students, the Polytechnic University of the Philippines is the largest university in terms of student population. The main campus is named after a national hero, Apolinario Mabini, and is located in Sta. Mesa, Manila - in the middle of a busy metropolitan. But despite of this, the environment within its perimeter is a place conducive of learning.</p>
-                                    <div class="image-container">
-                                        <img id = "about_readMore_img1" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Image 1">
-                                        <img id = "about_readMore_img2" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Image 2">
-                                    </div>
-                                    <div id="vision" class="content-block">
-                                    <br><p>Majority of the students belong to the economically challenged level of society. It is the University's commitment to give qualified and talented students access to quality and responsive education to aid them in the achievement of their dreams and improve their lives. Being a well-educated and skilled individual, they will not only become job seekers but job creators as well, a force of knowledge workers and entrepreneurs.</p>
-                                    <p>Iskolar ng Bayan (Scholars of the Nation) is what we call our students because the Philippine Government and other non-government institutions subsidize their tuition and other fees. More than a hundred of the student population are foreigners from China, Singapore, Indonesia, Cambodia, Myanmar, Tanzania, Nigeria, and Ghana. They are enrolled in business, language, statistics, communication, and education courses in the undergraduate and graduate levels. Students from Korea regularly visit PUP in summer to take up Intensive English courses.</p>
-                                    <p>The Polytechnic University of the Philippines takes pride in its capability to accommodate the students because it:</p>
-                                    <p>• has 25 campuses to make education accessible to everyone;</p>
-                                    <p>• offers a wide range of courses: doctorate, master's, and bachelor's degrees as well as technology courses available through traditional and open, flexible or distance learning;</p>
-                                    <p>• pioneered the ladderized system and the accreditation and equivalency system through the Expanded Tertiary Education Equivalency and Accreditation Program (ETEEAP) and the Nontraditional System Program (NTSP);</p>
-                                    <p>• maintains an average size of 45-50 students per class;</p>
-                                    <p>• offers an extensive selection of educational choices through more than 60 undergraduate and graduate programs;</p>
-                                    <p>• schedules weekend and evening classes;</p>
-                                    <p>• brings the resources and programs of PUP not only to full-time students but also to part-time and adult learners; and</p>
-                                    <p>• provides a long list of extension services for the community and the country.</p>
-                                    <p>The commitment of its leaders, faculty, staff, students, alumni and friends has formed the cornerstone of this University that has exceeded expectations with every generation of the graduates it has produced since its establishment.</p>
-                                    <p>Today, PUP is relishing its successes and its students are enjoying unprecedented academic opportunities, an enhanced campus environment, upgraded colleges, state-of-the-art technology, and nationally and internationally recognized programs.</p>
-                                    <div class="big-image">
-                                        <img id = "about_readMore_img3" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Image 1">
-                                    </div>
-                                    <div id="vision" class="content-block">
-                                        <br><p>PUP celebrated 120 years last October 2024. It has gone far from what it was more than a century ago. This is mainly due to the support given by the government and the PUP Community and its benefactors. With the combined effort, PUP will continue to be a partner in nation-building and in poverty alleviation for the marginalized sector of society with quality, responsive, and relevant education as a tool.</p>                    </div>
-                                    </div>
-                                </div>    
+            @unless($selectedSection)
+                <section class="about-intro reveal">
+                    <div class="campus-story-card">
+                        <div class="campus-story-layout">
+                            <div class="campus-story-copy">
+                                <p class="campus-story-tag">Campus Story</p>
+                                <h2>{{ $homeCms['campus_title'] ?? 'PUP Taguig Campus' }}</h2>
+                                <div class="campus-story-description">
+                                    <p>{!! nl2br(e($campusStoryDescription)) !!}</p>
+                                </div>
                             </div>
+
+                            <div class="campus-story-visual">
+                                <img src="{{ asset('assets/static_img/about-pup.png') }}" alt="PUP Taguig Campus">
+                            </div>
+                        </div>
                     </div>
+                </section>
+            @endunless
+
+            <section class="contents-strip reveal">
+                <div class="contents-strip-head">
+                    <p class="section-tag">Contents</p>
+                    <h2>{{ $selectedSection ? 'Open another section.' : 'All about the campus' }}</h2>
                 </div>
+
+                <nav class="contents-cards" aria-label="About page contents">
+                    @foreach($sections as $section)
+                        <a
+                            href="{{ route('public.about.section', $section['slug']) }}"
+                            class="contents-card{{ $selectedSection && $selectedSection['slug'] === $section['slug'] ? ' active' : '' }}"
+                        >
+                            <div class="contents-card-inner">
+                                <div class="contents-card-front">
+                                    <img src="{{ asset('assets/static_img/' . ($section['image'] ?? 'pupillar.jpeg')) }}" alt="{{ $section['label'] }}">
+                                    <div class="contents-card-copy">
+                                        <span class="contents-card-number">Section {{ $section['number'] }}</span>
+                                        <h3>{{ $section['label'] }}</h3>
+                                    </div>
+                                </div>
+
+                                <div class="contents-card-back">
+                                    <div class="contents-card-overlay-copy">
+                                        <span class="contents-card-number">Section {{ $section['number'] }}</span>
+                                        <h3>{{ $section['label'] }}</h3>
+                                        <p>{{ $section['summary'] }}</p>
+                                    </div>
+                                    <span class="contents-card-action">See more</span>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </nav>
             </section>
+
+            @if($selectedSection)
+                <section class="about-sections">
+                    <article class="about-section-card reveal">
+                        <div class="section-heading-row">
+                            <div>
+                                <p class="section-tag">Section {{ $selectedSection['number'] }}</p>
+                                <h2>{{ $selectedSection['label'] }}</h2>
+                            </div>
+
+                            @if($selectedSection['slug'] === 'maps')
+                                <a href="https://maps.app.goo.gl/RDAwxBvDzyGzUbVN7" target="_blank" rel="noopener noreferrer" class="section-link">Open Map</a>
+                            @endif
+                        </div>
+
+                        @if($selectedSection['slug'] === 'history')
+                            <div class="section-copy section-copy-intro">
+                                <p>This institution started as the Manila Business School (MBS), founded on October 19, 1904, as part of the city school system to respond to the demand for trained government personnel and private-sector workers.</p>
+                                <p>It later evolved into the Philippine School of Commerce, then the Philippine College of Commerce, before becoming the Polytechnic University of the Philippines through Presidential Decree No. 1341 on April 1, 1978.</p>
+                                @foreach($historyMovedParagraphs as $paragraph)
+                                    <p>{{ $paragraph }}</p>
+                                @endforeach
+                            </div>
+
+                            <button class="read-more-btn" type="button">Read More</button>
+                            <div class="read-more-content">
+                                <div id="about_readMore" class="section-copy">
+                                    <p>PUP is a public, non-sectarian, non-profit institution of higher learning primarily tasked with harnessing the tremendous human resources potential of the nation by improving the physical, intellectual and material well-being of the individual through higher occupational, technical and professional instruction and training in the applied arts and sciences related to the fields of commerce, business administration, and technology.</p>
+                                    <p>The University promotes applied research, advanced studies and progressive leadership in the stated fields. We also offer ladder-type higher vocational, distance learning (open university system), technical and professional programs in the area of business and distributive arts, education and the social sciences related to the fields of commerce, business administration and other polytechnic areas.</p>
+                                    <p>Majority of the students belong to the economically challenged level of society. It is the University's commitment to give qualified and talented students access to quality and responsive education to aid them in the achievement of their dreams and improve their lives.</p>
+                                </div>
+                                <div class="history-gallery">
+                                    <img id="about_readMore_img1" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP campus view">
+                                    <img id="about_readMore_img2" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP students and campus">
+                                </div>
+                                <div class="history-feature">
+                                    <img id="about_readMore_img3" src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP Taguig Campus building">
+                                </div>
+                            </div>
+                        @elseif($selectedSection['slug'] === 'vision-and-mission')
+                            <div id="visionMission" class="section-copy">
+                                Overview of the university vision and mission.
+                            </div>
+                        @elseif($selectedSection['slug'] === 'logo-and-symbols')
+                            <div id="logoSymbols" class="section-copy">
+                                Overview of the university logo and symbols.
+                            </div>
+                        @elseif($selectedSection['slug'] === 'hymn')
+                            <div id="hymn" class="section-copy">
+                                Overview of the university hymn.
+                            </div>
+                        @elseif($selectedSection['slug'] === 'maps')
+                            <div id="maps" class="section-copy">
+                                Overview of the university location.
+                            </div>
+                        @elseif($selectedSection['slug'] === 'campus-officials')
+                            <div id="campusOfficials" class="section-copy">
+                                Overview of the university campus officials.
+                            </div>
+                        @elseif($selectedSection['slug'] === 'strategic-development-plan')
+                            <div id="strategicPlan" class="section-copy">
+                                Overview of the university strategic development plan.
+                            </div>
+                        @elseif($selectedSection['slug'] === 'university-calendar')
+                            <div id="universityCalendar" class="section-copy">
+                                Overview of the university calendar.
+                            </div>
+                        @endif
+                    </article>
+                </section>
+            @endif
+        </section>
     </main>
-    <!-- Footer -->
+
     <pup-footer></pup-footer>
 
-    <script src="{{ asset('assets/js/script.js') }}" defer></script>
+    <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
     <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-
 </body>
 </html>

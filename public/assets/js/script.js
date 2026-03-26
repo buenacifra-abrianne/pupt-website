@@ -686,10 +686,62 @@ document.addEventListener("DOMContentLoaded", () => {
   const text = document.getElementById("advisoryModalText");
   const link = document.getElementById("advisoryModalLink");
 
+  function appendLinkedText(container, rawText) {
+    const textValue = rawText || "";
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = urlPattern.exec(textValue)) !== null) {
+      if (match.index > lastIndex) {
+        container.appendChild(document.createTextNode(textValue.slice(lastIndex, match.index)));
+      }
+
+      const anchor = document.createElement("a");
+      anchor.href = match[0];
+      anchor.target = "_blank";
+      anchor.rel = "noopener noreferrer";
+      anchor.textContent = match[0];
+      container.appendChild(anchor);
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < textValue.length) {
+      container.appendChild(document.createTextNode(textValue.slice(lastIndex)));
+    }
+  }
+
+  function renderAdvisoryContent(rawContent) {
+    if (!text) return;
+
+    text.replaceChildren();
+
+    const normalized = (rawContent || "")
+      .replace(/\r\n/g, "\n")
+      .replace(/\n{3,}/g, "\n\n")
+      .trim();
+
+    if (!normalized) return;
+
+    const blocks = normalized
+      .split(/\n{2,}/)
+      .map((block) => block.trim())
+      .filter(Boolean);
+
+    const contentBlocks = blocks.length ? blocks : [normalized];
+
+    contentBlocks.forEach((block) => {
+      const paragraph = document.createElement("p");
+      appendLinkedText(paragraph, block.replace(/\n/g, " "));
+      text.appendChild(paragraph);
+    });
+  }
+
   function openModal() {
     modal.classList.add("show");
     modal.setAttribute("aria-hidden", "false");
     document.body.classList.add("modal-open");
+    closeBtn?.focus();
   }
 
   function closeModal() {
@@ -706,7 +758,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     title.textContent = trigger.dataset.title || "";
     date.textContent = trigger.dataset.date || "";
-    text.textContent = trigger.dataset.content || "";
+    renderAdvisoryContent(trigger.dataset.content || "");
 
     const advisoryLink = trigger.dataset.link || "";
     if (advisoryLink) {
