@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Storage;
 class NewsImage
 {
     private const DISK = 'public';
+    private const MAX_BYTES = 5 * 1024 * 1024;
+    private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
     {
@@ -48,6 +50,37 @@ class NewsImage
         }
 
         return asset('storage/'.$normalized);
+    }
+
+    public static function validationError(?UploadedFile $file): ?string
+    {
+        if (!$file) {
+            return null;
+        }
+
+        if (!$file->isValid()) {
+            return 'Image upload failed during transfer.';
+        }
+
+        if (($file->getSize() ?? 0) > self::MAX_BYTES) {
+            return 'Image must not exceed 5 MB.';
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        $clientMime = strtolower((string) $file->getClientMimeType());
+        $serverMime = strtolower((string) ($file->getMimeType() ?? ''));
+
+        $looksLikeImage = str_starts_with($clientMime, 'image/')
+            || str_starts_with($serverMime, 'image/')
+            || in_array($extension, self::ALLOWED_EXTENSIONS, true);
+
+        if ($looksLikeImage) {
+            return null;
+        }
+
+        $detectedType = $clientMime !== '' ? $clientMime : ($serverMime !== '' ? $serverMime : ($extension !== '' ? $extension : 'unknown'));
+
+        return 'Unsupported image file type: '.$detectedType.'.';
     }
 
     private static function isExternal(string $path): bool

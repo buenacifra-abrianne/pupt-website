@@ -9,6 +9,7 @@ use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\ValidationException;
 
 class AnnouncementController extends Controller
 {
@@ -180,6 +181,10 @@ class AnnouncementController extends Controller
 
     public function saveNews(Request $request)
     {
+        if (!$request->hasFile('image')) {
+            $request->request->remove('image');
+        }
+
         $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
 
         $rules = [
@@ -188,7 +193,6 @@ class AnnouncementController extends Controller
             'content' => ['required', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:255'],
-            'image' => ['nullable', 'image', 'max:5120'],
         ];
 
         if ($hasNewsLinkColumn) {
@@ -196,6 +200,10 @@ class AnnouncementController extends Controller
         }
 
         $request->validate($rules);
+
+        if ($message = NewsImage::validationError($request->file('image'))) {
+            throw ValidationException::withMessages(['image' => $message]);
+        }
 
         $newsId = (int) $request->input('news_id', 0);
 
