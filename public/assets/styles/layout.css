@@ -33,15 +33,38 @@ body {
 }
 
 .message-button {
+  position: fixed !important;
+  right: 28px !important;
   bottom: 108px !important;
-  box-shadow: none !important;
+  width: 60px !important;
+  height: 60px !important;
+  border: none !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, var(--home-maroon, #7f1113) 0%, var(--home-maroon-deep, #4f090c) 100%) !important;
+  color: #fffaf4 !important;
+  font-size: 1.65rem !important;
+  cursor: pointer !important;
+  box-shadow: 0 20px 30px rgba(79, 9, 12, 0.28) !important;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease !important;
   z-index: 999 !important;
 }
 
 .message-button:hover,
-.message-button:focus-visible,
+.message-button:focus-visible {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 36px rgba(79, 9, 12, 0.32) !important;
+  outline: none;
+}
+
 .message-button:active {
-  box-shadow: none !important;
+  transform: translateY(-1px) scale(0.98);
 }
 
 .scroll-nav-button {

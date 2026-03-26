@@ -70,7 +70,6 @@
   @endphp
 
   <main class="main-content">
-    <button class="message-button" title="Chat with AI Assistant">&#128172;</button>
 
     <section class="hero-shell">
       <section class="carousel-section">

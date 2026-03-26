@@ -22,7 +22,6 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <button class="message-button" title="Chat with AI Assistant">💬</button>
         <section class="page-section">
             <div class="cards-container" id="studentPortals">
                 <!-- Portals from DB will render here -->

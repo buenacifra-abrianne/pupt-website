@@ -241,7 +241,23 @@ function initReadMore() {
 }
 
 // =======================
-// 4.1) Scroll navigation button
+// 4.1) Global AI button
+// =======================
+function initMessageButton() {
+  if (!document.body || !document.querySelector("pup-header") || document.querySelector(".message-button")) return;
+
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "message-button";
+  button.title = "Chat with AI Assistant";
+  button.setAttribute("aria-label", "Chat with AI Assistant");
+  button.innerHTML = "&#128172;";
+
+  document.body.appendChild(button);
+}
+
+// =======================
+// 4.2) Scroll navigation button
 // =======================
 function initScrollNavButtons() {
   if (!document.body || document.querySelector(".scroll-nav-button")) return;
@@ -335,6 +351,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Extras
   initNewsDragScroll();
   initReadMore();
+  initMessageButton();
   initScrollNavButtons();
 });
 

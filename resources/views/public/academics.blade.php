@@ -22,7 +22,6 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <button class="message-button" title="Chat with AI Assistant">💬</button>
 
         <div class="page-content">
             <section class="about-pup">
