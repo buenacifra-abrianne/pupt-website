@@ -916,16 +916,6 @@
     window.addEventListener('click', function(e) {
         if (!e.target.classList.contains('modal')) return;
 
-        if (e.target.id === 'announcementModal') {
-            closeAnnouncementModal();
-            return;
-        }
-
-        if (e.target.id === 'newsModal') {
-            closeNewsModal();
-            return;
-        }
-
         if (e.target.id === 'readMoreModal') {
             closeReadMoreModal();
         }

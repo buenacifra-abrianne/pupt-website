@@ -38,6 +38,7 @@ class AnnouncementController extends Controller
     public function index()
     {
         $hasAnnouncementLinkColumn = Schema::hasColumn('announcements', 'link');
+        $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
 
         $announcements = DB::table('announcements as a')
             ->leftJoin('users as u', 'a.created_by', '=', 'u.user_id')
@@ -53,7 +54,7 @@ class AnnouncementController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('superadmin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn'));
+        return view('superadmin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn', 'hasNewsLinkColumn'));
     }
 
     public function save(Request $request)
