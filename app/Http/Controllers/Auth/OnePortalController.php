@@ -136,26 +136,10 @@ class OnePortalController extends Controller
         ->where('email', $email)
         ->first();
 
-    // if user does not exist locally, auto-create using IDP role if available
+    // if user does not exist locally, deny access
     if (!$user) {
-        $newUserRole = strtolower($idpRole ?: 'faculty');
-
-        DB::table('users')->insert([
-            'first_name' => $firstName,
-            'middle_name' => $middleName,
-            'last_name' => $lastName,
-            'name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
-            'email' => $email,
-            'role' => $newUserRole,
-            'status' => 'Active',
-            'oneportal_id' => $id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        $user = DB::table('users')
-            ->where('email', $email)
-            ->first();
+        return redirect()->route('public.landing')
+            ->with('error', 'Access denied. Your email is not registered in the system.');
     }
 
     // if user exists but oneportal_id is still empty, update it
@@ -178,8 +162,8 @@ class OnePortalController extends Controller
             ->with('error', 'Your CMS account is not active.');
     }
 
-    // IDP role first, fallback to local DB role
-    $finalRole = $idpRole ?: strtoupper((string) $user->role);
+    // local DB role
+    $finalRole = strtoupper((string) $user->role);
 
     // create local session
     session([
