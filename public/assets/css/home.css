@@ -1254,27 +1254,6 @@ pup-footer .footer {
   justify-content: center;
 }
 
-.message-button {
-  position: fixed;
-  right: 28px;
-  bottom: 28px;
-  width: 60px;
-  height: 60px;
-  border: none;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--home-maroon) 0%, var(--home-maroon-deep) 100%);
-  color: #fffaf4;
-  font-size: 1.65rem;
-  box-shadow: 0 20px 30px rgba(79, 9, 12, 0.28);
-  cursor: pointer;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
-  z-index: 999;
-}
-
-.message-button:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 24px 36px rgba(79, 9, 12, 0.32);
-}
 
 .reveal {
   opacity: 0;
@@ -1602,12 +1581,6 @@ body.scroll-up .reveal:not(.active) {
     height: 260px;
   }
 
-  .message-button {
-    right: 18px;
-    bottom: 18px;
-    width: 56px;
-    height: 56px;
-  }
 }
 
 @media (max-width: 480px) {

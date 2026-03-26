@@ -30,7 +30,6 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <button class="message-button" title="Chat with AI Assistant">💬</button>
         <section class="about-pup">
             <div class="about-content">
             <h1>About PUP</h1>
