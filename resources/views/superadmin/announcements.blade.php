@@ -199,7 +199,7 @@
                 <div class="news-grid">
                     @foreach($news_list as $news)
                         <div class="news-card"
-                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.$news->category.' '.$news->location)) }}">
+                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location)) }}">
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
@@ -224,7 +224,8 @@
                                             '{{ addslashes($news->title) }}',
                                             '{{ addslashes($news->content) }}',
                                             '{{ addslashes($news->category) }}',
-                                            '{{ addslashes($news->location) }}'
+                                            '{{ addslashes($news->location) }}',
+                                            '{{ addslashes($news->link ?? '') }}'
                                         )">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -235,7 +236,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json($news->title), @json($news->content))'>
+                                        onclick='openReadMoreModal(@json($news->title), @json($news->content), @json($news->link ?? null))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -365,9 +366,25 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="news_link">Link</label>
+                    <div class="announcement-link-row">
+                        <input 
+                            type="url" 
+                            name="link" 
+                            id="news_link"
+                            class="form-control"
+                            placeholder="https://example.com"
+                        >
+                        <button type="button" class="announcement-link-paste" id="pasteNewsLinkBtn" title="Paste link" aria-label="Paste link">
+                            <i class="fas fa-paste"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Category *</label>
                     <select name="category" required>
-                        <option value="" disabled selected>Select category</option>
+                        <option value="">Select category</option>
                         <option value="Campus">Campus</option>
                         <option value="Academic">Academic</option>
                         <option value="Event">Event</option>
@@ -637,7 +654,7 @@
         document.getElementById('readMoreModal').classList.remove('active');
     }
 
-    function editNews(id, title, content, category, location) {
+    function editNews(id, title, content, category, location, link) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -649,6 +666,10 @@
         setRichTextEditorValue(form.querySelector('[name="content"]'), content);
         form.querySelector('[name="category"]').value = category;
         form.querySelector('[name="location"]').value = location;
+        const linkInput = form.querySelector('[name="link"]');
+        if (linkInput) {
+            linkInput.value = link || '';
+        }
 
         let idInput = document.getElementById('edit_news_id');
         if (!idInput) {
@@ -668,6 +689,7 @@
             content: (content || '').trim(),
             category: (category || '').trim(),
             location: (location || '').trim(),
+            link: (link || '').trim(),
         };
     }
 
@@ -749,6 +771,27 @@
                 }
             });
         }
+
+        const pasteNewsLinkBtn = document.getElementById('pasteNewsLinkBtn');
+        const newsLinkInput = document.getElementById('news_link');
+        if (pasteNewsLinkBtn && newsLinkInput) {
+            pasteNewsLinkBtn.addEventListener('click', async () => {
+                try {
+                    if (navigator.clipboard?.readText) {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                            newsLinkInput.value = text.trim();
+                            return;
+                        }
+                    }
+                } catch (_) {}
+
+                const fallback = window.prompt('Paste the link URL');
+                if (fallback) {
+                    newsLinkInput.value = fallback.trim();
+                }
+            });
+        }
     });
 
     window.addEventListener('beforeunload', () => {
@@ -784,7 +827,8 @@
         return (form.querySelector('[name="title"]')?.value || '').trim() !== newsBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== newsBaseline.content
             || (form.querySelector('[name="category"]')?.value || '').trim() !== newsBaseline.category
-            || (form.querySelector('[name="location"]')?.value || '').trim() !== newsBaseline.location;
+            || (form.querySelector('[name="location"]')?.value || '').trim() !== newsBaseline.location
+            || (form.querySelector('[name="link"]')?.value || '').trim() !== newsBaseline.link;
     }
 
     document.getElementById('announcementForm').addEventListener('submit', function (e) {

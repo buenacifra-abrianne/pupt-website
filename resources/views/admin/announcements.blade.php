@@ -104,7 +104,7 @@
                         @endphp
 
                         <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($row->priority) }}-priority"
-                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
+                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '.($row->link ?? '').' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
 
                             <div class="announcement-header">
                                 <div class="title-row">
@@ -133,13 +133,14 @@
 
                             <div class="announcement-actions">
                                 <button class="btn btn-sm btn-primary"
-                                    onclick="editAnnouncement(
-                                        '{{ $row->announcement_id }}',
-                                        '{{ addslashes($row->title) }}',
-                                        '{{ addslashes($row->content) }}',
-                                        '{{ $row->priority }}',
-                                        '{{ $row->status }}'
-                                    )">
+                                    onclick='editAnnouncement(
+                                        {{ (int) $row->announcement_id }},
+                                        @json($row->title),
+                                        @json($row->content),
+                                        @json($row->link ?? ""),
+                                        @json($row->priority),
+                                        @json($row->status)
+                                    )'>
                                     <i class="fas fa-edit"></i> Edit
                                 </button>
 
@@ -159,9 +160,10 @@
                                 </button>
 
                                 <button class="btn btn-sm btn-view-icon" type="button" title="View"
-                                    onclick='openReadMoreModal(@json($row->title), @json($row->content))'>
+                                    onclick='openReadMoreModal(@json($row->title), @json($row->content), @json($row->link ?? null))'>
                                     <i class="fas fa-eye"></i>
                                 </button>
+
                             </div>
                         </div>
                     @endforeach
@@ -183,7 +185,7 @@
                 <div class="news-grid">
                     @foreach($news_list as $news)
                         <div class="news-card"
-                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.$news->category.' '.$news->location)) }}">
+                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location)) }}">
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
@@ -208,7 +210,8 @@
                                             '{{ addslashes($news->title) }}',
                                             '{{ addslashes($news->content) }}',
                                             '{{ addslashes($news->category) }}',
-                                            '{{ addslashes($news->location) }}'
+                                            '{{ addslashes($news->location) }}',
+                                            '{{ addslashes($news->link ?? '') }}'
                                         )">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -219,7 +222,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json($news->title), @json($news->content))'>
+                                        onclick='openReadMoreModal(@json($news->title), @json($news->content), @json($news->link ?? null))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -242,6 +245,11 @@
                 </button>
             </div>
             <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+            <div id="readMoreLinkWrap" style="display:none; margin-top:18px;">
+                <a id="readMoreLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                    <i class="fas fa-external-link-alt"></i> Open Link
+                </a>
+            </div>
         </div>
     </div>
 
@@ -267,6 +275,31 @@
                     <label>Description *</label>
                     @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
                 </div>
+
+                @if($hasAnnouncementLinkColumn)
+                    <div class="form-group">
+                        <label for="link">Link</label>
+                        <div class="announcement-link-row">
+                            <input 
+                                type="url" 
+                                name="link" 
+                                id="link"
+                                class="form-control"
+                                placeholder="https://example.com"
+                            >
+                            <button type="button" class="announcement-link-paste" id="pasteAnnouncementLinkBtn" title="Paste link" aria-label="Paste link">
+                                <i class="fas fa-paste"></i>
+                            </button>
+                        </div>
+                    </div>
+                @else
+                    <div class="form-group">
+                        <label>Link</label>
+                        <div class="announcement-link-unavailable">
+                            Link saving is unavailable in this local database because the `announcements.link` column does not exist.
+                        </div>
+                    </div>
+                @endif
 
                 <div class="form-group">
                     <label>Priority *</label>
@@ -319,9 +352,25 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="news_link">Link</label>
+                    <div class="announcement-link-row">
+                        <input 
+                            type="url" 
+                            name="link" 
+                            id="news_link"
+                            class="form-control"
+                            placeholder="https://example.com"
+                        >
+                        <button type="button" class="announcement-link-paste" id="pasteNewsLinkBtn" title="Paste link" aria-label="Paste link">
+                            <i class="fas fa-paste"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label>Category *</label>
                     <select name="category" required>
-                        <option value="" disabled selected>Select category</option>
+                        <option value="">Select category</option>
                         <option value="Campus">Campus</option>
                         <option value="Academic">Academic</option>
                         <option value="Event">Event</option>
@@ -353,6 +402,47 @@
     </div>
 
 <script>
+    const announcementLinkStyles = document.createElement('style');
+    announcementLinkStyles.textContent = `
+        .announcement-link-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .announcement-link-row .form-control {
+            flex: 1;
+        }
+
+        .announcement-link-paste {
+            width: 42px;
+            height: 42px;
+            border: 1px solid #d7dbe2;
+            border-radius: 10px;
+            background: #f8fafc;
+            color: #475569;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .announcement-link-paste:hover {
+            background: #eef2f7;
+            color: #1f2937;
+        }
+
+        .announcement-link-unavailable {
+            border: 1px dashed #d7dbe2;
+            border-radius: 10px;
+            padding: 12px 14px;
+            background: #f8fafc;
+            color: #64748b;
+            font-size: 13px;
+        }
+    `;
+    document.head.appendChild(announcementLinkStyles);
+
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebar');
         sidebar.classList.toggle('collapsed');
@@ -443,7 +533,7 @@
         document.getElementById('announcementModal').classList.remove('active');
     }
 
-    function editAnnouncement(id, title, content, priority, status) {
+    function editAnnouncement(id, title, content, link, priority, status) {
         const modal = document.getElementById('announcementModal');
         const form = document.getElementById('announcementForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -453,6 +543,10 @@
 
         form.querySelector('[name="title"]').value = title;
         setRichTextEditorValue(form.querySelector('[name="content"]'), content);
+        const linkInput = form.querySelector('[name="link"]');
+        if (linkInput) {
+            linkInput.value = link || '';
+        }
         form.querySelector('[name="priority"]').value = priority;
         form.querySelector('[name="status"]').value = status;
 
@@ -469,6 +563,7 @@
         announcementBaseline = {
             title: (title || '').trim(),
             content: (content || '').trim(),
+            link: (link || '').trim(),
             priority: (priority || '').trim(),
             status: (status || '').trim(),
         };
@@ -520,17 +615,32 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
-    function openReadMoreModal(title, content) {
-        document.getElementById('readMoreTitle').textContent = title || 'Read More';
-        document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
-        document.getElementById('readMoreModal').classList.add('active');
+    function openReadMoreModal(title, content, link = null) {
+        const modal = document.getElementById('readMoreModal');
+        const titleEl = document.getElementById('readMoreTitle');
+        const contentEl = document.getElementById('readMoreContent');
+        const linkWrap = document.getElementById('readMoreLinkWrap');
+        const linkEl = document.getElementById('readMoreLink');
+
+        titleEl.textContent = title || 'Read More';
+        contentEl.innerHTML = content || '<p>No content available.</p>';
+
+        if (link) {
+            linkEl.href = link;
+            linkWrap.style.display = '';
+        } else {
+            linkEl.href = '#';
+            linkWrap.style.display = 'none';
+        }
+
+        modal.classList.add('active');
     }
 
     function closeReadMoreModal() {
         document.getElementById('readMoreModal').classList.remove('active');
     }
 
-    function editNews(id, title, content, category, location) {
+    function editNews(id, title, content, category, location, link) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -542,6 +652,10 @@
         setRichTextEditorValue(form.querySelector('[name="content"]'), content);
         form.querySelector('[name="category"]').value = category;
         form.querySelector('[name="location"]').value = location;
+        const linkInput = form.querySelector('[name="link"]');
+        if (linkInput) {
+            linkInput.value = link || '';
+        }
 
         let idInput = document.getElementById('edit_news_id');
         if (!idInput) {
@@ -561,6 +675,7 @@
             content: (content || '').trim(),
             category: (category || '').trim(),
             location: (location || '').trim(),
+            link: (link || '').trim(),
         };
     }
 
@@ -621,6 +736,48 @@
         if (SERVER_INFO_TOAST) {
             showToast(SERVER_INFO_TOAST, 'info', 'No Changes');
         }
+
+        const pasteAnnouncementLinkBtn = document.getElementById('pasteAnnouncementLinkBtn');
+        const announcementLinkInput = document.getElementById('link');
+        if (pasteAnnouncementLinkBtn && announcementLinkInput) {
+            pasteAnnouncementLinkBtn.addEventListener('click', async () => {
+                try {
+                    if (navigator.clipboard?.readText) {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                            announcementLinkInput.value = text.trim();
+                            return;
+                        }
+                    }
+                } catch (_) {}
+
+                const fallback = window.prompt('Paste the link URL');
+                if (fallback) {
+                    announcementLinkInput.value = fallback.trim();
+                }
+            });
+        }
+
+        const pasteNewsLinkBtn = document.getElementById('pasteNewsLinkBtn');
+        const newsLinkInput = document.getElementById('news_link');
+        if (pasteNewsLinkBtn && newsLinkInput) {
+            pasteNewsLinkBtn.addEventListener('click', async () => {
+                try {
+                    if (navigator.clipboard?.readText) {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                            newsLinkInput.value = text.trim();
+                            return;
+                        }
+                    }
+                } catch (_) {}
+
+                const fallback = window.prompt('Paste the link URL');
+                if (fallback) {
+                    newsLinkInput.value = fallback.trim();
+                }
+            });
+        }
     });
 
     window.addEventListener('beforeunload', () => {
@@ -640,7 +797,11 @@
         return (form.querySelector('[name="title"]')?.value || '').trim() !== announcementBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== announcementBaseline.content
             || (form.querySelector('[name="priority"]')?.value || '').trim() !== announcementBaseline.priority
-            || (form.querySelector('[name="status"]')?.value || '').trim() !== announcementBaseline.status;
+            || (form.querySelector('[name="status"]')?.value || '').trim() !== announcementBaseline.status
+            @if($hasAnnouncementLinkColumn)
+            || (form.querySelector('[name="link"]')?.value || '').trim() !== announcementBaseline.link
+            @endif
+        ;
     }
 
     function newsHasChanges(form) {
@@ -652,7 +813,8 @@
         return (form.querySelector('[name="title"]')?.value || '').trim() !== newsBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== newsBaseline.content
             || (form.querySelector('[name="category"]')?.value || '').trim() !== newsBaseline.category
-            || (form.querySelector('[name="location"]')?.value || '').trim() !== newsBaseline.location;
+            || (form.querySelector('[name="location"]')?.value || '').trim() !== newsBaseline.location
+            || (form.querySelector('[name="link"]')?.value || '').trim() !== newsBaseline.link;
     }
 
     document.getElementById('announcementForm').addEventListener('submit', function (e) {
