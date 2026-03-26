@@ -283,7 +283,7 @@
         @if(isset($myNews) && $myNews->count())
           @foreach($myNews as $n)
             @php
-              $imgUrl = !empty($n->image_path) ? asset('storage/' . ltrim($n->image_path,'/')) : null;
+              $imgUrl = \App\Support\NewsImage::url($n->image_path);
             @endphp
 
             <div class="announcement-item" style="margin-bottom:14px;">

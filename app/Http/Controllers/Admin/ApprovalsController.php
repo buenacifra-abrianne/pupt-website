@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\NewsImage;
 use App\Support\RichText;
 
 class ApprovalsController extends Controller
@@ -510,7 +511,7 @@ private function attachDisplayFields($paginator)
 
         // image url for modal
         $imagePath = $payload['image_path'] ?? null;
-        $item->display_image_url = $imagePath ? asset('storage/' . ltrim($imagePath, '/')) : null;
+        $item->display_image_url = NewsImage::url($imagePath);
 
         // news meta for modal
         $item->display_category = $payload['category'] ?? null;

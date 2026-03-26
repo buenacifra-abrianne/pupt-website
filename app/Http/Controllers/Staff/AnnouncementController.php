@@ -243,7 +243,7 @@ $myNews = DB::table('news')
 
     // ✅ If user uploaded a new file, override
     if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('news', 'public');
+        $imagePath = NewsImage::store($request->file('image'));
     }
 
     return $this->createOrUpdateRequest(
@@ -282,7 +282,7 @@ if ($message = NewsImage::validationError($request->file('image'))) {
 
 $imagePath = null;
 if ($request->hasFile('image')) {
-    $imagePath = $request->file('image')->store('news', 'public');
+    $imagePath = NewsImage::store($request->file('image'));
 }
 
 $payload = [
