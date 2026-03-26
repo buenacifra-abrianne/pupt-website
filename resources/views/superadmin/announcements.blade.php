@@ -384,7 +384,7 @@
                 <div class="form-group">
                     <label>Category *</label>
                     <select name="category" required>
-                        <option value="" disabled selected>Select category</option>
+                        <option value="">Select category</option>
                         <option value="Campus">Campus</option>
                         <option value="Academic">Academic</option>
                         <option value="Event">Event</option>
