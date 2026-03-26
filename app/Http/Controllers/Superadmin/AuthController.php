@@ -44,15 +44,19 @@ class AuthController extends Controller
 
         // Auto-upgrade legacy plain-text passwords to hashed passwords after successful login.
         $storedPassword = (string) ($user->password ?? '');
+        $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+
+        $updates = [
+            'last_login_at' => now(),
+        ];
+
         if ($storedPassword !== '' && hash_equals($storedPassword, (string) $request->password)) {
-            $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
-            DB::table('users')
-    ->where($idColumn, data_get($user, $idColumn))
-    ->update([
-        'last_login_at' => now(),
-        'password'      => Hash::make((string) $request->password)
-    ]);
+            $updates['password'] = Hash::make((string) $request->password);
         }
+
+        DB::table('users')
+            ->where($idColumn, data_get($user, $idColumn))
+            ->update($updates);
 
         $dbRole = strtoupper(trim((string) ($user->role ?? '')));
 $dbRole = preg_replace('/\s+/', '_', $dbRole);
