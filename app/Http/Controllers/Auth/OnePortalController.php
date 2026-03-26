@@ -162,7 +162,8 @@ class OnePortalController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.')
+            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin. 
+            If you want to switch accounts, please log out from the Identity Provider first.')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
