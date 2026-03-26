@@ -12,11 +12,35 @@ class AcademicsController extends Controller
 {
     public function index(Request $request)
     {
-        // Section is now an optional query parameter: /academics?section=degree-programs
-        return $this->renderPage($request->query('section'));
+        return $this->renderPage();
     }
 
-    private function renderPage(?string $section = null)
+    public function degreePrograms()
+    {
+        return view('public.academics.degree-programs');
+    }
+
+    public function diplomaPrograms()
+    {
+        return view('public.academics.diploma-programs');
+    }
+
+    public function graduatePrograms()
+    {
+        return view('public.academics.graduate-programs');
+    }
+
+    public function pupIApply()
+    {
+        return view('public.academics.pup-iapply');
+    }
+
+    public function universityCalendar()
+    {
+        return view('public.academics.university-calendar');
+    }
+
+    private function renderPage()
     {
         $homeCms = HomeCmsContent::defaults();
 
@@ -28,14 +52,7 @@ class AcademicsController extends Controller
         }
 
         $sectionsMap = $this->sections();
-        $sections    = array_values($sectionsMap); // numeric index for Blade
-
-        $selectedSection = null;
-
-        if ($section !== null) {
-            abort_unless(isset($sectionsMap[$section]), 404);
-            $selectedSection = $sectionsMap[$section];
-        }
+        $sections    = array_values($sectionsMap);
 
         $campusStoryDescription = $homeCms['campus_description'] ?? '';
         $historyMovedParagraphs = [];
@@ -43,7 +60,6 @@ class AcademicsController extends Controller
         return view('public.academics', compact(
             'homeCms',
             'sections',
-            'selectedSection',
             'campusStoryDescription',
             'historyMovedParagraphs',
         ));
