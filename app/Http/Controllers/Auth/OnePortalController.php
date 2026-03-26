@@ -10,8 +10,16 @@ use App\Support\AuditLog;
 
 class OnePortalController extends Controller
 {
+    
     public function redirectToIdp(Request $request)
     {
+
+        \Log::info('redirectToIdp session check', [
+            'user_id' => session('user_id'),
+            'role' => session('role'),
+            'all' => session()->all(),
+        ]);
+
         $role = strtoupper((string) session('role', ''));
 
         $allowedRoles = [
@@ -202,6 +210,13 @@ class OnePortalController extends Controller
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
+
+    DB::table('users')
+    ->where('user_id', $user->user_id)
+    ->update([
+        'last_login_at' => now(),
+        'updated_at' => now(),
+    ]);
 
     // create local session only after role is valid
     session([
