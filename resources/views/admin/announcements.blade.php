@@ -189,7 +189,7 @@
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
-                                    <img src="{{ Storage::disk('s3')->url($news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
+                                    <img src="{{ \App\Support\NewsImage::url($news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
                                 @else
                                     <i class="fas fa-newspaper"></i>
                                 @endif
@@ -212,7 +212,7 @@
                                             @json($news->category),
                                             @json($news->location),
                                             @json($news->link ?? ""),
-                                            @json(!empty($news->image_path) ? Storage::disk("s3")->url($news->image_path) : "") 
+                                            @json(\App\Support\NewsImage::url($news->image_path) ?? "")
                                         )'>
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -926,7 +926,11 @@
 
   const res = await fetch(url, {
     method: 'POST',
-    headers: { 'X-CSRF-TOKEN': token },
+    headers: {
+      'X-CSRF-TOKEN': token,
+      'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json'
+    },
     body: fd
   });
 

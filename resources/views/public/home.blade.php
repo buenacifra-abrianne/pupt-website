@@ -144,18 +144,16 @@
           </div>
 
           <div class="updates-cards-row news-cards-row">
-            @forelse($newsFeed as $n)
+              @forelse($newsFeed as $n)
               @php
                 $storyDate = \Carbon\Carbon::parse($n->date_published ?? $n->created_at)->format('F d, Y');
-                $storyImage = !empty($n->image_path)
-                    ? asset('storage/' . ltrim($n->image_path, '/'))
-                    : asset('assets/static_img/pupillar.jpeg');
+                $storyImage = \App\Support\NewsImage::url($n->image_path, 'assets/static_img/pupillar.jpeg');
               @endphp
 
               <article class="news-mini-card">
                 <div class="news-mini-card-inner">
                   <div class="news-mini-card-front">
-                    <img src="{{ Storage::disk('s3')->url($n->image_path) }}" alt="{{ e($n->title) }}">
+                    <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
                     <div class="news-mini-card-copy">
                       <time>{{ $storyDate }}</time>
                       <h4>{{ e($n->title) }}</h4>
