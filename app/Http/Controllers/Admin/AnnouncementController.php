@@ -100,10 +100,14 @@ class AnnouncementController extends Controller
                 return back()->with('error', 'Announcement not found.');
             }
 
-            $isNoChange = trim((string) ($existing->title ?? '')) === $title
-                && trim((string) ($existing->content ?? '')) === $content
-                && strtoupper(trim((string) ($existing->priority ?? ''))) === $priority
-                && strtoupper(trim((string) ($existing->status ?? ''))) === $status;
+            $removeImage = (string) $request->input('remove_image', '0') === '1';
+
+            $isNoChange = !$hasNewImage
+                && !$removeImage
+                && trim((string) ($existing->title ?? '')) === $incomingTitle
+                && trim((string) ($existing->content ?? '')) === $incomingContent
+                && trim((string) ($existing->category ?? '')) === $incomingCategory
+                && trim((string) ($existing->location ?? '')) === $incomingLocation;
 
             if ($hasLinkColumn) {
                 $isNoChange = $isNoChange
@@ -235,6 +239,17 @@ class AnnouncementController extends Controller
         }
 
         $imagePath = $existing ? $existing->image_path : null;
+
+        if ($hasNewImage) {
+            $imagePath = $request->file('image')->store('news', 'public');
+        }
+
+        $removeImage = (string) $request->input('remove_image', '0') === '1';
+        $imagePath = $existing ? $existing->image_path : null;
+
+        if ($removeImage) {
+            $imagePath = null;
+        }
 
         if ($hasNewImage) {
             $imagePath = $request->file('image')->store('news', 'public');

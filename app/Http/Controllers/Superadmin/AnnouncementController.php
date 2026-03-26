@@ -214,7 +214,10 @@ class AnnouncementController extends Controller
         $hasNewImage = $request->hasFile('image');
 
         if ($newsId > 0) {
+            $removeImage = (string) $request->input('remove_image', '0') === '1';
+
             $isNoChange = !$hasNewImage
+                && !$removeImage
                 && trim((string) ($existing->title ?? '')) === $incomingTitle
                 && trim((string) ($existing->content ?? '')) === $incomingContent
                 && trim((string) ($existing->category ?? '')) === $incomingCategory
@@ -235,6 +238,17 @@ class AnnouncementController extends Controller
         }
 
         $imagePath = $existing ? $existing->image_path : null;
+
+        if ($hasNewImage) {
+            $imagePath = $request->file('image')->store('news', 'public');
+        }
+
+        $removeImage = (string) $request->input('remove_image', '0') === '1';
+        $imagePath = $existing ? $existing->image_path : null;
+
+        if ($removeImage) {
+            $imagePath = null;
+        }
 
         if ($hasNewImage) {
             $imagePath = $request->file('image')->store('news', 'public');
