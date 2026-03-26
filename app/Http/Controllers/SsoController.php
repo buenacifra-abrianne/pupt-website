@@ -18,8 +18,6 @@ class SsoController extends Controller
             abort(403, 'Missing SSO token.');
         }
 
-        // TODO:
-        // Replace this mock payload with real token verification later
         $portalUser = $this->resolvePortalUserFromToken($token);
 
         if (!$portalUser || empty($portalUser['email'])) {
@@ -32,8 +30,13 @@ class SsoController extends Controller
             ->first();
 
         if (!$user) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
             AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: unknown user '.$portalUser['email']);
-            abort(403, 'You do not have access to this system.');
+
+            return redirect()->route('public.landing')
+                ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
         }
 
         if (!in_array((string) $user->status, ['Active', 'Suspended'], true)) {
@@ -41,12 +44,51 @@ class SsoController extends Controller
             abort(403, 'Your account is inactive/suspended.');
         }
 
+        $finalRole = strtoupper(trim((string) ($user->role ?? '')));
+
+        $allowedRoles = [
+            'GLOBAL_SUPERADMIN',
+            'SYSTEM_SUPERADMIN',
+            'SUPERADMIN',
+            'ADMIN',
+            'REGISTRAR',
+            'HAP',
+            'STUDENT_SERVICES',
+            'RESEARCH_EXTENSION',
+            'FACULTY',
+        ];
+
+        if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
+            $request->session()->forget([
+                'user_logged_in',
+                'user_id',
+                'user_first_name',
+                'user_role',
+                'user_roles',
+                'user_email',
+                'sso_logged_in',
+                'terms_accepted',
+            ]);
+
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            AuditLog::record(
+                'SECURITY',
+                'SECURITY',
+                'Blocked SSO login: no valid role for '.$user->email
+            );
+
+            return redirect()->route('public.landing')
+                ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+        }
+
         session([
             'user_logged_in' => true,
             'user_id' => $user->user_id ?? $user->id,
             'user_first_name' => $user->first_name,
-            'user_role' => $user->role,
-            'user_roles' => [(string) ($user->role ?? '')],
+            'user_role' => $finalRole,
+            'user_roles' => [$finalRole],
             'user_email' => $user->email,
             'sso_logged_in' => true,
             'terms_accepted' => false,
@@ -69,7 +111,7 @@ class SsoController extends Controller
             ]
         );
 
-        return $this->redirectByRole((string) $user->role);
+        return $this->redirectByRole($finalRole);
     }
 
     private function resolvePortalUserFromToken(string $token): ?array
@@ -93,7 +135,7 @@ class SsoController extends Controller
     {
         $role = CmsSections::normalizeRole($role);
 
-        if (in_array($role, ['GLOBAL_SUPERADMIN', 'SYSTEM_SUPERADMIN'], true)) {
+        if (in_array($role, ['SUPERADMIN'], true)) {
             return redirect()->route('superadmin.dashboard');
         }
 
@@ -101,6 +143,7 @@ class SsoController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        return redirect('/');
+        return redirect()->route('public.landing')
+            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
     }
 }
