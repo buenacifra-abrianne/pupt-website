@@ -12,12 +12,23 @@ class OnePortalController extends Controller
 {
     public function redirectToIdp(Request $request)
     {
-        if (session()->has('user_id')) {
-            return $this->redirectByRole(session('role'));
+        $role = strtoupper((string) session('role', ''));
+
+        $allowedRoles = [
+            'SUPERADMIN',
+            'ADMIN',
+            'REGISTRAR',
+            'HAP',
+            'STUDENT_SERVICES',
+            'RESEARCH_EXTENSION',
+            'FACULTY',
+        ];
+
+        if (session()->has('user_id') && in_array($role, $allowedRoles, true)) {
+            return $this->redirectByRole($role);
         }
 
         $clientId = config('services.idp.client_id');
-        // IDP Authorize Endpoint
         $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/authorize?client_id=' . urlencode($clientId);
 
         return redirect()->away($authorizeUrl);
@@ -138,8 +149,13 @@ class OnePortalController extends Controller
 
     // if user does not exist locally, deny access
     if (!$user) {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('public.landing')
-            ->with('error', 'Access denied. Your email is not registered in the system.');
+            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
     }
 
     // if user exists but oneportal_id is still empty, update it
@@ -164,6 +180,27 @@ class OnePortalController extends Controller
 
     // local DB role
     $finalRole = strtoupper((string) $user->role);
+
+    $allowedRoles = [
+        'SUPERADMIN',
+        'ADMIN',
+        'REGISTRAR',
+        'HAP',
+        'STUDENT_SERVICES',
+        'RESEARCH_EXTENSION',
+        'FACULTY',
+    ];
+
+    // if user has no valid role in local system, deny access
+    if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('public.landing')
+            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
+    }
 
     // create local session
     session([
@@ -221,8 +258,10 @@ class OnePortalController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect()->route('public.landing');
-    }
+        return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
+        }
 
     private function redirectByRole($role)
     {
