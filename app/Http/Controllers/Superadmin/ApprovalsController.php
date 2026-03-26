@@ -221,9 +221,18 @@ $history = $this->attachDisplayFields($history);
         // -------------------------
         elseif ($type === 'NEWS_UPDATE') {
             $nid = (int)($payload['news_id'] ?? 0);
-        if ($nid <= 0) {
-            throw new \Exception("Missing news_id in request details. Approve NEWS_CREATE first so it saves news_id into the request payload.");
-        }
+            if ($nid <= 0) {
+                throw new \Exception("Missing news_id in request details. Approve NEWS_CREATE first so it saves news_id into the request payload.");
+            }
+
+            $existingNews = DB::table('news')->where('news_id', $nid)->first();
+            if (!$existingNews) {
+                throw new \Exception("News item not found.");
+            }
+
+            $incomingImagePath = array_key_exists('image_path', $payload)
+                ? (trim((string) ($payload['image_path'] ?? '')) !== '' ? (string) $payload['image_path'] : null)
+                : $existingNews->image_path;
 
             DB::table('news')
                 ->where('news_id', $nid)
@@ -233,12 +242,29 @@ $history = $this->attachDisplayFields($history);
                     'category' => $payload['category'] ?? DB::raw('category'),
                     'location' => $payload['location'] ?? DB::raw('location'),
                     'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),
-                    // image_path update if you later support image requests
+                    'image_path' => $incomingImagePath,
                 ]);
+
+            if (
+                array_key_exists('image_path', $payload)
+                && !empty($existingNews->image_path)
+                && $existingNews->image_path !== $incomingImagePath
+            ) {
+                NewsImage::delete($existingNews->image_path);
+            }
         }
         elseif ($type === 'NEWS_DELETE') {
             $nid = (int)($payload['news_id'] ?? 0);
             if (!$nid) throw new \Exception("Missing news_id in request details.");
+
+            $news = DB::table('news')->where('news_id', $nid)->first();
+            if (!$news) {
+                throw new \Exception("News item not found.");
+            }
+
+            if (!empty($news->image_path)) {
+                NewsImage::delete($news->image_path);
+            }
 
             DB::table('news')->where('news_id', $nid)->delete();
         }

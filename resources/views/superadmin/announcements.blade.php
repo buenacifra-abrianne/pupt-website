@@ -494,10 +494,12 @@
         document.getElementById(tabId).classList.add('active');
         btn.classList.add('active');
 
-        localStorage.setItem('activeAdminTab', tabId);
+        localStorage.setItem('activeSuperadminAnnouncementsTab', tabId);
     }
 
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const ACTIVE_TAB_STORAGE_KEY = 'activeSuperadminAnnouncementsTab';
+    const SCROLL_STORAGE_KEY = 'superadminAnnouncementsScrollY';
     const RELOAD_TOAST_KEY = 'superadminAnnouncementsToast';
     const SERVER_SUCCESS_TOAST = @json(session('success'));
     const SERVER_INFO_TOAST = @json(session('info'));
@@ -797,7 +799,7 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        const savedTab = localStorage.getItem('activeAdminTab');
+        const savedTab = localStorage.getItem(ACTIVE_TAB_STORAGE_KEY);
         if (savedTab) {
             const btn = document.querySelector(`.tab-btn[onclick*="${savedTab}"]`);
             if (btn) switchTab(savedTab, btn);
@@ -889,11 +891,11 @@
     });
 
     window.addEventListener('beforeunload', () => {
-        localStorage.setItem('adminScrollY', window.scrollY);
+        localStorage.setItem(SCROLL_STORAGE_KEY, window.scrollY);
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        const scrollY = localStorage.getItem('adminScrollY');
+        const scrollY = localStorage.getItem(SCROLL_STORAGE_KEY);
         if (scrollY !== null) {
             window.scrollTo(0, parseInt(scrollY, 10));
         }
