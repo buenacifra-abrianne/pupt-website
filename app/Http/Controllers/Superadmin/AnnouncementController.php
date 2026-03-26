@@ -179,14 +179,22 @@ class AnnouncementController extends Controller
 
     public function saveNews(Request $request)
     {
-        $request->validate([
+        $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
+
+        $rules = [
             'news_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'max:5120'],
-        ]);
+        ];
+
+        if ($hasNewsLinkColumn) {
+            $rules['link'] = ['nullable', 'url', 'max:255'];
+        }
+
+        $request->validate($rules);
 
         $newsId = (int) $request->input('news_id', 0);
 
@@ -202,6 +210,7 @@ class AnnouncementController extends Controller
         $incomingContent = RichText::sanitize($request->input('content'));
         $incomingCategory = trim((string) $request->input('category'));
         $incomingLocation = trim((string) $request->input('location'));
+        $incomingLink = trim((string) $request->input('link'));
         $hasNewImage = $request->hasFile('image');
 
         if ($newsId > 0) {
@@ -210,6 +219,11 @@ class AnnouncementController extends Controller
                 && trim((string) ($existing->content ?? '')) === $incomingContent
                 && trim((string) ($existing->category ?? '')) === $incomingCategory
                 && trim((string) ($existing->location ?? '')) === $incomingLocation;
+
+            if ($hasNewsLinkColumn) {
+                $isNoChange = $isNoChange
+                    && trim((string) ($existing->link ?? '')) === ($incomingLink !== '' ? $incomingLink : '');
+            }
 
             if ($isNoChange) {
                 return response()->json([
@@ -220,7 +234,8 @@ class AnnouncementController extends Controller
             }
         }
 
-        $imagePath = $existing->image_path ?? null;
+        $imagePath = $existing ? $existing->image_path : null;
+
         if ($hasNewImage) {
             $imagePath = $request->file('image')->store('news', 'public');
         }
@@ -234,14 +249,13 @@ class AnnouncementController extends Controller
             'date_published' => now(),
         ];
 
+        if ($hasNewsLinkColumn) {
+            $data['link'] = $incomingLink !== '' ? $incomingLink : null;
+        }
+
         if ($newsId > 0) {
             DB::table('news')->where('news_id', $newsId)->update($data);
-            $this->logActivity(
-                'UPDATED',
-                'NEWS',
-                $newsId,
-                'Updated news: '.$incomingTitle
-            );
+            $this->logActivity('UPDATED', 'NEWS', $newsId, 'Updated news: '.$incomingTitle);
         } else {
             $data['created_at'] = now();
             $data['priority'] = 'MEDIUM';
@@ -249,12 +263,7 @@ class AnnouncementController extends Controller
             $data['created_by'] = (int) (session('user_id') ?? 0);
 
             $newId = DB::table('news')->insertGetId($data, 'news_id');
-            $this->logActivity(
-                'CREATED',
-                'NEWS',
-                (int) $newId,
-                'Created news: '.$incomingTitle
-            );
+            $this->logActivity('CREATED', 'NEWS', (int) $newId, 'Created news: '.$incomingTitle);
         }
 
         return response()->json([

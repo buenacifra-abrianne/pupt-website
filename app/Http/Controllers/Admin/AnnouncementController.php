@@ -7,6 +7,7 @@ use App\Support\RichText;
 use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class AnnouncementController extends Controller
 {
@@ -34,6 +35,8 @@ class AnnouncementController extends Controller
 
     public function index()
     {
+        $hasAnnouncementLinkColumn = Schema::hasColumn('announcements', 'link');
+
         $announcements = DB::table('announcements as a')
             ->leftJoin('users as u', 'a.created_by', '=', 'u.user_id')
             ->select(
@@ -48,7 +51,7 @@ class AnnouncementController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.announcements', compact('announcements', 'news_list'));
+        return view('superadmin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn'));
     }
 
     public function save(Request $request)
@@ -56,6 +59,7 @@ class AnnouncementController extends Controller
         $request->validate([
             'title' => 'required|string',
             'content' => 'required|string',
+            'link' => 'nullable|url|max:255',
             'priority' => 'required|string',
             'status' => 'required|string',
             'announcement_id' => 'nullable|integer',
@@ -63,8 +67,10 @@ class AnnouncementController extends Controller
 
         $title = trim((string) $request->input('title'));
         $content = RichText::sanitize($request->input('content'));
+        $link = trim((string) $request->input('link'));
         $priority = strtoupper(trim((string) $request->input('priority')));
         $status = strtoupper(trim((string) $request->input('status')));
+        $hasLinkColumn = Schema::hasColumn('announcements', 'link');
 
         $data = [
             'title' => $title,
@@ -72,6 +78,10 @@ class AnnouncementController extends Controller
             'priority' => $priority,
             'status' => $status,
         ];
+
+        if ($hasLinkColumn) {
+            $data['link'] = $link !== '' ? $link : null;
+        }
 
         if ($request->filled('announcement_id')) {
             $announcementId = (int) $request->announcement_id;
@@ -94,6 +104,11 @@ class AnnouncementController extends Controller
                 && trim((string) ($existing->content ?? '')) === $content
                 && strtoupper(trim((string) ($existing->priority ?? ''))) === $priority
                 && strtoupper(trim((string) ($existing->status ?? ''))) === $status;
+
+            if ($hasLinkColumn) {
+                $isNoChange = $isNoChange
+                    && trim((string) ($existing->link ?? '')) === ($link !== '' ? $link : '');
+            }
 
             if ($isNoChange) {
                 if ($request->expectsJson() || $request->ajax()) {
@@ -164,14 +179,22 @@ class AnnouncementController extends Controller
 
     public function saveNews(Request $request)
     {
-        $request->validate([
+        $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
+
+        $rules = [
             'news_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:255'],
             'content' => ['required', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:255'],
             'image' => ['nullable', 'image', 'max:5120'],
-        ]);
+        ];
+
+        if ($hasNewsLinkColumn) {
+            $rules['link'] = ['nullable', 'url', 'max:255'];
+        }
+
+        $request->validate($rules);
 
         $newsId = (int) $request->input('news_id', 0);
 
@@ -187,6 +210,7 @@ class AnnouncementController extends Controller
         $incomingContent = RichText::sanitize($request->input('content'));
         $incomingCategory = trim((string) $request->input('category'));
         $incomingLocation = trim((string) $request->input('location'));
+        $incomingLink = trim((string) $request->input('link'));
         $hasNewImage = $request->hasFile('image');
 
         if ($newsId > 0) {
@@ -195,6 +219,11 @@ class AnnouncementController extends Controller
                 && trim((string) ($existing->content ?? '')) === $incomingContent
                 && trim((string) ($existing->category ?? '')) === $incomingCategory
                 && trim((string) ($existing->location ?? '')) === $incomingLocation;
+
+            if ($hasNewsLinkColumn) {
+                $isNoChange = $isNoChange
+                    && trim((string) ($existing->link ?? '')) === ($incomingLink !== '' ? $incomingLink : '');
+            }
 
             if ($isNoChange) {
                 return response()->json([
@@ -205,7 +234,8 @@ class AnnouncementController extends Controller
             }
         }
 
-        $imagePath = $existing->image_path ?? null;
+        $imagePath = $existing ? $existing->image_path : null;
+
         if ($hasNewImage) {
             $imagePath = $request->file('image')->store('news', 'public');
         }
@@ -219,14 +249,13 @@ class AnnouncementController extends Controller
             'date_published' => now(),
         ];
 
+        if ($hasNewsLinkColumn) {
+            $data['link'] = $incomingLink !== '' ? $incomingLink : null;
+        }
+
         if ($newsId > 0) {
             DB::table('news')->where('news_id', $newsId)->update($data);
-            $this->logActivity(
-                'UPDATED',
-                'NEWS',
-                $newsId,
-                'Updated news: '.$incomingTitle
-            );
+            $this->logActivity('UPDATED', 'NEWS', $newsId, 'Updated news: '.$incomingTitle);
         } else {
             $data['created_at'] = now();
             $data['priority'] = 'MEDIUM';
@@ -234,12 +263,7 @@ class AnnouncementController extends Controller
             $data['created_by'] = (int) (session('user_id') ?? 0);
 
             $newId = DB::table('news')->insertGetId($data, 'news_id');
-            $this->logActivity(
-                'CREATED',
-                'NEWS',
-                (int) $newId,
-                'Created news: '.$incomingTitle
-            );
+            $this->logActivity('CREATED', 'NEWS', (int) $newId, 'Created news: '.$incomingTitle);
         }
 
         return response()->json([
