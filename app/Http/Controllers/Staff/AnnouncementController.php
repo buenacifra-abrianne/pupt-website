@@ -206,13 +206,16 @@ $myNews = DB::table('news')
 
     public function requestCreateNews(Request $request)
 {
+    if (!$request->hasFile('image')) {
+        $request->request->remove('image');
+    }
+
     $request->validate([
         'request_id' => ['nullable','integer'],
         'title' => ['required','string','max:255'],
         'content' => ['required','string'],
         'category' => ['required','string','max:100'],
         'location' => ['nullable','string','max:255'],
-        'image' => ['nullable','image','max:5120'], // 5MB
         'existing_image_path' => ['nullable','string'], // ✅ add this
     ]);
 
