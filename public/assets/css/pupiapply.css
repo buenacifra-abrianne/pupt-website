@@ -1,10 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
 
-/* =====================================================
-   PUP iApply — CSS
-   Inherits design tokens from about.css / layout.css
-   ===================================================== */
-
 :root {
   --ia-ink: #1b1716;
   --ia-muted: #675d59;
