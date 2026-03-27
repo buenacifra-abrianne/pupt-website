@@ -37,6 +37,84 @@ body {
   padding-top: var(--pup-header-offset, 0px);
 }
 
+.cards-shell {
+  width: min(1200px, calc(100% - 2rem)) !important;
+  margin-inline: auto;
+}
+
+.page-shell {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.layout-breadcrumb.layout-breadcrumb {
+  max-width: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  justify-content: flex-start;
+  align-self: stretch;
+  justify-self: stretch;
+  margin: 14px 0 8px;
+  padding: 14px 6px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.layout-breadcrumb.layout-breadcrumb::before,
+.layout-kicker.layout-kicker::before {
+  content: "";
+  width: 46px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.layout-kicker.layout-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding-left: 6px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.layout-inset {
+  padding-left: 6px;
+}
+
+.cards-wrap {
+  width: 100% !important;
+  margin-inline: auto;
+  display: grid !important;
+  grid-auto-flow: row !important;
+  grid-auto-columns: auto !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 24px !important;
+  overflow: visible !important;
+  padding: 0 !important;
+  align-items: stretch;
+}
+
+.card {
+  display: block;
+  width: 100%;
+  min-height: 360px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
 .message-button {
   position: fixed !important;
   right: 28px !important;
@@ -251,6 +329,44 @@ body.nav-open .scroll-nav-button {
 
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+@media (max-width: 768px) {
+  .page-shell {
+    padding: 0 12px;
+  }
+
+  .cards-shell {
+    width: min(1200px, calc(100% - 1.5rem)) !important;
+  }
+
+  .cards-wrap {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 16px !important;
+  }
+
+  .card {
+    min-height: 236px;
+  }
+}
+
+@media (max-width: 480px) {
+  .page-shell {
+    padding: 0 10px;
+  }
+
+  .cards-shell {
+    width: min(1200px, calc(100% - 1rem)) !important;
+  }
+
+  .cards-wrap {
+    grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)) !important;
+    gap: 12px !important;
+  }
+
+  .card {
+    min-height: 188px;
+  }
 }
 
 /* ========== Mobile Nav Toggle Button ========== */

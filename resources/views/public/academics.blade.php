@@ -38,16 +38,16 @@
             </section>
         </section>
 
-        <section class="academic-shell">
-            <nav class="academic-breadcrumb reveal" aria-label="Breadcrumb">
+        <section class="academic-shell page-shell">
+            <nav class="academic-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
                 <strong>Academics</strong>
             </nav>
 
             <section class="contents-strip reveal">
-                <div class="contents-strip-head">
-                    <p class="section-tag">Contents</p>
+                <div class="contents-strip-head layout-inset">
+                    <p class="section-tag layout-kicker">Contents</p>
                 </div>
 
             <nav class="contents-cards" aria-label="Academic page contents">
@@ -164,8 +164,8 @@
         </section>
 
         <section class="academic-features reveal">
-            <div class="academic-features-inner">
-                <p class="academic-features-eyebrow">What we offer</p>
+            <div class="academic-features-inner layout-inset">
+                <p class="academic-features-eyebrow layout-kicker">What we offer</p>
                 <div class="academic-features-grid">
                     <div class="academic-feature-card">
                         <div class="academic-feature-card-accent"></div>

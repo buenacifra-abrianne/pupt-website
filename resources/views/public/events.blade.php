@@ -41,8 +41,8 @@
             </section>
         </section>
 
-        <section class="about-shell">
-            <nav class="about-breadcrumb reveal" aria-label="Breadcrumb">
+        <section class="about-shell page-shell">
+            <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
                 @if($selectedSection)
@@ -86,8 +86,8 @@
         <section class="contents-strip reveal">
 
                 <section class>
-                    <div class="contents-strip-head">
-                        <p class="section-tag">Scheduled Events</p>
+                    <div class="contents-strip-head layout-inset">
+                        <p class="section-tag layout-kicker">Scheduled Events</p>
                     </div>
 
             <div class="ne-events-columns">

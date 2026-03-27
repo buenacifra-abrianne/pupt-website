@@ -104,8 +104,8 @@ TEXT;
             </section>
         </section>
 
-        <section class="about-shell">
-            <nav class="about-breadcrumb reveal" aria-label="Breadcrumb">
+        <section class="about-shell page-shell">
+            <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
                 @if($selectedSection)
@@ -140,12 +140,12 @@ TEXT;
 
             @unless($selectedSection)
                 <section class="contents-strip reveal">
-                    <div class="contents-strip-head">
-                        <p class="section-tag">Contents</p>
-                        <h2>All about the campus</h2>
-                    </div>
+                        <div class="contents-strip-head layout-inset">
+                            <p class="section-tag layout-kicker">Contents</p>
+                            <h2>All about the campus</h2>
+                        </div>
 
-                    <nav class="contents-cards" aria-label="About page contents">
+                        <nav class="contents-cards" aria-label="About page contents">
                         @foreach($sections as $section)
                             <a
                                 href="{{ route('public.about.section', $section['slug']) }}"
@@ -171,7 +171,7 @@ TEXT;
                                 </div>
                             </a>
                         @endforeach
-                    </nav>
+                        </nav>
                 </section>
             @endunless
 
@@ -183,7 +183,7 @@ TEXT;
                                 <div class="history-timeline-container reveal">
                                     <div class="history-timeline-shell">
                                         <div class="history-timeline-head reveal delay-100">
-                                            <p class="history-kicker">Campus Timeline</p>
+                                            <p class="history-kicker layout-kicker">Campus Timeline</p>
                                             <h4>How PUP Taguig has evolved over the years</h4>
                                         </div>
 
@@ -233,8 +233,8 @@ TEXT;
                     @else
                         <article class="about-section-card reveal">
                             <div class="section-heading-row">
-                                <div>
-                                    <p class="section-tag">Section {{ $selectedSection['number'] }}</p>
+                                <div class="layout-inset">
+                                    <p class="section-tag layout-kicker">Section {{ $selectedSection['number'] }}</p>
                                     <h2>{{ $selectedSection['label'] }}</h2>
                                 </div>
 

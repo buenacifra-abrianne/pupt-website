@@ -131,106 +131,108 @@
       </section>
     </section>
 
-    <section class="updates-section reveal">
-      <div class="section-heading updates-heading reveal">
-          <p class="section-tag">Home</p>
+      <section class="updates-section reveal">
+        <div class="section-heading layout-inset updates-heading reveal">
+          <p class="section-tag layout-kicker">Home</p>
           <h2>Campus Updates</h2>
-      </div>
+          <p class="updates-heading-copy">Check out the latest events, news and updates of our Sintang Paaralan!</p>
+        </div>
 
       <div class="updates-shared-shell">
-        <div class="updates-shared-group reveal delay-100">
-          <div class="panel-header">
-            <h3>NEWS</h3>
-          </div>
+        <div class="updates-shared-group news-contents-strip reveal delay-100">
+          <div class="cards-shell">
+            <div class="panel-header contents-strip-head">
+              <h3>NEWS</h3>
+            </div>
 
-          <div class="updates-cards-row news-cards-row">
+            <div class="updates-cards-row news-cards-row contents-cards">
               @forelse($newsFeed as $n)
               @php
                 $storyDate = \Carbon\Carbon::parse($n->date_published ?? $n->created_at)->format('F d, Y');
                 $storyImage = \App\Support\NewsImage::url($n->image_path, 'assets/static_img/pupillar.jpeg');
               @endphp
 
-              <article class="news-mini-card">
-                <div class="news-mini-card-inner">
-                  <div class="news-mini-card-front">
+              <article class="news-mini-card contents-card">
+                <div class="news-mini-card-inner contents-card-inner">
+                  <div class="news-mini-card-front contents-card-front">
                     <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
-                    <div class="news-mini-card-copy">
-                      <time>{{ $storyDate }}</time>
+                    <div class="news-mini-card-copy contents-card-copy">
+                      <time class="news-mini-card-number contents-card-number">{{ $storyDate }}</time>
                       <h4>{{ e($n->title) }}</h4>
                     </div>
                   </div>
 
-                  <div class="news-mini-card-back">
-                    <div class="updates-card-overlay-copy">
-                      <time>{{ $storyDate }}</time>
+                  <div class="news-mini-card-back contents-card-back">
+                    <div class="updates-card-overlay-copy contents-card-overlay-copy">
+                      <time class="contents-card-number">{{ $storyDate }}</time>
                       <h4>{{ e($n->title) }}</h4>
                       <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
                     </div>
-                    <a href="{{ route('public.events') }}" class="updates-card-action">Read more</a>
+                    <a href="{{ route('public.events') }}" class="updates-card-action contents-card-action">Read more</a>
                   </div>
                 </div>
               </article>
 
-              @if($loop->last)
-                <a href="{{ route('public.events') }}" class="updates-view-all-card">
-                  <span class="updates-view-all-card-label">Newsroom</span>
-                  <strong>View all</strong>
-                  <p>See the full list of campus news and event stories.</p>
-                </a>
-              @endif
             @empty
-              <article class="announcement-item empty-state mini-empty-state">
-                <h4>No published news yet</h4>
-                <p>Campus stories will appear here once they are published.</p>
+              <article class="announcement-item empty-state mini-empty-state news-empty-state">
+                <span class="empty-state-icon" aria-hidden="true">
+                  <span class="empty-state-icon-cancel">×</span>
+                </span>
+                <h4>NO NEWS PUBLISHED</h4>
               </article>
             @endforelse
+            </div>
           </div>
         </div>
 
-        <div class="updates-shared-group reveal delay-200">
-          <div class="panel-header">
-            <h3>ANNOUNCEMENTS</h3>
-          </div>
+        <div class="updates-shared-group announcements-panel reveal delay-200">
+          <div class="cards-shell">
+            <div class="panel-header">
+              <h3>ANNOUNCEMENTS</h3>
+            </div>
 
-          <div class="updates-cards-row announcements-cards-row">
-            @forelse($priorityAnnouncementFeed as $a)
-              @php
-                $announcementDate = \Carbon\Carbon::parse($a->date_published ?? $a->created_at)->format('F d, Y');
-              @endphp
+            <div class="updates-cards-row announcements-cards-row">
+              @forelse($priorityAnnouncementFeed as $a)
+                @php
+                  $announcementDate = \Carbon\Carbon::parse($a->date_published ?? $a->created_at)->format('F d, Y');
+                @endphp
 
-              <article class="announcement-item announcement-mini-card">
-                <time>{{ $announcementDate }}</time>
-                <h4>{{ e($a->title) }}</h4>
-                <p>{{ \App\Support\RichText::excerpt($a->content, 140) }}</p>
+                <article class="announcement-item announcement-mini-card">
+                  <time>{{ $announcementDate }}</time>
+                  <h4>{{ e($a->title) }}</h4>
+                  <p>{{ \App\Support\RichText::excerpt($a->content, 140) }}</p>
 
-                @if(!empty($a->link))
-                  <button
-                    type="button"
-                    class="announcement-read-more"
-                    data-advisory-modal="true"
-                    data-title="{{ e($a->title) }}"
-                    data-date="{{ e($announcementDate) }}"
-                    data-content="{{ e(\App\Support\RichText::plainText($a->content)) }}"
-                    data-link="{{ e($a->link) }}"
-                  >
-                    Open advisory
-                  </button>
-                @endif
-              </article>
-            @empty
-              <article class="announcement-item empty-state mini-empty-state">
-                <h4>No high priority announcements yet</h4>
-                <p>High priority campus announcements will appear here once they are published.</p>
-              </article>
-            @endforelse
+                  @if(!empty($a->link))
+                    <button
+                      type="button"
+                      class="announcement-read-more"
+                      data-advisory-modal="true"
+                      data-title="{{ e($a->title) }}"
+                      data-date="{{ e($announcementDate) }}"
+                      data-content="{{ e(\App\Support\RichText::plainText($a->content)) }}"
+                      data-link="{{ e($a->link) }}"
+                    >
+                      Open advisory
+                    </button>
+                  @endif
+                </article>
+              @empty
+                <article class="announcement-item empty-state mini-empty-state announcement-empty-state">
+                  <span class="empty-state-icon" aria-hidden="true">
+                    <span class="empty-state-icon-cancel">×</span>
+                  </span>
+                  <h4>NO ANNOUNCEMENT PUBLISHED</h4>
+                </article>
+              @endforelse
+            </div>
           </div>
         </div>
       </div>
     </section>
 
     <section class="quick-links reveal">
-      <div class="section-heading">
-        <p class="section-tag">Explore</p>
+      <div class="section-heading layout-inset">
+        <p class="section-tag layout-kicker">Explore</p>
         <h2>Navigate the campus experience.</h2>
       </div>
 
@@ -269,8 +271,8 @@
     </div>
 
     <section class="feedback-banner reveal">
-      <div>
-        <p class="section-tag">Feedback</p>
+      <div class="layout-inset">
+        <p class="section-tag layout-kicker">Feedback</p>
         <h2>Help improve the public experience</h2>
         <p>Share questions, issues, or suggestions through the campus feedback form.</p>
       </div>

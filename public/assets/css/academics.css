@@ -256,7 +256,7 @@ body {
   margin-left: -50vw;
   margin-right: -50vw;
   margin-top: 0;
-  padding: 40px clamp(24px, 4.2vw, 64px);
+  padding: 40px 24px;
   border-top: 1px solid rgba(25, 25, 25, 0.1);
   border-bottom: 1px solid rgba(25, 25, 25, 0.1);
   border-left: none;
@@ -379,7 +379,6 @@ body {
   width: 100%;
   max-width: none;
   margin: 0 auto 0;
-  padding: 0 24px;
   display: grid;
   gap: 10px;
   justify-items: center;
@@ -631,7 +630,7 @@ body {
   align-items: flex-start;
   justify-content: flex-start;
   gap: 8px;
-  background: linear-gradient(180deg, rgba(161, 29, 35, 0.96) 0%, rgba(127, 17, 19, 0.94) 52%, rgba(63, 7, 11, 0.98) 100%);
+  background: var(--academic-maroon);
   z-index: 2;
   transition: opacity 0.28s ease, transform 0.35s ease;
 }
@@ -972,7 +971,6 @@ pup-footer .footer {
   .academic-shell {
     width: 100%;
     margin-top: 18px;
-    padding: 0 12px;
     gap: 16px;
   }
 
@@ -1061,7 +1059,7 @@ pup-footer .footer {
 
   /* Feature cards */
   .academic-features {
-    padding: 16px 14px;
+    padding: 16px 12px;
   }
 
   .academic-features-grid {
@@ -1097,10 +1095,6 @@ pup-footer .footer {
 
 /* ===== RESPONSIVE: 480px ===== */
 @media (max-width: 480px) {
-  .academic-shell {
-    padding: 0 10px;
-  }
-
   .carousel,
   .carousel-stage,
   .carousel-half {

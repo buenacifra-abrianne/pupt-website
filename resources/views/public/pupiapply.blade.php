@@ -24,8 +24,8 @@
     <main class="main-content">
 
         {{-- Breadcrumb --}}
-        <div class="academic-shell">
-            <nav class="academic-breadcrumb reveal" aria-label="Breadcrumb">
+        <div class="academic-shell page-shell">
+            <nav class="academic-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
                 <a href="{{ route('public.academics') }}">Academics</a>
@@ -75,7 +75,7 @@
         {{-- Schedule Strip --}}
         <div class="iapply-schedule-strip reveal delay-100">
             <div class="iapply-schedule-head">
-                <span class="section-tag">Schedule &amp; Key Dates</span>
+                <span class="section-tag layout-kicker">Schedule &amp; Key Dates</span>
                 <h2>Branch Campus — Taguig City</h2>
             </div>
 
@@ -106,7 +106,7 @@
 
             {{-- Step-by-step Guide --}}
             <div class="iapply-section-card reveal delay-100">
-                <span class="section-tag">How to Apply</span>
+                <span class="section-tag layout-kicker">How to Apply</span>
                 <h2>Step-by-step CAEPUP Application Guide</h2>
                 <p>
                     Online application for the College Admission Evaluation of PUP <strong>#CAEPUP</strong>
@@ -128,7 +128,7 @@
 
             {{-- Important Reminders --}}
             <div class="iapply-section-card reveal delay-200">
-                <span class="section-tag">Before You Apply</span>
+                <span class="section-tag layout-kicker">Before You Apply</span>
                 <h2>Important — Please Read Carefully</h2>
 
                 <div class="iapply-notice">
