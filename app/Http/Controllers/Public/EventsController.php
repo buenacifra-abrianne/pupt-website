@@ -8,6 +8,10 @@ class EventsController extends Controller
 {
     public function index()
     {
-        return view('public.events');
+        return view('public.events', [
+            'selectedSection'        => null,
+            'campusStoryDescription' => '',
+            'homeCms'                => [],
+        ]);
     }
 }
