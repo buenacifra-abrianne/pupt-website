@@ -28,13 +28,37 @@
 html,
 body {
   overflow-x: hidden;
+  min-height: 100%;
 }
 
 body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
   line-height: 1.6;
   color: var(--text-color);
   background-color: var(--light-bg);
   padding-top: var(--pup-header-offset, 0px);
+}
+
+pup-header,
+pup-footer {
+  display: block;
+  width: 100%;
+}
+
+body > .main-content {
+  flex: 1 0 auto;
+  min-height: 0;
+}
+
+pup-footer {
+  margin-top: auto;
+}
+
+pup-footer .footer {
+  margin-top: 0;
 }
 
 .cards-shell {
