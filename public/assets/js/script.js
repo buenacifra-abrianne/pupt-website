@@ -154,10 +154,20 @@ function initGlobalRevealTargets() {
     "main .page-section",
     "main .cards-container",
     "main .campus-story-block",
+    "main .history-story-inner > .history-timeline-container",
+    "main .history-timeline-shell > .history-timeline-head",
+    "main .history-timeline-grid > .history-timeline-row",
+    "main .contents-cards > .contents-card",
     "main .updates-shared-group",
     "main .announcement-item",
     "main .news-mini-card",
     "main .quick-link-card",
+    "main .feedback-banner",
+    "main .event-item",
+    "main .ords-card",
+    "main .ords-footer",
+    "main .iapply-section-card",
+    "main .card",
   ].join(", ");
 
   document.querySelectorAll(candidateSelector).forEach((el) => {
@@ -236,6 +246,52 @@ function initReadMore() {
 
       content.classList.toggle("open");
       btn.textContent = content.classList.contains("open") ? "Read Less" : "Read More";
+    });
+  });
+}
+
+function initHistoryTimelineToggles() {
+  document.querySelectorAll(".history-timeline-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".history-timeline-card");
+      const content = card?.querySelector(".history-timeline-more");
+      if (!card || !content) return;
+
+      const cardTopBefore = card.getBoundingClientRect().top;
+      const shouldOpen = !card.classList.contains("is-open");
+
+      card.classList.toggle("is-open", shouldOpen);
+      content.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
+      btn.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      btn.setAttribute("aria-label", shouldOpen ? `Collapse ${card.querySelector("h5")?.textContent || "timeline details"}` : `Read more about ${card.querySelector("h5")?.textContent || "timeline details"}`);
+
+      const iconPath = btn.querySelector("path");
+      if (iconPath) {
+        iconPath.setAttribute(
+          "d",
+          shouldOpen
+            ? "M12 5.2 4.6 12.6l1.4 1.4 5-5v9h2v-9l5 5 1.4-1.4L12 5.2Z"
+            : "m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"
+        );
+      }
+
+      requestAnimationFrame(() => {
+        const cardTopAfter = card.getBoundingClientRect().top;
+        const scrollDelta = cardTopAfter - cardTopBefore;
+
+        if (Math.abs(scrollDelta) > 1) {
+          window.scrollTo({
+            top: window.scrollY + scrollDelta,
+            behavior: "auto",
+          });
+        }
+
+        try {
+          btn.focus({ preventScroll: true });
+        } catch {
+          btn.focus();
+        }
+      });
     });
   });
 }
@@ -351,6 +407,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Extras
   initNewsDragScroll();
   initReadMore();
+  initHistoryTimelineToggles();
   initMessageButton();
   initScrollNavButtons();
 });
