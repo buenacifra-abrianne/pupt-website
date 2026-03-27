@@ -252,8 +252,7 @@ body {
   width: 100%;
   padding: 52px 24px 60px;
   margin-top: 0;
-  background:
-    linear-gradient(180deg, #a11d23 0%, #7f1113 48%, #4f090c 100%);
+  background: linear-gradient(180deg, #a11d23 0%, #7f1113 48%, #4f090c 100%);
   position: relative;
   overflow: hidden;
 }
@@ -285,7 +284,7 @@ body {
 .academic-features-inner {
   position: relative;
   z-index: 1;
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -311,8 +310,25 @@ body {
 
 .academic-features-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+/* The last two cards span into a 2-col centred row */
+.academic-feature-card--row2
+
+.academic-feature-card:nth-child(4) {
+  grid-column: 1 / 2;
+}
+
+.academic-feature-card:nth-child(5) {
+  grid-column: 2 / 3;
+}
+
+/* Override the --wide modifier (no longer needed) */
+.academic-feature-card--wide {
+  grid-column: unset;
+  max-width: none;
 }
 
 .academic-feature-card {
@@ -321,8 +337,8 @@ body {
     rgba(255, 253, 250, 0.98) 0%,
     rgba(247, 239, 232, 0.95) 100%
   );
-  border-radius: 18px;
-  padding: 30px 30px 34px;
+  border-radius: 20px;
+  padding: 40px 28px 32px;
   box-shadow:
     0 8px 32px rgba(18, 3, 4, 0.22),
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
@@ -346,12 +362,7 @@ body {
   right: 0;
   height: 3px;
   background: linear-gradient(90deg, var(--academic-maroon-light), var(--academic-gold));
-  border-radius: 18px 18px 0 0;
-}
-
-.academic-feature-card--wide {
-  grid-column: 1 / -1;
-  max-width: 480px;
+  border-radius: 20px 20px 0 0;
 }
 
 .academic-feature-title {
@@ -377,8 +388,8 @@ body {
 
 .academic-feature-divider {
   border: none;
-  border-top: 1.5px solid rgba(127, 17, 19, 0.14);
-  margin: 0 0 16px;
+  border-top: 1.5px solid rgba(127, 17, 19, 0.12);
+  margin: 0 0 14px;
 }
 
 .academic-feature-card p {
@@ -387,6 +398,48 @@ body {
   font-size: 0.93rem;
   line-height: 1.75;
   font-family: "Poppins", sans-serif;
+}
+
+/* ── Responsive ── */
+@media (max-width: 860px) {
+  .academic-features-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Reset explicit placement for 2-col layout */
+  .academic-feature-card:nth-child(4),
+  .academic-feature-card:nth-child(5) {
+    grid-column: unset;
+  }
+
+  /* 5th card sits normally in 2-col */
+  .academic-feature-card:nth-child(5) {
+    grid-column: unset;
+    max-width: none;
+    justify-self: stretch;
+  }
+}
+
+@media (max-width: 560px) {
+  .academic-features {
+    padding: 36px 16px 44px;
+  }
+
+  .academic-features-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .academic-feature-card:nth-child(4),
+  .academic-feature-card:nth-child(5) {
+    grid-column: unset;
+    max-width: none;
+    justify-self: stretch;
+  }
+
+  .academic-feature-card {
+    padding: 22px 20px 26px;
+  }
 }
 
 /* ===== ACADEMIC SHELL (breadcrumb, contents, sections) ===== */
