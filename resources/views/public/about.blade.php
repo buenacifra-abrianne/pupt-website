@@ -71,53 +71,56 @@ TEXT;
                             <div class="campus-story-copy">
                                 <p class="campus-story-tag">Campus Story</p>
                                 <h2>{{ $homeCms['campus_title'] ?? 'PUP Taguig Campus' }}</h2>
-                                <div class="campus-story-description">
-                                    <p>{!! nl2br(e($campusStoryDescription)) !!}</p>
-                                </div>
                             </div>
 
                             <div class="campus-story-visual">
                                 <img src="{{ asset('assets/static_img/about-pup.png') }}" alt="PUP Taguig Campus">
+                            </div>
+
+                            <div class="campus-story-description">
+                                <p>{!! nl2br(e($campusStoryDescription)) !!}</p>
                             </div>
                         </div>
                     </div>
                 </section>
             @endunless
 
-            <section class="contents-strip reveal">
-                <div class="contents-strip-head">
-                    <p class="section-tag">Contents</p>
-                    <h2>{{ $selectedSection ? 'Open another section.' : 'All about the campus' }}</h2>
-                </div>
+            @unless($selectedSection)
+                <section class="contents-strip reveal">
+                    <div class="contents-strip-head">
+                        <p class="section-tag">Contents</p>
+                        <h2>All about the campus</h2>
+                    </div>
 
-                <nav class="contents-cards" aria-label="About page contents">
-                    @foreach($sections as $section)
-                        <a
-                            href="{{ route('public.about.section', $section['slug']) }}"
-                            class="contents-card{{ $selectedSection && $selectedSection['slug'] === $section['slug'] ? ' active' : '' }}"
-                        >
-                            <div class="contents-card-inner">
-                                <div class="contents-card-front">
-                                    <img src="{{ asset('assets/static_img/' . ($section['image'] ?? 'pupillar.jpeg')) }}" alt="{{ $section['label'] }}">
-                                    <div class="contents-card-copy">
-                                        <span class="contents-card-number">Section {{ $section['number'] }}</span>
-                                        <h3>{{ $section['label'] }}</h3>
+                    <nav class="contents-cards" aria-label="About page contents">
+                        @foreach($sections as $section)
+                            <a
+                                href="{{ route('public.about.section', $section['slug']) }}"
+                                class="contents-card"
+                            >
+                                <div class="contents-card-inner">
+                                    <div class="contents-card-front">
+                                        <img src="{{ asset('assets/static_img/' . ($section['image'] ?? 'pupillar.jpeg')) }}" alt="{{ $section['label'] }}">
+                                        <div class="contents-card-copy">
+                                            <span class="contents-card-number">Section {{ $section['number'] }}</span>
+                                            <h3>{{ $section['label'] }}</h3>
+                                        </div>
+                                    </div>
+
+                                    <div class="contents-card-back">
+                                        <div class="contents-card-overlay-copy">
+                                            <span class="contents-card-number">Section {{ $section['number'] }}</span>
+                                            <h3>{{ $section['label'] }}</h3>
+                                            <p>{{ $section['summary'] }}</p>
+                                        </div>
+                                        <span class="contents-card-action">See more</span>
                                     </div>
                                 </div>
-
-                                <div class="contents-card-back">
-                                    <div class="contents-card-overlay-copy">
-                                        <span class="contents-card-number">Section {{ $section['number'] }}</span>
-                                        <h3>{{ $section['label'] }}</h3>
-                                        <p>{{ $section['summary'] }}</p>
-                                    </div>
-                                    <span class="contents-card-action">See more</span>
-                                </div>
-                            </div>
-                        </a>
-                    @endforeach
-                </nav>
-            </section>
+                            </a>
+                        @endforeach
+                    </nav>
+                </section>
+            @endunless
 
             @if($selectedSection)
                 <section class="about-sections">

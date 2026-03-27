@@ -225,7 +225,7 @@ body {
   width: 100%;
   margin: 0;
   min-height: 360px;
-  padding: 28px 460px 28px 28px;
+  padding: 40px 460px 40px clamp(24px, 4.2vw, 64px);
   border-radius: 0;
   background: linear-gradient(180deg, var(--about-maroon-light) 0%, var(--about-maroon) 48%, var(--about-maroon-deep) 100%);
   color: #fffaf4;
@@ -235,6 +235,8 @@ body {
 
 .campus-story-layout {
   display: block;
+  width: min(1240px, 100%);
+  margin: 0 auto;
 }
 
 .campus-story-copy {
@@ -309,12 +311,14 @@ body {
   max-width: none;
   margin-left: calc(50% - 50vw);
   margin-right: calc(50% - 50vw);
-  margin-top: -20px;
-  padding: 74px 32px 28px;
-  border-radius: 26px;
+  margin-top: 0;
+  padding: 40px clamp(24px, 4.2vw, 64px);
+  border-radius: 0;
   background:
     linear-gradient(135deg, rgba(255, 247, 237, 0.96) 0%, rgba(247, 239, 232, 0.92) 54%, rgba(215, 170, 67, 0.16) 100%);
-  box-shadow: var(--about-shadow);
+  border-top: 1px solid var(--about-line);
+  border-bottom: 1px solid var(--about-line);
+  box-shadow: none;
   position: relative;
   z-index: 1;
 }
@@ -342,7 +346,7 @@ body {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(260px, 310px);
-  gap: 18px;
+  gap: 16px;
   overflow-x: auto;
   padding: 4px 2px 10px;
   scrollbar-width: thin;
@@ -707,28 +711,24 @@ pup-footer .footer {
 }
 
 @media (max-width: 900px) {
-  .about-intro {
-    width: 100%;
-    margin: 12px 0 0;
-    padding: 0;
+  .campus-story-card {
+    min-height: 0;
+    padding: 32px 320px 32px 24px;
   }
 
-  .campus-story-layout {
-    display: grid;
-    gap: 18px;
+  .campus-story-copy {
+    padding-left: 0;
   }
 
   .campus-story-visual {
-    position: static;
-    width: 100%;
-    max-width: 220px;
-    transform: none;
-    border-radius: 18px;
+    top: -20px;
+    bottom: -56px;
+    right: 24px;
+    width: 260px;
   }
 
-  .campus-story-card {
-    min-height: 0;
-    padding: 22px;
+  .campus-story-visual img {
+    min-height: 440px;
   }
 
   .carousel-stage,
@@ -754,20 +754,40 @@ pup-footer .footer {
     gap: 16px;
   }
 
-  .about-intro,
-  .contents-strip,
-  .about-section-card {
-    padding: 18px;
-    border-radius: 20px;
-  }
-
   .about-intro {
     padding: 0;
   }
 
   .campus-story-card {
     margin: 0;
-    border-radius: 0;
+    padding: 24px 20px;
+    overflow: hidden;
+  }
+
+  .campus-story-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(120px, 180px);
+    grid-template-areas:
+      "copy visual"
+      "description description";
+    gap: 16px;
+    align-items: start;
+  }
+
+  .campus-story-copy {
+    align-self: start;
+  }
+
+  .campus-story-description {
+    padding: 18px;
+    border-radius: 20px;
+  }
+
+  .campus-story-visual {
+    border-radius: 18px;
+  }
+
+  .campus-story-visual img {
+    min-height: 220px;
   }
 
   .carousel,
@@ -795,23 +815,56 @@ pup-footer .footer {
   }
 
   .contents-strip {
-    width: calc(100vw - 24px);
-    margin-left: calc(50% - 50vw + 12px);
-    margin-right: calc(50% - 50vw + 12px);
-    padding: 20px 18px;
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 28px 20px;
   }
 
   .contents-cards {
-    grid-auto-columns: minmax(220px, 250px);
+    grid-auto-columns: minmax(188px, 212px);
     gap: 12px;
   }
 
-  .campus-story-visual img {
-    height: 170px;
+  .contents-card {
+    height: 236px;
+    border-radius: 18px;
   }
 
-  .contents-card {
-    height: 300px;
+  .contents-card-front,
+  .contents-card-back {
+    border-radius: 18px;
+  }
+
+  .contents-card-copy {
+    min-height: 74px;
+    padding: 12px 12px 14px;
+    gap: 6px;
+  }
+
+  .contents-card-number {
+    font-size: 0.72rem;
+  }
+
+  .contents-card-copy h3,
+  .contents-card-back h3 {
+    font-size: 0.95rem;
+    line-height: 1.22;
+  }
+
+  .contents-card-back {
+    padding: 12px;
+  }
+
+  .contents-card-overlay-copy p {
+    font-size: 0.74rem;
+    line-height: 1.42;
+  }
+
+  .contents-card-action {
+    min-height: 36px;
+    padding: 0 12px;
+    font-size: 0.76rem;
   }
 
   .about-breadcrumb {
@@ -845,6 +898,23 @@ pup-footer .footer {
     font-size: 1.35rem;
   }
 
+  .campus-story-card {
+    padding: 20px 12px;
+  }
+
+  .campus-story-layout {
+    grid-template-columns: minmax(0, 1fr) minmax(96px, 132px);
+    gap: 12px;
+  }
+
+  .campus-story-description {
+    padding: 14px 12px;
+  }
+
+  .campus-story-visual img {
+    min-height: 180px;
+  }
+
   .carousel-caption h2 {
     font-size: 1.35rem;
     max-width: 11ch;
@@ -863,6 +933,32 @@ pup-footer .footer {
   }
 
   .contents-cards {
-    grid-auto-columns: minmax(200px, 220px);
+    grid-auto-columns: minmax(168px, 188px);
+    gap: 10px;
+  }
+
+  .contents-card {
+    min-height: 188px;
+    height: 188px;
+  }
+
+  .contents-card-copy,
+  .contents-card-back {
+    padding: 10px;
+  }
+
+  .contents-card-copy h3,
+  .contents-card-back h3 {
+    font-size: 0.8rem;
+    line-height: 1.18;
+  }
+
+  .contents-card-overlay-copy p {
+    font-size: 0.7rem;
+    line-height: 1.32;
+  }
+
+  .contents-card-action {
+    font-size: 0.72rem;
   }
 }
