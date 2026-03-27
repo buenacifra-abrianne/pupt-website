@@ -171,7 +171,7 @@ body {
 .academic-intro-text {
   width: 100%;
   padding: 0 24px;
-  margin: 40px auto 40px;;
+  margin: 40px auto 40px;
 }
 
 .academic-intro-text-inner {
@@ -249,197 +249,129 @@ body {
 
 /* ===== ACADEMIC FEATURE CARDS SECTION ===== */
 .academic-features {
-  width: 100%;
-  padding: 52px 24px 60px;
-  margin-top: 0;
-  background: linear-gradient(180deg, #a11d23 0%, #7f1113 48%, #4f090c 100%);
+  width: 100vw;
   position: relative;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
+  margin-top: 0;
+  padding: 40px clamp(24px, 4.2vw, 64px);
+  border-top: 1px solid rgba(25, 25, 25, 0.1);
+  border-bottom: 1px solid rgba(25, 25, 25, 0.1);
+  border-left: none;
+  border-right: none;
+  border-radius: 0;
+  background:
+    linear-gradient(180deg, rgba(83, 8, 14, 0.62) 0%, rgba(105, 10, 18, 0.66) 100%),
+    url("/assets/static_img/bird_eye_bg_red.jpg") center top/280px auto repeat;
   overflow: hidden;
-}
-
-.academic-features::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: radial-gradient(
-    ellipse at 80% 20%,
-    rgba(215, 170, 67, 0.14) 0%,
-    transparent 55%
-  );
-  pointer-events: none;
-}
-
-.academic-features::after {
-  content: "";
-  position: absolute;
-  bottom: -60px;
-  left: -40px;
-  width: 340px;
-  height: 340px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.03) 0%, transparent 70%);
-  pointer-events: none;
 }
 
 .academic-features-inner {
   position: relative;
   z-index: 1;
-  max-width: 1200px;
-  margin: 0 auto;
+  max-width: none;
+  margin: 0;
 }
 
 .academic-features-eyebrow {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 28px;
-  color: rgba(255, 241, 231, 0.7);
-  font-size: 0.75rem;
+  margin-bottom: 14px;
+  color: #f2c94c;
+  font-size: 0.78rem;
   font-weight: 800;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 
 .academic-features-eyebrow::before {
   content: "";
-  width: 24px;
+  width: 34px;
   height: 1px;
   background: currentColor;
-  opacity: 0.7;
+  opacity: 0.55;
 }
 
 .academic-features-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 22px;
 }
 
-/* The last two cards span into a 2-col centred row */
-.academic-feature-card--row2
-
-.academic-feature-card:nth-child(4) {
-  grid-column: 1 / 2;
-}
-
-.academic-feature-card:nth-child(5) {
-  grid-column: 2 / 3;
-}
-
-/* Override the --wide modifier (no longer needed) */
+/* Remove orphan row logic — 5 equal columns */
+.academic-feature-card:nth-child(4),
+.academic-feature-card:nth-child(5),
 .academic-feature-card--wide {
   grid-column: unset;
   max-width: none;
+  justify-self: stretch;
+  width: 100%;
 }
 
 .academic-feature-card {
-  background: linear-gradient(
-    160deg,
-    rgba(255, 253, 250, 0.98) 0%,
-    rgba(247, 239, 232, 0.95) 100%
-  );
-  border-radius: 20px;
-  padding: 40px 28px 32px;
-  box-shadow:
-    0 8px 32px rgba(18, 3, 4, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
-  border: 1px solid rgba(255, 241, 231, 0.15);
-  transition: transform 0.26s ease, box-shadow 0.26s ease;
   position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-height: 220px;
+  padding: 26px 26px 58px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94) 0%, rgba(247, 239, 232, 0.96) 100%);
+  border: 1px solid rgba(127, 17, 19, 0.08);
+  color: #191919;
+  box-sizing: border-box;
   overflow: hidden;
+  transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
 .academic-feature-card:hover {
-  transform: translateY(-4px);
-  box-shadow:
-    0 16px 44px rgba(18, 3, 4, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  transform: translateY(-3px);
+  border-color: rgba(127, 17, 19, 0.22);
+  box-shadow: 0 18px 30px rgba(79, 9, 12, 0.08);
 }
 
+.academic-feature-card:hover::after {
+  transform: translateX(4px);
+}
+
+/* Accent bar hidden */
 .academic-feature-card-accent {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--academic-maroon-light), var(--academic-gold));
-  border-radius: 20px 20px 0 0;
+  display: none;
 }
 
-.academic-feature-title {
+/* ===== FIX: Override home CSS h3 rule with high specificity ===== */
+.academic-feature-card h3.academic-feature-title {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 12px;
-  color: var(--academic-maroon);
-  font-size: 1rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  margin-bottom: 12px !important;
+  margin-block-start: 0 !important;
+  margin-block-end: 12px !important;
+  color: var(--academic-maroon) !important;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-}
-
-.academic-feature-dot {
-  display: inline-block;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, var(--academic-maroon-light), var(--academic-gold));
-  flex-shrink: 0;
 }
 
 .academic-feature-divider {
   border: none;
-  border-top: 1.5px solid rgba(127, 17, 19, 0.12);
+  border-top: 1.5px solid rgba(127, 17, 19, 0.10);
   margin: 0 0 14px;
 }
 
-.academic-feature-card p {
+/* ===== FIX: Override home CSS p rule ===== */
+.academic-features .academic-feature-card p {
   margin: 0;
-  color: var(--academic-muted);
-  font-size: 0.93rem;
-  line-height: 1.75;
-  font-family: "Poppins", sans-serif;
-}
-
-/* ── Responsive ── */
-@media (max-width: 860px) {
-  .academic-features-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  /* Reset explicit placement for 2-col layout */
-  .academic-feature-card:nth-child(4),
-  .academic-feature-card:nth-child(5) {
-    grid-column: unset;
-  }
-
-  /* 5th card sits normally in 2-col */
-  .academic-feature-card:nth-child(5) {
-    grid-column: unset;
-    max-width: none;
-    justify-self: stretch;
-  }
-}
-
-@media (max-width: 560px) {
-  .academic-features {
-    padding: 36px 16px 44px;
-  }
-
-  .academic-features-grid {
-    grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .academic-feature-card:nth-child(4),
-  .academic-feature-card:nth-child(5) {
-    grid-column: unset;
-    max-width: none;
-    justify-self: stretch;
-  }
-
-  .academic-feature-card {
-    padding: 22px 20px 26px;
-  }
+  color: var(--academic-muted) !important;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 0.97rem !important;
+  line-height: 1.85 !important;
 }
 
 /* ===== ACADEMIC SHELL (breadcrumb, contents, sections) ===== */
@@ -987,6 +919,13 @@ pup-footer .footer {
   margin-top: 0;
 }
 
+/* ===== RESPONSIVE: 1100px ===== */
+@media (max-width: 1100px) {
+  .academic-features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* ===== RESPONSIVE: 900px ===== */
 @media (max-width: 900px) {
   .academic-intro {
@@ -1122,20 +1061,37 @@ pup-footer .footer {
 
   /* Feature cards */
   .academic-features {
-    padding: 36px 16px 44px;
+    padding: 16px 14px;
   }
 
   .academic-features-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
-  }
-
-  .academic-feature-card--wide {
-    max-width: 100%;
+    gap: 10px;
   }
 
   .academic-feature-card {
-    padding: 22px 22px 26px;
+    min-height: 0;
+    padding: 16px 14px 34px;
+    border-radius: 16px;
+  }
+
+  /* FIX: Cleaned — removed broken __var__ and duplicate font-size */
+  .academic-feature-card h3.academic-feature-title {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.12em;
+    margin-bottom: 10px !important;
+    margin-block-end: 10px !important;
+  }
+
+  .academic-features .academic-feature-card p {
+    font-size: 0.82rem !important;
+    line-height: 1.45 !important;
+  }
+
+  .academic-feature-card::after {
+    right: 14px;
+    bottom: 12px;
+    font-size: 1rem;
   }
 }
 
@@ -1186,7 +1142,25 @@ pup-footer .footer {
     font-size: 0.88rem;
   }
 
-  .academic-feature-card p {
-    font-size: 0.87rem;
+  /* Feature cards */
+  .academic-features {
+    padding: 14px 10px;
+  }
+
+  .academic-features-grid {
+    gap: 8px;
+  }
+
+  .academic-feature-card {
+    padding: 14px 12px 30px;
+  }
+
+  .academic-feature-card h3.academic-feature-title {
+    font-size: 0.65rem !important;
+  }
+
+  .academic-features .academic-feature-card p {
+    font-size: 0.10rem !important;
+    line-height: 1.38 !important;
   }
 }

@@ -170,41 +170,36 @@
                     <div class="academic-feature-card">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
-                            <span class="academic-feature-dot"></span>QUALITY
+                            QUALITY
                         </h3>
-                        <hr class="academic-feature-divider">
                         <p>Being one of the reputable universities in the country, we always make it to a point that the education given to our students meets the standards of quality and excellence.</p>
                     </div>
                     <div class="academic-feature-card">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
-                            <span class="academic-feature-dot"></span>RELEVANT
+                            RELEVANT
                         </h3>
-                        <hr class="academic-feature-divider">
                         <p>The University, through its various programs, equips its students with learning and skills that are significant and responsive — enabling students to be competitive and very resourceful.</p>
                     </div>
                     <div class="academic-feature-card">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
-                            <span class="academic-feature-dot"></span>FLEXIBLE
+                            FLEXIBLE
                         </h3>
-                        <hr class="academic-feature-divider">
                         <p>Programs that adapt to a student's living condition — especially for the working class. Our Open University and distance learning method goes beyond the physical restrictions of a campus.</p>
                     </div>
                     <div class="academic-feature-card">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
-                            <span class="academic-feature-dot"></span>ACCREDITED
+                            ACCREDITED
                         </h3>
-                        <hr class="academic-feature-divider">
                         <p>Most of our academic courses are accredited by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).</p>
                     </div>
                     <div class="academic-feature-card academic-feature-card--wide">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
-                            <span class="academic-feature-dot"></span>AFFORDABLE
+                            AFFORDABLE
                         </h3>
-                        <hr class="academic-feature-divider">
                         <p>Practicality without sacrificing quality in education. Having the lowest tuition and fees among universities in the Philippines, one can enroll for less than ₱500 per semester in an undergraduate program.</p>
                     </div>
                 </div>
