@@ -274,62 +274,54 @@ class OnePortalController extends Controller
 }
 
     public function logout(Request $request)
-    {
-        $userId = (int) session('user_id', 0);
-        $userName = (string) session('user_name', 'Unknown');
-        $accessToken = session('access_token');
-        $refreshToken = session('refresh_token');
+{
+    $userId = (int) session('user_id', 0);
+    $userName = (string) session('user_name', 'Unknown');
 
-        AuditLog::record(
-            'LOGOUT',
-            'AUTHENTICATION',
-            'User logged out.',
-            $userId,
-            [
-                'user_id' => $userId,
-                'user_name' => $userName,
-                'ip_address' => $request->ip(),
-            ]
-        );
+    AuditLog::record(
+        'LOGOUT',
+        'AUTHENTICATION',
+        'User logged out.',
+        $userId,
+        [
+            'user_id' => $userId,
+            'user_name' => $userName,
+            'ip_address' => $request->ip(),
+        ]
+    );
 
-        $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
-        $clientId = (string) config('services.idp.client_id');
+    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+    $clientId = (string) config('services.idp.client_id');
 
-        $logoutEndpoint = $baseUrl . '/api/v1/auth/logout';
-
+    if ($baseUrl !== '' && $clientId !== '') {
         try {
-            $payload = [
-                'client_id' => $clientId,
-            ];
-
-            // isama lang kung tinatanggap din ng IDP nila
-            if (!empty($accessToken)) {
-                $payload['access_token'] = $accessToken;
-            }
-
-            if (!empty($refreshToken)) {
-                $payload['refresh_token'] = $refreshToken;
-            }
-
-            Http::withoutVerifying()
+            $response = Http::withoutVerifying()
                 ->asJson()
-                ->post($logoutEndpoint, $payload);
+                ->post($baseUrl . '/api/v1/auth/logout', [
+                    'client_id' => $clientId,
+                ]);
+
+            \Log::info('IDP logout response', [
+                'status' => $response->status(),
+                'body' => $response->json() ?? $response->body(),
+                'user_id' => $userId,
+            ]);
         } catch (\Throwable $e) {
             \Log::warning('IDP logout request failed', [
                 'message' => $e->getMessage(),
                 'user_id' => $userId,
             ]);
         }
-
-        // clear local CMS session
-        $request->session()->flush();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
     }
+
+    $request->session()->flush();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
+}
 
     private function redirectByRole($role)
     {
