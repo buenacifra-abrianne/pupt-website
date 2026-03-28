@@ -376,43 +376,56 @@ private function filterUsersPayload(array $payload): array
     $data = $request->validate([
         'first_name' => ['required','string','max:80'],
         'last_name'  => ['required','string','max:80'],
-        'email'      => ['required','email','max:190', Rule::unique('users','email')],
+        'email'      => ['required','email','max:190'],
         'status'     => ['required', Rule::in($validStatus)],
         'roles'      => ['nullable','array'],
         'roles.*'    => ['string','max:80'],
         'role'       => ['nullable','string','max:80'],
     ]);
 
-    $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
+    $normalizedEmail = strtolower(trim((string) $data['email']));
 
-if (empty($requestedRoleCodes)) {
-    return response()->json([
-        'ok' => false,
-        'message' => 'Please select at least one role.'
-    ], 422);
-}
+    $existingUser = DB::table('users')
+        ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
+        ->first();
 
-if ($resp = $this->validateTopLevelRoleMix($requestedRoleCodes)) {
-    return $resp;
-}
-
-if (in_array('SUPERADMIN', $requestedRoleCodes, true) && !$this->actorIsSuperadmin()) {
-    return response()->json([
-        'ok' => false,
-        'message' => 'You are not allowed to create a Superadmin account.'
-    ], 403);
-}
-
-$allowedCodes = $this->allowedRoleCodesForAccounts();
-
-foreach ($requestedRoleCodes as $code) {
-    if (!in_array($code, $allowedCodes, true)) {
+    if ($existingUser) {
         return response()->json([
             'ok' => false,
-            'message' => "Invalid role selected: {$code}"
+            'message' => 'This faculty member already has CMS access.'
         ], 422);
     }
-}
+
+    $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
+
+    if (empty($requestedRoleCodes)) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'Please select at least one role.'
+        ], 422);
+    }
+
+    if ($resp = $this->validateTopLevelRoleMix($requestedRoleCodes)) {
+        return $resp;
+    }
+
+    if (in_array('SUPERADMIN', $requestedRoleCodes, true) && !$this->actorIsSuperadmin()) {
+        return response()->json([
+            'ok' => false,
+            'message' => 'You are not allowed to create a Superadmin account.'
+        ], 403);
+    }
+
+    $allowedCodes = $this->allowedRoleCodesForAccounts();
+
+    foreach ($requestedRoleCodes as $code) {
+        if (!in_array($code, $allowedCodes, true)) {
+            return response()->json([
+                'ok' => false,
+                'message' => "Invalid role selected: {$code}"
+            ], 422);
+        }
+    }
 
     $primaryRole = $requestedRoleCodes[0];
     $name = trim($data['first_name'] . ' ' . $data['last_name']);
@@ -422,7 +435,7 @@ foreach ($requestedRoleCodes as $code) {
         'first_name'    => $data['first_name'],
         'last_name'     => $data['last_name'],
         'name'          => $name,
-        'email'         => $data['email'],
+        'email'         => $normalizedEmail,
         'role'          => $primaryRole,
         'status'        => $data['status'],
         'last_login_at' => null,
@@ -444,7 +457,7 @@ foreach ($requestedRoleCodes as $code) {
     $this->logAccountEvent(
         'CREATED',
         (int) $newUserId,
-        'Created account for '.$data['email'].' with role '.$primaryRole
+        'Created account for '.$normalizedEmail.' with role '.$primaryRole
     );
 
     $roleLabel = $primaryRole;
@@ -458,10 +471,10 @@ foreach ($requestedRoleCodes as $code) {
     $emailSent = false;
     try {
         if ($tempPassword !== null) {
-            Mail::to($data['email'])->queue(
+            Mail::to($normalizedEmail)->queue(
                 new NewAccountTempPasswordMail(
                     $name,
-                    $data['email'],
+                    $normalizedEmail,
                     $roleLabel,
                     $tempPassword
                 )
@@ -469,28 +482,28 @@ foreach ($requestedRoleCodes as $code) {
             $emailSent = true;
         }
     } catch (\Throwable $e) {
-        \Log::error('Temp password email failed: '.$e->getMessage(), ['email' => $data['email']]);
+        \Log::error('Temp password email failed: '.$e->getMessage(), ['email' => $normalizedEmail]);
     }
 
     return response()->json([
-    'ok' => true,
-    'user' => [
-        'id'    => (int) $newUserId,
-        'fn'    => $data['first_name'],
-        'ln'    => $data['last_name'],
-        'em'    => $data['email'],
-        'rl'    => $primaryRole,
-        'roles' => $requestedRoleCodes,
-        'st'    => $data['status'],
-        'll'    => 'Never',
-        'avatar_url' => '',
-        'avatar_initials' => Avatar::initials(
-            trim($data['first_name'].' '.$data['last_name']),
-            $data['first_name'],
-            $data['last_name']
-        ),
-    ]
-]);
+        'ok' => true,
+        'user' => [
+            'id'    => (int) $newUserId,
+            'fn'    => $data['first_name'],
+            'ln'    => $data['last_name'],
+            'em'    => $normalizedEmail,
+            'rl'    => $primaryRole,
+            'roles' => $requestedRoleCodes,
+            'st'    => $data['status'],
+            'll'    => 'Never',
+            'avatar_url' => '',
+            'avatar_initials' => Avatar::initials(
+                trim($data['first_name'].' '.$data['last_name']),
+                $data['first_name'],
+                $data['last_name']
+            ),
+        ]
+    ]);
 }
 
 public function setStatus(Request $request, $id)

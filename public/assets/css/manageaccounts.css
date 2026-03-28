@@ -1222,3 +1222,68 @@ tbody td {
     padding: 4px;
     background: #fcfbfb;
 }
+
+.searchable-select {
+  position: relative;
+  width: 100%;
+}
+
+.searchable-select input[type="text"] {
+  width: 100%;
+}
+
+.searchable-dropdown {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  box-shadow: 0 10px 24px rgba(0,0,0,0.08);
+  max-height: 240px;
+  overflow-y: auto;
+  z-index: 50;
+  display: none;
+}
+
+.searchable-dropdown.active {
+  display: block;
+}
+
+.searchable-option {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid #f2f2f2;
+}
+
+.searchable-option:last-child {
+  border-bottom: none;
+}
+
+.searchable-option:hover,
+.searchable-option.active {
+  background: #f8f9fb;
+}
+
+.searchable-option .opt-name {
+  font-weight: 600;
+  color: #222;
+}
+
+.searchable-option .opt-meta {
+  font-size: 12px;
+  color: #777;
+  margin-top: 2px;
+}
+
+.searchable-empty {
+  padding: 12px;
+  color: #888;
+  font-size: 13px;
+}
+
+.searchable-option.disabled-option {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

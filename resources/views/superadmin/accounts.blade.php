@@ -183,10 +183,18 @@
     <div class="frow frow-single">
       <div class="fg">
         <label>Select User <span class="req">*</span></label>
-        <select id="facultySelect">
-            <option value="">Select User</option>
-        </select>
-    </div>
+        <div class="searchable-select" id="facultySearchWrap">
+            <input
+                type="text"
+                id="facultySearch"
+                placeholder="Search faculty by name or email"
+                autocomplete="off"
+            >
+            <input type="hidden" id="facultySelect">
+            <div class="searchable-dropdown" id="facultyDropdown"></div>
+        </div>
+        <small class="role-help-text">Type a name or email, then choose a faculty member from the list.</small>
+      </div>
     </div>
     <div class="frow">
         <div class="fg">
@@ -609,6 +617,8 @@ function changePg(d){
 }
 
 function clrForm(){
+  document.getElementById('facultySelect').value = '';
+  document.getElementById('facultySearch').value = '';
   ['f-fn','f-ln','f-em'].forEach(x => document.getElementById(x).value='');
   document.getElementById('f-st').value='Active';
   selectedRoles = [];
@@ -616,6 +626,8 @@ function clrForm(){
 
   const picker = document.getElementById('rolePicker');
   if (picker) picker.value = '';
+
+  closeFacultyDropdown();
 }
 
 function openAdd(){
@@ -883,41 +895,113 @@ render();
 
 const facultyDirectory = @json(json_decode($facultyDirectoryJson ?? '[]', true));
 
-function populateFaculty() {
-  const sel = document.getElementById('facultySelect');
-  if (!sel) return;
-
-  sel.innerHTML = '<option value="">Select Faculty</option>';
-
-  facultyDirectory.forEach(f => {
-    const opt = document.createElement('option');
-    opt.value = String(f.id || '');
-    opt.textContent = f.label || [f.first_name, f.last_name].filter(Boolean).join(' ');
-    opt.dataset.firstName = f.first_name || '';
-    opt.dataset.middleName = f.middle_name || '';
-    opt.dataset.lastName = f.last_name || '';
-    opt.dataset.suffix = f.suffix || '';
-    opt.dataset.email = f.email || '';
-    sel.appendChild(opt);
-  });
+function normalizeText(v) {
+  return String(v || '').toLowerCase().trim();
 }
 
-document.getElementById('facultySelect').addEventListener('change', function () {
-  const selected = facultyDirectory.find(x => String(x.id) === String(this.value));
+function existingEmailsSet() {
+  return new Set(
+    users
+      .map(u => normalizeText(u.em))
+      .filter(Boolean)
+  );
+}
 
-  if (!selected) {
-    document.getElementById('f-fn').value = '';
-    document.getElementById('f-ln').value = '';
-    document.getElementById('f-em').value = '';
+function clearFacultySelection() {
+  document.getElementById('facultySelect').value = '';
+  document.getElementById('facultySearch').value = '';
+  document.getElementById('f-fn').value = '';
+  document.getElementById('f-ln').value = '';
+  document.getElementById('f-em').value = '';
+}
+
+function selectFaculty(faculty) {
+  document.getElementById('facultySelect').value = String(faculty.id || '');
+  document.getElementById('facultySearch').value = faculty.label || [faculty.first_name, faculty.last_name].filter(Boolean).join(' ');
+  document.getElementById('f-fn').value = faculty.first_name || '';
+  document.getElementById('f-ln').value = faculty.last_name || '';
+  document.getElementById('f-em').value = faculty.email || '';
+  closeFacultyDropdown();
+}
+
+function closeFacultyDropdown() {
+  const dropdown = document.getElementById('facultyDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+}
+
+function renderFacultyDropdown(query = '') {
+  const dropdown = document.getElementById('facultyDropdown');
+  if (!dropdown) return;
+
+  const q = normalizeText(query);
+  const existingEmails = existingEmailsSet();
+
+  const filteredFaculty = facultyDirectory.filter(f => {
+    const haystack = [
+      f.label,
+      f.first_name,
+      f.middle_name,
+      f.last_name,
+      f.email
+    ].map(normalizeText).join(' ');
+
+    return !q || haystack.includes(q);
+  });
+
+  if (!filteredFaculty.length) {
+    dropdown.innerHTML = `<div class="searchable-empty">No matching faculty found.</div>`;
+    dropdown.classList.add('active');
     return;
   }
 
-  document.getElementById('f-fn').value = selected.first_name || '';
-  document.getElementById('f-ln').value = selected.last_name || '';
-  document.getElementById('f-em').value = selected.email || '';
+  dropdown.innerHTML = filteredFaculty.map(f => {
+    const alreadyExists = existingEmails.has(normalizeText(f.email));
+    const safeId = String(f.id || '').replace(/"/g, '&quot;');
+    const safeName = escapeHtml(f.label || [f.first_name, f.last_name].filter(Boolean).join(' '));
+    const safeEmail = escapeHtml(f.email || '');
+    const meta = alreadyExists ? 'Already has CMS access' : safeEmail;
+
+    return `
+      <div class="searchable-option ${alreadyExists ? 'disabled-option' : ''}" data-id="${safeId}" data-disabled="${alreadyExists ? '1' : '0'}">
+        <div class="opt-name">${safeName}</div>
+        <div class="opt-meta">${escapeHtml(meta)}</div>
+      </div>
+    `;
+  }).join('');
+
+  dropdown.classList.add('active');
+
+  dropdown.querySelectorAll('.searchable-option').forEach(opt => {
+    opt.addEventListener('click', function () {
+      if (this.dataset.disabled === '1') {
+        showToast('This faculty member already has CMS access.', 'warning');
+        return;
+      }
+
+      const selected = facultyDirectory.find(x => String(x.id) === String(this.dataset.id));
+      if (selected) selectFaculty(selected);
+    });
+  });
+}
+
+document.getElementById('facultySearch').addEventListener('focus', function () {
+  renderFacultyDropdown(this.value);
 });
 
-populateFaculty();
+document.getElementById('facultySearch').addEventListener('input', function () {
+  document.getElementById('facultySelect').value = '';
+  document.getElementById('f-fn').value = '';
+  document.getElementById('f-ln').value = '';
+  document.getElementById('f-em').value = '';
+  renderFacultyDropdown(this.value);
+});
+
+document.addEventListener('click', function (e) {
+  const wrap = document.getElementById('facultySearchWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeFacultyDropdown();
+  }
+});
 </script>
 </body>
 </html>

@@ -47,4 +47,10 @@ return [
             'timeout'  => env('FLSS_API_TIMEOUT', 15),
         ],
 
+    'ocms' => [
+        'base_url' => env('OCMS_API_BASE_URL'),
+        'api_key' => env('OCMS_API_KEY'),
+        'timeout' => env('OCMS_API_TIMEOUT', 15),
+    ],
+
 ];

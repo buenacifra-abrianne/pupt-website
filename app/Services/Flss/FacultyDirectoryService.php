@@ -51,6 +51,11 @@ class FacultyDirectoryService
                         'label' => $label !== '' ? $label : $email,
                     ];
                 })
+                ->sortBy([
+                    ['first_name', 'asc'],
+                    ['last_name', 'asc'],
+                    ['middle_name', 'asc'],
+                ])
                 ->values()
                 ->all();
         } catch (\Throwable $e) {
