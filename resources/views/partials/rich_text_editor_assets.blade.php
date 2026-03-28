@@ -54,6 +54,20 @@
     color: #1f2937;
 }
 
+.rich-editor-btn.is-active {
+    background: #7c0a02;
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(124, 10, 2, 0.24);
+}
+
+.rich-editor-btn.is-active strong,
+.rich-editor-btn.is-active em,
+.rich-editor-btn.is-active u,
+.rich-editor-btn.is-active s,
+.rich-editor-btn.is-active i {
+    color: inherit;
+}
+
 .rich-editor-btn-icon {
     width: 36px;
     min-width: 36px;
@@ -95,7 +109,7 @@
 }
 
 .rich-editor-color-popover {
-    width: 250px;
+    width: 248px;
     padding: 12px;
 }
 
@@ -104,8 +118,7 @@
     display: none;
 }
 
-.rich-editor-fontsize-title,
-.rich-editor-color-popover-title {
+.rich-editor-fontsize-title {
     font-size: 13px;
     font-weight: 700;
     color: #6b7280;
@@ -137,31 +150,12 @@
     color: #1f2937;
 }
 
-.rich-editor-color-preview-wrap {
-    margin-bottom: 12px;
-}
-
-.rich-editor-color-preview-label {
-    font-size: 12px;
-    font-weight: 700;
-    color: #6b7280;
-    margin-bottom: 6px;
-}
-
-.rich-editor-color-preview {
-    min-height: 52px;
-    border: 1px solid #e5dfdc;
-    border-radius: 10px;
-    background: #faf8f7;
-    padding: 12px;
-    color: #000;
-    font-size: 14px;
-    line-height: 1.4;
-    word-break: break-word;
-}
-
 .rich-editor-color-section {
     margin-bottom: 12px;
+}
+
+.rich-editor-color-section:last-child {
+    margin-bottom: 0;
 }
 
 .rich-editor-color-section-title {
@@ -188,6 +182,13 @@
     aspect-ratio: 1 / 1;
     cursor: pointer;
     padding: 0;
+    transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease;
+}
+
+.rich-editor-swatch:hover {
+    transform: translateY(-1px);
+    border-color: #b9a8a2;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, 0.12);
 }
 
 .rich-editor-swatch.is-selected {
@@ -195,72 +196,9 @@
     outline-offset: 1px;
 }
 
-.rich-editor-color-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-.rich-editor-color-link {
-    border: 1px solid #d6cdcd;
-    background: #fff;
-    color: #4b5563;
-    border-radius: 8px;
-    height: 32px;
-    padding: 0 10px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.rich-editor-color-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.rich-editor-color-cancel,
-.rich-editor-color-confirm {
-    border: 1px solid #d6cdcd;
-    border-radius: 8px;
-    height: 34px;
-    padding: 0 14px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.rich-editor-color-cancel {
-    background: #fff;
-    color: #4b5563;
-}
-
-.rich-editor-color-confirm {
-    background: #7c0a02;
-    border-color: #7c0a02;
-    color: #fff;
-}
-
-.rich-editor-native-color-anchor {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 36px;
-    height: 36px;
-    opacity: 0.01;
-    pointer-events: none;
-    border: 0;
-    padding: 0;
-    margin: 0;
-}
-
 .rich-editor-btn:focus,
 .rich-editor-fontsize-option:focus,
 .rich-editor-swatch:focus,
-.rich-editor-color-link:focus,
-.rich-editor-color-cancel:focus,
-.rich-editor-color-confirm:focus,
 .rich-editor-surface:focus {
     outline: none;
 }
@@ -387,6 +325,17 @@ input[name="title"] {
     function normalizeEditorHtml(html) {
         const wrapper = document.createElement('div');
         wrapper.innerHTML = html || '';
+
+        const walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+
+        while (walker.nextNode()) {
+            textNodes.push(walker.currentNode);
+        }
+
+        textNodes.forEach((node) => {
+            node.textContent = (node.textContent || '').replace(/\u200B/g, '');
+        });
 
         if (!wrapper.textContent.trim()) {
             return '';
@@ -521,6 +470,39 @@ input[name="title"] {
         selection.addRange(newRange);
     }
 
+    function applyInlineStyleAtCaret(surface, styles, savedRange = null) {
+        const range = savedRange || getSelectionRangeInside(surface);
+
+        if (!range || !range.collapsed) {
+            return false;
+        }
+
+        const wrapper = document.createElement('span');
+
+        Object.entries(styles).forEach(([key, value]) => {
+            wrapper.style[key] = value;
+        });
+
+        if (styles.fontSize) {
+            wrapper.style.lineHeight = '1';
+            wrapper.style.verticalAlign = 'baseline';
+            wrapper.style.display = 'inline';
+        }
+
+        const textNode = document.createTextNode('\u200B');
+        wrapper.appendChild(textNode);
+        range.insertNode(wrapper);
+
+        const selection = window.getSelection();
+        const caretRange = document.createRange();
+        caretRange.setStart(textNode, textNode.textContent.length);
+        caretRange.collapse(true);
+        selection.removeAllRanges();
+        selection.addRange(caretRange);
+
+        return true;
+    }
+
     function applyFontSize(root, size) {
         const surface = root.querySelector('.rich-editor-surface');
 
@@ -547,11 +529,15 @@ input[name="title"] {
             restoreSelection(savedRange);
         }
 
-        applyInlineStyleToSelection(
-            surface,
-            { color: color },
-            savedRange ? getSelectionRangeInside(surface) : null
-        );
+        const activeRange = savedRange ? getSelectionRangeInside(surface) : null;
+
+        if (!applyInlineStyleAtCaret(surface, { color: color }, activeRange)) {
+            applyInlineStyleToSelection(
+                surface,
+                { color: color },
+                activeRange
+            );
+        }
 
         normalizeStyledSpans(root);
         syncEditor(root);
@@ -669,65 +655,78 @@ input[name="title"] {
         return selection.toString().trim();
     }
 
-    function updateColorPreview(root) {
-        const surface = root.querySelector('.rich-editor-surface');
-        const preview = root.querySelector('.js-text-color-preview');
-        const draftColor = root.__richEditorDraftColor || '#000000';
-        const savedRange = root.__richEditorSavedRange || null;
-        const currentSize = root.__richEditorCurrentFontSize || '14px';
-
-        if (!surface || !preview) {
-            return;
-        }
-
-        const selectedText = getSelectionText(surface, savedRange);
-        preview.textContent = selectedText || 'Sample text';
-        preview.style.color = draftColor === '__inherit__' ? 'inherit' : draftColor;
-        preview.style.fontSize = currentSize;
-    }
-
     function markSelectedSwatch(root, color) {
         root.querySelectorAll('.rich-editor-swatch').forEach((swatch) => {
             swatch.classList.toggle('is-selected', swatch.dataset.color === color);
         });
     }
 
-    function addRecentColor(root, color) {
-        if (!color || color === '__inherit__') {
-            return;
+    function rgbToHex(color) {
+        if (!color || typeof color !== 'string') {
+            return null;
         }
 
-        const current = Array.isArray(root.__richEditorRecentColors) ? root.__richEditorRecentColors : [];
-        const updated = [color, ...current.filter((item) => item !== color)].slice(0, 8);
-        root.__richEditorRecentColors = updated;
-
-        const section = root.querySelector('.js-recent-colors-section');
-        const grid = root.querySelector('.js-recent-color-grid');
-
-        if (!section || !grid) {
-            return;
+        const match = color.replace(/\s+/g, '').match(/^rgba?\((\d+),(\d+),(\d+)/i);
+        if (!match) {
+            return color.startsWith('#') ? color.toUpperCase() : null;
         }
 
-        grid.innerHTML = '';
-        updated.forEach((recentColor) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.className = 'rich-editor-swatch';
-            btn.dataset.color = recentColor;
-            btn.style.background = recentColor;
-            btn.addEventListener('click', () => {
-                setDraftColor(root, recentColor);
-            });
-            grid.appendChild(btn);
-        });
-
-        section.hidden = updated.length === 0;
+        const toHex = (value) => Number.parseInt(value, 10).toString(16).padStart(2, '0');
+        return `#${toHex(match[1])}${toHex(match[2])}${toHex(match[3])}`.toUpperCase();
     }
 
-    function setDraftColor(root, color) {
-        root.__richEditorDraftColor = color;
-        markSelectedSwatch(root, color);
-        updateColorPreview(root);
+    function resolveColorValue(color) {
+        if (!color) {
+            return null;
+        }
+
+        const probe = document.createElement('span');
+        probe.style.color = color;
+        probe.style.display = 'none';
+        document.body.appendChild(probe);
+        const resolved = window.getComputedStyle(probe).color;
+        probe.remove();
+
+        return rgbToHex(resolved);
+    }
+
+    function getSelectionElement(surface) {
+        const range = getSelectionRangeInside(surface);
+
+        if (!range) {
+            return document.activeElement === surface ? surface : null;
+        }
+
+        let node = range.startContainer;
+        if (node.nodeType === Node.TEXT_NODE) {
+            node = node.parentNode;
+        }
+
+        return node && surface.contains(node) ? node : surface;
+    }
+
+    function updateTextColorState(root) {
+        const surface = root.querySelector('.rich-editor-surface');
+        const trigger = root.querySelector('.js-text-color-trigger');
+
+        if (!surface || !trigger) {
+            return;
+        }
+
+        const element = getSelectionElement(surface);
+        if (!element) {
+            markSelectedSwatch(root, null);
+            updateColorTriggerAppearance(trigger, '#4b5563');
+            return;
+        }
+
+        const computedColor = rgbToHex(window.getComputedStyle(element).color);
+        const matchedSwatch = computedColor
+            ? root.querySelector(`.rich-editor-swatch[data-color="${computedColor}"]`)
+            : null;
+
+        markSelectedSwatch(root, matchedSwatch ? computedColor : null);
+        updateColorTriggerAppearance(trigger, computedColor || '#4b5563');
     }
 
     function setFontSizeState(root, size) {
@@ -741,8 +740,6 @@ input[name="title"] {
         root.querySelectorAll('.js-font-size-option').forEach((option) => {
             option.classList.toggle('is-active', option.dataset.size === size);
         });
-
-        updateColorPreview(root);
     }
 
     function openFontSizePopover(root) {
@@ -784,10 +781,8 @@ input[name="title"] {
         });
 
         root.__richEditorSavedRange = cloneRange(getSelectionRangeInside(surface));
-        root.__richEditorDraftColor = root.__richEditorDraftColor || '#000000';
-
+        updateTextColorState(root);
         popover.hidden = false;
-        updateColorPreview(root);
     }
 
     function closeColorPopover(root) {
@@ -795,6 +790,35 @@ input[name="title"] {
         if (popover) {
             popover.hidden = true;
         }
+    }
+
+    function safeQueryCommandState(command) {
+        try {
+            return !!document.queryCommandState(command);
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function updateToolbarState(root) {
+        const surface = root.querySelector('.rich-editor-surface');
+
+        if (!surface) {
+            return;
+        }
+
+        const isInsideEditor = !!getSelectionRangeInside(surface) || document.activeElement === surface;
+
+        root.querySelectorAll('.rich-editor-btn[data-active-command]').forEach((button) => {
+            let isActive = false;
+
+            if (isInsideEditor) {
+                isActive = safeQueryCommandState(button.dataset.activeCommand);
+            }
+
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
     }
     function normalizeStyledSpans(root) {
         const surface = root.querySelector('.rich-editor-surface');
@@ -827,20 +851,12 @@ input[name="title"] {
         const fontSizeTrigger = root.querySelector('.js-font-size-trigger');
         const fontSizePopover = root.querySelector('.js-font-size-popover');
         const textColorTrigger = root.querySelector('.js-text-color-trigger');
-        const textColorConfirm = root.querySelector('.js-text-color-confirm');
-        const textColorCancel = root.querySelector('.js-text-color-cancel');
-        const textColorAuto = root.querySelector('.js-text-color-auto');
-        const textColorNone = root.querySelector('.js-text-color-none');
-        const textColorMore = root.querySelector('.js-text-color-more');
-        const textColorNative = root.querySelector('.js-text-color-native');
         const colorPopover = root.querySelector('.js-text-color-popover');
 
         if (!input || !surface) {
             return;
         }
 
-        root.__richEditorRecentColors = [];
-        root.__richEditorDraftColor = '#000000';
         root.__richEditorSavedRange = null;
         root.__richEditorCurrentFontSize = '14px';
 
@@ -848,7 +864,10 @@ input[name="title"] {
 
         root.querySelectorAll('.rich-editor-btn').forEach((button) => {
             if (!button.classList.contains('js-font-size-trigger') && !button.classList.contains('js-text-color-trigger')) {
-                button.addEventListener('click', () => handleCommand(root, button));
+                button.addEventListener('click', () => {
+                    handleCommand(root, button);
+                    updateToolbarState(root);
+                });
             }
         });
 
@@ -889,73 +908,45 @@ input[name="title"] {
 
         root.querySelectorAll('.rich-editor-swatch').forEach((swatch) => {
             swatch.addEventListener('click', () => {
-                setDraftColor(root, swatch.dataset.color);
+                const selectedColor = resolveColorValue(swatch.dataset.color);
+                const savedRange = root.__richEditorSavedRange || null;
+
+                if (!selectedColor) {
+                    return;
+                }
+
+                applyTextColor(root, selectedColor, savedRange);
+                markSelectedSwatch(root, selectedColor);
+                updateColorTriggerAppearance(textColorTrigger, selectedColor);
+                closeColorPopover(root);
+                updateToolbarState(root);
             });
         });
 
-        if (textColorAuto) {
-            textColorAuto.addEventListener('click', () => {
-                setDraftColor(root, '#000000');
-            });
-        }
-
-        if (textColorNone) {
-            textColorNone.addEventListener('click', () => {
-                setDraftColor(root, '__inherit__');
-            });
-        }
-
-        if (textColorMore && textColorNative) {
-            textColorMore.addEventListener('click', () => {
-                try {
-                    if (typeof textColorNative.showPicker === 'function') {
-                        textColorNative.showPicker();
-                    } else {
-                        textColorNative.click();
-                    }
-                } catch (error) {
-                    textColorNative.click();
-                }
-            });
-
-            textColorNative.addEventListener('input', () => {
-                setDraftColor(root, textColorNative.value);
-            });
-
-            textColorNative.addEventListener('change', () => {
-                setDraftColor(root, textColorNative.value);
-            });
-        }
-
-        if (textColorConfirm && textColorTrigger) {
-            textColorConfirm.addEventListener('click', () => {
-                const draftColor = root.__richEditorDraftColor || '#000000';
-                const savedRange = root.__richEditorSavedRange || null;
-
-                if (draftColor === '__inherit__') {
-                    clearTextColor(root, savedRange);
-                    updateColorTriggerAppearance(textColorTrigger, '#4b5563');
-                } else {
-                    applyTextColor(root, draftColor, savedRange);
-                    updateColorTriggerAppearance(textColorTrigger, draftColor);
-                    addRecentColor(root, draftColor);
-                }
-
-                closeColorPopover(root);
-            });
-        }
-
-        if (textColorCancel) {
-            textColorCancel.addEventListener('click', () => {
-                closeColorPopover(root);
-            });
-        }
-
-        surface.addEventListener('mouseup', () => updateColorPreview(root));
-        surface.addEventListener('keyup', () => updateColorPreview(root));
-        surface.addEventListener('focus', () => updateColorPreview(root));
-        surface.addEventListener('input', () => syncEditor(root));
-        surface.addEventListener('blur', () => syncEditor(root));
+        surface.addEventListener('click', () => updateToolbarState(root));
+        surface.addEventListener('click', () => updateTextColorState(root));
+        surface.addEventListener('mouseup', () => {
+            updateToolbarState(root);
+            updateTextColorState(root);
+        });
+        surface.addEventListener('keyup', () => {
+            updateToolbarState(root);
+            updateTextColorState(root);
+        });
+        surface.addEventListener('focus', () => {
+            updateToolbarState(root);
+            updateTextColorState(root);
+        });
+        surface.addEventListener('input', () => {
+            syncEditor(root);
+            updateToolbarState(root);
+            updateTextColorState(root);
+        });
+        surface.addEventListener('blur', () => {
+            syncEditor(root);
+            updateToolbarState(root);
+            updateTextColorState(root);
+        });
 
         surface.addEventListener('keydown', (event) => {
             if (event.key !== 'Tab') {
@@ -967,6 +958,8 @@ input[name="title"] {
             if (selectionInsideList(surface)) {
                 document.execCommand(event.shiftKey ? 'outdent' : 'indent', false, null);
                 syncEditor(root);
+                updateToolbarState(root);
+                updateTextColorState(root);
                 return;
             }
 
@@ -979,6 +972,8 @@ input[name="title"] {
             }
 
             syncEditor(root);
+            updateToolbarState(root);
+            updateTextColorState(root);
         });
 
         surface.addEventListener('paste', (event) => {
@@ -992,6 +987,8 @@ input[name="title"] {
 
             document.execCommand('insertHTML', false, escaped);
             syncEditor(root);
+            updateToolbarState(root);
+            updateTextColorState(root);
         });
 
         document.addEventListener('mousedown', (event) => {
@@ -1023,8 +1020,8 @@ input[name="title"] {
         root.dataset.richEditorReady = 'true';
         setFontSizeState(root, '14px');
         syncEditor(root);
-        updateColorPreview(root);
-        updateColorTriggerAppearance(textColorTrigger, '#4b5563');
+        updateToolbarState(root);
+        updateTextColorState(root);
     }
 
     window.initializeRichTextEditors = function initializeRichTextEditors(scope = document) {
@@ -1055,7 +1052,8 @@ input[name="title"] {
         }
 
         syncEditor(root);
-        updateColorPreview(root);
+        updateToolbarState(root);
+        updateTextColorState(root);
     };
 
     window.syncRichTextEditors = function syncRichTextEditors(scope = document) {

@@ -366,6 +366,11 @@
 
                 <div class="form-group">
                     <label for="news_link">Link</label>
+                    @if(!($hasNewsLinkColumn ?? false))
+                        <div class="announcement-link-unavailable" style="margin-bottom: 8px;">
+                            Link saving is unavailable in this local database until the `news.link` column migration is run.
+                        </div>
+                    @endif
                     <div class="announcement-link-row">
                         <input 
                             type="url" 
@@ -373,6 +378,7 @@
                             id="news_link"
                             class="form-control"
                             placeholder="https://example.com"
+                            @if(!($hasNewsLinkColumn ?? false)) disabled @endif
                         >
                         <button type="button" class="announcement-link-paste" id="pasteNewsLinkBtn" title="Paste link" aria-label="Paste link">
                             <i class="fas fa-paste"></i>
@@ -682,22 +688,50 @@
         document.getElementById('readMoreModal').classList.remove('active');
     }
 
+    function setSelectValue(select, value) {
+        if (!select) return;
+
+        const normalized = String(value || '').trim().toLowerCase();
+        let matched = false;
+        let matchedValue = '';
+
+        Array.from(select.options).forEach((option, index) => {
+            const optionValue = String(option.value || '').trim().toLowerCase();
+            const optionText = String(option.textContent || '').trim().toLowerCase();
+            const isMatch = normalized !== '' && (optionValue === normalized || optionText === normalized);
+
+            option.selected = isMatch;
+            if (isMatch) {
+                select.selectedIndex = index;
+                matchedValue = option.value;
+                matched = true;
+            }
+        });
+
+        if (!matched) {
+            select.value = '';
+            select.selectedIndex = 0;
+        } else {
+            select.value = matchedValue;
+        }
+
+        select.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
         function editNews(id, title, content, category, location, link, imagePath) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
 
-        modal.classList.add('active');
-        if (modalTitle) modalTitle.innerText = "Edit News Article";
-
         form.querySelector('[name="title"]').value = title;
         setRichTextEditorValue(form.querySelector('[name="content"]'), content);
-        form.querySelector('[name="category"]').value = category;
+        const categoryInput = form.querySelector('[name="category"]');
+        setSelectValue(categoryInput, category);
         form.querySelector('[name="location"]').value = location;
 
         const linkInput = form.querySelector('[name="link"]');
         if (linkInput) {
-            linkInput.value = link || '';
+            linkInput.value = String(link || '').trim();
         }
 
         let idInput = document.getElementById('edit_news_id');
@@ -725,6 +759,13 @@
             location: (location || '').trim(),
             link: (link || '').trim(),
         };
+
+        modal.classList.add('active');
+        if (modalTitle) modalTitle.innerText = "Edit News Article";
+
+        requestAnimationFrame(() => {
+            setSelectValue(categoryInput, category);
+        });
     }
 
     async function deleteNews(id) {
@@ -766,16 +807,6 @@
 
     window.addEventListener('click', function (e) {
         if (!e.target.classList.contains('modal')) return;
-
-        if (e.target.id === 'newsModal') {
-            closeNewsModal();
-            return;
-        }
-
-        if (e.target.id === 'announcementModal') {
-            closeAnnouncementModal();
-            return;
-        }
 
         if (e.target.id === 'readMoreModal') {
             closeReadMoreModal();

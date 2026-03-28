@@ -16,7 +16,7 @@
   $category = $payload['category'] ?? '';
   $location = $payload['location'] ?? '';
   $imagePath = $payload['image_path'] ?? null;
-  $imageUrl = \App\Support\NewsImage::url($imagePath);
+$imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
 
   $targetNewsId = (int)($payload['news_id'] ?? 0);
   $reqStatus = strtolower(trim((string)$row->status));

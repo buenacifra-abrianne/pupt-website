@@ -35,6 +35,7 @@ use App\Http\Controllers\Public\StudentsController;
 use App\Http\Controllers\Public\EventsController;
 use App\Http\Controllers\Public\ResearchController;
 use App\Http\Controllers\Public\FeedbackController;
+use App\Http\Controllers\Public\PupiapplyController;
 
 // Endpoints
 use App\Http\Controllers\SsoController;
@@ -48,6 +49,7 @@ Route::get('/home', [HomeController::class, 'index'])->name('public.home');
 Route::get('/about', [AboutController::class, 'index'])->name('public.about');
 Route::get('/about/{section}', [AboutController::class, 'show'])->name('public.about.section');
 Route::get('/academics', [AcademicsController::class, 'index'])->name('public.academics');
+Route::get('/academics/pup-iapply', [PupiapplyController::class, 'index'])->name('public.pup-iapply');
 Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
@@ -243,7 +245,7 @@ Route::prefix('superadmin')->group(function () {
             ->name('superadmin.news.delete');
 
         // Approvals
-        
+
         Route::get('/approvals/pending', [ApprovalsController::class, 'pending'])
             ->name('superadmin.approvals.pending');
 
@@ -265,5 +267,5 @@ Route::prefix('superadmin')->group(function () {
             ->name('superadmin.analytics.exportExcel');
     });
 
-    
+
 });
