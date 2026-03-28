@@ -23,6 +23,7 @@
   --border-color: #ddd;
   --title-shadow: rgba(63, 7, 11, 0.1);
   --title-shadow-deep: rgba(32, 4, 6, 0.04);
+  --layout-page-gutter: 24px;
 }
 
 html,
@@ -70,7 +71,7 @@ pup-footer .footer {
   width: 100%;
   max-width: none;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--layout-page-gutter);
 }
 
 .layout-breadcrumb.layout-breadcrumb {
@@ -83,7 +84,7 @@ pup-footer .footer {
   align-self: stretch;
   justify-self: stretch;
   margin: 14px 0 8px;
-  padding: 14px 6px 12px;
+  padding: 14px 0 12px;
   border: none;
   background: transparent;
   border-radius: 0;
@@ -107,7 +108,7 @@ pup-footer .footer {
   align-items: center;
   gap: 12px;
   margin-bottom: 12px;
-  padding-left: 6px;
+  padding-left: 0;
   font-size: 0.82rem;
   font-weight: 800;
   letter-spacing: 0.2em;
@@ -115,7 +116,7 @@ pup-footer .footer {
 }
 
 .layout-inset {
-  padding-left: 6px;
+  padding-left: 0;
 }
 
 .cards-wrap {
@@ -288,7 +289,7 @@ body.nav-open .scroll-nav-button {
   width: min(100%, 1480px);
   max-width: 1480px;
   margin: 0 auto;
-  padding: 0 18px;
+  padding: 0 var(--layout-page-gutter);
 }
 
 .nav-menu li {
@@ -357,7 +358,7 @@ body.nav-open .scroll-nav-button {
 
 @media (max-width: 768px) {
   .page-shell {
-    padding: 0 12px;
+    padding: 0 var(--layout-page-gutter);
   }
 
   .cards-shell {
@@ -376,7 +377,7 @@ body.nav-open .scroll-nav-button {
 
 @media (max-width: 480px) {
   .page-shell {
-    padding: 0 10px;
+    padding: 0 var(--layout-page-gutter);
   }
 
   .cards-shell {
@@ -672,7 +673,7 @@ pup-header .header.header-scrolled {
 pup-header .header-top {
   max-width: 1400px;
   margin: 0 auto;
-  padding: 14px 28px;
+  padding: 14px var(--layout-page-gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -763,7 +764,7 @@ pup-header .nav-menu {
   width: 100%;
   max-width: 1480px;
   margin: 0 auto;
-  padding: 0 18px;
+  padding: 0 var(--layout-page-gutter);
 }
 
 pup-header .nav-menu li {
@@ -831,13 +832,17 @@ pup-header .nav-overlay {
 }
 
 @media (max-width: 900px) {
+  :root {
+    --layout-page-gutter: 12px;
+  }
+
   pup-header .header-top {
-    padding: 11px 8px 9px 2px;
+    padding: 11px var(--layout-page-gutter) 9px;
     gap: 10px;
     align-items: center;
     justify-content: flex-start;
     position: relative;
-    padding-right: 56px;
+    padding-right: calc(var(--layout-page-gutter) + 44px);
   }
 
   pup-header .logo-section {
@@ -919,7 +924,7 @@ pup-header .nav-overlay {
     flex: 0 0 auto;
     margin-left: 0;
     position: absolute;
-    right: 8px;
+    right: var(--layout-page-gutter);
     top: 50%;
     transform: translateY(-50%);
   }
@@ -1137,10 +1142,14 @@ pup-header .nav-overlay {
 }
 
 @media (max-width: 480px) {
+  :root {
+    --layout-page-gutter: 10px;
+  }
+
   pup-header .header-top {
-    padding: 11px 8px 9px 0;
+    padding: 11px var(--layout-page-gutter) 9px;
     gap: 8px;
-    padding-right: 52px;
+    padding-right: calc(var(--layout-page-gutter) + 42px);
   }
 
   pup-header .logo-section {

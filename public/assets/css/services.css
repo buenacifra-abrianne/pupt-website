@@ -176,8 +176,9 @@ body {
 /* Main Content */
 .main-content {
     max-width: 1400px;
+    width: min(1400px, calc(100% - (var(--layout-page-gutter, 24px) * 2)));
     margin: 40px auto;
-    padding: 0 40px;
+    padding: 0;
     display: flex;          /* NEW: flex layout */
     gap: 40px;              /* NEW: space between sidebar and content */
     align-items: flex-start;/* NEW */
@@ -1056,6 +1057,7 @@ html, body {
     border-radius: 14px;
     padding: 15px;
     margin-bottom: 10px;
+    width: 100%;
     max-width: 1400px;
     margin: 0 auto 60px;
     display: flex;
@@ -1076,8 +1078,10 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: flex-start; /* align left */
-    font-family: Arial, sans-serif;
-    margin-left: 100px;
+    font-family: 'Poppins', sans-serif;
+    width: min(1400px, calc(100% - (var(--layout-page-gutter, 24px) * 2)));
+    margin-left: auto;
+    margin-right: auto;
     margin-top: -90px;
     text-align: center;
 }

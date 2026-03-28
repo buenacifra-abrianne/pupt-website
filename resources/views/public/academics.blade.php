@@ -51,18 +51,16 @@
                 </div>
 
             <nav class="contents-cards" aria-label="Academic page contents">
-                <a href="#" class="contents-card">
+                <a href="#" class="contents-card card_without_section">
                     <div class="contents-card-inner">
                         <div class="contents-card-front">
-                            <img src="{{ asset('assets/static_img/' . ($sections[0]['image'] ?? 'pupillar.jpeg')) }}" alt="Degree Programs">
+                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Degree Programs">
                             <div class="contents-card-copy">
-                                <span class="contents-card-number">Section 1</span>
                                 <h3>Degree Programs</h3>
                             </div>
                         </div>
                         <div class="contents-card-back">
                             <div class="contents-card-overlay-copy">
-                                <span class="contents-card-number">Section 1</span>
                                 <h3>Degree Programs</h3>
                                 <p>Discover a wide range of undergraduate majors and minors designed to prepare you for professional success.</p>
                             </div>
@@ -71,18 +69,16 @@
                     </div>
                 </a>
 
-                <a href="#" class="contents-card">
+                <a href="#" class="contents-card card_without_section">
                     <div class="contents-card-inner">
                         <div class="contents-card-front">
-                            <img src="{{ asset('assets/static_img/' . ($sections[1]['image'] ?? 'pupillar.jpeg')) }}" alt="Diploma Programs">
+                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Diploma Programs">
                             <div class="contents-card-copy">
-                                <span class="contents-card-number">Section 2</span>
                                 <h3>Diploma Programs</h3>
                             </div>
                         </div>
                         <div class="contents-card-back">
                             <div class="contents-card-overlay-copy">
-                                <span class="contents-card-number">Section 2</span>
                                 <h3>Diploma Programs</h3>
                                 <p>Gain practical skills and specialized knowledge through diploma courses tailored for career readiness.</p>
                             </div>
@@ -91,18 +87,16 @@
                     </div>
                 </a>
 
-                <a href="#" class="contents-card">
+                <a href="#" class="contents-card card_without_section">
                     <div class="contents-card-inner">
                         <div class="contents-card-front">
-                            <img src="{{ asset('assets/static_img/' . ($sections[2]['image'] ?? 'pupillar.jpeg')) }}" alt="Graduate Programs">
+                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Graduate Programs">
                             <div class="contents-card-copy">
-                                <span class="contents-card-number">Section 3</span>
                                 <h3>Graduate Programs</h3>
                             </div>
                         </div>
                         <div class="contents-card-back">
                             <div class="contents-card-overlay-copy">
-                                <span class="contents-card-number">Section 3</span>
                                 <h3>Graduate Programs</h3>
                                 <p>Advance your expertise with master's and doctoral programs that foster research, leadership, and innovation.</p>
                             </div>
@@ -111,18 +105,16 @@
                     </div>
                 </a>
 
-                <a href="{{ route('public.pup-iapply') }}" class="contents-card">
+                <a href="{{ route('public.pup-iapply') }}" class="contents-card card_without_section">
                     <div class="contents-card-inner">
                         <div class="contents-card-front">
-                            <img src="{{ asset('assets/static_img/' . ($sections[3]['image'] ?? 'pupillar.jpeg')) }}" alt="PUP iApply">
+                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP iApply">
                             <div class="contents-card-copy">
-                                <span class="contents-card-number">Section 4</span>
                                 <h3>PUP iApply</h3>
                             </div>
                         </div>
                         <div class="contents-card-back">
                             <div class="contents-card-overlay-copy">
-                                <span class="contents-card-number">Section 4</span>
                                 <h3>PUP iApply</h3>
                                 <p>Easily access the university's online application portal to start your academic journey.</p>
                             </div>
@@ -131,18 +123,16 @@
                     </div>
                 </a>
 
-                <a href="#" class="contents-card">
+                <a href="#" class="contents-card card_without_section">
                     <div class="contents-card-inner">
                         <div class="contents-card-front">
-                            <img src="{{ asset('assets/static_img/' . ($sections[4]['image'] ?? 'pupillar.jpeg')) }}" alt="University Calendar">
+                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="University Calendar">
                             <div class="contents-card-copy">
-                                <span class="contents-card-number">Section 5</span>
                                 <h3>University Calendar</h3>
                             </div>
                         </div>
                         <div class="contents-card-back">
                             <div class="contents-card-overlay-copy">
-                                <span class="contents-card-number">Section 5</span>
                                 <h3>University Calendar</h3>
                                 <p>Stay updated with important academic schedules, events, and deadlines throughout the school year.</p>
                             </div>
@@ -167,40 +157,40 @@
             <div class="academic-features-inner layout-inset">
                 <p class="academic-features-eyebrow layout-kicker">What we offer</p>
                 <div class="academic-features-grid">
-                    <div class="academic-feature-card">
+                    <div class="academic-feature-card cards_information">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
                             QUALITY
                         </h3>
-                        <p>Being one of the reputable universities in the country, we always make it to a point that the education given to our students meets the standards of quality and excellence.</p>
+                        <p><strong>Academic Excellence</strong>Being one of the reputable universities in the country, we always make it to a point that the education given to our students meets the standards of quality and excellence.</p>
                     </div>
-                    <div class="academic-feature-card">
+                    <div class="academic-feature-card cards_information">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
                             RELEVANT
                         </h3>
-                        <p>The University, through its various programs, equips its students with learning and skills that are significant and responsive — enabling students to be competitive and very resourceful.</p>
+                        <p><strong>Responsive Learning</strong>The University, through its various programs, equips its students with learning and skills that are significant and responsive, enabling students to be competitive and very resourceful.</p>
                     </div>
-                    <div class="academic-feature-card">
+                    <div class="academic-feature-card cards_information">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
                             FLEXIBLE
                         </h3>
-                        <p>Programs that adapt to a student's living condition — especially for the working class. Our Open University and distance learning method goes beyond the physical restrictions of a campus.</p>
+                        <p><strong>Accessible Study Paths</strong>Programs that adapt to a student's living condition, especially for the working class. Our Open University and distance learning method goes beyond the physical restrictions of a campus.</p>
                     </div>
-                    <div class="academic-feature-card">
+                    <div class="academic-feature-card cards_information">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
                             ACCREDITED
                         </h3>
-                        <p>Most of our academic courses are accredited by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).</p>
+                        <p><strong>Recognized Standards</strong>Most of our academic courses are accredited by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).</p>
                     </div>
-                    <div class="academic-feature-card academic-feature-card--wide">
+                    <div class="academic-feature-card academic-feature-card--wide cards_information">
                         <div class="academic-feature-card-accent"></div>
                         <h3 class="academic-feature-title">
                             AFFORDABLE
                         </h3>
-                        <p>Practicality without sacrificing quality in education. Having the lowest tuition and fees among universities in the Philippines, one can enroll for less than ₱500 per semester in an undergraduate program.</p>
+                        <p><strong>Low-Cost Education</strong>Practicality without sacrificing quality in education. Having the lowest tuition and fees among universities in the Philippines, one can enroll for less than PHP 500 per semester in an undergraduate program.</p>
                     </div>
                 </div>
             </div>
@@ -215,3 +205,4 @@
     <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
 </body>
 </html>
+
