@@ -28,6 +28,7 @@ use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
 use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
 use App\Http\Controllers\Staff\CmsController as StaffCmsController;
+use App\Http\Controllers\Staff\DownloadableController as StaffDownloadableController;
 
 // Public
 use App\Http\Controllers\Public\HomeController;
@@ -134,6 +135,13 @@ Route::prefix('staff')
 
         Route::post('/notifications/delete', [StaffNotificationController::class, 'delete'])
             ->name('notifications.delete');
+
+        // Downloadables
+        Route::get('/downloadables', [StaffDownloadableController::class, 'index'])->name('downloadables');
+        Route::post('/downloadables/request-create', [StaffDownloadableController::class, 'requestCreate'])->name('downloadables.requestCreate');
+        Route::post('/downloadables/request-update', [StaffDownloadableController::class, 'requestUpdate'])->name('downloadables.requestUpdate');
+        Route::post('/downloadables/request-delete', [StaffDownloadableController::class, 'requestDelete'])->name('downloadables.requestDelete');
+        Route::delete('/downloadables/request/{id}', [StaffDownloadableController::class, 'deleteRequestOnly'])->name('downloadables.request.deleteOnly');
 
     });
 
