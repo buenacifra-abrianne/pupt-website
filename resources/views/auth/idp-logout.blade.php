@@ -162,18 +162,47 @@
         </div>
 
         <div class="loader"></div>
-
-        <form id="idp-logout-form" method="POST" action="{{ $idpLogoutUrl }}">
-            <input type="hidden" name="client_id" value="{{ $clientId }}">
-        </form>
     </div>
 
     <script>
-        document.getElementById('idp-logout-form').submit();
+        (async function () {
+            const logoutUrl = @json($idpLogoutUrl);
+            const clientId = @json($clientId);
+            const afterLogoutUrl = @json($afterLogoutUrl);
+
+            try {
+                const response = await fetch(logoutUrl, {
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        client_id: clientId
+                    })
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (_) {}
+
+                console.log('IDP logout response:', {
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                });
+            } catch (error) {
+                console.error('IDP logout failed:', error);
+            } finally {
+                window.location.href = afterLogoutUrl;
+            }
+        })();
     </script>
 
     <noscript>
-        <button type="submit" form="idp-logout-form">Continue logout</button>
+        JavaScript is required to complete logout.
     </noscript>
 </body>
 </html>

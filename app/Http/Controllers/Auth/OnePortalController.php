@@ -298,23 +298,18 @@ class OnePortalController extends Controller
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // if config is incomplete, just go home locally
     if ($baseUrl === '' || $clientId === '') {
         return redirect()->route('public.landing')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
 
-    // IMPORTANT:
-    // do NOT backend-post to IDP logout here.
-    // return a page that browser-posts to the IDP so their cookies are included.
-    return response()
-        ->view('auth.idp-logout', [
-            'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
-            'clientId' => $clientId,
-        ])
-        ->withoutCookie('access_token')
-        ->withoutCookie('refresh_token');
+    return response()->view('auth.idp-logout', [
+        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
+        'clientId' => $clientId,
+        'afterLogoutUrl' => route('public.landing'),
+    ])->withoutCookie('access_token')
+      ->withoutCookie('refresh_token');
 }
 
     private function redirectByRole($role)
