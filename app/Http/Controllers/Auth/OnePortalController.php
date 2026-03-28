@@ -30,6 +30,12 @@ class OnePortalController extends Controller
             'STUDENT_SERVICES',
             'RESEARCH_EXTENSION',
             'FACULTY',
+            'FACULTY_PRO',
+            'DENTAL',
+            'GUIDANCE',
+            'CLINIC',
+            'ACCREDITATION',
+            'ADMISSIONS'
         ];
 
         if (session()->has('user_id') && in_array($role, $allowedRoles, true)) {
@@ -206,6 +212,12 @@ class OnePortalController extends Controller
         'STUDENT_SERVICES',
         'RESEARCH_EXTENSION',
         'FACULTY',
+        'FACULTY_PRO',
+        'DENTAL',
+        'GUIDANCE',
+        'CLINIC',
+        'ACCREDITATION',
+        'ADMISSIONS'
     ];
 
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {

@@ -127,7 +127,13 @@ if (
     $dbRole === 'HAP' ||
     $dbRole === 'STUDENT_SERVICES' ||
     $dbRole === 'RESEARCH_EXTENSION' ||
-    $dbRole === 'FACULTY'
+    $dbRole === 'FACULTY' ||
+    $dbRole === 'FACULTY_PRO' ||
+    $dbRole === 'DENTAL' ||
+    $dbRole === 'GUIDANCE' ||
+    $dbRole === 'CLINIC' ||
+    $dbRole === 'ACCREDITATION' ||
+    $dbRole === 'ADMISSIONS'
 ) {
     return redirect()->route('staff.dashboard');
 }
@@ -491,6 +497,12 @@ return back()->withErrors([
             'STUDENT_SERVICES',
             'RESEARCH_EXTENSION',
             'FACULTY',
+            'FACULTY_PRO',
+            'DENTAL',
+            'GUIDANCE',
+            'CLINIC',
+            'ACCREDITATION',
+            'ADMISSIONS'
         ];
 
         $validRoles = array_values(array_intersect($assignedRoles, $allowedRoles));
