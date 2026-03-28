@@ -70,6 +70,11 @@ Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('onepo
 
 Route::post('/logout', [OnePortalController::class, 'logout'])->name('logout');
 
+Route::get('/logout/completed', function () {
+    return redirect()->route('public.landing')
+        ->with('success', 'You have been logged out.');
+})->name('logout.completed');
+
 // One Portal Entry Point
 Route::get('/sso/login', [App\Http\Controllers\SsoController::class, 'login'])
     ->name('sso.login');

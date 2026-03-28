@@ -281,7 +281,7 @@ class OnePortalController extends Controller
     AuditLog::record(
         'LOGOUT',
         'AUTHENTICATION',
-        'User logged out.',
+        'User initiated logout.',
         $userId,
         [
             'user_id' => $userId,
@@ -293,32 +293,26 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    if ($baseUrl !== '' && $clientId !== '') {
-        try {
-            $response = Http::withoutVerifying()
-                ->asJson()
-                ->post($baseUrl . '/api/v1/auth/logout', [
-                    'client_id' => $clientId,
-                ]);
-
-            \Log::info('IDP logout response', [
-                'status' => $response->status(),
-                'body' => $response->json() ?? $response->body(),
-                'user_id' => $userId,
-            ]);
-        } catch (\Throwable $e) {
-            \Log::warning('IDP logout request failed', [
-                'message' => $e->getMessage(),
-                'user_id' => $userId,
-            ]);
-        }
-    }
-
+    // clear local CMS session first
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    return redirect()->route('public.landing')
+    // if config is incomplete, just go home locally
+    if ($baseUrl === '' || $clientId === '') {
+        return redirect()->route('public.landing')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
+    }
+
+    // IMPORTANT:
+    // do NOT backend-post to IDP logout here.
+    // return a page that browser-posts to the IDP so their cookies are included.
+    return response()
+        ->view('auth.idp-logout', [
+            'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
+            'clientId' => $clientId,
+        ])
         ->withoutCookie('access_token')
         ->withoutCookie('refresh_token');
 }
