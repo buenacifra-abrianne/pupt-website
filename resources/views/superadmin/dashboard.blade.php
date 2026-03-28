@@ -53,6 +53,14 @@
                     <span>Content Management</span>
                 </a>
             </li>
+
+            <li class="nav-item">
+                <a href="{{ route('superadmin.downloadables') ?? '#' }}" class="nav-link">
+                    <i class="fas fa-download"></i>
+                    <span>Downloadables</span>
+                </a>
+            </li>
+
             <li class="nav-item">
                 <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
