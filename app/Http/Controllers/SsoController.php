@@ -26,7 +26,14 @@ class SsoController extends Controller
         }
 
         $user = DB::table('users')
-            ->where('email', $portalUser['email'])
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select(
+                'users.*',
+                'roles.code as role_code',
+                'roles.name as role_name',
+                'roles.level as role_level'
+            )
+            ->whereRaw('LOWER(users.email) = ?', [strtolower(trim((string) $portalUser['email']))])
             ->first();
 
         if (!$user) {
@@ -44,11 +51,9 @@ class SsoController extends Controller
             abort(403, 'Your account is inactive/suspended.');
         }
 
-        $finalRole = strtoupper(trim((string) ($user->role ?? '')));
+        $finalRole = strtoupper(trim((string) ($user->role_code ?? '')));
 
         $allowedRoles = [
-            'GLOBAL_SUPERADMIN',
-            'SYSTEM_SUPERADMIN',
             'SUPERADMIN',
             'ADMIN',
             'REGISTRAR',

@@ -81,15 +81,16 @@ class AuditController extends Controller
             if (!empty($userIds) && Schema::hasTable('users')) {
                 $userPk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
                 $userSelect = array_values(array_filter([
-                    $userPk,
-                    'first_name',
-                    'last_name',
-                    'name',
-                    'role',
-                    Schema::hasColumn('users', 'profile_picture') ? 'profile_picture' : null,
+                    'users.' . $userPk,
+                    'users.first_name',
+                    'users.last_name',
+                    'users.name',
+                    'roles.code as role_code',
+                    Schema::hasColumn('users', 'profile_picture') ? 'users.profile_picture' : null,
                 ]));
                 $userRows = DB::table('users')
-                    ->whereIn($userPk, $userIds)
+                    ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+                    ->whereIn('users.' . $userPk, $userIds)
                     ->select($userSelect)
                     ->get();
 
@@ -101,7 +102,7 @@ class AuditController extends Controller
 
                     $userMap[(int) $user->{$userPk}] = [
                         'name' => $name,
-                        'role' => strtoupper((string) ($user->role ?? '')),
+                        'role' => strtoupper((string) ($user->role_code ?? '')),
                         'avatar_url' => Avatar::resolveUrl((string) ($user->profile_picture ?? '')),
                         'avatar_initials' => Avatar::initials(
                             $name,
