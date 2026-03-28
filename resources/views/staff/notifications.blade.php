@@ -43,6 +43,12 @@
         </a>
       </li>
       <li class="nav-item">
+                <a href="{{ route('staff.downloadables') }}" class="nav-link">
+                    <i class="fas fa-download"></i>
+                    <span>Downloadables</span>
+                </a>
+            </li>
+      <li class="nav-item">
         <a href="{{ route('staff.notifications') }}" class="nav-link active">
           <i class="fas fa-bell"></i><span>Notifications</span>
         </a>

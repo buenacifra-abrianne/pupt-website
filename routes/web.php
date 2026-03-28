@@ -13,6 +13,7 @@ use App\Http\Controllers\Superadmin\NotificationController;
 use App\Http\Controllers\Superadmin\AnalyticsController;
 use App\Http\Controllers\Superadmin\AccountsController;
 use App\Http\Controllers\Superadmin\AuditController;
+use App\Http\Controllers\Superadmin\DownloadableController as SuperadminDownloadableController;
 
 // Admin
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -20,12 +21,14 @@ use App\Http\Controllers\Admin\AnnouncementController as AdminAnnouncementContro
 use App\Http\Controllers\Admin\ApprovalsController as AdminApprovalsController;
 use App\Http\Controllers\Admin\CmsController as AdminCmsController;
 use App\Http\Controllers\Admin\NotificationController as AdminNotificationController;
+use App\Http\Controllers\Admin\DownloadableController as AdminDownloadableController;
 
 // Staff
 use App\Http\Controllers\Staff\DashboardController as StaffDashboardController;
 use App\Http\Controllers\Staff\AnnouncementController as StaffAnnouncementController;
 use App\Http\Controllers\Staff\NotificationController as StaffNotificationController;
 use App\Http\Controllers\Staff\CmsController as StaffCmsController;
+use App\Http\Controllers\Staff\DownloadableController as StaffDownloadableController;
 
 // Public
 use App\Http\Controllers\Public\HomeController;
@@ -133,6 +136,13 @@ Route::prefix('staff')
         Route::post('/notifications/delete', [StaffNotificationController::class, 'delete'])
             ->name('notifications.delete');
 
+        // Downloadables
+        Route::get('/downloadables', [StaffDownloadableController::class, 'index'])->name('downloadables');
+        Route::post('/downloadables/request-create', [StaffDownloadableController::class, 'requestCreate'])->name('downloadables.requestCreate');
+        Route::post('/downloadables/request-update', [StaffDownloadableController::class, 'requestUpdate'])->name('downloadables.requestUpdate');
+        Route::post('/downloadables/request-delete', [StaffDownloadableController::class, 'requestDelete'])->name('downloadables.requestDelete');
+        Route::delete('/downloadables/request/{id}', [StaffDownloadableController::class, 'deleteRequestOnly'])->name('downloadables.request.deleteOnly');
+
     });
 
 // Admin Login
@@ -182,6 +192,12 @@ Route::prefix('admin')
 
         Route::delete('/approvals/{id}', [AdminApprovalsController::class, 'destroy'])
             ->name('approvals.destroy');
+
+        Route::get('/downloadables', [AdminDownloadableController::class, 'index'])->name('downloadables');
+
+        Route::post('/downloadables/save', [AdminDownloadableController::class, 'save'])->name('downloadables.save');
+
+        Route::post('/downloadables/delete', [AdminDownloadableController::class, 'delete'])->name('downloadables.delete');
     });
 
 // Superadmin Login
@@ -265,6 +281,14 @@ Route::prefix('superadmin')->group(function () {
 
         Route::post('/analytics/export/excel', [AnalyticsController::class, 'exportExcel'])
             ->name('superadmin.analytics.exportExcel');
+
+        // Downloadables
+
+         Route::get('/downloadables', [SuperadminDownloadableController::class, 'index'])->name('superadmin.downloadables');
+
+        Route::post('/downloadables/save', [SuperadminDownloadableController::class, 'save'])->name('superadmin.downloadables.save');
+
+        Route::post('/downloadables/delete', [SuperadminDownloadableController::class, 'delete'])->name('superadmin.downloadables.delete');
     });
 
 

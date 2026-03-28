@@ -26,7 +26,14 @@ class AuthController extends Controller
         ]);
 
         $user = DB::table('users')
-            ->where('email', $request->email)
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select(
+                'users.*',
+                'roles.code as role_code',
+                'roles.name as role_name',
+                'roles.level as role_level'
+            )
+            ->where('users.email', $request->email)
             ->first();
 
         if (!$user || !$this->passwordMatches((string) $request->password, (string) ($user->password ?? ''))) {
@@ -58,7 +65,7 @@ class AuthController extends Controller
             ->where($idColumn, data_get($user, $idColumn))
             ->update($updates);
 
-        $dbRole = strtoupper(trim((string) ($user->role ?? '')));
+$dbRole = strtoupper(trim((string) ($user->role_code ?? '')));
 $dbRole = preg_replace('/\s+/', '_', $dbRole);
 
 $userId = (int) ($user->user_id ?? $user->id ?? 0);
@@ -120,16 +127,16 @@ if (
     $dbRole === 'HAP' ||
     $dbRole === 'STUDENT_SERVICES' ||
     $dbRole === 'RESEARCH_EXTENSION' ||
-    $dbRole === 'FACULTY'
+    $dbRole === 'FACULTY' ||
+    $dbRole === 'FACULTY_PRO' ||
+    $dbRole === 'DENTAL' ||
+    $dbRole === 'GUIDANCE' ||
+    $dbRole === 'CLINIC' ||
+    $dbRole === 'ACCREDITATION' ||
+    $dbRole === 'ADMISSIONS'
 ) {
     return redirect()->route('staff.dashboard');
 }
-
-$request->session()->flush();
-
-return back()->withErrors([
-    'login' => 'Unauthorized role: ' . $dbRole
-])->withInput();
 
 $request->session()->flush();
 
@@ -441,7 +448,14 @@ return back()->withErrors([
         }
 
         $user = DB::table('users')
-            ->whereRaw('LOWER(email) = ?', [$email])
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select(
+                'users.*',
+                'roles.code as role_code',
+                'roles.name as role_name',
+                'roles.level as role_level'
+            )
+            ->whereRaw('LOWER(users.email) = ?', [$email])
             ->first();
 
         if (!$user) {
@@ -451,7 +465,7 @@ return back()->withErrors([
                 ->with('error', 'You have no role in this system. Please check with the superadmin.');
         }
 
-        $dbRole = strtoupper(trim((string) ($user->role ?? '')));
+        $dbRole = strtoupper(trim((string) ($user->role_code ?? '')));
         $dbRole = preg_replace('/\s+/', '_', $dbRole);
 
         $userId = (int) ($user->user_id ?? $user->id ?? 0);
@@ -483,6 +497,12 @@ return back()->withErrors([
             'STUDENT_SERVICES',
             'RESEARCH_EXTENSION',
             'FACULTY',
+            'FACULTY_PRO',
+            'DENTAL',
+            'GUIDANCE',
+            'CLINIC',
+            'ACCREDITATION',
+            'ADMISSIONS'
         ];
 
         $validRoles = array_values(array_intersect($assignedRoles, $allowedRoles));

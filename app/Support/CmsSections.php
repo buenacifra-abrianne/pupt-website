@@ -40,6 +40,12 @@ class CmsSections
         'RESEARCH_EXTENSION' => ['home', 'research_extension', 'events'],
         'FACULTY' => ['home', 'events'],
         'PUPT:FACULTY' => ['home', 'events'],
+        'FACULTY_PRO' => ['home', 'events'], 
+        'DENTAL' => ['home', 'events'],
+        'GUIDANCE' => ['home', 'events'],
+        'CLINIC' => ['home', 'events'],
+        'ACCREDITATION' => ['home', 'events'],
+        'ADMISSIONS' => ['home', 'events'],
     ];
 
     public static function normalizeRole(string $role): string

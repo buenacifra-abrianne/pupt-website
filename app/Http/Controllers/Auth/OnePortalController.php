@@ -30,6 +30,12 @@ class OnePortalController extends Controller
             'STUDENT_SERVICES',
             'RESEARCH_EXTENSION',
             'FACULTY',
+            'FACULTY_PRO',
+            'DENTAL',
+            'GUIDANCE',
+            'CLINIC',
+            'ACCREDITATION',
+            'ADMISSIONS'
         ];
 
         if (session()->has('user_id') && in_array($role, $allowedRoles, true)) {
@@ -152,8 +158,15 @@ class OnePortalController extends Controller
 
     // check local user by email
     $user = DB::table('users')
-        ->where('email', $email)
-        ->first();
+    ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+    ->select(
+        'users.*',
+        'roles.code as role_code',
+        'roles.name as role_name',
+        'roles.level as role_level'
+    )
+    ->where('users.email', $email)
+    ->first();
 
     // if user does not exist locally, deny access
     if (!$user) {
@@ -189,7 +202,7 @@ class OnePortalController extends Controller
     }
 
     // local DB role
-    $finalRole = strtoupper(trim((string) $user->role));
+    $finalRole = strtoupper(trim((string) ($user->role_code ?? '')));
 
     $allowedRoles = [
         'SUPERADMIN',
@@ -199,6 +212,12 @@ class OnePortalController extends Controller
         'STUDENT_SERVICES',
         'RESEARCH_EXTENSION',
         'FACULTY',
+        'FACULTY_PRO',
+        'DENTAL',
+        'GUIDANCE',
+        'CLINIC',
+        'ACCREDITATION',
+        'ADMISSIONS'
     ];
 
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {

@@ -34,15 +34,26 @@ class AccountsController extends Controller
         if (in_array('FACULTY', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:faculty';
         if (in_array('STUDENT', $acceptedCodes, true)) $acceptedCodes[] = 'pupt:student';
 
-        $userSelect = ['user_id', 'first_name', 'last_name', 'email', 'role', 'status', 'last_login_at'];
+        $userSelect = [
+            'users.user_id',
+            'users.first_name',
+            'users.last_name',
+            'users.email',
+            'users.role_id',
+            'users.status',
+            'users.last_login_at',
+            'roles.code as role_code',
+            'roles.name as role_name',
+        ];
         if (Schema::hasColumn('users', 'profile_picture')) {
-            $userSelect[] = 'profile_picture';
+            $userSelect[] = 'users.profile_picture';
         }
 
         $rows = DB::table('users')
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
             ->select($userSelect)
-            ->whereIn('role', $acceptedCodes)
-            ->orderBy('user_id', 'desc')
+            ->whereIn('roles.code', $acceptedCodes)
+            ->orderBy('users.user_id', 'desc')
             ->get();
 
         $userIds = $rows->pluck('user_id')->map(fn($id) => (int) $id)->all();
@@ -66,8 +77,8 @@ class AccountsController extends Controller
                 ->values()
                 ->all();
 
-            if (empty($roleCodes) && !empty($u->role)) {
-                $roleCodes = [(string) $u->role];
+            if (empty($roleCodes) && !empty($u->role_code)) {
+                $roleCodes = [(string) $u->role_code];
             }
 
             $fullName = trim((string) $u->first_name . ' ' . (string) $u->last_name);
@@ -80,7 +91,7 @@ class AccountsController extends Controller
                 'fn'    => (string) $u->first_name,
                 'ln'    => (string) $u->last_name,
                 'em'    => (string) $u->email,
-                'rl'    => (string) ($roleCodes[0] ?? $u->role),
+                'rl'    => (string) ($roleCodes[0] ?? $u->role_code ?? ''),
                 'roles' => $roleCodes,
                 'st'    => (string) $u->status,
                 'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
@@ -105,44 +116,15 @@ class AccountsController extends Controller
 
 private function fetchRolesForUi()
 {
-    if (Schema::hasTable('roles')) {
-        return DB::table('roles')
-            ->select('code', 'name', 'level')
-            ->where('is_active', 1)
-            ->where(function ($q) {
-                $q->where('scope', 'CMS')
-                  ->orWhereIn('code', ['SUPERADMIN', 'ADMIN']);
-            })
-            ->orderByDesc('level')
-            ->get();
-    }
-
-    $fallbackRoles = collect($this->defaultCmsRolesForFallback());
-    $detectedCodes = [];
-    if (Schema::hasTable('users')) {
-        $detectedCodes = DB::table('users')
-            ->whereNotNull('role')
-            ->pluck('role')
-            ->map(fn ($r) => $this->normalizeRoleCode((string) $r))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
-    }
-
-    $fallbackCodes = $fallbackRoles->keys()
-        ->merge($detectedCodes)
-        ->unique()
-        ->values();
-
-    return $fallbackCodes
-        ->map(fn ($code) => (object) [
-            'code' => $code,
-            'name' => $fallbackRoles->get($code)
-                ?? Str::headline(str_replace('_', ' ', str_replace(':', ' ', strtolower($code)))),
-            'level' => 0,
-        ])
-        ->values();
+    return DB::table('roles')
+        ->select('code', 'name', 'level')
+        ->where('is_active', 1)
+        ->where(function ($q) {
+            $q->where('scope', 'CMS')
+              ->orWhereIn('code', ['SUPERADMIN', 'ADMIN']);
+        })
+        ->orderByDesc('level')
+        ->get();
 }
 
 private function defaultCmsRolesForFallback(): array
@@ -250,32 +232,15 @@ private function actorIsSuperadmin(): bool
 
 private function allowedRoleCodesForAccounts(): array
 {
-    if (Schema::hasTable('roles')) {
-        $allowedCodes = DB::table('roles')
-            ->where('is_active', 1)
-            ->where(function ($q) {
-                $q->where('scope', 'CMS')
-                  ->orWhere('code', 'SUPERADMIN');
-            })
-            ->pluck('code')
-            ->map(fn($c) => (string) $c)
-            ->all();
-    } else {
-        $allowedCodes = array_keys($this->defaultCmsRolesForFallback());
-
-        if (Schema::hasTable('users')) {
-            $detectedCodes = DB::table('users')
-                ->whereNotNull('role')
-                ->pluck('role')
-                ->map(fn ($r) => $this->normalizeRoleCode((string) $r))
-                ->filter()
-                ->unique()
-                ->values()
-                ->all();
-
-            $allowedCodes = array_values(array_unique(array_merge($allowedCodes, $detectedCodes)));
-        }
-    }
+    $allowedCodes = DB::table('roles')
+        ->where('is_active', 1)
+        ->where(function ($q) {
+            $q->where('scope', 'CMS')
+              ->orWhere('code', 'SUPERADMIN');
+        })
+        ->pluck('code')
+        ->map(fn($c) => (string) $c)
+        ->all();
 
     if (in_array('FACULTY', $allowedCodes, true)) {
         $allowedCodes[] = 'pupt:faculty';
@@ -428,6 +393,15 @@ private function filterUsersPayload(array $payload): array
     }
 
     $primaryRole = $requestedRoleCodes[0];
+    $primaryRoleRow = DB::table('roles')->where('code', $primaryRole)->first();
+
+    if (!$primaryRoleRow) {
+        return response()->json([
+            'ok' => false,
+            'message' => "Role not found: {$primaryRole}"
+        ], 422);
+    }
+
     $name = trim($data['first_name'] . ' ' . $data['last_name']);
     $tempPassword = null;
 
@@ -436,7 +410,7 @@ private function filterUsersPayload(array $payload): array
         'last_name'     => $data['last_name'],
         'name'          => $name,
         'email'         => $normalizedEmail,
-        'role'          => $primaryRole,
+        'role_id'       => $primaryRoleRow->id,
         'status'        => $data['status'],
         'last_login_at' => null,
     ];
@@ -510,7 +484,11 @@ public function setStatus(Request $request, $id)
 {
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
-    $target = DB::table('users')->select($pk.' as id', 'role')->where($pk, (int)$id)->first();
+    $target = DB::table('users')
+        ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+        ->select('users.'.$pk.' as id', 'roles.code as role_code')
+        ->where('users.'.$pk, (int) $id)
+        ->first();
     if (!$target) {
         return response()->json(['ok' => false, 'message' => 'User not found.'], 404);
     }
@@ -520,7 +498,7 @@ public function setStatus(Request $request, $id)
 
     // Only block if they are trying to SUSPEND a SUPERADMIN
     if ($newStatusUpper === 'SUSPENDED') {
-    if ($resp = $this->denyIfNonSuperadminTargetsSuperadmin('suspend', (string) $target->role)) {
+    if ($resp = $this->denyIfNonSuperadminTargetsSuperadmin('suspend', (string) ($target->role_code ?? ''))) {
         return $resp;
     }
 }
@@ -559,15 +537,16 @@ private function blockIfNonSuperadminTargetsSuperadmin(int $targetId, string $ac
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
     $target = DB::table('users')
-        ->select($pk . ' as id', 'role')
-        ->where($pk, $targetId)
+        ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+        ->select('users.'.$pk.' as id', 'roles.code as role_code')
+        ->where('users.'.$pk, $targetId)
         ->first();
 
     if (!$target) {
         return response()->json(['ok' => false, 'message' => 'User not found.'], 404);
     }
 
-    if (strtoupper(trim((string) $target->role)) === 'SUPERADMIN') {
+    if (strtoupper(trim((string) ($target->role_code ?? ''))) === 'SUPERADMIN') {
         $msg = $action === 'edit'
             ? 'You are not allowed to edit a Superadmin account.'
             : 'You are not allowed to suspend a Superadmin account.';
@@ -628,23 +607,32 @@ foreach ($requestedRoleCodes as $code) {
 }
 
     $primaryRole = $requestedRoleCodes[0];
+    $primaryRoleRow = DB::table('roles')->where('code', $primaryRole)->first();
+
+    if (!$primaryRoleRow) {
+        return response()->json([
+            'ok' => false,
+            'message' => "Role not found: {$primaryRole}"
+        ], 422);
+    }
 
     DB::table('users')->where($pk, $id)->update($this->filterUsersPayload($this->addUsersUpdatedAt([
         'first_name' => $data['first_name'],
         'last_name'  => $data['last_name'],
         'name'       => trim($data['first_name'].' '.$data['last_name']),
         'email'      => $data['email'],
-        'role'       => $primaryRole,
+        'role_id'    => $primaryRoleRow->id,
         'status'     => $data['status'],
     ])));
 
     $this->saveUserRoles($id, $requestedRoleCodes);
 
-if ((int) session('user_id') === $id) {
-    session([
-        'user_roles' => $requestedRoleCodes,
-    ]);
-}
+    if ((int) session('user_id') === $id) {
+        session([
+            'user_role' => $primaryRole,
+            'user_roles' => $requestedRoleCodes,
+        ]);
+    }
 
 $this->logAccountEvent(
     'UPDATED',
