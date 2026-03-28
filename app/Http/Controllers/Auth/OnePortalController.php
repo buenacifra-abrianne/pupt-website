@@ -275,27 +275,61 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
     {
+        $userId = (int) session('user_id', 0);
+        $userName = (string) session('user_name', 'Unknown');
+        $accessToken = session('access_token');
+        $refreshToken = session('refresh_token');
+
         AuditLog::record(
             'LOGOUT',
             'AUTHENTICATION',
             'User logged out.',
-            (int) session('user_id', 0),
+            $userId,
             [
-                'user_id' => (int) session('user_id', 0),
-                'user_name' => (string) session('user_name', 'Unknown'),
+                'user_id' => $userId,
+                'user_name' => $userName,
                 'ip_address' => $request->ip(),
             ]
         );
 
-        // clear local session
+        $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+        $clientId = (string) config('services.idp.client_id');
+
+        $logoutEndpoint = $baseUrl . '/api/v1/auth/logout';
+
+        try {
+            $payload = [
+                'client_id' => $clientId,
+            ];
+
+            // isama lang kung tinatanggap din ng IDP nila
+            if (!empty($accessToken)) {
+                $payload['access_token'] = $accessToken;
+            }
+
+            if (!empty($refreshToken)) {
+                $payload['refresh_token'] = $refreshToken;
+            }
+
+            Http::withoutVerifying()
+                ->asJson()
+                ->post($logoutEndpoint, $payload);
+        } catch (\Throwable $e) {
+            \Log::warning('IDP logout request failed', [
+                'message' => $e->getMessage(),
+                'user_id' => $userId,
+            ]);
+        }
+
+        // clear local CMS session
         $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
         return redirect()->route('public.landing')
-        ->withoutCookie('access_token')
-        ->withoutCookie('refresh_token');
-        }
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
+    }
 
     private function redirectByRole($role)
     {

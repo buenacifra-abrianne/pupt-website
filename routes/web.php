@@ -68,7 +68,7 @@ Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('onepo
 
 // Logout
 
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::post('/logout', [OnePortalController::class, 'logout'])->name('logout');
 
 // One Portal Entry Point
 Route::get('/sso/login', [App\Http\Controllers\SsoController::class, 'login'])
