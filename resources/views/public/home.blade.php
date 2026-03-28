@@ -152,7 +152,7 @@
                 $storyImage = \App\Support\NewsImage::url($n->image_path, 'assets/static_img/pupillar.jpeg');
               @endphp
 
-              <article class="news-mini-card contents-card">
+              <article class="news-mini-card contents-card card_with_section">
                 <div class="news-mini-card-inner contents-card-inner">
                   <div class="news-mini-card-front contents-card-front">
                     <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
@@ -231,19 +231,23 @@
     </section>
 
     <section class="quick-links reveal">
-      <div class="section-heading layout-inset">
-        <p class="section-tag layout-kicker">Explore</p>
-        <h2>Navigate the campus experience.</h2>
-      </div>
+      <div class="quick-links-inner layout-inset">
+        <div class="section-heading">
+          <p class="section-tag layout-kicker">Explore</p>
+          <h2>Navigate the campus experience.</h2>
+        </div>
 
-      <div class="quick-links-grid">
-        @foreach($quickLinks as $link)
-          <a href="{{ $link['href'] }}" class="quick-link-card">
-            <span class="quick-link-label">{{ $link['label'] }}</span>
-            <h3>{{ $link['title'] }}</h3>
-            <p>{{ $link['text'] }}</p>
-          </a>
-        @endforeach
+        <div class="quick-links-grid">
+          @foreach($quickLinks as $link)
+            <a href="{{ $link['href'] }}" class="quick-link-card cards_information">
+              <h3 class="academic-feature-title">{{ $link['label'] }}</h3>
+              <p>
+                <strong>{{ $link['title'] }}</strong>
+                {{ $link['text'] }}
+              </p>
+            </a>
+          @endforeach
+        </div>
       </div>
     </section>
 

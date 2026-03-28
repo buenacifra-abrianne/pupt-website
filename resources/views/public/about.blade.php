@@ -67,12 +67,13 @@ TEXT;
     @endphp
 
     @php
-        $aboutHeroImage = $selectedSection && $selectedSection['slug'] === 'history'
-            ? 'assets/static_img/history_of_pup.png'
-            : 'assets/static_img/about_header_image.png';
+        $aboutHeroImage = 'assets/static_img/about_header_image.png';
+        $aboutSectionHeaderImage = 'assets/static_img/about_header_image.png';
         $aboutHeroTitle = $selectedSection && $selectedSection['slug'] === 'history'
             ? 'CAMPUS HISTORY'
-            : 'ABOUT THE CAMPUS';
+            : ($selectedSection && $selectedSection['slug'] === 'vision-and-mission'
+                ? 'VISION AND MISSION'
+                : 'ABOUT THE CAMPUS');
     @endphp
 
     <pup-header
@@ -149,20 +150,18 @@ TEXT;
                         @foreach($sections as $section)
                             <a
                                 href="{{ route('public.about.section', $section['slug']) }}"
-                                class="contents-card"
+                                class="contents-card card_without_section"
                             >
-                                <div class="contents-card-inner">
-                                    <div class="contents-card-front">
-                                        <img src="{{ asset('assets/static_img/' . ($section['image'] ?? 'pupillar.jpeg')) }}" alt="{{ $section['label'] }}">
-                                        <div class="contents-card-copy">
-                                            <span class="contents-card-number">Section {{ $section['number'] }}</span>
-                                            <h3>{{ $section['label'] }}</h3>
+                                    <div class="contents-card-inner">
+                                        <div class="contents-card-front">
+                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="{{ $section['label'] }}">
+                                            <div class="contents-card-copy">
+                                                <h3>{{ $section['label'] }}</h3>
+                                            </div>
                                         </div>
-                                    </div>
 
                                     <div class="contents-card-back">
                                         <div class="contents-card-overlay-copy">
-                                            <span class="contents-card-number">Section {{ $section['number'] }}</span>
                                             <h3>{{ $section['label'] }}</h3>
                                             <p>{{ $section['summary'] }}</p>
                                         </div>
@@ -230,11 +229,126 @@ TEXT;
                                 </div>
                             </div>
                         </section>
+                    @elseif($selectedSection['slug'] === 'vision-and-mission')
+                        <section class="history-story history-story--vision reveal">
+                            <div class="history-story-inner">
+                                <div class="history-timeline-container history-timeline-container--vision reveal">
+                                    <div class="history-page-header history-page-header--vision">
+                                        <p class="history-page-kicker">Vision and Mission</p>
+                                        <h2>Vision, Mission, Core Values, and Strategic Goals of the University</h2>
+                                    </div>
+
+                                    <div class="about-detail-body about-detail-body--vision">
+                                        <div class="about-vision-content">
+                                            <div class="about-vision-row about-vision-row--vision">
+                                                <button
+                                                    type="button"
+                                                    class="about-vision-trigger about-vision-trigger--vision"
+                                                    aria-expanded="false"
+                                                    aria-controls="aboutVisionDescription"
+                                                >
+                                                    <span class="about-vision-word">Vision</span>
+                                                    <span class="about-vision-arrow about-vision-arrow--right" aria-hidden="true">
+                                                        <svg viewBox="0 0 24 24" focusable="false">
+                                                            <path d="M4 12h14"></path>
+                                                            <path d="m13 5 7 7-7 7"></path>
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                                <div id="aboutVisionDescription" class="about-vision-panel" aria-hidden="true">
+                                                    <div class="about-vision-card">
+                                                        <p class="about-vision-statement">{{ $selectedSection['vision'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="about-vision-row about-vision-row--mission">
+                                                <div id="aboutMissionDescription" class="about-vision-panel about-vision-panel--mission" aria-hidden="true">
+                                                    <div class="about-vision-card about-vision-card--mission">
+                                                        <p class="about-vision-statement about-vision-statement--mission">{{ $selectedSection['mission'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    type="button"
+                                                    class="about-vision-trigger about-vision-trigger--mission"
+                                                    aria-expanded="false"
+                                                    aria-controls="aboutMissionDescription"
+                                                >
+                                                    <span class="about-vision-arrow about-vision-arrow--left" aria-hidden="true">
+                                                        <svg viewBox="0 0 24 24" focusable="false">
+                                                            <path d="M20 12H6"></path>
+                                                            <path d="m11 5-7 7 7 7"></path>
+                                                        </svg>
+                                                    </span>
+                                                    <span class="about-vision-word">Mission</span>
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div class="about-vision-extension-grid">
+                                            <article class="about-vision-feature about-vision-feature--goals reveal">
+                                                <div class="about-vision-feature-head">
+                                                    <span class="about-vision-feature-kicker">Strategic Goals</span>
+                                                    <h3>Three priority pillars that guide how the University teaches, serves, and grows.</h3>
+                                                </div>
+
+                                                <div class="about-goals-grid">
+                                                    @foreach($selectedSection['strategic_goals'] ?? [] as $goalGroup)
+                                                        @php($pillarRoman = ['I', 'II', 'III', 'IV', 'V'][$loop->index] ?? (string) $loop->iteration)
+                                                        <article class="about-goal-pillar">
+                                                            <div class="about-goal-pillar-head">
+                                                                <div class="about-goal-pillar-tag" aria-label="{{ $goalGroup['pillar'] ?? '' }}">
+                                                                    <span class="about-goal-pillar-icon-shell" aria-hidden="true">
+                                                                        <svg class="about-goal-pillar-icon" viewBox="0 0 640 640" focusable="false">
+                                                                            <path d="M335.9 84.2C326.1 78.6 314 78.6 304.1 84.2L80.1 212.2C67.5 219.4 61.3 234.2 65 248.2C68.7 262.2 81.5 272 96 272L128 272L128 480L128 480L76.8 518.4C68.7 524.4 64 533.9 64 544C64 561.7 78.3 576 96 576L544 576C561.7 576 576 561.7 576 544C576 533.9 571.3 524.4 563.2 518.4L512 480L512 272L544 272C558.5 272 571.2 262.2 574.9 248.2C578.6 234.2 572.4 219.4 559.8 212.2L335.8 84.2zM464 272L464 480L400 480L400 272L464 272zM352 272L352 480L288 480L288 272L352 272zM240 272L240 480L176 480L176 272L240 272zM320 160C337.7 160 352 174.3 352 192C352 209.7 337.7 224 320 224C302.3 224 288 209.7 288 192C288 174.3 302.3 160 320 160z"/>
+                                                                        </svg>
+                                                                    </span>
+                                                                    <span class="about-goal-pillar-label-group">
+                                                                        <span class="about-goal-pillar-label">Pillar {{ $pillarRoman }}</span>
+                                                                    </span>
+                                                                </div>
+                                                                <h4>{{ $goalGroup['title'] ?? '' }}</h4>
+                                                            </div>
+                                                            <ul class="about-goal-list">
+                                                                @foreach($goalGroup['goals'] ?? [] as $goal)
+                                                                    <li>
+                                                                        <span class="about-goal-code">SG-{{ $goal['number'] ?? $loop->iteration }}</span>
+                                                                        <span class="about-goal-text">{{ $goal['text'] ?? '' }}</span>
+                                                                    </li>
+                                                                @endforeach
+                                                            </ul>
+                                                        </article>
+                                                    @endforeach
+                                                </div>
+                                            </article>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <article class="about-values-band reveal">
+                                    <div class="about-values-band-head">
+                                        <span class="about-values-band-kicker">Core Values</span>
+                                        <h3>INSPIRED values that shape the character of the PUP community.</h3>
+                                    </div>
+
+                                    <div class="about-values-grid">
+                                        @foreach($selectedSection['core_values'] ?? [] as $coreValue)
+                                            <article class="about-value-card">
+                                                <span class="about-value-letter">{{ $coreValue['letter'] ?? '' }}</span>
+                                                <div class="about-value-copy">
+                                                    <h4>{{ $coreValue['title'] ?? '' }}</h4>
+                                                </div>
+                                            </article>
+                                        @endforeach
+                                    </div>
+                                </article>
+                            </div>
+                        </section>
                     @else
-                        <article class="about-section-card reveal">
-                            <div class="section-heading-row">
-                                <div class="layout-inset">
-                                    <p class="section-tag layout-kicker">Section {{ $selectedSection['number'] }}</p>
+                        <article class="about-section-card reveal {{ $selectedSection['slug'] === 'vision-and-mission' ? 'about-section-card--vision' : '' }}">
+                            <div class="about-detail-heading">
+                                <div class="about-detail-heading-copy">
                                     <h2>{{ $selectedSection['label'] }}</h2>
                                 </div>
 
@@ -243,35 +357,223 @@ TEXT;
                                 @endif
                             </div>
 
-                            @if($selectedSection['slug'] === 'vision-and-mission')
-                            <div id="visionMission" class="section-copy">
-                                Overview of the university vision and mission.
+                            <div class="about-detail-hero">
+                                <div class="about-detail-copy">
+                                    <span class="about-detail-eyebrow">Campus Section</span>
+                                    <p class="about-detail-lead">{{ $selectedSection['lead'] ?? '' }}</p>
+                                </div>
+
+                                    <div class="about-detail-visual">
+                                        <img
+                                            src="{{ asset($aboutSectionHeaderImage) }}"
+                                            alt="{{ $selectedSection['label'] }}"
+                                        >
+                                    </div>
+                                </div>
+
+                            <div class="about-detail-body">
+                            @if($selectedSection['slug'] === 'logo-and-symbols')
+                                <div class="about-identity-shell">
+                                    <article class="contents-card contents-card--info contents-card--identity">
+                                        <div class="contents-card-inner">
+                                            <div class="contents-card-front contents-card-front--info">
+                                                <div class="contents-card-copy contents-card-copy--info">
+                                                    <span class="contents-card-number">Identity Mark</span>
+                                                    <h3>Official Seal</h3>
+                                                </div>
+                                                <div class="contents-card-body contents-card-body--identity">
+                                                    <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP logo">
+                                                    <div class="about-identity-badges">
+                                                        <span>Official Seal</span>
+                                                        <span>Maroon and Gold</span>
+                                                        <span>Campus Identity</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+
+                                    <div class="about-detail-card-grid">
+                                        @foreach($selectedSection['identity_marks'] ?? [] as $identityMark)
+                                            <article class="contents-card contents-card--info">
+                                                <div class="contents-card-inner">
+                                                    <div class="contents-card-front contents-card-front--info">
+                                                        <div class="contents-card-copy contents-card-copy--info">
+                                                            <span class="contents-card-number">Meaning {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                            <h3>{{ $identityMark['title'] ?? '' }}</h3>
+                                                        </div>
+                                                        <div class="contents-card-body">
+                                                            <p>{{ $identityMark['body'] ?? '' }}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <article class="contents-card contents-card--info contents-card--note">
+                                    <div class="contents-card-inner">
+                                        <div class="contents-card-front contents-card-front--info">
+                                            <div class="contents-card-copy contents-card-copy--info">
+                                                <span class="contents-card-number">Quick View</span>
+                                                <h3>Symbolism at a glance</h3>
+                                            </div>
+                                            <div class="contents-card-body">
+                                                <ul class="about-detail-list">
+                                                    @foreach($selectedSection['symbol_points'] ?? [] as $point)
+                                                        <li>{{ $point }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            @elseif($selectedSection['slug'] === 'hymn')
+                                <div class="about-detail-card-grid">
+                                    @foreach($selectedSection['hymn_sections'] ?? [] as $hymnSection)
+                                        <article class="contents-card contents-card--info">
+                                            <div class="contents-card-inner">
+                                                <div class="contents-card-front contents-card-front--info">
+                                                    <div class="contents-card-copy contents-card-copy--info">
+                                                        <span class="contents-card-number">Hymn Note {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                        <h3>{{ $hymnSection['title'] ?? '' }}</h3>
+                                                    </div>
+                                                    <div class="contents-card-body">
+                                                        <p>{{ $hymnSection['body'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    @endforeach
+                                </div>
+
+                                <article class="contents-card contents-card--info contents-card--note">
+                                    <div class="contents-card-inner">
+                                        <div class="contents-card-front contents-card-front--info">
+                                            <div class="contents-card-copy contents-card-copy--info">
+                                                <span class="contents-card-number">Shared Meaning</span>
+                                                <h3>Why it matters</h3>
+                                            </div>
+                                            <div class="contents-card-body">
+                                                <ul class="about-detail-list">
+                                                    @foreach($selectedSection['hymn_notes'] ?? [] as $note)
+                                                        <li>{{ $note }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            @elseif($selectedSection['slug'] === 'maps')
+                                <div class="about-detail-card-grid">
+                                    @foreach($selectedSection['map_cards'] ?? [] as $mapCard)
+                                        <article class="contents-card contents-card--info">
+                                            <div class="contents-card-inner">
+                                                <div class="contents-card-front contents-card-front--info">
+                                                    <div class="contents-card-copy contents-card-copy--info">
+                                                        <span class="contents-card-number">Map Guide {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                        <h3>{{ $mapCard['title'] ?? '' }}</h3>
+                                                    </div>
+                                                    <div class="contents-card-body">
+                                                        <p>{{ $mapCard['body'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    @endforeach
+                                </div>
+
+                                <article class="contents-card contents-card--info contents-card--note">
+                                    <div class="contents-card-inner">
+                                        <div class="contents-card-front contents-card-front--info">
+                                            <div class="contents-card-copy contents-card-copy--info">
+                                                <span class="contents-card-number">Visit Planning</span>
+                                                <h3>Plan your campus visit</h3>
+                                            </div>
+                                            <div class="contents-card-body contents-card-body--split">
+                                                <p>Open the official map to check live directions, nearby access roads, and updated travel time before heading to campus.</p>
+                                                <a href="https://maps.app.goo.gl/RDAwxBvDzyGzUbVN7" target="_blank" rel="noopener noreferrer" class="section-link">Open Map</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+
+                                <article class="contents-card contents-card--info contents-card--note">
+                                    <div class="contents-card-inner">
+                                        <div class="contents-card-front contents-card-front--info">
+                                            <div class="contents-card-copy contents-card-copy--info">
+                                                <span class="contents-card-number">Visitor Tips</span>
+                                                <h3>Visitor reminders</h3>
+                                            </div>
+                                            <div class="contents-card-body">
+                                                <ul class="about-detail-list">
+                                                    @foreach($selectedSection['visit_notes'] ?? [] as $note)
+                                                        <li>{{ $note }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            @elseif($selectedSection['slug'] === 'campus-officials')
+                                <div class="about-detail-card-grid about-detail-card-grid--officials">
+                                    @foreach($selectedSection['official_groups'] ?? [] as $officialGroup)
+                                        <article class="contents-card contents-card--info">
+                                            <div class="contents-card-inner">
+                                                <div class="contents-card-front contents-card-front--info">
+                                                    <div class="contents-card-copy contents-card-copy--info">
+                                                        <span class="contents-card-number">Office {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                        <h3>{{ $officialGroup['title'] ?? '' }}</h3>
+                                                    </div>
+                                                    <div class="contents-card-body">
+                                                        <p>{{ $officialGroup['body'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    @endforeach
+                                </div>
+
+                                <p class="about-detail-caption">{{ $selectedSection['officials_note'] ?? '' }}</p>
+                            @elseif($selectedSection['slug'] === 'strategic-development-plan')
+                                <div class="about-roadmap-grid">
+                                    @foreach($selectedSection['development_priorities'] ?? [] as $priority)
+                                        <article class="contents-card contents-card--info">
+                                            <div class="contents-card-inner">
+                                                <div class="contents-card-front contents-card-front--info">
+                                                    <div class="contents-card-copy contents-card-copy--info">
+                                                        <span class="contents-card-number">Priority {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                        <h3>{{ $priority['title'] ?? '' }}</h3>
+                                                    </div>
+                                                    <div class="contents-card-body">
+                                                        <p>{{ $priority['body'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </article>
+                                    @endforeach
+                                </div>
+
+                                <article class="contents-card contents-card--info contents-card--note">
+                                    <div class="contents-card-inner">
+                                        <div class="contents-card-front contents-card-front--info">
+                                            <div class="contents-card-copy contents-card-copy--info">
+                                                <span class="contents-card-number">Planning Guide</span>
+                                                <h3>Planning principles</h3>
+                                            </div>
+                                            <div class="contents-card-body">
+                                                <ul class="about-detail-list">
+                                                    @foreach($selectedSection['plan_principles'] ?? [] as $principle)
+                                                        <li>{{ $principle }}</li>
+                                                    @endforeach
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endif
                             </div>
-                        @elseif($selectedSection['slug'] === 'logo-and-symbols')
-                            <div id="logoSymbols" class="section-copy">
-                                Overview of the university logo and symbols.
-                            </div>
-                        @elseif($selectedSection['slug'] === 'hymn')
-                            <div id="hymn" class="section-copy">
-                                Overview of the university hymn.
-                            </div>
-                        @elseif($selectedSection['slug'] === 'maps')
-                            <div id="maps" class="section-copy">
-                                Overview of the university location.
-                            </div>
-                        @elseif($selectedSection['slug'] === 'campus-officials')
-                            <div id="campusOfficials" class="section-copy">
-                                Overview of the university campus officials.
-                            </div>
-                        @elseif($selectedSection['slug'] === 'strategic-development-plan')
-                            <div id="strategicPlan" class="section-copy">
-                                Overview of the university strategic development plan.
-                            </div>
-                        @elseif($selectedSection['slug'] === 'university-calendar')
-                            <div id="universityCalendar" class="section-copy">
-                                Overview of the university calendar.
-                            </div>
-                        @endif
                         </article>
                     @endif
                 </section>

@@ -296,6 +296,24 @@ function initHistoryTimelineToggles() {
   });
 }
 
+function initVisionMissionToggles() {
+  document.querySelectorAll(".about-vision-trigger").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const row = btn.closest(".about-vision-row");
+      const panelId = btn.getAttribute("aria-controls");
+      const panel = panelId ? document.getElementById(panelId) : null;
+
+      if (!row || !panel) return;
+
+      const shouldOpen = !row.classList.contains("is-open");
+
+      row.classList.toggle("is-open", shouldOpen);
+      btn.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+      panel.setAttribute("aria-hidden", shouldOpen ? "false" : "true");
+    });
+  });
+}
+
 // =======================
 // 4.1) Global AI button
 // =======================
@@ -408,6 +426,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initNewsDragScroll();
   initReadMore();
   initHistoryTimelineToggles();
+  initVisionMissionToggles();
   initMessageButton();
   initScrollNavButtons();
 });

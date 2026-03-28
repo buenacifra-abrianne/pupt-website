@@ -11,6 +11,7 @@
   --academic-maroon-deep: #4f090c;
   --academic-gold: #d7aa43;
   --academic-shadow: 0 22px 48px rgba(79, 9, 12, 0.1);
+  --academic-page-gutter: var(--layout-page-gutter, 24px);
 }
 
 html {
@@ -170,7 +171,7 @@ body {
 /* ===== ACADEMIC INTRO TEXT SECTION ===== */
 .academic-intro-text {
   width: 100%;
-  padding: 0 24px;
+  padding: 0 var(--academic-page-gutter);
   margin: 40px auto 40px;
 }
 
@@ -204,7 +205,7 @@ body {
   opacity: 0.07;
   line-height: 1;
   pointer-events: none;
-  font-family: Georgia, serif;
+  font-family: "Poppins", sans-serif;
 }
 
 .academic-intro-eyebrow {
@@ -256,7 +257,7 @@ body {
   margin-left: -50vw;
   margin-right: -50vw;
   margin-top: 0;
-  padding: 40px 24px;
+  padding: 40px var(--academic-page-gutter);
   border-top: 1px solid rgba(25, 25, 25, 0.1);
   border-bottom: 1px solid rgba(25, 25, 25, 0.1);
   border-left: none;
@@ -304,14 +305,17 @@ body {
 /* Remove orphan row logic — 5 equal columns */
 .academic-feature-card:nth-child(4),
 .academic-feature-card:nth-child(5),
-.academic-feature-card--wide {
+.academic-feature-card--wide,
+.cards_information:nth-child(4),
+.cards_information:nth-child(5) {
   grid-column: unset;
   max-width: none;
   justify-self: stretch;
   width: 100%;
 }
 
-.academic-feature-card {
+.academic-feature-card,
+.cards_information {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -327,13 +331,15 @@ body {
   transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
-.academic-feature-card:hover {
+.academic-feature-card:hover,
+.cards_information:hover {
   transform: translateY(-3px);
   border-color: rgba(127, 17, 19, 0.22);
   box-shadow: 0 18px 30px rgba(79, 9, 12, 0.08);
 }
 
-.academic-feature-card:hover::after {
+.academic-feature-card:hover::after,
+.cards_information:hover::after {
   transform: translateX(4px);
 }
 
@@ -343,7 +349,8 @@ body {
 }
 
 /* ===== FIX: Override home CSS h3 rule with high specificity ===== */
-.academic-feature-card h3.academic-feature-title {
+.academic-feature-card h3.academic-feature-title,
+.cards_information h3.academic-feature-title {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -366,12 +373,22 @@ body {
 }
 
 /* ===== FIX: Override home CSS p rule ===== */
-.academic-features .academic-feature-card p {
+.academic-features .academic-feature-card p,
+.academic-features .cards_information p {
   margin: 0;
   color: var(--academic-muted) !important;
   font-family: "Poppins", sans-serif !important;
-  font-size: 0.97rem !important;
-  line-height: 1.85 !important;
+  font-size: 0.88rem !important;
+  line-height: 1.55 !important;
+}
+
+.academic-features .cards_information p strong {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--academic-ink) !important;
+  font-size: 0.94rem;
+  font-weight: 700;
+  line-height: 1.18;
 }
 
 /* ===== ACADEMIC SHELL (breadcrumb, contents, sections) ===== */
@@ -618,6 +635,7 @@ body {
   object-fit: cover;
   object-position: center;
   display: block;
+  filter: blur(3px) saturate(0.88);
   transition: transform 0.45s ease, filter 0.45s ease;
 }
 
@@ -718,6 +736,35 @@ body {
   transition: opacity 0.42s ease, transform 0.42s ease;
 }
 
+.card_without_section .contents-card-copy {
+  min-height: 74px;
+  padding: 10px 16px 12px;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.card_without_section .contents-card-copy h3 {
+  width: 100%;
+  text-align: center;
+  text-wrap: balance;
+}
+
+.card_without_section .contents-card-overlay-copy {
+  align-items: center;
+  text-align: center;
+}
+
+.card_without_section .contents-card-overlay-copy h3,
+.card_without_section .contents-card-overlay-copy p {
+  text-align: center;
+  text-wrap: balance;
+}
+
+.card_without_section .contents-card-action {
+  align-self: center;
+}
+
 .contents-card:hover .contents-card-back,
 .contents-card:focus-visible .contents-card-back,
 .contents-card.active .contents-card-back {
@@ -739,7 +786,7 @@ body {
 .contents-card:focus-visible .contents-card-front img,
 .contents-card.active .contents-card-front img {
   transform: scale(1.05);
-  filter: saturate(0.86) brightness(0.94);
+  filter: blur(3px) saturate(0.86) brightness(0.94);
 }
 
 /* ===== ACADEMIC SECTIONS ===== */
@@ -1021,6 +1068,11 @@ pup-footer .footer {
     padding: 20px 18px;
   }
 
+  .card_without_section .contents-card-copy {
+    min-height: 70px;
+    padding: 10px 14px 12px;
+  }
+
   .contents-cards {
     grid-auto-columns: minmax(220px, 250px);
     gap: 12px;
@@ -1049,7 +1101,7 @@ pup-footer .footer {
 
   /* Intro text */
   .academic-intro-text {
-    padding: 0 12px;
+    padding: 0 var(--academic-page-gutter);
   }
 
   .academic-intro-text-inner {
@@ -1067,23 +1119,32 @@ pup-footer .footer {
     gap: 10px;
   }
 
-  .academic-feature-card {
+  .academic-feature-card,
+  .cards_information {
     min-height: 0;
     padding: 16px 14px 34px;
     border-radius: 16px;
   }
 
   /* FIX: Cleaned — removed broken __var__ and duplicate font-size */
-  .academic-feature-card h3.academic-feature-title {
+  .academic-feature-card h3.academic-feature-title,
+  .cards_information h3.academic-feature-title {
     font-size: 0.7rem !important;
     letter-spacing: 0.12em;
     margin-bottom: 10px !important;
     margin-block-end: 10px !important;
   }
 
-  .academic-features .academic-feature-card p {
+  .academic-features .academic-feature-card p,
+  .academic-features .cards_information p {
     font-size: 0.82rem !important;
     line-height: 1.45 !important;
+  }
+
+  .academic-features .cards_information p strong {
+    margin-bottom: 8px;
+    font-size: 0.86rem;
+    line-height: 1.16;
   }
 
   .academic-feature-card::after {
@@ -1145,16 +1206,25 @@ pup-footer .footer {
     gap: 8px;
   }
 
-  .academic-feature-card {
+  .academic-feature-card,
+  .cards_information {
     padding: 14px 12px 30px;
   }
 
-  .academic-feature-card h3.academic-feature-title {
+  .academic-feature-card h3.academic-feature-title,
+  .cards_information h3.academic-feature-title {
     font-size: 0.65rem !important;
   }
 
-  .academic-features .academic-feature-card p {
-    font-size: 0.10rem !important;
+  .academic-features .academic-feature-card p,
+  .academic-features .cards_information p {
+    font-size: 0.76rem !important;
     line-height: 1.38 !important;
+  }
+
+  .academic-features .cards_information p strong {
+    margin-bottom: 6px;
+    font-size: 0.8rem;
+    line-height: 1.14;
   }
 }
