@@ -91,7 +91,7 @@
             <div id="downloadablesList">
                 @forelse($downloadables as $row)
                     @php
-                        $fileUrl = asset('storage/' . $row->file_path);
+                        $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
                     @endphp
 
                     <div class="announcement-item"

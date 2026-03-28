@@ -7,6 +7,8 @@ use App\Support\AuditLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use App\Support\DownloadableFile;
+use Illuminate\Validation\ValidationException;
 
 class DownloadableController extends Controller
 {
@@ -74,15 +76,27 @@ class DownloadableController extends Controller
         $filePath = $existing->file_path ?? null;
         $originalFilename = $existing->original_filename ?? null;
 
+        if ($message = DownloadableFile::validationError($request->file('file'))) {
+            throw ValidationException::withMessages(['file' => $message]);
+        }
+
         if ($request->hasFile('file')) {
             $uploadedFile = $request->file('file');
 
-            $filePath = $uploadedFile->store('downloadables', 'public');
-            $originalFilename = $uploadedFile->getClientOriginalName();
-
-            if ($existing && !empty($existing->file_path) && Storage::disk('public')->exists($existing->file_path)) {
-                Storage::disk('public')->delete($existing->file_path);
+            $storedPath = DownloadableFile::store($uploadedFile, 'downloadables');
+            if (!$storedPath) {
+                return response()->json([
+                    'ok' => false,
+                    'error' => 'File upload failed.',
+                ], 500);
             }
+
+            if ($existing && !empty($existing->file_path)) {
+                DownloadableFile::delete($existing->file_path);
+            }
+
+            $filePath = $storedPath;
+            $originalFilename = $uploadedFile->getClientOriginalName();
         }
 
         if (!$filePath || !$originalFilename) {
@@ -162,8 +176,8 @@ class DownloadableController extends Controller
             ], 404);
         }
 
-        if (!empty($row->file_path) && Storage::disk('public')->exists($row->file_path)) {
-            Storage::disk('public')->delete($row->file_path);
+        if (!empty($row->file_path)) {
+            DownloadableFile::delete($row->file_path);
         }
 
         DB::table('downloadables')
