@@ -14,39 +14,19 @@ class DownloadableFile
     private const MAX_BYTES = 20 * 1024 * 1024;
 
     public static function store(UploadedFile $file, string $directory = 'downloadables'): string|false
-{
-    foreach (self::candidateDisks() as $disk) {
-        try {
-            $stored = $file->store($directory, $disk);
-
-            if ($stored !== false) {
-                \Log::info('DownloadableFile store generated', [
-                    'disk' => $disk,
-                    'path' => $stored,
-                    'name' => $file->getClientOriginalName(),
-                    'size' => $file->getSize(),
-                ]);
-
-                return $stored;
+    {
+        foreach (self::candidateDisks() as $disk) {
+            try {
+                $stored = $file->store($directory, $disk);
+                if ($stored !== false) {
+                    return $stored;
+                }
+            } catch (Throwable) {
             }
-
-            \Log::warning('DownloadableFile store returned false', [
-                'disk' => $disk,
-                'name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-            ]);
-        } catch (Throwable $e) {
-            \Log::error('DownloadableFile store failed', [
-                'disk' => $disk,
-                'name' => $file->getClientOriginalName(),
-                'size' => $file->getSize(),
-                'message' => $e->getMessage(),
-            ]);
         }
-    }
 
-    return false;
-}
+        return false;
+    }
 
     public static function delete(?string $path): void
     {
@@ -98,28 +78,15 @@ class DownloadableFile
         }
 
         foreach (self::candidateDisks() as $disk) {
-    if ($disk === self::FALLBACK_DISK) {
-        continue;
-    }
+            if ($disk === self::FALLBACK_DISK) {
+                continue;
+            }
 
-    try {
-        $url = Storage::disk($disk)->url($normalized);
-
-        \Log::info('DownloadableFile url generated', [
-            'disk' => $disk,
-            'path' => $normalized,
-            'url' => $url,
-        ]);
-
-        return $url;
-    } catch (Throwable $e) {
-        \Log::error('DownloadableFile url failed', [
-            'disk' => $disk,
-            'path' => $normalized,
-            'message' => $e->getMessage(),
-        ]);
-    }
-}
+            try {
+                return Storage::disk($disk)->url($normalized);
+            } catch (Throwable) {
+            }
+        }
 
         return asset('storage/' . $normalized);
     }
