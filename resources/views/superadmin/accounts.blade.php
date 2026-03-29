@@ -220,11 +220,19 @@
     </div>
 
     <div class="fg">
-        <label>CMS Roles <span class="req">*</span></label>
-        <select id="rolePicker">
-            <option value="">Select Role</option>
-        </select>
-    </div>
+      <label>CMS Roles <span class="req">*</span></label>
+      <div class="searchable-select" id="roleSearchWrap">
+          <input
+              type="text"
+              id="roleSearch"
+              placeholder="Search and select CMS role"
+              autocomplete="off"
+          >
+          <input type="hidden" id="rolePicker">
+          <div class="searchable-dropdown" id="roleDropdown"></div>
+      </div>
+  </div>
+
 </div>
 
 <div class="frow">
@@ -424,36 +432,90 @@ function roleLabel(code){
   return ROLE_NAME_BY_CODE[c] || c;
 }
 
-function fillRoleOptions() {
-  const sel = document.getElementById('rolePicker');
-  if (!sel) return;
-
-  const opts = (ROLES || [])
-  .filter(r => String(r.code) !== 'LIBRARY')
-  .filter(r => {
-    const code = String(r.code);
-    if (code === 'SUPERADMIN' && CURRENT_ROLE !== 'SUPERADMIN') {
-      return false;
-    }
-    return !code.includes(':');
-  })
+function availableRoleOptions() {
+  return (ROLES || [])
+    .filter(r => String(r.code) !== 'LIBRARY')
+    .filter(r => {
+      const code = String(r.code);
+      if (code === 'SUPERADMIN' && CURRENT_ROLE !== 'SUPERADMIN') {
+        return false;
+      }
+      return !code.includes(':');
+    })
     .map(r => {
       const code = String(r.code);
+      const normalizedCode = code === 'FACULTY' ? 'pupt:faculty' : code;
       const name = (code === 'RESEARCH' || code === 'RESEARCH_EXTENSION')
         ? 'Research & Extension'
         : String(r.name);
 
-      if (code === 'FACULTY') {
-        return `<option value="pupt:faculty">${name}</option>`;
+      return {
+        code: normalizedCode,
+        name: name
+      };
+    })
+    .filter((role, index, arr) => arr.findIndex(x => x.code === role.code) === index);
+}
+
+function fillRoleOptions() {
+  renderRoleDropdown('');
+}
+
+function closeRoleDropdown() {
+  const dropdown = document.getElementById('roleDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+}
+
+function renderRoleDropdown(query = '') {
+  const dropdown = document.getElementById('roleDropdown');
+  if (!dropdown) return;
+
+  const q = normalizeText(query);
+
+  const filteredRoles = availableRoleOptions().filter(role => {
+    const haystack = `${role.name} ${role.code}`.toLowerCase();
+    return !q || haystack.includes(q);
+  });
+
+  if (!filteredRoles.length) {
+    dropdown.innerHTML = `<div class="searchable-empty">No matching roles found.</div>`;
+    dropdown.classList.add('active');
+    return;
+  }
+
+  dropdown.innerHTML = filteredRoles.map(role => {
+    const alreadySelected = selectedRoles.includes(normalizeRole(role.code));
+
+    return `
+      <div class="searchable-option ${alreadySelected ? 'disabled-option' : ''}" data-code="${escapeHtml(role.code)}" data-disabled="${alreadySelected ? '1' : '0'}">
+        <div class="opt-name">${escapeHtml(role.name)}</div>
+        <div class="opt-meta">${alreadySelected ? 'Already selected' : escapeHtml(role.code)}</div>
+      </div>
+    `;
+  }).join('');
+
+  dropdown.classList.add('active');
+
+  dropdown.querySelectorAll('.searchable-option').forEach(opt => {
+    opt.addEventListener('click', function () {
+      if (this.dataset.disabled === '1') {
+        showToast('This role is already selected.', 'warning');
+        return;
       }
 
-      return `<option value="${code}">${name}</option>`;
-    })
-    .join('');
+      const code = this.dataset.code;
+      addRoleChip(code);
 
-  sel.innerHTML = `<option value="">Select Role</option>` + opts;
+      const roleSearch = document.getElementById('roleSearch');
+      const picker = document.getElementById('rolePicker');
+
+      if (roleSearch) roleSearch.value = '';
+      if (picker) picker.value = '';
+
+      renderRoleDropdown('');
+    });
+  });
 }
-fillRoleOptions();
 
 function renderRoleChips() {
   const box = document.getElementById('roleChips');
@@ -491,19 +553,12 @@ function removeRoleChip(code) {
   renderRoleChips();
 }
 
-document.addEventListener('change', function(e){
-  if (e.target && e.target.id === 'rolePicker') {
-    const val = e.target.value;
-    if (val) addRoleChip(val);
-    e.target.value = '';
-  }
-});
 users = (Array.isArray(users) ? users : []).map(shapeUser);
 
 let curRole='all', editId=null, viewId=null, pg=1;
 let selectedRoles = [];
 const PP=10;
-
+fillRoleOptions();
 function filtered(){
   const q=(document.getElementById('srch').value||'').toLowerCase();
   const st=document.getElementById('stFil').value;
@@ -633,7 +688,11 @@ function clrForm(){
   const picker = document.getElementById('rolePicker');
   if (picker) picker.value = '';
 
+  const roleSearch = document.getElementById('roleSearch');
+  if (roleSearch) roleSearch.value = '';
+
   closeFacultyDropdown();
+  closeRoleDropdown();
 }
 
 function openAdd(){
@@ -660,6 +719,9 @@ function openEdit(id){
 
   const picker = document.getElementById('rolePicker');
   if (picker) picker.value = '';
+
+  const roleSearch = document.getElementById('roleSearch');
+  if (roleSearch) roleSearch.value = '';
 
   document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit CMS Access';
   document.getElementById('saveLbl').textContent = 'Update Access';
@@ -1006,6 +1068,22 @@ document.addEventListener('click', function (e) {
   const wrap = document.getElementById('facultySearchWrap');
   if (wrap && !wrap.contains(e.target)) {
     closeFacultyDropdown();
+  }
+});
+
+document.getElementById('roleSearch').addEventListener('focus', function () {
+  renderRoleDropdown(this.value);
+});
+
+document.getElementById('roleSearch').addEventListener('input', function () {
+  document.getElementById('rolePicker').value = '';
+  renderRoleDropdown(this.value);
+});
+
+document.addEventListener('click', function (e) {
+  const wrap = document.getElementById('roleSearchWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeRoleDropdown();
   }
 });
 </script>
