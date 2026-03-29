@@ -105,55 +105,35 @@
                 <button class="action-btn" type="button" onclick="openAdd()"><i class="fas fa-user-plus"></i> Assign Access</button>
             </div>
 
-            <div class="tab-nav">
-                <button class="tab-btn active" data-role="all" onclick="switchRole('all')">
-                    <i class="fas fa-th-list"></i> All <span class="count-pill" id="pill-all">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Superadmin" onclick="switchRole('Superadmin')">
-                    <i class="fas fa-shield"></i> Superadmin <span class="count-pill" id="pill-Superadmin">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Admin" onclick="switchRole('Admin')">
-                    <i class="fas fa-shield-halved"></i> Admin <span class="count-pill" id="pill-Admin">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Registrar" onclick="switchRole('Registrar')">
-                    <i class="fas fa-id-card"></i> Registrar <span class="count-pill" id="pill-Registrar">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="HAP" onclick="switchRole('HAP')">
-                    <i class="fas fa-building-user"></i> HAP <span class="count-pill" id="pill-HAP">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Student Services" onclick="switchRole('Student Services')">
-                    <i class="fas fa-handshake-angle"></i> Student Services
-                    <span class="count-pill" id="pill-StudentServices">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Research and Extension" onclick="switchRole('Research and Extension')">
-                    <i class="fas fa-flask"></i> Research & Extension
-                    <span class="count-pill" id="pill-ResearchExtension">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Faculty" onclick="switchRole('Faculty')">
-                    <i class="fas fa-chalkboard-user"></i> Faculty <span class="count-pill" id="pill-Faculty">0</span>
-                </button>
-            </div>
-
             <div class="filter-bar">
-                <div class="filter-field filter-search">
-                    <i class="fas fa-magnifying-glass"></i>
-                    <input type="text" id="srch" placeholder="Search by name, email or ID..." oninput="applyFilters()">
-                </div>
-                <div class="filter-field filter-select">
-                    <i class="fas fa-circle-check"></i>
-                    <select id="stFil" onchange="applyFilters()">
-                        <option value="">All Status</option>
-                        <option>Active</option><option>Inactive</option><option>Suspended</option>
-                    </select>
-                </div>
-            </div>
+    <div class="filter-field filter-search" style="max-width: 280px;">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="srch" placeholder="Search name, email, or ID..." oninput="applyFilters()">
+    </div>
+
+    <div class="filter-field">
+    <div class="searchable-select" id="roleFilterWrap">
+        <input
+            type="text"
+            id="roleFilterSearch"
+            placeholder="All Roles"
+            autocomplete="off"
+        >
+        <input type="hidden" id="roleFil">
+        <div class="searchable-dropdown" id="roleFilterDropdown"></div>
+    </div>
+</div>
+
+    <div class="filter-field filter-select">
+        <i class="fas fa-circle-check"></i>
+        <select id="stFil" onchange="applyFilters()">
+            <option value="">All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+            <option>Suspended</option>
+        </select>
+    </div>
+</div>
 
             <div class="table-wrap">
                 <table>
@@ -523,6 +503,63 @@ function renderRoleDropdown(query = '') {
   });
 }
 
+function closeRoleFilterDropdown() {
+  const dropdown = document.getElementById('roleFilterDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+}
+
+function setRoleFilter(code = '') {
+  const hidden = document.getElementById('roleFil');
+  const input = document.getElementById('roleFilterSearch');
+
+  if (hidden) hidden.value = code;
+  if (input) input.value = code ? roleLabel(code) : '';
+
+  applyFilters();
+}
+
+function renderRoleFilterDropdown(query = '') {
+  const dropdown = document.getElementById('roleFilterDropdown');
+  if (!dropdown) return;
+
+  const q = normalizeText(query);
+  const selectedCode = document.getElementById('roleFil')?.value || '';
+
+  const filteredRoles = availableRoleOptions().filter(role => {
+    const haystack = `${role.name} ${role.code}`.toLowerCase();
+    return !q || haystack.includes(q);
+  });
+
+  let html = `
+    <div class="searchable-option ${selectedCode === '' ? 'selected-option' : ''}" data-code="">
+      <div class="opt-name">All Roles</div>
+      <div class="opt-meta">Show all roles</div>
+    </div>
+  `;
+
+  if (!filteredRoles.length) {
+    html += `<div class="searchable-empty">No matching roles found.</div>`;
+  } else {
+    html += filteredRoles.map(role => `
+      <div class="searchable-option ${selectedCode === role.code ? 'selected-option' : ''}" data-code="${escapeHtml(role.code)}">
+        <div class="opt-name">${escapeHtml(role.name)}</div>
+        <div class="opt-meta">${escapeHtml(role.code)}</div>
+      </div>
+    `).join('');
+  }
+
+  dropdown.innerHTML = html;
+  dropdown.classList.add('active');
+
+  dropdown.querySelectorAll('.searchable-option').forEach(opt => {
+    opt.addEventListener('click', function () {
+      const code = this.dataset.code || '';
+      setRoleFilter(code);
+      closeRoleFilterDropdown();
+    });
+  });
+}
+
 function renderRoleChips() {
   const box = document.getElementById('roleChips');
   if (!box) return;
@@ -561,18 +598,23 @@ function removeRoleChip(code) {
 
 users = (Array.isArray(users) ? users : []).map(shapeUser);
 
-let curRole='all', editId=null, viewId=null, pg=1;
+let editId=null, viewId=null, pg=1;
 let selectedRoles = [];
 const PP=10;
 fillRoleOptions();
 function filtered(){
-  const q=(document.getElementById('srch').value||'').toLowerCase();
-  const st=document.getElementById('stFil').value;
-  return users.filter(u=>{
-    const mr = (curRole === 'all') || roleMatchesTab(u.rl, curRole);
-    const mq=!q||`${u.fn} ${u.ln} ${u.em} ${u.id}`.toLowerCase().includes(q);
-    const ms=!st||u.st===st;
-    return mr&&mq&&ms;
+  const q = (document.getElementById('srch').value || '').toLowerCase();
+  const role = document.getElementById('roleFil').value;
+  const st = document.getElementById('stFil').value;
+
+  return users.filter(u => {
+    const userRoles = Array.isArray(u.roles) && u.roles.length ? u.roles : [u.rl];
+
+    const mq = !q || `${u.fn} ${u.ln} ${u.em} ${u.id}`.toLowerCase().includes(q);
+    const mr = !role || userRoles.includes(role);
+    const ms = !st || u.st === st;
+
+    return mq && mr && ms;
   });
 }
 
@@ -641,11 +683,9 @@ ${statusBtn}
 }
 
 function updateCounts(){
-  const rc = {};
   const sc = {Active:0,Inactive:0,Suspended:0};
 
-  users.forEach(u=>{
-    rc[u.rl] = (rc[u.rl] || 0) + 1;
+  users.forEach(u => {
     sc[u.st] = (sc[u.st] || 0) + 1;
   });
 
@@ -653,22 +693,6 @@ function updateCounts(){
   document.getElementById('cnt-active').textContent = sc.Active;
   document.getElementById('cnt-inactive').textContent = sc.Inactive;
   document.getElementById('cnt-suspended').textContent = sc.Suspended;
-
-  document.getElementById('pill-all').textContent = users.length;
-
-const countByTab = (tabLabel) => {
-  return users.reduce((n,u)=> n + (roleMatchesTab(u.rl, tabLabel) ? 1 : 0), 0);
-};
-
-const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-setPill('pill-Superadmin', countByTab('Superadmin'));
-setPill('pill-Admin', countByTab('Admin'));
-setPill('pill-Registrar', countByTab('Registrar'));
-setPill('pill-HAP', countByTab('HAP'));
-setPill('pill-StudentServices', countByTab('Student Services'));
-setPill('pill-ResearchExtension', countByTab('Research and Extension'));
-setPill('pill-Faculty', countByTab('Faculty'));
 }
 
 function applyFilters(){ pg=1; render(); }
@@ -1092,6 +1116,26 @@ document.addEventListener('click', function (e) {
     closeRoleDropdown();
   }
 });
+
+document.getElementById('roleFilterSearch').addEventListener('focus', function () {
+  renderRoleFilterDropdown(this.value);
+});
+
+document.getElementById('roleFilterSearch').addEventListener('input', function () {
+  renderRoleFilterDropdown(this.value);
+});
+
+document.addEventListener('click', function (e) {
+  const wrap = document.getElementById('roleFilterWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeRoleFilterDropdown();
+  }
+});
+
+const roleFilterHidden = document.getElementById('roleFil');
+const roleFilterInput = document.getElementById('roleFilterSearch');
+if (roleFilterHidden) roleFilterHidden.value = '';
+if (roleFilterInput) roleFilterInput.value = '';
 </script>
 </body>
 </html>
