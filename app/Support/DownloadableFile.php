@@ -29,6 +29,12 @@ class DownloadableFile
 
                 return $stored;
             }
+
+            \Log::warning('DownloadableFile store returned false', [
+                'disk' => $disk,
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+            ]);
         } catch (Throwable $e) {
             \Log::error('DownloadableFile store failed', [
                 'disk' => $disk,
