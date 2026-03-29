@@ -309,7 +309,13 @@ const RC = {
   RESEARCH_EXTENSION: 'r-research',
   FACULTY: 'r-faculty',
   'pupt:faculty': 'r-faculty',
-  'pupt:student': 'r-student'
+  'pupt:student': 'r-student',
+  FACULTY_PRO: 'r-faculty_pro',
+  DENTAL: 'r-dental',
+  CLINIC: 'r-clinic',
+  GUIDANCE: 'r-guidance',
+  ACCREDITATION: 'r-accreditation',
+  ADMISSIONS: 'r-admissions',
 };
 const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended' };
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };

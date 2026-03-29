@@ -666,15 +666,66 @@ tbody td {
   background: rgba(153, 27, 27, 0.12);
   color: #991b1b;
 }
-.r-admin     { background: rgba(128, 0, 0, 0.1);      color: #800000; }
-.r-registrar { background: rgba(212, 175, 55, 0.15);  color: #9a7a00; }
-.r-hap       { background: rgba(59, 130, 246, 0.12);  color: #2563eb; }
-.r-faculty   { background: rgba(168, 85, 247, 0.12);  color: #7c3aed; }
-.r-studentservices { 
-  background: rgba(236, 72, 153, 0.12); 
-  color: #ec4899; 
+
+.r-admin {
+  background: rgba(128, 0, 0, 0.10);
+  color: #800000;
 }
-.r-research { background: rgba(34, 197, 94, 0.12); color: #16a34a; }
+
+.r-registrar {
+  background: rgba(212, 175, 55, 0.15);
+  color: #9a7a00;
+}
+
+.r-hap {
+  background: rgba(59, 130, 246, 0.12);
+  color: #2563eb;
+}
+
+.r-faculty {
+  background: rgba(168, 85, 247, 0.12);
+  color: #7c3aed;
+}
+
+.r-faculty_pro {
+  background: rgba(124, 58, 237, 0.12);
+  color: #6d28d9;
+}
+
+.r-studentservices {
+  background: rgba(236, 72, 153, 0.12);
+  color: #db2777;
+}
+
+.r-research {
+  background: rgba(34, 197, 94, 0.12);
+  color: #16a34a;
+}
+
+.r-guidance {
+  background: rgba(245, 158, 11, 0.14);
+  color: #d97706;
+}
+
+.r-dental {
+  background: rgba(6, 182, 212, 0.12);
+  color: #0891b2;
+}
+
+.r-clinic {
+  background: rgba(239, 68, 68, 0.12);
+  color: #dc2626;
+}
+
+.r-admissions {
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+}
+
+.r-accreditation {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+}
 
 /* Status Badges */
 .sbadge {
