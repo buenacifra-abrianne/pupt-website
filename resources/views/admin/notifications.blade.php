@@ -52,12 +52,12 @@
                     <span>Content Management</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{ route('admin.downloadables') ?? '#' }}" class="nav-link">
                     <i class="fas fa-download"></i>
                     <span>Downloadables</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link active">
                     <i class="fas fa-bell"></i>
