@@ -78,15 +78,28 @@ class DownloadableFile
         }
 
         foreach (self::candidateDisks() as $disk) {
-            if ($disk === self::FALLBACK_DISK) {
-                continue;
-            }
+    if ($disk === self::FALLBACK_DISK) {
+        continue;
+    }
 
-            try {
-                return Storage::disk($disk)->url($normalized);
-            } catch (Throwable) {
-            }
-        }
+    try {
+        $url = Storage::disk($disk)->url($normalized);
+
+        \Log::info('DownloadableFile url generated', [
+            'disk' => $disk,
+            'path' => $normalized,
+            'url' => $url,
+        ]);
+
+        return $url;
+    } catch (Throwable $e) {
+        \Log::error('DownloadableFile url failed', [
+            'disk' => $disk,
+            'path' => $normalized,
+            'message' => $e->getMessage(),
+        ]);
+    }
+}
 
         return asset('storage/' . $normalized);
     }
