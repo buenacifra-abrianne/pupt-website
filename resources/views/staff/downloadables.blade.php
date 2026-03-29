@@ -411,15 +411,6 @@
                             </span>
                         </div>
 
-                        <div class="announcement-actions">
-                            <button class="btn btn-sm btn-view-icon" type="button" title="View details"
-                                onclick='openReadMoreModal(
-                                    @json($row->title ?? "Downloadable Details"),
-                                    @json($row->description ?? "<p>No description available.</p>")
-                                )'>
-                                <i class="fas fa-eye"></i>
-                            </button>
-
                             <a href="{{ $fileUrl }}"
                                class="btn btn-sm btn-view-icon"
                                target="_blank"

@@ -139,6 +139,9 @@ $rejected_requests = \DB::table('approval_requests')
             str_starts_with($type, 'NEWS_UPDATE') => 'Edit news request',
             str_starts_with($type, 'NEWS_DELETE') => 'Delete news request',
             str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT') => 'Content edit request',
+            str_starts_with($type, 'DOWNLOADABLE_CREATE') => 'Create downloadable request',
+            str_starts_with($type, 'DOWNLOADABLE_UPDATE') => 'Edit downloadable request',
+            str_starts_with($type, 'DOWNLOADABLE_DELETE') => 'Delete downloadable request',
             default => 'Request update',
         };
 

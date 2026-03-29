@@ -453,7 +453,15 @@ private function attachDisplayFields($paginator)
         // default: use request payload (create/update)
         $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
         $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
-        $displayContent = $payload['content'] ?? ($payload['details'] ?? '');
+        $displayContent = $payload['content']
+            ?? $payload['description']
+            ?? ($payload['details'] ?? '');
+
+        if (str_starts_with($type, 'DOWNLOADABLE_')) {
+            $displayContent = $payload['description']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
 
         // ANNOUNCEMENT: enable/disable/delete -> show REAL announcement
         if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
