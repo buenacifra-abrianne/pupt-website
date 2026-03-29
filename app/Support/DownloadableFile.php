@@ -14,19 +14,33 @@ class DownloadableFile
     private const MAX_BYTES = 20 * 1024 * 1024;
 
     public static function store(UploadedFile $file, string $directory = 'downloadables'): string|false
-    {
-        foreach (self::candidateDisks() as $disk) {
-            try {
-                $stored = $file->store($directory, $disk);
-                if ($stored !== false) {
-                    return $stored;
-                }
-            } catch (Throwable) {
-            }
-        }
+{
+    foreach (self::candidateDisks() as $disk) {
+        try {
+            $stored = $file->store($directory, $disk);
 
-        return false;
+            if ($stored !== false) {
+                \Log::info('DownloadableFile store generated', [
+                    'disk' => $disk,
+                    'path' => $stored,
+                    'name' => $file->getClientOriginalName(),
+                    'size' => $file->getSize(),
+                ]);
+
+                return $stored;
+            }
+        } catch (Throwable $e) {
+            \Log::error('DownloadableFile store failed', [
+                'disk' => $disk,
+                'name' => $file->getClientOriginalName(),
+                'size' => $file->getSize(),
+                'message' => $e->getMessage(),
+            ]);
+        }
     }
+
+    return false;
+}
 
     public static function delete(?string $path): void
     {
