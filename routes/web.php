@@ -43,6 +43,9 @@ use App\Http\Controllers\Public\PupiapplyController;
 // Endpoints
 use App\Http\Controllers\SsoController;
 use App\Http\Controllers\Auth\OnePortalController;
+use App\Http\Controllers\Public\DegreeProgramsController;
+use App\Http\Controllers\Public\DiplomaProgramsController;
+use App\Http\Controllers\Public\GraduateProgramsController;
 
 Route::get('/', function () {
     return view('public.index'); // <-- ito yung index blade mo
@@ -53,9 +56,9 @@ Route::get('/about', [AboutController::class, 'index'])->name('public.about');
 Route::get('/about/{section}', [AboutController::class, 'show'])->name('public.about.section');
 Route::get('/academics', [AcademicsController::class, 'index'])->name('public.academics');
 Route::get('/academics/pup-iapply', [PupiapplyController::class, 'index'])->name('public.pup-iapply');
-Route::get('/academics/degree-programs', [PupiapplyController::class, 'index'])->name('public.degree-programs');
-Route::get('/academics/diploma-programs', [PupiapplyController::class, 'index'])->name('public.diploma-programs');
-Route::get('/academics/graduate-programs', [PupiapplyController::class, 'index'])->name('public.graduateprograms');
+Route::get('/academics/degree-programs',   [DegreeProgramsController::class, 'index'])->name('public.degree-programs');
+Route::get('/academics/diploma-programs',  [DiplomaProgramsController::class, 'index'])->name('public.diploma-programs');
+Route::get('/academics/graduate-programs', [GraduateProgramsController::class, 'index'])->name('public.graduate-programs');
 Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');

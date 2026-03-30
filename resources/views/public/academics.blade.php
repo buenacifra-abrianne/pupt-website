@@ -54,7 +54,7 @@
                 </div>
 
                 <nav class="contents-cards" aria-label="Academic page contents">
-                    <a href=""{{ route('public.degree-programs') }}"" class="contents-card card_without_section">
+                    <a href="{{ route('public.degree-programs') }}" class="contents-card card_without_section">
                         <div class="contents-card-inner">
                             <div class="contents-card-front">
                                 <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Degree Programs">
