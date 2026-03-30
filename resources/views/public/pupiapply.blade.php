@@ -6,7 +6,6 @@
     <title>PUP iApply - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/academics.css') }}?v={{ filemtime(public_path('assets/css/academics.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/pupiapply.css') }}?v={{ filemtime(public_path('assets/css/pupiapply.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
@@ -23,7 +22,7 @@
 
     <main class="main-content">
 
-        {{-- Breadcrumb --}}
+        {{-- ① Breadcrumb — inside page-shell so it stays inset --}}
         <div class="academic-shell page-shell">
             <nav class="academic-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
@@ -34,90 +33,90 @@
             </nav>
         </div>
 
-        {{-- Hero / Campus-Story Card --}}
+        {{-- ② Hero — full-width bleed, content centered via iapply-hero-content wrapper --}}
         <section class="iapply-hero reveal">
-            <p class="iapply-hero-tag">Admissions</p>
-            <h1>PUP iApply</h1>
-            <p class="iapply-hero-sub">CAEPUP — College Admission Evaluation of PUP</p>
-            <p>
-                PUP iApply (formerly PUPCET iApply), a Web-based Registration System, streamlines the
-                University's ability to develop, deploy, and operate a massive admission process in a more
-                efficient method, lower its costs of operation, and deliver a more efficient and reliable
-                ICT-enabled system that effectively works for the community.
-            </p>
+            <div class="iapply-hero-content">
+                <p class="iapply-hero-tag">Admissions</p>
+                <h1>PUP iApply</h1>
+                <p class="iapply-hero-sub">CAEPUP — College Admission Evaluation of PUP</p>
+                <p>
+                    PUP iApply (formerly PUPCET iApply), a Web-based Registration System, streamlines the
+                    University's ability to develop, deploy, and operate a massive admission process in a more
+                    efficient method, lower its costs of operation, and deliver a more efficient and reliable
+                    ICT-enabled system that effectively works for the community.
+                </p>
 
-            <div class="iapply-hero-desc">
-                <p>System Benefits</p>
-                <ul>
-                    <li>Apply anytime at their convenience;</li>
-                    <li>Save on cumulative expenses;</li>
-                    <li>Save on time and energy; and</li>
-                    <li>Verify status of application anytime.</li>
-                </ul>
-            </div>
+                <div class="iapply-hero-desc">
+                    <p>System Benefits</p>
+                    <ul>
+                        <li>Apply anytime at their convenience;</li>
+                        <li>Save on cumulative expenses;</li>
+                        <li>Save on time and energy; and</li>
+                        <li>Verify status of application anytime.</li>
+                    </ul>
+                </div>
 
-            {{-- Floating panel --}}
-            <div class="iapply-hero-visual">
-                <div class="iapply-hero-visual-inner">
-                    <div class="iapply-logo-icon">i</div>
-                    <h3>Ready to Apply?</h3>
-                    <p>
-                        Enable applicants to register for University college admission evaluation
-                        and entrance exams online.
-                    </p>
-                    <a href="#" class="apply-now-btn" target="_blank" rel="noopener">
-                        Apply Now ↗
-                    </a>
+                {{-- Floating panel — positioned relative to iapply-hero-content --}}
+                <div class="iapply-hero-visual">
+                    <div class="iapply-hero-visual-inner">
+                        <div class="iapply-logo-icon">i</div>
+                        <h3>Ready to Apply?</h3>
+                        <p>
+                            Enable applicants to register for University college admission evaluation
+                            and entrance exams online.
+                        </p>
+                        <a href="#" class="apply-now-btn" target="_blank" rel="noopener">
+                            Apply Now ↗
+                        </a>
+                    </div>
                 </div>
             </div>
         </section>
 
-        {{-- Schedule Strip --}}
         <div class="iapply-schedule-strip reveal delay-100">
-            <div class="iapply-schedule-head">
-                <span class="section-tag layout-kicker">Schedule &amp; Key Dates</span>
-                <h2>Branch Campus — Taguig City</h2>
-            </div>
+            <div class="iapply-schedule-inner">
+                <div class="iapply-schedule-head">
+                    <span class="section-tag">Schedule &amp; Key Dates</span>
+                    <h2>Branch Campus — Taguig City</h2>
+                </div>
 
-            <div class="iapply-schedule-grid">
-                <div class="iapply-schedule-box">
-                    <span class="iapply-schedule-box-label">Online Application</span>
-                    <span class="iapply-schedule-box-value">January 27, 2022 – May 30, 2022</span>
-                </div>
-                <div class="iapply-schedule-box">
-                    <span class="iapply-schedule-box-label">Last Day of Issuance</span>
-                    <span class="iapply-schedule-box-value">June 15, 2022</span>
-                </div>
-                <div class="iapply-schedule-box">
-                    <span class="iapply-schedule-box-label">Evaluation Result</span>
-                    <span class="iapply-schedule-box-value">June 15, 2022</span>
-                </div>
-                <div class="iapply-schedule-box">
-                    <span class="iapply-schedule-box-label">Criteria</span>
-                    <span class="iapply-schedule-box-value">
-                        <a href="#" target="_blank" rel="noopener">View on Google Drive ↗</a>
-                    </span>
+                <div class="iapply-schedule-grid">
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Online Application</span>
+                        <span class="iapply-schedule-box-value">January 27, 2022 – May 30, 2022</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Last Day of Issuance</span>
+                        <span class="iapply-schedule-box-value">June 15, 2022</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Evaluation Result</span>
+                        <span class="iapply-schedule-box-value">June 15, 2022</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Criteria</span>
+                        <span class="iapply-schedule-box-value">
+                            <a href="#" target="_blank" rel="noopener">View on Google Drive ↗</a>
+                        </span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        {{-- Main Content Sections --}}
         <div class="iapply-sections-wrap">
 
             {{-- Step-by-step Guide --}}
             <div class="iapply-section-card reveal delay-100">
-                <span class="section-tag layout-kicker">How to Apply</span>
+                <span class="section-tag">How to Apply</span>
                 <h2>Step-by-step CAEPUP Application Guide</h2>
                 <p>
                     Online application for the College Admission Evaluation of PUP <strong>#CAEPUP</strong>
                     for the First Semester, Academic Year 2022–2023.
                 </p>
 
-                {{-- YouTube Video Embed --}}
                 <div class="iapply-video-wrap">
-                    {{-- Replace the src below with the actual YouTube embed URL --}}
                     <iframe
-                        src="https://youtu.be/A7Ed_9_nB50?si=voQVUuenHGtdWp8L"
+                        src="https://www.youtube.com/embed/A7Ed_9_nB50"
                         title="CAEPUP Step-by-step Application Guide"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
@@ -128,7 +127,7 @@
 
             {{-- Important Reminders --}}
             <div class="iapply-section-card reveal delay-200">
-                <span class="section-tag layout-kicker">Before You Apply</span>
+                <span class="section-tag">Before You Apply</span>
                 <h2>Important — Please Read Carefully</h2>
 
                 <div class="iapply-notice">
