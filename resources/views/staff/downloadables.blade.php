@@ -367,7 +367,6 @@
             </style>
         @endif
 
-        @if($isFacultyPro)
         <div class="card" style="margin-top:18px;">
             <div class="card-header">
                 <h3 class="card-title">Available Downloadables</h3>
@@ -432,7 +431,6 @@
                 @endforelse
             </div>
         </div>
-        @endif
     </main>
 
     <div id="readMoreModal" class="modal">
