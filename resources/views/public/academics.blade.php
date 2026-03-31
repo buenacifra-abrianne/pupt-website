@@ -126,7 +126,7 @@
                         </div>
                     </a>
 
-                    <a href="#" class="contents-card card_without_section">
+                    <a href="{{ route('public.university-calendar') }}" class="contents-card card_without_section">
                         <div class="contents-card-inner">
                             <div class="contents-card-front">
                                 <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="University Calendar">
