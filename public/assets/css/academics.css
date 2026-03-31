@@ -1587,6 +1587,60 @@ pup-footer .footer { margin-top: 0; }
   width: fit-content;
 }
 
+/* ============================================================
+   UNIVERSITY CALENDAR PAGE  (uc- prefix)
+   ============================================================ */
+
+.uc-calendar-frame {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.uc-calendar-embed {
+  width: 100%;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  box-shadow: 0 12px 32px rgba(79, 9, 12, 0.1);
+  background: #f2f2f2;
+  aspect-ratio: 16 / 11;
+}
+
+.uc-calendar-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  min-height: 520px;
+}
+
+.uc-calendar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.uc-btn-outline {
+  background: transparent;
+  border: 2px solid var(--maroon);
+  color: var(--maroon);
+  box-shadow: none;
+}
+
+.uc-btn-outline:hover {
+  background: rgba(127, 17, 19, 0.06);
+  box-shadow: none;
+}
+
+@media (max-width: 480px) {
+  .uc-calendar-actions .apply-now-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 
 /* ============================================================
    RESPONSIVE
