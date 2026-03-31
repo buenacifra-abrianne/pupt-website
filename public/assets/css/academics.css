@@ -260,7 +260,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .academic-breadcrumb span {
   color: var(--maroon);
   font-weight: 800;
-  opacity: 0.5; /* iapply variant uses opacity; keep both classes compatible */
+  opacity: 0.5;
 }
 
 .academic-breadcrumb strong {
@@ -269,7 +269,6 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 }
 
 /* ── Full-width bleed helper ── */
-/* Escapes any offset CMS parent container by anchoring to viewport left edge */
 .hero-shell,
 .academic-features,
 .iapply-hero,
@@ -308,25 +307,23 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   margin-top: 0;
 }
 
-/* campus-story keeps a min-height since it has an image panel */
 .campus-story-card {
   min-height: 360px;
 }
 
-/* iapply-specific padding (wide right gutter for floating panel) */
 .iapply-hero {
   padding: 48px var(--page-gutter) 48px;
   display: flex;
   justify-content: center;
   overflow: visible;
-  min-height: 0; /* let content determine height */
+  min-height: 0;
 }
 
 .iapply-hero-content {
   width: 100%;
   max-width: 1200px;
-  position: relative; /* anchor for absolutely-positioned visual panel */
-  padding-right: 370px; /* reserves space for the 330px panel + 40px gap */
+  position: relative;
+  padding-right: 370px;
   box-sizing: border-box;
 }
 
@@ -338,19 +335,18 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   margin: 0;
   display: flex;
   justify-content: center;
-  overflow: visible; /* allow panel to bleed above and below */
-  margin-bottom: 92px; /* space for panel's bottom overflow */
+  overflow: visible;
+  margin-bottom: 92px;
 }
 
 .campus-story-card-content {
   width: 100%;
   max-width: 1200px;
-  padding-right: 440px; /* reserves space so text doesn't go under panel */
+  padding-right: 440px;
   position: relative;
   box-sizing: border-box;
 }
 
-/* Headings inside hero cards */
 .iapply-hero h1 {
   margin: 0 0 8px;
   color: #fffaf4;
@@ -378,7 +374,6 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   max-width: 1000px;
 }
 
-/* Campus-story layout helpers */
 .campus-story-layout { display: block; }
 
 .campus-story-copy {
@@ -472,9 +467,9 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 }
 
 .campus-story-visual {
-  top: -34px;    /* overlaps above the hero */
-  bottom: -92px; /* overlaps below the hero */
-  right: 38px;   /* gap from viewport right edge */
+  top: -34px;
+  bottom: -92px;
+  right: 38px;
   width: 380px;
   display: flex;
   align-items: stretch;
@@ -706,7 +701,6 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   gap: 22px;
 }
 
-/* Cards */
 .academic-feature-card,
 .cards_information {
   position: relative;
@@ -892,14 +886,13 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .contents-strip {
   margin-top: -10px;
   padding: 24px 32px 28px;
-  border-radius: 26px;
+  border-radius: 0;
   background:
     linear-gradient(135deg, rgba(255, 247, 237, 0.96) 0%, rgba(247, 239, 232, 0.92) 54%, rgba(215, 170, 67, 0.16) 100%);
   box-shadow: var(--shadow);
   z-index: 1;
 }
 
-/* Inner wrappers — keep full-width-bleed section content centered */
 .contents-strip-inner,
 .iapply-schedule-inner {
   max-width: 1400px;
@@ -909,9 +902,12 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 
 .contents-strip-head { margin-bottom: 16px; }
 
-.contents-strip-head .section-tag,
-.contents-strip-head h2 {
+.contents-strip-head .section-tag {
   color: var(--maroon);
+}
+
+.contents-strip-head h2 {
+  color: var(--ink);
 }
 
 .contents-strip-head h2 {
@@ -1093,11 +1089,18 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .contents-card.active .contents-card-back { opacity: 1; transform: translateY(0); }
 
 .contents-card:hover .contents-card-overlay-copy,
-.contents-card:hover .contents-card-action,
 .contents-card:focus-visible .contents-card-overlay-copy,
+.contents-card.active .contents-card-overlay-copy { opacity: 1; transform: translateY(0); }
+
+/* "View Program" action button is intentionally hidden */
+.contents-card:hover .contents-card-action,
 .contents-card:focus-visible .contents-card-action,
-.contents-card.active .contents-card-overlay-copy,
-.contents-card.active .contents-card-action { opacity: 1; transform: translateY(0); }
+.contents-card.active .contents-card-action { opacity: 0; pointer-events: none; }
+
+/* Opt-in: parent container can re-enable the action button (e.g. academics index) */
+.show-card-action .contents-card:hover .contents-card-action,
+.show-card-action .contents-card:focus-visible .contents-card-action,
+.show-card-action .contents-card.active .contents-card-action { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 .contents-card:hover .contents-card-front img,
 .contents-card:focus-visible .contents-card-front img,
@@ -1125,7 +1128,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 
 .iapply-schedule-head h2 {
   margin: 0;
-  color: var(--maroon);
+  color: var(--ink);
   font-size: clamp(1.3rem, 2vw, 1.75rem);
   line-height: 1.15;
 }
@@ -1323,6 +1326,268 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
    ============================================================ */
 pup-footer .footer { margin-top: 0; }
 
+
+/* ============================================================
+   DEGREE PROGRAMS PAGE  (dp- prefix)
+   ============================================================ */
+
+/* ── Hero: smaller "Inquire Now" button ── */
+.dp-hero-inquire-btn {
+  margin-top: 8px;
+  font-size: 0.8rem;
+  padding: 10px 20px;
+}
+
+/* ── Hero: campus photo panel ── */
+.dp-hero-photo-panel {
+  padding: 0;
+  background: none;
+}
+
+.dp-hero-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  border-radius: 20px;
+}
+
+/* ── Programs strip overrides ── */
+.dp-programs-strip {
+  margin-top: 0;
+  border-radius: 0;
+}
+
+/* ============================================================
+   DIPLOMA CARDS — match degree program card size exactly
+   Reference values:
+     .contents-card            → height: 360px
+     .contents-cards           → grid-auto-columns: minmax(260px, 310px)
+   ============================================================ */
+.dp-diploma-cards {
+  grid-auto-columns: 310px;   /* hard-pin column width — no stretching */
+  justify-content: start;     /* left-align so 2 cards don't fill the row */
+}
+
+.dp-diploma-cards .contents-card {
+  width: 310px;               /* match degree card width  */
+  height: 360px;              /* match degree card height */
+}
+/* ── end diploma card sizing ── */
+
+/* ── Major highlight inside card back ── */
+.dp-card-major {
+  color: var(--gold-light);
+}
+
+/* ── Contact wrap ── */
+.dp-contact-wrap {
+  width: 100%;
+  padding: 0 var(--page-gutter, 24px) 56px;
+  box-sizing: border-box;
+}
+
+/* ── Contact card shell ── */
+.contact-info-card {
+  max-width: 960px;
+  margin: 32px auto 0;
+  border-radius: 28px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 253, 250, 0.97) 0%,
+    rgba(247, 239, 232, 0.93) 100%
+  );
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  box-shadow: 0 22px 48px rgba(79, 9, 12, 0.1);
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+}
+
+/* ── Photo / brand panel ── */
+.dp-contact-photo-panel {
+  background: linear-gradient(
+    180deg,
+    var(--maroon-light) 0%,
+    var(--maroon)       48%,
+    var(--maroon-deep)  100%
+  );
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 36px 24px;
+  gap: 16px;
+  text-align: center;
+}
+
+.dp-contact-logo-wrap {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 3px solid rgba(255, 241, 231, 0.3);
+  box-shadow: 0 8px 24px rgba(18, 3, 4, 0.35);
+  background: rgba(255, 250, 244, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dp-contact-logo-img {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  filter: brightness(0) invert(1);
+}
+
+.dp-contact-branch-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dp-contact-branch-name {
+  margin: 0;
+  color: #fffaf4;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.dp-contact-branch-sub {
+  margin: 0;
+  color: rgba(255, 241, 231, 0.7);
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.dp-contact-divider {
+  width: 40px;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold-light), var(--gold));
+  border-radius: 999px;
+  opacity: 0.8;
+}
+
+.dp-contact-address {
+  margin: 0;
+  color: rgba(255, 241, 231, 0.72);
+  font-size: 0.8rem;
+  line-height: 1.6;
+  max-width: 200px;
+}
+
+/* ── Details panel ── */
+.dp-contact-details-panel {
+  padding: 36px 36px 36px 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+}
+
+.dp-contact-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dp-contact-intro .section-tag {
+  margin-bottom: 8px;
+}
+
+.dp-contact-heading {
+  margin: 0 0 6px;
+  color: var(--ink);
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  line-height: 1.15;
+}
+
+.dp-contact-subtext {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+/* ── Contact rows ── */
+.dp-contact-rows {
+  display: grid;
+  gap: 12px;
+}
+
+.dp-contact-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 14px;
+}
+
+.dp-contact-row--maroon {
+  background: rgba(127, 17, 19, 0.05);
+  border: 1px solid rgba(127, 17, 19, 0.1);
+}
+
+.dp-contact-row--gold {
+  background: rgba(215, 170, 67, 0.08);
+  border: 1px solid rgba(215, 170, 67, 0.22);
+}
+
+.dp-contact-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dp-contact-icon--maroon {
+  background: linear-gradient(135deg, var(--maroon-light) 0%, var(--maroon) 100%);
+  box-shadow: 0 4px 12px rgba(79, 9, 12, 0.22);
+}
+
+.dp-contact-icon--gold {
+  background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+  box-shadow: 0 4px 12px rgba(18, 3, 4, 0.18);
+}
+
+.dp-contact-row-label {
+  display: block;
+  color: var(--maroon);
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}
+
+.dp-contact-row-value {
+  display: block;
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.dp-contact-row-value:hover {
+  color: var(--maroon);
+  text-decoration: underline;
+}
+
+/* ── CTA button ── */
+.dp-contact-cta {
+  width: fit-content;
+}
+
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -1336,7 +1601,6 @@ pup-footer .footer { margin-top: 0; }
 
 /* ── 900px ── */
 @media (max-width: 900px) {
-  /* Hero panels go static */
   .iapply-hero {
     padding: 32px var(--page-gutter) 96px;
     min-height: 0;
@@ -1368,14 +1632,12 @@ pup-footer .footer { margin-top: 0; }
 
   .iapply-hero p { max-width: 100%; }
 
-  /* Academic intro */
   .academic-intro {
     width: 100%;
     margin: 12px 0 0;
     padding: 0;
   }
 
-  /* Campus story */
   .campus-story-layout {
     display: grid;
     gap: 18px;
@@ -1394,7 +1656,6 @@ pup-footer .footer { margin-top: 0; }
     padding: 22px;
   }
 
-  /* Carousel */
   .carousel-stage,
   .carousel {
     min-height: 280px;
@@ -1449,7 +1710,6 @@ pup-footer .footer { margin-top: 0; }
 
   .campus-story-card { margin: 0; border-radius: 0; }
 
-  /* Carousel */
   .carousel, .carousel-stage, .carousel-half {
     min-height: 230px;
     height: 230px;
@@ -1463,7 +1723,6 @@ pup-footer .footer { margin-top: 0; }
     font-size: clamp(1.5rem, 8vw, 2.3rem);
   }
 
-  /* Contents strip */
   .contents-strip {
     width: calc(100vw - 24px);
     transform: translateX(calc(-50% + 0px));
@@ -1479,11 +1738,9 @@ pup-footer .footer { margin-top: 0; }
   .history-gallery { grid-template-columns: 1fr; }
   .history-gallery img { min-height: 180px; }
 
-  /* Intro text */
   .academic-intro-text { padding: 0 var(--page-gutter); }
   .academic-intro-text-inner { padding: 26px 22px; border-radius: 20px; }
 
-  /* Feature cards */
   .academic-features { padding: 16px 12px; }
   .academic-features-grid { grid-template-columns: 1fr; gap: 10px; }
 
@@ -1512,6 +1769,35 @@ pup-footer .footer { margin-top: 0; }
     margin-bottom: 8px;
     font-size: 0.86rem;
     line-height: 1.16;
+  }
+
+  /* dp- contact card responsive */
+  .dp-contact-wrap {
+    padding: 0 var(--page-gutter, 18px) 40px;
+  }
+
+  .contact-info-card {
+    grid-template-columns: 1fr;
+    border-radius: 22px;
+  }
+
+  .dp-contact-photo-panel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 24px 20px;
+    gap: 12px;
+    text-align: left;
+  }
+
+  .dp-contact-address {
+    width: 100%;
+    text-align: center;
+    max-width: none;
+  }
+
+  .dp-contact-details-panel {
+    padding: 24px 20px;
   }
 }
 
@@ -1561,5 +1847,28 @@ pup-footer .footer { margin-top: 0; }
     margin-bottom: 6px;
     font-size: 0.8rem;
     line-height: 1.14;
+  }
+
+  /* dp- contact card 480px */
+  .contact-info-card {
+    border-radius: 18px;
+  }
+
+  .dp-contact-photo-panel {
+    padding: 20px 16px;
+  }
+
+  .dp-contact-details-panel {
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  .dp-contact-heading {
+    font-size: 1.25rem;
+  }
+
+  .dp-contact-cta {
+    width: 100%;
+    justify-content: center;
   }
 }
