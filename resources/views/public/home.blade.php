@@ -32,9 +32,7 @@
 
     $slideCount = count($slides);
     $newsFeed = $news->take(5)->values();
-    $priorityAnnouncementFeed = $announcements
-        ->filter(fn ($item) => strtoupper(trim((string) ($item->priority ?? ''))) === 'HIGH')
-        ->values();
+    $priorityAnnouncementFeed = $announcements->values();
     $quickLinks = [
         [
             'label' => 'About',
@@ -168,7 +166,20 @@
                       <h4>{{ e($n->title) }}</h4>
                       <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
                     </div>
-                    <a href="{{ route('public.events') }}" class="updates-card-action contents-card-action">Read more</a>
+                    @if(!empty($n->link))
+                      <a
+                        href="{{ $n->link }}"
+                        class="updates-card-action contents-card-action"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Read more
+                      </a>
+                    @else
+                      <a href="{{ route('public.events') }}" class="updates-card-action contents-card-action">
+                        Read more
+                      </a>
+                    @endif
                   </div>
                 </div>
               </article>
