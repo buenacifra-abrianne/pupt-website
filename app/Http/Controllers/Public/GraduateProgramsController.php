@@ -8,6 +8,6 @@ class GraduateProgramsController extends Controller
 {
     public function index()
     {
-        return view('public.graduate-programs');
+        return view('public.graduateprograms');
     }
 }

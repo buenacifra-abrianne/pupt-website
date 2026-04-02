@@ -6,7 +6,7 @@
     <title>Academics - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/academics.css') }}?v={{ filemtime(public_path('assets/css/academics.css')) }}">
-    <link rel="icon" type="image/png" href="../assets/static_img/logo.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
     <!-- Header -->
@@ -53,8 +53,8 @@
                     <p class="section-tag">Contents</p>
                 </div>
 
-                <nav class="contents-cards" aria-label="Academic page contents">
-                    <a href=""{{ route('public.degree-programs') }}"" class="contents-card card_without_section">
+                <nav class="contents-cards show-card-action" aria-label="Academic page contents">
+                    <a href="{{ route('public.degree-programs') }}" class="contents-card card_without_section">
                         <div class="contents-card-inner">
                             <div class="contents-card-front">
                                 <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Degree Programs">
@@ -126,7 +126,7 @@
                         </div>
                     </a>
 
-                    <a href="#" class="contents-card card_without_section">
+                    <a href="{{ route('public.university-calendar') }}" class="contents-card card_without_section">
                         <div class="contents-card-inner">
                             <div class="contents-card-front">
                                 <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="University Calendar">
@@ -193,7 +193,7 @@
     <!-- Footer -->
     <pup-footer></pup-footer>
 
-    <script src="../assets/js/script.js" defer></script>
+    <script src="{{ asset('assets/js/script.js') }}" defer></script>
     <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
 </body>
 </html>
