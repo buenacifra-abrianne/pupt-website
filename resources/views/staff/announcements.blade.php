@@ -179,6 +179,7 @@
                           {{ (int)$a->announcement_id }},
                           {{ \Illuminate\Support\Js::from($a->title ?? '') }},
                           {{ \Illuminate\Support\Js::from($a->content ?? '') }},
+                           {{ \Illuminate\Support\Js::from($a->link ?? '') }},
                           {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
                         )">
                   <i class="fas fa-edit"></i> Edit
@@ -204,7 +205,7 @@
                 <button class="btn btn-sm btn-view-icon"
                         type="button"
                         title="View"
-                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""))'>
+                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""), @json($a->link ?? ""))'>
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
@@ -331,6 +332,7 @@
                   {{ \Illuminate\Support\Js::from($n->content ?? '') }},
                   {{ \Illuminate\Support\Js::from($n->category ?? '') }},
                   {{ \Illuminate\Support\Js::from($n->location ?? '') }},
+                  {{ \Illuminate\Support\Js::from($n->link ?? '') }},
                   {{ \Illuminate\Support\Js::from($n->image_path ?? '') }},
                   {{ \Illuminate\Support\Js::from($imgUrl ?? '') }}
                 )">
@@ -378,7 +380,19 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+            <div class="read-more-body">
+              <div class="rich-text-content" id="readMoreContent"></div>
+
+              <div id="readMoreLinkWrap" style="display:none; margin-top: 18px;">
+                  <a id="readMoreLinkBtn"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-sm btn-primary">
+                      <i class="fas fa-external-link-alt"></i> Open Link
+                  </a>
+              </div>
+          </div>
         </div>
     </div>
 
@@ -412,6 +426,17 @@
                         <option value="MEDIUM" selected>Medium Priority</option>
                         <option value="LOW">Low Priority</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="link">Link</label>
+                    <input 
+                        type="url" 
+                        name="link" 
+                        id="link"
+                        class="form-control"
+                        placeholder="https://example.com"
+                    >
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
@@ -458,6 +483,17 @@
                         <option value="Other">Other</option>
                     </select>
                 </div>
+
+                <div class="form-group">
+                  <label for="news_link">Link</label>
+                  <input 
+                      type="url" 
+                      name="link" 
+                      id="news_link"
+                      class="form-control"
+                      placeholder="https://example.com"
+                  >
+              </div>
 
                 <div class="form-group">
                     <label>Location</label>
@@ -553,11 +589,13 @@
             title: normalizeText(form.querySelector('[name="title"]')?.value),
             content: normalizeText(form.querySelector('[name="content"]')?.value),
             priority: normalizeUpper(form.querySelector('[name="priority"]')?.value),
+            link: normalizeUpper(form.querySelector('[name="link"]')?.value),
         };
 
         return current.title === announcementEditSnapshot.title
             && current.content === announcementEditSnapshot.content
-            && current.priority === announcementEditSnapshot.priority;
+            && current.priority === announcementEditSnapshot.priority
+            && current.link === announcementEditSnapshot.link;
     }
 
     function hasNoNewsChanges(form) {
@@ -572,6 +610,7 @@
             category: normalizeText(form.querySelector('[name="category"]')?.value),
             location: normalizeText(form.querySelector('[name="location"]')?.value),
             imagePath: normalizeText(document.getElementById('news_existing_image_path')?.value),
+            link: normalizeText(form.querySelector('[name="link"]')?.value),
         };
 
         return !hasNewUpload
@@ -579,6 +618,7 @@
             && current.content === newsEditSnapshot.content
             && current.category === newsEditSnapshot.category
             && current.location === newsEditSnapshot.location
+            && current.link === newsEditSnapshot.link
             && current.imagePath === newsEditSnapshot.imagePath;
     }
 
@@ -742,17 +782,35 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
-    function openReadMoreModal(title, content) {
-        document.getElementById('readMoreTitle').textContent = title || 'Read More';
-        document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
-        document.getElementById('readMoreModal').classList.add('active');
-    }
+    function openReadMoreModal(title, content, link = '') {
+      document.getElementById('readMoreTitle').textContent = title || 'Read More';
+      document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
+
+      const linkWrap = document.getElementById('readMoreLinkWrap');
+      const linkBtn = document.getElementById('readMoreLinkBtn');
+
+      if (link && link.trim() !== '') {
+          linkBtn.href = link;
+          linkWrap.style.display = 'block';
+      } else {
+          linkBtn.href = '#';
+          linkWrap.style.display = 'none';
+      }
+
+      document.getElementById('readMoreModal').classList.add('active');
+  }
 
     function closeReadMoreModal() {
         document.getElementById('readMoreModal').classList.remove('active');
+
+        const linkWrap = document.getElementById('readMoreLinkWrap');
+        const linkBtn = document.getElementById('readMoreLinkBtn');
+
+        if (linkWrap) linkWrap.style.display = 'none';
+        if (linkBtn) linkBtn.href = '#';
     }
 
-    function editNews(id, title, content, category, location, imagePath, imageUrl) {
+    function editNews(id, title, content, category, location, link, imagePath, imageUrl) {
   id = parseInt(id, 10);
   if (!id || id <= 0) {
     showToast("This request has no News ID yet. You can't submit an UPDATE. Please submit it as CREATE first (wait for admin approval), then edit from Live.", 'warning');
@@ -781,6 +839,7 @@
   setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="category"]').value = category || '';
   form.querySelector('[name="location"]').value = location || '';
+  form.querySelector('[name="link"]').value = link || '';
 
   let idInput = document.getElementById('edit_news_id');
   if (!idInput) {
@@ -803,7 +862,7 @@
   setNewsPreview(imageUrl || '');
 }
 
-  function editNewsRequest(reqId, type, newsId, title, content, category, location, imagePath, imageUrl) {
+  function editNewsRequest(reqId, type, newsId, title, content, category, location, link, imagePath, imageUrl) {
   const modal = document.getElementById('newsModal');
   const form = document.getElementById('newsForm');
   const modalTitle = modal.querySelector('.modal-title');
@@ -813,6 +872,7 @@
     content: normalizeText(content),
     category: normalizeText(category),
     location: normalizeText(location),
+    link: normalizeText(link),
     imagePath: normalizeText(imagePath),
   };
 
@@ -822,6 +882,7 @@
   setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="category"]').value = category || '';
   form.querySelector('[name="location"]').value = location || '';
+  form.querySelector('[name="link"]').value = link || '';
 
   let reqInput = document.getElementById('edit_news_request_id');
   if (!reqInput) {
@@ -934,7 +995,7 @@
         }
     });
 
- function editAnnouncementRequest(reqId, type, announcementId, title, content, priority) {
+ function editAnnouncementRequest(reqId, type, announcementId, title, content, link, priority) {
   const modal = document.getElementById('announcementModal');
   const form = document.getElementById('announcementForm');
   const modalTitle = modal.querySelector('.modal-title');
@@ -942,6 +1003,7 @@
   announcementEditSnapshot = {
     title: normalizeText(title),
     content: normalizeText(content),
+    link: normalizeText(link),
     priority: normalizeUpper(priority || 'MEDIUM'),
   };
 
@@ -951,6 +1013,7 @@
   form.querySelector('[name="title"]').value = title || '';
   setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="priority"]').value = priority || 'MEDIUM';
+  form.querySelector('[name="link"]').value = link || '';
 
   // ✅ always attach request_id so backend UPDATES same request (no duplicates)
   let reqInput = document.getElementById('edit_request_id');

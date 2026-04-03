@@ -102,6 +102,7 @@ $myNews = DB::table('news')
             'request_id' => ['nullable','integer'], // ✅ for resubmitting/editing existing request (no duplicates)
             'title' => ['required','string','max:255'],
             'content' => ['required','string'],
+            'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
 
@@ -113,6 +114,7 @@ $myNews = DB::table('news')
                 'title' => $request->input('title'),
                 'content' => RichText::sanitize($request->input('content')),
                 'priority' => $request->input('priority'),
+                'link' => $request->input('link'),
             ]
         );
     }
@@ -124,6 +126,7 @@ $myNews = DB::table('news')
             'announcement_id' => ['required','integer'],
             'title' => ['required','string','max:255'],
             'content' => ['required','string'],
+            'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
 
@@ -135,6 +138,7 @@ $myNews = DB::table('news')
                 'announcement_id' => (int)$request->announcement_id,
                 'title' => $request->input('title'),
                 'content' => RichText::sanitize($request->input('content')),
+                'link' => $request->input('link'),
                 'priority' => $request->input('priority'),
             ]
         );
@@ -215,6 +219,7 @@ $myNews = DB::table('news')
         'title' => ['required','string','max:255'],
         'content' => ['required','string'],
         'category' => ['required','string','max:100'],
+        'link' => ['required','string','max:255'],
         'location' => ['nullable','string','max:255'],
         'existing_image_path' => ['nullable','string'], // ✅ add this
     ]);
@@ -254,6 +259,7 @@ $myNews = DB::table('news')
             'title' => $request->input('title'),
             'content' => RichText::sanitize($request->input('content')),
             'category' => $request->input('category'),
+            'link' => $request->input('link'),
             'location' => $request->input('location'),
             'image_path' => $imagePath, // ✅ now preserved
         ]
@@ -272,6 +278,7 @@ $myNews = DB::table('news')
     'title' => ['required','string','max:255'],
     'content' => ['required','string'],
     'category' => ['required','string','max:100'],
+    'link' => ['required','string','max:255'],
     'location' => ['nullable','string','max:255'],
     'existing_image_path' => ['nullable','string'], // ✅ add
 ]);
@@ -290,6 +297,7 @@ $payload = [
     'title' => $request->input('title'),
     'content' => RichText::sanitize($request->input('content')),
     'category' => $request->input('category'),
+    'link' => $request->input('link'),
     'location' => $request->input('location'),
 ];
 

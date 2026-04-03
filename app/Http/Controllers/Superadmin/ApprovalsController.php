@@ -108,6 +108,7 @@ $history = $this->attachDisplayFields($history);
         'title' => $payload['title'] ?? $row->title ?? 'Announcement',
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
+        'link' => !empty($payload['link']) ? $payload['link'] : null,
         'created_at' => now(),
         'status' => 'ENABLED',
         'date_published' => now(),
@@ -191,6 +192,9 @@ $history = $this->attachDisplayFields($history);
                 'title' => $payload['title'] ?? DB::raw('title'),
                 'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                 'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
+                'link' => array_key_exists('link', $payload)
+                    ? ($payload['link'] !== '' ? $payload['link'] : null)
+                    : DB::raw('link'),
             ];
             if (Schema::hasColumn('announcements', 'updated_at')) {
                 $announcementUpdate['updated_at'] = now();

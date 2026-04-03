@@ -19,10 +19,12 @@
 $requestTitle = $payload['title'] ?? $row->title ?? 'Request';
 $requestContent = $payload['content'] ?? '';
 $requestPriority = strtoupper((string)($payload['priority'] ?? 'LOW'));
+$requestLink = $payload['link'] ?? '';
 
 $title = $requestTitle;
 $content = $requestContent;
 $priority = $requestPriority;
+$link = $requestLink;
 
 // ✅ If this request targets an existing announcement (enable/disable/delete/update),
 // show LIVE announcement title/priority/content on the card.
@@ -34,12 +36,14 @@ if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DIS
     $title = (string)($live->title ?? $title);
     $content = (string)($live->content ?? $content);
     $priority = strtoupper((string)($live->priority ?? $priority));
+    $link = (string)($live->link ?? $link);
   }
 }
 
 $editTitle = $requestTitle ?: $title;
 $editContent = $requestContent !== '' ? $requestContent : $content;
 $editPriority = $requestPriority ?: $priority;
+$editLink = $requestLink !== '' ? $requestLink : $link;
 
   $reqStatus = strtolower(trim((string)$row->status));
   $statusClass = $reqStatus;
@@ -104,6 +108,7 @@ $editPriority = $requestPriority ?: $priority;
         {{ $targetId ? (int)$targetId : 0 }},
         {{ \Illuminate\Support\Js::from($editTitle) }},
         {{ \Illuminate\Support\Js::from($editContent) }},
+         {{ \Illuminate\Support\Js::from($editLink) }},
         {{ \Illuminate\Support\Js::from($editPriority) }}
       )">
       <i class="fas fa-edit"></i> Edit
