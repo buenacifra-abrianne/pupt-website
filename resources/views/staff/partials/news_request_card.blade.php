@@ -15,6 +15,7 @@
   $content = $payload['content'] ?? '';
   $category = $payload['category'] ?? '';
   $location = $payload['location'] ?? '';
+  $link = $payload['link'] ?? '';
   $imagePath = $payload['image_path'] ?? null;
 $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
 
@@ -77,6 +78,7 @@ $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
       {{ \Illuminate\Support\Js::from($content) }},
       {{ \Illuminate\Support\Js::from($category) }},
       {{ \Illuminate\Support\Js::from($location) }},
+      {{ \Illuminate\Support\Js::from($link) }},
       {{ \Illuminate\Support\Js::from($imagePath) }},
       {{ \Illuminate\Support\Js::from($imageUrl) }}
     )">
