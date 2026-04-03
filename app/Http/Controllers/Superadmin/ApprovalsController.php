@@ -567,6 +567,18 @@ private function attachDisplayFields($paginator)
                 ?? ($payload['details'] ?? '');
         }
 
+        if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+            $displayContent = $payload['content']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
+
+        if (str_starts_with($type, 'NEWS_')) {
+            $displayContent = $payload['content']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
+
         // ANNOUNCEMENT: enable/disable/delete -> show REAL announcement
         if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
             $aid = (int)($payload['announcement_id'] ?? 0);
