@@ -153,6 +153,7 @@ $history = $this->attachDisplayFields($history);
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'category' => $payload['category'] ?? 'Other',
         'location' => $payload['location'] ?? null,
+        'link' => !empty($payload['link']) ? $payload['link'] : null,
         'image_path' => $payload['image_path'] ?? null,
         'date_published' => now(),
         'created_at' => now(),
@@ -237,6 +238,9 @@ $history = $this->attachDisplayFields($history);
                     'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                     'category' => $payload['category'] ?? DB::raw('category'),
                     'location' => $payload['location'] ?? DB::raw('location'),
+                    'link' => array_key_exists('link', $payload)
+                        ? ($payload['link'] !== '' ? $payload['link'] : null)
+                        : DB::raw('link'),
                     'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),
                     // image_path update if you later support image requests
                 ]);

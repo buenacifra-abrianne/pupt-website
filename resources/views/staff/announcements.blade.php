@@ -348,7 +348,7 @@
                 <button class="btn btn-sm btn-view-icon"
                   type="button"
                   title="View"
-                  onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""))'>
+                  onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""), @json($n->link ?? ""))'>
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
