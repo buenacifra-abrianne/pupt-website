@@ -14,10 +14,14 @@ use App\Mail\NewAccountTempPasswordMail;
 use App\Support\AuditLog;
 use App\Support\Avatar;
 use App\Services\Flss\FacultyDirectoryService;
+use App\Services\Ocms\OcmsAdminDirectoryService;
 
 class AccountsController extends Controller
 {
-    public function index(FacultyDirectoryService $facultyDirectoryService)
+    public function index(
+        FacultyDirectoryService $facultyDirectoryService,
+        OcmsAdminDirectoryService $ocmsAdminDirectoryService
+    )
     {
         $roles = $this->fetchRolesForUi();
 
@@ -106,11 +110,44 @@ class AccountsController extends Controller
         });
 
         $facultyDirectory = $facultyDirectoryService->getActiveFacultyForDropdown();
+        $ocmsDirectory = $ocmsAdminDirectoryService->getActiveAdminsForDropdown();
+
+        $combinedDirectory = collect(array_merge($facultyDirectory, $ocmsDirectory))
+            ->filter(function ($person) {
+                return trim((string) ($person['email'] ?? '')) !== '';
+            })
+            ->groupBy(function ($person) {
+                return strtolower(trim((string) ($person['email'] ?? '')));
+            })
+            ->map(function ($group) {
+                $items = collect($group)->values();
+
+                $primary = $items->firstWhere('source', 'FLSS')
+                    ?? $items->firstWhere('source', 'OCMS')
+                    ?? $items->first();
+
+                $sources = $items->pluck('source')
+                    ->filter()
+                    ->unique()
+                    ->values()
+                    ->all();
+
+                $primary['source'] = !empty($sources) ? implode(' + ', $sources) : null;
+
+                return $primary;
+            })
+            ->sortBy([
+                ['first_name', 'asc'],
+                ['last_name', 'asc'],
+                ['middle_name', 'asc'],
+            ])
+            ->values()
+            ->all();
 
         return view('superadmin.accounts', [
             'usersJson' => $mapped->toJson(),
             'rolesJson' => $roles->toJson(),
-            'facultyDirectoryJson' => json_encode($facultyDirectory),
+            'facultyDirectoryJson' => json_encode($combinedDirectory),
         ]);
     }
 
@@ -357,7 +394,7 @@ private function filterUsersPayload(array $payload): array
     if ($existingUser) {
         return response()->json([
             'ok' => false,
-            'message' => 'This faculty member already has CMS access.'
+            'message' => 'This user already has CMS access.'
         ], 422);
     }
 
