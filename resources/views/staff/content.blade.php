@@ -88,7 +88,7 @@
             @endphp
 
             <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+                <div style="display:grid;grid-template-columns:{{ $tabKey === 'home' ? '1fr' : '1fr 1fr' }};gap:16px;align-items:start;">
                     <div class="card">
                         <div class="card-header">
                             <h3 class="card-title">Live {{ $tabDef['label'] }} Content</h3>
@@ -140,91 +140,25 @@
                             @endif
 
                             @if($tabKey === 'home')
-                                <form class="cms-edit-form home-section-form" method="POST" action="{{ route('staff.content.requestEdit') }}" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" name="tab_key" value="{{ $tabKey }}">
-                                    <input type="hidden" name="section_key" value="description">
-                                    @if($draft && !empty($draft['id']))
-                                        <input type="hidden" name="request_id" value="{{ (int) $draft['id'] }}">
-                                    @endif
+                                @php
+                                    $homePreviewHtml = view('public.home', [
+                                        'homeCms' => $homePrefill,
+                                        'news' => $homePreviewNews ?? collect(),
+                                        'announcements' => $homePreviewAnnouncements ?? collect(),
+                                        'cmsPreview' => true,
+                                    ])->render();
+                                @endphp
 
-                                    <section class="home-cms-section">
-                                        <h4 class="home-cms-title">Description</h4>
-                                        <div class="form-group">
-                                            <label>Description</label>
-                                            <textarea name="home[campus_description]" rows="6">{{ $homePrefill['campus_description'] ?? '' }}</textarea>
-                                        </div>
-                                        <div class="form-group" style="margin-bottom:0;">
-                                            @php
-                                                $campusInputId = 'staff-home-campus-image';
-                                                $campusPreview = \App\Support\HomeCmsContent::resolveImagePath($homePrefill['campus_image'] ?? '', 'assets/static_img/pupillar.jpeg');
-                                            @endphp
-                                            <label>Description Image</label>
-                                            <input type="hidden" name="home[campus_image]" value="{{ $homePrefill['campus_image'] ?? '' }}">
-                                            <label class="home-dropzone campus-dropzone" for="{{ $campusInputId }}">
-                                                <img src="{{ $campusPreview }}" alt="Description image preview" class="campus-preview" data-preview-for="{{ $campusInputId }}">
-                                                <span class="dropzone-file-name" data-file-name-for="{{ $campusInputId }}">Drop image here or click to replace</span>
-                                            </label>
-                                            <input id="{{ $campusInputId }}" class="home-dropzone-input" type="file" name="home[campus_image_file]" accept="image/*">
-                                        </div>
-                                    </section>
-
-                                    <div style="display:flex;justify-content:flex-end;">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-paper-plane"></i>
-                                            {{ $status === 'pending' ? 'Update Description Request' : 'Submit Description for Approval' }}
-                                        </button>
-                                    </div>
-                                </form>
-
-                                <form class="cms-edit-form home-section-form" method="POST" action="{{ route('staff.content.requestEdit') }}" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" name="tab_key" value="{{ $tabKey }}">
-                                    <input type="hidden" name="section_key" value="carousel">
-                                    @if($draft && !empty($draft['id']))
-                                        <input type="hidden" name="request_id" value="{{ (int) $draft['id'] }}">
-                                    @endif
-
-                                    <section class="home-cms-section">
-                                        <h4 class="home-cms-title">Carousel Manager</h4>
-                                        <div class="carousel-manager-grid">
-                                            @for($idx = 0; $idx < 3; $idx++)
-                                                @php
-                                                    $slide = $homePrefill['carousel_slides'][$idx] ?? ['title' => '', 'subtitle' => '', 'image' => ''];
-                                                    $slideInputId = 'staff-home-slide-'.$idx;
-                                                    $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
-                                                @endphp
-                                                <div class="carousel-manager-item">
-                                                    <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}">
-                                                    <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}">
-                                                        <img src="{{ $slidePreview }}" alt="Slide {{ $idx + 1 }} preview" class="slide-preview" data-preview-for="{{ $slideInputId }}">
-                                                        <span class="dropzone-label">Slide {{ $idx + 1 }}</span>
-                                                        <span class="dropzone-file-name" data-file-name-for="{{ $slideInputId }}">Drop image here or click to replace</span>
-                                                    </label>
-                                                    <input id="{{ $slideInputId }}" class="home-dropzone-input" type="file" name="home[carousel][{{ $idx }}][image_file]" accept="image/*">
-
-                                                    <div class="slide-meta">
-                                                        <div class="form-group">
-                                                            <label>Title</label>
-                                                            <input type="text" name="home[carousel][{{ $idx }}][title]" maxlength="255" value="{{ $slide['title'] }}">
-                                                        </div>
-                                                        <div class="form-group" style="margin-bottom:0;">
-                                                            <label>Description</label>
-                                                            <textarea name="home[carousel][{{ $idx }}][subtitle]" rows="2">{{ $slide['subtitle'] }}</textarea>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            @endfor
-                                        </div>
-                                    </section>
-
-                                    <div style="display:flex;justify-content:flex-end;">
-                                        <button type="submit" class="btn btn-primary">
-                                            <i class="fas fa-paper-plane"></i>
-                                            {{ $status === 'pending' ? 'Update Carousel Request' : 'Submit Carousel for Approval' }}
-                                        </button>
-                                    </div>
-                                </form>
+                                @include('partials.home_cms_preview_editor', [
+                                    'homePreviewHtml' => $homePreviewHtml,
+                                    'homeEditorData' => $homePrefill,
+                                    'homeEditorFormClass' => 'cms-edit-form',
+                                    'homeEditorSubmitRoute' => route('staff.content.requestEdit'),
+                                    'homeEditorSubmitMode' => 'request',
+                                    'homeEditorRequestId' => $draft['id'] ?? null,
+                                    'homeEditorStatus' => $status,
+                                    'homeEditorIdPrefix' => 'staff-home',
+                                ])
                             @else
                                 <form class="cms-edit-form" method="POST" action="{{ route('staff.content.requestEdit') }}" enctype="multipart/form-data">
                                     @csrf
@@ -503,7 +437,14 @@
         return field.value ?? '';
     }
 
+    function syncFormEditors(form) {
+        if (typeof window.syncRichTextEditors === 'function') {
+            window.syncRichTextEditors(form);
+        }
+    }
+
     function captureFormSnapshot(form) {
+        syncFormEditors(form);
         getTrackableFields(form).forEach((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return;
@@ -514,6 +455,7 @@
     }
 
     function formHasChanges(form) {
+        syncFormEditors(form);
         return getTrackableFields(form).some((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return !!(field.files && field.files.length > 0);
@@ -526,6 +468,7 @@
     async function postForm(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
+        syncFormEditors(form);
 
         try {
             const res = await fetch(form.action, {
@@ -654,4 +597,3 @@
 </script>
 </body>
 </html>
-

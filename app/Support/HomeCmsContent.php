@@ -11,6 +11,57 @@ class HomeCmsContent
         'campus_description' => "Quality and relevant education. These are the key words and\nthe main objective for the establishment of the Polytechnic\nUniversity of the Philippines Taguig Campus.",
         'campus_image' => 'assets/static_img/pupillar.jpeg',
         'announcements' => [],
+        'hero' => [
+            'crest_heading' => "A LEADING\nCOMPREHENSIVE\nPOLYTECHNIC\nUNIVERSITY IN\nASIA",
+            'crest_year' => '2026',
+        ],
+        'updates' => [
+            'tag' => 'Home',
+            'title' => 'Campus Updates',
+            'description' => 'Check out the latest events, news and updates of our Sintang Paaralan!',
+        ],
+        'quick_links' => [
+            'tag' => 'Explore',
+            'title' => 'Navigate the campus experience.',
+            'items' => [
+                [
+                    'label' => 'About',
+                    'title' => 'Know the campus',
+                    'body' => 'Explore the campus profile, identity, and institutional story.',
+                    'href' => '/about',
+                ],
+                [
+                    'label' => 'Academics',
+                    'title' => 'Browse programs',
+                    'body' => 'See the academic offerings and learning environment available to students.',
+                    'href' => '/academics',
+                ],
+                [
+                    'label' => 'Students',
+                    'title' => 'Student services',
+                    'body' => 'Access student-centered information, updates, and support channels.',
+                    'href' => '/students',
+                ],
+                [
+                    'label' => 'Events',
+                    'title' => 'Events',
+                    'body' => 'View all Events from Upcoming and Incoming events of the Campus.',
+                    'href' => '/events',
+                ],
+                [
+                    'label' => 'Research & Extension',
+                    'title' => 'Research Tools',
+                    'body' => 'Open the PUP research and extension portals, tools, and institutional resources.',
+                    'href' => '/research',
+                ],
+            ],
+        ],
+        'feedback' => [
+            'tag' => 'Feedback',
+            'title' => 'Help improve the public experience',
+            'description' => 'Share questions, issues, or suggestions through the campus feedback form.',
+            'button_label' => 'Open Feedback Form',
+        ],
         'carousel_slides' => [
             [
                 'title' => 'Welcome to PUP Taguig Campus',
@@ -121,6 +172,18 @@ class HomeCmsContent
             'announcements' => self::normalizeAnnouncements(
                 $source['announcements'] ?? ($base['announcements'] ?? [])
             ),
+            'hero' => self::normalizeHero(
+                $source['hero'] ?? ($base['hero'] ?? [])
+            ),
+            'updates' => self::normalizeUpdates(
+                $source['updates'] ?? ($base['updates'] ?? [])
+            ),
+            'quick_links' => self::normalizeQuickLinks(
+                $source['quick_links'] ?? ($base['quick_links'] ?? [])
+            ),
+            'feedback' => self::normalizeFeedback(
+                $source['feedback'] ?? ($base['feedback'] ?? [])
+            ),
             'carousel_slides' => self::normalizeSlides(
                 $source['carousel_slides'] ?? $source['carousel'] ?? null,
                 $base['carousel_slides'] ?? $defaults['carousel_slides']
@@ -171,6 +234,128 @@ class HomeCmsContent
         }
 
         return preg_match('/^\d{4}-\d{2}-\d{2}$/', $date) === 1 ? $date : '';
+    }
+
+    private static function normalizeHero(mixed $input): array
+    {
+        $defaults = self::defaults()['hero'];
+        $source = is_array($input) ? $input : [];
+
+        return [
+            'crest_heading' => self::sanitizeString(
+                $source['crest_heading'] ?? $defaults['crest_heading'],
+                255,
+                $defaults['crest_heading']
+            ),
+            'crest_year' => self::sanitizeString(
+                $source['crest_year'] ?? $defaults['crest_year'],
+                50,
+                $defaults['crest_year']
+            ),
+        ];
+    }
+
+    private static function normalizeUpdates(mixed $input): array
+    {
+        $defaults = self::defaults()['updates'];
+        $source = is_array($input) ? $input : [];
+
+        return [
+            'tag' => self::sanitizeString(
+                $source['tag'] ?? $defaults['tag'],
+                80,
+                $defaults['tag']
+            ),
+            'title' => self::sanitizeString(
+                $source['title'] ?? $defaults['title'],
+                255,
+                $defaults['title']
+            ),
+            'description' => self::sanitizeString(
+                $source['description'] ?? $defaults['description'],
+                5000,
+                $defaults['description']
+            ),
+        ];
+    }
+
+    private static function normalizeQuickLinks(mixed $input): array
+    {
+        $defaults = self::defaults()['quick_links'];
+        $source = is_array($input) ? $input : [];
+        $baseItems = is_array($source['items'] ?? null) ? array_values($source['items']) : [];
+        $defaultItems = $defaults['items'];
+        $items = [];
+
+        foreach ($defaultItems as $index => $defaultItem) {
+            $current = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : [];
+
+            $items[] = [
+                'label' => self::sanitizeString(
+                    $current['label'] ?? $defaultItem['label'],
+                    255,
+                    $defaultItem['label']
+                ),
+                'title' => self::sanitizeString(
+                    $current['title'] ?? $defaultItem['title'],
+                    255,
+                    $defaultItem['title']
+                ),
+                'body' => self::sanitizeString(
+                    $current['body'] ?? $defaultItem['body'],
+                    5000,
+                    $defaultItem['body']
+                ),
+                'href' => self::sanitizeString(
+                    $current['href'] ?? $defaultItem['href'],
+                    2048,
+                    $defaultItem['href']
+                ),
+            ];
+        }
+
+        return [
+            'tag' => self::sanitizeString(
+                $source['tag'] ?? $defaults['tag'],
+                80,
+                $defaults['tag']
+            ),
+            'title' => self::sanitizeString(
+                $source['title'] ?? $defaults['title'],
+                255,
+                $defaults['title']
+            ),
+            'items' => $items,
+        ];
+    }
+
+    private static function normalizeFeedback(mixed $input): array
+    {
+        $defaults = self::defaults()['feedback'];
+        $source = is_array($input) ? $input : [];
+
+        return [
+            'tag' => self::sanitizeString(
+                $source['tag'] ?? $defaults['tag'],
+                80,
+                $defaults['tag']
+            ),
+            'title' => self::sanitizeString(
+                $source['title'] ?? $defaults['title'],
+                255,
+                $defaults['title']
+            ),
+            'description' => self::sanitizeString(
+                $source['description'] ?? $defaults['description'],
+                5000,
+                $defaults['description']
+            ),
+            'button_label' => self::sanitizeString(
+                $source['button_label'] ?? $defaults['button_label'],
+                120,
+                $defaults['button_label']
+            ),
+        ];
     }
 
     private static function normalizeSlides(mixed $input, array $baseSlides): array

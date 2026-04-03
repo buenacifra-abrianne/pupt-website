@@ -110,85 +110,23 @@
 
                     <div style="padding:14px;">
                         @if($tabKey === 'home')
-                            <form class="cms-save-form home-section-form" method="POST" action="{{ route('superadmin.content.save') }}" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="tab_key" value="{{ $tabKey }}">
-                                <input type="hidden" name="section_key" value="description">
+                            @php
+                                $homePreviewHtml = view('public.home', [
+                                    'homeCms' => $homeLive,
+                                    'news' => $homePreviewNews ?? collect(),
+                                    'announcements' => $homePreviewAnnouncements ?? collect(),
+                                    'cmsPreview' => true,
+                                ])->render();
+                            @endphp
 
-                                <section class="home-cms-section">
-                                    <h4 class="home-cms-title">Description</h4>
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                        <textarea name="home[campus_description]" rows="6">{{ $homeLive['campus_description'] ?? '' }}</textarea>
-                                    </div>
-                                    <div class="form-group" style="margin-bottom:0;">
-                                        @php
-                                            $campusInputId = 'superadmin-home-campus-image';
-                                            $campusPreview = \App\Support\HomeCmsContent::resolveImagePath($homeLive['campus_image'] ?? '', 'assets/static_img/pupillar.jpeg');
-                                        @endphp
-                                        <label>Description Image</label>
-                                        <input type="hidden" name="home[campus_image]" value="{{ $homeLive['campus_image'] ?? '' }}">
-                                        <label class="home-dropzone campus-dropzone" for="{{ $campusInputId }}">
-                                            <img src="{{ $campusPreview }}" alt="Description image preview" class="campus-preview" data-preview-for="{{ $campusInputId }}">
-                                            <span class="dropzone-file-name" data-file-name-for="{{ $campusInputId }}">Drop image here or click to replace</span>
-                                        </label>
-                                        <input id="{{ $campusInputId }}" class="home-dropzone-input" type="file" name="home[campus_image_file]" accept="image/*">
-                                    </div>
-                                </section>
-
-                                <div style="display:flex;justify-content:flex-end;">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i>
-                                        Save Description
-                                    </button>
-                                </div>
-                            </form>
-
-                            <form class="cms-save-form home-section-form" method="POST" action="{{ route('superadmin.content.save') }}" enctype="multipart/form-data">
-                                @csrf
-                                <input type="hidden" name="tab_key" value="{{ $tabKey }}">
-                                <input type="hidden" name="section_key" value="carousel">
-
-                                <section class="home-cms-section">
-                                    <h4 class="home-cms-title">Carousel Manager</h4>
-                                    <div class="carousel-manager-grid">
-                                        @for($idx = 0; $idx < 3; $idx++)
-                                            @php
-                                                $slide = $homeLive['carousel_slides'][$idx] ?? ['title' => '', 'subtitle' => '', 'image' => ''];
-                                                $slideInputId = 'superadmin-home-slide-'.$idx;
-                                                $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
-                                            @endphp
-                                            <div class="carousel-manager-item">
-                                                <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}">
-                                                <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}">
-                                                    <img src="{{ $slidePreview }}" alt="Slide {{ $idx + 1 }} preview" class="slide-preview" data-preview-for="{{ $slideInputId }}">
-                                                    <span class="dropzone-label">Slide {{ $idx + 1 }}</span>
-                                                    <span class="dropzone-file-name" data-file-name-for="{{ $slideInputId }}">Drop image here or click to replace</span>
-                                                </label>
-                                                <input id="{{ $slideInputId }}" class="home-dropzone-input" type="file" name="home[carousel][{{ $idx }}][image_file]" accept="image/*">
-
-                                                <div class="slide-meta">
-                                                    <div class="form-group">
-                                                        <label>Title</label>
-                                                        <input type="text" name="home[carousel][{{ $idx }}][title]" maxlength="255" value="{{ $slide['title'] }}">
-                                                    </div>
-                                                    <div class="form-group" style="margin-bottom:0;">
-                                                        <label>Description</label>
-                                                        <textarea name="home[carousel][{{ $idx }}][subtitle]" rows="2">{{ $slide['subtitle'] }}</textarea>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endfor
-                                    </div>
-                                </section>
-
-                                <div style="display:flex;justify-content:flex-end;">
-                                    <button type="submit" class="btn btn-primary">
-                                        <i class="fas fa-save"></i>
-                                        Save Carousel
-                                    </button>
-                                </div>
-                            </form>
+                            @include('partials.home_cms_preview_editor', [
+                                'homePreviewHtml' => $homePreviewHtml,
+                                'homeEditorData' => $homeLive,
+                                'homeEditorFormClass' => 'cms-save-form',
+                                'homeEditorSubmitRoute' => route('superadmin.content.save'),
+                                'homeEditorSubmitMode' => 'save',
+                                'homeEditorIdPrefix' => 'superadmin-home',
+                            ])
                         @else
                             <form class="cms-save-form" method="POST" action="{{ route('superadmin.content.save') }}" enctype="multipart/form-data">
                                 @csrf
@@ -470,7 +408,14 @@
         return field.value ?? '';
     }
 
+    function syncFormEditors(form) {
+        if (typeof window.syncRichTextEditors === 'function') {
+            window.syncRichTextEditors(form);
+        }
+    }
+
     function captureFormSnapshot(form) {
+        syncFormEditors(form);
         getTrackableFields(form).forEach((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return;
@@ -481,6 +426,7 @@
     }
 
     function formHasChanges(form) {
+        syncFormEditors(form);
         return getTrackableFields(form).some((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return !!(field.files && field.files.length > 0);
@@ -493,6 +439,7 @@
     async function submitSave(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
+        syncFormEditors(form);
 
         try {
             const res = await fetch(form.action, {
@@ -614,4 +561,3 @@
 </script>
 </body>
 </html>
-
