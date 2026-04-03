@@ -59,12 +59,12 @@
                     <span>Content Management</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{ route('superadmin.downloadables') ?? '#' }}" class="nav-link">
                     <i class="fas fa-download"></i>
                     <span>Downloadables</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
@@ -177,6 +177,9 @@
                                         'CMS_STUDENTS_EDIT' => 'Edit Students Content',
                                         'CMS_RESEARCH_EXTENSION_EDIT' => 'Edit Research & Extension Content',
                                         'CMS_EVENTS_EDIT' => 'Edit Events Content',
+                                        'DOWNLOADABLE_CREATE' => 'Create Downloadable',
+                                        'DOWNLOADABLE_UPDATE' => 'Edit Downloadable',
+                                        'DOWNLOADABLE_DELETE' => 'Delete Downloadable',
                                         ];
                                         $rawType = strtoupper((string)($item->type ?? ''));
                                         $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
@@ -298,6 +301,9 @@
                                         'CMS_STUDENTS_EDIT' => 'Edit Students Content',
                                         'CMS_RESEARCH_EXTENSION_EDIT' => 'Edit Research & Extension Content',
                                         'CMS_EVENTS_EDIT' => 'Edit Events Content',
+                                        'DOWNLOADABLE_CREATE' => 'Create Downloadable',
+                                        'DOWNLOADABLE_UPDATE' => 'Edit Downloadable',
+                                        'DOWNLOADABLE_DELETE' => 'Delete Downloadable',
                                     ];
                                     $friendlyType = $typeMap[$rawType] ?? ($item->type ?? 'General');
 
@@ -753,6 +759,9 @@ function prettyType(rawType) {
     'CMS_STUDENTS_EDIT': 'Edit Students Content',
     'CMS_RESEARCH_EXTENSION_EDIT': 'Edit Research & Extension Content',
     'CMS_EVENTS_EDIT': 'Edit Events Content',
+    'DOWNLOADABLE_CREATE': 'Create Downloadable',
+    'DOWNLOADABLE_UPDATE': 'Edit Downloadable',
+    'DOWNLOADABLE_DELETE': 'Delete Downloadable',
   };
   const key = String(rawType || '').toUpperCase();
   return m[key] || rawType || 'General';
@@ -763,7 +772,7 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
   modal.classList.add('active');
 
   document.getElementById('dTitle').textContent = title || '—';
-  document.getElementById('dContent').textContent = content || '—';
+  document.getElementById('dContent').innerHTML = content || '—';
 
   // ✅ show badge ONLY for announcements
   const badge = document.getElementById('dPriority');

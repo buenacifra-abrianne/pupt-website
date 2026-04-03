@@ -329,7 +329,8 @@ class OnePortalController extends Controller
             $role === 'HAP' ||
             $role === 'STUDENT_SERVICES' ||
             $role === 'RESEARCH_EXTENSION' ||
-            $role === 'FACULTY'
+            $role === 'FACULTY' ||
+            $role === 'FACULTY_PRO'
         ) {
             return redirect('/staff/dashboard');
         }

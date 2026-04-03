@@ -108,6 +108,7 @@ $history = $this->attachDisplayFields($history);
         'title' => $payload['title'] ?? $row->title ?? 'Announcement',
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
+        'link' => !empty($payload['link']) ? $payload['link'] : null,
         'created_at' => now(),
         'status' => 'ENABLED',
         'date_published' => now(),
@@ -152,6 +153,7 @@ $history = $this->attachDisplayFields($history);
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'category' => $payload['category'] ?? 'Other',
         'location' => $payload['location'] ?? null,
+        'link' => !empty($payload['link']) ? $payload['link'] : null,
         'image_path' => $payload['image_path'] ?? null,
         'date_published' => now(),
         'created_at' => now(),
@@ -191,6 +193,9 @@ $history = $this->attachDisplayFields($history);
                 'title' => $payload['title'] ?? DB::raw('title'),
                 'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                 'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
+                'link' => array_key_exists('link', $payload)
+                    ? ($payload['link'] !== '' ? $payload['link'] : null)
+                    : DB::raw('link'),
             ];
             if (Schema::hasColumn('announcements', 'updated_at')) {
                 $announcementUpdate['updated_at'] = now();
@@ -233,6 +238,9 @@ $history = $this->attachDisplayFields($history);
                     'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                     'category' => $payload['category'] ?? DB::raw('category'),
                     'location' => $payload['location'] ?? DB::raw('location'),
+                    'link' => array_key_exists('link', $payload)
+                        ? ($payload['link'] !== '' ? $payload['link'] : null)
+                        : DB::raw('link'),
                     'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),
                     // image_path update if you later support image requests
                 ]);
@@ -549,7 +557,27 @@ private function attachDisplayFields($paginator)
         // default: use request payload (create/update)
         $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
         $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
-        $displayContent = $payload['content'] ?? ($payload['details'] ?? '');
+        $displayContent = $payload['content']
+            ?? $payload['description']
+            ?? ($payload['details'] ?? '');
+
+        if (str_starts_with($type, 'DOWNLOADABLE_')) {
+            $displayContent = $payload['description']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
+
+        if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+            $displayContent = $payload['content']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
+
+        if (str_starts_with($type, 'NEWS_')) {
+            $displayContent = $payload['content']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
 
         // ANNOUNCEMENT: enable/disable/delete -> show REAL announcement
         if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {

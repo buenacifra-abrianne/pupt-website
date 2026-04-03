@@ -210,7 +210,7 @@ class DownloadableController extends Controller
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int) $request->input('request_id') : null,
-            'DOWNLOAD_UPDATE',
+            'DOWNLOADABLE_UPDATE',
             $request->input('title'),
             [
                 'downloadable_id' => (int) $request->input('downloadable_id'),

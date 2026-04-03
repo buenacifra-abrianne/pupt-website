@@ -11,6 +11,7 @@ use App\Support\AuditLog;
 use App\Support\CmsSections;
 use App\Support\NewsImage;
 use App\Support\RichText;
+use App\Support\DownloadableFile;
 
 class ApprovalsController extends Controller
 {
@@ -107,6 +108,7 @@ $history = $this->attachDisplayFields($history);
         'title' => $payload['title'] ?? $row->title ?? 'Announcement',
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
+        'link' => !empty($payload['link']) ? $payload['link'] : null,
         'created_at' => now(),
         'status' => 'ENABLED',
         'date_published' => now(),
@@ -151,6 +153,7 @@ $history = $this->attachDisplayFields($history);
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'category' => $payload['category'] ?? 'Other',
         'location' => $payload['location'] ?? null,
+        'link' => !empty($payload['link']) ? $payload['link'] : null,
         'image_path' => $payload['image_path'] ?? null,
         'date_published' => now(),
         'created_at' => now(),
@@ -190,6 +193,9 @@ $history = $this->attachDisplayFields($history);
                 'title' => $payload['title'] ?? DB::raw('title'),
                 'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                 'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
+                'link' => array_key_exists('link', $payload)
+                    ? ($payload['link'] !== '' ? $payload['link'] : null)
+                    : DB::raw('link'),
             ];
             if (Schema::hasColumn('announcements', 'updated_at')) {
                 $announcementUpdate['updated_at'] = now();
@@ -232,6 +238,9 @@ $history = $this->attachDisplayFields($history);
                     'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                     'category' => $payload['category'] ?? DB::raw('category'),
                     'location' => $payload['location'] ?? DB::raw('location'),
+                    'link' => array_key_exists('link', $payload)
+                        ? ($payload['link'] !== '' ? $payload['link'] : null)
+                        : DB::raw('link'),
                     'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),
                     // image_path update if you later support image requests
                 ]);
@@ -288,6 +297,95 @@ $history = $this->attachDisplayFields($history);
                 (int) (session('user_id') ?? 0)
             );
         }
+
+        elseif ($type === 'DOWNLOADABLE_CREATE') {
+        $creatorId = 0;
+        $u = DB::table('users')->where('email', $row->requester_email)->first();
+
+        if ($u && isset($u->user_id)) {
+            $creatorId = (int) $u->user_id;
+        } elseif ($u && isset($u->id)) {
+            $creatorId = (int) $u->id;
+        }
+
+        $newDownloadableId = DB::table('downloadables')->insertGetId([
+            'title' => $payload['title'] ?? $row->title ?? 'Downloadable',
+            'description' => $payload['description'] ?? null,
+            'category' => $payload['category'] ?? null,
+            'file_path' => $payload['file_path'] ?? null,
+            'original_filename' => $payload['original_filename'] ?? 'file',
+            'created_by' => $creatorId,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ], 'downloadable_id');
+
+        AuditLog::record(
+            'CREATED',
+            'DOWNLOADABLE',
+            'Created downloadable: '.($payload['title'] ?? $row->title ?? 'Downloadable').' (approved request)',
+            (int) $newDownloadableId,
+            [
+                'user_id' => $creatorId > 0 ? $creatorId : null,
+                'user_name' => trim((string) ($row->requester_name ?? '')) !== ''
+                    ? trim((string) $row->requester_name)
+                    : 'Staff',
+            ]
+        );
+
+        $payload['downloadable_id'] = (int) $newDownloadableId;
+
+        DB::table('approval_requests')->where('id', $reqId)->update([
+            'details' => json_encode($payload, JSON_UNESCAPED_UNICODE),
+            'updated_at' => now(),
+        ]);
+    }
+    elseif ($type === 'DOWNLOADABLE_UPDATE') {
+        $did = (int) ($payload['downloadable_id'] ?? 0);
+        if ($did <= 0) {
+            throw new \Exception('Missing downloadable_id in request details.');
+        }
+
+        DB::table('downloadables')
+            ->where('downloadable_id', $did)
+            ->update([
+                'title' => $payload['title'] ?? DB::raw('title'),
+                'description' => array_key_exists('description', $payload) ? $payload['description'] : DB::raw('description'),
+                'category' => $payload['category'] ?? DB::raw('category'),
+                'file_path' => $payload['file_path'] ?? DB::raw('file_path'),
+                'original_filename' => $payload['original_filename'] ?? DB::raw('original_filename'),
+                'updated_at' => now(),
+            ]);
+
+        AuditLog::record(
+            'UPDATED',
+            'DOWNLOADABLE',
+            'Approved downloadable update: '.($payload['title'] ?? 'Downloadable'),
+            $did
+        );
+    }
+    elseif ($type === 'DOWNLOADABLE_DELETE') {
+        $did = (int) ($payload['downloadable_id'] ?? 0);
+        if ($did <= 0) {
+            throw new \Exception('Missing downloadable_id in request details.');
+        }
+
+        $downloadable = DB::table('downloadables')->where('downloadable_id', $did)->first();
+        if (!$downloadable) {
+            throw new \Exception('Downloadable not found.');
+        }
+
+        DownloadableFile::delete($downloadable->file_path ?? null);
+
+        DB::table('downloadables')->where('downloadable_id', $did)->delete();
+
+        AuditLog::record(
+            'DELETED',
+            'DOWNLOADABLE',
+            'Approved downloadable delete: '.($downloadable->title ?? 'Downloadable'),
+            $did
+        );
+    }
+
         else {
             throw new \Exception("Unknown request type: {$type}");
         }
@@ -378,7 +476,13 @@ public function reject(Request $request, $id)
             (int) (session('user_id') ?? 0)
         );
     } else {
-        $module = str_starts_with($rawType, 'NEWS_') ? 'NEWS' : 'ANNOUNCEMENT';
+        if (str_starts_with($rawType, 'NEWS_')) {
+            $module = 'NEWS';
+        } elseif (str_starts_with($rawType, 'DOWNLOADABLE_')) {
+            $module = 'DOWNLOADABLE';
+        } else {
+            $module = 'ANNOUNCEMENT';
+        }
 
         AuditLog::record(
             'REJECTED',
@@ -453,7 +557,27 @@ private function attachDisplayFields($paginator)
         // default: use request payload (create/update)
         $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
         $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
-        $displayContent = $payload['content'] ?? ($payload['details'] ?? '');
+        $displayContent = $payload['content']
+            ?? $payload['description']
+            ?? ($payload['details'] ?? '');
+
+        if (str_starts_with($type, 'DOWNLOADABLE_')) {
+            $displayContent = $payload['description']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
+
+        if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+            $displayContent = $payload['content']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
+
+        if (str_starts_with($type, 'NEWS_')) {
+            $displayContent = $payload['content']
+                ?? $payload['content']
+                ?? ($payload['details'] ?? '');
+        }
 
         // ANNOUNCEMENT: enable/disable/delete -> show REAL announcement
         if (in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
@@ -502,6 +626,29 @@ private function attachDisplayFields($paginator)
             } else {
                 $displayContent = $requested;
             }
+        }
+
+        if (str_starts_with($type, 'DOWNLOADABLE_')) {
+            $displayTitle = $payload['title'] ?? $item->title ?? 'Downloadable';
+            $displayContent = $payload['description'] ?? '';
+
+            if ($type === 'DOWNLOADABLE_DELETE') {
+                $did = (int) ($payload['downloadable_id'] ?? 0);
+                if ($did > 0) {
+                    $d = DB::table('downloadables')->where('downloadable_id', $did)->first();
+                    if ($d) {
+                        $displayTitle = (string) ($d->title ?? $displayTitle);
+                        $displayContent = (string) ($d->description ?? $displayContent);
+                        $payload['category'] = $payload['category'] ?? ($d->category ?? null);
+                        $payload['original_filename'] = $payload['original_filename'] ?? ($d->original_filename ?? null);
+                        $payload['file_path'] = $payload['file_path'] ?? ($d->file_path ?? null);
+                    }
+                }
+            }
+
+            $item->display_category = $payload['category'] ?? null;
+            $item->display_original_filename = $payload['original_filename'] ?? null;
+            $item->display_file_url = DownloadableFile::url($payload['file_path'] ?? null);
         }
 
         // attach to row for blade

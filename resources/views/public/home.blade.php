@@ -31,7 +31,38 @@
     $priorityAnnouncementFeed = $announcements
         ->filter(fn ($item) => strtoupper(trim((string) ($item->priority ?? ''))) === 'HIGH')
         ->values();
-    $quickLinks = $quickLinksSection['items'] ?? $defaults['quick_links']['items'];
+    $quickLinks = [
+        [
+            'label' => 'About',
+            'title' => 'Know the campus',
+            'text' => 'Explore the campus profile, identity, and institutional story.',
+            'href' => route('public.about'),
+        ],
+        [
+            'label' => 'Academics',
+            'title' => 'Browse programs',
+            'text' => 'See the academic offerings and learning environment available to students.',
+            'href' => route('public.academics'),
+        ],
+        [
+            'label' => 'Students',
+            'title' => 'Student services',
+            'text' => 'Access student-centered information, updates, and support channels.',
+            'href' => route('public.students'),
+        ],
+        [
+            'label' => 'Events',
+            'title' => 'Events',
+            'text' => 'View all Events from Upcoming and Incoming events of the Campus.',
+            'href' => route('public.events'),
+        ],
+        [
+            'label' => 'Research & Extension',
+            'title' => 'Research Tools',
+            'text' => 'Open the PUP research and extension portals, tools, and institutional resources.',
+            'href' => route('public.research'),
+        ],
+    ];
   @endphp
 
   @unless($cmsPreview)
@@ -166,24 +197,25 @@
                       </div>
                     </div>
 
-                    <div class="news-mini-card-back contents-card-back">
-                      <div class="updates-card-overlay-copy contents-card-overlay-copy">
-                        <time class="contents-card-number">{{ $storyDate }}</time>
-                        <h4>{{ e($n->title) }}</h4>
-                        <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
-                      </div>
-                      <a href="{{ route('public.events') }}" class="updates-card-action contents-card-action">Read more</a>
+                  <div class="news-mini-card-back contents-card-back">
+                    <div class="updates-card-overlay-copy contents-card-overlay-copy">
+                      <time class="contents-card-number">{{ $storyDate }}</time>
+                      <h4>{{ e($n->title) }}</h4>
+                      <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
                     </div>
+                    <a href="{{ route('public.events') }}" class="updates-card-action contents-card-action">Read more</a>
                   </div>
-                </article>
-              @empty
-                <article class="announcement-item empty-state mini-empty-state news-empty-state">
-                  <span class="empty-state-icon" aria-hidden="true">
-                    <span class="empty-state-icon-cancel">&times;</span>
-                  </span>
-                  <h4>NO NEWS PUBLISHED</h4>
-                </article>
-              @endforelse
+                </div>
+              </article>
+
+            @empty
+              <article class="announcement-item empty-state mini-empty-state news-empty-state">
+                <span class="empty-state-icon" aria-hidden="true">
+                  <span class="empty-state-icon-cancel">×</span>
+                </span>
+                <h4>NO NEWS PUBLISHED</h4>
+              </article>
+            @endforelse
             </div>
           </div>
         </div>

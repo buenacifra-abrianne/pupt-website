@@ -36,9 +36,9 @@ class HomeController extends Controller
             ->limit(10)
             ->get();
 
-        // News: APPROVED only (latest first)
+        // News: APPROVED only
         $news = DB::table('news')
-            ->select('news_id','title','content','category','location','image_path','priority','date_published','created_at')
+            ->select('news_id','title','content', 'link', 'category','location','image_path','priority','date_published','created_at')
             ->whereRaw("UPPER(TRIM(status)) = 'APPROVED'")
             ->orderByRaw("
                 CASE 

@@ -41,7 +41,7 @@ class DownloadableController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('superadmin.downloadables', compact('downloadables'));
+        return view('admin.downloadables', compact('downloadables'));
     }
 
     public function save(Request $request)

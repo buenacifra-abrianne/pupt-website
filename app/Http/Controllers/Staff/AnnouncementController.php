@@ -102,6 +102,7 @@ $myNews = DB::table('news')
             'request_id' => ['nullable','integer'], // ✅ for resubmitting/editing existing request (no duplicates)
             'title' => ['required','string','max:255'],
             'content' => ['required','string'],
+            'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
 
@@ -113,6 +114,7 @@ $myNews = DB::table('news')
                 'title' => $request->input('title'),
                 'content' => RichText::sanitize($request->input('content')),
                 'priority' => $request->input('priority'),
+                'link' => $request->input('link'),
             ]
         );
     }
@@ -124,6 +126,7 @@ $myNews = DB::table('news')
             'announcement_id' => ['required','integer'],
             'title' => ['required','string','max:255'],
             'content' => ['required','string'],
+            'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
 
@@ -135,6 +138,7 @@ $myNews = DB::table('news')
                 'announcement_id' => (int)$request->announcement_id,
                 'title' => $request->input('title'),
                 'content' => RichText::sanitize($request->input('content')),
+                'link' => $request->input('link'),
                 'priority' => $request->input('priority'),
             ]
         );
@@ -215,24 +219,25 @@ $myNews = DB::table('news')
         'title' => ['required','string','max:255'],
         'content' => ['required','string'],
         'category' => ['required','string','max:100'],
+        'link' => ['nullable','string','max:255'],
         'location' => ['nullable','string','max:255'],
-        'existing_image_path' => ['nullable','string'], // ✅ add this
+        'existing_image_path' => ['nullable','string'],
+        'remove_image' => ['nullable','in:0,1'],
     ]);
 
     if ($message = NewsImage::validationError($request->file('image'))) {
         throw ValidationException::withMessages(['image' => $message]);
     }
 
-    $requestId = $request->input('request_id') ? (int)$request->input('request_id') : null;
+    $requestId = $request->input('request_id') ? (int) $request->input('request_id') : null;
+    $removeImage = (string) $request->input('remove_image', '0') === '1';
 
-    // ✅ Start with existing image (from hidden input OR from old request row)
     $imagePath = $request->input('existing_image_path') ?: null;
 
-    // If editing an existing request row, and hidden wasn’t sent (fallback)
     if ($requestId && !$imagePath) {
         $old = DB::table('approval_requests')
             ->where('id', $requestId)
-            ->where('requester_email', (string)session('user_email'))
+            ->where('requester_email', (string) session('user_email'))
             ->first();
 
         if ($old) {
@@ -241,9 +246,21 @@ $myNews = DB::table('news')
         }
     }
 
-    // ✅ If user uploaded a new file, override
+    if ($removeImage) {
+        $imagePath = null;
+    }
+
     if ($request->hasFile('image')) {
-        $imagePath = NewsImage::store($request->file('image'));
+        $uploadedPath = NewsImage::store($request->file('image'));
+
+        if (!$uploadedPath) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'Image upload failed.',
+            ], 500);
+        }
+
+        $imagePath = $uploadedPath;
     }
 
     return $this->createOrUpdateRequest(
@@ -254,8 +271,9 @@ $myNews = DB::table('news')
             'title' => $request->input('title'),
             'content' => RichText::sanitize($request->input('content')),
             'category' => $request->input('category'),
+            'link' => $request->input('link'),
             'location' => $request->input('location'),
-            'image_path' => $imagePath, // ✅ now preserved
+            'image_path' => $imagePath,
         ]
     );
 }
@@ -267,44 +285,53 @@ $myNews = DB::table('news')
     }
 
     $request->validate([
-    'request_id' => ['nullable','integer'],
-    'news_id' => ['required','integer','gt:0'],
-    'title' => ['required','string','max:255'],
-    'content' => ['required','string'],
-    'category' => ['required','string','max:100'],
-    'location' => ['nullable','string','max:255'],
-    'existing_image_path' => ['nullable','string'], // ✅ add
-]);
+        'request_id' => ['nullable','integer'],
+        'news_id' => ['required','integer','gt:0'],
+        'title' => ['required','string','max:255'],
+        'content' => ['required','string'],
+        'category' => ['required','string','max:100'],
+        'link' => ['nullable','string','max:255'],
+        'location' => ['nullable','string','max:255'],
+        'existing_image_path' => ['nullable','string'],
+        'remove_image' => ['nullable','in:0,1'],
+    ]);
 
-if ($message = NewsImage::validationError($request->file('image'))) {
-    throw ValidationException::withMessages(['image' => $message]);
-}
-
-$imagePath = null;
-if ($request->hasFile('image')) {
-    $imagePath = NewsImage::store($request->file('image'));
-}
-
-$payload = [
-    'news_id' => (int)$request->input('news_id'),
-    'title' => $request->input('title'),
-    'content' => RichText::sanitize($request->input('content')),
-    'category' => $request->input('category'),
-    'location' => $request->input('location'),
-];
-
-// ✅ If new upload -> use it
-if ($imagePath) {
-    $payload['image_path'] = $imagePath;
-} else {
-    // ✅ If no new upload, preserve existing image if provided
-    if ($request->filled('existing_image_path')) {
-        $payload['image_path'] = $request->input('existing_image_path');
+    if ($message = NewsImage::validationError($request->file('image'))) {
+        throw ValidationException::withMessages(['image' => $message]);
     }
-}
+
+    $removeImage = (string) $request->input('remove_image', '0') === '1';
+    $imagePath = $request->input('existing_image_path') ?: null;
+
+    if ($removeImage) {
+        $imagePath = null;
+    }
+
+    if ($request->hasFile('image')) {
+        $uploadedPath = NewsImage::store($request->file('image'));
+
+        if (!$uploadedPath) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'Image upload failed.',
+            ], 500);
+        }
+
+        $imagePath = $uploadedPath;
+    }
+
+    $payload = [
+        'news_id' => (int) $request->input('news_id'),
+        'title' => $request->input('title'),
+        'content' => RichText::sanitize($request->input('content')),
+        'category' => $request->input('category'),
+        'link' => $request->input('link'),
+        'location' => $request->input('location'),
+        'image_path' => $imagePath,
+    ];
 
     return $this->createOrUpdateRequest(
-        $request->input('request_id') ? (int)$request->input('request_id') : null,
+        $request->input('request_id') ? (int) $request->input('request_id') : null,
         'NEWS_UPDATE',
         $request->input('title'),
         $payload

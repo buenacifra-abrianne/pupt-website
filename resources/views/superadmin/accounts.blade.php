@@ -58,12 +58,12 @@
                     <span>Content Management</span>
                 </a>
             </li>
-            <li class="nav-item">
+            <!-- <li class="nav-item">
                 <a href="{{ route('superadmin.downloadables') ?? '#' }}" class="nav-link">
                     <i class="fas fa-download"></i>
                     <span>Downloadables</span>
                 </a>
-            </li>
+            </li> -->
             <li class="nav-item">
                 <a href="{{ route('superadmin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
@@ -105,55 +105,35 @@
                 <button class="action-btn" type="button" onclick="openAdd()"><i class="fas fa-user-plus"></i> Assign Access</button>
             </div>
 
-            <div class="tab-nav">
-                <button class="tab-btn active" data-role="all" onclick="switchRole('all')">
-                    <i class="fas fa-th-list"></i> All <span class="count-pill" id="pill-all">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Superadmin" onclick="switchRole('Superadmin')">
-                    <i class="fas fa-shield"></i> Superadmin <span class="count-pill" id="pill-Superadmin">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Admin" onclick="switchRole('Admin')">
-                    <i class="fas fa-shield-halved"></i> Admin <span class="count-pill" id="pill-Admin">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Registrar" onclick="switchRole('Registrar')">
-                    <i class="fas fa-id-card"></i> Registrar <span class="count-pill" id="pill-Registrar">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="HAP" onclick="switchRole('HAP')">
-                    <i class="fas fa-building-user"></i> HAP <span class="count-pill" id="pill-HAP">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Student Services" onclick="switchRole('Student Services')">
-                    <i class="fas fa-handshake-angle"></i> Student Services
-                    <span class="count-pill" id="pill-StudentServices">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Research and Extension" onclick="switchRole('Research and Extension')">
-                    <i class="fas fa-flask"></i> Research & Extension
-                    <span class="count-pill" id="pill-ResearchExtension">0</span>
-                </button>
-
-                <button class="tab-btn" data-role="Faculty" onclick="switchRole('Faculty')">
-                    <i class="fas fa-chalkboard-user"></i> Faculty <span class="count-pill" id="pill-Faculty">0</span>
-                </button>
-            </div>
-
             <div class="filter-bar">
-                <div class="filter-field filter-search">
-                    <i class="fas fa-magnifying-glass"></i>
-                    <input type="text" id="srch" placeholder="Search by name, email or ID..." oninput="applyFilters()">
-                </div>
-                <div class="filter-field filter-select">
-                    <i class="fas fa-circle-check"></i>
-                    <select id="stFil" onchange="applyFilters()">
-                        <option value="">All Status</option>
-                        <option>Active</option><option>Inactive</option><option>Suspended</option>
-                    </select>
-                </div>
-            </div>
+    <div class="filter-field filter-search" style="max-width: 280px;">
+        <i class="fas fa-magnifying-glass"></i>
+        <input type="text" id="srch" placeholder="Search name, email, or ID..." oninput="applyFilters()">
+    </div>
+
+    <div class="filter-field">
+    <div class="searchable-select" id="roleFilterWrap">
+        <input
+            type="text"
+            id="roleFilterSearch"
+            placeholder="All Roles"
+            autocomplete="off"
+        >
+        <input type="hidden" id="roleFil">
+        <div class="searchable-dropdown" id="roleFilterDropdown"></div>
+    </div>
+</div>
+
+    <div class="filter-field filter-select">
+        <i class="fas fa-circle-check"></i>
+        <select id="stFil" onchange="applyFilters()">
+            <option value="">All Status</option>
+            <option>Active</option>
+            <option>Inactive</option>
+            <option>Suspended</option>
+        </select>
+    </div>
+</div>
 
             <div class="table-wrap">
                 <table>
@@ -220,11 +200,19 @@
     </div>
 
     <div class="fg">
-        <label>CMS Roles <span class="req">*</span></label>
-        <select id="rolePicker">
-            <option value="">Select Role</option>
-        </select>
-    </div>
+      <label>CMS Roles <span class="req">*</span></label>
+      <div class="searchable-select" id="roleSearchWrap">
+          <input
+              type="text"
+              id="roleSearch"
+              placeholder="Search and select CMS role"
+              autocomplete="off"
+          >
+          <input type="hidden" id="rolePicker">
+          <div class="searchable-dropdown" id="roleDropdown"></div>
+      </div>
+  </div>
+
 </div>
 
 <div class="frow">
@@ -301,7 +289,13 @@ const RC = {
   RESEARCH_EXTENSION: 'r-research',
   FACULTY: 'r-faculty',
   'pupt:faculty': 'r-faculty',
-  'pupt:student': 'r-student'
+  'pupt:student': 'r-student',
+  FACULTY_PRO: 'r-faculty_pro',
+  DENTAL: 'r-dental',
+  CLINIC: 'r-clinic',
+  GUIDANCE: 'r-guidance',
+  ACCREDITATION: 'r-accreditation',
+  ADMISSIONS: 'r-admissions',
 };
 const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended' };
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };
@@ -424,36 +418,147 @@ function roleLabel(code){
   return ROLE_NAME_BY_CODE[c] || c;
 }
 
-function fillRoleOptions() {
-  const sel = document.getElementById('rolePicker');
-  if (!sel) return;
-
-  const opts = (ROLES || [])
-  .filter(r => String(r.code) !== 'LIBRARY')
-  .filter(r => {
-    const code = String(r.code);
-    if (code === 'SUPERADMIN' && CURRENT_ROLE !== 'SUPERADMIN') {
-      return false;
-    }
-    return !code.includes(':');
-  })
+function availableRoleOptions() {
+  return (ROLES || [])
+    .filter(r => String(r.code) !== 'LIBRARY')
+    .filter(r => {
+      const code = String(r.code);
+      if (code === 'SUPERADMIN' && CURRENT_ROLE !== 'SUPERADMIN') {
+        return false;
+      }
+      return !code.includes(':');
+    })
     .map(r => {
       const code = String(r.code);
+      const normalizedCode = code === 'FACULTY' ? 'pupt:faculty' : code;
       const name = (code === 'RESEARCH' || code === 'RESEARCH_EXTENSION')
         ? 'Research & Extension'
         : String(r.name);
 
-      if (code === 'FACULTY') {
-        return `<option value="pupt:faculty">${name}</option>`;
+      return {
+        code: normalizedCode,
+        name: name
+      };
+    })
+    .filter((role, index, arr) => arr.findIndex(x => x.code === role.code) === index);
+}
+
+function fillRoleOptions() {
+  renderRoleDropdown('');
+}
+
+function closeRoleDropdown() {
+  const dropdown = document.getElementById('roleDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+}
+
+function renderRoleDropdown(query = '') {
+  const dropdown = document.getElementById('roleDropdown');
+  if (!dropdown) return;
+
+  const q = normalizeText(query);
+
+  const filteredRoles = availableRoleOptions().filter(role => {
+    const haystack = `${role.name} ${role.code}`.toLowerCase();
+    return !q || haystack.includes(q);
+  });
+
+  if (!filteredRoles.length) {
+    dropdown.innerHTML = `<div class="searchable-empty">No matching roles found.</div>`;
+    dropdown.classList.add('active');
+    return;
+  }
+
+  dropdown.innerHTML = filteredRoles.map(role => {
+    const alreadySelected = selectedRoles.includes(normalizeRole(role.code));
+
+    return `
+      <div class="searchable-option ${alreadySelected ? 'disabled-option' : ''}" data-code="${escapeHtml(role.code)}" data-disabled="${alreadySelected ? '1' : '0'}">
+        <div class="opt-name">${escapeHtml(role.name)}</div>
+        <div class="opt-meta">${alreadySelected ? 'Already selected' : escapeHtml(role.code)}</div>
+      </div>
+    `;
+  }).join('');
+
+  dropdown.classList.add('active');
+
+  dropdown.querySelectorAll('.searchable-option').forEach(opt => {
+    opt.addEventListener('click', function () {
+      if (this.dataset.disabled === '1') {
+        showToast('This role is already selected.', 'warning');
+        return;
       }
 
-      return `<option value="${code}">${name}</option>`;
-    })
-    .join('');
+      const code = this.dataset.code;
+      addRoleChip(code);
 
-  sel.innerHTML = `<option value="">Select Role</option>` + opts;
+      const roleSearch = document.getElementById('roleSearch');
+      const picker = document.getElementById('rolePicker');
+
+      if (roleSearch) roleSearch.value = '';
+      if (picker) picker.value = '';
+
+      renderRoleDropdown('');
+    });
+  });
 }
-fillRoleOptions();
+
+function closeRoleFilterDropdown() {
+  const dropdown = document.getElementById('roleFilterDropdown');
+  if (dropdown) dropdown.classList.remove('active');
+}
+
+function setRoleFilter(code = '') {
+  const hidden = document.getElementById('roleFil');
+  const input = document.getElementById('roleFilterSearch');
+
+  if (hidden) hidden.value = code;
+  if (input) input.value = code ? roleLabel(code) : '';
+
+  applyFilters();
+}
+
+function renderRoleFilterDropdown(query = '') {
+  const dropdown = document.getElementById('roleFilterDropdown');
+  if (!dropdown) return;
+
+  const q = normalizeText(query);
+  const selectedCode = document.getElementById('roleFil')?.value || '';
+
+  const filteredRoles = availableRoleOptions().filter(role => {
+    const haystack = `${role.name} ${role.code}`.toLowerCase();
+    return !q || haystack.includes(q);
+  });
+
+  let html = `
+    <div class="searchable-option ${selectedCode === '' ? 'selected-option' : ''}" data-code="">
+      <div class="opt-name">All Roles</div>
+      <div class="opt-meta">Show all roles</div>
+    </div>
+  `;
+
+  if (!filteredRoles.length) {
+    html += `<div class="searchable-empty">No matching roles found.</div>`;
+  } else {
+    html += filteredRoles.map(role => `
+      <div class="searchable-option ${selectedCode === role.code ? 'selected-option' : ''}" data-code="${escapeHtml(role.code)}">
+        <div class="opt-name">${escapeHtml(role.name)}</div>
+        <div class="opt-meta">${escapeHtml(role.code)}</div>
+      </div>
+    `).join('');
+  }
+
+  dropdown.innerHTML = html;
+  dropdown.classList.add('active');
+
+  dropdown.querySelectorAll('.searchable-option').forEach(opt => {
+    opt.addEventListener('click', function () {
+      const code = this.dataset.code || '';
+      setRoleFilter(code);
+      closeRoleFilterDropdown();
+    });
+  });
+}
 
 function renderRoleChips() {
   const box = document.getElementById('roleChips');
@@ -491,27 +596,25 @@ function removeRoleChip(code) {
   renderRoleChips();
 }
 
-document.addEventListener('change', function(e){
-  if (e.target && e.target.id === 'rolePicker') {
-    const val = e.target.value;
-    if (val) addRoleChip(val);
-    e.target.value = '';
-  }
-});
 users = (Array.isArray(users) ? users : []).map(shapeUser);
 
-let curRole='all', editId=null, viewId=null, pg=1;
+let editId=null, viewId=null, pg=1;
 let selectedRoles = [];
 const PP=10;
-
+fillRoleOptions();
 function filtered(){
-  const q=(document.getElementById('srch').value||'').toLowerCase();
-  const st=document.getElementById('stFil').value;
-  return users.filter(u=>{
-    const mr = (curRole === 'all') || roleMatchesTab(u.rl, curRole);
-    const mq=!q||`${u.fn} ${u.ln} ${u.em} ${u.id}`.toLowerCase().includes(q);
-    const ms=!st||u.st===st;
-    return mr&&mq&&ms;
+  const q = (document.getElementById('srch').value || '').toLowerCase();
+  const role = document.getElementById('roleFil').value;
+  const st = document.getElementById('stFil').value;
+
+  return users.filter(u => {
+    const userRoles = Array.isArray(u.roles) && u.roles.length ? u.roles : [u.rl];
+
+    const mq = !q || `${u.fn} ${u.ln} ${u.em} ${u.id}`.toLowerCase().includes(q);
+    const mr = !role || userRoles.includes(role);
+    const ms = !st || u.st === st;
+
+    return mq && mr && ms;
   });
 }
 
@@ -580,11 +683,9 @@ ${statusBtn}
 }
 
 function updateCounts(){
-  const rc = {};
   const sc = {Active:0,Inactive:0,Suspended:0};
 
-  users.forEach(u=>{
-    rc[u.rl] = (rc[u.rl] || 0) + 1;
+  users.forEach(u => {
     sc[u.st] = (sc[u.st] || 0) + 1;
   });
 
@@ -592,22 +693,6 @@ function updateCounts(){
   document.getElementById('cnt-active').textContent = sc.Active;
   document.getElementById('cnt-inactive').textContent = sc.Inactive;
   document.getElementById('cnt-suspended').textContent = sc.Suspended;
-
-  document.getElementById('pill-all').textContent = users.length;
-
-const countByTab = (tabLabel) => {
-  return users.reduce((n,u)=> n + (roleMatchesTab(u.rl, tabLabel) ? 1 : 0), 0);
-};
-
-const setPill = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-
-setPill('pill-Superadmin', countByTab('Superadmin'));
-setPill('pill-Admin', countByTab('Admin'));
-setPill('pill-Registrar', countByTab('Registrar'));
-setPill('pill-HAP', countByTab('HAP'));
-setPill('pill-StudentServices', countByTab('Student Services'));
-setPill('pill-ResearchExtension', countByTab('Research and Extension'));
-setPill('pill-Faculty', countByTab('Faculty'));
 }
 
 function applyFilters(){ pg=1; render(); }
@@ -633,7 +718,11 @@ function clrForm(){
   const picker = document.getElementById('rolePicker');
   if (picker) picker.value = '';
 
+  const roleSearch = document.getElementById('roleSearch');
+  if (roleSearch) roleSearch.value = '';
+
   closeFacultyDropdown();
+  closeRoleDropdown();
 }
 
 function openAdd(){
@@ -660,6 +749,9 @@ function openEdit(id){
 
   const picker = document.getElementById('rolePicker');
   if (picker) picker.value = '';
+
+  const roleSearch = document.getElementById('roleSearch');
+  if (roleSearch) roleSearch.value = '';
 
   document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit CMS Access';
   document.getElementById('saveLbl').textContent = 'Update Access';
@@ -1008,6 +1100,42 @@ document.addEventListener('click', function (e) {
     closeFacultyDropdown();
   }
 });
+
+document.getElementById('roleSearch').addEventListener('focus', function () {
+  renderRoleDropdown(this.value);
+});
+
+document.getElementById('roleSearch').addEventListener('input', function () {
+  document.getElementById('rolePicker').value = '';
+  renderRoleDropdown(this.value);
+});
+
+document.addEventListener('click', function (e) {
+  const wrap = document.getElementById('roleSearchWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeRoleDropdown();
+  }
+});
+
+document.getElementById('roleFilterSearch').addEventListener('focus', function () {
+  renderRoleFilterDropdown(this.value);
+});
+
+document.getElementById('roleFilterSearch').addEventListener('input', function () {
+  renderRoleFilterDropdown(this.value);
+});
+
+document.addEventListener('click', function (e) {
+  const wrap = document.getElementById('roleFilterWrap');
+  if (wrap && !wrap.contains(e.target)) {
+    closeRoleFilterDropdown();
+  }
+});
+
+const roleFilterHidden = document.getElementById('roleFil');
+const roleFilterInput = document.getElementById('roleFilterSearch');
+if (roleFilterHidden) roleFilterHidden.value = '';
+if (roleFilterInput) roleFilterInput.value = '';
 </script>
 </body>
 </html>

@@ -22,22 +22,22 @@ class AcademicsController extends Controller
 
     public function diplomaPrograms()
     {
-        return view('public.academics.diploma-programs');
+        return view('public.academics.diplomaprograms');
     }
 
     public function graduatePrograms()
     {
-        return view('public.academics.graduate-programs');
+        return view('public.academics.graduateprograms');
     }
 
     public function pupIApply()
     {
-        return view('public.academics.pup-iapply');
+        return view('public.academics.pupiapply');
     }
 
     public function universityCalendar()
     {
-        return view('public.academics.university-calendar');
+        return view('public.academics.universitycalendar');
     }
 
     private function renderPage()

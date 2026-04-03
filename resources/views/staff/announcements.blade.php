@@ -179,6 +179,7 @@
                           {{ (int)$a->announcement_id }},
                           {{ \Illuminate\Support\Js::from($a->title ?? '') }},
                           {{ \Illuminate\Support\Js::from($a->content ?? '') }},
+                           {{ \Illuminate\Support\Js::from($a->link ?? '') }},
                           {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
                         )">
                   <i class="fas fa-edit"></i> Edit
@@ -204,7 +205,7 @@
                 <button class="btn btn-sm btn-view-icon"
                         type="button"
                         title="View"
-                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""))'>
+                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""), @json($a->link ?? ""))'>
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
@@ -331,6 +332,7 @@
                   {{ \Illuminate\Support\Js::from($n->content ?? '') }},
                   {{ \Illuminate\Support\Js::from($n->category ?? '') }},
                   {{ \Illuminate\Support\Js::from($n->location ?? '') }},
+                  {{ \Illuminate\Support\Js::from($n->link ?? '') }},
                   {{ \Illuminate\Support\Js::from($n->image_path ?? '') }},
                   {{ \Illuminate\Support\Js::from($imgUrl ?? '') }}
                 )">
@@ -346,7 +348,7 @@
                 <button class="btn btn-sm btn-view-icon"
                   type="button"
                   title="View"
-                  onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""))'>
+                  onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""), @json($n->link ?? ""))'>
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
@@ -378,7 +380,19 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+            <div class="read-more-body">
+              <div class="rich-text-content" id="readMoreContent"></div>
+
+              <div id="readMoreLinkWrap" style="display:none; margin-top: 18px;">
+                  <a id="readMoreLinkBtn"
+                    href="#"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="btn btn-sm btn-primary">
+                      <i class="fas fa-external-link-alt"></i> Open Link
+                  </a>
+              </div>
+          </div>
         </div>
     </div>
 
@@ -412,6 +426,17 @@
                         <option value="MEDIUM" selected>Medium Priority</option>
                         <option value="LOW">Low Priority</option>
                     </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="link">Link</label>
+                    <input 
+                        type="url" 
+                        name="link" 
+                        id="link"
+                        class="form-control"
+                        placeholder="https://example.com"
+                    >
                 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
@@ -460,6 +485,17 @@
                 </div>
 
                 <div class="form-group">
+                  <label for="news_link">Link</label>
+                  <input 
+                      type="url" 
+                      name="link" 
+                      id="news_link"
+                      class="form-control"
+                      placeholder="https://example.com"
+                  >
+              </div>
+
+                <div class="form-group">
                     <label>Location</label>
                     <input type="text" name="location" placeholder="Location">
                 </div>
@@ -494,16 +530,21 @@
       <i class="fas fa-upload"></i> Upload Image
     </button>
 
-    <button type="button" class="btn btn-sm btn-delete"
-            id="newsRemoveImageBtn"
-            style="display:none;"
-            onclick="clearNewsImage()">
-      <i class="fas fa-trash"></i> Remove
-    </button>
+    <span id="newsRemoveImageSlot" style="display:none;">
+      <button type="button" class="btn btn-sm btn-delete"
+              id="newsRemoveImageBtn"
+              hidden
+              aria-hidden="true"
+              style="display:none;"
+              onclick="clearNewsImage()">
+        <i class="fas fa-trash"></i> Remove
+      </button>
+    </span>
   </div>
 
   {{-- stores current image path when editing (from DB). No file upload here. --}}
   <input type="hidden" id="news_existing_image_path" name="existing_image_path" value="">
+  <input type="hidden" id="news_remove_image" name="remove_image" value="0">
 </div>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
@@ -553,11 +594,13 @@
             title: normalizeText(form.querySelector('[name="title"]')?.value),
             content: normalizeText(form.querySelector('[name="content"]')?.value),
             priority: normalizeUpper(form.querySelector('[name="priority"]')?.value),
+            link: normalizeUpper(form.querySelector('[name="link"]')?.value),
         };
 
         return current.title === announcementEditSnapshot.title
             && current.content === announcementEditSnapshot.content
-            && current.priority === announcementEditSnapshot.priority;
+            && current.priority === announcementEditSnapshot.priority
+            && current.link === announcementEditSnapshot.link;
     }
 
     function hasNoNewsChanges(form) {
@@ -572,6 +615,7 @@
             category: normalizeText(form.querySelector('[name="category"]')?.value),
             location: normalizeText(form.querySelector('[name="location"]')?.value),
             imagePath: normalizeText(document.getElementById('news_existing_image_path')?.value),
+            link: normalizeText(form.querySelector('[name="link"]')?.value),
         };
 
         return !hasNewUpload
@@ -579,6 +623,7 @@
             && current.content === newsEditSnapshot.content
             && current.category === newsEditSnapshot.category
             && current.location === newsEditSnapshot.location
+            && current.link === newsEditSnapshot.link
             && current.imagePath === newsEditSnapshot.imagePath;
     }
 
@@ -651,13 +696,26 @@
         const reqInput = document.getElementById('edit_news_request_id');
         if (reqInput) reqInput.remove();
 
-        const hidden = document.getElementById('news_existing_image_path');
-        if (hidden) hidden.value = '';
+        const existingPath = document.getElementById('news_existing_image_path');
+        if (existingPath) existingPath.value = '';
+
+        const removeFlag = document.getElementById('news_remove_image');
+        if (removeFlag) removeFlag.value = '0';
 
         const removeBtn = document.getElementById('newsRemoveImageBtn');
-        if (removeBtn) removeBtn.style.display = 'none';
+        if (removeBtn) {
+            removeBtn.hidden = true;
+            removeBtn.setAttribute('aria-hidden', 'true');
+            removeBtn.style.display = 'none';
+        }
+
+        const removeSlot = document.getElementById('newsRemoveImageSlot');
+        if (removeSlot) {
+            removeSlot.style.display = 'none';
+        }
 
         setNewsPreview('');
+
         newsEditSnapshot = null;
     }
 
@@ -742,133 +800,160 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
-    function openReadMoreModal(title, content) {
-        document.getElementById('readMoreTitle').textContent = title || 'Read More';
-        document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
-        document.getElementById('readMoreModal').classList.add('active');
-    }
+    function openReadMoreModal(title, content, link = '') {
+      document.getElementById('readMoreTitle').textContent = title || 'Read More';
+      document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
+
+      const linkWrap = document.getElementById('readMoreLinkWrap');
+      const linkBtn = document.getElementById('readMoreLinkBtn');
+
+      if (link && link.trim() !== '') {
+          linkBtn.href = link;
+          linkWrap.style.display = 'block';
+      } else {
+          linkBtn.href = '#';
+          linkWrap.style.display = 'none';
+      }
+
+      document.getElementById('readMoreModal').classList.add('active');
+  }
 
     function closeReadMoreModal() {
         document.getElementById('readMoreModal').classList.remove('active');
+
+        const linkWrap = document.getElementById('readMoreLinkWrap');
+        const linkBtn = document.getElementById('readMoreLinkBtn');
+
+        if (linkWrap) linkWrap.style.display = 'none';
+        if (linkBtn) linkBtn.href = '#';
     }
 
-    function editNews(id, title, content, category, location, imagePath, imageUrl) {
-  id = parseInt(id, 10);
-  if (!id || id <= 0) {
-    showToast("This request has no News ID yet. You can't submit an UPDATE. Please submit it as CREATE first (wait for admin approval), then edit from Live.", 'warning');
-    return;
-  }
+    function editNews(id, title, content, category, location, link, imagePath, imageUrl) {
+    id = parseInt(id, 10);
+    if (!id || id <= 0) {
+        showToast("This request has no News ID yet. You can't submit an UPDATE. Please submit it as CREATE first, then edit from Live.", 'warning');
+        return;
+    }
 
-  const modal = document.getElementById('newsModal');
-  const form = document.getElementById('newsForm');
-  const modalTitle = modal.querySelector('.modal-title');
-  const submitBtn = document.getElementById('newsSubmitBtn');
-  newsEditSnapshot = {
-    title: normalizeText(title),
-    content: normalizeText(content),
-    category: normalizeText(category),
-    location: normalizeText(location),
-    imagePath: normalizeText(imagePath),
-  };
+    const modal = document.getElementById('newsModal');
+    const form = document.getElementById('newsForm');
+    const modalTitle = modal.querySelector('.modal-title');
+    const submitBtn = document.getElementById('newsSubmitBtn');
 
-  modal.classList.add('active');
-  if (modalTitle) modalTitle.innerText = "Edit News Article";
-  if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
+    newsEditSnapshot = {
+        title: normalizeText(title),
+        content: normalizeText(content),
+        category: normalizeText(category),
+        location: normalizeText(location),
+        link: normalizeText(link),
+        imagePath: normalizeText(imagePath),
+    };
 
-  form.action = "{{ route('staff.news.requestUpdate') }}";
-
-  form.querySelector('[name="title"]').value = title || '';
-  setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
-  form.querySelector('[name="category"]').value = category || '';
-  form.querySelector('[name="location"]').value = location || '';
-
-  let idInput = document.getElementById('edit_news_id');
-  if (!idInput) {
-    idInput = document.createElement('input');
-    idInput.type = 'hidden';
-    idInput.name = 'news_id';
-    idInput.id = 'edit_news_id';
-    form.appendChild(idInput);
-  }
-  idInput.value = id;
-
-  const fileInput = document.getElementById('newsImageInput');
-  if (fileInput) fileInput.value = '';
-
-  // ✅ store PATH for backend (not URL)
-  const hidden = document.getElementById('news_existing_image_path');
-  if (hidden) hidden.value = imagePath || '';
-
-  // ✅ show URL for preview
-  setNewsPreview(imageUrl || '');
-}
-
-  function editNewsRequest(reqId, type, newsId, title, content, category, location, imagePath, imageUrl) {
-  const modal = document.getElementById('newsModal');
-  const form = document.getElementById('newsForm');
-  const modalTitle = modal.querySelector('.modal-title');
-  const submitBtn = document.getElementById('newsSubmitBtn');
-  newsEditSnapshot = {
-    title: normalizeText(title),
-    content: normalizeText(content),
-    category: normalizeText(category),
-    location: normalizeText(location),
-    imagePath: normalizeText(imagePath),
-  };
-
-  modal.classList.add('active');
-
-  form.querySelector('[name="title"]').value = title || '';
-  setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
-  form.querySelector('[name="category"]').value = category || '';
-  form.querySelector('[name="location"]').value = location || '';
-
-  let reqInput = document.getElementById('edit_news_request_id');
-  if (!reqInput) {
-    reqInput = document.createElement('input');
-    reqInput.type = 'hidden';
-    reqInput.name = 'request_id';
-    reqInput.id = 'edit_news_request_id';
-    form.appendChild(reqInput);
-  }
-  reqInput.value = parseInt(reqId || 0, 10);
-
-  // clear file input
-  const fileInput = document.getElementById('newsImageInput');
-  if (fileInput) fileInput.value = '';
-
-  // ✅ keep existing image PATH for backend
-  const hidden = document.getElementById('news_existing_image_path');
-  if (hidden) hidden.value = imagePath || '';
-
-  // ✅ show existing image URL for preview
-  setNewsPreview(imageUrl || '');
-
-  const nid = parseInt(newsId || 0, 10);
-
-  if (!isNaN(nid) && nid > 0) {
+    modal.classList.add('active');
     if (modalTitle) modalTitle.innerText = "Edit News Article";
-    form.action = "{{ route('staff.news.requestUpdate') }}";
     if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
+
+    form.action = "{{ route('staff.news.requestUpdate') }}";
+
+    form.querySelector('[name="title"]').value = title || '';
+    setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
+    form.querySelector('[name="category"]').value = category || '';
+    form.querySelector('[name="location"]').value = location || '';
+    form.querySelector('[name="link"]').value = link || '';
 
     let idInput = document.getElementById('edit_news_id');
     if (!idInput) {
-      idInput = document.createElement('input');
-      idInput.type = 'hidden';
-      idInput.name = 'news_id';
-      idInput.id = 'edit_news_id';
-      form.appendChild(idInput);
+        idInput = document.createElement('input');
+        idInput.type = 'hidden';
+        idInput.name = 'news_id';
+        idInput.id = 'edit_news_id';
+        form.appendChild(idInput);
     }
-    idInput.value = nid;
+    idInput.value = id;
 
-  } else {
-    if (modalTitle) modalTitle.innerText = "Edit Draft News Request";
-    form.action = "{{ route('staff.news.requestCreate') }}";
-    if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Update Draft';
+    const reqInput = document.getElementById('edit_news_request_id');
+    if (reqInput) reqInput.remove();
 
-    const idInput = document.getElementById('edit_news_id');
-    if (idInput) idInput.remove();
-  }
+    const fileInput = document.getElementById('newsImageInput');
+    if (fileInput) fileInput.value = '';
+
+    const existingPath = document.getElementById('news_existing_image_path');
+    if (existingPath) existingPath.value = imagePath || '';
+
+    const removeFlag = document.getElementById('news_remove_image');
+    if (removeFlag) removeFlag.value = '0';
+
+    setNewsPreview(imageUrl || '');
+}
+
+  function editNewsRequest(reqId, type, newsId, title, content, category, location, link, imagePath, imageUrl) {
+    const modal = document.getElementById('newsModal');
+    const form = document.getElementById('newsForm');
+    const modalTitle = modal.querySelector('.modal-title');
+    const submitBtn = document.getElementById('newsSubmitBtn');
+
+    newsEditSnapshot = {
+        title: normalizeText(title),
+        content: normalizeText(content),
+        category: normalizeText(category),
+        location: normalizeText(location),
+        link: normalizeText(link),
+        imagePath: normalizeText(imagePath),
+    };
+
+    modal.classList.add('active');
+
+    form.querySelector('[name="title"]').value = title || '';
+    setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
+    form.querySelector('[name="category"]').value = category || '';
+    form.querySelector('[name="location"]').value = location || '';
+    form.querySelector('[name="link"]').value = link || '';
+
+    let reqInput = document.getElementById('edit_news_request_id');
+    if (!reqInput) {
+        reqInput = document.createElement('input');
+        reqInput.type = 'hidden';
+        reqInput.name = 'request_id';
+        reqInput.id = 'edit_news_request_id';
+        form.appendChild(reqInput);
+    }
+    reqInput.value = parseInt(reqId || 0, 10);
+
+    const fileInput = document.getElementById('newsImageInput');
+    if (fileInput) fileInput.value = '';
+
+    const existingPath = document.getElementById('news_existing_image_path');
+    if (existingPath) existingPath.value = imagePath || '';
+
+    const removeFlag = document.getElementById('news_remove_image');
+    if (removeFlag) removeFlag.value = '0';
+
+    setNewsPreview(imageUrl || '');
+
+    const nid = parseInt(newsId || 0, 10);
+
+    if (!isNaN(nid) && nid > 0) {
+        if (modalTitle) modalTitle.innerText = "Edit News Article";
+        form.action = "{{ route('staff.news.requestUpdate') }}";
+        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
+
+        let idInput = document.getElementById('edit_news_id');
+        if (!idInput) {
+            idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'news_id';
+            idInput.id = 'edit_news_id';
+            form.appendChild(idInput);
+        }
+        idInput.value = nid;
+    } else {
+        if (modalTitle) modalTitle.innerText = "Edit Draft News Request";
+        form.action = "{{ route('staff.news.requestCreate') }}";
+        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Update Draft';
+
+        const idInput = document.getElementById('edit_news_id');
+        if (idInput) idInput.remove();
+    }
 }
 
     async function deleteNews(id, title = '') {
@@ -934,7 +1019,7 @@
         }
     });
 
- function editAnnouncementRequest(reqId, type, announcementId, title, content, priority) {
+ function editAnnouncementRequest(reqId, type, announcementId, title, content, link, priority) {
   const modal = document.getElementById('announcementModal');
   const form = document.getElementById('announcementForm');
   const modalTitle = modal.querySelector('.modal-title');
@@ -942,6 +1027,7 @@
   announcementEditSnapshot = {
     title: normalizeText(title),
     content: normalizeText(content),
+    link: normalizeText(link),
     priority: normalizeUpper(priority || 'MEDIUM'),
   };
 
@@ -951,6 +1037,7 @@
   form.querySelector('[name="title"]').value = title || '';
   setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
   form.querySelector('[name="priority"]').value = priority || 'MEDIUM';
+  form.querySelector('[name="link"]').value = link || '';
 
   // ✅ always attach request_id so backend UPDATES same request (no duplicates)
   let reqInput = document.getElementById('edit_request_id');
@@ -1240,42 +1327,72 @@ async function requestToggleAnnouncement(announcementId, title, currentStatus) {
   .catch(err => showToast('Request toggle failed: ' + err.message, 'error')); 
 }
 
-function setNewsPreview(src) {
-  const img = document.getElementById('newsPreviewImg');
-  const ph = document.getElementById('newsNoImage');
-  const rm = document.getElementById('newsRemoveImageBtn');
+  function setNewsPreview(src) {
+      const img = document.getElementById('newsPreviewImg');
+      const ph = document.getElementById('newsNoImage');
+      const rm = document.getElementById('newsRemoveImageBtn');
+      const rmSlot = document.getElementById('newsRemoveImageSlot');
 
-  if (src) {
-    img.src = src;
-    img.style.display = 'block';
-    ph.style.display = 'none';
-    rm.style.display = 'inline-flex';
-  } else {
-    img.src = '';
-    img.style.display = 'none';
-    ph.style.display = 'block';
-    rm.style.display = 'none';
+      const hasImage = !!src;
+
+      if (img) {
+          img.src = hasImage ? src : '';
+          img.style.display = hasImage ? 'block' : 'none';
+      }
+
+      if (ph) {
+          ph.style.display = hasImage ? 'none' : 'block';
+      }
+
+      if (rm) {
+          rm.hidden = !hasImage;
+          rm.setAttribute('aria-hidden', hasImage ? 'false' : 'true');
+          rm.style.display = hasImage ? 'inline-flex' : 'none';
+      }
+
+      if (rmSlot) {
+          rmSlot.style.display = hasImage ? 'inline-flex' : 'none';
+      }
   }
-}
 
 function handleNewsImagePick(input) {
-  const file = input.files && input.files[0];
-  if (!file) return;
+    const file = input.files && input.files[0];
+    if (!file || !file.type.startsWith('image/')) {
+        return;
+    }
 
-  const url = URL.createObjectURL(file);
-  setNewsPreview(url);
+    const removeFlag = document.getElementById('news_remove_image');
+    if (removeFlag) removeFlag.value = '0';
 
-  // if user picks a new file, we keep existing_image_path but backend should prefer the new upload
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        setNewsPreview(e.target.result);
+    };
+    reader.readAsDataURL(file);
 }
 
 function clearNewsImage() {
-  const input = document.getElementById('newsImageInput');
-  const hidden = document.getElementById('news_existing_image_path');
+    const input = document.getElementById('newsImageInput');
+    const existingPath = document.getElementById('news_existing_image_path');
+    const removeFlag = document.getElementById('news_remove_image');
+    const removeBtn = document.getElementById('newsRemoveImageBtn');
+    const removeSlot = document.getElementById('newsRemoveImageSlot');
 
-  if (input) input.value = '';
-  if (hidden) hidden.value = ''; // means "remove existing" (if you support it)
+    if (input) input.value = '';
+    if (existingPath) existingPath.value = '';
+    if (removeFlag) removeFlag.value = '1';
 
-  setNewsPreview('');
+    if (removeBtn) {
+        removeBtn.hidden = true;
+        removeBtn.setAttribute('aria-hidden', 'true');
+        removeBtn.style.display = 'none';
+    }
+
+    if (removeSlot) {
+        removeSlot.style.display = 'none';
+    }
+
+    setNewsPreview('');
 }
 </script>
 <input type="hidden" id="urlReqEnable" value="{{ route('staff.announcements.requestEnable') }}">
