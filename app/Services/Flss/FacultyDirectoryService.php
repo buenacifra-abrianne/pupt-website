@@ -46,9 +46,10 @@ class FacultyDirectoryService
                         'middle_name' => $middleName !== '' ? $middleName : null,
                         'last_name' => $lastName,
                         'suffix' => $suffix !== '' ? $suffix : null,
-                        'email' => $email,
+                        'email' => strtolower(trim($email)),
                         'status' => 'Active',
                         'label' => $label !== '' ? $label : $email,
+                        'source' => 'FLSS',
                     ];
                 })
                 ->sortBy([
