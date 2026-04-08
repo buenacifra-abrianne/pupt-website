@@ -82,10 +82,10 @@
 
         <div class="card">
             <div class="card-header">
-                <h3 class="card-title">Manage Downloadables</h3>
-                <button class="btn btn-primary" type="button" onclick="openDownloadableModal(true)">
+                <h3 class="card-title">Downloadables</h3>
+                <!-- <button class="btn btn-primary" type="button" onclick="openDownloadableModal(true)">
                     <i class="fas fa-plus"></i> New Downloadable
-                </button>
+                </button> -->
             </div>
 
             <div id="downloadablesList">
@@ -122,7 +122,7 @@
 
                         @if(!empty($row->description))
                             <div class="announcement-description">
-                                {{ e($row->description) }}
+                                {!! $row->description !!}
                             </div>
                         @endif
 
