@@ -296,6 +296,10 @@ const RC = {
   GUIDANCE: 'r-guidance',
   ACCREDITATION: 'r-accreditation',
   ADMISSIONS: 'r-admissions',
+  LIBRARY: 'r-library',
+  OJT: 'r-ojt',
+  CWTS: 'r-cwts',
+  DIRECTOR_OFFICE: 'r-director_office',
 };
 const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended' };
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };

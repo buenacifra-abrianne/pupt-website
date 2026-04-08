@@ -746,6 +746,26 @@ tbody td {
   color: #059669;
 }
 
+.r-library {
+  background: rgba(14, 116, 144, 0.12);
+  color: #0e7490;
+}
+
+.r-ojt {
+  background: rgba(234, 88, 12, 0.12);
+  color: #ea580c;
+}
+
+.r-cwts {
+  background: rgba(132, 204, 22, 0.14);
+  color: #65a30d;
+}
+
+.r-director_office {
+  background: rgba(75, 85, 99, 0.12);
+  color: #374151;
+}
+
 /* Status Badges */
 .sbadge {
     padding: 4px 11px;

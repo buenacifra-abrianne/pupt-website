@@ -133,7 +133,11 @@ if (
     $dbRole === 'GUIDANCE' ||
     $dbRole === 'CLINIC' ||
     $dbRole === 'ACCREDITATION' ||
-    $dbRole === 'ADMISSIONS'
+    $dbRole === 'ADMISSIONS' ||
+    $dbRole === 'LIBRARY' ||
+    $dbRole === 'OJT' ||
+    $dbRole === 'CWTS' ||
+    $dbRole === 'DIRECTOR_OFFICE'
 ) {
     return redirect()->route('staff.dashboard');
 }
@@ -502,7 +506,11 @@ return back()->withErrors([
             'GUIDANCE',
             'CLINIC',
             'ACCREDITATION',
-            'ADMISSIONS'
+            'ADMISSIONS',
+            'LIBRARY',
+            'OJT',
+            'CWTS',
+            'DIRECTOR_OFFICE',
         ];
 
         $validRoles = array_values(array_intersect($assignedRoles, $allowedRoles));

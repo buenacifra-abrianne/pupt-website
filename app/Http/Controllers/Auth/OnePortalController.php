@@ -35,7 +35,11 @@ class OnePortalController extends Controller
             'GUIDANCE',
             'CLINIC',
             'ACCREDITATION',
-            'ADMISSIONS'
+            'ADMISSIONS',
+            'LIBRARY',
+            'OJT',
+            'CWTS',
+            'DIRECTOR_OFFICE',
         ];
 
         if (session()->has('user_id') && in_array($role, $allowedRoles, true)) {
@@ -217,7 +221,11 @@ class OnePortalController extends Controller
         'GUIDANCE',
         'CLINIC',
         'ACCREDITATION',
-        'ADMISSIONS'
+        'ADMISSIONS',
+        'LIBRARY',
+        'OJT',
+        'CWTS',
+        'DIRECTOR_OFFICE',
     ];
 
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
@@ -330,7 +338,16 @@ class OnePortalController extends Controller
             $role === 'STUDENT_SERVICES' ||
             $role === 'RESEARCH_EXTENSION' ||
             $role === 'FACULTY' ||
-            $role === 'FACULTY_PRO'
+            $role === 'FACULTY_PRO' ||
+            $role === 'DENTAL' ||
+            $role === 'GUIDANCE' ||
+            $role === 'CLINIC' ||
+            $role === 'ACCREDITATION' ||
+            $role === 'ADMISSIONS' ||
+            $role === 'LIBRARY' ||
+            $role === 'OJT' ||
+            $role === 'CWTS' ||
+            $role === 'DIRECTOR_OFFICE'
         ) {
             return redirect('/staff/dashboard');
         }

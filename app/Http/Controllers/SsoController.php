@@ -66,7 +66,11 @@ class SsoController extends Controller
             'GUIDANCE',
             'CLINIC',
             'ACCREDITATION',
-            'ADMISSIONS'
+            'ADMISSIONS',
+            'LIBRARY',
+            'OJT',
+            'CWTS',
+            'DIRECTOR_OFFICE',
         ];
 
         if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
