@@ -85,6 +85,12 @@
                 $homePrefill = $tabKey === 'home'
                     ? \App\Support\HomeCmsContent::fromStored((string) $prefillContent)
                     : null;
+                $aboutLive = $tabKey === 'about'
+                    ? \App\Support\AboutCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
+                $aboutPrefill = $tabKey === 'about'
+                    ? \App\Support\AboutCmsContent::fromStored((string) $prefillContent)
+                    : null;
             @endphp
 
             <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
@@ -107,6 +113,19 @@
                                         <div style="font-size:13px; margin-bottom:8px;">
                                             <strong>Slide {{ $loop->iteration }}:</strong>
                                             {{ $slide['title'] }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($tabKey === 'about')
+                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Intro</div>
+                                <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">{{ $aboutLive['overview']['story_description'] ?? '' }}</div>
+
+                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Sections</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
+                                    @foreach(($aboutLive['sections'] ?? []) as $section)
+                                        <div style="font-size:13px; margin-bottom:8px;">
+                                            <strong>{{ $section['label'] ?? '' }}:</strong>
+                                            {{ $section['summary'] ?? '' }}
                                         </div>
                                     @endforeach
                                 </div>
@@ -158,6 +177,16 @@
                                     'homeEditorRequestId' => $draft['id'] ?? null,
                                     'homeEditorStatus' => $status,
                                     'homeEditorIdPrefix' => 'staff-home',
+                                ])
+                            @elseif($tabKey === 'about')
+                                @include('partials.about_cms_preview_editor', [
+                                    'aboutEditorData' => $aboutPrefill,
+                                    'aboutEditorFormClass' => 'cms-edit-form',
+                                    'aboutEditorSubmitRoute' => route('staff.content.requestEdit'),
+                                    'aboutEditorSubmitMode' => 'request',
+                                    'aboutEditorRequestId' => $draft['id'] ?? null,
+                                    'aboutEditorStatus' => $status,
+                                    'aboutEditorIdPrefix' => 'staff-about',
                                 ])
                             @else
                                 <form class="cms-edit-form" method="POST" action="{{ route('staff.content.requestEdit') }}" enctype="multipart/form-data">

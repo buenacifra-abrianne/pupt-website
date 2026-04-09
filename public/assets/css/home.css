@@ -2023,12 +2023,27 @@ body.modal-open {
 }
 
 .feedback-banner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
   background:
     linear-gradient(135deg, rgba(255, 247, 237, 0.96) 0%, rgba(247, 239, 232, 0.92) 54%, rgba(215, 170, 67, 0.16) 100%);
+}
+
+.feedback-banner > [data-cms-boundary] {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
+  min-width: 0;
+}
+
+.feedback-banner .layout-inset {
+  min-width: 0;
+}
+
+.feedback-banner .submit-btn {
+  justify-self: end;
+  align-self: center;
+  white-space: nowrap;
 }
 
 .feedback-banner h2 {
@@ -2206,8 +2221,6 @@ body.scroll-up .reveal:not(.active) {
   }
 
   .feedback-banner {
-    flex-direction: column;
-    align-items: stretch;
     gap: 12px;
     padding: 16px 14px;
   }
@@ -2226,7 +2239,6 @@ body.scroll-up .reveal:not(.active) {
   .feedback-banner .submit-btn {
     min-height: 40px;
     width: auto;
-    align-self: flex-start;
     padding: 0 14px;
     font-size: 0.8rem;
   }
@@ -2517,6 +2529,20 @@ body.scroll-up .reveal:not(.active) {
     height: 160px;
   }
 
+}
+
+@media (max-width: 640px) {
+  .feedback-banner > [data-cms-boundary] {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .feedback-banner .submit-btn {
+    align-self: flex-start;
+    justify-self: start;
+  }
 }
 
 @media (max-width: 480px) {

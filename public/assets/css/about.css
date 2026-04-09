@@ -251,8 +251,8 @@ body {
 
 .campus-story-layout {
   display: block;
-  width: min(1400px, calc(100% - 2rem));
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
 }
 
 .campus-story-copy {
