@@ -31,38 +31,7 @@
     $priorityAnnouncementFeed = $announcements
         ->filter(fn ($item) => strtoupper(trim((string) ($item->priority ?? ''))) === 'HIGH')
         ->values();
-    $quickLinks = [
-        [
-            'label' => 'About',
-            'title' => 'Know the campus',
-            'text' => 'Explore the campus profile, identity, and institutional story.',
-            'href' => route('public.about'),
-        ],
-        [
-            'label' => 'Academics',
-            'title' => 'Browse programs',
-            'text' => 'See the academic offerings and learning environment available to students.',
-            'href' => route('public.academics'),
-        ],
-        [
-            'label' => 'Students',
-            'title' => 'Student services',
-            'text' => 'Access student-centered information, updates, and support channels.',
-            'href' => route('public.students'),
-        ],
-        [
-            'label' => 'Events',
-            'title' => 'Events',
-            'text' => 'View all Events from Upcoming and Incoming events of the Campus.',
-            'href' => route('public.events'),
-        ],
-        [
-            'label' => 'Research & Extension',
-            'title' => 'Research Tools',
-            'text' => 'Open the PUP research and extension portals, tools, and institutional resources.',
-            'href' => route('public.research'),
-        ],
-    ];
+    $quickLinks = $quickLinksSection['items'] ?? $defaults['quick_links']['items'] ?? [];
   @endphp
 
   @unless($cmsPreview)
@@ -307,7 +276,7 @@
                 <h3 class="academic-feature-title">{{ e($link['label'] ?? '') }}</h3>
                 <div class="quick-link-rich">
                   <strong>{{ e($link['title'] ?? '') }}</strong>
-                  <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($link['body'] ?? '') !!}</div>
+                  <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($link['body'] ?? ($link['text'] ?? '')) !!}</div>
                 </div>
               </a>
             @endforeach

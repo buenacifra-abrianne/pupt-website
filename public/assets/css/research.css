@@ -1540,3 +1540,126 @@ body.scroll-up .reveal:not(.active) {
     text-align: center;
   }
 }
+
+.research-review-page {
+  position: relative;
+  overflow: hidden;
+}
+
+.research-review-content {
+  width: 100%;
+  filter: blur(7px);
+  opacity: 0.45;
+  pointer-events: none;
+  user-select: none;
+}
+
+.research-review-stage {
+  min-height: 640px;
+  display: flex;
+  align-items: stretch;
+}
+
+.research-review-backdrop {
+  width: 100%;
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at top left, rgba(247, 210, 30, 0.22), transparent 26%),
+    radial-gradient(circle at bottom right, rgba(139, 0, 0, 0.16), transparent 28%),
+    linear-gradient(180deg, rgba(255, 253, 250, 0.96) 0%, rgba(247, 239, 232, 0.92) 100%);
+  box-shadow: 0 18px 40px rgba(79, 9, 12, 0.08);
+}
+
+.research-review-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 20px;
+  background: linear-gradient(180deg, rgba(247, 239, 232, 0.28) 0%, rgba(127, 17, 19, 0.16) 100%);
+}
+
+.research-review-popup {
+  width: min(100%, 520px);
+  padding: 28px 26px;
+  border-radius: 24px;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  background: linear-gradient(180deg, rgba(255, 253, 250, 0.98) 0%, rgba(247, 239, 232, 0.96) 100%);
+  box-shadow: 0 24px 60px rgba(79, 9, 12, 0.16);
+  text-align: center;
+}
+
+.research-review-kicker {
+  margin: 0 0 10px;
+  color: var(--maroon-medium);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.research-review-popup h1 {
+  margin: 0 0 12px;
+  color: #1b1716;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  line-height: 1.08;
+  font-weight: 800;
+}
+
+.research-review-popup p {
+  margin: 0;
+  color: var(--text-color);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.research-review-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 46px;
+  margin-top: 22px;
+  padding: 0 22px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--maroon-light) 0%, var(--maroon-medium) 52%, var(--maroon-dark) 100%);
+  color: #fffaf4;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 10px 24px rgba(79, 9, 12, 0.22);
+}
+
+.research-review-button:hover {
+  transform: translateY(-2px);
+  color: #fffaf4;
+}
+
+@media (max-width: 768px) {
+  .research-review-content {
+    filter: blur(5px);
+  }
+
+  .research-review-stage {
+    min-height: 420px;
+  }
+
+  .research-review-backdrop {
+    border-radius: 18px;
+  }
+
+  .research-review-overlay {
+    padding: 18px 14px;
+  }
+
+  .research-review-popup {
+    padding: 22px 18px;
+    border-radius: 18px;
+  }
+
+  .research-review-popup p {
+    font-size: 0.88rem;
+  }
+}
