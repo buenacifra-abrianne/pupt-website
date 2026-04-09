@@ -353,12 +353,10 @@
       body {
         background: #fff;
         min-height: auto !important;
-        display: block !important;
-        padding-top: 0 !important;
+        display: flex !important;
       }
 
       .main-content {
-        padding-top: 0 !important;
         flex: none !important;
         min-height: 0 !important;
       }
@@ -559,9 +557,13 @@
           }, 0);
           const mainBottom = main ? main.offsetTop + main.offsetHeight : 0;
           const naturalHeight = Math.max(contentBottom, mainBottom);
-          const height = naturalHeight > 0
-            ? Math.ceil(naturalHeight)
-            : Math.max(docEl.scrollHeight, body.scrollHeight);
+          const height = Math.max(
+            naturalHeight > 0 ? Math.ceil(naturalHeight) : 0,
+            docEl.scrollHeight,
+            body.scrollHeight,
+            docEl.offsetHeight,
+            body.offsetHeight
+          );
 
           window.parent?.postMessage({
             type: 'cms-home-preview-height',

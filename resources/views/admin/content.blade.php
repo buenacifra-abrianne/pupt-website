@@ -90,6 +90,9 @@
                 $homeLive = $tabKey === 'home'
                     ? \App\Support\HomeCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
+                $aboutLive = $tabKey === 'about'
+                    ? \App\Support\AboutCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
             @endphp
 
             <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
@@ -117,6 +120,14 @@
                                 'homeEditorSubmitRoute' => route('admin.content.save'),
                                 'homeEditorSubmitMode' => 'save',
                                 'homeEditorIdPrefix' => 'admin-home',
+                            ])
+                        @elseif($tabKey === 'about')
+                            @include('partials.about_cms_preview_editor', [
+                                'aboutEditorData' => $aboutLive,
+                                'aboutEditorFormClass' => 'cms-save-form',
+                                'aboutEditorSubmitRoute' => route('admin.content.save'),
+                                'aboutEditorSubmitMode' => 'save',
+                                'aboutEditorIdPrefix' => 'admin-about',
                             ])
                         @else
                             <form class="cms-save-form" method="POST" action="{{ route('admin.content.save') }}" enctype="multipart/form-data">

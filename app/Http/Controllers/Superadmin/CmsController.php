@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Support\AboutCmsContent;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
 use App\Support\HomeCmsContent;
@@ -48,10 +49,14 @@ class CmsController extends Controller
 
         $data = $request->validate([
             'tab_key' => ['required', Rule::in($allowedTabs)],
-            'section_key' => ['nullable', Rule::in(['description', 'carousel', 'updates', 'quick_links', 'feedback'])],
+            'section_key' => ['nullable', Rule::in(array_merge([
+                'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
+                'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values',
+            ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
             'home' => ['nullable', 'array'],
+            'about' => ['nullable', 'array'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
             'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
@@ -91,10 +96,12 @@ class CmsController extends Controller
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
-        $sectionKey = $tabKey === 'home'
+        $sectionKey = in_array($tabKey, ['home', 'about'], true)
             ? strtolower(trim((string) ($data['section_key'] ?? '')))
             : '';
-        $sectionLabel = $this->homeSectionLabel($sectionKey);
+        $sectionLabel = $tabKey === 'home'
+            ? $this->homeSectionLabel($sectionKey)
+            : $this->aboutSectionLabel($sectionKey);
 
         $existing = DB::table('cms_contents')
             ->where('tab_key', $tabKey)
@@ -144,6 +151,19 @@ class CmsController extends Controller
             );
             $title = $currentTitle;
             $currentContent = $baseHomeEncoded;
+        } elseif ($tabKey === 'about') {
+            $baseAbout = AboutCmsContent::fromStored((string) ($existing->content ?? ''));
+            $baseAboutEncoded = AboutCmsContent::encode($baseAbout);
+            $aboutInput = $this->filterAboutInputBySection(
+                is_array($data['about'] ?? null) ? $data['about'] : [],
+                $sectionKey
+            );
+
+            $content = AboutCmsContent::encode(
+                AboutCmsContent::fromInput($aboutInput, $baseAboutEncoded)
+            );
+            $title = $currentTitle;
+            $currentContent = $baseAboutEncoded;
         } elseif ($title === '') {
             $title = $tabLabel.' Content';
         }
@@ -177,8 +197,8 @@ class CmsController extends Controller
         }
 
         $auditMessage = 'Updated '.$tabLabel.' content directly as superadmin.';
-        if ($tabKey === 'home' && $sectionLabel !== '') {
-            $auditMessage = 'Updated Home content ('.$sectionLabel.') directly as superadmin.';
+        if (in_array($tabKey, ['home', 'about'], true) && $sectionLabel !== '') {
+            $auditMessage = 'Updated '.$tabLabel.' content ('.$sectionLabel.') directly as superadmin.';
         }
 
         AuditLog::record(
@@ -189,8 +209,8 @@ class CmsController extends Controller
         );
 
         $successMessage = $tabLabel.' content saved successfully.';
-        if ($tabKey === 'home' && $sectionLabel !== '') {
-            $successMessage = 'Home '.$sectionLabel.' saved successfully.';
+        if (in_array($tabKey, ['home', 'about'], true) && $sectionLabel !== '') {
+            $successMessage = $tabLabel.' '.$sectionLabel.' saved successfully.';
         }
 
         return response()->json([
@@ -227,6 +247,80 @@ class CmsController extends Controller
         };
 
         return array_intersect_key($homeInput, array_flip($allowed));
+    }
+
+    private function aboutSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'hero' => 'Hero',
+            'intro' => 'Intro',
+            'contents' => 'Contents',
+            'history' => 'History',
+            'vision-mission-header' => 'Vision and Mission Header',
+            'vision-mission-statements' => 'Vision and Mission Statements',
+            'strategic-goals' => 'Strategic Goals',
+            'core-values' => 'Core Values',
+            'vision-and-mission' => 'Vision and Mission',
+            'logo-and-symbols' => 'Logo and Symbols',
+            'hymn' => 'Hymn',
+            'maps' => 'Maps',
+            'campus-officials' => 'Campus Officials',
+            'strategic-development-plan' => 'Strategic Development Plan',
+            default => '',
+        };
+    }
+
+    private function filterAboutInputBySection(array $aboutInput, string $sectionKey): array
+    {
+        if ($sectionKey === '' || $sectionKey === 'all') {
+            return $aboutInput;
+        }
+
+        $overview = is_array($aboutInput['overview'] ?? null) ? $aboutInput['overview'] : [];
+        $sections = is_array($aboutInput['sections'] ?? null) ? $aboutInput['sections'] : [];
+        $visionSection = is_array($sections['vision-and-mission'] ?? null) ? $sections['vision-and-mission'] : [];
+
+        return match ($sectionKey) {
+            'hero' => [
+                'overview' => array_intersect_key($overview, array_flip(['hero_image', 'hero_title_default', 'hero_title_history', 'hero_title_vision', 'section_header_image'])),
+            ],
+            'intro' => [
+                'overview' => array_intersect_key($overview, array_flip(['story_tag', 'story_title', 'story_description'])),
+            ],
+            'contents' => [
+                'overview' => array_intersect_key($overview, array_flip(['contents_tag', 'contents_title'])),
+                'sections' => collect($sections)
+                    ->map(fn ($section) => is_array($section)
+                        ? array_intersect_key($section, array_flip(['label', 'summary']))
+                        : [])
+                    ->all(),
+            ],
+            'vision-mission-header' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['page_kicker', 'page_title'])),
+                ],
+            ],
+            'vision-mission-statements' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['vision', 'mission'])),
+                ],
+            ],
+            'strategic-goals' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['strategic_goals'])),
+                ],
+            ],
+            'core-values' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['core_values'])),
+                ],
+            ],
+            default => [
+                'sections' => isset($sections[$sectionKey]) && is_array($sections[$sectionKey])
+                    ? [$sectionKey => $sections[$sectionKey]]
+                    : [],
+            ],
+        };
     }
 
     private function loadContents(array $tabKeys): array
