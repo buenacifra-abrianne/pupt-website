@@ -106,19 +106,36 @@
             </div>
 
             <div class="filter-bar">
-    <div class="filter-field filter-search" style="max-width: 280px;">
-        <i class="fas fa-magnifying-glass"></i>
-        <input type="text" id="srch" placeholder="Search name, email, or ID..." oninput="applyFilters()">
+    <div class="filter-field">
+    <div class="searchable-select voice-search-wrap" id="searchWrap">
+        <div class="voice-input-row">
+            <input
+                type="text"
+                id="srch"
+                placeholder="Search name, email, or ID..."
+                autocomplete="off"
+                oninput="applyFilters()"
+            >
+            <button type="button" class="voice-btn-filter" id="searchMicBtn" title="Speak search">
+                <i class="fas fa-microphone"></i>
+            </button>
+        </div>
     </div>
+</div>
 
     <div class="filter-field">
-    <div class="searchable-select" id="roleFilterWrap">
-        <input
-            type="text"
-            id="roleFilterSearch"
-            placeholder="All Roles"
-            autocomplete="off"
-        >
+    <div class="searchable-select voice-search-wrap" id="roleFilterWrap">
+        <div class="voice-input-row">
+            <input
+                type="text"
+                id="roleFilterSearch"
+                placeholder="All Roles"
+                autocomplete="off"
+            >
+            <button type="button" class="voice-btn-filter" id="roleFilterMicBtn" title="Speak role filter">
+                <i class="fas fa-microphone"></i>
+            </button>
+        </div>
         <input type="hidden" id="roleFil">
         <div class="searchable-dropdown" id="roleFilterDropdown"></div>
     </div>
@@ -169,16 +186,21 @@
     <div class="frow frow-single">
       <div class="fg">
         <label>Select User <span class="req">*</span></label>
-        <div class="searchable-select" id="facultySearchWrap">
-            <input
-                type="text"
-                id="facultySearch"
-                placeholder="Search faculty by name or email"
-                autocomplete="off"
-            >
-            <input type="hidden" id="facultySelect">
-            <div class="searchable-dropdown" id="facultyDropdown"></div>
-        </div>
+        <div class="searchable-select voice-search-wrap" id="facultySearchWrap">
+    <div class="voice-input-row">
+        <input
+            type="text"
+            id="facultySearch"
+            placeholder="Search faculty by name or email"
+            autocomplete="off"
+        >
+        <button type="button" class="voice-btn" id="facultyMicBtn" title="Speak user name">
+            <i class="fas fa-microphone"></i>
+        </button>
+    </div>
+    <input type="hidden" id="facultySelect">
+    <div class="searchable-dropdown" id="facultyDropdown"></div>
+</div>
         <small class="role-help-text">Type a name or email, then choose a faculty member from the list.</small>
       </div>
     </div>
@@ -201,16 +223,21 @@
 
     <div class="fg">
       <label>CMS Roles <span class="req">*</span></label>
-      <div class="searchable-select" id="roleSearchWrap">
-          <input
-              type="text"
-              id="roleSearch"
-              placeholder="Search and select CMS role"
-              autocomplete="off"
-          >
-          <input type="hidden" id="rolePicker">
-          <div class="searchable-dropdown" id="roleDropdown"></div>
-      </div>
+      <div class="searchable-select voice-search-wrap" id="roleSearchWrap">
+    <div class="voice-input-row">
+        <input
+            type="text"
+            id="roleSearch"
+            placeholder="Search and select CMS role"
+            autocomplete="off"
+        >
+        <button type="button" class="voice-btn" id="roleMicBtn" title="Speak CMS role">
+            <i class="fas fa-microphone"></i>
+        </button>
+    </div>
+    <input type="hidden" id="rolePicker">
+    <div class="searchable-dropdown" id="roleDropdown"></div>
+</div>
   </div>
 
 </div>
@@ -1135,6 +1162,141 @@ document.addEventListener('click', function (e) {
     closeRoleFilterDropdown();
   }
 });
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let activeRecognition = null;
+let activeVoiceButton = null;
+
+function stopVoiceRecognition() {
+  if (activeRecognition) {
+    activeRecognition.stop();
+    activeRecognition = null;
+  }
+
+  if (activeVoiceButton) {
+    activeVoiceButton.classList.remove('listening');
+    activeVoiceButton = null;
+  }
+}
+
+function startVoiceRecognition({ buttonEl, inputEl }) {
+  if (!SpeechRecognition) {
+    showToast('Voice input is not supported in this browser. Please use Edge or Chrome.', 'warning');
+    return;
+  }
+
+  if (activeRecognition && activeVoiceButton === buttonEl) {
+    stopVoiceRecognition();
+    return;
+  }
+
+  if (activeRecognition) {
+    stopVoiceRecognition();
+  }
+
+  const recognition = new SpeechRecognition();
+  activeRecognition = recognition;
+  activeVoiceButton = buttonEl;
+
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = function () {
+    if (buttonEl) buttonEl.classList.add('listening');
+  };
+
+  recognition.onerror = function (event) {
+    console.error('Speech recognition error:', event.error);
+    stopVoiceRecognition();
+    showToast('Unable to recognize speech. Please try again.', 'error');
+  };
+
+  recognition.onend = function () {
+    if (activeRecognition === recognition) {
+      stopVoiceRecognition();
+    }
+  };
+
+  recognition.onresult = function (event) {
+    const transcript = (event.results?.[0]?.[0]?.transcript || '')
+      .trim()
+      .replace(/[^a-zA-Z0-9\s@_-]/g, '')
+      .replace(/\s+/g, ' ');
+
+    if (!transcript || !inputEl) return;
+
+    inputEl.value = transcript;
+    inputEl.focus();
+
+    if (inputEl.id === 'srch') {
+      applyFilters();
+    } else if (inputEl.id === 'facultySearch') {
+      document.getElementById('facultySelect').value = '';
+      document.getElementById('f-fn').value = '';
+      document.getElementById('f-ln').value = '';
+      document.getElementById('f-em').value = '';
+      renderFacultyDropdown(transcript);
+    } else if (inputEl.id === 'roleSearch') {
+      document.getElementById('rolePicker').value = '';
+      renderRoleDropdown(transcript);
+    } else if (inputEl.id === 'roleFilterSearch') {
+      renderRoleFilterDropdown(transcript);
+    } else {
+      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  };
+
+  try {
+    recognition.start();
+  } catch (err) {
+    console.error('recognition.start failed:', err);
+    stopVoiceRecognition();
+    showToast('Voice input could not start.', 'error');
+  }
+}
+
+const facultyMicBtn = document.getElementById('facultyMicBtn');
+const roleMicBtn = document.getElementById('roleMicBtn');
+const searchMicBtn = document.getElementById('searchMicBtn');
+const roleFilterMicBtn = document.getElementById('roleFilterMicBtn');
+
+if (facultyMicBtn) {
+  facultyMicBtn.addEventListener('click', function () {
+    startVoiceRecognition({
+      buttonEl: facultyMicBtn,
+      inputEl: document.getElementById('facultySearch')
+    });
+  });
+}
+
+if (roleMicBtn) {
+  roleMicBtn.addEventListener('click', function () {
+    startVoiceRecognition({
+      buttonEl: roleMicBtn,
+      inputEl: document.getElementById('roleSearch')
+    });
+  });
+}
+
+if (searchMicBtn) {
+  searchMicBtn.addEventListener('click', function () {
+    startVoiceRecognition({
+      buttonEl: searchMicBtn,
+      inputEl: document.getElementById('srch')
+    });
+  });
+}
+
+if (roleFilterMicBtn) {
+  roleFilterMicBtn.addEventListener('click', function () {
+    startVoiceRecognition({
+      buttonEl: roleFilterMicBtn,
+      inputEl: document.getElementById('roleFilterSearch')
+    });
+  });
+}
 
 const roleFilterHidden = document.getElementById('roleFil');
 const roleFilterInput = document.getElementById('roleFilterSearch');
