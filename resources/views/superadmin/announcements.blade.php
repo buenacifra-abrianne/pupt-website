@@ -289,7 +289,6 @@
 
                 <div class="form-group">
     <label>Title *</label>
-    <div class="voice-input-row">
         <input
             type="text"
             name="title"
@@ -297,18 +296,11 @@
             required
             placeholder="Enter announcement title"
         >
-        <button type="button" class="voice-btn" id="announcementTitleMicBtn" title="Speak announcement title">
-            <i class="fas fa-microphone"></i>
-        </button>
-    </div>
 </div>
 
                 <div class="form-group">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
         <label style="margin-bottom:0;">Description *</label>
-        <button type="button" class="voice-btn" id="announcementDescriptionMicBtn" title="Speak announcement description">
-            <i class="fas fa-microphone"></i>
-        </button>
     </div>
     @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
 </div>
@@ -380,7 +372,6 @@
 
                 <div class="form-group">
     <label>Title *</label>
-    <div class="voice-input-row">
         <input
             type="text"
             name="title"
@@ -388,18 +379,11 @@
             required
             placeholder="Title"
         >
-        <button type="button" class="voice-btn" id="newsTitleMicBtn" title="Speak news title">
-            <i class="fas fa-microphone"></i>
-        </button>
-    </div>
 </div>
 
                 <div class="form-group">
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
         <label style="margin-bottom:0;">Description *</label>
-        <button type="button" class="voice-btn" id="newsDescriptionMicBtn" title="Speak news description">
-            <i class="fas fa-microphone"></i>
-        </button>
     </div>
     @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
 </div>
@@ -440,17 +424,12 @@
 
                 <div class="form-group">
     <label>Location</label>
-    <div class="voice-input-row">
         <input
             type="text"
             name="location"
             id="newsLocation"
             placeholder="Location"
         >
-        <button type="button" class="voice-btn" id="newsLocationMicBtn" title="Speak news location">
-            <i class="fas fa-microphone"></i>
-        </button>
-    </div>
 </div>
 
                 <div class="form-group">
@@ -1140,22 +1119,11 @@ function setNewsImageButtonLabel(text) {
         reader.readAsDataURL(file);
     }
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 let activeRecognition = null;
-let activeVoiceButton = null;
-
-function stopVoiceRecognition() {
-    if (activeRecognition) {
-        activeRecognition.stop();
-        activeRecognition = null;
-    }
-
-    if (activeVoiceButton) {
-        activeVoiceButton.classList.remove('listening');
-        activeVoiceButton = null;
-    }
-}
+let activeEditableField = null;
+let activeFloatingButton = null;
 
 function appendSpeechText(currentValue, spokenText) {
     const current = String(currentValue || '').trim();
@@ -1165,41 +1133,95 @@ function appendSpeechText(currentValue, spokenText) {
     return `${current} ${spoken}`.trim();
 }
 
-function startVoiceRecognition({ buttonEl, onTranscript }) {
+function stopFloatingVoiceRecognition() {
+    if (activeRecognition) {
+        activeRecognition.stop();
+        activeRecognition = null;
+    }
+
+    if (activeFloatingButton) {
+        activeFloatingButton.classList.remove('listening');
+        activeFloatingButton = null;
+    }
+}
+
+function setActiveEditableField(el) {
+    activeEditableField = el;
+}
+
+function getRichTextHiddenFieldFromEditor(target) {
+    const form = target.closest('form');
+    if (!form) return null;
+    return form.querySelector('[name="content"]');
+}
+
+function insertSpeechIntoActiveField(text) {
+    if (!activeEditableField) {
+        alert('Click a field first, then use speech-to-text.');
+        return;
+    }
+
+    const target = activeEditableField;
+
+    if (target.matches('input[type="text"], textarea')) {
+        target.value = appendSpeechText(target.value, text);
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+
+        if (target.id === 'globalSearch') {
+            runSearch();
+        }
+
+        target.focus();
+        return;
+    }
+
+    const richTextField = getRichTextHiddenFieldFromEditor(target);
+    if (richTextField) {
+        const nextValue = appendSpeechText(richTextField.value, text);
+        setRichTextEditorValue(richTextField, nextValue);
+        richTextField.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+    }
+
+    alert('Selected field is not supported for speech input.');
+}
+
+function startFloatingVoiceRecognition(buttonEl) {
     if (!SpeechRecognition) {
         alert('Voice input is not supported in this browser. Please use Edge or Chrome.');
         return;
     }
 
-    if (activeRecognition && activeVoiceButton === buttonEl) {
-        stopVoiceRecognition();
+    if (activeRecognition && activeFloatingButton === buttonEl) {
+        stopFloatingVoiceRecognition();
         return;
     }
 
     if (activeRecognition) {
-        stopVoiceRecognition();
+        stopFloatingVoiceRecognition();
     }
 
     const recognition = new SpeechRecognition();
     activeRecognition = recognition;
-    activeVoiceButton = buttonEl;
+    activeFloatingButton = buttonEl;
 
     recognition.lang = 'en-US';
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
     recognition.onstart = function () {
-        if (buttonEl) buttonEl.classList.add('listening');
+        buttonEl.classList.add('listening');
+        console.log('floating recognition started');
     };
 
     recognition.onerror = function (event) {
         console.error('Speech recognition error:', event.error);
-        stopVoiceRecognition();
+        stopFloatingVoiceRecognition();
     };
 
     recognition.onend = function () {
         if (activeRecognition === recognition) {
-            stopVoiceRecognition();
+            stopFloatingVoiceRecognition();
         }
     };
 
@@ -1209,108 +1231,49 @@ function startVoiceRecognition({ buttonEl, onTranscript }) {
             .replace(/[^a-zA-Z0-9\s@_-]/g, '')
             .replace(/\s+/g, ' ');
 
-        if (!transcript) return;
+        console.log('floating transcript:', transcript);
 
-        if (typeof onTranscript === 'function') {
-            onTranscript(transcript);
-        }
+        if (!transcript) return;
+        insertSpeechIntoActiveField(transcript);
     };
 
     try {
         recognition.start();
     } catch (err) {
         console.error('recognition.start failed:', err);
-        stopVoiceRecognition();
+        stopFloatingVoiceRecognition();
     }
 }
 
-function setInputValueByName(formId, inputName, text, append = false) {
-    const form = document.getElementById(formId);
-    if (!form) return;
+document.addEventListener('focusin', function (e) {
+    const target = e.target;
 
-    const input = form.querySelector(`[name="${inputName}"]`);
-    if (!input) return;
+    if (target.matches('input[type="text"], textarea')) {
+        setActiveEditableField(target);
+        return;
+    }
 
-    input.value = append ? appendSpeechText(input.value, text) : text;
-    input.dispatchEvent(new Event('input', { bubbles: true }));
-    input.focus();
-}
-
-function setRichTextValueByForm(formId, text, append = true) {
-    const form = document.getElementById(formId);
-    if (!form) return;
-
-    const editorField = form.querySelector('[name="content"]');
-    if (!editorField) return;
-
-    const nextValue = append ? appendSpeechText(editorField.value, text) : text;
-    setRichTextEditorValue(editorField, nextValue);
-    editorField.dispatchEvent(new Event('input', { bubbles: true }));
-}
+    if (
+        target.closest('.tox, .ck-editor, [contenteditable="true"], .rich-text-editor') ||
+        target.isContentEditable
+    ) {
+        setActiveEditableField(target);
+    }
+});
 
 document.addEventListener('DOMContentLoaded', function () {
-    const announcementTitleMicBtn = document.getElementById('announcementTitleMicBtn');
-    const announcementDescriptionMicBtn = document.getElementById('announcementDescriptionMicBtn');
-
-    const newsTitleMicBtn = document.getElementById('newsTitleMicBtn');
-    const newsDescriptionMicBtn = document.getElementById('newsDescriptionMicBtn');
-    const newsLocationMicBtn = document.getElementById('newsLocationMicBtn');
-
-    if (announcementTitleMicBtn) {
-        announcementTitleMicBtn.addEventListener('click', function () {
-            startVoiceRecognition({
-                buttonEl: announcementTitleMicBtn,
-                onTranscript: function (text) {
-                    setInputValueByName('announcementForm', 'title', text, true);
-                }
-            });
-        });
-    }
-
-    if (announcementDescriptionMicBtn) {
-        announcementDescriptionMicBtn.addEventListener('click', function () {
-            startVoiceRecognition({
-                buttonEl: announcementDescriptionMicBtn,
-                onTranscript: function (text) {
-                    setRichTextValueByForm('announcementForm', text, true);
-                }
-            });
-        });
-    }
-
-    if (newsTitleMicBtn) {
-        newsTitleMicBtn.addEventListener('click', function () {
-            startVoiceRecognition({
-                buttonEl: newsTitleMicBtn,
-                onTranscript: function (text) {
-                    setInputValueByName('newsForm', 'title', text, true);
-                }
-            });
-        });
-    }
-
-    if (newsDescriptionMicBtn) {
-        newsDescriptionMicBtn.addEventListener('click', function () {
-            startVoiceRecognition({
-                buttonEl: newsDescriptionMicBtn,
-                onTranscript: function (text) {
-                    setRichTextValueByForm('newsForm', text, true);
-                }
-            });
-        });
-    }
-
-    if (newsLocationMicBtn) {
-        newsLocationMicBtn.addEventListener('click', function () {
-            startVoiceRecognition({
-                buttonEl: newsLocationMicBtn,
-                onTranscript: function (text) {
-                    setInputValueByName('newsForm', 'location', text, true);
-                }
-            });
+    const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+    if (floatingVoiceBtn) {
+        floatingVoiceBtn.addEventListener('click', function () {
+            console.log('floating mic clicked');
+            console.log('activeEditableField:', activeEditableField);
+            startFloatingVoiceRecognition(floatingVoiceBtn);
         });
     }
 });
 </script>
+<button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
+    <i class="fas fa-microphone"></i>
+</button>
 </body>
 </html>

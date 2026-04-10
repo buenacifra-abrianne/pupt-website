@@ -107,7 +107,7 @@
 
             <div class="filter-bar">
     <div class="filter-field">
-    <div class="searchable-select voice-search-wrap" id="searchWrap">
+    <div class="searchable-select" id="searchWrap">
         <div class="voice-input-row">
             <input
                 type="text"
@@ -116,15 +116,12 @@
                 autocomplete="off"
                 oninput="applyFilters()"
             >
-            <button type="button" class="voice-btn-filter" id="searchMicBtn" title="Speak search">
-                <i class="fas fa-microphone"></i>
-            </button>
         </div>
     </div>
 </div>
 
     <div class="filter-field">
-    <div class="searchable-select voice-search-wrap" id="roleFilterWrap">
+    <div class="searchable-select" id="roleFilterWrap">
         <div class="voice-input-row">
             <input
                 type="text"
@@ -132,9 +129,6 @@
                 placeholder="All Roles"
                 autocomplete="off"
             >
-            <button type="button" class="voice-btn-filter" id="roleFilterMicBtn" title="Speak role filter">
-                <i class="fas fa-microphone"></i>
-            </button>
         </div>
         <input type="hidden" id="roleFil">
         <div class="searchable-dropdown" id="roleFilterDropdown"></div>
@@ -186,7 +180,7 @@
     <div class="frow frow-single">
       <div class="fg">
         <label>Select User <span class="req">*</span></label>
-        <div class="searchable-select voice-search-wrap" id="facultySearchWrap">
+        <div class="searchable-select" id="facultySearchWrap">
     <div class="voice-input-row">
         <input
             type="text"
@@ -194,9 +188,6 @@
             placeholder="Search faculty by name or email"
             autocomplete="off"
         >
-        <button type="button" class="voice-btn" id="facultyMicBtn" title="Speak user name">
-            <i class="fas fa-microphone"></i>
-        </button>
     </div>
     <input type="hidden" id="facultySelect">
     <div class="searchable-dropdown" id="facultyDropdown"></div>
@@ -223,7 +214,7 @@
 
     <div class="fg">
       <label>CMS Roles <span class="req">*</span></label>
-      <div class="searchable-select voice-search-wrap" id="roleSearchWrap">
+      <div class="searchable-select" id="roleSearchWrap">
     <div class="voice-input-row">
         <input
             type="text"
@@ -231,9 +222,6 @@
             placeholder="Search and select CMS role"
             autocomplete="off"
         >
-        <button type="button" class="voice-btn" id="roleMicBtn" title="Speak CMS role">
-            <i class="fas fa-microphone"></i>
-        </button>
     </div>
     <input type="hidden" id="rolePicker">
     <div class="searchable-dropdown" id="roleDropdown"></div>
@@ -1166,142 +1154,158 @@ document.addEventListener('click', function (e) {
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 let activeRecognition = null;
-let activeVoiceButton = null;
+let activeEditableField = null;
+let activeFloatingButton = null;
 
-function stopVoiceRecognition() {
-  if (activeRecognition) {
-    activeRecognition.stop();
-    activeRecognition = null;
-  }
-
-  if (activeVoiceButton) {
-    activeVoiceButton.classList.remove('listening');
-    activeVoiceButton = null;
-  }
+function appendSpeechText(currentValue, spokenText) {
+    const current = String(currentValue || '').trim();
+    const spoken = String(spokenText || '').trim();
+    if (!current) return spoken;
+    if (!spoken) return current;
+    return `${current} ${spoken}`.trim();
 }
 
-function startVoiceRecognition({ buttonEl, inputEl }) {
-  if (!SpeechRecognition) {
-    showToast('Voice input is not supported in this browser. Please use Edge or Chrome.', 'warning');
-    return;
-  }
-
-  if (activeRecognition && activeVoiceButton === buttonEl) {
-    stopVoiceRecognition();
-    return;
-  }
-
-  if (activeRecognition) {
-    stopVoiceRecognition();
-  }
-
-  const recognition = new SpeechRecognition();
-  activeRecognition = recognition;
-  activeVoiceButton = buttonEl;
-
-  recognition.lang = 'en-US';
-  recognition.interimResults = false;
-  recognition.maxAlternatives = 1;
-
-  recognition.onstart = function () {
-    if (buttonEl) buttonEl.classList.add('listening');
-  };
-
-  recognition.onerror = function (event) {
-    console.error('Speech recognition error:', event.error);
-    stopVoiceRecognition();
-    showToast('Unable to recognize speech. Please try again.', 'error');
-  };
-
-  recognition.onend = function () {
-    if (activeRecognition === recognition) {
-      stopVoiceRecognition();
+function stopFloatingVoiceRecognition() {
+    if (activeRecognition) {
+        activeRecognition.stop();
+        activeRecognition = null;
     }
-  };
 
-  recognition.onresult = function (event) {
-    const transcript = (event.results?.[0]?.[0]?.transcript || '')
-      .trim()
-      .replace(/[^a-zA-Z0-9\s@_-]/g, '')
-      .replace(/\s+/g, ' ');
-
-    if (!transcript || !inputEl) return;
-
-    inputEl.value = transcript;
-    inputEl.focus();
-
-    if (inputEl.id === 'srch') {
-      applyFilters();
-    } else if (inputEl.id === 'facultySearch') {
-      document.getElementById('facultySelect').value = '';
-      document.getElementById('f-fn').value = '';
-      document.getElementById('f-ln').value = '';
-      document.getElementById('f-em').value = '';
-      renderFacultyDropdown(transcript);
-    } else if (inputEl.id === 'roleSearch') {
-      document.getElementById('rolePicker').value = '';
-      renderRoleDropdown(transcript);
-    } else if (inputEl.id === 'roleFilterSearch') {
-      renderRoleFilterDropdown(transcript);
-    } else {
-      inputEl.dispatchEvent(new Event('input', { bubbles: true }));
+    if (activeFloatingButton) {
+        activeFloatingButton.classList.remove('listening');
+        activeFloatingButton = null;
     }
-  };
-
-  try {
-    recognition.start();
-  } catch (err) {
-    console.error('recognition.start failed:', err);
-    stopVoiceRecognition();
-    showToast('Voice input could not start.', 'error');
-  }
 }
 
-const facultyMicBtn = document.getElementById('facultyMicBtn');
-const roleMicBtn = document.getElementById('roleMicBtn');
-const searchMicBtn = document.getElementById('searchMicBtn');
-const roleFilterMicBtn = document.getElementById('roleFilterMicBtn');
-
-if (facultyMicBtn) {
-  facultyMicBtn.addEventListener('click', function () {
-    startVoiceRecognition({
-      buttonEl: facultyMicBtn,
-      inputEl: document.getElementById('facultySearch')
-    });
-  });
+function setActiveEditableField(el) {
+    activeEditableField = el;
 }
 
-if (roleMicBtn) {
-  roleMicBtn.addEventListener('click', function () {
-    startVoiceRecognition({
-      buttonEl: roleMicBtn,
-      inputEl: document.getElementById('roleSearch')
-    });
-  });
+function getRichTextHiddenFieldFromEditor(target) {
+    const form = target.closest('form');
+    if (!form) return null;
+    return form.querySelector('[name="content"]');
 }
 
-if (searchMicBtn) {
-  searchMicBtn.addEventListener('click', function () {
-    startVoiceRecognition({
-      buttonEl: searchMicBtn,
-      inputEl: document.getElementById('srch')
-    });
-  });
+function insertSpeechIntoActiveField(text) {
+    if (!activeEditableField) {
+        alert('Click a field first, then use speech-to-text.');
+        return;
+    }
+
+    const target = activeEditableField;
+
+    if (target.matches('input[type="text"], textarea')) {
+        target.value = appendSpeechText(target.value, text);
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+
+        if (target.id === 'globalSearch') {
+            runSearch();
+        }
+
+        target.focus();
+        return;
+    }
+
+    const richTextField = getRichTextHiddenFieldFromEditor(target);
+    if (richTextField) {
+        const nextValue = appendSpeechText(richTextField.value, text);
+        setRichTextEditorValue(richTextField, nextValue);
+        richTextField.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+    }
+
+    alert('Selected field is not supported for speech input.');
 }
 
-if (roleFilterMicBtn) {
-  roleFilterMicBtn.addEventListener('click', function () {
-    startVoiceRecognition({
-      buttonEl: roleFilterMicBtn,
-      inputEl: document.getElementById('roleFilterSearch')
-    });
-  });
+function startFloatingVoiceRecognition(buttonEl) {
+    if (!SpeechRecognition) {
+        alert('Voice input is not supported in this browser. Please use Edge or Chrome.');
+        return;
+    }
+
+    if (activeRecognition && activeFloatingButton === buttonEl) {
+        stopFloatingVoiceRecognition();
+        return;
+    }
+
+    if (activeRecognition) {
+        stopFloatingVoiceRecognition();
+    }
+
+    const recognition = new SpeechRecognition();
+    activeRecognition = recognition;
+    activeFloatingButton = buttonEl;
+
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function () {
+        buttonEl.classList.add('listening');
+        console.log('floating recognition started');
+    };
+
+    recognition.onerror = function (event) {
+        console.error('Speech recognition error:', event.error);
+        stopFloatingVoiceRecognition();
+    };
+
+    recognition.onend = function () {
+        if (activeRecognition === recognition) {
+            stopFloatingVoiceRecognition();
+        }
+    };
+
+    recognition.onresult = function (event) {
+        const transcript = (event.results?.[0]?.[0]?.transcript || '')
+            .trim()
+            .replace(/[^a-zA-Z0-9\s@_-]/g, '')
+            .replace(/\s+/g, ' ');
+
+        console.log('floating transcript:', transcript);
+
+        if (!transcript) return;
+        insertSpeechIntoActiveField(transcript);
+    };
+
+    try {
+        recognition.start();
+    } catch (err) {
+        console.error('recognition.start failed:', err);
+        stopFloatingVoiceRecognition();
+    }
 }
 
-const roleFilterHidden = document.getElementById('roleFil');
-const roleFilterInput = document.getElementById('roleFilterSearch');
-if (roleFilterHidden) roleFilterHidden.value = '';
-if (roleFilterInput) roleFilterInput.value = '';
+document.addEventListener('focusin', function (e) {
+    const target = e.target;
+
+    if (target.matches('input[type="text"], textarea')) {
+        setActiveEditableField(target);
+        return;
+    }
+
+    if (
+        target.closest('.tox, .ck-editor, [contenteditable="true"], .rich-text-editor') ||
+        target.isContentEditable
+    ) {
+        setActiveEditableField(target);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+    if (floatingVoiceBtn) {
+        floatingVoiceBtn.addEventListener('click', function () {
+            console.log('floating mic clicked');
+            console.log('activeEditableField:', activeEditableField);
+            startFloatingVoiceRecognition(floatingVoiceBtn);
+        });
+    }
+});
 </script>
+<button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
+    <i class="fas fa-microphone"></i>
+</button>
 </body>
 </html>
