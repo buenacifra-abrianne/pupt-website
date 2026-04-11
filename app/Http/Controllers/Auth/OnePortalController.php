@@ -167,17 +167,45 @@ class OnePortalController extends Controller
             ->withoutCookie('refresh_token');
     }
 
-    // if user exists but oneportal_id is still empty, update it
+    // sync IDP identity data to local DB
+    $updates = [];
+
+    if ((string) ($user->first_name ?? '') !== trim((string) $firstName)) {
+        $updates['first_name'] = trim((string) $firstName);
+    }
+
+    if ((string) ($user->middle_name ?? '') !== trim((string) $middleName)) {
+        $updates['middle_name'] = trim((string) $middleName);
+    }
+
+    if ((string) ($user->last_name ?? '') !== trim((string) $lastName)) {
+        $updates['last_name'] = trim((string) $lastName);
+    }
+
+    if ((string) ($user->email ?? '') !== trim((string) $email)) {
+        $updates['email'] = trim((string) $email);
+    }
+
     if ($id && empty($user->oneportal_id)) {
+        $updates['oneportal_id'] = $id;
+    }
+
+    if (!empty($updates)) {
+        $updates['updated_at'] = now();
+
         DB::table('users')
             ->where('user_id', $user->user_id)
-            ->update([
-                'oneportal_id' => $id,
-                'updated_at' => now(),
-            ]);
+            ->update($updates);
 
         $user = DB::table('users')
-            ->where('user_id', $user->user_id)
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select(
+                'users.*',
+                'roles.code as role_code',
+                'roles.name as role_name',
+                'roles.level as role_level'
+            )
+            ->where('users.user_id', $user->user_id)
             ->first();
     }
 
