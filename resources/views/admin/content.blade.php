@@ -65,6 +65,13 @@
     <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />
 
     @include('partials.profile_modal')
+    <div class="cms-page-loading-overlay" data-cms-page-loader hidden>
+        <div class="cms-page-loading-card" role="status" aria-live="polite">
+            <span class="cms-page-loading-spinner" aria-hidden="true"></span>
+            <h3>Loading CMS Preview</h3>
+            <p>Please wait while the page refreshes.</p>
+        </div>
+    </div>
 
     <main class="main-content">
         <div class="page-header">
@@ -93,43 +100,62 @@
                 $aboutLive = $tabKey === 'about'
                     ? \App\Support\AboutCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
+                $academicsLive = $tabKey === 'academics'
+                    ? \App\Support\AcademicsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
             @endphp
 
             <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">Manage {{ $tabDef['label'] }} Content</h3>
-                        <span class="status-badge status-enabled">Live Update</span>
-                    </div>
+                @if($tabKey === 'home')
+                    @php
+                        $homePreviewHtml = view('public.home', [
+                            'homeCms' => $homeLive,
+                            'news' => $homePreviewNews ?? collect(),
+                            'announcements' => $homePreviewAnnouncements ?? collect(),
+                            'cmsPreview' => true,
+                        ])->render();
+                    @endphp
 
-                    <div style="padding:14px;">
-                        @if($tabKey === 'home')
-                            @php
-                                $homePreviewHtml = view('public.home', [
-                                    'homeCms' => $homeLive,
-                                    'news' => $homePreviewNews ?? collect(),
-                                    'announcements' => $homePreviewAnnouncements ?? collect(),
-                                    'cmsPreview' => true,
-                                ])->render();
-                            @endphp
+                    @include('partials.home_cms_preview_editor', [
+                        'homePreviewHtml' => $homePreviewHtml,
+                        'homeEditorData' => $homeLive,
+                        'homeEditorFormClass' => 'cms-save-form',
+                        'homeEditorSubmitRoute' => route('admin.content.save'),
+                        'homeEditorSubmitMode' => 'save',
+                        'homeEditorIdPrefix' => 'admin-home',
+                    ])
+                @elseif($tabKey === 'about')
+                    @include('partials.about_cms_preview_editor', [
+                        'aboutEditorData' => $aboutLive,
+                        'aboutEditorFormClass' => 'cms-save-form',
+                        'aboutEditorSubmitRoute' => route('admin.content.save'),
+                        'aboutEditorSubmitMode' => 'save',
+                        'aboutEditorIdPrefix' => 'admin-about',
+                    ])
+                @elseif($tabKey === 'academics')
+                    @php
+                        $academicsPreviewHtml = view('public.academics', [
+                            'academicsCms' => $academicsLive,
+                            'cmsPreview' => true,
+                        ])->render();
+                    @endphp
 
-                            @include('partials.home_cms_preview_editor', [
-                                'homePreviewHtml' => $homePreviewHtml,
-                                'homeEditorData' => $homeLive,
-                                'homeEditorFormClass' => 'cms-save-form',
-                                'homeEditorSubmitRoute' => route('admin.content.save'),
-                                'homeEditorSubmitMode' => 'save',
-                                'homeEditorIdPrefix' => 'admin-home',
-                            ])
-                        @elseif($tabKey === 'about')
-                            @include('partials.about_cms_preview_editor', [
-                                'aboutEditorData' => $aboutLive,
-                                'aboutEditorFormClass' => 'cms-save-form',
-                                'aboutEditorSubmitRoute' => route('admin.content.save'),
-                                'aboutEditorSubmitMode' => 'save',
-                                'aboutEditorIdPrefix' => 'admin-about',
-                            ])
-                        @else
+                    @include('partials.academics_cms_preview_editor', [
+                        'academicsPreviewHtml' => $academicsPreviewHtml,
+                        'academicsEditorData' => $academicsLive,
+                        'academicsEditorFormClass' => 'cms-save-form',
+                        'academicsEditorSubmitRoute' => route('admin.content.save'),
+                        'academicsEditorSubmitMode' => 'save',
+                        'academicsEditorIdPrefix' => 'admin-academics',
+                    ])
+                @else
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title">Manage {{ $tabDef['label'] }} Content</h3>
+                            <span class="status-badge status-enabled">Live Update</span>
+                        </div>
+
+                        <div style="padding:14px;">
                             <form class="cms-save-form" method="POST" action="{{ route('admin.content.save') }}" enctype="multipart/form-data">
                                 @csrf
                                 <input type="hidden" name="tab_key" value="{{ $tabKey }}">
@@ -151,9 +177,9 @@
                                     </button>
                                 </div>
                             </form>
-                        @endif
+                        </div>
                     </div>
-                </div>
+                @endif
             </div>
         @endforeach
     </main>
@@ -167,6 +193,62 @@
         padding: 0;
         border: 0;
         background: transparent;
+    }
+
+    .cms-page-loading-overlay[hidden] {
+        display: none !important;
+    }
+
+    .cms-page-loading-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(255, 252, 249, 0.72);
+        backdrop-filter: blur(8px);
+    }
+
+    .cms-page-loading-card {
+        min-width: min(360px, calc(100vw - 48px));
+        max-width: 420px;
+        padding: 28px 26px;
+        border: 1px solid rgba(128, 0, 0, 0.08);
+        border-radius: 22px;
+        background: #fffdfb;
+        box-shadow: 0 22px 60px rgba(40, 13, 10, 0.18);
+        text-align: center;
+        color: #5c0000;
+    }
+
+    .cms-page-loading-card h3 {
+        margin: 0;
+        font-size: 1.3rem;
+    }
+
+    .cms-page-loading-card p {
+        margin: 10px 0 0;
+        color: #6f625c;
+        line-height: 1.5;
+    }
+
+    .cms-page-loading-spinner {
+        display: inline-block;
+        width: 42px;
+        height: 42px;
+        margin-bottom: 16px;
+        border-radius: 999px;
+        border: 4px solid rgba(128, 0, 0, 0.14);
+        border-top-color: #800000;
+        animation: cmsPageLoaderSpin 0.85s linear infinite;
+    }
+
+    @keyframes cmsPageLoaderSpin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .cms-tab-btn {
@@ -365,18 +447,62 @@
 
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let cmsPreviewLoadingSession = 0;
+
+    function showCmsPreviewLoading(sessionId) {
+        const overlay = document.querySelector('[data-cms-page-loader]');
+        const normalizedSessionId = Number(sessionId || (Date.now() + Math.random()));
+
+        cmsPreviewLoadingSession = normalizedSessionId;
+
+        if (overlay) {
+            overlay.hidden = false;
+        }
+
+        return normalizedSessionId;
+    }
+
+    function hideCmsPreviewLoading(sessionId) {
+        const overlay = document.querySelector('[data-cms-page-loader]');
+        const normalizedSessionId = Number(sessionId || 0);
+
+        if (!overlay) {
+            return;
+        }
+
+        if (normalizedSessionId && normalizedSessionId !== cmsPreviewLoadingSession) {
+            return;
+        }
+
+        overlay.hidden = true;
+    }
 
     function toggleSidebar() {
         document.getElementById('sidebar')?.classList.toggle('collapsed');
     }
 
     function switchCmsTab(tabKey, btn) {
+        const sessionId = showCmsPreviewLoading();
         document.querySelectorAll('.cms-tab-btn').forEach((el) => el.classList.remove('active'));
         document.querySelectorAll('.cms-tab-panel').forEach((el) => el.classList.remove('active'));
 
         btn.classList.add('active');
-        document.getElementById('cms-tab-' + tabKey)?.classList.add('active');
+        const nextPanel = document.getElementById('cms-tab-' + tabKey);
+        nextPanel?.classList.add('active');
         localStorage.setItem('activeSuperadminCmsTab', tabKey);
+
+        window.dispatchEvent(new CustomEvent('cms:tab-activated', {
+            detail: {
+                tabKey,
+                panel: nextPanel || null,
+                sessionId,
+            },
+        }));
+
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame]');
+        if (!hasPreview) {
+            window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
+        }
     }
 
     function getTrackableFields(form) {
@@ -547,6 +673,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('cms:preview-loading', (event) => {
+            showCmsPreviewLoading(event.detail?.sessionId);
+        });
+
+        window.addEventListener('cms:preview-loaded', (event) => {
+            hideCmsPreviewLoading(event.detail?.sessionId);
+        });
+
         const saved = localStorage.getItem('activeSuperadminCmsTab');
         if (saved) {
             const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))

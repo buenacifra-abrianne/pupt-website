@@ -678,6 +678,13 @@
                 overflow-x: hidden;
             }
 
+            html,
+            body {
+                width: 100%;
+                max-width: 100%;
+                overflow-x: hidden !important;
+            }
+
             body {
                 background: #fff;
                 min-height: auto !important;
@@ -686,11 +693,14 @@
 
             .main-content {
                 flex: none !important;
+                width: 100% !important;
                 min-height: 0 !important;
+                overflow-x: hidden !important;
             }
 
             body > .main-content {
                 flex: none !important;
+                width: 100% !important;
                 min-height: 0 !important;
             }
 
@@ -710,8 +720,12 @@
             }
 
             .about-shell.page-shell {
+                width: 100% !important;
+                max-width: none !important;
                 padding-left: 0 !important;
                 padding-right: 0 !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
             }
 
             .about-breadcrumb {
@@ -720,24 +734,29 @@
             }
 
             .hero-shell {
-                width: 100vw !important;
+                width: 100% !important;
                 max-width: none !important;
-                left: 50% !important;
-                right: 50% !important;
-                margin-left: -50vw !important;
-                margin-right: -50vw !important;
+                left: auto !important;
+                right: auto !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
             }
 
             .about-intro,
             .contents-strip,
             .history-story,
             .about-section-card {
-                width: 100vw !important;
+                width: 100% !important;
                 max-width: none !important;
                 left: auto !important;
                 right: auto !important;
-                margin-left: calc(50% - 50vw) !important;
-                margin-right: calc(50% - 50vw) !important;
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
+            .campus-story-card {
+                width: 100% !important;
+                max-width: none !important;
             }
 
             .history-page-header--vision.cms-preview-editable,
@@ -906,37 +925,33 @@
                     }, '*');
                 };
 
-                const postPreviewHeight = () => {
-                    const docEl = document.documentElement;
-                    const body = document.body;
-                    const main = document.querySelector('.main-content');
-                    const visibleChildren = main
-                        ? Array.from(main.children).filter((node) => {
-                            if (!(node instanceof HTMLElement)) {
-                                return false;
-                            }
+                const getElementBottom = (element) => {
+                    return element.offsetTop + element.offsetHeight;
+                };
 
-                            const styles = window.getComputedStyle(node);
-                            return styles.display !== 'none' && styles.visibility !== 'hidden';
-                        })
-                        : [];
-                    const contentBottom = visibleChildren.reduce((maxBottom, node) => {
-                        const bottom = node.offsetTop + node.offsetHeight;
-                        return Math.max(maxBottom, bottom);
-                    }, 0);
-                    const mainBottom = main ? main.offsetTop + main.offsetHeight : 0;
-                    const naturalHeight = Math.max(contentBottom, mainBottom);
-                    const height = Math.max(
-                        naturalHeight > 0 ? Math.ceil(naturalHeight) : 0,
-                        docEl.scrollHeight,
-                        body.scrollHeight,
-                        docEl.offsetHeight,
-                        body.offsetHeight
-                    );
+                const isMeasuredElement = (element) => {
+                    if (!(element instanceof HTMLElement)) {
+                        return false;
+                    }
+
+                    const styles = window.getComputedStyle(element);
+                    return styles.display !== 'none'
+                        && styles.visibility !== 'hidden'
+                        && styles.position !== 'fixed';
+                };
+
+                const postPreviewHeight = () => {
+                    const main = document.querySelector('.main-content');
+                    const scope = main instanceof HTMLElement ? main : document.body;
+                    const visibleElements = Array.from(scope.children)
+                        .filter((node) => isMeasuredElement(node));
+                    const height = visibleElements.reduce((maxBottom, node) => {
+                        return Math.max(maxBottom, getElementBottom(node));
+                    }, scope.offsetHeight);
 
                     window.parent?.postMessage({
                         type: 'cms-about-preview-height',
-                        height,
+                        height: Math.max(1, Math.ceil(height)),
                         route: '{{ $previewRouteKey }}',
                     }, '*');
                 };
@@ -949,6 +964,34 @@
                     previewHeightFrame = window.requestAnimationFrame(() => {
                         postPreviewHeight();
                         previewHeightFrame = null;
+                    });
+                };
+
+                const scheduleSettledPreviewHeight = () => {
+                    schedulePreviewHeight();
+                    [80, 220, 480, 900].forEach((delay) => {
+                        window.setTimeout(schedulePreviewHeight, delay);
+                    });
+                };
+
+                const bindPreviewImages = () => {
+                    document.querySelectorAll('img').forEach((image) => {
+                        if (image.dataset.cmsPreviewHeightBound === '1') {
+                            return;
+                        }
+
+                        image.dataset.cmsPreviewHeightBound = '1';
+
+                        if (image.complete) {
+                            return;
+                        }
+
+                        const handleImageSettled = () => {
+                            scheduleSettledPreviewHeight();
+                        };
+
+                        image.addEventListener('load', handleImageSettled, { once: true });
+                        image.addEventListener('error', handleImageSettled, { once: true });
                     });
                 };
 
@@ -1002,7 +1045,7 @@
 
                 if (typeof ResizeObserver !== 'undefined') {
                     const observer = new ResizeObserver(() => {
-                        schedulePreviewHeight();
+                        scheduleSettledPreviewHeight();
                     });
 
                     observer.observe(document.body);
@@ -1013,19 +1056,36 @@
                     }
                 }
 
-                window.addEventListener('load', schedulePreviewHeight);
-                window.addEventListener('resize', schedulePreviewHeight);
-                window.addEventListener('pageshow', schedulePreviewHeight);
-                document.fonts?.ready?.then(schedulePreviewHeight).catch(() => {});
+                if (typeof MutationObserver !== 'undefined') {
+                    const previewMutationObserver = new MutationObserver(() => {
+                        bindPreviewImages();
+                        scheduleSettledPreviewHeight();
+                    });
+
+                    previewMutationObserver.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['class', 'style', 'src'],
+                    });
+                }
+
+                bindPreviewImages();
+
+                window.addEventListener('load', scheduleSettledPreviewHeight);
+                window.addEventListener('resize', scheduleSettledPreviewHeight);
+                window.addEventListener('pageshow', scheduleSettledPreviewHeight);
+                window.visualViewport?.addEventListener('resize', scheduleSettledPreviewHeight);
+                document.fonts?.ready?.then(scheduleSettledPreviewHeight).catch(() => {});
                 document.addEventListener('visibilitychange', () => {
                     if (!document.hidden) {
-                        schedulePreviewHeight();
+                        scheduleSettledPreviewHeight();
                     }
                 });
 
-                window.setTimeout(schedulePreviewHeight, 120);
-                window.setTimeout(schedulePreviewHeight, 360);
-                schedulePreviewHeight();
+                window.setTimeout(scheduleSettledPreviewHeight, 120);
+                window.setTimeout(scheduleSettledPreviewHeight, 360);
+                scheduleSettledPreviewHeight();
             });
         </script>
     @endif
