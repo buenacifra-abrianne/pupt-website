@@ -136,29 +136,11 @@ class OnePortalController extends Controller
     $firstName = $userData['first_name'] ?? '';
     $middleName = $userData['middle_name'] ?? '';
     $lastName = $userData['last_name'] ?? '';
-    $roles = $userData['roles'] ?? [];
 
     if (!$email) {
         return redirect()->route('public.landing')
             ->with('error', 'Email not found from IDP.');
     }
-
-    // parse IDP roles
-    $idpRolesRaw = $roles ?? [];
-    $idpRoles = [];
-
-    foreach ($idpRolesRaw as $role) {
-        $role = strtoupper($role);
-
-        if (str_starts_with($role, 'PUPTWEB:')) {
-            $role = str_replace('PUPTWEB:', '', $role);
-        }
-
-        $idpRoles[] = $role;
-    }
-
-    // first parsed IDP role
-    $idpRole = $idpRoles[0] ?? null;
 
     // check local user by email
     $user = DB::table('users')
