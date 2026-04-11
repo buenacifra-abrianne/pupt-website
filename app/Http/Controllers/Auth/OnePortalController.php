@@ -186,6 +186,15 @@ class OnePortalController extends Controller
         $updates['email'] = trim((string) $email);
     }
 
+    $fullName = trim(implode(' ', array_filter([
+        $firstName,
+        $lastName,
+    ], fn ($part) => trim((string) $part) !== '')));
+
+    if ((string) ($user->name ?? '') !== $fullName) {
+        $updates['name'] = $fullName;
+    }
+
     if ($id && empty($user->oneportal_id)) {
         $updates['oneportal_id'] = $id;
     }
@@ -264,7 +273,7 @@ class OnePortalController extends Controller
         'user_first_name' => $firstName,
         'user_middle_name' => $middleName,
         'user_last_name' => $lastName,
-        'user_name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
+        'user_name' => $fullName,
         'user_role' => $finalRole,
         'role' => $finalRole,
         'user_roles' => [$finalRole],
