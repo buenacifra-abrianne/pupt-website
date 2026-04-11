@@ -243,7 +243,6 @@ class OnePortalController extends Controller
         'oneportal_id' => $id,
         'access_token' => $accessToken,
         'refresh_token' => $refreshToken,
-        'idp_roles' => $idpRoles,
     ]);
 
     AuditLog::record(
