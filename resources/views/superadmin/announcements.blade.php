@@ -288,14 +288,22 @@
                 @csrf
 
                 <div class="form-group">
-                    <label>Title *</label>
-                    <input type="text" name="title" required placeholder="Enter announcement title">
-                </div>
+    <label>Title *</label>
+        <input
+            type="text"
+            name="title"
+            id="announcementTitle"
+            required
+            placeholder="Enter announcement title"
+        >
+</div>
 
                 <div class="form-group">
-                    <label>Description *</label>
-                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
-                </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
+        <label style="margin-bottom:0;">Description *</label>
+    </div>
+    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
+</div>
 
                 @if($hasAnnouncementLinkColumn)
                     <div class="form-group">
@@ -363,14 +371,22 @@
                 @csrf
 
                 <div class="form-group">
-                    <label>Title *</label>
-                    <input type="text" name="title" required placeholder="Title">
-                </div>
+    <label>Title *</label>
+        <input
+            type="text"
+            name="title"
+            id="newsTitle"
+            required
+            placeholder="Title"
+        >
+</div>
 
                 <div class="form-group">
-                    <label>Description *</label>
-                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
-                </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
+        <label style="margin-bottom:0;">Description *</label>
+    </div>
+    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
+</div>
 
                 <div class="form-group">
                     <label>Category *</label>
@@ -407,9 +423,14 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Location</label>
-                    <input type="text" name="location" placeholder="Location">
-                </div>
+    <label>Location</label>
+        <input
+            type="text"
+            name="location"
+            id="newsLocation"
+            placeholder="Location"
+        >
+</div>
 
                 <div class="form-group">
                     <label>Featured Image</label>
@@ -1097,6 +1118,162 @@ function setNewsImageButtonLabel(text) {
         };
         reader.readAsDataURL(file);
     }
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let activeRecognition = null;
+let activeEditableField = null;
+let activeFloatingButton = null;
+
+function appendSpeechText(currentValue, spokenText) {
+    const current = String(currentValue || '').trim();
+    const spoken = String(spokenText || '').trim();
+    if (!current) return spoken;
+    if (!spoken) return current;
+    return `${current} ${spoken}`.trim();
+}
+
+function stopFloatingVoiceRecognition() {
+    if (activeRecognition) {
+        activeRecognition.stop();
+        activeRecognition = null;
+    }
+
+    if (activeFloatingButton) {
+        activeFloatingButton.classList.remove('listening');
+        activeFloatingButton = null;
+    }
+}
+
+function setActiveEditableField(el) {
+    activeEditableField = el;
+}
+
+function getRichTextHiddenFieldFromEditor(target) {
+    const form = target.closest('form');
+    if (!form) return null;
+    return form.querySelector('[name="content"]');
+}
+
+function insertSpeechIntoActiveField(text) {
+    if (!activeEditableField) {
+        alert('Click a field first, then use speech-to-text.');
+        return;
+    }
+
+    const target = activeEditableField;
+
+    if (target.matches('input[type="text"], textarea')) {
+        target.value = appendSpeechText(target.value, text);
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+
+        if (target.id === 'globalSearch') {
+            runSearch();
+        }
+
+        target.focus();
+        return;
+    }
+
+    const richTextField = getRichTextHiddenFieldFromEditor(target);
+    if (richTextField) {
+        const nextValue = appendSpeechText(richTextField.value, text);
+        setRichTextEditorValue(richTextField, nextValue);
+        richTextField.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+    }
+
+    alert('Selected field is not supported for speech input.');
+}
+
+function startFloatingVoiceRecognition(buttonEl) {
+    if (!SpeechRecognition) {
+        alert('Voice input is not supported in this browser. Please use Edge or Chrome.');
+        return;
+    }
+
+    if (activeRecognition && activeFloatingButton === buttonEl) {
+        stopFloatingVoiceRecognition();
+        return;
+    }
+
+    if (activeRecognition) {
+        stopFloatingVoiceRecognition();
+    }
+
+    const recognition = new SpeechRecognition();
+    activeRecognition = recognition;
+    activeFloatingButton = buttonEl;
+
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function () {
+        buttonEl.classList.add('listening');
+        console.log('floating recognition started');
+    };
+
+    recognition.onerror = function (event) {
+        console.error('Speech recognition error:', event.error);
+        stopFloatingVoiceRecognition();
+    };
+
+    recognition.onend = function () {
+        if (activeRecognition === recognition) {
+            stopFloatingVoiceRecognition();
+        }
+    };
+
+    recognition.onresult = function (event) {
+        const transcript = (event.results?.[0]?.[0]?.transcript || '')
+            .trim()
+            .replace(/[^a-zA-Z0-9\s@_-]/g, '')
+            .replace(/\s+/g, ' ');
+
+        console.log('floating transcript:', transcript);
+
+        if (!transcript) return;
+        insertSpeechIntoActiveField(transcript);
+    };
+
+    try {
+        recognition.start();
+    } catch (err) {
+        console.error('recognition.start failed:', err);
+        stopFloatingVoiceRecognition();
+    }
+}
+
+document.addEventListener('focusin', function (e) {
+    const target = e.target;
+
+    if (target.matches('input[type="text"], textarea')) {
+        setActiveEditableField(target);
+        return;
+    }
+
+    if (
+        target.closest('.tox, .ck-editor, [contenteditable="true"], .rich-text-editor') ||
+        target.isContentEditable
+    ) {
+        setActiveEditableField(target);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+    if (floatingVoiceBtn) {
+        floatingVoiceBtn.addEventListener('click', function () {
+            console.log('floating mic clicked');
+            console.log('activeEditableField:', activeEditableField);
+            startFloatingVoiceRecognition(floatingVoiceBtn);
+        });
+    }
+});
 </script>
+<button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
+    <i class="fas fa-microphone"></i>
+</button>
 </body>
 </html>

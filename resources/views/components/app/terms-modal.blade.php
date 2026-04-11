@@ -68,6 +68,18 @@
         font-weight: 700;
     }
 
+    .cms-terms-body a,
+    .cms-terms-agree a {
+        color: #800000;
+        text-decoration: none;
+    }
+
+    .cms-terms-body a:hover,
+    .cms-terms-agree a:hover {
+        color: #5f0000;
+        text-decoration: none;
+    }
+
     .cms-terms-agree {
         display: flex;
         align-items: center;
@@ -173,13 +185,23 @@
                 </p>
 
                 <p>
-                    Your information will be handled in accordance with our <strong>Privacy Policy</strong> and in compliance
-                    with the <strong>Data Privacy Act of 2012</strong>.
+                    Your information will be handled in accordance with our
+                    <strong>
+                        <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">
+                            Privacy Policy
+                        </a>
+                    </strong>
+                    and in compliance with the <strong>Data Privacy Act of 2012</strong>.
                 </p>
 
                 <label class="cms-terms-agree" for="cmsTermsAgree">
                     <input id="cmsTermsAgree" type="checkbox" name="agree_terms" value="1">
-                    <span>I Agree and acknowledge the Terms and Conditions</span>
+                    <span>
+                        I Agree and acknowledge the
+                        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">
+                            <strong>Terms and Conditions</strong>
+                        </a>
+                    </span>
                 </label>
             </div>
 
