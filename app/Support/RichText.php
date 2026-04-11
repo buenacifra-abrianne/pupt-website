@@ -13,7 +13,7 @@ class RichText
      * @var array<string, string[]>
      */
     private const ALLOWED_TAGS = [
-        'p' => [],
+        'p' => ['style'],
         'br' => [],
         'strong' => [],
         'b' => [],
@@ -21,11 +21,13 @@ class RichText
         'i' => [],
         'u' => [],
         's' => [],
+        'span' => ['style'],
         'ul' => [],
         'ol' => [],
-        'li' => [],
-        'a' => ['href', 'target', 'rel'],
-        'div' => [],
+        'li' => ['style'],
+        'a' => ['href', 'target', 'rel', 'style'],
+        'div' => ['style'],
+        'blockquote' => ['style'],
     ];
 
     public static function sanitize(?string $value): string
@@ -135,6 +137,15 @@ class RichText
                     $element->removeAttribute('href');
                 }
             }
+
+            if ($name === 'style') {
+                $sanitizedStyle = self::sanitizeStyleAttribute($attribute->nodeValue);
+                if ($sanitizedStyle === '') {
+                    $element->removeAttribute('style');
+                } else {
+                    $element->setAttribute('style', $sanitizedStyle);
+                }
+            }
         }
 
         if (strtolower($element->tagName) === 'a') {
@@ -155,6 +166,109 @@ class RichText
         }
 
         return (bool) preg_match('/^(https?:|mailto:|tel:)/i', $href);
+    }
+
+    private static function sanitizeStyleAttribute(string $style): string
+    {
+        $style = trim($style);
+        if ($style === '') {
+            return '';
+        }
+
+        $allowed = [];
+        $declarations = preg_split('/\s*;\s*/', $style) ?: [];
+
+        foreach ($declarations as $declaration) {
+            if ($declaration === '' || !str_contains($declaration, ':')) {
+                continue;
+            }
+
+            [$property, $value] = array_map('trim', explode(':', $declaration, 2));
+            $property = strtolower($property);
+
+            if ($property === '' || $value === '') {
+                continue;
+            }
+
+            $sanitizedValue = match ($property) {
+                'color', 'background-color' => self::sanitizeColorValue($value),
+                'font-size' => self::sanitizeFontSizeValue($value),
+                'text-align' => self::sanitizeTextAlignValue($value),
+                'line-height' => self::sanitizeLineHeightValue($value),
+                'vertical-align' => self::sanitizeVerticalAlignValue($value),
+                'display' => self::sanitizeDisplayValue($value),
+                default => '',
+            };
+
+            if ($sanitizedValue !== '') {
+                $allowed[$property] = $sanitizedValue;
+            }
+        }
+
+        $normalized = [];
+        foreach ($allowed as $property => $value) {
+            $normalized[] = $property.': '.$value;
+        }
+
+        return implode('; ', $normalized);
+    }
+
+    private static function sanitizeColorValue(string $value): string
+    {
+        $value = trim($value);
+
+        if (preg_match('/^#[0-9a-f]{3,8}$/i', $value)) {
+            return strtoupper($value);
+        }
+
+        if (preg_match('/^rgba?\(\s*\d{1,3}\s*,\s*\d{1,3}\s*,\s*\d{1,3}(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i', $value)) {
+            return $value;
+        }
+
+        if (preg_match('/^hsla?\(\s*\d{1,3}(?:deg)?\s*,\s*\d{1,3}%\s*,\s*\d{1,3}%(?:\s*,\s*(?:0|1|0?\.\d+))?\s*\)$/i', $value)) {
+            return $value;
+        }
+
+        if (preg_match('/^(?:inherit|transparent|currentcolor|black|silver|gray|white|maroon|red|purple|fuchsia|green|lime|olive|yellow|navy|blue|teal|aqua|orange|brown)$/i', $value)) {
+            return strtolower($value) === 'currentcolor' ? 'currentColor' : $value;
+        }
+
+        return '';
+    }
+
+    private static function sanitizeFontSizeValue(string $value): string
+    {
+        $value = trim($value);
+
+        return preg_match('/^\d+(?:\.\d+)?(?:px|em|rem|%)$/i', $value) ? strtolower($value) : '';
+    }
+
+    private static function sanitizeTextAlignValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+
+        return in_array($value, ['left', 'center', 'right', 'justify'], true) ? $value : '';
+    }
+
+    private static function sanitizeLineHeightValue(string $value): string
+    {
+        $value = trim($value);
+
+        return preg_match('/^\d+(?:\.\d+)?(?:px|em|rem|%)?$/i', $value) ? strtolower($value) : '';
+    }
+
+    private static function sanitizeVerticalAlignValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+
+        return in_array($value, ['baseline', 'middle', 'sub', 'super', 'top', 'bottom'], true) ? $value : '';
+    }
+
+    private static function sanitizeDisplayValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+
+        return in_array($value, ['inline', 'inline-block', 'block'], true) ? $value : '';
     }
 
     private static function unwrapNode(DOMElement $element): void

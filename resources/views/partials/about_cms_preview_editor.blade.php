@@ -759,7 +759,8 @@
 <style>
     .about-cms-workspace {
         --about-preview-width: 1520px;
-        --about-preview-height: auto;
+        --about-preview-height: 1800px;
+        --about-preview-min-height: 0px;
         --about-preview-scale: 1;
         --about-preview-scaled-width: calc(var(--about-preview-width) * var(--about-preview-scale));
         --about-preview-scaled-height: calc(var(--about-preview-height) * var(--about-preview-scale));
@@ -770,18 +771,22 @@
     }
 
     .about-cms-preview-shell {
-        border: 1px solid #ece2dc;
-        border-radius: 18px;
-        background: #fff;
-        box-shadow: 0 14px 34px rgba(92, 12, 6, 0.06);
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
     .about-cms-preview-head {
         display: flex;
         justify-content: space-between;
         gap: 16px;
-        padding: 18px 22px 12px;
-        border-bottom: 1px solid #f1e9e4;
+        padding: 0 0 12px;
+        border-bottom: 0;
+    }
+
+    .about-cms-preview-head > div:first-child {
+        display: none;
     }
 
     .about-cms-eyebrow,
@@ -822,8 +827,8 @@
 
     .about-cms-preview-frame-shell {
         width: 100%;
-        padding: 8px;
-        background: linear-gradient(180deg, #f8f2ee 0%, #f2e8e2 100%);
+        padding: 0;
+        background: transparent;
         overflow: hidden;
     }
 
@@ -843,6 +848,7 @@
         width: var(--about-preview-scaled-width);
         max-width: 100%;
         height: var(--about-preview-scaled-height);
+        min-height: 0;
         overflow: hidden;
         border: 1px solid #d8cbc4;
         border-radius: 16px;
@@ -961,6 +967,7 @@
         .about-cms-workspace {
             --about-preview-width: 1440px;
             --about-preview-height: 1760px;
+            --about-preview-min-height: 0px;
             --about-preview-scale: 0.58;
             width: 100%;
             margin-left: 0;
@@ -997,6 +1004,7 @@
             return;
         }
 
+        const ABOUT_PREVIEW_MIN_LOADING_MS = 1500;
         let aboutPreviewFitFrame = null;
         let currentAboutPreviewRoute = 'overview';
 
@@ -1032,6 +1040,101 @@
             workspace.style.setProperty('--about-preview-scale', `${scale}`);
         }
 
+        function setAboutPreviewLoading(frame, isLoading) {
+            const canvas = frame?.closest('.about-cms-preview-canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            if (frame.__aboutPreviewLoadingTimeout) {
+                window.clearTimeout(frame.__aboutPreviewLoadingTimeout);
+                frame.__aboutPreviewLoadingTimeout = null;
+            }
+
+            if (isLoading) {
+                frame.__aboutPreviewLoadingSession = (frame.__aboutPreviewLoadingSession || 0) + 1;
+                frame.__aboutPreviewLoadingStartedAt = Date.now();
+            }
+
+            frame.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+            window.dispatchEvent(new CustomEvent(isLoading ? 'cms:preview-loading' : 'cms:preview-loaded', {
+                detail: {
+                    sessionId: frame.__aboutPreviewLoadingSession || 0,
+                },
+            }));
+        }
+
+        function finishAboutPreviewLoading(frame) {
+            const canvas = frame?.closest('.about-cms-preview-canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            const activeSession = frame.__aboutPreviewLoadingSession || 0;
+            const startedAt = frame.__aboutPreviewLoadingStartedAt || Date.now();
+            const elapsed = Date.now() - startedAt;
+            const remaining = Math.max(0, ABOUT_PREVIEW_MIN_LOADING_MS - elapsed);
+
+            if (frame.__aboutPreviewLoadingTimeout) {
+                window.clearTimeout(frame.__aboutPreviewLoadingTimeout);
+            }
+
+            frame.__aboutPreviewLoadingTimeout = window.setTimeout(() => {
+                if ((frame.__aboutPreviewLoadingSession || 0) !== activeSession) {
+                    return;
+                }
+
+                frame.setAttribute('aria-busy', 'false');
+                window.dispatchEvent(new CustomEvent('cms:preview-loaded', {
+                    detail: {
+                        sessionId: activeSession,
+                    },
+                }));
+                frame.__aboutPreviewLoadingTimeout = null;
+            }, remaining);
+        }
+
+        function getAboutPreviewElementBottom(element) {
+            return element.offsetTop + element.offsetHeight;
+        }
+
+        function isAboutPreviewMeasuredElement(element) {
+            if (!(element instanceof HTMLElement)) {
+                return false;
+            }
+
+            const styles = window.getComputedStyle(element);
+            return styles.display !== 'none'
+                && styles.visibility !== 'hidden'
+                && styles.position !== 'fixed';
+        }
+
+        function measureAboutPreviewHeight(frame) {
+            const doc = frame.contentDocument;
+
+            if (!doc) {
+                return 0;
+            }
+
+            const main = doc.querySelector('.main-content');
+            const scope = main instanceof HTMLElement ? main : doc.body;
+
+            if (!(scope instanceof HTMLElement)) {
+                return 0;
+            }
+
+            const visibleElements = Array.from(scope.children)
+                .filter((element) => isAboutPreviewMeasuredElement(element));
+
+            const contentBottom = visibleElements.reduce((maxBottom, element) => {
+                return Math.max(maxBottom, getAboutPreviewElementBottom(element));
+            }, scope.offsetHeight);
+
+            return Math.max(1, Math.ceil(contentBottom));
+        }
+
         function setAboutPreviewHeight(frame, nextHeight) {
             const workspace = frame.closest('.about-cms-workspace');
             const height = Math.max(1, Number(nextHeight) || 0);
@@ -1045,6 +1148,123 @@
             fitAboutPreview(frame);
         }
 
+        function scheduleAboutPreviewSync(frame) {
+            if (!frame) {
+                return;
+            }
+
+            if (frame.__aboutPreviewSyncFrame !== undefined && frame.__aboutPreviewSyncFrame !== null) {
+                window.cancelAnimationFrame(frame.__aboutPreviewSyncFrame);
+            }
+
+            frame.__aboutPreviewSyncFrame = window.requestAnimationFrame(() => {
+                const measuredHeight = measureAboutPreviewHeight(frame);
+
+                if (measuredHeight > 0) {
+                    setAboutPreviewHeight(frame, measuredHeight);
+                } else {
+                    fitAboutPreview(frame);
+                }
+
+                frame.__aboutPreviewSyncFrame = null;
+            });
+        }
+
+        function queueAboutPreviewSettledSync(frame) {
+            scheduleAboutPreviewSync(frame);
+            [80, 220, 480, 900].forEach((delay) => {
+                window.setTimeout(() => scheduleAboutPreviewSync(frame), delay);
+            });
+            finishAboutPreviewLoading(frame);
+        }
+
+        function bindAboutPreviewDocument(frame) {
+            const doc = frame.contentDocument;
+            const win = frame.contentWindow;
+
+            if (!doc) {
+                return;
+            }
+
+            if (typeof frame.__aboutPreviewCleanup === 'function') {
+                frame.__aboutPreviewCleanup();
+            }
+
+            const cleanups = [];
+            const schedule = () => queueAboutPreviewSettledSync(frame);
+            const main = doc.querySelector('.main-content');
+
+            const bindPreviewImages = () => {
+                doc.querySelectorAll('img').forEach((image) => {
+                    if (image.dataset.cmsPreviewHeightBound === '1') {
+                        return;
+                    }
+
+                    image.dataset.cmsPreviewHeightBound = '1';
+
+                    if (image.complete) {
+                        return;
+                    }
+
+                    const handleImageSettled = () => schedule();
+                    image.addEventListener('load', handleImageSettled, { once: true });
+                    image.addEventListener('error', handleImageSettled, { once: true });
+                });
+            };
+
+            bindPreviewImages();
+
+            if (typeof ResizeObserver !== 'undefined') {
+                const observer = new ResizeObserver(() => {
+                    schedule();
+                });
+
+                if (doc.documentElement) {
+                    observer.observe(doc.documentElement);
+                }
+
+                if (doc.body) {
+                    observer.observe(doc.body);
+                }
+
+                if (main) {
+                    observer.observe(main);
+                }
+
+                cleanups.push(() => observer.disconnect());
+            }
+
+            if (typeof MutationObserver !== 'undefined') {
+                const observer = new MutationObserver(() => {
+                    bindPreviewImages();
+                    schedule();
+                });
+
+                observer.observe(doc.body || doc.documentElement, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class', 'style', 'src'],
+                });
+
+                cleanups.push(() => observer.disconnect());
+            }
+
+            if (doc.fonts?.ready) {
+                doc.fonts.ready.then(() => schedule()).catch(() => {});
+            }
+
+            if (win) {
+                const handleResize = () => schedule();
+                win.addEventListener('resize', handleResize);
+                cleanups.push(() => win.removeEventListener('resize', handleResize));
+            }
+
+            frame.__aboutPreviewCleanup = () => {
+                cleanups.forEach((cleanup) => cleanup());
+            };
+        }
+
         function scheduleFitAboutPreviews() {
             if (aboutPreviewFitFrame !== null) {
                 window.cancelAnimationFrame(aboutPreviewFitFrame);
@@ -1053,23 +1273,36 @@
             aboutPreviewFitFrame = window.requestAnimationFrame(() => {
                 const frame = document.querySelector('[data-about-preview-frame]');
                 if (frame) {
-                    fitAboutPreview(frame);
+                    scheduleAboutPreviewSync(frame);
                 }
 
                 aboutPreviewFitFrame = null;
             });
         }
 
-        function loadAboutPreviewPage(routeKey) {
+        function loadAboutPreviewPage(routeKey, options = {}) {
             const frame = document.querySelector('[data-about-preview-frame]');
             const payloads = getAboutPreviewPayloads();
             const targetKey = routeKey && payloads[routeKey] ? routeKey : 'overview';
+            const shouldForceReload = options.forceReload === true;
+            const explicitSessionId = options.sessionId;
 
             if (!frame) {
                 return;
             }
 
+            if (Number.isFinite(Number(explicitSessionId))) {
+                frame.__aboutPreviewLoadingSession = Number(explicitSessionId) - 1;
+            }
+
+            if (!shouldForceReload && currentAboutPreviewRoute === targetKey && frame.srcdoc) {
+                setAboutPreviewLoading(frame, true);
+                queueAboutPreviewSettledSync(frame);
+                return;
+            }
+
             currentAboutPreviewRoute = targetKey;
+            setAboutPreviewLoading(frame, true);
             frame.srcdoc = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
 
             document.querySelectorAll('[data-about-preview-page]').forEach((btn) => {
@@ -1167,9 +1400,9 @@
         const frame = document.querySelector('[data-about-preview-frame]');
         if (frame) {
             frame.addEventListener('load', () => {
+                bindAboutPreviewDocument(frame);
+                queueAboutPreviewSettledSync(frame);
                 scheduleFitAboutPreviews();
-                window.setTimeout(scheduleFitAboutPreviews, 120);
-                window.setTimeout(scheduleFitAboutPreviews, 320);
             });
         }
 
@@ -1203,11 +1436,36 @@
         window.addEventListener('resize', scheduleFitAboutPreviews);
         window.addEventListener('pageshow', scheduleFitAboutPreviews);
         window.addEventListener('load', scheduleFitAboutPreviews);
+        window.addEventListener('cms:tab-activated', (event) => {
+            const tabPanel = event.detail?.panel;
+            const frame = document.querySelector('[data-about-preview-frame]');
+            const sessionId = Number(event.detail?.sessionId || 0) || undefined;
+
+            if (!frame || (tabPanel && !tabPanel.contains(frame))) {
+                return;
+            }
+
+            loadAboutPreviewPage(currentAboutPreviewRoute || 'overview', { forceReload: true, sessionId });
+            window.setTimeout(scheduleFitAboutPreviews, 40);
+            window.setTimeout(scheduleFitAboutPreviews, 180);
+        });
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 scheduleFitAboutPreviews();
             }
         });
+
+        window.refreshAboutCmsPreview = (scope) => {
+            const frame = scope
+                ? scope.querySelector('[data-about-preview-frame]')
+                : document.querySelector('[data-about-preview-frame]');
+
+            if (!frame) {
+                return;
+            }
+
+            loadAboutPreviewPage(currentAboutPreviewRoute || 'overview', { forceReload: true });
+        };
 
         loadAboutPreviewPage('overview');
         scheduleFitAboutPreviews();

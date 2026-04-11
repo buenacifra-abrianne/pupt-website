@@ -266,7 +266,8 @@
 <style>
     .home-cms-workspace {
         --home-preview-width: 1520px;
-        --home-preview-height: auto;
+        --home-preview-height: 1800px;
+        --home-preview-min-height: 0px;
         --home-preview-scale: 1;
         --home-preview-scaled-width: calc(var(--home-preview-width) * var(--home-preview-scale));
         --home-preview-scaled-height: calc(var(--home-preview-height) * var(--home-preview-scale));
@@ -277,19 +278,14 @@
     }
 
     .home-cms-preview-shell {
-        border: 1px solid #ece2dc;
-        border-radius: 18px;
-        background: #fff;
-        box-shadow: 0 14px 34px rgba(92, 12, 6, 0.06);
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
     .home-cms-preview-head {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 16px;
-        padding: 18px 22px 12px;
-        border-bottom: 1px solid #f1e9e4;
+        display: none;
     }
 
     .home-cms-preview-head h3,
@@ -320,8 +316,8 @@
 
     .home-cms-preview-frame-shell {
         width: 100%;
-        padding: 8px;
-        background: linear-gradient(180deg, #f8f2ee 0%, #f2e8e2 100%);
+        padding: 0;
+        background: transparent;
         overflow: hidden;
     }
 
@@ -341,6 +337,7 @@
         width: var(--home-preview-scaled-width);
         max-width: 100%;
         height: var(--home-preview-scaled-height);
+        min-height: 0;
         overflow: hidden;
         border: 1px solid #d8cbc4;
         border-radius: 16px;
@@ -471,6 +468,7 @@
         .home-cms-workspace {
             --home-preview-width: 1440px;
             --home-preview-height: 1760px;
+            --home-preview-min-height: 0px;
             --home-preview-scale: 0.58;
             width: 100%;
             margin-left: 0;
@@ -506,6 +504,7 @@
             return;
         }
 
+        const HOME_PREVIEW_MIN_LOADING_MS = 1500;
         let homePreviewFitFrame = null;
 
         function syncEditorsInScope(scope) {
@@ -540,6 +539,194 @@
             workspace.style.setProperty('--home-preview-scale', `${scale}`);
         }
 
+        function setHomePreviewLoading(frame, isLoading) {
+            const canvas = frame?.closest('.home-cms-preview-canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            if (frame.__homePreviewLoadingTimeout) {
+                window.clearTimeout(frame.__homePreviewLoadingTimeout);
+                frame.__homePreviewLoadingTimeout = null;
+            }
+
+            if (isLoading) {
+                frame.__homePreviewLoadingSession = (frame.__homePreviewLoadingSession || 0) + 1;
+                frame.__homePreviewLoadingStartedAt = Date.now();
+            }
+
+            frame.setAttribute('aria-busy', isLoading ? 'true' : 'false');
+            window.dispatchEvent(new CustomEvent(isLoading ? 'cms:preview-loading' : 'cms:preview-loaded', {
+                detail: {
+                    sessionId: frame.__homePreviewLoadingSession || 0,
+                },
+            }));
+        }
+
+        function finishHomePreviewLoading(frame) {
+            const canvas = frame?.closest('.home-cms-preview-canvas');
+
+            if (!canvas) {
+                return;
+            }
+
+            const activeSession = frame.__homePreviewLoadingSession || 0;
+            const startedAt = frame.__homePreviewLoadingStartedAt || Date.now();
+            const elapsed = Date.now() - startedAt;
+            const remaining = Math.max(0, HOME_PREVIEW_MIN_LOADING_MS - elapsed);
+
+            if (frame.__homePreviewLoadingTimeout) {
+                window.clearTimeout(frame.__homePreviewLoadingTimeout);
+            }
+
+            frame.__homePreviewLoadingTimeout = window.setTimeout(() => {
+                if ((frame.__homePreviewLoadingSession || 0) !== activeSession) {
+                    return;
+                }
+
+                frame.setAttribute('aria-busy', 'false');
+                window.dispatchEvent(new CustomEvent('cms:preview-loaded', {
+                    detail: {
+                        sessionId: activeSession,
+                    },
+                }));
+                frame.__homePreviewLoadingTimeout = null;
+            }, remaining);
+        }
+
+        function scheduleHomePreviewSync(frame) {
+            if (!frame) {
+                return;
+            }
+
+            if (frame.__homePreviewSyncFrame !== undefined && frame.__homePreviewSyncFrame !== null) {
+                window.cancelAnimationFrame(frame.__homePreviewSyncFrame);
+            }
+
+            frame.__homePreviewSyncFrame = window.requestAnimationFrame(() => {
+                const measuredHeight = measureHomePreviewHeight(frame);
+
+                if (measuredHeight > 0) {
+                    syncHomePreviewHeight(frame, measuredHeight);
+                } else {
+                    fitHomePreview(frame);
+                }
+
+                frame.__homePreviewSyncFrame = null;
+            });
+        }
+
+        function queueHomePreviewSettledSync(frame) {
+            scheduleHomePreviewSync(frame);
+            [80, 220, 480, 900].forEach((delay) => {
+                window.setTimeout(() => scheduleHomePreviewSync(frame), delay);
+            });
+            finishHomePreviewLoading(frame);
+        }
+
+        function bindHomePreviewDocument(frame) {
+            const doc = frame.contentDocument;
+            const win = frame.contentWindow;
+
+            if (!doc) {
+                return;
+            }
+
+            if (typeof frame.__homePreviewCleanup === 'function') {
+                frame.__homePreviewCleanup();
+            }
+
+            const cleanups = [];
+            const schedule = () => queueHomePreviewSettledSync(frame);
+            const main = doc.querySelector('.main-content');
+
+            const bindPreviewImages = () => {
+                doc.querySelectorAll('img').forEach((image) => {
+                    if (image.dataset.cmsPreviewHeightBound === '1') {
+                        return;
+                    }
+
+                    image.dataset.cmsPreviewHeightBound = '1';
+
+                    if (image.complete) {
+                        return;
+                    }
+
+                    const handleImageSettled = () => schedule();
+                    image.addEventListener('load', handleImageSettled, { once: true });
+                    image.addEventListener('error', handleImageSettled, { once: true });
+                });
+            };
+
+            bindPreviewImages();
+
+            if (typeof ResizeObserver !== 'undefined') {
+                const observer = new ResizeObserver(() => {
+                    schedule();
+                });
+
+                if (doc.documentElement) {
+                    observer.observe(doc.documentElement);
+                }
+
+                if (doc.body) {
+                    observer.observe(doc.body);
+                }
+
+                if (main) {
+                    observer.observe(main);
+                }
+
+                cleanups.push(() => observer.disconnect());
+            }
+
+            if (typeof MutationObserver !== 'undefined') {
+                const observer = new MutationObserver(() => {
+                    bindPreviewImages();
+                    schedule();
+                });
+
+                observer.observe(doc.body || doc.documentElement, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['class', 'style', 'src'],
+                });
+
+                cleanups.push(() => observer.disconnect());
+            }
+
+            if (doc.fonts?.ready) {
+                doc.fonts.ready.then(() => schedule()).catch(() => {});
+            }
+
+            if (win) {
+                const handleResize = () => schedule();
+                win.addEventListener('resize', handleResize);
+                cleanups.push(() => win.removeEventListener('resize', handleResize));
+            }
+
+            frame.__homePreviewCleanup = () => {
+                cleanups.forEach((cleanup) => cleanup());
+            };
+        }
+
+    function getHomePreviewElementBottom(element) {
+        return element.offsetTop + element.offsetHeight;
+    }
+
+    function isHomePreviewMeasuredElement(element) {
+        if (!(element instanceof HTMLElement)) {
+            return false;
+        }
+
+        const styles = window.getComputedStyle(element);
+        return styles.display !== 'none'
+            && styles.visibility !== 'hidden'
+            && styles.position !== 'fixed';
+    }
+
     function measureHomePreviewHeight(frame) {
         const doc = frame.contentDocument;
 
@@ -547,16 +734,21 @@
             return 0;
         }
 
-        const docEl = doc.documentElement;
-        const body = doc.body;
+        const main = doc.querySelector('.main-content');
+        const scope = main instanceof HTMLElement ? main : doc.body;
 
-        return Math.max(
-            1,
-            docEl ? docEl.scrollHeight : 0,
-            docEl ? docEl.offsetHeight : 0,
-            body ? body.scrollHeight : 0,
-            body ? body.offsetHeight : 0
-        );
+        if (!(scope instanceof HTMLElement)) {
+            return 0;
+        }
+
+        const visibleElements = Array.from(scope.children)
+            .filter((element) => isHomePreviewMeasuredElement(element));
+
+        const contentBottom = visibleElements.reduce((maxBottom, element) => {
+            return Math.max(maxBottom, getHomePreviewElementBottom(element));
+        }, scope.offsetHeight);
+
+        return Math.max(1, Math.ceil(contentBottom));
     }
 
     function syncHomePreviewHeight(frame, nextHeight) {
@@ -574,14 +766,31 @@
 
         function fitAllHomePreviews() {
             document.querySelectorAll('[data-home-preview-frame]').forEach((frame) => {
-                const measuredHeight = measureHomePreviewHeight(frame);
-
-                if (measuredHeight > 0) {
-                    syncHomePreviewHeight(frame, measuredHeight);
-                }
-
-                fitHomePreview(frame);
+                scheduleHomePreviewSync(frame);
             });
+        }
+
+        function loadHomePreview(frame, options = {}) {
+            const payloads = document.querySelectorAll('[data-home-preview-json]');
+            const frameIndex = Array.from(document.querySelectorAll('[data-home-preview-frame]')).indexOf(frame);
+            const payload = payloads[frameIndex] || payloads[0];
+            const explicitSessionId = options.sessionId;
+
+            if (!payload || !frame) {
+                return;
+            }
+
+            if (Number.isFinite(Number(explicitSessionId))) {
+                frame.__homePreviewLoadingSession = Number(explicitSessionId) - 1;
+            }
+
+            setHomePreviewLoading(frame, true);
+
+            try {
+                frame.srcdoc = JSON.parse(payload.textContent || '""');
+            } catch (_) {
+                frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+            }
         }
 
         function scheduleFitAllHomePreviews() {
@@ -686,23 +895,12 @@
         });
 
         document.querySelectorAll('[data-home-preview-frame]').forEach((frame, index) => {
-            const payloads = document.querySelectorAll('[data-home-preview-json]');
-            const payload = payloads[index] || payloads[0];
-
-            if (!payload) {
-                return;
-            }
-
-            try {
-                frame.srcdoc = JSON.parse(payload.textContent || '""');
-            } catch (_) {
-                frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
-            }
+            loadHomePreview(frame);
 
             frame.addEventListener('load', () => {
+                bindHomePreviewDocument(frame);
+                queueHomePreviewSettledSync(frame);
                 scheduleFitAllHomePreviews();
-                window.setTimeout(scheduleFitAllHomePreviews, 120);
-                window.setTimeout(scheduleFitAllHomePreviews, 320);
             });
         });
 
@@ -736,11 +934,35 @@
         window.addEventListener('resize', scheduleFitAllHomePreviews);
         window.addEventListener('pageshow', scheduleFitAllHomePreviews);
         window.addEventListener('load', scheduleFitAllHomePreviews);
+        window.addEventListener('cms:tab-activated', (event) => {
+            const tabPanel = event.detail?.panel;
+            const sessionId = Number(event.detail?.sessionId || 0) || undefined;
+
+            document.querySelectorAll('[data-home-preview-frame]').forEach((frame) => {
+                if (!tabPanel || !tabPanel.contains(frame)) {
+                    return;
+                }
+
+                loadHomePreview(frame, { sessionId });
+                window.setTimeout(() => scheduleFitAllHomePreviews(), 40);
+                window.setTimeout(() => scheduleFitAllHomePreviews(), 180);
+            });
+        });
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
                 scheduleFitAllHomePreviews();
             }
         });
+
+        window.refreshHomeCmsPreview = (scope) => {
+            const frames = scope
+                ? Array.from(scope.querySelectorAll('[data-home-preview-frame]'))
+                : Array.from(document.querySelectorAll('[data-home-preview-frame]'));
+
+            frames.forEach((frame) => {
+                loadHomePreview(frame);
+            });
+        };
 
         scheduleFitAllHomePreviews();
 
