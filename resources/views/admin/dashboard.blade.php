@@ -13,7 +13,7 @@
     <!-- Sidebar -->
     <nav class="sidebar" id="sidebar">
         <div class="logo-section">
-            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
+            <img src="{{ asset('assets/static_img/pupt_cms_logo.png') }}" alt="PUPT CMS Logo" class="logo">
             <div class="logo-text">
                 Hello,<br>
                 {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
@@ -83,17 +83,21 @@
             <div class="stats-grid">
 
                 <div class="stat-card">
-                    <div class="stat-icon maroon">
-                        <i class="fas fa-check-circle"></i>
+                    <div class="stat-card-head">
+                        <div class="stat-card-title-wrap">
+                            <div class="stat-icon maroon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-heading-group">
+                                <div class="stat-label">Pending Approvals</div>
+                                <div class="stat-value">{{ $pendingApprovals ?? 0 }}</div>
+                            </div>
+                        </div>
+                        <a class="btn btn-outline btn-sm stat-action-btn" href="{{ route('admin.approvals.pending') }}">
+                            <i class="fas fa-eye"></i> View All
+                        </a>
                     </div>
                     <div class="stat-info">
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:5px;">
-                            <div class="stat-label" style="margin-bottom:0;">Pending Approvals</div>
-                            <a class="btn btn-outline btn-sm" href="{{ route('admin.approvals.pending') }}">
-                                <i class="fas fa-eye"></i> View All
-                            </a>
-                        </div>
-                        <div class="stat-value">{{ $pendingApprovals ?? 0 }}</div>
                         <div class="stat-change positive">
                             <i class="fas fa-database"></i> Live From Database
                         </div>
@@ -101,12 +105,18 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon yellow">
-                        <i class="fas fa-chart-line"></i>
+                    <div class="stat-card-head">
+                        <div class="stat-card-title-wrap">
+                            <div class="stat-icon yellow">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div class="stat-heading-group">
+                                <div class="stat-label">System Uptime</div>
+                                <div class="stat-value">{{ $uptime['percent'] ?? '—' }}</div>
+                            </div>
+                        </div>
                     </div>
                     <div class="stat-info">
-                        <div class="stat-label">System Uptime</div>
-                        <div class="stat-value">{{ $uptime['percent'] ?? '—' }}</div>
                         <div class="stat-change positive">
                             <i class="fas fa-check-circle"></i>
                             {{ ($uptime['ok'] ?? false) ? 'All systems operational' : 'Check system health' }}
@@ -152,8 +162,8 @@
             <!-- Recent Activity -->
             <div class="card">
                 <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
-                    <div style="display:flex; gap:10px;">
+                    <div class="card-header-main">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
                     </div>
                 </div>
 
@@ -195,7 +205,7 @@
                         </div>
                     </div>
                     @empty
-                    <div style="padding:16px; color:#666; text-align:center;">
+                    <div class="dashboard-empty-state">
                         No recent activity yet.
                     </div>
                     @endforelse
@@ -204,8 +214,10 @@
                 <!-- Recent Notifications -->
                 <div class="card">
                     <div class="card-header">
-                        <h2 class="card-title">Recent Notifications</h2>
-                        <div style="display:flex; gap:10px;">
+                        <div class="card-header-main">
+                            <h2 class="card-title">Recent Notifications</h2>
+                        </div>
+                        <div class="card-actions">
                             <a class="btn btn-outline btn-sm" href="{{ route('admin.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
@@ -266,7 +278,7 @@
                                 </div>
                             @endforeach
                         @else
-                            <div style="padding: 16px; color:#666; text-align:center;">
+                            <div class="dashboard-empty-state">
                                 No notifications yet.
                             </div>
                         @endif
@@ -702,5 +714,7 @@ async function postJSON(url, data) {
     }
 
 </script>
+<x-app.legal-footer />
 </body>
 </html>
+

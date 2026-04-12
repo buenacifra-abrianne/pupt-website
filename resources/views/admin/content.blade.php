@@ -13,7 +13,7 @@
 <body>
     <nav class="sidebar" id="sidebar">
         <div class="logo-section">
-            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
+            <img src="{{ asset('assets/static_img/pupt_cms_logo.png') }}" alt="PUPT CMS Logo" class="logo">
             <div class="logo-text">
                 Hello,<br>
                 {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
@@ -78,18 +78,31 @@
             <h1 class="page-title">Content Management</h1>
             <p class="page-subtitle">Global content editor for admin. Staff edits are reviewed in Pending Approvals.</p>
         </div>
-        <div class="tab-navigation">
-            @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
-                <button class="cms-tab-btn {{ $loop->first ? 'active' : '' }}" type="button" onclick="switchCmsTab('{{ $tabKey }}', this)">
-                    <i class="fas fa-pen-to-square"></i>
-                    {{ $tabDef['label'] }}
-                    @php $pendingForTab = (int)($pendingByTab[$tabKey] ?? 0); @endphp
-                    @if($pendingForTab > 0)
-                        <span class="tab-badge">{{ $pendingForTab }}</span>
-                    @endif
-                </button>
-            @endforeach
-        </div>
+        <nav class="tab-navigation" aria-label="CMS content sections">
+            <ul class="tab-navigation-list" role="tablist">
+                @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
+                    <li class="tab-navigation-item {{ $loop->first ? 'is-active' : '' }}">
+                        <button
+                            class="cms-tab-btn {{ $loop->first ? 'active' : '' }}"
+                            type="button"
+                            role="tab"
+                            id="cms-tab-trigger-{{ $tabKey }}"
+                            data-tab-key="{{ $tabKey }}"
+                            aria-controls="cms-tab-{{ $tabKey }}"
+                            aria-selected="{{ $loop->first ? 'true' : 'false' }}"
+                            tabindex="{{ $loop->first ? '0' : '-1' }}"
+                            onclick="switchCmsTab('{{ $tabKey }}', this)"
+                        >
+                            <span>{{ $tabDef['label'] }}</span>
+                            @php $pendingForTab = (int)($pendingByTab[$tabKey] ?? 0); @endphp
+                            @if($pendingForTab > 0)
+                                <span class="tab-badge">{{ $pendingForTab }}</span>
+                            @endif
+                        </button>
+                    </li>
+                @endforeach
+            </ul>
+        </nav>
 
         @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
             @php
@@ -105,7 +118,13 @@
                     : null;
             @endphp
 
-            <div id="cms-tab-{{ $tabKey }}" class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}">
+            <div
+                id="cms-tab-{{ $tabKey }}"
+                class="tab-content cms-tab-panel {{ $loop->first ? 'active' : '' }}"
+                role="tabpanel"
+                aria-labelledby="cms-tab-trigger-{{ $tabKey }}"
+                @unless($loop->first) hidden @endunless
+            >
                 @if($tabKey === 'home')
                     @php
                         $homePreviewHtml = view('public.home', [
@@ -185,14 +204,40 @@
     </main>
 
 <style>
+    :root {
+        --cms-tab-bleed: 30px;
+    }
+
     .tab-navigation {
+        width: calc(100% + (var(--cms-tab-bleed) * 2));
+        margin: 0 calc(var(--cms-tab-bleed) * -1) 26px;
+        overflow-x: auto;
+        background: #991b21;
+        border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 0;
+        box-shadow: 0 16px 32px rgba(66, 12, 12, 0.14);
+    }
+
+    .tab-navigation-list {
         display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin-bottom: 20px;
-        padding: 0;
-        border: 0;
-        background: transparent;
+        justify-content: center;
+        align-items: stretch;
+        gap: 28px;
+        list-style: none;
+        width: 100%;
+        margin: 0;
+        padding: 0 30px;
+    }
+
+    .tab-navigation-item {
+        position: relative;
+        transition: background-color 0.24s ease, box-shadow 0.24s ease;
+    }
+
+    .tab-navigation-item:hover,
+    .tab-navigation-item.is-active {
+        background: #7f1113;
+        box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
     }
 
     .cms-page-loading-overlay[hidden] {
@@ -252,43 +297,57 @@
     }
 
     .cms-tab-btn {
-        background: #fff;
-        color: #666;
-        border: 2px solid #e0e0e0;
-        padding: 9px 16px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        transition: 0.3s;
-        white-space: nowrap;
+        position: relative;
         display: flex;
         align-items: center;
-        gap: 7px;
+        justify-content: center;
+        min-height: 58px;
+        padding: 16px 30px;
+        border: 0;
+        background: transparent;
+        color: #fff;
+        cursor: pointer;
         font-family: inherit;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.055em;
+        text-transform: uppercase;
+        white-space: nowrap;
+        transition: background 0.2s ease, color 0.2s ease;
     }
 
-    .cms-tab-btn:hover {
-        border-color: #D4AF37;
-        color: #800000;
-        transform: none;
+    .cms-tab-btn::after {
+        content: "";
+        position: absolute;
+        left: 22px;
+        right: 22px;
+        bottom: 10px;
+        height: 3px;
+        border-radius: 999px;
+        background: #f3c45a;
+        transform: scaleX(0);
+        transform-origin: center;
+        transition: transform 0.22s ease;
     }
 
-    .cms-tab-btn.active {
-        background: linear-gradient(135deg, #800000, #5c0000);
-        color: #fff;
-        border-color: #800000;
-        box-shadow: none;
-    }
-
-    .cms-tab-btn.active i {
-        color: #fff;
-    }
-
-    .cms-tab-btn::after,
+    .tab-navigation-item:hover .cms-tab-btn::after,
+    .cms-tab-btn:focus-visible::after,
     .cms-tab-btn.active::after {
-        display: none !important;
-        content: none !important;
+        transform: scaleX(1);
+    }
+
+    .cms-tab-btn:hover,
+    .cms-tab-btn.active {
+        color: #fff;
+    }
+
+    .cms-tab-btn:focus-visible {
+        outline: none;
+        box-shadow: inset 0 0 0 2px rgba(243, 196, 90, 0.95);
+    }
+
+    .cms-tab-btn.active:focus-visible {
+        box-shadow: inset 0 0 0 2px rgba(243, 196, 90, 0.95);
     }
 
     .stats-grid {
@@ -324,13 +383,51 @@
     .stat-change { font-size: 12px; opacity: .85; margin-top: 4px; }
 
     .tab-badge {
-        margin-left: 6px;
-        background: #d4af37;
-        color: #3b2a00;
+        min-width: 1.45rem;
+        height: 1.45rem;
+        margin-left: 10px;
+        display: inline-grid;
+        place-items: center;
+        padding: 0 6px;
         border-radius: 999px;
-        padding: 1px 7px;
-        font-size: 11px;
+        border: 1px solid rgba(255, 255, 255, 0.22);
+        background: rgba(255, 255, 255, 0.14);
+        color: #fff3d5;
+        font-size: 0.7rem;
         font-weight: 700;
+        line-height: 1;
+    }
+
+    .tab-navigation-item.is-active .tab-badge,
+    .tab-navigation-item:hover .tab-badge {
+        border-color: rgba(243, 196, 90, 0.32);
+        background: rgba(243, 196, 90, 0.16);
+    }
+
+    @media (max-width: 860px) {
+        .tab-navigation {
+            scrollbar-width: thin;
+        }
+
+        .tab-navigation-list {
+            justify-content: flex-start;
+            width: max-content;
+            min-width: 100%;
+            padding: 0 14px;
+            gap: 8px;
+        }
+
+        .cms-tab-btn {
+            min-height: 54px;
+            padding: 14px 18px;
+            font-size: 0.74rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        :root {
+            --cms-tab-bleed: 20px;
+        }
     }
 
     .home-dropzone {
@@ -481,15 +578,28 @@
         document.getElementById('sidebar')?.classList.toggle('collapsed');
     }
 
+    function setCmsTabState(tabKey, btn) {
+        document.querySelectorAll('.cms-tab-btn').forEach((el) => {
+            const isActive = el === btn;
+            el.classList.toggle('active', isActive);
+            el.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            el.setAttribute('tabindex', isActive ? '0' : '-1');
+            el.closest('.tab-navigation-item')?.classList.toggle('is-active', isActive);
+        });
+
+        document.querySelectorAll('.cms-tab-panel').forEach((el) => {
+            const isActive = el.id === 'cms-tab-' + tabKey;
+            el.classList.toggle('active', isActive);
+            el.hidden = !isActive;
+        });
+    }
+
     function switchCmsTab(tabKey, btn) {
         const sessionId = showCmsPreviewLoading();
-        document.querySelectorAll('.cms-tab-btn').forEach((el) => el.classList.remove('active'));
-        document.querySelectorAll('.cms-tab-panel').forEach((el) => el.classList.remove('active'));
-
-        btn.classList.add('active');
+        setCmsTabState(tabKey, btn);
         const nextPanel = document.getElementById('cms-tab-' + tabKey);
-        nextPanel?.classList.add('active');
-        localStorage.setItem('activeSuperadminCmsTab', tabKey);
+        localStorage.setItem('activeAdminCmsTab', tabKey);
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
         window.dispatchEvent(new CustomEvent('cms:tab-activated', {
             detail: {
@@ -503,6 +613,38 @@
         if (!hasPreview) {
             window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
         }
+    }
+
+    function bindCmsTabKeyboardNav() {
+        const tabs = Array.from(document.querySelectorAll('.cms-tab-btn'));
+        if (!tabs.length) {
+            return;
+        }
+
+        tabs.forEach((tab, index) => {
+            tab.addEventListener('keydown', (event) => {
+                let nextIndex = null;
+
+                if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                    nextIndex = (index + 1) % tabs.length;
+                } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                    nextIndex = (index - 1 + tabs.length) % tabs.length;
+                } else if (event.key === 'Home') {
+                    nextIndex = 0;
+                } else if (event.key === 'End') {
+                    nextIndex = tabs.length - 1;
+                }
+
+                if (nextIndex === null) {
+                    return;
+                }
+
+                event.preventDefault();
+                const nextTab = tabs[nextIndex];
+                nextTab?.focus();
+                nextTab?.click();
+            });
+        });
     }
 
     function getTrackableFields(form) {
@@ -673,6 +815,8 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        bindCmsTabKeyboardNav();
+
         window.addEventListener('cms:preview-loading', (event) => {
             showCmsPreviewLoading(event.detail?.sessionId);
         });
@@ -681,10 +825,10 @@
             hideCmsPreviewLoading(event.detail?.sessionId);
         });
 
-        const saved = localStorage.getItem('activeSuperadminCmsTab');
+        const saved = localStorage.getItem('activeAdminCmsTab');
         if (saved) {
             const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))
-                .find((el) => (el.getAttribute('onclick') || '').includes("'" + saved + "'"));
+                .find((el) => el.dataset.tabKey === saved);
 
             if (btn) {
                 switchCmsTab(saved, btn);
@@ -848,6 +992,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
+<x-app.legal-footer />
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>

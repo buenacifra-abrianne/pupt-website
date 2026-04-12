@@ -19,7 +19,7 @@
 
   <nav class="sidebar" id="sidebar">
         <div class="logo-section">
-            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
+            <img src="{{ asset('assets/static_img/pupt_cms_logo.png') }}" alt="PUPT CMS Logo" class="logo">
             <div class="logo-text">
                 Hello,<br>
                 {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
@@ -497,6 +497,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
   </script>
+  <x-app.legal-footer />
   <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
