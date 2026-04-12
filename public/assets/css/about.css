@@ -3359,3 +3359,310 @@ pup-footer .footer { margin-top: 0; }
     gap: 16px;
   }
 }
+
+body.pup-dark-mode {
+  --about-ink: #f5e8e8;
+  --about-muted: #c8a8a8;
+  --about-line: rgba(255, 160, 160, 0.1);
+  --about-surface: #1a0d0f;
+  --about-surface-soft: #220d10;
+  --about-maroon-light: #c0282f;
+  --about-maroon: #a11d23;
+  --about-maroon-deep: #7f1113;
+  --about-gold: #d7aa43;
+  --about-shadow: 0 22px 48px rgba(0, 0, 0, 0.5);
+}
+
+body.pup-dark-mode {
+  background: #12080a;
+}
+
+body.pup-dark-mode .carousel {
+  background: linear-gradient(180deg, #220609 0%, #0d0203 100%);
+}
+
+body.pup-dark-mode .about-intro h1 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .about-intro-copy p,
+body.pup-dark-mode .section-copy,
+body.pup-dark-mode .section-copy p {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .campus-story-card {
+  background: linear-gradient(180deg, #7f1113 0%, #5c0d0f 48%, #3d0709 100%);
+}
+
+body.pup-dark-mode .campus-story-description {
+  background: linear-gradient(180deg, rgba(255, 250, 244, 0.08) 0%, rgba(255, 250, 244, 0.04) 100%);
+  border-color: rgba(255, 241, 231, 0.1);
+}
+
+body.pup-dark-mode .contents-strip {
+  background: linear-gradient(135deg, rgba(26, 10, 12, 0.98) 0%, rgba(18, 8, 10, 0.96) 54%, rgba(40, 20, 5, 0.14) 100%);
+  box-shadow: var(--about-shadow);
+}
+
+body.pup-dark-mode .contents-strip-head h2 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .contents-cards::-webkit-scrollbar-thumb {
+  background: rgba(200, 80, 80, 0.28);
+}
+
+body.pup-dark-mode .contents-card {
+  background: linear-gradient(180deg, rgba(30, 12, 15, 0.98) 0%, rgba(22, 8, 10, 0.9) 100%);
+  border-color: rgba(200, 80, 80, 0.18);
+  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.03);
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .contents-card:hover,
+body.pup-dark-mode .contents-card.active {
+  border-color: rgba(200, 80, 80, 0.32);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.5);
+}
+
+body.pup-dark-mode .contents-card-front {
+  background: #1e0c0f;
+}
+
+body.pup-dark-mode .contents-card--info .contents-card-front {
+  background: linear-gradient(180deg, rgba(30, 12, 15, 0.98) 0%, rgba(22, 8, 10, 0.94) 100%);
+}
+
+body.pup-dark-mode .contents-card--info .contents-card-body {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .contents-card--info .contents-card-body p {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .about-card-icon:not(.contents-card--accent .about-card-icon) {
+  background: rgba(200, 80, 80, 0.12);
+  color: #e08080;
+  box-shadow: inset 0 0 0 1px rgba(200, 80, 80, 0.14);
+}
+
+body.pup-dark-mode .about-intro,
+body.pup-dark-mode .about-section-card {
+  background: linear-gradient(180deg, rgba(22, 8, 10, 0.98) 0%, rgba(18, 6, 8, 0.96) 100%);
+  border-color: rgba(200, 80, 80, 0.1);
+}
+
+body.pup-dark-mode .about-breadcrumb,
+body.pup-dark-mode .about-breadcrumb a,
+body.pup-dark-mode .about-breadcrumb span {
+  color: #e08080;
+}
+
+body.pup-dark-mode .about-breadcrumb strong {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .about-detail-hero {
+  background:
+    radial-gradient(circle at 88% 12%, rgba(100, 30, 10, 0.2) 0%, transparent 28%),
+    linear-gradient(135deg, rgba(22, 8, 10, 0.98) 0%, rgba(18, 6, 8, 0.96) 55%, rgba(40, 20, 5, 0.12) 100%);
+  border-color: rgba(200, 80, 80, 0.14);
+}
+
+body.pup-dark-mode .about-detail-heading h2 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .about-detail-panel,
+body.pup-dark-mode .about-detail-mini-card,
+body.pup-dark-mode .about-roadmap-card,
+body.pup-dark-mode .about-detail-note,
+body.pup-dark-mode .about-map-callout,
+body.pup-dark-mode .about-identity-mark {
+  background: linear-gradient(180deg, rgba(26, 10, 12, 0.98) 0%, rgba(20, 8, 10, 0.96) 100%);
+  border-color: rgba(200, 80, 80, 0.14);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.pup-dark-mode .about-detail-panel p,
+body.pup-dark-mode .about-detail-mini-card p,
+body.pup-dark-mode .about-roadmap-card p,
+body.pup-dark-mode .about-detail-note p,
+body.pup-dark-mode .about-map-callout p,
+body.pup-dark-mode .about-detail-caption {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .about-detail-mini-card h3,
+body.pup-dark-mode .about-roadmap-card h3,
+body.pup-dark-mode .about-detail-note h3,
+body.pup-dark-mode .about-map-callout h3 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .about-detail-panel-label,
+body.pup-dark-mode .about-roadmap-step {
+  background: rgba(200, 80, 80, 0.12);
+  color: #e08080;
+}
+
+body.pup-dark-mode .about-detail-list {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .about-map-callout {
+  background:
+    radial-gradient(circle at 88% 22%, rgba(80, 30, 10, 0.16) 0%, transparent 32%),
+    linear-gradient(180deg, rgba(26, 10, 12, 0.98) 0%, rgba(20, 8, 10, 0.96) 100%);
+}
+
+body.pup-dark-mode .about-identity-mark {
+  background:
+    radial-gradient(circle at 84% 14%, rgba(80, 30, 10, 0.14) 0%, transparent 26%),
+    linear-gradient(180deg, rgba(26, 10, 12, 0.98) 0%, rgba(20, 8, 10, 0.96) 100%);
+}
+
+body.pup-dark-mode .about-values-band {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(80, 30, 10, 0.1) 0%, transparent 22%),
+    linear-gradient(180deg, rgba(22, 8, 10, 0.99) 0%, rgba(18, 6, 8, 0.98) 100%);
+  border-color: rgba(200, 80, 80, 0.1);
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.4);
+}
+
+body.pup-dark-mode .about-values-band-head h3 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .about-values-band-kicker {
+  color: #e08080;
+}
+
+body.pup-dark-mode .about-values-band-kicker::before {
+  background: rgba(200, 80, 80, 0.9);
+}
+
+body.pup-dark-mode .about-values-grid {
+  border-top-color: rgba(200, 80, 80, 0.1);
+}
+
+body.pup-dark-mode .about-value-card {
+  background: rgba(30, 10, 12, 0.6);
+  border-right-color: rgba(200, 80, 80, 0.1);
+  border-bottom-color: rgba(200, 80, 80, 0.1);
+}
+
+body.pup-dark-mode .about-value-copy h4 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-timeline-container {
+  background:
+    linear-gradient(135deg, rgba(22, 8, 10, 0.98) 0%, rgba(18, 6, 8, 0.96) 60%, rgba(40, 20, 5, 0.1) 100%);
+  border-color: rgba(200, 80, 80, 0.12);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.4);
+}
+
+body.pup-dark-mode .history-page-header h2 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-page-header p:last-child {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .history-page-kicker,
+body.pup-dark-mode .history-kicker {
+  color: #e08080;
+}
+
+body.pup-dark-mode .history-hero {
+  background:
+    linear-gradient(135deg, rgba(22, 8, 10, 0.98) 0%, rgba(18, 6, 8, 0.96) 56%, rgba(40, 20, 5, 0.14) 100%);
+  border-color: rgba(200, 80, 80, 0.1);
+}
+
+body.pup-dark-mode .history-hero-copy h3 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-lead {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .history-hero-brand {
+  background: rgba(26, 10, 12, 0.8);
+  border-color: rgba(200, 80, 80, 0.14);
+}
+
+body.pup-dark-mode .history-hero-brand-copy span {
+  color: #e08080;
+}
+
+body.pup-dark-mode .history-hero-brand-copy strong {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-hero-visual {
+  border-color: rgba(200, 80, 80, 0.1);
+}
+
+body.pup-dark-mode .history-timeline-head h4 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-timeline-card {
+  background: linear-gradient(180deg, rgba(26, 10, 12, 0.96) 0%, rgba(20, 8, 10, 0.98) 100%);
+  border-color: rgba(200, 80, 80, 0.2);
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-timeline-period {
+  color: #e08080;
+}
+
+body.pup-dark-mode .history-timeline-card h5 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .history-timeline-card p {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .history-timeline-dot {
+  border-color: #12080a;
+}
+
+body.pup-dark-mode .section-heading-row {
+  border-bottom-color: rgba(200, 80, 80, 0.12);
+}
+
+body.pup-dark-mode .section-heading-row h2 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .section-tag {
+  color: #e08080;
+}
+
+body.pup-dark-mode .about-vision-content {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(100, 30, 10, 0.12) 0%, transparent 24%),
+    linear-gradient(180deg, rgba(80, 10, 13, 0.98) 0%, rgba(50, 6, 9, 0.99) 100%);
+}
+
+body.pup-dark-mode .history-page-header.history-page-header--vision h2 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .reveal {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+body.pup-dark-mode .reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}

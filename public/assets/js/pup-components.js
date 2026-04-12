@@ -28,7 +28,7 @@ class PUPHeader extends HTMLElement {
         <p class="tagline">A Leading Comprehensive Polytechnic University in Asia</p>
       </div>
     </div>
-    <button class="hamburger" id="hamburger" aria-label="Open menu">â˜°</button>
+    <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
   </div>
 
   <nav class="navbar">
@@ -36,7 +36,7 @@ class PUPHeader extends HTMLElement {
       <img src="${logoUrl}" alt="PUP Logo" class="nav-logo">
 
       <li class="close-btn">
-        <button id="closeSidebar" aria-label="Close menu">âœ–</button>
+        <button id="closeSidebar" aria-label="Close menu">✖</button>
       </li>
 
       <li class="nav-mobile-intro">
@@ -235,6 +235,84 @@ class PUPHeader extends HTMLElement {
     script.src = "https://cdn.jsdelivr.net/gh/ifrederico/accessible-web-widget@1.1.4/dist/accessible-web-widget.min.js";
     script.dataset.accessibleWebWidget = "true";
     document.body.appendChild(script);
+
+    const DARK_CLASS = "pup-dark-mode";
+    const STORAGE_KEY = "pup-dark-mode";
+
+    if (localStorage.getItem(STORAGE_KEY) === "true") {
+      document.body.classList.add(DARK_CLASS);
+    }
+
+    const _injectDarkModeRow = () => {
+      if (document.getElementById("pup-dark-mode-row")) return;
+
+      const panel =
+        document.querySelector(".acc-container .acc-panel") ||
+        document.querySelector(".acc-container .acc-body") ||
+        document.querySelector(".acc-container .acc-content") ||
+        document.querySelector(".acc-container [class*='body']") ||
+        document.querySelector(".acc-container [class*='content']");
+
+      if (!panel) return;
+
+      const isDark = document.body.classList.contains(DARK_CLASS);
+
+      const row = document.createElement("div");
+      row.id = "pup-dark-mode-row";
+      row.setAttribute("role", "button");
+      row.setAttribute("tabindex", "0");
+      row.setAttribute("aria-pressed", String(isDark));
+      row.setAttribute("aria-label", isDark ? "Disable dark mode" : "Enable dark mode");
+
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+               style="color:#f0c85a;flex-shrink:0;"
+               aria-hidden="true">
+            <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26
+                     5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+          </svg>
+          <div>
+            <div style="font-size:13px;font-weight:600;color:inherit;line-height:1.2;">Dark Mode</div>
+            <div style="font-size:11px;opacity:0.72;margin-top:2px;line-height:1.3;">Easier on the eyes at night</div>
+          </div>
+        </div>
+        <div id="pup-dm-toggle"
+             style="background:${isDark ? "#800000" : "rgba(128,0,0,0.2)"};">
+          <div id="pup-dm-thumb" class="${isDark ? "on" : ""}"></div>
+        </div>
+      `;
+
+      const _updateToggleUI = (dark) => {
+        const toggle = document.getElementById("pup-dm-toggle");
+        const thumb  = document.getElementById("pup-dm-thumb");
+        if (toggle) toggle.style.background = dark ? "#800000" : "rgba(128,0,0,0.2)";
+        if (thumb)  thumb.classList.toggle("on", dark);
+        row.setAttribute("aria-pressed", String(dark));
+        row.setAttribute("aria-label", dark ? "Disable dark mode" : "Enable dark mode");
+      };
+
+      const _toggle = () => {
+        const nowDark = document.body.classList.toggle(DARK_CLASS);
+        localStorage.setItem(STORAGE_KEY, String(nowDark));
+        _updateToggleUI(nowDark);
+      };
+
+      row.addEventListener("click", _toggle);
+      row.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          _toggle();
+        }
+      });
+
+      panel.insertBefore(row, panel.firstChild);
+    };
+
+    const _dmObserver = new MutationObserver(() => _injectDarkModeRow());
+    _dmObserver.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener("load", _injectDarkModeRow, { once: true });
   }
 }
 
