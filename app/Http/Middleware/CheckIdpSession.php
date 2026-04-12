@@ -22,6 +22,11 @@ class CheckIdpSession
             ->withToken($accessToken)
             ->get(rtrim(config('services.idp.base_url'), '/') . '/api/v1/me');
 
+        \Log::info('IDP CHECK', [
+            'status' => $response->status(),
+            'body' => $response->json(),
+        ]);
+
         // If invalid → force logout locally
         if (!$response->successful()) {
             $request->session()->flush();
