@@ -56,6 +56,13 @@
     <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />
 
     @include('partials.profile_modal')
+    <div class="cms-page-loading-overlay" data-cms-page-loader hidden>
+        <div class="cms-page-loading-card" role="status" aria-live="polite">
+            <span class="cms-page-loading-spinner" aria-hidden="true"></span>
+            <h3>Loading CMS Preview</h3>
+            <p>Please wait while the page refreshes.</p>
+        </div>
+    </div>
 
     <main class="main-content">
         <div class="page-header">
@@ -90,6 +97,12 @@
                     : null;
                 $aboutPrefill = $tabKey === 'about'
                     ? \App\Support\AboutCmsContent::fromStored((string) $prefillContent)
+                    : null;
+                $academicsLive = $tabKey === 'academics'
+                    ? \App\Support\AcademicsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
+                $academicsPrefill = $tabKey === 'academics'
+                    ? \App\Support\AcademicsCmsContent::fromStored((string) $prefillContent)
                     : null;
             @endphp
 
@@ -136,59 +149,77 @@
                         </div>
                     </div>
 
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Request Edit - {{ $tabDef['label'] }}</h3>
-                            @if($draft)
-                                <span class="status-badge {{ $badgeClass }}">{{ ucfirst($status) }}</span>
-                            @else
-                                <span class="status-badge status-enabled">No Draft</span>
-                            @endif
-                        </div>
-                        <div style="padding:14px;">
-                            @if($draft && !empty($draft['updated_at']))
-                                <div style="font-size:13px;opacity:.75;margin-bottom:10px;">
-                                    Last updated: {{ \Carbon\Carbon::parse($draft['updated_at'])->format('M d, Y h:i A') }}
-                                </div>
-                            @endif
+                    @if($tabKey === 'home')
+                        @php
+                            $homePreviewHtml = view('public.home', [
+                                'homeCms' => $homePrefill,
+                                'news' => $homePreviewNews ?? collect(),
+                                'announcements' => $homePreviewAnnouncements ?? collect(),
+                                'cmsPreview' => true,
+                            ])->render();
+                        @endphp
 
-                            @if($status === 'rejected' && !empty($draft['rejection_reason']))
-                                <div style="margin-bottom:10px;padding:10px 12px;border-radius:10px;background:#fff3f3;color:#932525;font-size:13px;">
-                                    Rejection reason: {{ $draft['rejection_reason'] }}
-                                </div>
-                            @endif
+                        @include('partials.home_cms_preview_editor', [
+                            'homePreviewHtml' => $homePreviewHtml,
+                            'homeEditorData' => $homePrefill,
+                            'homeEditorFormClass' => 'cms-edit-form',
+                            'homeEditorSubmitRoute' => route('staff.content.requestEdit'),
+                            'homeEditorSubmitMode' => 'request',
+                            'homeEditorRequestId' => $draft['id'] ?? null,
+                            'homeEditorStatus' => $status,
+                            'homeEditorIdPrefix' => 'staff-home',
+                        ])
+                    @elseif($tabKey === 'about')
+                        @include('partials.about_cms_preview_editor', [
+                            'aboutEditorData' => $aboutPrefill,
+                            'aboutEditorFormClass' => 'cms-edit-form',
+                            'aboutEditorSubmitRoute' => route('staff.content.requestEdit'),
+                            'aboutEditorSubmitMode' => 'request',
+                            'aboutEditorRequestId' => $draft['id'] ?? null,
+                            'aboutEditorStatus' => $status,
+                            'aboutEditorIdPrefix' => 'staff-about',
+                        ])
+                    @elseif($tabKey === 'academics')
+                        @php
+                            $academicsPreviewHtml = view('public.academics', [
+                                'academicsCms' => $academicsPrefill,
+                                'cmsPreview' => true,
+                            ])->render();
+                        @endphp
 
-                            @if($tabKey === 'home')
-                                @php
-                                    $homePreviewHtml = view('public.home', [
-                                        'homeCms' => $homePrefill,
-                                        'news' => $homePreviewNews ?? collect(),
-                                        'announcements' => $homePreviewAnnouncements ?? collect(),
-                                        'cmsPreview' => true,
-                                    ])->render();
-                                @endphp
+                        @include('partials.academics_cms_preview_editor', [
+                            'academicsPreviewHtml' => $academicsPreviewHtml,
+                            'academicsEditorData' => $academicsPrefill,
+                            'academicsEditorFormClass' => 'cms-edit-form',
+                            'academicsEditorSubmitRoute' => route('staff.content.requestEdit'),
+                            'academicsEditorSubmitMode' => 'request',
+                            'academicsEditorRequestId' => $draft['id'] ?? null,
+                            'academicsEditorStatus' => $status,
+                            'academicsEditorIdPrefix' => 'staff-academics',
+                        ])
+                    @else
+                        <div class="card">
+                            <div class="card-header">
+                                <h3 class="card-title">Request Edit - {{ $tabDef['label'] }}</h3>
+                                @if($draft)
+                                    <span class="status-badge {{ $badgeClass }}">{{ ucfirst($status) }}</span>
+                                @else
+                                    <span class="status-badge status-enabled">No Draft</span>
+                                @endif
+                            </div>
+                            <div style="padding:14px;">
+                                @if($draft && !empty($draft['updated_at']))
+                                    <div style="font-size:13px;opacity:.75;margin-bottom:10px;">
+                                        Last updated: {{ \Carbon\Carbon::parse($draft['updated_at'])->format('M d, Y h:i A') }}
+                                    </div>
+                                @endif
 
-                                @include('partials.home_cms_preview_editor', [
-                                    'homePreviewHtml' => $homePreviewHtml,
-                                    'homeEditorData' => $homePrefill,
-                                    'homeEditorFormClass' => 'cms-edit-form',
-                                    'homeEditorSubmitRoute' => route('staff.content.requestEdit'),
-                                    'homeEditorSubmitMode' => 'request',
-                                    'homeEditorRequestId' => $draft['id'] ?? null,
-                                    'homeEditorStatus' => $status,
-                                    'homeEditorIdPrefix' => 'staff-home',
-                                ])
-                            @elseif($tabKey === 'about')
-                                @include('partials.about_cms_preview_editor', [
-                                    'aboutEditorData' => $aboutPrefill,
-                                    'aboutEditorFormClass' => 'cms-edit-form',
-                                    'aboutEditorSubmitRoute' => route('staff.content.requestEdit'),
-                                    'aboutEditorSubmitMode' => 'request',
-                                    'aboutEditorRequestId' => $draft['id'] ?? null,
-                                    'aboutEditorStatus' => $status,
-                                    'aboutEditorIdPrefix' => 'staff-about',
-                                ])
-                            @else
+                                @if($status === 'rejected' && !empty($draft['rejection_reason']))
+                                    <div style="margin-bottom:10px;padding:10px 12px;border-radius:10px;background:#fff3f3;color:#932525;font-size:13px;">
+                                        Rejection reason: {{ $draft['rejection_reason'] }}
+                                    </div>
+                                @endif
+
                                 <form class="cms-edit-form" method="POST" action="{{ route('staff.content.requestEdit') }}" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" name="tab_key" value="{{ $tabKey }}">
@@ -212,9 +243,9 @@
                                         </button>
                                     </div>
                                 </form>
-                            @endif
+                            </div>
                         </div>
-                    </div>
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -229,6 +260,62 @@
         padding: 0;
         border: 0;
         background: transparent;
+    }
+
+    .cms-page-loading-overlay[hidden] {
+        display: none !important;
+    }
+
+    .cms-page-loading-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2500;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        background: rgba(255, 252, 249, 0.72);
+        backdrop-filter: blur(8px);
+    }
+
+    .cms-page-loading-card {
+        min-width: min(360px, calc(100vw - 48px));
+        max-width: 420px;
+        padding: 28px 26px;
+        border: 1px solid rgba(128, 0, 0, 0.08);
+        border-radius: 22px;
+        background: #fffdfb;
+        box-shadow: 0 22px 60px rgba(40, 13, 10, 0.18);
+        text-align: center;
+        color: #5c0000;
+    }
+
+    .cms-page-loading-card h3 {
+        margin: 0;
+        font-size: 1.3rem;
+    }
+
+    .cms-page-loading-card p {
+        margin: 10px 0 0;
+        color: #6f625c;
+        line-height: 1.5;
+    }
+
+    .cms-page-loading-spinner {
+        display: inline-block;
+        width: 42px;
+        height: 42px;
+        margin-bottom: 16px;
+        border-radius: 999px;
+        border: 4px solid rgba(128, 0, 0, 0.14);
+        border-top-color: #800000;
+        animation: cmsPageLoaderSpin 0.85s linear infinite;
+    }
+
+    @keyframes cmsPageLoaderSpin {
+        to {
+            transform: rotate(360deg);
+        }
     }
 
     .cms-tab-btn {
@@ -421,18 +508,62 @@
 
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    let cmsPreviewLoadingSession = 0;
+
+    function showCmsPreviewLoading(sessionId) {
+        const overlay = document.querySelector('[data-cms-page-loader]');
+        const normalizedSessionId = Number(sessionId || (Date.now() + Math.random()));
+
+        cmsPreviewLoadingSession = normalizedSessionId;
+
+        if (overlay) {
+            overlay.hidden = false;
+        }
+
+        return normalizedSessionId;
+    }
+
+    function hideCmsPreviewLoading(sessionId) {
+        const overlay = document.querySelector('[data-cms-page-loader]');
+        const normalizedSessionId = Number(sessionId || 0);
+
+        if (!overlay) {
+            return;
+        }
+
+        if (normalizedSessionId && normalizedSessionId !== cmsPreviewLoadingSession) {
+            return;
+        }
+
+        overlay.hidden = true;
+    }
 
     function toggleSidebar() {
         document.getElementById('sidebar')?.classList.toggle('collapsed');
     }
 
     function switchCmsTab(tabKey, btn) {
+        const sessionId = showCmsPreviewLoading();
         document.querySelectorAll('.cms-tab-btn').forEach((el) => el.classList.remove('active'));
         document.querySelectorAll('.cms-tab-panel').forEach((el) => el.classList.remove('active'));
 
         btn.classList.add('active');
-        document.getElementById('cms-tab-' + tabKey)?.classList.add('active');
+        const nextPanel = document.getElementById('cms-tab-' + tabKey);
+        nextPanel?.classList.add('active');
         localStorage.setItem('activeAdminCmsTab', tabKey);
+
+        window.dispatchEvent(new CustomEvent('cms:tab-activated', {
+            detail: {
+                tabKey,
+                panel: nextPanel || null,
+                sessionId,
+            },
+        }));
+
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame]');
+        if (!hasPreview) {
+            window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
+        }
     }
 
     function getTrackableFields(form) {
@@ -610,6 +741,14 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+        window.addEventListener('cms:preview-loading', (event) => {
+            showCmsPreviewLoading(event.detail?.sessionId);
+        });
+
+        window.addEventListener('cms:preview-loaded', (event) => {
+            hideCmsPreviewLoading(event.detail?.sessionId);
+        });
+
         const saved = localStorage.getItem('activeAdminCmsTab');
         if (saved) {
             const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))
@@ -623,6 +762,162 @@
         initHomeDropzones();
         document.querySelectorAll('.cms-edit-form').forEach((form) => captureFormSnapshot(form));
     });
+
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+let activeRecognition = null;
+let activeEditableField = null;
+let activeFloatingButton = null;
+
+function appendSpeechText(currentValue, spokenText) {
+    const current = String(currentValue || '').trim();
+    const spoken = String(spokenText || '').trim();
+    if (!current) return spoken;
+    if (!spoken) return current;
+    return `${current} ${spoken}`.trim();
+}
+
+function stopFloatingVoiceRecognition() {
+    if (activeRecognition) {
+        activeRecognition.stop();
+        activeRecognition = null;
+    }
+
+    if (activeFloatingButton) {
+        activeFloatingButton.classList.remove('listening');
+        activeFloatingButton = null;
+    }
+}
+
+function setActiveEditableField(el) {
+    activeEditableField = el;
+}
+
+function getRichTextHiddenFieldFromEditor(target) {
+    const form = target.closest('form');
+    if (!form) return null;
+    return form.querySelector('[name="content"]');
+}
+
+function insertSpeechIntoActiveField(text) {
+    if (!activeEditableField) {
+        alert('Click a field first, then use speech-to-text.');
+        return;
+    }
+
+    const target = activeEditableField;
+
+    if (target.matches('input[type="text"], textarea')) {
+        target.value = appendSpeechText(target.value, text);
+        target.dispatchEvent(new Event('input', { bubbles: true }));
+
+        if (target.id === 'globalSearch') {
+            runSearch();
+        }
+
+        target.focus();
+        return;
+    }
+
+    const richTextField = getRichTextHiddenFieldFromEditor(target);
+    if (richTextField) {
+        const nextValue = appendSpeechText(richTextField.value, text);
+        setRichTextEditorValue(richTextField, nextValue);
+        richTextField.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+    }
+
+    alert('Selected field is not supported for speech input.');
+}
+
+function startFloatingVoiceRecognition(buttonEl) {
+    if (!SpeechRecognition) {
+        alert('Voice input is not supported in this browser. Please use Edge or Chrome.');
+        return;
+    }
+
+    if (activeRecognition && activeFloatingButton === buttonEl) {
+        stopFloatingVoiceRecognition();
+        return;
+    }
+
+    if (activeRecognition) {
+        stopFloatingVoiceRecognition();
+    }
+
+    const recognition = new SpeechRecognition();
+    activeRecognition = recognition;
+    activeFloatingButton = buttonEl;
+
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.onstart = function () {
+        buttonEl.classList.add('listening');
+        console.log('floating recognition started');
+    };
+
+    recognition.onerror = function (event) {
+        console.error('Speech recognition error:', event.error);
+        stopFloatingVoiceRecognition();
+    };
+
+    recognition.onend = function () {
+        if (activeRecognition === recognition) {
+            stopFloatingVoiceRecognition();
+        }
+    };
+
+    recognition.onresult = function (event) {
+        const transcript = (event.results?.[0]?.[0]?.transcript || '')
+            .trim()
+            .replace(/[^a-zA-Z0-9\s@_-]/g, '')
+            .replace(/\s+/g, ' ');
+
+        console.log('floating transcript:', transcript);
+
+        if (!transcript) return;
+        insertSpeechIntoActiveField(transcript);
+    };
+
+    try {
+        recognition.start();
+    } catch (err) {
+        console.error('recognition.start failed:', err);
+        stopFloatingVoiceRecognition();
+    }
+}
+
+document.addEventListener('focusin', function (e) {
+    const target = e.target;
+
+    if (target.matches('input[type="text"], textarea')) {
+        setActiveEditableField(target);
+        return;
+    }
+
+    if (
+        target.closest('.tox, .ck-editor, [contenteditable="true"], .rich-text-editor') ||
+        target.isContentEditable
+    ) {
+        setActiveEditableField(target);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
+    const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+    if (floatingVoiceBtn) {
+        floatingVoiceBtn.addEventListener('click', function () {
+            console.log('floating mic clicked');
+            console.log('activeEditableField:', activeEditableField);
+            startFloatingVoiceRecognition(floatingVoiceBtn);
+        });
+    }
+});
 </script>
+<button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
+    <i class="fas fa-microphone"></i>
+</button>
 </body>
 </html>

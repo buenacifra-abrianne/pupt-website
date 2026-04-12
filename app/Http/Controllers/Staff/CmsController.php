@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
+use App\Support\AcademicsCmsContent;
 use App\Support\AboutCmsContent;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
@@ -59,13 +60,14 @@ class CmsController extends Controller
             'tab_key' => ['required', Rule::in($allowedTabs)],
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
-                'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values',
+                'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
             ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
             'request_id' => ['nullable', 'integer'],
             'home' => ['nullable', 'array'],
             'about' => ['nullable', 'array'],
+            'academics' => ['nullable', 'array'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
             'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
@@ -94,6 +96,22 @@ class CmsController extends Controller
             'home.carousel.*.subtitle' => ['nullable', 'string', 'max:255'],
             'home.carousel.*.image' => ['nullable', 'string', 'max:2048'],
             'home.carousel.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'academics.hero' => ['nullable', 'array'],
+            'academics.hero.title' => ['nullable', 'string', 'max:255'],
+            'academics.hero.image' => ['nullable', 'string', 'max:2048'],
+            'academics.contents' => ['nullable', 'array'],
+            'academics.contents.tag' => ['nullable', 'string', 'max:80'],
+            'academics.contents.items' => ['nullable', 'array'],
+            'academics.contents.items.*.label' => ['nullable', 'string', 'max:255'],
+            'academics.contents.items.*.summary' => ['nullable', 'string'],
+            'academics.contents.items.*.image' => ['nullable', 'string', 'max:2048'],
+            'academics.intro' => ['nullable', 'array'],
+            'academics.intro.body' => ['nullable', 'string'],
+            'academics.features' => ['nullable', 'array'],
+            'academics.features.eyebrow' => ['nullable', 'string', 'max:120'],
+            'academics.features.items' => ['nullable', 'array'],
+            'academics.features.items.*.title' => ['nullable', 'string', 'max:255'],
+            'academics.features.items.*.body' => ['nullable', 'string'],
         ]);
 
         $email = trim((string) session('user_email'));
@@ -107,12 +125,15 @@ class CmsController extends Controller
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
-        $sectionKey = in_array($tabKey, ['home', 'about'], true)
+        $sectionKey = in_array($tabKey, ['home', 'about', 'academics'], true)
             ? strtolower(trim((string) ($data['section_key'] ?? '')))
             : '';
-        $sectionLabel = $tabKey === 'home'
-            ? $this->homeSectionLabel($sectionKey)
-            : $this->aboutSectionLabel($sectionKey);
+        $sectionLabel = match ($tabKey) {
+            'home' => $this->homeSectionLabel($sectionKey),
+            'about' => $this->aboutSectionLabel($sectionKey),
+            'academics' => $this->academicsSectionLabel($sectionKey),
+            default => '',
+        };
         $type = CmsSections::requestTypeForTab($tabKey);
 
         if ($type === null) {
@@ -183,6 +204,19 @@ class CmsController extends Controller
             );
             $title = $baseTitle;
             $baseContent = $baseAboutEncoded;
+        } elseif ($tabKey === 'academics') {
+            $baseAcademics = AcademicsCmsContent::fromStored($baseContent);
+            $baseAcademicsEncoded = AcademicsCmsContent::encode($baseAcademics);
+            $academicsInput = $this->filterAcademicsInputBySection(
+                is_array($data['academics'] ?? null) ? $data['academics'] : [],
+                $sectionKey
+            );
+
+            $content = AcademicsCmsContent::encode(
+                AcademicsCmsContent::fromInput($academicsInput, $baseAcademicsEncoded)
+            );
+            $title = $baseTitle;
+            $baseContent = $baseAcademicsEncoded;
         } elseif ($title === '') {
             $title = $tabLabel.' Content';
         }
@@ -245,14 +279,14 @@ class CmsController extends Controller
         AuditLog::record(
             'UPDATED',
             'CONTENT',
-            in_array($tabKey, ['home', 'about'], true) && $sectionLabel !== ''
+            in_array($tabKey, ['home', 'about', 'academics'], true) && $sectionLabel !== ''
                 ? 'Submitted CMS edit request for '.$tabLabel.' ('.$sectionLabel.')'
                 : 'Submitted CMS edit request for '.$tabLabel,
             (int) (session('user_id') ?? 0)
         );
 
         $successMessage = 'Content request submitted for admin approval.';
-        if (in_array($tabKey, ['home', 'about'], true) && $sectionLabel !== '') {
+        if (in_array($tabKey, ['home', 'about', 'academics'], true) && $sectionLabel !== '') {
             $successMessage = $tabLabel.' '.$sectionLabel.' request submitted for approval.';
         }
 
@@ -485,6 +519,17 @@ class CmsController extends Controller
         };
     }
 
+    private function academicsSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'hero' => 'Hero',
+            'contents' => 'Contents',
+            'intro' => 'Intro',
+            'features' => 'What We Offer',
+            default => '',
+        };
+    }
+
     private function filterAboutInputBySection(array $aboutInput, string $sectionKey): array
     {
         if ($sectionKey === '' || $sectionKey === 'all') {
@@ -535,6 +580,47 @@ class CmsController extends Controller
                     ? [$sectionKey => $sections[$sectionKey]]
                     : [],
             ],
+        };
+    }
+
+    private function filterAcademicsInputBySection(array $academicsInput, string $sectionKey): array
+    {
+        if ($sectionKey === '' || $sectionKey === 'all') {
+            return $academicsInput;
+        }
+
+        return match ($sectionKey) {
+            'hero' => [
+                'hero' => is_array($academicsInput['hero'] ?? null)
+                    ? array_intersect_key($academicsInput['hero'], array_flip(['title', 'image']))
+                    : [],
+            ],
+            'contents' => [
+                'contents' => [
+                    'tag' => (string) data_get($academicsInput, 'contents.tag', ''),
+                    'items' => collect(data_get($academicsInput, 'contents.items', []))
+                        ->map(fn ($item) => is_array($item)
+                            ? array_intersect_key($item, array_flip(['label', 'summary', 'image']))
+                            : [])
+                        ->all(),
+                ],
+            ],
+            'intro' => [
+                'intro' => is_array($academicsInput['intro'] ?? null)
+                    ? array_intersect_key($academicsInput['intro'], array_flip(['body']))
+                    : [],
+            ],
+            'features' => [
+                'features' => [
+                    'eyebrow' => (string) data_get($academicsInput, 'features.eyebrow', ''),
+                    'items' => collect(data_get($academicsInput, 'features.items', []))
+                        ->map(fn ($item) => is_array($item)
+                            ? array_intersect_key($item, array_flip(['title', 'body']))
+                            : [])
+                        ->all(),
+                ],
+            ],
+            default => $academicsInput,
         };
     }
 

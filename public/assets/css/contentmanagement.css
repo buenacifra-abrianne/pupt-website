@@ -1762,3 +1762,36 @@ body {
 .event-actions {
   white-space: nowrap;       /* keeps buttons on one line */
 }
+
+.floating-voice-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 96px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: #800000;
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999999 !important;
+    pointer-events: auto !important;
+    font-size: 18px;
+    transition: 0.2s ease;
+    margin-right: 4px;
+}
+
+.floating-voice-btn:hover {
+    background: #670000;
+    transform: translateY(-1px);
+}
+
+.floating-voice-btn.listening {
+    background: #fff;
+    color: #800000;
+    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12); 
+}

@@ -136,29 +136,11 @@ class OnePortalController extends Controller
     $firstName = $userData['first_name'] ?? '';
     $middleName = $userData['middle_name'] ?? '';
     $lastName = $userData['last_name'] ?? '';
-    $roles = $userData['roles'] ?? [];
 
     if (!$email) {
         return redirect()->route('public.landing')
             ->with('error', 'Email not found from IDP.');
     }
-
-    // parse IDP roles
-    $idpRolesRaw = $roles ?? [];
-    $idpRoles = [];
-
-    foreach ($idpRolesRaw as $role) {
-        $role = strtoupper($role);
-
-        if (str_starts_with($role, 'PUPTWEB:')) {
-            $role = str_replace('PUPTWEB:', '', $role);
-        }
-
-        $idpRoles[] = $role;
-    }
-
-    // first parsed IDP role
-    $idpRole = $idpRoles[0] ?? null;
 
     // check local user by email
     $user = DB::table('users')
@@ -185,17 +167,54 @@ class OnePortalController extends Controller
             ->withoutCookie('refresh_token');
     }
 
-    // if user exists but oneportal_id is still empty, update it
+    // sync IDP identity data to local DB
+    $updates = [];
+
+    if ((string) ($user->first_name ?? '') !== trim((string) $firstName)) {
+        $updates['first_name'] = trim((string) $firstName);
+    }
+
+    if ((string) ($user->middle_name ?? '') !== trim((string) $middleName)) {
+        $updates['middle_name'] = trim((string) $middleName);
+    }
+
+    if ((string) ($user->last_name ?? '') !== trim((string) $lastName)) {
+        $updates['last_name'] = trim((string) $lastName);
+    }
+
+    if ((string) ($user->email ?? '') !== trim((string) $email)) {
+        $updates['email'] = trim((string) $email);
+    }
+
+    $fullName = trim(implode(' ', array_filter([
+        $firstName,
+        $lastName,
+    ], fn ($part) => trim((string) $part) !== '')));
+
+    if ((string) ($user->name ?? '') !== $fullName) {
+        $updates['name'] = $fullName;
+    }
+
     if ($id && empty($user->oneportal_id)) {
+        $updates['oneportal_id'] = $id;
+    }
+
+    if (!empty($updates)) {
+        $updates['updated_at'] = now();
+
         DB::table('users')
             ->where('user_id', $user->user_id)
-            ->update([
-                'oneportal_id' => $id,
-                'updated_at' => now(),
-            ]);
+            ->update($updates);
 
         $user = DB::table('users')
-            ->where('user_id', $user->user_id)
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select(
+                'users.*',
+                'roles.code as role_code',
+                'roles.name as role_name',
+                'roles.level as role_level'
+            )
+            ->where('users.user_id', $user->user_id)
             ->first();
     }
 
@@ -254,14 +273,13 @@ class OnePortalController extends Controller
         'user_first_name' => $firstName,
         'user_middle_name' => $middleName,
         'user_last_name' => $lastName,
-        'user_name' => trim($firstName . ' ' . $middleName . ' ' . $lastName),
+        'user_name' => $fullName,
         'user_role' => $finalRole,
         'role' => $finalRole,
         'user_roles' => [$finalRole],
         'oneportal_id' => $id,
         'access_token' => $accessToken,
         'refresh_token' => $refreshToken,
-        'idp_roles' => $idpRoles,
     ]);
 
     AuditLog::record(

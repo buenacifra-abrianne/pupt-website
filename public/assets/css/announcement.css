@@ -1182,37 +1182,35 @@ body {
     margin-left: auto;
 }
 
-.voice-input-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+.floating-voice-btn {
+    position: fixed;
+    right: 24px;
+    bottom: 96px;
+    width: 60px;
+    height: 60px;
+    border: none;
+    border-radius: 50%;
+    background: #800000;
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 999999 !important;
+    pointer-events: auto !important;
+    font-size: 18px;
+    transition: 0.2s ease;
+    margin-right: 4px;
 }
 
-.voice-input-row input {
-  flex: 1;
+.floating-voice-btn:hover {
+    background: #670000;
+    transform: translateY(-1px);
 }
 
-.voice-btn {
-  width: 44px;
-  height: 44px;
-  border: 1px solid #d8caca;
-  border-radius: 10px;
-  background: #fff;
-  color: #800000;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transition: 0.2s ease;
-  flex-shrink: 0;
-}
-
-.voice-btn:hover {
-  background: #f7f2f2;
-}
-
-.voice-btn.listening {
-  background: #800000;
-  color: #fff;
-  box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
+.floating-voice-btn.listening {
+    background: #fff;
+    color: #800000;
+    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12); 
 }
