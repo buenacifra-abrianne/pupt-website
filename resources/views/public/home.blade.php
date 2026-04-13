@@ -170,9 +170,21 @@
                     <div class="updates-card-overlay-copy contents-card-overlay-copy">
                       <time class="contents-card-number">{{ $storyDate }}</time>
                       <h4>{{ e($n->title) }}</h4>
-                      <p>{{ \App\Support\RichText::excerpt($n->content, 90) }}</p>
+                      <div class="updates-card-rich home-rich-copy">{!! \App\Support\RichText::sanitize($n->content) !!}</div>
                     </div>
-                    <a href="{{ route('public.events') }}" class="updates-card-action contents-card-action">Read more</a>
+                    <button
+                      type="button"
+                      class="updates-card-action contents-card-action"
+                      data-updates-modal="true"
+                      data-modal-tag="News"
+                      data-title="{{ e($n->title) }}"
+                      data-date="{{ e($storyDate) }}"
+                      data-content-html="{{ e(\App\Support\RichText::sanitize($n->content)) }}"
+                      data-content="{{ e(\App\Support\RichText::plainText($n->content)) }}"
+                      data-link="{{ e($n->link ?? '') }}"
+                    >
+                      Read more
+                    </button>
                   </div>
                 </div>
               </article>
@@ -204,21 +216,21 @@
                 <article class="announcement-item announcement-mini-card">
                   <time>{{ $announcementDate }}</time>
                   <h4>{{ e($a->title) }}</h4>
-                  <p>{{ \App\Support\RichText::excerpt($a->content, 140) }}</p>
+                  <div class="announcement-card-rich home-rich-copy">{!! \App\Support\RichText::sanitize($a->content) !!}</div>
 
-                  @if(!empty($a->link))
-                    <button
-                      type="button"
-                      class="announcement-read-more"
-                      data-advisory-modal="true"
-                      data-title="{{ e($a->title) }}"
-                      data-date="{{ e($announcementDate) }}"
-                      data-content="{{ e(\App\Support\RichText::plainText($a->content)) }}"
-                      data-link="{{ e($a->link) }}"
-                    >
-                      Open advisory
-                    </button>
-                  @endif
+                  <button
+                    type="button"
+                    class="announcement-read-more"
+                    data-updates-modal="true"
+                    data-modal-tag="Announcement"
+                    data-title="{{ e($a->title) }}"
+                    data-date="{{ e($announcementDate) }}"
+                    data-content-html="{{ e(\App\Support\RichText::sanitize($a->content)) }}"
+                    data-content="{{ e(\App\Support\RichText::plainText($a->content)) }}"
+                    data-link="{{ e($a->link ?? '') }}"
+                  >
+                    Read more
+                  </button>
                 </article>
               @empty
                 <article class="announcement-item empty-state mini-empty-state announcement-empty-state">
@@ -286,11 +298,11 @@
     </section>
 
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
-      <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Announcement details">
-        <button class="advisory-modal-close" type="button" aria-label="Close advisory details">&times;</button>
+      <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">
+        <button class="advisory-modal-close" type="button" aria-label="Close details">&times;</button>
 
         <div class="advisory-modal-copy">
-          <span class="advisory-modal-tag">Announcement</span>
+          <span class="advisory-modal-tag" id="advisoryModalTag">Announcement</span>
           <p class="advisory-modal-date" id="advisoryModalDate"></p>
           <h3 class="advisory-modal-title" id="advisoryModalTitle"></h3>
           <div class="advisory-modal-divider"></div>
@@ -301,6 +313,7 @@
             class="advisory-modal-link"
             target="_blank"
             rel="noopener noreferrer"
+            hidden
           >
             Open original link
           </a>

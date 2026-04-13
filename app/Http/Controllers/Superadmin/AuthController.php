@@ -25,16 +25,7 @@ class AuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $user = DB::table('users')
-            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
-            ->select(
-                'users.*',
-                'roles.code as role_code',
-                'roles.name as role_name',
-                'roles.level as role_level'
-            )
-            ->where('users.email', $request->email)
-            ->first();
+        $user = $this->findUserByEmail((string) $request->email);
 
         if (!$user || !$this->passwordMatches((string) $request->password, (string) ($user->password ?? ''))) {
             AuditLog::record(
@@ -65,8 +56,7 @@ class AuthController extends Controller
             ->where($idColumn, data_get($user, $idColumn))
             ->update($updates);
 
-$dbRole = strtoupper(trim((string) ($user->role_code ?? '')));
-$dbRole = preg_replace('/\s+/', '_', $dbRole);
+$dbRole = $this->normalizeDbRole((string) ($user->role_code ?? $user->role ?? ''));
 
 $userId = (int) ($user->user_id ?? $user->id ?? 0);
 
@@ -452,16 +442,7 @@ return back()->withErrors([
                 ->with('error', 'Unable to identify account from identity provider.');
         }
 
-        $user = DB::table('users')
-            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
-            ->select(
-                'users.*',
-                'roles.code as role_code',
-                'roles.name as role_name',
-                'roles.level as role_level'
-            )
-            ->whereRaw('LOWER(users.email) = ?', [$email])
-            ->first();
+        $user = $this->findUserByEmail($email, true);
 
         if (!$user) {
             $this->clearAuthState($request);
@@ -470,8 +451,7 @@ return back()->withErrors([
                 ->with('error', 'You have no role in this system. Please check with the superadmin.');
         }
 
-        $dbRole = strtoupper(trim((string) ($user->role_code ?? '')));
-        $dbRole = preg_replace('/\s+/', '_', $dbRole);
+        $dbRole = $this->normalizeDbRole((string) ($user->role_code ?? $user->role ?? ''));
 
         $userId = (int) ($user->user_id ?? $user->id ?? 0);
 
@@ -602,5 +582,40 @@ private function clearAuthState(Request $request): void
 
     $request->session()->invalidate();
     $request->session()->regenerateToken();
+}
+
+private function findUserByEmail(string $email, bool $caseInsensitive = false): ?object
+{
+    $query = DB::table('users')->select('users.*');
+
+    if (Schema::hasTable('roles') && Schema::hasColumn('users', 'role_id')) {
+        $query->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->addSelect(
+                'roles.code as role_code',
+                'roles.name as role_name',
+                'roles.level as role_level'
+            );
+    } elseif (Schema::hasColumn('users', 'role')) {
+        $query->addSelect(
+            DB::raw('users.role as role_code'),
+            DB::raw('users.role as role_name'),
+            DB::raw('null as role_level')
+        );
+    }
+
+    if ($caseInsensitive) {
+        $query->whereRaw('LOWER(users.email) = ?', [strtolower(trim($email))]);
+    } else {
+        $query->where('users.email', $email);
+    }
+
+    return $query->first();
+}
+
+private function normalizeDbRole(string $role): string
+{
+    $normalizedRole = strtoupper(trim($role));
+
+    return preg_replace('/\s+/', '_', $normalizedRole) ?? $normalizedRole;
 }
 }

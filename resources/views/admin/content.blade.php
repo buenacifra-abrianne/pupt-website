@@ -116,6 +116,9 @@
                 $academicsLive = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
+                $eventsLive = $tabKey === 'events'
+                    ? \App\Support\EventsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
             @endphp
 
             <div
@@ -166,6 +169,22 @@
                         'academicsEditorSubmitRoute' => route('admin.content.save'),
                         'academicsEditorSubmitMode' => 'save',
                         'academicsEditorIdPrefix' => 'admin-academics',
+                    ])
+                @elseif($tabKey === 'events')
+                    @php
+                        $eventsPreviewHtml = view('public.events', [
+                            'eventsCms' => $eventsLive,
+                            'cmsPreview' => true,
+                        ])->render();
+                    @endphp
+
+                    @include('partials.events_cms_preview_editor', [
+                        'eventsPreviewHtml' => $eventsPreviewHtml,
+                        'eventsEditorData' => $eventsLive,
+                        'eventsEditorFormClass' => 'cms-save-form',
+                        'eventsEditorSubmitRoute' => route('admin.content.save'),
+                        'eventsEditorSubmitMode' => 'save',
+                        'eventsEditorIdPrefix' => 'admin-events',
                     ])
                 @else
                     <div class="card">
@@ -254,6 +273,12 @@
         padding: 24px;
         background: rgba(255, 252, 249, 0.72);
         backdrop-filter: blur(8px);
+    }
+
+    .cms-page-loading-overlay:not([hidden]) ~ #floatingVoiceBtn {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none !important;
     }
 
     .cms-page-loading-card {
@@ -546,6 +571,17 @@
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     let cmsPreviewLoadingSession = 0;
 
+    function setFloatingVoiceVisibility(isVisible) {
+        const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+        if (!floatingVoiceBtn) {
+            return;
+        }
+
+        floatingVoiceBtn.style.opacity = isVisible ? '1' : '0';
+        floatingVoiceBtn.style.visibility = isVisible ? 'visible' : 'hidden';
+        floatingVoiceBtn.style.pointerEvents = isVisible ? 'auto' : 'none';
+    }
+
     function showCmsPreviewLoading(sessionId) {
         const overlay = document.querySelector('[data-cms-page-loader]');
         const normalizedSessionId = Number(sessionId || (Date.now() + Math.random()));
@@ -555,6 +591,8 @@
         if (overlay) {
             overlay.hidden = false;
         }
+
+        setFloatingVoiceVisibility(false);
 
         return normalizedSessionId;
     }
@@ -572,10 +610,23 @@
         }
 
         overlay.hidden = true;
+        setFloatingVoiceVisibility(true);
     }
 
     function toggleSidebar() {
-        document.getElementById('sidebar')?.classList.toggle('collapsed');
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) {
+            return;
+        }
+
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.toggle('sidebar-expanded');
+            return;
+        }
+
+        sidebar.classList.remove('sidebar-expanded');
+        sidebar.classList.toggle('collapsed');
     }
 
     function setCmsTabState(tabKey, btn) {
@@ -609,7 +660,7 @@
             },
         }));
 
-        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame]');
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-events-preview-frame]');
         if (!hasPreview) {
             window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
         }

@@ -12,6 +12,7 @@ class HomeController extends Controller
     public function index()
     {
         $homeCms = HomeCmsContent::defaults();
+        $hasNewsHiddenColumn = Schema::hasTable('news') && Schema::hasColumn('news', 'is_hidden_from_public');
 
         if (Schema::hasTable('cms_contents')) {
             $homeRow = DB::table('cms_contents')->where('tab_key', 'home')->first();
@@ -40,6 +41,12 @@ class HomeController extends Controller
         $news = DB::table('news')
             ->select('news_id','title','content', 'link', 'category','location','image_path','priority','date_published','created_at')
             ->whereRaw("UPPER(TRIM(status)) = 'APPROVED'")
+            ->when($hasNewsHiddenColumn, function ($query) {
+                $query->where(function ($inner) {
+                    $inner->whereNull('is_hidden_from_public')
+                        ->orWhere('is_hidden_from_public', 0);
+                });
+            })
             ->orderByRaw("
                 CASE 
                     WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0

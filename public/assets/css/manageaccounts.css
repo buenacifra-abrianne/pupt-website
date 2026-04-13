@@ -1415,3 +1415,507 @@ tbody td {
     color: #800000;
     box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12); 
 }
+
+/* Final CMS UI refresh for Manage CMS Access */
+:root {
+    --cms-primary: #8b0000;
+    --cms-primary-deep: #650000;
+    --cms-accent: #f0c85a;
+    --cms-ink: #412b2b;
+    --cms-muted: #7a6464;
+    --cms-border: rgba(139, 0, 0, 0.12);
+    --cms-soft-border: rgba(139, 0, 0, 0.08);
+    --cms-panel: linear-gradient(135deg, rgba(255, 253, 249, 0.98) 0%, rgba(247, 239, 230, 0.96) 56%, rgba(239, 221, 204, 0.9) 100%);
+    --cms-panel-soft: linear-gradient(180deg, #ffffff 0%, #fcf7f2 100%);
+    --cms-shadow: 0 18px 40px rgba(35, 5, 5, 0.08);
+}
+
+body {
+    background:
+        radial-gradient(circle at top right, rgba(240, 200, 90, 0.16) 0%, transparent 24%),
+        linear-gradient(180deg, #f7f2eb 0%, #f3ede6 100%);
+    color: var(--cms-ink);
+}
+
+.main-content {
+    padding: 34px;
+}
+
+.page-header {
+    margin-bottom: 28px;
+}
+
+.page-title {
+    color: var(--cms-primary);
+    font-size: 2rem;
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+}
+
+.page-subtitle {
+    margin-top: 8px;
+    color: var(--cms-muted);
+    font-size: 0.98rem;
+}
+
+.stats-row {
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+.stat-card {
+    position: relative;
+    overflow: hidden;
+    border: 1px solid var(--cms-soft-border);
+    border-radius: 22px;
+    padding: 20px 22px;
+    background:
+        radial-gradient(circle at top right, rgba(240, 200, 90, 0.18) 0%, rgba(240, 200, 90, 0.08) 16%, transparent 42%),
+        linear-gradient(135deg, #fffdfb 0%, #f8efe6 52%, #f1dfcf 100%);
+    box-shadow: var(--cms-shadow);
+    align-items: center;
+}
+
+.stat-card::before {
+    content: none;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 22px 36px rgba(79, 9, 12, 0.14);
+}
+
+.stat-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+}
+
+.stat-val {
+    font-family: 'Poppins', sans-serif !important;
+    color: var(--cms-primary);
+    font-size: 1.8rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.02em;
+}
+
+.stat-lbl {
+    font-family: 'Poppins', sans-serif !important;
+    color: var(--cms-muted);
+    font-size: 0.82rem;
+    font-weight: 500;
+    letter-spacing: 0.01em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.card {
+    border: 1px solid var(--cms-border);
+    border-radius: 28px;
+    padding: 28px;
+    background: var(--cms-panel);
+    box-shadow: var(--cms-shadow);
+    margin-bottom: 24px;
+}
+
+body,
+h1, h2, h3, h4, h5, h6,
+p, span, div, a, button,
+input, select, textarea, label,
+small, strong, summary,
+table, thead, tbody, tfoot, tr, th, td {
+    font-family: 'Poppins', sans-serif !important;
+}
+
+.sidebar {
+    padding-bottom: 92px;
+    box-shadow: 12px 0 28px rgba(38, 5, 5, 0.22);
+}
+
+.sidebar::before {
+    content: "";
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 52px;
+    height: 1px;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.sidebar::after {
+    content: "Mula Sa'yo, Para sa Bayan";
+    position: absolute;
+    left: 16px;
+    right: 16px;
+    bottom: 18px;
+    text-align: center;
+    color: #f7dfd0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 0.04em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.sidebar.collapsed::before,
+.sidebar.collapsed::after {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    background: rgba(255, 255, 255, 0.08);
+    border-left: 4px solid var(--cms-accent);
+}
+
+.topbar {
+    background: linear-gradient(120deg, #7b0303 0%, #5a0000 100%);
+    box-shadow: 0 12px 26px rgba(38, 5, 5, 0.2);
+}
+
+.card-header {
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 22px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(139, 0, 0, 0.1);
+}
+
+.card-title {
+    font-family: 'Poppins', sans-serif !important;
+    color: var(--cms-primary);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0;
+    gap: 10px;
+}
+
+.action-btn {
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--cms-primary) 0%, var(--cms-primary-deep) 100%);
+    box-shadow: 0 14px 24px rgba(92, 12, 6, 0.16);
+}
+
+.action-btn:hover {
+    background: linear-gradient(135deg, #a10d0d 0%, #720000 100%);
+    color: #fff;
+    box-shadow: 0 18px 28px rgba(92, 12, 6, 0.22);
+}
+
+.btn-outline {
+    min-height: 44px;
+    padding: 0 16px;
+    border-radius: 14px;
+    border-color: rgba(139, 0, 0, 0.24);
+    color: var(--cms-primary);
+    background: rgba(255, 255, 255, 0.76);
+}
+
+.btn-outline:hover {
+    background: var(--cms-primary);
+    border-color: var(--cms-primary);
+}
+
+.filter-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr) minmax(0, 0.9fr);
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.filter-field {
+    min-height: 50px;
+    padding: 0 14px;
+    border: 1px solid rgba(139, 0, 0, 0.12);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.filter-field i {
+    color: #9a7b7b;
+}
+
+.filter-field input,
+.filter-field select,
+.voice-input-row input,
+.searchable-select input[type="text"] {
+    background: transparent;
+    color: var(--cms-ink);
+    font-size: 0.95rem;
+}
+
+.filter-field input::placeholder,
+.voice-input-row input::placeholder,
+.searchable-select input[type="text"]::placeholder {
+    color: #a28b8b;
+}
+
+.filter-field:focus-within,
+.searchable-select:focus-within {
+    border-color: rgba(240, 200, 90, 0.95);
+    box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.18);
+    transform: none;
+}
+
+.table-wrap {
+    overflow: hidden;
+    border-radius: 22px;
+    border: 1px solid rgba(139, 0, 0, 0.1);
+    background: rgba(255, 255, 255, 0.85);
+}
+
+table {
+    min-width: 820px;
+}
+
+thead {
+    background: linear-gradient(135deg, var(--cms-primary) 0%, var(--cms-primary-deep) 100%);
+}
+
+thead th {
+    padding: 15px 18px;
+    font-size: 0.78rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+tbody tr {
+    border-bottom-color: rgba(139, 0, 0, 0.06);
+}
+
+tbody tr:hover {
+    background: rgba(240, 200, 90, 0.08);
+}
+
+tbody td {
+    padding: 15px 18px;
+    color: var(--cms-ink);
+}
+
+.user-cell {
+    gap: 14px;
+}
+
+.avatar {
+    border-width: 2px;
+    box-shadow: 0 8px 16px rgba(128, 0, 0, 0.14);
+}
+
+.uname {
+    color: var(--cms-ink);
+}
+
+.uemail {
+    color: var(--cms-muted);
+}
+
+.role-badge,
+.sbadge {
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    letter-spacing: 0.02em;
+}
+
+.actions {
+    gap: 8px;
+}
+
+.bico {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+}
+
+.pagination {
+    margin-top: 22px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(139, 0, 0, 0.08);
+}
+
+.page-info {
+    font-family: 'Poppins', sans-serif !important;
+    color: var(--cms-muted);
+    font-weight: 500;
+}
+
+.page-title {
+    position: relative;
+    padding-left: 56px;
+}
+
+.page-title::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    width: 42px;
+    height: 3px;
+    background: var(--cms-primary);
+    border-radius: 999px;
+    transform: translateY(-50%);
+}
+
+.pbtn {
+    border-radius: 10px;
+    border-color: rgba(139, 0, 0, 0.14);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.pbtn:hover,
+.pbtn.active {
+    background: var(--cms-primary);
+    border-color: var(--cms-primary);
+}
+
+.modal {
+    background: rgba(36, 10, 10, 0.42);
+    backdrop-filter: blur(10px);
+}
+
+.mbox {
+    border: 1px solid rgba(139, 0, 0, 0.12);
+    border-radius: 24px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(251, 246, 241, 0.96) 100%);
+    box-shadow: 0 28px 60px rgba(25, 4, 4, 0.22);
+}
+
+.mhead {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(139, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.9);
+}
+
+.mhead h2 {
+    color: var(--cms-primary);
+}
+
+.mbody {
+    padding: 24px;
+}
+
+.mfoot {
+    padding: 18px 24px 22px;
+    border-top: 1px solid rgba(139, 0, 0, 0.08);
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.fg label {
+    color: #6e4f4f;
+    font-size: 0.8rem;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+}
+
+.fg input,
+.fg select,
+.fg textarea {
+    min-height: 46px;
+    border: 1px solid rgba(139, 0, 0, 0.14);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px 14px;
+}
+
+.fg textarea {
+    min-height: 100px;
+}
+
+.fg input:focus,
+.fg select:focus,
+.fg textarea:focus {
+    border-color: rgba(240, 200, 90, 0.95);
+    box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.18);
+}
+
+.searchable-dropdown {
+    top: calc(100% + 8px);
+    border: 1px solid rgba(139, 0, 0, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 20px 38px rgba(31, 7, 7, 0.14);
+}
+
+.searchable-option {
+    padding: 12px 14px;
+}
+
+.searchable-option:hover,
+.searchable-option.active {
+    background: rgba(240, 200, 90, 0.12);
+}
+
+.role-chips-wrap {
+    min-height: 46px;
+    border: 1px dashed rgba(139, 0, 0, 0.18);
+    border-radius: 14px;
+    padding: 8px;
+    background: rgba(255, 255, 255, 0.86);
+}
+
+.role-help-text {
+    color: var(--cms-muted);
+}
+
+#viewBody {
+    padding: 0 24px 6px;
+}
+
+.vhead {
+    padding: 22px 24px;
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.06), rgba(240, 200, 90, 0.12));
+    border-bottom: 1px solid rgba(139, 0, 0, 0.08);
+}
+
+.vgrid {
+    gap: 4px 24px;
+}
+
+.vf .vfl {
+    color: #9b8a8a;
+}
+
+.vf .vfv {
+    color: var(--cms-ink);
+}
+
+@media (max-width: 1100px) {
+    .filter-bar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .filter-bar .filter-field:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 768px) {
+    .main-content {
+        padding: 22px 16px;
+    }
+
+    .card {
+        padding: 20px;
+        border-radius: 22px;
+    }
+
+    .stats-row,
+    .filter-bar,
+    .frow,
+    .vgrid {
+        grid-template-columns: 1fr;
+    }
+
+    .filter-bar {
+        display: grid;
+    }
+
+    .mbox,
+    #userModal .mbox {
+        border-radius: 20px;
+    }
+}
