@@ -1008,6 +1008,12 @@ body.pup-dark-mode .ne-filter:hover:not(.active) {
   color: #e08080;
 }
 
+body.pup-dark-mode .ne-filter.active {
+  background: linear-gradient(135deg, #c8960a 0%, #a87a0a 100%);
+  border-color: transparent;
+  color: #1a0a00;
+}
+
 body.pup-dark-mode .ne-card {
   background: var(--ne-card-bg);
   border-color: rgba(200,80,80,0.12);
@@ -1040,6 +1046,35 @@ body.pup-dark-mode .ne-read-more {
 
 body.pup-dark-mode .ne-read-more:hover {
   color: #f0a0a5;
+}
+
+body.pup-dark-mode .ne-btn-gold {
+  box-shadow: none;
+}
+
+body.pup-dark-mode .ne-btn-gold:hover {
+  box-shadow: none;
+  filter: none;
+}
+
+body.pup-dark-mode .ne-btn-gold,
+body.pup-dark-mode .ne-btn-primary,
+body.pup-dark-mode .ne-cta-btn,
+body.pup-dark-mode .ne-featured .apply-now-btn,
+body.pup-dark-mode .submit-btn,
+body.pup-dark-mode .hero-primary {
+  background: linear-gradient(135deg, #c8960a 0%, #a87a0a 100%);
+  color: #1a0a00 !important;
+}
+
+body.pup-dark-mode .ne-btn-gold:hover,
+body.pup-dark-mode .ne-btn-primary:hover,
+body.pup-dark-mode .ne-cta-btn:hover,
+body.pup-dark-mode .ne-featured .apply-now-btn:hover,
+body.pup-dark-mode .submit-btn:hover,
+body.pup-dark-mode .hero-primary:hover {
+  background: linear-gradient(135deg, #b8860a 0%, #986a0a 100%);
+  color: #1a0a00 !important;
 }
 
 body.pup-dark-mode .ne-modal-card {

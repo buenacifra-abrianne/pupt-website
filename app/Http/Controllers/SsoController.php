@@ -71,6 +71,7 @@ class SsoController extends Controller
             'OJT',
             'CWTS',
             'DIRECTOR_OFFICE',
+            'ADMINISTRATION',
         ];
 
         if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {

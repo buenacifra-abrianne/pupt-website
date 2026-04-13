@@ -98,7 +98,6 @@ class DownloadableController extends Controller
             'request_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['required', 'in:Memo,Form'],
             'file' => ['nullable', 'file'],
         ]);
 
@@ -157,7 +156,6 @@ class DownloadableController extends Controller
             [
                 'title' => $request->input('title'),
                 'description' => RichText::sanitize($request->input('description')),
-                'category' => $request->input('category'),
                 'file_path' => $filePath,
                 'original_filename' => $originalFilename,
             ]
@@ -180,7 +178,6 @@ class DownloadableController extends Controller
             'downloadable_id' => ['required', 'integer', 'gt:0'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['required', 'in:Memo,Form'],
             'existing_file_path' => ['nullable', 'string'],
             'existing_original_filename' => ['nullable', 'string'],
             'file' => ['nullable', 'file'],
@@ -216,7 +213,6 @@ class DownloadableController extends Controller
                 'downloadable_id' => (int) $request->input('downloadable_id'),
                 'title' => $request->input('title'),
                 'description' => RichText::sanitize($request->input('description')),
-                'category' => $request->input('category'),
                 'file_path' => $filePath,
                 'original_filename' => $originalFilename,
             ]
@@ -254,7 +250,6 @@ class DownloadableController extends Controller
             'downloadable_id' => $downloadableId,
             'title' => $row->title ?? $title,
             'description' => RichText::sanitize($row->description ?? ''),
-            'category' => $row->category ?? null,
             'file_path' => $row->file_path ?? null,
             'original_filename' => $row->original_filename ?? null,
         ]

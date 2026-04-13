@@ -127,7 +127,8 @@ if (
     $dbRole === 'LIBRARY' ||
     $dbRole === 'OJT' ||
     $dbRole === 'CWTS' ||
-    $dbRole === 'DIRECTOR_OFFICE'
+    $dbRole === 'DIRECTOR_OFFICE' ||
+    $dbRole === 'ADMINISTRATION'
 ) {
     return redirect()->route('staff.dashboard');
 }
@@ -491,6 +492,7 @@ return back()->withErrors([
             'OJT',
             'CWTS',
             'DIRECTOR_OFFICE',
+            'ADMINISTRATION'
         ];
 
         $validRoles = array_values(array_intersect($assignedRoles, $allowedRoles));

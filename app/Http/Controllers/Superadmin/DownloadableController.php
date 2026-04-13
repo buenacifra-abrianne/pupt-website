@@ -50,13 +50,11 @@ class DownloadableController extends Controller
             'downloadable_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
-            'category' => ['required', 'in:Memo,Form'],
             'file' => ['nullable', 'file', 'max:20480'],
         ]);
 
         $title = trim((string) $request->input('title'));
         $description = trim((string) $request->input('description'));
-        $category = trim((string) $request->input('category'));
         $downloadableId = (int) $request->input('downloadable_id', 0);
 
         $existing = null;
@@ -109,7 +107,6 @@ class DownloadableController extends Controller
         $data = [
             'title' => $title,
             'description' => $description !== '' ? $description : null,
-            'category' => $category,
             'file_path' => $filePath,
             'original_filename' => $originalFilename,
             'updated_at' => now(),
