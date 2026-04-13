@@ -2386,19 +2386,16 @@ body.pup-dark-mode .contents-card-front {
   background: rgba(45, 6, 8, 0.72);
 }
 
-/* Card label bar */
 body.pup-dark-mode .contents-card-copy {
   background: linear-gradient(180deg, rgba(90, 12, 15, 0.98) 0%, rgba(60, 6, 9, 0.99) 100%);
 }
 
-/* Card back panel — hover/active state */
 body.pup-dark-mode .contents-card-back {
   background:
     radial-gradient(circle at 72% 28%, rgba(80, 10, 12, 0.28) 0%, rgba(50, 6, 8, 0.14) 18%, transparent 42%),
     linear-gradient(180deg, rgba(55, 8, 10, 0.98) 0%, rgba(35, 4, 6, 0.97) 52%, rgba(18, 2, 3, 0.99) 100%);
 }
 
-/* Overlay copy text on hovered card */
 body.pup-dark-mode .contents-card-overlay-copy h3 {
   color: #fff4eb;
 }
@@ -2407,7 +2404,6 @@ body.pup-dark-mode .contents-card-overlay-copy p {
   color: rgba(255, 230, 210, 0.78);
 }
 
-/* "See more" button */
 body.pup-dark-mode .contents-card-action {
   background: linear-gradient(135deg, #f3c45a 0%, #d7aa43 100%);
   color: #2d1606;
@@ -2506,7 +2502,6 @@ body.pup-dark-mode .contact-info-card {
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.5);
 }
 
-/* ── Contact photo panel — dark mode ── */
 body.pup-dark-mode .dp-contact-photo-panel {
   background: linear-gradient(160deg, #3d0c10 0%, #2a0608 55%, #1e0405 100%);
 }
@@ -2585,7 +2580,6 @@ body.pup-dark-mode .read-more-btn {
   background: linear-gradient(135deg, #a11d23 0%, #7f1113 48%, #5c0d0f 100%);
 }
 
-/* ── Primary / CTA buttons — gold, matching home dark ── */
 body.pup-dark-mode .apply-now-btn,
 body.pup-dark-mode .dp-contact-cta,
 body.pup-dark-mode .submit-btn,
