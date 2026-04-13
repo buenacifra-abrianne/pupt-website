@@ -102,14 +102,11 @@
                                     $requestDownloadableId = (int) ($payload['downloadable_id'] ?? 0);
                                     $requestTitle = $payload['title'] ?? $row->title ?? '';
                                     $requestDescription = $payload['description'] ?? '';
-                                    $requestCategory = trim((string) ($payload['category'] ?? ''));
                                     $requestOriginalFilename = $payload['original_filename'] ?? '';
                                     $requestFilePath = $payload['file_path'] ?? '';
-                                    $requestCategoryIcon = strtolower($requestCategory) === 'form' ? 'fa-file-lines' : 'fa-note-sticky';
                                     $searchText = strtolower(trim(
                                         ($requestTitle ?? '') . ' ' .
                                         strip_tags($requestDescription ?? '') . ' ' .
-                                        ($requestCategory ?? '') . ' ' .
                                         ($requestOriginalFilename ?? '') . ' ' .
                                         ($row->status ?? '')
                                     ));
@@ -121,13 +118,6 @@
                                     <div class="announcement-header">
                                         <div class="title-row">
                                             <h3 class="announcement-title">{{ e($row->title ?? 'Request') }}</h3>
-
-                                            @if(!empty($requestCategory))
-                                                <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#f1f5f9; color:#334155; border:1px solid #dbe2ea;">
-                                                    <i class="fas {{ $requestCategoryIcon }}"></i>
-                                                    {{ e($requestCategory) }}
-                                                </span>
-                                            @endif
                                         </div>
                                     </div>
 
@@ -158,7 +148,6 @@
                                                 {{ $requestDownloadableId }},
                                                 @json($requestTitle),
                                                 @json($requestDescription),
-                                                @json($requestCategory),
                                                 @json($requestFilePath),
                                                 @json($requestOriginalFilename)
                                             )'>
@@ -196,14 +185,11 @@
                                     $requestDownloadableId = (int) ($payload['downloadable_id'] ?? 0);
                                     $requestTitle = $payload['title'] ?? $row->title ?? '';
                                     $requestDescription = $payload['description'] ?? '';
-                                    $requestCategory = trim((string) ($payload['category'] ?? ''));
                                     $requestOriginalFilename = $payload['original_filename'] ?? '';
                                     $requestFilePath = $payload['file_path'] ?? '';
-                                    $requestCategoryIcon = strtolower($requestCategory) === 'form' ? 'fa-file-lines' : 'fa-note-sticky';
                                     $searchText = strtolower(trim(
                                         ($requestTitle ?? '') . ' ' .
                                         strip_tags($requestDescription ?? '') . ' ' .
-                                        ($requestCategory ?? '') . ' ' .
                                         ($requestOriginalFilename ?? '') . ' ' .
                                         ($row->rejection_reason ?? '') . ' ' .
                                         ($row->status ?? '')
@@ -216,13 +202,6 @@
                                     <div class="announcement-header">
                                         <div class="title-row">
                                             <h3 class="announcement-title">{{ e($row->title ?? 'Request') }}</h3>
-
-                                            @if(!empty($requestCategory))
-                                                <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#f1f5f9; color:#334155; border:1px solid #dbe2ea;">
-                                                    <i class="fas {{ $requestCategoryIcon }}"></i>
-                                                    {{ e($requestCategory) }}
-                                                </span>
-                                            @endif
                                         </div>
                                     </div>
 
@@ -243,7 +222,6 @@
                                                 {{ $requestDownloadableId }},
                                                 @json($requestTitle),
                                                 @json($requestDescription),
-                                                @json($requestCategory),
                                                 @json($requestFilePath),
                                                 @json($requestOriginalFilename)
                                             )'>
@@ -283,12 +261,9 @@
                         @forelse($myApprovedDownloadables as $row)
                             @php
                                 $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
-                                $category = trim((string) $row->category);
-                                $categoryIcon = strtolower($category) === 'form' ? 'fa-file-lines' : 'fa-note-sticky';
                                 $searchText = strtolower(trim(
                                     ($row->title ?? '') . ' ' .
                                     strip_tags($row->description ?? '') . ' ' .
-                                    ($row->category ?? '') . ' ' .
                                     ($row->original_filename ?? '')
                                 ));
                             @endphp
@@ -299,13 +274,6 @@
                                 <div class="announcement-header">
                                     <div class="title-row">
                                         <h3 class="announcement-title">{{ e($row->title) }}</h3>
-
-                                        @if(!empty($row->category))
-                                            <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#f1f5f9; color:#334155; border:1px solid #dbe2ea;">
-                                                <i class="fas {{ $categoryIcon }}"></i>
-                                                {{ e($row->category) }}
-                                            </span>
-                                        @endif
                                     </div>
                                 </div>
 
@@ -320,7 +288,6 @@
                                             {{ (int) $row->downloadable_id }},
                                             @json($row->title ?? ""),
                                             @json($row->description ?? ""),
-                                            @json($row->category ?? ""),
                                             @json($row->file_path ?? ""),
                                             @json($row->original_filename ?? "")
                                         )'>
@@ -341,13 +308,6 @@
                                        rel="noopener noreferrer"
                                        title="Open file">
                                         <i class="fas fa-external-link-alt"></i>
-                                    </a>
-
-                                    <a href="{{ $fileUrl }}"
-                                       class="btn btn-sm btn-primary"
-                                       download="{{ e($row->original_filename) }}"
-                                       title="Download file">
-                                        <i class="fas fa-download"></i> Download
                                     </a>
                                 </div>
                             </div>
@@ -377,24 +337,15 @@
                 @forelse($downloadables as $row)
                     @php
                         $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
-                        $category = trim((string) $row->category);
-                        $categoryIcon = strtolower($category) === 'form' ? 'fa-file-lines' : 'fa-note-sticky';
                     @endphp
 
                     <div class="announcement-item"
-                        data-search="{{ e(strtolower(($row->title ?? '') . ' ' . strip_tags($row->description ?? '') . ' ' . ($row->category ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
+                        data-search="{{ e(strtolower(($row->title ?? '') . ' ' . strip_tags($row->description ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
                         style="margin-bottom:16px;">
 
                         <div class="announcement-header">
                             <div class="title-row">
                                 <h3 class="announcement-title">{{ e($row->title) }}</h3>
-
-                                @if(!empty($row->category))
-                                    <span style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:600; background:#f1f5f9; color:#334155; border:1px solid #dbe2ea;">
-                                        <i class="fas {{ $categoryIcon }}"></i>
-                                        {{ e($row->category) }}
-                                    </span>
-                                @endif
                             </div>
                         </div>
 
@@ -416,13 +367,6 @@
                                rel="noopener noreferrer"
                                title="Open file">
                                 <i class="fas fa-external-link-alt"></i>
-                            </a>
-
-                            <a href="{{ $fileUrl }}"
-                               class="btn btn-sm btn-primary"
-                               download="{{ e($row->original_filename) }}"
-                               title="Download file">
-                                <i class="fas fa-download"></i> Download
                             </a>
                         </div>
                     </div>
@@ -471,15 +415,6 @@
                     <div class="form-group">
                         <label>Description</label>
                         @include('partials.rich_text_editor', ['name' => 'description', 'placeholder' => 'Enter file description'])
-                    </div>
-
-                    <div class="form-group">
-                        <label>Category *</label>
-                        <select name="category" required>
-                            <option value="" disabled selected>Select category</option>
-                            <option value="Memo">Memo</option>
-                            <option value="Form">Form</option>
-                        </select>
                     </div>
 
                     <div class="form-group">
@@ -648,7 +583,7 @@
         if (modal) modal.classList.remove('active');
     }
 
-    function editDownloadableRequest(reqId, downloadableId, title, description, category, filePath, originalFilename) {
+    function editDownloadableRequest(reqId, downloadableId, title, description, filePath, originalFilename) {
         const modal = document.getElementById('downloadableModal');
         const form = document.getElementById('downloadableForm');
         const modalTitle = modal?.querySelector('.modal-title');
@@ -661,7 +596,6 @@
 
         form.querySelector('[name="title"]').value = title || '';
         setRichTextEditorValue(form.querySelector('[name="description"]'), description || '');
-        form.querySelector('[name="category"]').value = category || '';
 
         document.getElementById('edit_request_id').value = reqId || '';
         document.getElementById('edit_downloadable_id').value = downloadableId || '';
@@ -692,7 +626,6 @@
         downloadableEditSnapshot = {
             title: normalizeText(title),
             description: normalizeText(description),
-            category: normalizeText(category),
             filePath: normalizeText(filePath),
             originalFilename: normalizeText(originalFilename),
         };
@@ -707,8 +640,7 @@
         if (hasNewFile) return true;
 
         return normalizeText(form.querySelector('[name="title"]')?.value) !== downloadableEditSnapshot.title
-            || normalizeText(form.querySelector('[name="description"]')?.value) !== downloadableEditSnapshot.description
-            || normalizeText(form.querySelector('[name="category"]')?.value) !== downloadableEditSnapshot.category;
+            || normalizeText(form.querySelector('[name="description"]')?.value) !== downloadableEditSnapshot.description;
     }
 
     async function requestDeleteDownloadable(downloadableId, title = '') {

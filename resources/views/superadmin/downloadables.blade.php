@@ -117,22 +117,6 @@
                             <div class="announcement-header">
                                 <div class="title-row">
                                     <h3 class="announcement-title">{{ e($row->title) }}</h3>
-
-                                    @if(!empty($row->category))
-                                        <span style="
-                                            display:inline-flex;
-                                            align-items:center;
-                                            padding:6px 12px;
-                                            border-radius:999px;
-                                            font-size:12px;
-                                            font-weight:600;
-                                            background:#f1f5f9;
-                                            color:#334155;
-                                            border:1px solid #dbe2ea;
-                                        ">
-                                            {{ e($row->category) }}
-                                        </span>
-                                    @endif
                                 </div>
                             </div>
 
@@ -161,7 +145,6 @@
                                     {{ (int) $row->downloadable_id }},
                                     @json($row->title),
                                     @json($row->description),
-                                    @json($row->category),
                                     @json($row->original_filename)
                                 )'>
                                 <i class="fas fa-edit"></i> Edit
@@ -179,13 +162,6 @@
                                 rel="noopener noreferrer"
                                 title="Open file">
                                 <i class="fas fa-eye"></i>
-                            </a>
-
-                            <a href="{{ $fileUrl }}"
-                                class="btn btn-sm btn-primary"
-                                download="{{ e($row->original_filename) }}"
-                                title="Download file">
-                                <i class="fas fa-download"></i> Download
                             </a>
                         </div>
                     </div>
@@ -216,15 +192,6 @@
                 <div class="form-group">
                     <label>Description</label>
                     <textarea name="description" rows="4" placeholder="Enter file description"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label>Category *</label>
-                    <select name="category" required>
-                        <option value="" disabled selected>Select category</option>
-                        <option value="Memo">Memo</option>
-                        <option value="Form">Form</option>
-                    </select>
                 </div>
 
                 <div class="form-group">
@@ -345,7 +312,7 @@
         document.getElementById('downloadableModal').classList.remove('active');
     }
 
-    function editDownloadable(id, title, description, category, originalFilename) {
+    function editDownloadable(id, title, description, originalFilename) {
         const modal = document.getElementById('downloadableModal');
         const form = document.getElementById('downloadableForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -358,7 +325,6 @@
 
         form.querySelector('[name="title"]').value = title || '';
         form.querySelector('[name="description"]').value = description || '';
-        form.querySelector('[name="category"]').value = category || '';
 
         let idInput = document.getElementById('edit_downloadable_id');
         if (!idInput) {
@@ -394,8 +360,7 @@
         if (hasNewFile) return true;
 
         return (form.querySelector('[name="title"]').value || '').trim() !== downloadableBaseline.title
-            || (form.querySelector('[name="description"]').value || '').trim() !== downloadableBaseline.description
-            || (form.querySelector('[name="category"]').value || '').trim() !== downloadableBaseline.category;
+            || (form.querySelector('[name="description"]').value || '').trim() !== downloadableBaseline.description;
     }
 
     async function deleteDownloadable(id) {
