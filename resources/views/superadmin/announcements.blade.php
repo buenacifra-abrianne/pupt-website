@@ -202,10 +202,42 @@
                     </button>
                 </div>
 
+                <div class="news-bulk-toolbar">
+                    <label class="news-bulk-count" for="bulkNewsSelection">
+                        <input type="checkbox" id="bulkNewsSelection" hidden>
+                        <span id="newsSelectionCount">0 selected</span>
+                    </label>
+                    <div class="news-bulk-actions">
+                        @if($hasNewsHiddenColumn ?? false)
+                            <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" disabled>
+                                <i class="fas fa-eye-slash"></i> Hide from Public
+                            </button>
+                            <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" disabled>
+                                <i class="fas fa-eye"></i> Show in Public
+                            </button>
+                        @endif
+                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" disabled>
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
+                    </div>
+                </div>
+
                 <div class="news-grid">
+                    <button type="button" class="news-card news-card-create" data-static-card="1" onclick="openNewsModal(true)">
+                        <span class="news-card-create-icon">+</span>
+                        <span class="news-card-create-title">Create Event Card</span>
+                        <span class="news-card-create-text">Add a new event or news post.</span>
+                    </button>
+
                     @foreach($news_list as $news)
                         <div class="news-card"
-                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location)) }}">
+                            data-news-id="{{ (int) $news->news_id }}"
+                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location.' '.(($news->is_featured ?? false) ? ' featured' : '').' '.(($news->is_hidden_from_public ?? false) ? ' hidden' : ''))) }}">
+
+                            <label class="news-card-select" aria-label="Select {{ e($news->title) }}">
+                                <input type="checkbox" class="news-select-checkbox" value="{{ (int) $news->news_id }}">
+                                <span></span>
+                            </label>
 
                             <div class="news-image">
                                 @if(!empty($news->image_path))
@@ -216,7 +248,15 @@
                             </div>
 
                             <div class="news-content">
-                                <span class="news-category">{{ e($news->category) }}</span>
+                                <div class="news-card-badges">
+                                    <span class="news-category">{{ e($news->category) }}</span>
+                                    @if(($hasNewsFeaturedColumn ?? false) && ($news->is_featured ?? false))
+                                        <span class="news-flag-badge news-flag-badge-featured">Featured</span>
+                                    @endif
+                                    @if(($hasNewsHiddenColumn ?? false) && ($news->is_hidden_from_public ?? false))
+                                        <span class="news-flag-badge news-flag-badge-hidden">Hidden</span>
+                                    @endif
+                                </div>
                                 <h3 class="news-title">{{ e($news->title) }}</h3>
 
                                 <div class="news-meta">
@@ -232,7 +272,9 @@
                                             @json($news->category),
                                             @json($news->location),
                                             @json($news->link ?? ""),
-                                            @json(\App\Support\NewsImage::url($news->image_path) ?? "")
+                                            @json(\App\Support\NewsImage::url($news->image_path) ?? ""),
+                                            @json((bool) ($news->is_featured ?? false)),
+                                            @json((bool) ($news->is_hidden_from_public ?? false))
                                         )'>
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -432,6 +474,26 @@
         >
 </div>
 
+                @if($hasNewsFeaturedColumn ?? false)
+                    <label class="news-option-toggle">
+                        <input type="checkbox" name="is_featured" value="1" id="newsFeaturedCheckbox">
+                        <span>
+                            <strong>Featured event</strong>
+                            <small>Show this item in the featured section of the public events page.</small>
+                        </span>
+                    </label>
+                @endif
+
+                @if($hasNewsHiddenColumn ?? false)
+                    <label class="news-option-toggle">
+                        <input type="checkbox" name="is_hidden_from_public" value="1" id="newsHiddenCheckbox">
+                        <span>
+                            <strong>Hide from public view</strong>
+                            <small>Keep this item in CMS but remove it from the public pages for now.</small>
+                        </span>
+                    </label>
+                @endif
+
                 <div class="form-group">
                     <label>Featured Image</label>
 
@@ -605,6 +667,16 @@
         const idInput = document.getElementById('edit_news_id');
         if (idInput) idInput.remove();
 
+        @if($hasNewsFeaturedColumn ?? false)
+        const featuredCheckbox = document.getElementById('newsFeaturedCheckbox');
+        if (featuredCheckbox) featuredCheckbox.checked = false;
+        @endif
+
+        @if($hasNewsHiddenColumn ?? false)
+        const hiddenCheckbox = document.getElementById('newsHiddenCheckbox');
+        if (hiddenCheckbox) hiddenCheckbox.checked = false;
+        @endif
+
         resetNewsImageUI('new');
         newsBaseline = null;
     }
@@ -759,7 +831,7 @@
         select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-    function editNews(id, title, content, category, location, link, imagePath) {
+    function editNews(id, title, content, category, location, link, imagePath, isFeatured = false, isHidden = false) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -774,6 +846,20 @@
         if (linkInput) {
             linkInput.value = String(link || '').trim();
         }
+
+        @if($hasNewsFeaturedColumn ?? false)
+        const featuredCheckbox = document.getElementById('newsFeaturedCheckbox');
+        if (featuredCheckbox) {
+            featuredCheckbox.checked = !!isFeatured;
+        }
+        @endif
+
+        @if($hasNewsHiddenColumn ?? false)
+        const hiddenCheckbox = document.getElementById('newsHiddenCheckbox');
+        if (hiddenCheckbox) {
+            hiddenCheckbox.checked = !!isHidden;
+        }
+        @endif
 
         let idInput = document.getElementById('edit_news_id');
         if (!idInput) {
@@ -799,6 +885,8 @@
             category: (category || '').trim(),
             location: (location || '').trim(),
             link: (link || '').trim(),
+            isFeatured: !!isFeatured,
+            isHidden: !!isHidden,
         };
 
         modal.classList.add('active');
@@ -821,6 +909,97 @@
         }
     }
 
+    function getSelectedNewsIds() {
+        return Array.from(document.querySelectorAll('.news-select-checkbox:checked'))
+            .map((checkbox) => Number.parseInt(checkbox.value, 10))
+            .filter((id) => Number.isInteger(id) && id > 0);
+    }
+
+    function syncNewsSelectionUi() {
+        const selectedIds = getSelectedNewsIds();
+        const countEl = document.getElementById('newsSelectionCount');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteNewsBtn');
+        const bulkHideBtn = document.getElementById('bulkHideNewsBtn');
+        const bulkShowBtn = document.getElementById('bulkShowNewsBtn');
+
+        if (countEl) {
+            countEl.textContent = `${selectedIds.length} selected`;
+        }
+
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.disabled = selectedIds.length === 0;
+        }
+
+        if (bulkHideBtn) {
+            bulkHideBtn.disabled = selectedIds.length === 0;
+        }
+
+        if (bulkShowBtn) {
+            bulkShowBtn.disabled = selectedIds.length === 0;
+        }
+    }
+
+    async function submitBulkNewsAction(action) {
+        const selectedIds = getSelectedNewsIds();
+
+        if (!selectedIds.length) {
+            showToast('Select at least one event first.', 'info', 'News');
+            return;
+        }
+
+        const actionMap = {
+            delete: {
+                message: 'Delete the selected events?',
+                title: 'Delete Selected',
+                confirm: 'Delete',
+                tone: 'danger',
+            },
+            hide: {
+                message: 'Hide the selected events from the public pages?',
+                title: 'Hide Selected',
+                confirm: 'Hide',
+                tone: 'warning',
+            },
+            show: {
+                message: 'Show the selected events in the public pages again?',
+                title: 'Show Selected',
+                confirm: 'Show',
+                tone: 'info',
+            },
+        };
+
+        const meta = actionMap[action];
+        if (!meta || !(await askConfirm(meta.message, meta.title, meta.confirm, meta.tone))) {
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('action', action);
+        selectedIds.forEach((id) => formData.append('ids[]', String(id)));
+
+        const response = await fetch("{{ route('superadmin.news.bulk') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            body: formData,
+        });
+
+        const raw = await response.text();
+        let json = null;
+        try { json = JSON.parse(raw); } catch (_) {}
+
+        if (!response.ok || !json || !json.ok) {
+            showToast((json && (json.error || json.message)) || raw.slice(0, 200), 'error');
+            return;
+        }
+
+        queueReloadToast(json.message || 'Selected news updated.', 'success', 'News');
+        window.location.reload();
+    }
+
     const searchInput = document.getElementById('globalSearch');
 
     function runSearch() {
@@ -832,6 +1011,10 @@
         });
 
         document.querySelectorAll('#news .news-card').forEach(card => {
+            if (card.dataset.staticCard === '1') {
+                card.style.display = '';
+                return;
+            }
             const hay = card.getAttribute('data-search') || '';
             card.style.display = hay.includes(q) ? '' : 'none';
         });
@@ -944,6 +1127,31 @@
                 }
             });
         }
+
+        document.querySelectorAll('.news-select-checkbox').forEach((checkbox) => {
+            checkbox.addEventListener('change', syncNewsSelectionUi);
+        });
+
+        document.querySelectorAll('#news .news-card[data-news-id]').forEach((card) => {
+            card.addEventListener('click', (event) => {
+                if (event.target.closest('.news-actions, .news-card-select')) {
+                    return;
+                }
+
+                const checkbox = card.querySelector('.news-select-checkbox');
+                if (!checkbox) {
+                    return;
+                }
+
+                checkbox.checked = !checkbox.checked;
+                syncNewsSelectionUi();
+            });
+        });
+
+        document.getElementById('bulkDeleteNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('delete'));
+        document.getElementById('bulkHideNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('hide'));
+        document.getElementById('bulkShowNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('show'));
+        syncNewsSelectionUi();
     });
 
     window.addEventListener('beforeunload', () => {
@@ -982,7 +1190,14 @@
             || (form.querySelector('[name="content"]')?.value || '').trim() !== newsBaseline.content
             || (form.querySelector('[name="category"]')?.value || '').trim() !== newsBaseline.category
             || (form.querySelector('[name="location"]')?.value || '').trim() !== newsBaseline.location
-            || (form.querySelector('[name="link"]')?.value || '').trim() !== newsBaseline.link;
+            || (form.querySelector('[name="link"]')?.value || '').trim() !== newsBaseline.link
+            @if($hasNewsFeaturedColumn ?? false)
+            || !!form.querySelector('[name="is_featured"]')?.checked !== newsBaseline.isFeatured
+            @endif
+            @if($hasNewsHiddenColumn ?? false)
+            || !!form.querySelector('[name="is_hidden_from_public"]')?.checked !== newsBaseline.isHidden
+            @endif
+        ;
     }
 
     document.getElementById('announcementForm').addEventListener('submit', function (e) {

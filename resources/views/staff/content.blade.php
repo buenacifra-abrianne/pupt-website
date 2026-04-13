@@ -117,6 +117,12 @@
                 $academicsPrefill = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) $prefillContent)
                     : null;
+                $eventsLive = $tabKey === 'events'
+                    ? \App\Support\EventsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
+                $eventsPrefill = $tabKey === 'events'
+                    ? \App\Support\EventsCmsContent::fromStored((string) $prefillContent)
+                    : null;
             @endphp
 
             <div
@@ -158,6 +164,24 @@
                                         <div style="font-size:13px; margin-bottom:8px;">
                                             <strong>{{ $section['label'] ?? '' }}:</strong>
                                             {{ $section['summary'] ?? '' }}
+                                        </div>
+                                    @endforeach
+                                </div>
+                            @elseif($tabKey === 'events')
+                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Page Header</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">
+                                    <strong>{{ $eventsLive['page']['title'] ?? 'Events' }}</strong>
+                                    <div style="margin-top:8px;line-height:1.6;">{{ strip_tags($eventsLive['page']['description'] ?? '') }}</div>
+                                </div>
+
+                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Event Cards</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
+                                    @foreach(($eventsLive['cards'] ?? []) as $card)
+                                        <div style="font-size:13px; margin-bottom:8px;">
+                                            <strong>{{ $card['title'] ?? '' }}</strong>
+                                            @if(!empty($card['featured']))
+                                                <span style="color:#800000;">(Featured)</span>
+                                            @endif
                                         </div>
                                     @endforeach
                                 </div>
@@ -215,6 +239,24 @@
                             'academicsEditorRequestId' => $draft['id'] ?? null,
                             'academicsEditorStatus' => $status,
                             'academicsEditorIdPrefix' => 'staff-academics',
+                        ])
+                    @elseif($tabKey === 'events')
+                        @php
+                            $eventsPreviewHtml = view('public.events', [
+                                'eventsCms' => $eventsPrefill,
+                                'cmsPreview' => true,
+                            ])->render();
+                        @endphp
+
+                        @include('partials.events_cms_preview_editor', [
+                            'eventsPreviewHtml' => $eventsPreviewHtml,
+                            'eventsEditorData' => $eventsPrefill,
+                            'eventsEditorFormClass' => 'cms-edit-form',
+                            'eventsEditorSubmitRoute' => route('staff.content.requestEdit'),
+                            'eventsEditorSubmitMode' => 'request',
+                            'eventsEditorRequestId' => $draft['id'] ?? null,
+                            'eventsEditorStatus' => $status,
+                            'eventsEditorIdPrefix' => 'staff-events',
                         ])
                     @else
                         <div class="card">
@@ -321,6 +363,12 @@
         padding: 24px;
         background: rgba(255, 252, 249, 0.72);
         backdrop-filter: blur(8px);
+    }
+
+    .cms-page-loading-overlay:not([hidden]) ~ #floatingVoiceBtn {
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none !important;
     }
 
     .cms-page-loading-card {
@@ -595,6 +643,17 @@
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     let cmsPreviewLoadingSession = 0;
 
+    function setFloatingVoiceVisibility(isVisible) {
+        const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
+        if (!floatingVoiceBtn) {
+            return;
+        }
+
+        floatingVoiceBtn.style.opacity = isVisible ? '1' : '0';
+        floatingVoiceBtn.style.visibility = isVisible ? 'visible' : 'hidden';
+        floatingVoiceBtn.style.pointerEvents = isVisible ? 'auto' : 'none';
+    }
+
     function showCmsPreviewLoading(sessionId) {
         const overlay = document.querySelector('[data-cms-page-loader]');
         const normalizedSessionId = Number(sessionId || (Date.now() + Math.random()));
@@ -604,6 +663,8 @@
         if (overlay) {
             overlay.hidden = false;
         }
+
+        setFloatingVoiceVisibility(false);
 
         return normalizedSessionId;
     }
@@ -621,10 +682,23 @@
         }
 
         overlay.hidden = true;
+        setFloatingVoiceVisibility(true);
     }
 
     function toggleSidebar() {
-        document.getElementById('sidebar')?.classList.toggle('collapsed');
+        const sidebar = document.getElementById('sidebar');
+        if (!sidebar) {
+            return;
+        }
+
+        if (window.innerWidth <= 768) {
+            sidebar.classList.remove('collapsed');
+            sidebar.classList.toggle('sidebar-expanded');
+            return;
+        }
+
+        sidebar.classList.remove('sidebar-expanded');
+        sidebar.classList.toggle('collapsed');
     }
 
     function setCmsTabState(tabKey, btn) {
@@ -658,7 +732,7 @@
             },
         }));
 
-        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame]');
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-events-preview-frame]');
         if (!hasPreview) {
             window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
         }

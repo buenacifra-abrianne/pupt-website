@@ -7,6 +7,7 @@ use App\Support\AcademicsCmsContent;
 use App\Support\AboutCmsContent;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -61,6 +62,7 @@ class CmsController extends Controller
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
+                'page', 'cards',
             ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
@@ -68,6 +70,7 @@ class CmsController extends Controller
             'home' => ['nullable', 'array'],
             'about' => ['nullable', 'array'],
             'academics' => ['nullable', 'array'],
+            'events' => ['nullable', 'array'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
             'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
@@ -112,6 +115,22 @@ class CmsController extends Controller
             'academics.features.items' => ['nullable', 'array'],
             'academics.features.items.*.title' => ['nullable', 'string', 'max:255'],
             'academics.features.items.*.body' => ['nullable', 'string'],
+            'events.page' => ['nullable', 'array'],
+            'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
+            'events.page.title' => ['nullable', 'string', 'max:255'],
+            'events.page.description' => ['nullable', 'string'],
+            'events.cards' => ['nullable', 'array'],
+            'events.cards.*.title' => ['nullable', 'string', 'max:255'],
+            'events.cards.*.summary' => ['nullable', 'string'],
+            'events.cards.*.content' => ['nullable', 'string'],
+            'events.cards.*.image' => ['nullable', 'string', 'max:2048'],
+            'events.cards.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'events.cards.*.location' => ['nullable', 'string', 'max:255'],
+            'events.cards.*.event_date' => ['nullable', 'date_format:Y-m-d'],
+            'events.cards.*.start_time' => ['nullable', 'date_format:H:i'],
+            'events.cards.*.end_time' => ['nullable', 'date_format:H:i'],
+            'events.cards.*.category' => ['nullable', Rule::in(array_keys(EventsCmsContent::categoryOptions()))],
+            'events.cards.*.featured' => ['nullable'],
         ]);
 
         $email = trim((string) session('user_email'));
@@ -125,13 +144,14 @@ class CmsController extends Controller
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
-        $sectionKey = in_array($tabKey, ['home', 'about', 'academics'], true)
+        $sectionKey = in_array($tabKey, ['home', 'about', 'academics', 'events'], true)
             ? strtolower(trim((string) ($data['section_key'] ?? '')))
             : '';
         $sectionLabel = match ($tabKey) {
             'home' => $this->homeSectionLabel($sectionKey),
             'about' => $this->aboutSectionLabel($sectionKey),
             'academics' => $this->academicsSectionLabel($sectionKey),
+            'events' => $this->eventsSectionLabel($sectionKey),
             default => '',
         };
         $type = CmsSections::requestTypeForTab($tabKey);
@@ -217,6 +237,31 @@ class CmsController extends Controller
             );
             $title = $baseTitle;
             $baseContent = $baseAcademicsEncoded;
+        } elseif ($tabKey === 'events') {
+            $baseEvents = EventsCmsContent::fromStored($baseContent);
+            $baseEventsEncoded = EventsCmsContent::encode($baseEvents);
+            $eventsInput = $this->filterEventsInputBySection(
+                is_array($data['events'] ?? null) ? $data['events'] : [],
+                $sectionKey
+            );
+
+            $eventUploads = $request->file('events.cards', []);
+            if (is_array($eventUploads)) {
+                foreach ($eventUploads as $index => $cardUpload) {
+                    $upload = is_array($cardUpload) ? ($cardUpload['image_file'] ?? null) : null;
+                    if (!$upload instanceof UploadedFile) {
+                        continue;
+                    }
+
+                    $eventsInput['cards'][$index]['image'] = $upload->store('events/cards', 'public');
+                }
+            }
+
+            $content = EventsCmsContent::encode(
+                EventsCmsContent::fromInput($eventsInput, $baseEventsEncoded)
+            );
+            $title = $baseTitle;
+            $baseContent = $baseEventsEncoded;
         } elseif ($title === '') {
             $title = $tabLabel.' Content';
         }
@@ -279,14 +324,14 @@ class CmsController extends Controller
         AuditLog::record(
             'UPDATED',
             'CONTENT',
-            in_array($tabKey, ['home', 'about', 'academics'], true) && $sectionLabel !== ''
+            in_array($tabKey, ['home', 'about', 'academics', 'events'], true) && $sectionLabel !== ''
                 ? 'Submitted CMS edit request for '.$tabLabel.' ('.$sectionLabel.')'
                 : 'Submitted CMS edit request for '.$tabLabel,
             (int) (session('user_id') ?? 0)
         );
 
         $successMessage = 'Content request submitted for admin approval.';
-        if (in_array($tabKey, ['home', 'about', 'academics'], true) && $sectionLabel !== '') {
+        if (in_array($tabKey, ['home', 'about', 'academics', 'events'], true) && $sectionLabel !== '') {
             $successMessage = $tabLabel.' '.$sectionLabel.' request submitted for approval.';
         }
 
@@ -530,6 +575,15 @@ class CmsController extends Controller
         };
     }
 
+    private function eventsSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'page' => 'Page Header',
+            'cards' => 'Event Listings',
+            default => '',
+        };
+    }
+
     private function filterAboutInputBySection(array $aboutInput, string $sectionKey): array
     {
         if ($sectionKey === '' || $sectionKey === 'all') {
@@ -621,6 +675,40 @@ class CmsController extends Controller
                 ],
             ],
             default => $academicsInput,
+        };
+    }
+
+    private function filterEventsInputBySection(array $eventsInput, string $sectionKey): array
+    {
+        if ($sectionKey === '' || $sectionKey === 'all') {
+            return $eventsInput;
+        }
+
+        return match ($sectionKey) {
+            'page' => [
+                'page' => is_array($eventsInput['page'] ?? null)
+                    ? array_intersect_key($eventsInput['page'], array_flip(['eyebrow', 'title', 'description']))
+                    : [],
+            ],
+            'cards' => [
+                'cards' => collect(data_get($eventsInput, 'cards', []))
+                    ->map(fn ($item) => is_array($item)
+                        ? array_intersect_key($item, array_flip([
+                            'title',
+                            'summary',
+                            'content',
+                            'image',
+                            'location',
+                            'event_date',
+                            'start_time',
+                            'end_time',
+                            'category',
+                            'featured',
+                        ]))
+                        : [])
+                    ->all(),
+            ],
+            default => $eventsInput,
         };
     }
 

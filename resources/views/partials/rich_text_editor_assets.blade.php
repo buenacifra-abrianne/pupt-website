@@ -406,6 +406,20 @@ input[name="title"] {
         }
     }
 
+    function saveSelection(root) {
+        const surface = root.querySelector('.rich-editor-surface');
+
+        if (!surface) {
+            root.__richEditorSavedRange = null;
+            return null;
+        }
+
+        const range = cloneRange(getSelectionRangeInside(surface));
+        root.__richEditorSavedRange = range;
+
+        return range;
+    }
+
     function restoreSelection(savedRange) {
         if (!savedRange) {
             return false;
@@ -529,14 +543,13 @@ input[name="title"] {
             restoreSelection(savedRange);
         }
 
-        const activeRange = savedRange ? getSelectionRangeInside(surface) : null;
+        const activeRange = getSelectionRangeInside(surface);
 
-        if (!applyInlineStyleAtCaret(surface, { color: color }, activeRange)) {
-            applyInlineStyleToSelection(
-                surface,
-                { color: color },
-                activeRange
-            );
+        if (activeRange && !activeRange.collapsed) {
+            document.execCommand('styleWithCSS', false, true);
+            document.execCommand('foreColor', false, color);
+        } else if (!applyInlineStyleAtCaret(surface, { color: color }, activeRange)) {
+            applyInlineStyleToSelection(surface, { color: color }, activeRange);
         }
 
         normalizeStyledSpans(root);
@@ -827,6 +840,21 @@ input[name="title"] {
             return;
         }
 
+        surface.querySelectorAll('font').forEach((font) => {
+            const replacement = document.createElement('span');
+            const color = font.getAttribute('color') || font.style.color;
+
+            if (color) {
+                replacement.style.color = color;
+            }
+
+            while (font.firstChild) {
+                replacement.appendChild(font.firstChild);
+            }
+
+            font.replaceWith(replacement);
+        });
+
         surface.querySelectorAll('span').forEach((span) => {
             if (span.style.fontSize) {
                 span.style.lineHeight = '1';
@@ -894,6 +922,11 @@ input[name="title"] {
         });
 
         if (textColorTrigger) {
+            textColorTrigger.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                saveSelection(root);
+            });
+
             textColorTrigger.addEventListener('click', (event) => {
                 event.preventDefault();
                 event.stopPropagation();
@@ -907,6 +940,10 @@ input[name="title"] {
         }
 
         root.querySelectorAll('.rich-editor-swatch').forEach((swatch) => {
+            swatch.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+            });
+
             swatch.addEventListener('click', () => {
                 const selectedColor = resolveColorValue(swatch.dataset.color);
                 const savedRange = root.__richEditorSavedRange || null;
@@ -923,21 +960,28 @@ input[name="title"] {
             });
         });
 
-        surface.addEventListener('click', () => updateToolbarState(root));
-        surface.addEventListener('click', () => updateTextColorState(root));
+        surface.addEventListener('click', () => {
+            saveSelection(root);
+            updateToolbarState(root);
+            updateTextColorState(root);
+        });
         surface.addEventListener('mouseup', () => {
+            saveSelection(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('keyup', () => {
+            saveSelection(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('focus', () => {
+            saveSelection(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('input', () => {
+            saveSelection(root);
             syncEditor(root);
             updateToolbarState(root);
             updateTextColorState(root);
