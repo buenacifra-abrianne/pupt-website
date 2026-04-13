@@ -12,44 +12,7 @@ class EventsCmsContent
             'title' => 'Events',
             'description' => 'Explore upcoming academic, research, campus, and student life activities happening in PUP Taguig.',
         ],
-        'cards' => [
-            [
-                'title' => 'Student Leadership Assembly',
-                'summary' => 'A campus-wide gathering for student leaders to align on student programs, service projects, and the academic term ahead.',
-                'content' => '<p>Student organizations and class officers are invited to the <strong>Student Leadership Assembly</strong> for updates on campus priorities, collaboration opportunities, and upcoming student programs.</p>',
-                'image' => 'assets/static_img/pupillar.jpeg',
-                'location' => 'Main Auditorium',
-                'event_date' => '2026-04-20',
-                'start_time' => '09:00',
-                'end_time' => '12:00',
-                'category' => 'student-life',
-                'featured' => true,
-            ],
-            [
-                'title' => 'Research Colloquium',
-                'summary' => 'Faculty and student researchers present current studies, prototypes, and extension work with the campus community.',
-                'content' => '<p>The <strong>Research Colloquium</strong> highlights selected studies, innovations, and extension initiatives from faculty and student researchers.</p>',
-                'image' => 'assets/static_img/pupillar.jpeg',
-                'location' => 'Research Center',
-                'event_date' => '2026-04-24',
-                'start_time' => '13:00',
-                'end_time' => '16:00',
-                'category' => 'research',
-                'featured' => false,
-            ],
-            [
-                'title' => 'Academic Advising Week',
-                'summary' => 'Students can meet with advisers to review academic plans, enrollment concerns, and readiness for the next term.',
-                'content' => '<p><strong>Academic Advising Week</strong> gives students time to review course plans, graduation timelines, and enrollment concerns with faculty advisers.</p>',
-                'image' => 'assets/static_img/pupillar.jpeg',
-                'location' => 'Academic Affairs Office',
-                'event_date' => '2026-04-28',
-                'start_time' => '08:00',
-                'end_time' => '17:00',
-                'category' => 'academic',
-                'featured' => false,
-            ],
-        ],
+        'cards' => [],
     ];
 
     private const CATEGORY_OPTIONS = [
@@ -219,8 +182,8 @@ class EventsCmsContent
             }
         }
 
-        if (empty($cards) && !empty($defaults)) {
-            return array_values($defaults);
+        if (empty($cards)) {
+            return [];
         }
 
         return $cards;

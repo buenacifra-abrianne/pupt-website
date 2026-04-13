@@ -5,6 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Content Management - PUP Taguig CMS</title>
+    <script>
+        window.__cmsEntryLoading = false;
+        try {
+            window.__cmsEntryLoading = sessionStorage.getItem('cms-content-entry-loading') === '1';
+            if (window.__cmsEntryLoading) {
+                document.documentElement.classList.add('cms-entry-loading');
+            }
+        } catch (error) {
+            window.__cmsEntryLoading = false;
+        }
+    </script>
+    <style>
+        html.cms-entry-loading body {
+            overflow: hidden;
+        }
+
+        html.cms-entry-loading .main-content {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        html.cms-entry-loading body > .cms-page-loading-overlay {
+            opacity: 1;
+        }
+    </style>
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -63,6 +88,11 @@
             <p>Please wait while the page refreshes.</p>
         </div>
     </div>
+    <script>
+        if (window.__cmsEntryLoading) {
+            document.querySelector('[data-cms-page-loader]')?.removeAttribute('hidden');
+        }
+    </script>
 
     <main class="main-content">
         <div class="page-header">
@@ -361,8 +391,8 @@
         align-items: center;
         justify-content: center;
         padding: 24px;
-        background: rgba(255, 252, 249, 0.72);
-        backdrop-filter: blur(8px);
+        background: rgba(255, 252, 249, 0.42);
+        backdrop-filter: blur(4px);
     }
 
     .cms-page-loading-overlay:not([hidden]) ~ #floatingVoiceBtn {
@@ -642,6 +672,17 @@
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     let cmsPreviewLoadingSession = 0;
+    const CMS_ENTRY_LOADING_KEY = 'cms-content-entry-loading';
+
+    function clearCmsEntryLoadingState() {
+        document.documentElement.classList.remove('cms-entry-loading');
+
+        try {
+            sessionStorage.removeItem(CMS_ENTRY_LOADING_KEY);
+        } catch (error) {
+            // Ignore storage access failures and keep the page usable.
+        }
+    }
 
     function setFloatingVoiceVisibility(isVisible) {
         const floatingVoiceBtn = document.getElementById('floatingVoiceBtn');
@@ -682,6 +723,7 @@
         }
 
         overlay.hidden = true;
+        clearCmsEntryLoadingState();
         setFloatingVoiceVisibility(true);
     }
 
@@ -946,6 +988,11 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         bindCmsTabKeyboardNav();
+
+        if (window.__cmsEntryLoading) {
+            const entrySessionId = showCmsPreviewLoading();
+            window.setTimeout(() => hideCmsPreviewLoading(entrySessionId), 2500);
+        }
 
         window.addEventListener('cms:preview-loading', (event) => {
             showCmsPreviewLoading(event.detail?.sessionId);
