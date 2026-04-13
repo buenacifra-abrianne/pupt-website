@@ -195,6 +195,9 @@ Route::prefix('admin')
         Route::post('/news/delete', [AdminAnnouncementController::class, 'deleteNews'])
             ->name('news.delete');
 
+        Route::post('/news/bulk', [AdminAnnouncementController::class, 'bulkNews'])
+            ->name('news.bulk');
+
         Route::get('/approvals/pending', [AdminApprovalsController::class, 'pending'])
             ->name('approvals.pending');
 
@@ -273,6 +276,9 @@ Route::prefix('superadmin')->group(function () {
 
         Route::post('/news/delete', [AnnouncementController::class, 'deleteNews'])
             ->name('superadmin.news.delete');
+
+        Route::post('/news/bulk', [AnnouncementController::class, 'bulkNews'])
+            ->name('superadmin.news.bulk');
 
         // Approvals
 

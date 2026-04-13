@@ -315,6 +315,7 @@ const RC = {
   OJT: 'r-ojt',
   CWTS: 'r-cwts',
   DIRECTOR_OFFICE: 'r-director_office',
+  ADMINISTRATION: 'r-administration',
 };
 const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended' };
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };
@@ -439,7 +440,6 @@ function roleLabel(code){
 
 function availableRoleOptions() {
   return (ROLES || [])
-    .filter(r => String(r.code) !== 'LIBRARY')
     .filter(r => {
       const code = String(r.code);
       if (code === 'SUPERADMIN' && CURRENT_ROLE !== 'SUPERADMIN') {

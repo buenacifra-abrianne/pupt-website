@@ -39,6 +39,8 @@ class AnnouncementController extends Controller
     {
         $hasAnnouncementLinkColumn = Schema::hasColumn('announcements', 'link');
         $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
+        $hasNewsFeaturedColumn = Schema::hasColumn('news', 'is_featured');
+        $hasNewsHiddenColumn = Schema::hasColumn('news', 'is_hidden_from_public');
 
         $announcements = DB::table('announcements as a')
             ->leftJoin('users as u', 'a.created_by', '=', 'u.user_id')
@@ -51,10 +53,23 @@ class AnnouncementController extends Controller
             ->get();
 
         $news_list = DB::table('news')
+            ->when($hasNewsHiddenColumn, function ($query) {
+                $query->orderBy('is_hidden_from_public');
+            })
+            ->when($hasNewsFeaturedColumn, function ($query) {
+                $query->orderByDesc('is_featured');
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.announcements', compact('announcements', 'news_list', 'hasAnnouncementLinkColumn', 'hasNewsLinkColumn'));
+        return view('admin.announcements', compact(
+            'announcements',
+            'news_list',
+            'hasAnnouncementLinkColumn',
+            'hasNewsLinkColumn',
+            'hasNewsFeaturedColumn',
+            'hasNewsHiddenColumn'
+        ));
     }
 
     public function save(Request $request)
@@ -187,6 +202,8 @@ class AnnouncementController extends Controller
         }
 
         $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
+        $hasNewsFeaturedColumn = Schema::hasColumn('news', 'is_featured');
+        $hasNewsHiddenColumn = Schema::hasColumn('news', 'is_hidden_from_public');
 
         $rules = [
             'news_id' => ['nullable', 'integer'],
@@ -284,6 +301,14 @@ class AnnouncementController extends Controller
             $data['link'] = $incomingLink !== '' ? $incomingLink : null;
         }
 
+        if ($hasNewsFeaturedColumn) {
+            $data['is_featured'] = $request->boolean('is_featured');
+        }
+
+        if ($hasNewsHiddenColumn) {
+            $data['is_hidden_from_public'] = $request->boolean('is_hidden_from_public');
+        }
+
         if ($newsId > 0) {
             DB::table('news')->where('news_id', $newsId)->update($data);
             $this->logActivity('UPDATED', 'NEWS', $newsId, 'Updated news: '.$incomingTitle);
@@ -337,11 +362,7 @@ class AnnouncementController extends Controller
             return response()->json(['ok' => false, 'error' => 'News not found']);
         }
 
-        if (!empty($news->image_path)) {
-            NewsImage::delete($news->image_path);
-        }
-
-        DB::table('news')->where('news_id', $id)->delete();
+        $this->deleteNewsRecord((int) $id, $news);
 
         $this->notifySystem(
             'News Deleted',
@@ -356,6 +377,99 @@ class AnnouncementController extends Controller
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    public function bulkNews(Request $request)
+    {
+        $request->validate([
+            'action' => ['required', 'in:delete,hide,show'],
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'gt:0'],
+        ]);
+
+        $ids = collect($request->input('ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return response()->json(['ok' => false, 'error' => 'No news items selected.'], 422);
+        }
+
+        $action = (string) $request->input('action');
+
+        if ($action === 'delete') {
+            $items = DB::table('news')
+                ->whereIn('news_id', $ids->all())
+                ->get();
+
+            foreach ($items as $item) {
+                $this->deleteNewsRecord((int) $item->news_id, $item);
+                $this->logActivity('DELETED', 'NEWS', (int) $item->news_id, 'Deleted news: '.$item->title);
+            }
+
+            $count = $items->count();
+
+            $this->notifySystem(
+                'News Deleted',
+                $count.' news article(s) were deleted.',
+                'DANGER'
+            );
+
+            return response()->json([
+                'ok' => true,
+                'message' => $count.' news article(s) deleted.',
+            ]);
+        }
+
+        if (!Schema::hasColumn('news', 'is_hidden_from_public')) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'Hide from public is unavailable until the latest news migration is run.',
+            ], 422);
+        }
+
+        $hidden = $action === 'hide';
+
+        DB::table('news')
+            ->whereIn('news_id', $ids->all())
+            ->update(['is_hidden_from_public' => $hidden ? 1 : 0]);
+
+        foreach ($ids as $id) {
+            $this->logActivity(
+                $hidden ? 'HIDDEN' : 'SHOWN',
+                'NEWS',
+                $id,
+                ($hidden ? 'Hidden' : 'Restored').' news from public view'
+            );
+        }
+
+        $this->notifySystem(
+            $hidden ? 'News Hidden' : 'News Restored',
+            $ids->count().' news article(s) were '.($hidden ? 'hidden from' : 'restored to').' public view.',
+            $hidden ? 'WARNING' : 'INFO'
+        );
+
+        return response()->json([
+            'ok' => true,
+            'message' => $ids->count().' news article(s) '.($hidden ? 'hidden from' : 'restored to').' public view.',
+        ]);
+    }
+
+    private function deleteNewsRecord(int $id, ?object $news = null): void
+    {
+        $news ??= DB::table('news')->where('news_id', $id)->first();
+
+        if (!$news) {
+            return;
+        }
+
+        if (!empty($news->image_path)) {
+            NewsImage::delete($news->image_path);
+        }
+
+        DB::table('news')->where('news_id', $id)->delete();
     }
 
     public function toggle(Request $request)

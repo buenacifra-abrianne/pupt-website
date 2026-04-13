@@ -13,6 +13,7 @@
     --public-gold: #f3c45a;
     --text-color: #4c4c4c;
     --light-beige: #f6efe8;
+    --light-beige-gradient: linear-gradient(135deg, #fdfaf5 0%, #f6efe8 52%, #ecdccc 100%);
     --white: #ffffff;
 }
 
@@ -60,7 +61,7 @@ body {
     z-index: 1;
     border-radius: 20px;
     padding: 38px 20px 18px;
-    background: var(--light-beige);
+    background: var(--light-beige-gradient);
     border: 1px solid rgba(255, 255, 255, 0.45);
     backdrop-filter: blur(6px);
     box-shadow: 0 28px 52px rgba(0, 0, 0, 0.45);
@@ -223,7 +224,7 @@ body {
     padding: 6px 10px;
     border-radius: 999px;
     border: 1px solid rgba(139, 0, 0, 0.22);
-    background: rgba(255, 240, 210, 0.9);
+    background: var(--light-beige-gradient);
     font-size: 13px;
     font-weight: 700;
     letter-spacing: 0.01em;
@@ -255,7 +256,7 @@ body {
     color: var(--primary-color);
     font-size: 15px;
     font-weight: 600;
-    background: rgba(255, 255, 255, 0.68);
+    background: var(--light-beige-gradient);
     border: 1px solid rgba(139, 0, 0, 0.14);
     border-left: 6px solid #8b0000;
     box-shadow: 0 9px 18px rgba(0, 0, 0, 0.11);
@@ -466,10 +467,10 @@ body {
     font-size: 0.95rem;
     line-height: 1.5;
     text-align: center;
+    background: var(--light-beige-gradient);
 }
 
 .landing-alert-error {
-    background: rgba(139, 0, 0, 0.10);
     color: #7a1111;
     border: 1px solid rgba(139, 0, 0, 0.22);
 }

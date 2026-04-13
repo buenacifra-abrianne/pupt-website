@@ -432,193 +432,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =======================
-// 5.1) News card hover state
-// =======================
-document.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".news-mini-card").forEach((card) => {
-    const back = card.querySelector(".news-mini-card-back");
-    const copy = card.querySelector(".news-mini-card-copy");
-    const img = card.querySelector(".news-mini-card-front img");
-    const overlayCopy = card.querySelector(".updates-card-overlay-copy");
-    const action = card.querySelector(".updates-card-action");
-
-    if (!back || !copy || !img || !overlayCopy || !action) return;
-
-    const setRestState = () => {
-      back.style.opacity = "0";
-      back.style.transform = "translateY(112%)";
-      back.style.pointerEvents = "none";
-
-      overlayCopy.style.opacity = "0";
-      overlayCopy.style.transform = "translateY(18px)";
-
-      action.style.opacity = "0";
-      action.style.transform = "translateY(18px)";
-
-      copy.style.opacity = "1";
-      copy.style.transform = "translateY(0)";
-
-      img.style.transform = "scale(1)";
-      img.style.filter = "brightness(1)";
-    };
-
-    const cancelAnimations = () => {
-      [back, copy, img, overlayCopy, action].forEach((el) => {
-        if (!el?.getAnimations) return;
-        el.getAnimations().forEach((animation) => animation.cancel());
-      });
-    };
-
-    const animateIn = () => {
-      cancelAnimations();
-      card.classList.add("is-hovered");
-      back.style.pointerEvents = "auto";
-
-      back.animate(
-        [
-          { opacity: 0, transform: "translateY(112%)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ],
-        {
-          duration: 560,
-          easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-          fill: "forwards",
-        }
-      );
-
-      overlayCopy.animate(
-        [
-          { opacity: 0, transform: "translateY(18px)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ],
-        {
-          duration: 360,
-          delay: 130,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-
-      action.animate(
-        [
-          { opacity: 0, transform: "translateY(18px)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ],
-        {
-          duration: 360,
-          delay: 210,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-
-      copy.animate(
-        [
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(18px)" },
-        ],
-        {
-          duration: 260,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-
-      img.animate(
-        [
-          { transform: "scale(1)", filter: "brightness(1)" },
-          { transform: "scale(1.06)", filter: "brightness(0.62)" },
-        ],
-        {
-          duration: 560,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-    };
-
-    const animateOut = () => {
-      cancelAnimations();
-      card.classList.remove("is-hovered");
-
-      overlayCopy.animate(
-        [
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(12px)" },
-        ],
-        {
-          duration: 180,
-          easing: "ease-in",
-          fill: "forwards",
-        }
-      );
-
-      action.animate(
-        [
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(12px)" },
-        ],
-        {
-          duration: 160,
-          easing: "ease-in",
-          fill: "forwards",
-        }
-      );
-
-      back.animate(
-        [
-          { opacity: 1, transform: "translateY(0)" },
-          { opacity: 0, transform: "translateY(112%)" },
-        ],
-        {
-          duration: 360,
-          easing: "ease-in",
-          fill: "forwards",
-        }
-      );
-
-      copy.animate(
-        [
-          { opacity: 0, transform: "translateY(18px)" },
-          { opacity: 1, transform: "translateY(0)" },
-        ],
-        {
-          duration: 240,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-
-      img.animate(
-        [
-          { transform: "scale(1.06)", filter: "brightness(0.62)" },
-          { transform: "scale(1)", filter: "brightness(1)" },
-        ],
-        {
-          duration: 360,
-          easing: "ease-out",
-          fill: "forwards",
-        }
-      );
-
-      window.setTimeout(() => {
-        back.style.pointerEvents = "none";
-      }, 360);
-    };
-
-    setRestState();
-
-    ["pointerenter", "mouseenter", "focusin"].forEach((eventName) => {
-      card.addEventListener(eventName, animateIn);
-    });
-
-    ["pointerleave", "mouseleave", "focusout"].forEach((eventName) => {
-      card.addEventListener(eventName, animateOut);
-    });
-  });
-});
-
-// =======================
 // 6) Feedback "Thank you"
 // =======================
 function showThankYou(event) {
@@ -663,6 +476,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const modalTitle = document.getElementById("modalTitle");
   const modalLocation = document.getElementById("modalLocation");
   const modalText = document.getElementById("modalText");
+
+  if (!closeBtn || !modalImg || !modalTag || !modalDate || !modalTitle || !modalLocation || !modalText) {
+    return;
+  }
 
   function openModal() {
     modal.classList.remove("closing");
@@ -750,17 +567,19 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // =========================
-// HOME ADVISORY DETAILS MODAL
+// HOME UPDATES DETAILS MODAL
 // =========================
 document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("advisoryDetailsModal");
   if (!modal) return;
 
   const closeBtn = modal.querySelector(".advisory-modal-close");
+  const tag = document.getElementById("advisoryModalTag");
   const title = document.getElementById("advisoryModalTitle");
   const date = document.getElementById("advisoryModalDate");
   const text = document.getElementById("advisoryModalText");
   const link = document.getElementById("advisoryModalLink");
+  let lastTrigger = null;
 
   function appendLinkedText(container, rawText) {
     const textValue = rawText || "";
@@ -787,10 +606,15 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  function renderAdvisoryContent(rawContent) {
+  function renderAdvisoryContent(rawContent, rawHtml = "") {
     if (!text) return;
 
     text.replaceChildren();
+
+    if (rawHtml && rawHtml.trim()) {
+      text.innerHTML = rawHtml;
+      return;
+    }
 
     const normalized = (rawContent || "")
       .replace(/\r\n/g, "\n")
@@ -824,17 +648,24 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.classList.remove("show");
     modal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("modal-open");
+    if (lastTrigger instanceof HTMLElement) {
+      lastTrigger.focus();
+    }
   }
 
   document.addEventListener("click", (event) => {
-    const trigger = event.target.closest("[data-advisory-modal='true']");
+    const trigger = event.target.closest("[data-updates-modal='true'], [data-advisory-modal='true']");
     if (!trigger) return;
 
     event.preventDefault();
+    lastTrigger = trigger;
 
+    if (tag) {
+      tag.textContent = trigger.dataset.modalTag || "Announcement";
+    }
     title.textContent = trigger.dataset.title || "";
     date.textContent = trigger.dataset.date || "";
-    renderAdvisoryContent(trigger.dataset.content || "");
+    renderAdvisoryContent(trigger.dataset.content || "", trigger.dataset.contentHtml || "");
 
     const advisoryLink = trigger.dataset.link || "";
     if (advisoryLink) {
@@ -1499,8 +1330,8 @@ function renderCardGrid(items) {
 
 document.addEventListener('DOMContentLoaded', async () => {
   // run only on News & Events page
-  const isNewsEventsPage = document.getElementById('featuredEventMount')
-    || document.querySelector('.upcoming-events')
+  const isNewsEventsPage = document.querySelector('.upcoming-events')
+    || document.querySelector('.ongoing-column')
     || document.querySelector('.card-grid');
 
   if (!isNewsEventsPage) return;
