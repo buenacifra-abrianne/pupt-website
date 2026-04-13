@@ -2368,21 +2368,64 @@ body.pup-dark-mode .contents-cards::-webkit-scrollbar-thumb {
   background: rgba(200, 80, 80, 0.28);
 }
 
+/* ── Cards — fixed to match pup-about-dark.css ── */
 body.pup-dark-mode .contents-card {
-  background: linear-gradient(180deg, rgba(30, 12, 15, 0.98) 0%, rgba(22, 8, 10, 0.9) 100%);
-  border-color: rgba(200, 80, 80, 0.18);
-  box-shadow: 0 0 0 5px rgba(255, 255, 255, 0.03);
+  background: linear-gradient(180deg, rgba(55, 8, 10, 0.95) 0%, rgba(35, 4, 6, 0.98) 100%);
+  border-color: rgba(180, 130, 40, 0.14);
+  box-shadow: 0 0 0 5px rgba(0, 0, 0, 0.25);
   color: #f5e8e8;
 }
 
 body.pup-dark-mode .contents-card:hover,
 body.pup-dark-mode .contents-card.active {
-  border-color: rgba(200, 80, 80, 0.32);
-  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.5);
+  border-color: rgba(215, 170, 67, 0.28);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.65);
 }
 
 body.pup-dark-mode .contents-card-front {
-  background: #1e0c0f;
+  background: rgba(45, 6, 8, 0.72);
+}
+
+body.pup-dark-mode .contents-card-copy {
+  background: linear-gradient(180deg, rgba(90, 12, 15, 0.98) 0%, rgba(60, 6, 9, 0.99) 100%);
+}
+
+body.pup-dark-mode .contents-card-back {
+  background:
+    radial-gradient(circle at 72% 28%, rgba(80, 10, 12, 0.28) 0%, rgba(50, 6, 8, 0.14) 18%, transparent 42%),
+    linear-gradient(180deg, rgba(55, 8, 10, 0.98) 0%, rgba(35, 4, 6, 0.97) 52%, rgba(18, 2, 3, 0.99) 100%);
+}
+
+body.pup-dark-mode .contents-card-overlay-copy h3 {
+  color: #fff4eb;
+}
+
+body.pup-dark-mode .contents-card-overlay-copy p {
+  color: rgba(255, 230, 210, 0.78);
+}
+
+body.pup-dark-mode .contents-card-action {
+  background: linear-gradient(135deg, #f3c45a 0%, #d7aa43 100%);
+  color: #2d1606;
+}
+
+/* Info card variant */
+body.pup-dark-mode .contents-card--info .contents-card-front {
+  background: linear-gradient(180deg, rgba(45, 6, 8, 0.96) 0%, rgba(28, 3, 5, 0.98) 100%);
+}
+
+body.pup-dark-mode .contents-card--info .contents-card-body {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .contents-card--info .contents-card-body p {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .about-card-icon:not(.contents-card--accent .about-card-icon) {
+  background: rgba(160, 40, 40, 0.14);
+  color: #e08080;
+  box-shadow: inset 0 0 0 1px rgba(160, 40, 40, 0.14);
 }
 
 body.pup-dark-mode .iapply-hero,
@@ -2459,6 +2502,31 @@ body.pup-dark-mode .contact-info-card {
   box-shadow: 0 22px 48px rgba(0, 0, 0, 0.5);
 }
 
+body.pup-dark-mode .dp-contact-photo-panel {
+  background: linear-gradient(160deg, #3d0c10 0%, #2a0608 55%, #1e0405 100%);
+}
+
+body.pup-dark-mode .dp-contact-logo-wrap {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(160, 40, 40, 0.22);
+}
+
+body.pup-dark-mode .dp-contact-branch-name {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .dp-contact-branch-sub {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .dp-contact-divider {
+  background: rgba(215, 170, 67, 0.35);
+}
+
+body.pup-dark-mode .dp-contact-address {
+  color: #c8a8a8;
+}
+
 body.pup-dark-mode .dp-contact-heading {
   color: #f5e8e8;
 }
@@ -2510,6 +2578,24 @@ body.pup-dark-mode .history-feature img {
 
 body.pup-dark-mode .read-more-btn {
   background: linear-gradient(135deg, #a11d23 0%, #7f1113 48%, #5c0d0f 100%);
+}
+
+body.pup-dark-mode .apply-now-btn,
+body.pup-dark-mode .dp-contact-cta,
+body.pup-dark-mode .submit-btn,
+body.pup-dark-mode .hero-primary,
+body.pup-dark-mode .iapply-hero .apply-now-btn {
+  background: linear-gradient(135deg, #c8960a 0%, #a87a0a 100%);
+  color: #1a0a00 !important;
+}
+
+body.pup-dark-mode .apply-now-btn:hover,
+body.pup-dark-mode .dp-contact-cta:hover,
+body.pup-dark-mode .submit-btn:hover,
+body.pup-dark-mode .hero-primary:hover,
+body.pup-dark-mode .iapply-hero .apply-now-btn:hover {
+  background: linear-gradient(135deg, #b8860a 0%, #986a0a 100%);
+  color: #1a0a00 !important;
 }
 
 body.pup-dark-mode .reveal {
