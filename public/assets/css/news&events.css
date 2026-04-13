@@ -807,7 +807,6 @@ body.pup-dark-mode .ne-filter-label {
   color: #c8a8a8;
 }
 
-/* ── Filter buttons — inactive ── */
 body.pup-dark-mode .ne-filter {
   background: linear-gradient(160deg, rgba(26,10,12,0.98) 0%, rgba(20,8,10,0.96) 100%);
   border-color: rgba(200,80,80,0.14);
@@ -819,7 +818,6 @@ body.pup-dark-mode .ne-filter:hover:not(.active) {
   color: #e08080;
 }
 
-/* ── Filter button — active state (gold, matching home dark) ── */
 body.pup-dark-mode .ne-filter.active {
   background: linear-gradient(135deg, #c8960a 0%, #a87a0a 100%);
   border-color: transparent;
@@ -860,7 +858,6 @@ body.pup-dark-mode .ne-read-more:hover {
   color: #f0a0a5;
 }
 
-/* ── Primary / CTA buttons — gold, matching home dark submit-btn ── */
 body.pup-dark-mode .ne-btn-gold {
   box-shadow: none;
 }
