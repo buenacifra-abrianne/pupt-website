@@ -81,12 +81,6 @@
                         <span class="iapply-schedule-box-label">Location</span>
                         <span class="iapply-schedule-box-value">PUP Taguig Branch, Gen. Santos Ave., Taguig City</span>
                     </div>
-                    <div class="iapply-schedule-box">
-                        <span class="iapply-schedule-box-label">Apply Online</span>
-                        <span class="iapply-schedule-box-value">
-                            <a href="#">iApply Portal →</a>
-                        </span>
-                    </div>
                 </div>
             </div>
         </div>
