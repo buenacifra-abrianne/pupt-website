@@ -50,6 +50,7 @@ class CmsSections
         'OJT' => ['home', 'events'],
         'CWTS' => ['home', 'events'],
         'DIRECTOR_OFFICE' => ['home', 'events'],
+        'ADMINISTRATION' => ['home', 'events'],
     ];
 
     public static function normalizeRole(string $role): string

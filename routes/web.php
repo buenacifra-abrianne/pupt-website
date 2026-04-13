@@ -104,7 +104,7 @@ Route::middleware('superadmin.auth')->group(function () {
 // Staff Login
 Route::prefix('staff')
     ->name('staff.')
-    ->middleware(['superadmin.auth', 'check.idp', 'nonsuperadmin.role', 'cms.terms.accepted'])
+    ->middleware(['superadmin.auth', 'nonsuperadmin.role', 'cms.terms.accepted'])
     ->group(function () {
 
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
@@ -162,7 +162,7 @@ Route::prefix('staff')
 // Admin Login
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['superadmin.auth', 'check.idp', 'nonsuperadmin.role', 'cms.terms.accepted'])
+    ->middleware(['superadmin.auth', 'nonsuperadmin.role', 'cms.terms.accepted'])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -220,7 +220,7 @@ Route::prefix('superadmin')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('superadmin.login.submit');
     Route::post('/logout', [AuthController::class, 'logout'])->name('superadmin.logout');
 
-    Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])->group(function () {
+    Route::middleware(['superadmin.auth', 'superadmin.role', 'cms.terms.accepted'])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('superadmin.dashboard');
 

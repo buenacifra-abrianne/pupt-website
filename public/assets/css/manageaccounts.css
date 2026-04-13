@@ -766,6 +766,11 @@ tbody td {
   color: #374151;
 }
 
+.r-administration {
+  background: rgba(71, 85, 105, 0.12);
+  color: #475569;
+}
+
 /* Status Badges */
 .sbadge {
     padding: 4px 11px;
