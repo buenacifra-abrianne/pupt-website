@@ -23,30 +23,37 @@
     
 
     <!-- Logos -->
-    <div class="big_logo">
-        <img
-            src="{{ asset('assets/static_img/logo.png') }}"
-            alt="PUPT Logo"
-        >
-        <img
-            src="{{ asset('assets/static_img/bagong_pilipinas_logo.png') }}"
-            alt="Bagong Pilipinas Logo"
-        >
-    </div>
+    <div class="hero-logo-stack">
+        <div class="hero-seal-wrap">
+            <img
+                class="hero-seal"
+                src="{{ asset('assets/static_img/logo.png') }}"
+                alt="PUP Seal"
+            >
+        </div>
 
-    <div class="small_logo">
-        <img
-            src="{{ asset('assets/static_img/transparency_seal.png') }}"
-            alt="Transparency Seal"
-        >
-        <img
-            src="{{ asset('assets/static_img/freedom_of_information.png') }}"
-            alt="Freedom of Information"
-        >
-        <img
-            src="{{ asset('assets/static_img/DPO_DPS_seal.png') }}"
-            alt="DPO DPS Seal"
-        >
+        <div class="support-logo-row">
+            <img
+                class="support-logo support-logo--bagong"
+                src="{{ asset('assets/static_img/bagong_pilipinas_logo.png') }}"
+                alt="Bagong Pilipinas Logo"
+            >
+            <img
+                class="support-logo"
+                src="{{ asset('assets/static_img/transparency_seal.png') }}"
+                alt="Transparency Seal"
+            >
+            <img
+                class="support-logo"
+                src="{{ asset('assets/static_img/freedom_of_information.png') }}"
+                alt="Freedom of Information"
+            >
+            <img
+                class="support-logo support-logo--dpo"
+                src="{{ asset('assets/static_img/DPO_DPS_seal.png') }}"
+                alt="DPO DPS Seal"
+            >
+        </div>
     </div>
 
         <p class="kicker">Official Campus Website</p>
