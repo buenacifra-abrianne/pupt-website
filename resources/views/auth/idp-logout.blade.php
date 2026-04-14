@@ -165,49 +165,8 @@
     </div>
 
     <script>
-(async function () {
-    const logoutUrl = @json($idpLogoutUrl);
-    const clientId = @json($clientId);
-    const afterLogoutUrl = @json($afterLogoutUrl);
-    const accessToken = @json($accessToken);
-
-    let shouldRedirect = false;
-
-    try {
-        const response = await fetch(logoutUrl, {
-            method: 'POST',
-            credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-                'Authorization': `Bearer ${accessToken}`,
-            },
-            body: JSON.stringify({
-                client_id: clientId
-            })
-        });
-
-        let data = null;
-        try {
-            data = await response.json();
-        } catch (_) {}
-
-        console.log('IDP logout response:', {
-            status: response.status,
-            ok: response.ok,
-            data: data
-        });
-
-        shouldRedirect = response.ok;
-
-    } catch (error) {
-        console.error('IDP logout failed:', error);
-    }
-
-    if (shouldRedirect) {
-        window.location.href = afterLogoutUrl;
-    }
-})();
+    const idpBrowserLogoutUrl = @json($idpBrowserLogoutUrl);
+    window.location.replace(idpBrowserLogoutUrl);
 </script>
 
     <noscript>

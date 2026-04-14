@@ -321,6 +321,23 @@ class OnePortalController extends Controller
 
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
+    $afterLogoutUrl = route('public.landing');
+
+    // Revoke tokens server-side using bearer token
+    if ($baseUrl !== '' && $clientId !== '' && $accessToken !== '') {
+        try {
+            Http::withoutVerifying()
+                ->withToken($accessToken)
+                ->asJson()
+                ->post($baseUrl . '/api/v1/auth/logout', [
+                    'client_id' => $clientId,
+                ]);
+        } catch (\Throwable $e) {
+            \Log::warning('IDP API logout failed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
 
     $request->session()->flush();
     $request->session()->invalidate();
@@ -333,10 +350,8 @@ class OnePortalController extends Controller
     }
 
     return response()->view('auth.idp-logout', [
-        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
-        'clientId' => $clientId,
-        'afterLogoutUrl' => route('public.landing'),
-        'accessToken' => $accessToken,
+        'idpBrowserLogoutUrl' => $baseUrl . '/logout?client_id=' . urlencode($clientId),
+        'afterLogoutUrl' => $afterLogoutUrl,
     ])->withoutCookie('access_token')
       ->withoutCookie('refresh_token');
 }
