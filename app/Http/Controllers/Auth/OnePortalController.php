@@ -322,11 +322,12 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    if ($baseUrl === '' || $clientId === '') {
-        $request->session()->flush();
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+    // capture token first, THEN clear local session
+    $request->session()->flush();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
 
+    if ($baseUrl === '' || $clientId === '') {
         return redirect()->route('public.landing')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
