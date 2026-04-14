@@ -51,7 +51,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
+                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link" onclick="try{sessionStorage.setItem('cms-content-entry-loading','1');}catch(e){}">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>
@@ -111,12 +111,15 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage Announcements</h3>
-                    <button class="btn btn-primary" onclick="openAnnouncementModal(true)">
-                        <i class="fas fa-plus"></i> New Announcement
-                    </button>
                 </div>
 
-                <div id="announcementsList">
+                <div id="announcementsList" class="announcement-grid">
+                    <button type="button" class="announcement-item announcement-card-create" data-static-card="1" onclick="openAnnouncementModal(true)">
+                        <span class="announcement-card-create-icon">+</span>
+                        <span class="announcement-card-create-title">Create Announcement</span>
+                        <span class="announcement-card-create-text">Add a new campus advisory or announcement.</span>
+                    </button>
+
                     @foreach($announcements as $row)
                         @php
                             $db_status = strtoupper(trim($row->status));

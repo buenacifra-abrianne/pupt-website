@@ -105,27 +105,9 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="events-cms-panel-tools">
-                        <div>
-                            <h4>Event Cards</h4>
-                            <p>Each card can appear in the featured area, filter grid, and schedule lists based on its settings.</p>
-                        </div>
-                        <button type="button" class="btn btn-secondary events-cms-add-card" data-add-events-card>
-                            <i class="fas fa-plus"></i>
-                            Add Event Card
-                        </button>
-                    </div>
-
                     <div class="events-cms-card-stack" data-events-card-stack>
                         @foreach($cardsEditor as $index => $card)
-                            <article class="events-cms-card-editor" data-events-card-editor>
-                                <div class="events-cms-card-editor-head">
-                                    <div>
-                                        <h4>Event Card {{ $loop->iteration }}</h4>
-                                        <span>{{ \App\Support\EventsCmsContent::categoryLabel($card['category'] ?? 'events') }}</span>
-                                    </div>
-                                </div>
-
+                            <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="{{ $index }}">
                                 <div class="events-cms-form-grid">
                                     <div class="form-group">
                                         <label>Event Title</label>
@@ -156,7 +138,7 @@
                                         <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
                                     </div>
                                     <div class="form-group">
-                                        <label>Image Path</label>
+                                        <label>Link</label>
                                         <input type="text" name="events[cards][{{ $index }}][image]" maxlength="2048" value="{{ $card['image'] ?? '' }}">
                                     </div>
                                     <div class="form-group">
@@ -167,7 +149,10 @@
 
                                 <label class="events-cms-feature-check">
                                     <input type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
-                                    <span>Show this as the featured event when enabled.</span>
+                                    <span class="events-cms-feature-copy">
+                                        <strong>Featured Event</strong>
+                                        <small>Pin this card to the highlighted event section.</small>
+                                    </span>
                                 </label>
 
                                 <div class="form-group">
@@ -188,14 +173,7 @@
                     </div>
 
                     <template data-events-card-template>
-                        <article class="events-cms-card-editor" data-events-card-editor>
-                            <div class="events-cms-card-editor-head">
-                                <div>
-                                    <h4>Event Card __CARD_NUMBER__</h4>
-                                    <span>Events</span>
-                                </div>
-                            </div>
-
+                        <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="__INDEX__" data-events-new-card="1">
                             <div class="events-cms-form-grid">
                                 <div class="form-group">
                                     <label>Event Title</label>
@@ -226,7 +204,7 @@
                                     <input type="time" name="events[cards][__INDEX__][end_time]" value="">
                                 </div>
                                 <div class="form-group">
-                                    <label>Image Path</label>
+                                    <label>Link</label>
                                     <input type="text" name="events[cards][__INDEX__][image]" maxlength="2048" value="">
                                 </div>
                                 <div class="form-group">
@@ -237,7 +215,10 @@
 
                             <label class="events-cms-feature-check">
                                 <input type="checkbox" name="events[cards][__INDEX__][featured]" value="1">
-                                <span>Show this as the featured event when enabled.</span>
+                                <span class="events-cms-feature-copy">
+                                    <strong>Featured Event</strong>
+                                    <small>Pin this card to the highlighted event section.</small>
+                                </span>
                             </label>
 
                             <div class="form-group">
@@ -427,6 +408,7 @@
 
     .events-cms-modal-panels {
         padding: 22px 24px 24px;
+        background: linear-gradient(180deg, rgba(255, 251, 247, 0.92) 0%, #fffdfc 100%);
     }
 
     .events-cms-form-grid {
@@ -435,37 +417,26 @@
         gap: 14px;
     }
 
-    .events-cms-panel-tools {
-        display: flex;
-        justify-content: space-between;
-        gap: 14px;
-        align-items: center;
-        margin-bottom: 18px;
-    }
-
-    .events-cms-panel-tools h4 {
-        margin: 0;
-        color: #5c0000;
-        font-size: 1.08rem;
-    }
-
-    .events-cms-panel-tools p {
-        margin: 6px 0 0;
-        color: #6f625c;
-        font-size: 0.92rem;
-        line-height: 1.55;
-    }
-
     .events-cms-card-stack {
         display: grid;
         gap: 16px;
     }
 
     .events-cms-card-editor {
-        padding: 16px;
-        border: 1px solid #efe3dc;
-        border-radius: 16px;
-        background: #fff;
+        padding: 18px;
+        border: 1px solid rgba(127, 17, 19, 0.08);
+        border-radius: 20px;
+        background: linear-gradient(180deg, #ffffff 0%, #fffaf6 100%);
+        box-shadow: 0 8px 22px rgba(92, 12, 6, 0.05);
+    }
+
+    .events-cms-card-editor[hidden] {
+        display: none !important;
+    }
+
+    .events-cms-card-editor.is-selected {
+        border-color: rgba(127, 17, 19, 0.28);
+        box-shadow: 0 18px 34px rgba(92, 12, 6, 0.1);
     }
 
     .events-cms-card-editor-head {
@@ -473,33 +444,59 @@
         justify-content: space-between;
         gap: 12px;
         align-items: center;
-        margin-bottom: 14px;
+        margin-bottom: 10px;
     }
 
-    .events-cms-card-editor-head h4 {
-        margin: 0;
-        color: #5c0000;
-        font-size: 1rem;
+    .events-cms-delete-card {
+        min-height: 38px;
+        padding: 0 14px;
+        border-color: rgba(127, 17, 19, 0.18);
+        color: #7f1113;
+        background: rgba(255, 250, 244, 0.92);
+        box-shadow: none;
     }
 
-    .events-cms-card-editor-head span {
-        color: #8a7a73;
-        font-size: 0.8rem;
+    .events-cms-delete-card:hover {
+        border-color: #7f1113;
+        background: #7f1113;
+        color: #fffaf4;
     }
 
     .events-cms-feature-check {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        gap: 10px;
-        margin: 14px 0 6px;
+        gap: 12px;
+        margin: 16px 0 10px;
+        padding: 14px 16px;
+        border: 1px solid rgba(127, 17, 19, 0.1);
+        border-radius: 16px;
+        background: linear-gradient(135deg, rgba(127, 17, 19, 0.04) 0%, rgba(242, 201, 76, 0.08) 100%);
         color: #5c0000;
-        font-weight: 600;
     }
 
     .events-cms-feature-check input {
-        width: 18px;
-        height: 18px;
+        width: 20px;
+        height: 20px;
         accent-color: #800000;
+        flex-shrink: 0;
+    }
+
+    .events-cms-feature-copy {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .events-cms-feature-copy strong {
+        color: #5c0000;
+        font-size: 0.94rem;
+        line-height: 1.2;
+    }
+
+    .events-cms-feature-copy small {
+        color: #7c6660;
+        font-size: 0.8rem;
+        line-height: 1.45;
     }
 
     .events-cms-modal-footer {
@@ -520,7 +517,6 @@
         }
 
         .events-cms-preview-head,
-        .events-cms-panel-tools,
         .events-cms-card-editor-head {
             flex-direction: column;
             align-items: flex-start;
@@ -663,9 +659,15 @@
 
             const contentBottom = visibleElements.reduce((maxBottom, element) => {
                 return Math.max(maxBottom, getEventsPreviewElementBottom(element));
-            }, scope.offsetHeight);
+            }, 0);
 
-            return Math.max(1, Math.ceil(contentBottom));
+            return Math.max(
+                1,
+                Math.ceil(contentBottom),
+                Math.ceil(scope.scrollHeight || 0),
+                Math.ceil(doc.documentElement?.scrollHeight || 0),
+                Math.ceil(doc.body?.scrollHeight || 0)
+            );
         }
 
         function syncEventsPreviewHeight(frame, nextHeight) {
@@ -827,7 +829,74 @@
             });
         }
 
-        function openEventsEditor(sectionKey, label) {
+        function setActiveEventsCardEditor(targetIndex = null) {
+            const cardsPanel = document.querySelector('[data-events-editor-panel="cards"]');
+            const editors = Array.from(cardsPanel?.querySelectorAll('[data-events-card-editor]') || []);
+
+            if (!editors.length) {
+                return null;
+            }
+
+            const normalizedIndex = targetIndex === null || targetIndex === undefined || targetIndex === ''
+                ? null
+                : String(targetIndex);
+
+            let activeEditor = null;
+
+            editors.forEach((editor) => {
+                const isMatch = normalizedIndex !== null && editor.getAttribute('data-events-card-index') === normalizedIndex;
+                editor.hidden = normalizedIndex !== null && !isMatch;
+                editor.classList.toggle('is-selected', isMatch);
+
+                if (isMatch) {
+                    activeEditor = editor;
+                }
+            });
+
+            return activeEditor;
+        }
+
+        function getNextEventsCardIndex(stack) {
+            const indexes = Array.from(stack.querySelectorAll('[data-events-card-editor]'))
+                .map((editor) => Number(editor.getAttribute('data-events-card-index')))
+                .filter((value) => Number.isFinite(value));
+
+            if (!indexes.length) {
+                return 0;
+            }
+
+            return Math.max(...indexes) + 1;
+        }
+
+        function deleteEventsCardEditor(editor, options = {}) {
+            const stack = editor?.closest('[data-events-card-stack]');
+
+            if (!editor || !stack) {
+                return false;
+            }
+
+            const wasSelected = editor.classList.contains('is-selected');
+            editor.remove();
+
+            const remainingEditors = Array.from(stack.querySelectorAll('[data-events-card-editor]'));
+
+            if (!remainingEditors.length) {
+                return true;
+            }
+
+            if (wasSelected && options.keepFocus !== false) {
+                const fallbackEditor = remainingEditors[0];
+                const fallbackIndex = fallbackEditor.getAttribute('data-events-card-index');
+                setActiveEventsCardEditor(fallbackIndex);
+
+                const firstField = fallbackEditor.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
+                firstField?.focus();
+            }
+
+            return true;
+        }
+
+        function openEventsEditor(sectionKey, label, options = {}) {
             const modal = document.querySelector('[data-events-editor-modal]');
             if (!modal) {
                 return;
@@ -856,10 +925,58 @@
                         window.initializeRichTextEditors(panel);
                     }
 
-                    const firstField = panel.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
+                    const activeCardEditor = sectionKey === 'cards'
+                        ? setActiveEventsCardEditor(options.cardIndex ?? null)
+                        : null;
+                    const focusScope = activeCardEditor || panel;
+                    const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                     firstField?.focus();
                 }
             });
+        }
+
+        function addEventsCard(options = {}) {
+            const cardsPanel = document.querySelector('[data-events-editor-panel="cards"]');
+            const form = cardsPanel?.querySelector('[data-events-cards-form]');
+            const stack = form?.querySelector('[data-events-card-stack]');
+            const template = form?.querySelector('[data-events-card-template]');
+
+            if (!stack || !template) {
+                return null;
+            }
+
+            const existingNewCard = stack.querySelector('[data-events-card-editor][data-events-new-card="1"]');
+            if (existingNewCard) {
+                setActiveEventsCardEditor(existingNewCard.getAttribute('data-events-card-index'));
+
+                if (options.focus !== false) {
+                    const existingField = existingNewCard.querySelector('input[type="text"], input[type="date"], textarea, select');
+                    existingField?.focus();
+                }
+
+                return existingNewCard;
+            }
+
+            const nextIndex = getNextEventsCardIndex(stack);
+            const html = template.innerHTML
+                .replaceAll('__INDEX__', String(nextIndex))
+                .replaceAll('__CARD_NUMBER__', String(stack.querySelectorAll('[data-events-card-editor]').length + 1));
+
+            stack.insertAdjacentHTML('beforeend', html);
+
+            const newCard = stack.lastElementChild;
+            if (newCard && typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(newCard);
+            }
+
+            setActiveEventsCardEditor(String(nextIndex));
+
+            if (options.focus !== false) {
+                const firstField = newCard?.querySelector('input[type="text"], input[type="date"], textarea, select');
+                firstField?.focus();
+            }
+
+            return newCard;
         }
 
         function closeEventsEditor() {
@@ -881,30 +998,81 @@
                 button.dataset.eventsCardBound = '1';
 
                 button.addEventListener('click', () => {
-                    const form = button.closest('form');
-                    const stack = form?.querySelector('[data-events-card-stack]');
-                    const template = form?.querySelector('[data-events-card-template]');
-
-                    if (!stack || !template) {
-                        return;
-                    }
-
-                    const nextIndex = stack.querySelectorAll('[data-events-card-editor]').length;
-                    const html = template.innerHTML
-                        .replaceAll('__INDEX__', String(nextIndex))
-                        .replaceAll('__CARD_NUMBER__', String(nextIndex + 1));
-
-                    stack.insertAdjacentHTML('beforeend', html);
-
-                    const newCard = stack.lastElementChild;
-                    if (newCard && typeof window.initializeRichTextEditors === 'function') {
-                        window.initializeRichTextEditors(newCard);
-                    }
-
-                    const firstField = newCard?.querySelector('input[type="text"], input[type="date"], textarea, select');
-                    firstField?.focus();
+                    addEventsCard();
                 });
             });
+        }
+
+        function deleteEventsCard(trigger) {
+            const editor = trigger.closest('[data-events-card-editor]');
+            if (!editor) {
+                return;
+            }
+
+            confirmEventsCardDelete(editor.getAttribute('data-events-card-index'));
+        }
+
+        function deleteEventsCardByIndex(cardIndex, options = {}) {
+            const form = document.querySelector('[data-events-cards-form]');
+            const editor = form?.querySelector(`[data-events-card-editor][data-events-card-index="${cardIndex}"]`);
+            if (!editor) {
+                return false;
+            }
+
+            const deleted = deleteEventsCardEditor(editor, options);
+            if (!deleted) {
+                return false;
+            }
+
+            const frame = document.querySelector('[data-events-preview-frame]');
+            frame?.contentWindow?.postMessage({
+                type: 'cms-events-prune-card',
+                cardIndex: Number(cardIndex),
+            }, '*');
+
+            return true;
+        }
+
+        async function confirmEventsCardDelete(cardIndex) {
+            const form = document.querySelector('[data-events-cards-form]');
+            const editor = form?.querySelector(`[data-events-card-editor][data-events-card-index="${cardIndex}"]`);
+            if (!editor) {
+                return;
+            }
+
+            const titleInput = editor.querySelector('input[name*="[title]"]');
+            const cardTitle = String(titleInput?.value || '').trim();
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Event',
+                    message: cardTitle
+                        ? `Do you want to delete "${cardTitle}"?`
+                        : 'Do you want to delete this event card?',
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(
+                    cardTitle
+                        ? `Do you want to delete "${cardTitle}"?`
+                        : 'Do you want to delete this event card?'
+                );
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const deleted = deleteEventsCardByIndex(cardIndex);
+            if (!deleted) {
+                return;
+            }
+
+            if (typeof window.showToast === 'function') {
+                window.showToast('Event deleted successfully.', 'success', 'Event');
+            }
         }
 
         window.openEventsCmsSection = openEventsEditor;
@@ -915,8 +1083,21 @@
                 return;
             }
 
-            if (data.type === 'cms-events-edit') {
-                openEventsEditor(data.section || '', data.label || 'Edit events section');
+            if (data.type === 'cms-events-add-card') {
+                openEventsEditor('cards', data.label || 'Add event card');
+                window.setTimeout(() => addEventsCard(), 0);
+                return;
+            }
+
+            if (data.type === 'cms-events-edit-card') {
+                openEventsEditor('cards', data.label || 'Edit event card', {
+                    cardIndex: data.cardIndex,
+                });
+                return;
+            }
+
+            if (data.type === 'cms-events-delete-card') {
+                confirmEventsCardDelete(data.cardIndex);
                 return;
             }
 
@@ -936,6 +1117,13 @@
             if (event.target.closest('[data-close-events-editor]')) {
                 event.preventDefault();
                 closeEventsEditor();
+                return;
+            }
+
+            const deleteTrigger = event.target.closest('[data-delete-events-card]');
+            if (deleteTrigger) {
+                event.preventDefault();
+                deleteEventsCard(deleteTrigger);
             }
         });
 

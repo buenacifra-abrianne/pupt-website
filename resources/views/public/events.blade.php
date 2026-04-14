@@ -15,11 +15,20 @@
         $pageSection = $eventsCms['page'] ?? [];
         $eventCards = collect($eventsCms['cards'] ?? [])
             ->filter(fn ($card) => is_array($card))
+            ->map(fn ($card, $index) => array_merge($card, ['source_index' => $index]))
             ->values();
         $sortedCards = $eventCards
             ->sortBy(fn ($card) => ($card['event_date'] ?? '9999-12-31').'|'.($card['start_time'] ?? '99:99').'|'.($card['title'] ?? ''))
             ->values();
         $today = now()->toDateString();
+        $isExpiredCard = static function (array $card) use ($today): bool {
+            $date = trim((string) ($card['event_date'] ?? ''));
+            return $date !== '' && $date < $today;
+        };
+        $expiredCards = $sortedCards->filter($isExpiredCard)->values();
+        $displayCards = $cmsPreview
+            ? $sortedCards->reject($isExpiredCard)->values()
+            : $sortedCards;
         $featuredCard = $eventCards->first(fn ($card) => !empty($card['featured']));
         $ongoingCards = $sortedCards->filter(fn ($card) => ($card['event_date'] ?? '') === $today)->values();
         $upcomingCards = $sortedCards->filter(fn ($card) => ($card['event_date'] ?? '') > $today)->values();
@@ -84,6 +93,15 @@
 
             return \Illuminate\Support\Str::limit(strip_tags((string) ($card['content'] ?? '')), 170);
         };
+
+        $summaryHtmlFor = static function (array $card): string {
+            $summary = trim((string) ($card['summary'] ?? ''));
+            if ($summary !== '') {
+                return \App\Support\RichText::sanitize($summary);
+            }
+
+            return \App\Support\RichText::sanitize((string) ($card['content'] ?? ''));
+        };
     @endphp
 
     @unless($cmsPreview)
@@ -100,7 +118,7 @@
 
     <main class="main-content">
         <section class="about-shell page-shell ne-page-shell">
-            <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
+            <nav class="ne-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
                 <strong>Events</strong>
@@ -130,7 +148,7 @@
                 </div>
             </section>
 
-            @if($featuredCard)
+            @if(!$cmsPreview && $featuredCard)
                 <section id="featuredEventMount" class="ne-featured reveal" aria-label="Featured event">
                     <div class="ne-featured-img">
                         <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $featuredCard['title'] ?? 'Featured event' }}">
@@ -148,6 +166,7 @@
                             data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}"
                             data-date="{{ $formatDateLine($featuredCard) }}"
                             data-title="{{ $featuredCard['title'] ?? '' }}"
+                            data-summary="{{ e($summaryFor($featuredCard)) }}"
                             data-location="{{ $featuredCard['location'] ?? '' }}"
                             data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                             data-content-html="{{ e(\App\Support\RichText::sanitize($featuredCard['content'] ?? '')) }}"
@@ -159,61 +178,50 @@
             @endif
 
             <section
-                class="ne-events-main reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                @if($cmsPreview)
-                    data-cms-section="cards"
-                    data-cms-section-label="Event Listings"
-                @endif
+                class="ne-events-main reveal"
             >
-                @if($cmsPreview)
-                    <button type="button" class="cms-preview-chip" data-cms-edit-trigger="cards" aria-label="Edit Event Listings">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                        </svg>
-                    </button>
-                @endif
-
                 <div data-cms-boundary class="cms-preview-boundary-full">
-                    <section class="ne-events-section">
-                        <div class="ne-events-header">
-                            <p class="ne-section-label">Scheduled Events</p>
-                            <h2>Ongoing and Upcoming</h2>
-                        </div>
-
-                        <div class="ne-events-columns">
-                            <div class="ne-events-col">
-                                <h3 class="ne-col-title ne-col-ongoing"><span class="ne-pulse"></span> Ongoing</h3>
-                                @forelse($ongoingCards as $card)
-                                    <div class="ne-event-item ne-ongoing">
-                                        <span class="ne-event-date">{{ $formatChipDate($card['event_date'] ?? null) }}</span>
-                                        <p class="ne-event-name">{{ $card['title'] ?? '' }}</p>
-                                    </div>
-                                @empty
-                                    <div class="ne-event-item ne-ongoing">
-                                        <span class="ne-event-date">TBA</span>
-                                        <p class="ne-event-name">No ongoing events right now.</p>
-                                    </div>
-                                @endforelse
+                    @unless($cmsPreview)
+                        <section class="ne-events-section">
+                            <div class="ne-events-header">
+                                <p class="ne-section-label">Scheduled Events</p>
                             </div>
 
-                            <div class="ne-events-divider" aria-hidden="true"></div>
+                            <div class="ne-events-columns">
+                                <div class="ne-events-col">
+                                    <h3 class="ne-col-title ne-col-ongoing"><span class="ne-pulse"></span> Ongoing</h3>
+                                    @forelse($ongoingCards as $card)
+                                        <div class="ne-event-item ne-ongoing">
+                                            <span class="ne-event-date">{{ $formatChipDate($card['event_date'] ?? null) }}</span>
+                                            <p class="ne-event-name">{{ $card['title'] ?? '' }}</p>
+                                        </div>
+                                    @empty
+                                        <div class="ne-event-item ne-ongoing">
+                                            <span class="ne-event-date">TBA</span>
+                                            <p class="ne-event-name">No ongoing events right now.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
 
-                            <div class="ne-events-col">
-                                <h3 class="ne-col-title ne-col-upcoming">Upcoming</h3>
-                                @forelse($upcomingCards as $card)
-                                    <div class="ne-event-item">
-                                        <span class="ne-event-date">{{ $formatChipDate($card['event_date'] ?? null) }}</span>
-                                        <p class="ne-event-name">{{ $card['title'] ?? '' }}</p>
-                                    </div>
-                                @empty
-                                    <div class="ne-event-item">
-                                        <span class="ne-event-date">TBA</span>
-                                        <p class="ne-event-name">No upcoming events yet.</p>
-                                    </div>
-                                @endforelse
+                                <div class="ne-events-divider" aria-hidden="true"></div>
+
+                                <div class="ne-events-col">
+                                    <h3 class="ne-col-title ne-col-upcoming">Upcoming</h3>
+                                    @forelse($upcomingCards as $card)
+                                        <div class="ne-event-item">
+                                            <span class="ne-event-date">{{ $formatChipDate($card['event_date'] ?? null) }}</span>
+                                            <p class="ne-event-name">{{ $card['title'] ?? '' }}</p>
+                                        </div>
+                                    @empty
+                                        <div class="ne-event-item">
+                                            <span class="ne-event-date">TBA</span>
+                                            <p class="ne-event-name">No upcoming events yet.</p>
+                                        </div>
+                                    @endforelse
+                                </div>
                             </div>
-                        </div>
-                    </section>
+                        </section>
+                    @endunless
 
                     <div class="ne-filter-bar">
                         <span class="ne-filter-label">Filter By</span>
@@ -227,8 +235,34 @@
                     </div>
 
                     <section class="ne-card-grid" aria-label="Event cards" data-ne-card-grid>
+                        @if($cmsPreview)
+                            <article class="ne-card ne-card-add" data-cms-add-card-trigger tabindex="0" role="button" aria-label="Add a new event card">
+                                <div class="ne-card-add-inner">
+                                    <span class="ne-card-add-plus" aria-hidden="true">+</span>
+                                    <p class="ne-card-add-label">Add Event</p>
+                                </div>
+                            </article>
+                        @endif
+
                         @foreach($sortedCards as $card)
-                            <article class="ne-card" data-events-card data-filter="{{ $card['category'] ?? 'events' }}">
+                            <article
+                                class="ne-card"
+                                data-events-card
+                                data-filter="{{ $card['category'] ?? 'events' }}"
+                                @if($cmsPreview)
+                                    data-cms-card-index="{{ $card['source_index'] ?? 0 }}"
+                                @endif
+                            >
+                                @if($cmsPreview)
+                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                        <button type="button" class="cms-preview-card-action" data-cms-card-edit title="Edit card" aria-label="Edit {{ $card['title'] ?? 'event card' }}">
+                                            Edit
+                                        </button>
+                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Delete card" aria-label="Delete {{ $card['title'] ?? 'event card' }}">
+                                            Delete
+                                        </button>
+                                    </div>
+                                @endif
                                 <div class="ne-card-img">
                                     <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $card['title'] ?? 'Event card' }}" loading="lazy">
                                     <span class="ne-card-tag">{{ \App\Support\EventsCmsContent::categoryLabel($card['category'] ?? 'events') }}</span>
@@ -236,7 +270,7 @@
                                 <div class="ne-card-body">
                                     <p class="ne-card-date">{{ $formatDate($card['event_date'] ?? null, 'F d, Y') }}</p>
                                     <h3 class="ne-card-title">{{ $card['title'] ?? '' }}</h3>
-                                    <p class="ne-card-desc">{{ $summaryFor($card) }}</p>
+                                    <div class="ne-card-desc ne-rich-copy">{!! $summaryHtmlFor($card) !!}</div>
                                     <hr class="ne-card-rule">
                                     <div class="ne-card-foot">
                                         <span class="ne-card-loc">{{ $card['location'] ?? 'Location to be announced' }}</span>
@@ -247,6 +281,7 @@
                                             data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($card['category'] ?? 'events') }}"
                                             data-date="{{ $formatDateLine($card) }}"
                                             data-title="{{ $card['title'] ?? '' }}"
+                                            data-summary="{{ e($summaryFor($card)) }}"
                                             data-location="{{ $card['location'] ?? '' }}"
                                             data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                             data-content-html="{{ e(\App\Support\RichText::sanitize($card['content'] ?? '')) }}"
@@ -277,8 +312,10 @@
                         <span class="ne-tag" id="modalTag"></span>
                         <p class="ne-modal-date" id="modalDate"></p>
                         <h3 class="ne-modal-title" id="modalTitle"></h3>
+                        <p class="ne-modal-summary" id="modalSummary"></p>
                         <p class="ne-modal-loc" id="modalLocation"></p>
                         <hr class="ne-modal-rule">
+                        <p class="ne-modal-details-label" id="modalDetailsLabel">Details</p>
                         <div class="ne-modal-text" id="modalText"></div>
                     </div>
                 </div>
@@ -358,6 +395,59 @@
                 fill: currentColor;
             }
 
+            .ne-card {
+                position: relative;
+            }
+
+            .cms-preview-card-actions {
+                position: absolute;
+                top: 14px;
+                right: 14px;
+                z-index: 12;
+                display: flex;
+                gap: 8px;
+                opacity: 0;
+                transform: translateY(-4px);
+                transition: opacity .18s ease, transform .18s ease;
+            }
+
+            .cms-preview-card-action {
+                border: none;
+                border-radius: 12px;
+                padding: 0 12px;
+                min-width: 64px;
+                height: 36px;
+                background: rgba(127, 17, 19, 0.92);
+                color: #fffaf4;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+                cursor: pointer;
+                font-size: 0.78rem;
+                font-weight: 700;
+                letter-spacing: 0.02em;
+            }
+
+            .cms-preview-card-action-delete {
+                background: rgba(92, 0, 0, 0.96);
+            }
+
+            .ne-card[data-cms-card-index] {
+                transition: filter .18s ease, box-shadow .18s ease, transform .18s ease;
+            }
+
+            .ne-card[data-cms-card-index]:hover {
+                filter: brightness(0.94);
+                box-shadow: 0 16px 30px rgba(32, 8, 8, 0.16);
+            }
+
+            .ne-card[data-cms-card-index]:hover .cms-preview-card-actions,
+            .ne-card[data-cms-card-index]:focus-within .cms-preview-card-actions {
+                opacity: 1;
+                transform: translateY(0);
+            }
+
             @media (max-width: 768px) {
                 .ne-page-intro,
                 .ne-events-main {
@@ -370,6 +460,11 @@
                     min-width: 40px;
                     height: 40px;
                 }
+
+                .cms-preview-card-actions {
+                    opacity: 1;
+                    transform: none;
+                }
             }
         </style>
     @endif
@@ -377,23 +472,33 @@
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const cmsPreview = @json($cmsPreview);
+            const revealElements = Array.from(document.querySelectorAll('.reveal'));
             const filters = Array.from(document.querySelectorAll('.ne-filter'));
-            const cards = Array.from(document.querySelectorAll('[data-events-card]'));
+            const addCardTrigger = document.querySelector('[data-cms-add-card-trigger]');
             const emptyState = document.querySelector('[data-ne-empty-state]');
             const modal = document.getElementById('detailsModal');
             const modalImg = document.getElementById('modalImg');
             const modalTag = document.getElementById('modalTag');
             const modalDate = document.getElementById('modalDate');
             const modalTitle = document.getElementById('modalTitle');
+            const modalSummary = document.getElementById('modalSummary');
             const modalLocation = document.getElementById('modalLocation');
+            const modalDetailsLabel = document.getElementById('modalDetailsLabel');
             const modalText = document.getElementById('modalText');
             const closeBtn = modal?.querySelector('.ne-modal-close');
             let lastTrigger = null;
 
+            // CMS preview does not load the public reveal script, so force visible content there.
+            if (cmsPreview) {
+                revealElements.forEach((element) => element.classList.add('active'));
+            }
+
+            const getCards = () => Array.from(document.querySelectorAll('[data-events-card]'));
+
             const applyFilter = (filterKey) => {
                 let visibleCount = 0;
 
-                cards.forEach((card) => {
+                getCards().forEach((card) => {
                     const matches = filterKey === 'all' || card.dataset.filter === filterKey;
                     card.hidden = !matches;
                     if (matches) {
@@ -421,14 +526,33 @@
                     return;
                 }
 
+                const decodeHtmlEntities = (value) => {
+                    let current = String(value || '');
+                    for (let index = 0; index < 2; index += 1) {
+                        const textarea = document.createElement('textarea');
+                        textarea.innerHTML = current;
+                        const decoded = textarea.value;
+                        if (decoded === current) {
+                            break;
+                        }
+                        current = decoded;
+                    }
+
+                    return current;
+                };
+
                 lastTrigger = trigger;
                 modalImg.src = trigger.dataset.image || '';
+                modalImg.alt = trigger.dataset.title || 'Event image';
                 modalTag.textContent = trigger.dataset.tag || '';
                 modalDate.textContent = trigger.dataset.date || '';
                 modalTitle.textContent = trigger.dataset.title || '';
+                modalSummary.textContent = decodeHtmlEntities(trigger.dataset.summary || '');
+                modalSummary.hidden = modalSummary.textContent.trim() === '';
                 modalLocation.textContent = trigger.dataset.location || '';
                 modalLocation.hidden = modalLocation.textContent.trim() === '';
-                modalText.innerHTML = trigger.dataset.contentHtml || '';
+                modalText.innerHTML = decodeHtmlEntities(trigger.dataset.contentHtml || '');
+                modalDetailsLabel.hidden = modalText.textContent.trim() === '';
 
                 modal.classList.remove('closing');
                 modal.classList.add('show');
@@ -479,14 +603,31 @@
                 return;
             }
 
-            const targets = Array.from(document.querySelectorAll('[data-cms-section]'));
             let previewHeightFrame = null;
 
-            const postSection = (section, label) => {
+            const requestAddCard = () => {
                 window.parent?.postMessage({
-                    type: 'cms-events-edit',
-                    section: section,
-                    label: label || section,
+                    type: 'cms-events-add-card',
+                    section: 'cards',
+                    label: 'Add Event Card',
+                }, '*');
+            };
+
+            const requestEditCard = (cardIndex) => {
+                window.parent?.postMessage({
+                    type: 'cms-events-edit-card',
+                    section: 'cards',
+                    label: 'Edit Event Card',
+                    cardIndex: Number(cardIndex),
+                }, '*');
+            };
+
+            const requestDeleteCard = (cardIndex) => {
+                window.parent?.postMessage({
+                    type: 'cms-events-delete-card',
+                    section: 'cards',
+                    label: 'Delete Event Card',
+                    cardIndex: Number(cardIndex),
                 }, '*');
             };
 
@@ -507,9 +648,15 @@
                         return styles.display !== 'none' && styles.visibility !== 'hidden' && styles.position !== 'fixed';
                     });
 
-                    const height = visible.reduce((maxBottom, node) => {
+                    const contentBottom = visible.reduce((maxBottom, node) => {
                         return Math.max(maxBottom, node.offsetTop + node.offsetHeight);
-                    }, scope.offsetHeight);
+                    }, 0);
+                    const height = Math.max(
+                        contentBottom,
+                        scope.scrollHeight,
+                        document.documentElement?.scrollHeight || 0,
+                        document.body?.scrollHeight || 0
+                    );
 
                     window.parent?.postMessage({
                         type: 'cms-events-preview-height',
@@ -520,19 +667,64 @@
                 });
             };
 
-            targets.forEach((target) => {
-                const section = target.getAttribute('data-cms-section') || '';
-                const label = target.getAttribute('data-cms-section-label') || section;
-                const chip = target.querySelector('[data-cms-edit-trigger]');
+            getCards().forEach((card) => {
+                if (!card.hasAttribute('data-cms-card-index')) {
+                    return;
+                }
 
-                const openEditor = (event) => {
+                const editButton = card.querySelector('[data-cms-card-edit]');
+                const deleteButton = card.querySelector('[data-cms-card-delete]');
+
+                const openCardEditor = (event) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    postSection(section, label);
+                    requestEditCard(card.getAttribute('data-cms-card-index'));
                 };
 
-                target.addEventListener('click', openEditor);
-                chip?.addEventListener('click', openEditor);
+                const deleteCard = (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    requestDeleteCard(card.getAttribute('data-cms-card-index'));
+                };
+
+                editButton?.addEventListener('click', openCardEditor);
+                deleteButton?.addEventListener('click', deleteCard);
+            });
+
+            window.addEventListener('message', (event) => {
+                const data = event.data || {};
+                if (!data || data.type !== 'cms-events-prune-card') {
+                    return;
+                }
+
+                const targetIndex = Number(data.cardIndex);
+                if (!Number.isFinite(targetIndex)) {
+                    return;
+                }
+
+                const targetCard = document.querySelector(`[data-events-card][data-cms-card-index="${targetIndex}"]`);
+                if (!targetCard) {
+                    return;
+                }
+
+                targetCard.remove();
+                applyFilter('all');
+                schedulePreviewHeight();
+            });
+
+            addCardTrigger?.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                requestAddCard();
+            });
+
+            addCardTrigger?.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                event.preventDefault();
+                requestAddCard();
             });
 
             if (typeof ResizeObserver !== 'undefined') {

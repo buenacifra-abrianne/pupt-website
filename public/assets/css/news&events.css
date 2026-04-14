@@ -29,9 +29,8 @@
 }
 
 .ne-page-intro {
-  margin: 8px var(--ne-page-gutter) 28px;
+  margin: 8px calc(-1 * var(--layout-page-gutter, var(--ne-page-gutter))) 28px;
   padding: 32px 34px;
-  border-radius: var(--ne-radius-lg);
   background: var(--ne-card-bg);
   border: var(--ne-border);
   box-shadow: var(--ne-shadow-m);
@@ -102,6 +101,9 @@
   font-weight: 600;
   text-decoration: none;
   transition: color .2s;
+}
+.ne-breadcrumb a:visited {
+  text-decoration: none;
 }
 .ne-breadcrumb a:hover { color: var(--ne-maroon-l); }
 .ne-breadcrumb span   { color: var(--ne-muted); opacity: .55; }
@@ -440,6 +442,56 @@
 }
 .ne-card:active { transform: scale(.99); }
 
+.ne-card-add {
+  min-height: 100%;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  border: 2px dashed rgba(127,17,19,.2);
+  background: linear-gradient(160deg, rgba(255,255,255,.96) 0%, rgba(250,243,236,.9) 100%);
+}
+
+.ne-card-add-inner {
+  display: flex;
+  min-height: 100%;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  padding: 36px 24px;
+  text-align: center;
+}
+
+.ne-card-add-plus {
+  color: var(--ne-maroon);
+  font-size: clamp(3rem, 6vw, 4.5rem);
+  font-weight: 500;
+  line-height: 1;
+}
+
+.ne-card-add-label {
+  margin: 0;
+  color: var(--ne-maroon);
+  font-family: "Poppins", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+@media (hover: hover) {
+  .ne-card-add:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--ne-shadow-m);
+    border-color: rgba(127,17,19,.4);
+  }
+}
+
+.ne-card-add:focus-visible {
+  outline: 3px solid rgba(242,201,76,.95);
+  outline-offset: 3px;
+}
+
 .ne-card-img {
   position: relative;
   height: 180px;
@@ -504,6 +556,31 @@
   line-height: 1.72;
   margin: 0;
   flex: 1;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  overflow: hidden;
+}
+.ne-card-desc > :first-child {
+  margin-top: 0;
+}
+.ne-card-desc > :last-child {
+  margin-bottom: 0;
+}
+.ne-card-desc p,
+.ne-card-desc ul,
+.ne-card-desc ol,
+.ne-card-desc blockquote {
+  margin: 0 0 0.8em;
+}
+.ne-card-desc ul,
+.ne-card-desc ol {
+  padding-left: 1.2rem;
+}
+.ne-card-desc a {
+  color: var(--ne-maroon);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
 }
 .ne-card-rule {
   border: none;
@@ -564,7 +641,7 @@
 
 .ne-modal-card {
   position: relative;
-  width: min(940px, 96vw);
+  width: min(720px, 94vw);
   max-height: 88vh;
   background: linear-gradient(160deg, #fffcf8 0%, #f7efe8 100%);
   border-radius: 28px;
@@ -574,16 +651,6 @@
   transform: scale(.92) translateY(28px);
   opacity: 0;
   transition: transform .35s cubic-bezier(.22,1,.36,1), opacity .35s ease;
-}
-.ne-modal-card::before {
-  content: "";
-  position: sticky;
-  top: 0;
-  display: block;
-  width: 100%;
-  height: 5px;
-  background: linear-gradient(90deg, var(--ne-gold) 0%, #991b21 32%, var(--ne-maroon) 68%, #3f070b 100%);
-  z-index: 1;
 }
 .ne-modal-overlay.show    .ne-modal-card { transform: scale(1) translateY(0); opacity: 1; }
 .ne-modal-overlay.closing .ne-modal-card { transform: scale(.92) translateY(28px); opacity: 0; }
@@ -609,15 +676,17 @@
 }
 
 .ne-modal-body {
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  height: 88vh;
+  display: flex;
+  flex-direction: column;
   max-height: 88vh;
+  overflow-y: auto;
 }
 
 .ne-modal-img-wrap {
   overflow: hidden;
   background: #d9d9d9;
+  min-height: 240px;
+  max-height: 320px;
 }
 .ne-modal-img-wrap img {
   width: 100%;
@@ -631,24 +700,63 @@
 }
 
 .ne-modal-content {
-  padding: 28px 28px 32px;
-  overflow-y: auto;
+  padding: 24px 26px 30px;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 .ne-modal-date  { font-size: 0.84rem; color: var(--ne-muted); font-weight: 700; margin: 0; }
 .ne-modal-title {
   font-family: "Poppins", sans-serif;
-  font-size: clamp(1.4rem, 2.2vw, 1.9rem);
+  font-size: clamp(1.5rem, 2.2vw, 2rem);
   font-weight: 800;
   color: var(--ne-ink);
-  line-height: 1.1;
-  margin: 0 52px 0 0;
+  line-height: 1.14;
+  margin: 0;
+  padding-right: 56px;
 }
-.ne-modal-loc  { font-size: 0.88rem; color: var(--ne-muted); margin: 0; }
-.ne-modal-rule { border: none; border-top: 1px solid rgba(127,17,19,.1); margin: 4px 0; }
-.ne-modal-text { font-size: 0.96rem; color: var(--ne-muted); line-height: 1.85; margin: 0; flex: 1; }
+.ne-modal-summary {
+  font-size: 0.98rem;
+  color: var(--ne-muted);
+  line-height: 1.72;
+  margin: 0;
+}
+.ne-modal-loc  { font-size: 0.9rem; color: var(--ne-muted); margin: 0; font-weight: 600; }
+.ne-modal-rule { border: none; border-top: 1px solid rgba(127,17,19,.1); margin: 2px 0 0; }
+.ne-modal-details-label {
+  margin: 0;
+  color: var(--ne-maroon);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+.ne-modal-text {
+  font-size: 0.98rem;
+  color: var(--ne-ink);
+  line-height: 1.8;
+  margin: 0;
+}
+.ne-modal-text > :first-child { margin-top: 0; }
+.ne-modal-text > :last-child { margin-bottom: 0; }
+.ne-modal-text p,
+.ne-modal-text ul,
+.ne-modal-text ol,
+.ne-modal-text blockquote {
+  margin: 0 0 1em;
+}
+.ne-modal-text ul,
+.ne-modal-text ol {
+  padding-left: 1.3rem;
+}
+.ne-modal-text li {
+  margin-bottom: 0.45em;
+}
+.ne-modal-text a {
+  color: var(--ne-maroon);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
 .reveal {
   opacity: 0;
   transform: translateY(38px);
@@ -696,13 +804,10 @@ body.modal-open  { overflow: hidden; }
   .ne-events-divider { display: none; }
 
   .ne-modal-body {
-    grid-template-columns: 1fr;
-    height: auto;
     max-height: 90vh;
-    overflow-y: auto;
   }
-  .ne-modal-img-wrap  { height: 220px; }
-  .ne-modal-title     { font-size: 1.15rem; margin-right: 44px; }
+  .ne-modal-img-wrap  { min-height: 200px; height: 220px; }
+  .ne-modal-title     { font-size: 1.15rem; padding-right: 44px; }
   .ne-modal-content   { padding: 20px 20px 28px; }
 
   #featuredEventMount.ne-featured { grid-template-columns: 1fr; }
@@ -715,7 +820,7 @@ body.modal-open  { overflow: hidden; }
   :root { --ne-page-gutter: 16px; }
 
   .ne-breadcrumb      { padding: 14px var(--ne-page-gutter); font-size: 0.78rem; }
-  .ne-page-intro      { margin: 6px var(--ne-page-gutter) 22px; padding: 22px 18px; }
+  .ne-page-intro      { margin: 6px calc(-1 * var(--layout-page-gutter, var(--ne-page-gutter))) 22px; padding: 22px 18px; }
   .ne-page-title      { font-size: 1.65rem; }
   .ne-page-copy       { font-size: 0.92rem; }
 

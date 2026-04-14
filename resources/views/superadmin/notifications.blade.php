@@ -54,7 +54,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link">
+                <a href="{{ route('superadmin.content') ?? '#' }}" class="nav-link" onclick="try{sessionStorage.setItem('cms-content-entry-loading','1');}catch(e){}">
                     <i class="fas fa-file-alt"></i>
                     <span>Content Management</span>
                 </a>

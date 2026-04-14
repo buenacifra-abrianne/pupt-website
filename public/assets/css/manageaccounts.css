@@ -1270,7 +1270,7 @@ tbody td {
 #userModal .fg .cms-dropdown.open .cms-dropdown-trigger,
 #userModal .fg .cms-dropdown-trigger:focus-visible {
     border-color: #b06b6b;
-    box-shadow: 0 0 0 2px rgba(176, 107, 107, 0.12);
+    box-shadow: none;
     outline: none;
 }
 
@@ -1645,8 +1645,39 @@ table, thead, tbody, tfoot, tr, th, td {
 .voice-input-row input,
 .searchable-select input[type="text"] {
     background: transparent;
+    border: none;
+    box-shadow: none;
     color: var(--cms-ink);
     font-size: 0.95rem;
+    outline: none;
+    border-radius: 0;
+}
+
+.filter-field .searchable-select,
+.filter-field .voice-input-row {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 100%;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: none;
+}
+
+.filter-field .searchable-select {
+    border-radius: inherit;
+}
+
+.filter-field .voice-input-row input,
+.filter-field .searchable-select input[type="text"] {
+    width: 100%;
+    min-height: 100%;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    outline: none;
 }
 
 .filter-field input::placeholder,
@@ -1660,6 +1691,26 @@ table, thead, tbody, tfoot, tr, th, td {
     border-color: rgba(240, 200, 90, 0.95);
     box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.18);
     transform: none;
+}
+
+.filter-field .searchable-select:focus-within,
+.filter-field .voice-input-row:focus-within {
+    border-color: transparent;
+    box-shadow: none;
+    outline: none;
+}
+
+.filter-field input:focus,
+.filter-field select:focus,
+.voice-input-row input:focus,
+.searchable-select input[type="text"]:focus,
+.filter-field input:focus-visible,
+.filter-field select:focus-visible,
+.voice-input-row input:focus-visible,
+.searchable-select input[type="text"]:focus-visible {
+    border: none;
+    box-shadow: none;
+    outline: none;
 }
 
 .table-wrap {
@@ -1830,7 +1881,8 @@ tbody td {
 .fg select:focus,
 .fg textarea:focus {
     border-color: rgba(240, 200, 90, 0.95);
-    box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.18);
+    box-shadow: none;
+    outline: none;
 }
 
 .searchable-dropdown {
