@@ -39,6 +39,8 @@
     @endunless
 
     <main class="main-content">
+
+        @unless($selectedSection)
         <section
             class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
             @if($cmsPreview)
@@ -72,6 +74,7 @@
             </section>
             </div>
         </section>
+        @endunless
 
         <section class="about-shell page-shell">
             <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">

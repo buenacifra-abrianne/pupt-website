@@ -3356,6 +3356,8 @@ pup-footer .footer { margin-top: 0; }
   }
 }
 
+
+
 body.pup-dark-mode {
   --about-ink: #f5e8e8;
   --about-muted: #c8a8a8;
@@ -4144,6 +4146,10 @@ body.pup-dark-mode .reveal.active {
   color: var(--about-muted);
   font-size: 0.88rem;
   line-height: 1.7;
+}
+
+.ls-meaning-card-accent {
+  display: none;
 }
 
 /* ============================================================
@@ -5237,4 +5243,8 @@ body.pup-dark-mode .official-role { color: #c8a8a8; }
 
 @media (prefers-reduced-motion: reduce) {
   .official-card:hover { transform: none; }
+}
+
+.about-sections .hero-shell {
+  display: none;
 }
