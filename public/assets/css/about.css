@@ -4460,6 +4460,20 @@ body.pup-dark-mode .ls-color-card {
   font-style: italic;
 }
 
+.hymn-listen-btn {
+  color: #2d1606;
+}
+
+.hymn-listen-btn:hover {
+  color: #2d1606;
+}
+
+body.pup-dark-mode .hymn-listen-btn,
+body.pup-dark-mode .hymn-listen-btn:hover,
+body.pup-dark-mode .hymn-listen-btn * {
+  color: #2d1606 !important;
+}
+
 /* ============================================================
    DARK MODE — hymn
    ============================================================ */
