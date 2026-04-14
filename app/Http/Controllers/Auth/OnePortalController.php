@@ -322,24 +322,28 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // capture token first, THEN clear local session
+    if ($baseUrl !== '' && $clientId !== '' && $accessToken !== '') {
+        try {
+            Http::withoutVerifying()
+                ->withToken($accessToken)
+                ->acceptJson()
+                ->post($baseUrl . '/api/v1/auth/logout', [
+                    'client_id' => $clientId,
+                ]);
+        } catch (\Throwable $e) {
+            \Log::warning('IDP global logout failed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    if ($baseUrl === '' || $clientId === '') {
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
-    }
-
-    return response()->view('auth.idp-logout', [
-        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
-        'clientId' => $clientId,
-        'accessToken' => $accessToken,
-        'afterLogoutUrl' => route('public.landing'),
-    ])->withoutCookie('access_token')
-      ->withoutCookie('refresh_token');
+    return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
 }
 
     private function redirectByRole($role)
