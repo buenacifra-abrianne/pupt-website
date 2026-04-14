@@ -305,7 +305,6 @@ class OnePortalController extends Controller
 {
     $userId = (int) session('user_id', 0);
     $userName = (string) session('user_name', 'Unknown');
-    $accessToken = (string) session('access_token', '');
 
     AuditLog::record(
         'LOGOUT',
@@ -322,23 +321,16 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // Step 1: attach bearer token server-side
-    if ($baseUrl !== '' && $clientId !== '' && $accessToken !== '') {
-        try {
-            Http::withoutVerifying()
-                ->withToken($accessToken)
-                ->acceptJson()
-                ->post($baseUrl . '/api/v1/auth/logout', [
-                    'client_id' => $clientId,
-                ]);
-        } catch (\Throwable $e) {
-            \Log::warning('IDP bearer logout failed', [
-                'message' => $e->getMessage(),
-            ]);
-        }
+    $request->session()->flush();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    if ($baseUrl === '' || $clientId === '') {
+        return redirect()->route('public.landing')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
     }
 
-    // Step 2: keep your old browser-based global logout flow
     return response()->view('auth.idp-logout', [
         'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
         'clientId' => $clientId,

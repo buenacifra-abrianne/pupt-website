@@ -193,6 +193,7 @@
                 ok: response.ok,
                 data: data
             });
+
         } catch (error) {
             console.error('IDP logout failed:', error);
         } finally {
