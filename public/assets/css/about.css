@@ -5248,3 +5248,329 @@ body.pup-dark-mode .official-role { color: #c8a8a8; }
 .about-sections .hero-shell {
   display: none;
 }
+
+/* ============================================================
+   STRATEGIC DEVELOPMENT PLAN — sdp-* components
+   ============================================================ */
+
+.sdp-page-header {
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  border-radius: 24px;
+  padding: clamp(28px, 3vw, 40px) clamp(24px, 3.5vw, 48px);
+  margin-bottom: clamp(12px, 1.6vw, 20px);
+  background: linear-gradient(135deg,
+    rgba(127, 17, 19, 0.97) 0%,
+    rgba(79, 9, 12, 0.99) 55%,
+    rgba(45, 5, 8, 0.99) 100%);
+  border: 1px solid rgba(215, 170, 67, 0.18);
+  box-shadow: 0 24px 48px rgba(79, 9, 12, 0.2);
+}
+
+.sdp-page-header-glow {
+  position: absolute;
+  top: -60px;
+  right: -40px;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(215, 170, 67, 0.14) 0%, rgba(215, 170, 67, 0) 70%);
+  pointer-events: none;
+}
+
+.sdp-page-header-inner {
+  position: relative;
+  z-index: 2;
+}
+
+.sdp-page-header-copy {
+  display: grid;
+  gap: 12px;
+  max-width: 72ch;
+}
+
+.sdp-page-header-eyebrow {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: rgba(215, 170, 67, 0.9);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.sdp-page-header-eyebrow::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.75;
+}
+
+.sdp-page-title {
+  margin: 0;
+  color: #fffaf4;
+  font-size: clamp(1.7rem, 2.6vw, 2.4rem);
+  line-height: 1.05;
+  font-weight: 800;
+}
+
+.sdp-page-subtitle {
+  margin: 0;
+  color: rgba(255, 241, 231, 0.8);
+  font-size: 0.93rem;
+  line-height: 1.76;
+}
+
+.sdp-block-header {
+  display: grid;
+  gap: 8px;
+  margin: clamp(12px, 1.6vw, 20px) 0 clamp(8px, 1.2vw, 14px);
+}
+
+.sdp-priorities-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+  gap: clamp(16px, 2vw, 24px);
+  margin-bottom: clamp(10px, 1.4vw, 16px);
+}
+
+.sdp-priority-card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(22px, 2.6vw, 32px);
+  border-radius: 24px;
+  background: linear-gradient(180deg,
+    rgba(255, 255, 255, 0.98) 0%,
+    rgba(247, 239, 232, 0.96) 100%);
+  border: 1px solid rgba(127, 17, 19, 0.1);
+  box-shadow: 0 18px 32px rgba(79, 9, 12, 0.07);
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  transition: transform 0.24s ease, box-shadow 0.24s ease;
+}
+
+.sdp-priority-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 40px rgba(79, 9, 12, 0.12);
+}
+
+.sdp-priority-card-accent {
+  display: none;
+}
+
+.sdp-priority-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.sdp-priority-index {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 999px;
+  background: linear-gradient(135deg,
+    rgba(127, 17, 19, 0.96) 0%,
+    rgba(79, 9, 12, 0.98) 100%);
+  color: rgba(255, 241, 231, 0.9);
+  font-size: 0.74rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  box-shadow: 0 8px 18px rgba(79, 9, 12, 0.18);
+}
+
+.sdp-priority-title {
+  margin: 0;
+  padding-top: 8px;
+  color: var(--about-ink);
+  font-size: clamp(1rem, 1.4vw, 1.18rem);
+  line-height: 1.22;
+  font-weight: 800;
+}
+
+.sdp-priority-body {
+  margin: 0;
+  color: var(--about-muted);
+  font-size: 0.9rem;
+  line-height: 1.74;
+}
+
+.sdp-principles-band {
+  overflow: hidden;
+  border-radius: 24px;
+  background: linear-gradient(135deg,
+    rgba(127, 17, 19, 0.97) 0%,
+    rgba(79, 9, 12, 0.99) 55%,
+    rgba(45, 5, 8, 0.99) 100%);
+  box-shadow: 0 22px 40px rgba(79, 9, 12, 0.18);
+  border: 1px solid rgba(215, 170, 67, 0.18);
+}
+
+.sdp-principles-inner {
+  display: grid;
+  gap: 0;
+}
+
+.sdp-principle-row {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 16px;
+  align-items: start;
+  padding: 18px 28px;
+  border-bottom: 1px solid rgba(255, 241, 231, 0.1);
+}
+
+.sdp-principle-row:last-child {
+  border-bottom: none;
+}
+
+.sdp-principle-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  border-radius: 999px;
+  background: rgba(243, 196, 90, 0.16);
+  color: #f6d37b;
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+}
+
+.sdp-principle-text {
+  color: rgba(255, 241, 231, 0.88);
+  font-size: 0.93rem;
+  line-height: 1.72;
+  padding-top: 5px;
+}
+
+/* ============================================================
+   DARK MODE — strategic development plan
+   ============================================================ */
+body.pup-dark-mode .sdp-page-header {
+  background: linear-gradient(135deg,
+    rgba(55, 8, 10, 0.99) 0%,
+    rgba(35, 4, 6, 0.99) 55%,
+    rgba(18, 2, 3, 0.99) 100%);
+  border-color: rgba(215, 170, 67, 0.14);
+}
+
+body.pup-dark-mode .sdp-page-title {
+  color: #fffaf4;
+}
+
+body.pup-dark-mode .sdp-page-subtitle {
+  color: rgba(255, 241, 231, 0.72);
+}
+
+body.pup-dark-mode .sdp-priority-card {
+  background: linear-gradient(180deg,
+    rgba(18, 4, 5, 0.99) 0%,
+    rgba(12, 2, 3, 0.99) 100%);
+  border-color: rgba(160, 40, 40, 0.14);
+  box-shadow: 0 18px 32px rgba(0, 0, 0, 0.5);
+}
+
+body.pup-dark-mode .sdp-priority-title {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .sdp-priority-body {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .sdp-principles-band {
+  background: linear-gradient(135deg,
+    rgba(40, 5, 7, 0.99) 0%,
+    rgba(25, 3, 5, 0.99) 55%,
+    rgba(15, 2, 3, 0.99) 100%);
+  border-color: rgba(215, 170, 67, 0.14);
+}
+
+body.pup-dark-mode .sdp-principle-row {
+  border-bottom-color: rgba(255, 241, 231, 0.06);
+}
+
+/* ============================================================
+   RESPONSIVE — strategic development plan
+   ============================================================ */
+@media (max-width: 768px) {
+  .sdp-page-header {
+    border-radius: 18px;
+    padding: 22px 18px;
+  }
+
+  .sdp-priorities-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sdp-priority-card {
+    padding: 20px 18px;
+    border-radius: 20px;
+  }
+
+  .sdp-principle-row {
+    padding: 14px 18px;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .sdp-page-header {
+    padding: 18px 14px;
+  }
+
+  .sdp-page-title {
+    font-size: clamp(1.4rem, 5.5vw, 1.75rem);
+  }
+
+  .sdp-priority-card {
+    padding: 18px 16px;
+    border-radius: 18px;
+  }
+
+  .sdp-priority-index {
+    min-width: 34px;
+    min-height: 34px;
+    font-size: 0.66rem;
+  }
+
+  .sdp-priority-title {
+    font-size: 0.96rem;
+    padding-top: 6px;
+  }
+
+  .sdp-priority-body {
+    font-size: 0.86rem;
+    line-height: 1.65;
+  }
+
+  .sdp-principle-row {
+    grid-template-columns: 44px 1fr;
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .sdp-principle-text {
+    font-size: 0.88rem;
+  }
+
+  .sdp-principles-band {
+    border-radius: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdp-priority-card:hover {
+    transform: none;
+  }
+}
