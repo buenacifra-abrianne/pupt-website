@@ -171,6 +171,8 @@
     const afterLogoutUrl = @json($afterLogoutUrl);
     const accessToken = @json($accessToken);
 
+    let shouldRedirect = false;
+
     try {
         const response = await fetch(logoutUrl, {
             method: 'POST',
@@ -196,9 +198,13 @@
             data: data
         });
 
+        shouldRedirect = response.ok;
+
     } catch (error) {
         console.error('IDP logout failed:', error);
-    } finally {
+    }
+
+    if (shouldRedirect) {
         window.location.href = afterLogoutUrl;
     }
 })();
