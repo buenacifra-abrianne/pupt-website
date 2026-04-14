@@ -803,8 +803,8 @@ body.pup-dark-mode .students-card {
 
 body.pup-dark-mode .students-card:hover,
 body.pup-dark-mode .students-card:focus-visible {
-  border-color: rgba(215, 170, 67, 0.28);
-  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.65);
+  border-color: rgba(200, 80, 80, 0.32);
+  box-shadow: 0 18px 28px rgba(0, 0, 0, 0.4);
 }
 
 body.pup-dark-mode .students-card-front {
