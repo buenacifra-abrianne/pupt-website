@@ -40,12 +40,28 @@
         </section>
 
         {{-- Breadcrumb --}}
-        <section class="academic-shell page-shell">
-            <nav class="academic-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
+        <section class="academic-shell page-shell research-page-shell">
+            <nav class="research-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
                 <strong>Research &amp; Extension</strong>
             </nav>
+
+            <section class="research-page-intro reveal">
+                <div class="research-story-card">
+                    <div class="research-story-layout">
+                        <div class="research-story-copy">
+                            <p class="research-story-tag">Research &amp; Extension</p>
+                            <h1>Research and Extension</h1>
+                        </div>
+
+                        <p class="research-story-description">
+                            Discover the campus initiatives, scholarly work, and community-centered extension programs
+                            that connect PUP Taguig with industry, partner institutions, and the wider public.
+                        </p>
+                    </div>
+                </div>
+            </section>
         </section>
 
         {{-- Contents Strip --}}

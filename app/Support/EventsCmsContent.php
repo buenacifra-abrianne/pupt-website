@@ -67,6 +67,21 @@ class EventsCmsContent
         return self::normalize($source, $base);
     }
 
+    public static function fromCardsInput(mixed $cardsInput, ?string $fallbackStored = null): array
+    {
+        $base = self::fromStored($fallbackStored);
+        $sourceCards = is_array($cardsInput) ? $cardsInput : [];
+
+        return [
+            'page' => self::normalizePage(
+                [],
+                is_array($base['page'] ?? null) ? $base['page'] : self::defaults()['page'],
+                self::defaults()['page']
+            ),
+            'cards' => self::normalizeCards($sourceCards, [], self::defaults()['cards']),
+        ];
+    }
+
     public static function encode(array $data): string
     {
         return (string) json_encode(

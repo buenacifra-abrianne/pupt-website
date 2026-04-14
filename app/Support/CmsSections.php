@@ -21,13 +21,13 @@ class CmsSections
             'label' => 'Students',
             'request_type' => 'CMS_STUDENTS_EDIT',
         ],
-        'research_extension' => [
-            'label' => 'Research & Extension',
-            'request_type' => 'CMS_RESEARCH_EXTENSION_EDIT',
-        ],
         'events' => [
             'label' => 'Events',
             'request_type' => 'CMS_EVENTS_EDIT',
+        ],
+        'research_extension' => [
+            'label' => 'Research & Extension',
+            'request_type' => 'CMS_RESEARCH_EXTENSION_EDIT',
         ],
     ];
 
@@ -81,7 +81,7 @@ class CmsSections
     {
         $normalized = self::normalizeRole($role);
 
-        return self::ROLE_ACCESS[$normalized] ?? [];
+        return self::orderedTabKeys(self::ROLE_ACCESS[$normalized] ?? []);
     }
 
     public static function tabsForRoles(array $roles): array
@@ -93,7 +93,7 @@ class CmsSections
         $mergedTabs = array_merge($mergedTabs, $tabs);
     }
 
-    return array_values(array_unique($mergedTabs));
+    return self::orderedTabKeys(array_values(array_unique($mergedTabs)));
 }
 
     public static function superadminTabs(): array
@@ -138,6 +138,16 @@ class CmsSections
     public static function labelForTab(string $tabKey): string
     {
         return self::TAB_DEFINITIONS[$tabKey]['label'] ?? $tabKey;
+    }
+
+    private static function orderedTabKeys(array $tabKeys): array
+    {
+        $lookup = array_flip($tabKeys);
+
+        return array_values(array_filter(
+            array_keys(self::TAB_DEFINITIONS),
+            static fn (string $tabKey): bool => isset($lookup[$tabKey])
+        ));
     }
 
     public static function friendlyType(string $type): string

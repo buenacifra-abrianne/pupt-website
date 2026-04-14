@@ -101,6 +101,7 @@
                     @csrf
                     <input type="hidden" name="tab_key" value="events">
                     <input type="hidden" name="section_key" value="cards">
+                    <input type="hidden" name="events_cards_version" value="0" data-events-cards-version>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -868,6 +869,16 @@
             return Math.max(...indexes) + 1;
         }
 
+        function markEventsCardsChanged(form) {
+            const marker = form?.querySelector('[data-events-cards-version]');
+            if (!marker) {
+                return;
+            }
+
+            const currentValue = Number(marker.value || '0');
+            marker.value = String(Number.isFinite(currentValue) ? currentValue + 1 : 1);
+        }
+
         function deleteEventsCardEditor(editor, options = {}) {
             const stack = editor?.closest('[data-events-card-stack]');
 
@@ -969,6 +980,8 @@
                 window.initializeRichTextEditors(newCard);
             }
 
+            markEventsCardsChanged(form);
+
             setActiveEventsCardEditor(String(nextIndex));
 
             if (options.focus !== false) {
@@ -1024,6 +1037,8 @@
                 return false;
             }
 
+            markEventsCardsChanged(form);
+
             const frame = document.querySelector('[data-events-preview-frame]');
             frame?.contentWindow?.postMessage({
                 type: 'cms-events-prune-card',
@@ -1031,6 +1046,22 @@
             }, '*');
 
             return true;
+        }
+
+        function submitEventsCardsForm(form) {
+            if (!form) {
+                return;
+            }
+
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+                return;
+            }
+
+            form.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
         }
 
         async function confirmEventsCardDelete(cardIndex) {
@@ -1070,9 +1101,7 @@
                 return;
             }
 
-            if (typeof window.showToast === 'function') {
-                window.showToast('Event deleted successfully.', 'success', 'Event');
-            }
+            submitEventsCardsForm(form);
         }
 
         window.openEventsCmsSection = openEventsEditor;

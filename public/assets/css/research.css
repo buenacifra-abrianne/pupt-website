@@ -55,17 +55,9 @@ body {
 /* ============================================================
    BREADCRUMB
    ============================================================ */
-.academic-breadcrumb::before {
-  content: "";
-  width: 46px;
-  height: 1px;
-  background: currentColor;
-  opacity: 0.6;
-}
-
-.academic-breadcrumb {
-  width: 100%;
-  max-width: none;
+.research-breadcrumb.layout-breadcrumb {
+  width: min(1180px, 100%);
+  max-width: 1180px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -73,8 +65,8 @@ body {
   justify-content: flex-start;
   align-self: stretch;
   justify-self: stretch;
-  margin: 0;
-  padding: 10px 0 8px;
+  margin: 14px 0 8px;
+  padding: 14px var(--page-gutter) 12px;
   border: none;
   background: transparent;
   border-radius: 0;
@@ -85,9 +77,29 @@ body {
   text-transform: uppercase;
 }
 
-.academic-breadcrumb a  { color: var(--maroon); text-decoration: none; }
-.academic-breadcrumb span { color: var(--maroon); font-weight: 800; opacity: 0.5; }
-.academic-breadcrumb strong { color: var(--ink); font-weight: 800; }
+.research-breadcrumb.layout-breadcrumb::before {
+  content: "";
+  width: 46px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.research-breadcrumb.layout-breadcrumb a {
+  color: var(--maroon);
+  text-decoration: none;
+  padding: 4px 0;
+}
+
+.research-breadcrumb.layout-breadcrumb span {
+  color: var(--maroon);
+  font-weight: 800;
+}
+
+.research-breadcrumb.layout-breadcrumb strong {
+  color: var(--ink);
+  font-weight: 800;
+}
 
 /* ============================================================
    ACADEMIC SHELL
@@ -100,6 +112,18 @@ body {
   display: grid;
   gap: 0;
   justify-items: center;
+}
+
+.research-page-shell {
+  width: 100%;
+  max-width: none;
+  margin: 0 auto 0;
+  display: grid;
+  gap: 10px;
+  justify-items: stretch;
+  padding-left: 0;
+  padding-right: 0;
+  padding-bottom: 0;
 }
 
 /* ============================================================
@@ -240,6 +264,88 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   height: 1px;
   background: currentColor;
   opacity: 0.6;
+}
+
+.research-page-intro {
+  display: flex;
+  justify-content: center;
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  margin-top: -8px;
+  margin-bottom: 0;
+  padding: 0;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+  position: relative;
+  z-index: 4;
+  justify-self: stretch;
+  align-self: start;
+}
+
+.research-story-card {
+  position: relative;
+  max-width: 100%;
+  width: 100%;
+  margin: 0;
+  min-height: 0;
+  padding: 28px clamp(24px, 4.2vw, 64px) 30px;
+  background: linear-gradient(180deg, var(--maroon-light) 0%, var(--maroon) 50%, var(--maroon-deep) 100%);
+  color: #fffaf4;
+  overflow: visible;
+  z-index: 4;
+}
+
+.research-story-layout {
+  display: block;
+  width: 100%;
+  margin: 0;
+}
+
+.research-story-copy {
+  min-width: 0;
+  max-width: 1080px;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.research-story-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(255, 241, 231, 0.84);
+  font-size: 0.74rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.research-story-tag::before {
+  content: "";
+  width: 46px;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.6;
+}
+
+.research-story-card h1 {
+  margin: 8px 0 10px;
+  color: #fffaf4;
+  font-size: clamp(1.8rem, 3vw, 2.5rem);
+  line-height: 1.12;
+}
+
+.research-story-card p {
+  color: rgba(255, 245, 238, 0.9);
+  font-size: 0.94rem;
+  line-height: 1.7;
+}
+
+.research-story-description {
+  margin: 0;
+  max-width: 72ch;
 }
 
 .students-contents-strip {
@@ -454,7 +560,15 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 /* ============================================================
    DARK MODE
    ============================================================ */
-body.pup-dark-mode .academic-breadcrumb strong { color: #f5e8e8 !important; }
+body.pup-dark-mode .research-breadcrumb.layout-breadcrumb strong { color: #f5e8e8 !important; }
+
+body.pup-dark-mode .research-story-card {
+  background: linear-gradient(180deg, rgba(74, 10, 12, 0.98) 0%, rgba(46, 6, 8, 0.99) 52%, rgba(22, 2, 3, 1) 100%);
+}
+
+body.pup-dark-mode .research-story-card p {
+  color: rgba(255, 232, 224, 0.82);
+}
 
 body.pup-dark-mode .students-contents-strip {
   background: linear-gradient(135deg, rgba(26, 10, 12, 0.98) 0%, rgba(18, 8, 10, 0.96) 54%, rgba(40, 20, 5, 0.14) 100%);
@@ -504,6 +618,7 @@ pup-footer .footer { margin-top: 0; }
   .carousel-stage,
   .carousel { min-height: 280px; height: 280px; }
   .carousel-caption { padding: 18px; }
+  .research-story-card { padding: 24px var(--page-gutter) 26px; }
   .students-contents-strip { padding: 20px var(--page-gutter); }
 }
 
@@ -512,11 +627,11 @@ pup-footer .footer { margin-top: 0; }
 
   .academic-shell { width: 100%; margin-top: 0; gap: 0; }
 
-  .academic-breadcrumb {
+  .research-breadcrumb.layout-breadcrumb {
     font-size: 0.74rem;
     gap: 6px;
-    margin: 0;
-    padding: 8px 0 6px;
+    margin: 14px 0 8px;
+    padding: 14px var(--page-gutter) 12px;
   }
 
   .carousel,
@@ -529,6 +644,10 @@ pup-footer .footer { margin-top: 0; }
   .carousel-caption h2 {
     max-width: 14ch;
     font-size: clamp(1.5rem, 8vw, 2.3rem);
+  }
+
+  .research-story-card h1 {
+    font-size: clamp(1.7rem, 7vw, 2.3rem);
   }
 
   .students-cards {
@@ -545,6 +664,14 @@ pup-footer .footer { margin-top: 0; }
   .carousel-half { min-height: 210px; height: 210px; }
 
   .carousel-caption h2 { font-size: 1.35rem; max-width: 14ch; }
+
+  .research-story-card {
+    padding: 20px 16px 22px;
+  }
+
+  .research-story-card h1 {
+    margin-bottom: 12px;
+  }
 
   .students-cards { grid-auto-columns: minmax(180px, 210px); gap: 10px; }
 
