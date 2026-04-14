@@ -305,6 +305,7 @@ class OnePortalController extends Controller
 {
     $userId = (int) session('user_id', 0);
     $userName = (string) session('user_name', 'Unknown');
+    $accessToken = (string) session('access_token', '');
 
     AuditLog::record(
         'LOGOUT',
@@ -335,6 +336,7 @@ class OnePortalController extends Controller
         'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
         'clientId' => $clientId,
         'afterLogoutUrl' => route('public.landing'),
+        'accessToken' => $accessToken,
     ])->withoutCookie('access_token')
       ->withoutCookie('refresh_token');
 }

@@ -165,41 +165,43 @@
     </div>
 
     <script>
-    (async function () {
-        const logoutUrl = @json($idpLogoutUrl);
-        const clientId = @json($clientId);
-        const afterLogoutUrl = @json($afterLogoutUrl);
+(async function () {
+    const logoutUrl = @json($idpLogoutUrl);
+    const clientId = @json($clientId);
+    const afterLogoutUrl = @json($afterLogoutUrl);
+    const accessToken = @json($accessToken);
 
+    try {
+        const response = await fetch(logoutUrl, {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+                client_id: clientId
+            })
+        });
+
+        let data = null;
         try {
-            const response = await fetch(logoutUrl, {
-                method: 'POST',
-                credentials: 'include',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                },
-                body: JSON.stringify({
-                    client_id: clientId
-                })
-            });
+            data = await response.json();
+        } catch (_) {}
 
-            let data = null;
-            try {
-                data = await response.json();
-            } catch (_) {}
+        console.log('IDP logout response:', {
+            status: response.status,
+            ok: response.ok,
+            data: data
+        });
 
-            console.log('IDP logout response:', {
-                status: response.status,
-                ok: response.ok,
-                data: data
-            });
-
-        } catch (error) {
-            console.error('IDP logout failed:', error);
-        } finally {
-            window.location.href = afterLogoutUrl;
-        }
-    })();
+    } catch (error) {
+        console.error('IDP logout failed:', error);
+    } finally {
+        window.location.href = afterLogoutUrl;
+    }
+})();
 </script>
 
     <noscript>
