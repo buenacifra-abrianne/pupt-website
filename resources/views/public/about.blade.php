@@ -437,7 +437,7 @@
                                 </button>
                             @endif
 
-                            @if($selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'campus-officials')
+                             @if($selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'campus-officials' && $selectedSlug !== 'strategic-development-plan')
                                 <div class="about-detail-heading">
                                     <div class="about-detail-heading-copy">
                                         <h2>{{ $selectedSection['label'] ?? '' }}</h2>
@@ -808,44 +808,54 @@
                                 </div>
                                 <p class="about-detail-caption">{{ $selectedSection['officials_note'] ?? '' }}</p>
 
-                                    @elseif($selectedSlug === 'strategic-development-plan')
-                                        <div class="about-roadmap-grid">
-                                            @foreach($selectedSection['development_priorities'] ?? [] as $priority)
-                                                <article class="contents-card contents-card--info">
-                                                    <div class="contents-card-inner">
-                                                        <div class="contents-card-front contents-card-front--info">
-                                                            <div class="contents-card-copy contents-card-copy--info">
-                                                                <span class="contents-card-number">Priority {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                                                <h3>{{ $priority['title'] ?? '' }}</h3>
-                                                            </div>
-                                                            <div class="contents-card-body">
-                                                                <p>{{ $priority['body'] ?? '' }}</p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </article>
+                                @elseif($selectedSlug === 'strategic-development-plan')
+                                {{-- ── SDP PAGE HEADER ── --}}
+                                <div class="sdp-page-header reveal">
+                                    <div class="sdp-page-header-inner">
+                                        <div class="sdp-page-header-copy">
+                                            <p class="sdp-page-header-eyebrow">Strategic Planning</p>
+                                            <h2 class="sdp-page-title">Strategic Development Plan</h2>
+                                            <p class="sdp-page-subtitle">A forward-looking framework that guides the campus toward academic excellence, community impact, and sustainable institutional growth.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                    {{-- ── PRIORITIES GRID ── --}}
+                                    <div class="sdp-block-header reveal">
+                                        <span class="ls-block-kicker">Development Priorities</span>
+                                        <h3 class="ls-block-title">Key focus areas driving the campus forward</h3>
+                                    </div>
+                                    <div class="sdp-priorities-grid">
+                                        @foreach($selectedSection['development_priorities'] ?? [] as $priority)
+                                            @php($num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT))
+                                            <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}">
+                                                <div class="sdp-priority-card-accent" aria-hidden="true"></div>
+                                                <div class="sdp-priority-header">
+                                                    <span class="sdp-priority-index">{{ $num }}</span>
+                                                    <h4 class="sdp-priority-title">{{ $priority['title'] ?? '' }}</h4>
+                                                </div>
+                                                <p class="sdp-priority-body">{{ $priority['body'] ?? '' }}</p>
+                                            </article>
+                                        @endforeach
+                                    </div>
+                                    {{-- ── PLANNING PRINCIPLES ── --}}
+                                    @if(!empty($selectedSection['plan_principles']))
+                                    <div class="sdp-block-header reveal">
+                                        <span class="ls-block-kicker">Planning Guide</span>
+                                        <h3 class="ls-block-title">Principles that shape our planning</h3>
+                                    </div>
+
+                                    <div class="sdp-principles-band reveal delay-100">
+                                        <div class="sdp-principles-inner">
+                                            @foreach($selectedSection['plan_principles'] ?? [] as $index => $principle)
+                                                <div class="sdp-principle-row">
+                                                    <span class="sdp-principle-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                                    <span class="sdp-principle-text">{{ $principle }}</span>
+                                                </div>
                                             @endforeach
                                         </div>
-
-                                        <article class="contents-card contents-card--info contents-card--note">
-                                            <div class="contents-card-inner">
-                                                <div class="contents-card-front contents-card-front--info">
-                                                    <div class="contents-card-copy contents-card-copy--info">
-                                                        <span class="contents-card-number">Planning Guide</span>
-                                                        <h3>Planning principles</h3>
-                                                    </div>
-                                                    <div class="contents-card-body">
-                                                        <ul class="about-detail-list">
-                                                            @foreach($selectedSection['plan_principles'] ?? [] as $principle)
-                                                                <li>{{ $principle }}</li>
-                                                            @endforeach
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </article>
-
+                                    </div>
                                     @endif
+                                 @endif
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
