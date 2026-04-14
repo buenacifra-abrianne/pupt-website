@@ -811,7 +811,6 @@
                                 @elseif($selectedSlug === 'strategic-development-plan')
                                 {{-- ── SDP PAGE HEADER ── --}}
                                 <div class="sdp-page-header reveal">
-                                    <div class="sdp-page-header-glow" aria-hidden="true"></div>
                                     <div class="sdp-page-header-inner">
                                         <div class="sdp-page-header-copy">
                                             <p class="sdp-page-header-eyebrow">Strategic Planning</p>
