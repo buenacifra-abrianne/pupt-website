@@ -168,6 +168,7 @@
         (async function () {
             const logoutUrl = @json($idpLogoutUrl);
             const clientId = @json($clientId);
+            const accessToken = @json($accessToken);
             const afterLogoutUrl = @json($afterLogoutUrl);
 
             try {
@@ -177,29 +178,36 @@
                     headers: {
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
                     },
                     body: JSON.stringify({
                         client_id: clientId
                     })
                 });
 
-                let data = null;
-                try {
-                    data = await response.json();
-                } catch (_) {}
+                const text = await response.text();
 
-                console.log('IDP logout response:', {
-                    status: response.status,
-                    ok: response.ok,
-                    data: data
-                });
+                console.log('IDP logout status:', response.status);
+                console.log('IDP logout body:', text);
+
+                if (!response.ok) {
+                    document.body.insertAdjacentHTML(
+                        'beforeend',
+                        `<pre style="background:#fff;color:#000;padding:16px;margin:20px;white-space:pre-wrap;">Logout failed\nStatus: ${response.status}\n\n${text}</pre>`
+                    );
+                    return;
+                }
+
+                window.location.href = afterLogoutUrl;
             } catch (error) {
                 console.error('IDP logout failed:', error);
-            } finally {
-                window.location.href = afterLogoutUrl;
+                document.body.insertAdjacentHTML(
+                    'beforeend',
+                    `<pre style="background:#fff;color:#000;padding:16px;margin:20px;white-space:pre-wrap;">${String(error)}</pre>`
+                );
             }
         })();
-    </script>
+        </script>
 
     <noscript>
         JavaScript is required to complete logout.

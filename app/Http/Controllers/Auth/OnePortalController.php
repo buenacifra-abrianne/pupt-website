@@ -305,6 +305,7 @@ class OnePortalController extends Controller
 {
     $userId = (int) session('user_id', 0);
     $userName = (string) session('user_name', 'Unknown');
+    $accessToken = (string) session('access_token', '');
 
     AuditLog::record(
         'LOGOUT',
@@ -321,22 +322,20 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // Clear local session
-    $request->session()->flush();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    // Fallback if config missing
     if ($baseUrl === '' || $clientId === '') {
+        $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect()->route('public.landing')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
 
-    // Return logout view (IMPORTANT: this is what makes it global)
     return response()->view('auth.idp-logout', [
         'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
         'clientId' => $clientId,
+        'accessToken' => $accessToken,
         'afterLogoutUrl' => route('public.landing'),
     ])->withoutCookie('access_token')
       ->withoutCookie('refresh_token');
