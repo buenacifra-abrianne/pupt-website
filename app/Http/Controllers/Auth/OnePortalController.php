@@ -48,7 +48,7 @@ class OnePortalController extends Controller
         }
 
         $clientId = config('services.idp.client_id');
-        $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/authorize?client_id=' . urlencode($clientId);
+        $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/login?client_id=' . urlencode($clientId);
 
         return redirect()->away($authorizeUrl);
     }
@@ -321,23 +321,27 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // clear local CMS session first
+    if ($baseUrl !== '' && $clientId !== '') {
+        try {
+            Http::withoutVerifying()
+                ->asJson()
+                ->post($baseUrl . '/api/v1/auth/logout?client_id=' . urlencode($clientId), [
+                    'client_id' => $clientId,
+                ]);
+        } catch (\Throwable $e) {
+            \Log::warning('IDP global logout failed', [
+                'message' => $e->getMessage(),
+            ]);
+        }
+    }
+
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    if ($baseUrl === '' || $clientId === '') {
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
-    }
-
-    return response()->view('auth.idp-logout', [
-        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
-        'clientId' => $clientId,
-        'afterLogoutUrl' => route('public.landing'),
-    ])->withoutCookie('access_token')
-      ->withoutCookie('refresh_token');
+    return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
 }
 
     private function redirectByRole($role)
