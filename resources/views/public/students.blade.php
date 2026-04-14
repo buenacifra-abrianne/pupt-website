@@ -73,25 +73,6 @@
                         </div>
                     </a>
 
-                    {{-- Student Organizations --}}
-                    <a href="#" class="students-card">
-                        <div class="students-card-inner">
-                            <div class="students-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Student Organizations">
-                                <div class="students-card-copy">
-                                    <h3>Student Organizations</h3>
-                                </div>
-                            </div>
-                            <div class="students-card-back">
-                                <div class="students-card-overlay-copy">
-                                    <h3>Student Organizations</h3>
-                                    <p>Explore recognized student orgs, clubs, and councils at PUP Taguig Campus.</p>
-                                </div>
-                                <span class="students-card-action">See more</span>
-                            </div>
-                        </div>
-                    </a>
-
                     {{-- PUPSIS --}}
                     <a href="https://sis.pup.edu.ph/" target="_blank" rel="noopener noreferrer" class="students-card">
                         <div class="students-card-inner">
@@ -111,21 +92,21 @@
                         </div>
                     </a>
 
-                    {{-- PUP TRS --}}
+                    {{-- ODRS --}}
                     <a href="https://odrs.pup.edu.ph/" target="_blank" rel="noopener noreferrer" class="students-card">
                         <div class="students-card-inner">
                             <div class="students-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP TRS">
+                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="ODRS">
                                 <div class="students-card-copy">
-                                    <h3>PUP TRS</h3>
+                                    <h3>ODRS</h3>
                                 </div>
                             </div>
                             <div class="students-card-back">
                                 <div class="students-card-overlay-copy">
-                                    <h3>PUP TRS</h3>
-                                    <p>The Tuition and Registration System for paying fees and managing your enrollment status.</p>
+                                    <h3>ODRS</h3>
+                                    <p>Request official documents and records online through the PUP Online Document Request System.</p>
                                 </div>
-                                <span class="students-card-action">Visit TRS</span>
+                                <span class="students-card-action">Visit ODRS</span>
                             </div>
                         </div>
                     </a>
@@ -152,9 +133,10 @@
             </div>
         </section>
 
-        {{-- Student Organizations Section --}}
+{{-- Student Organizations Section --}}
 <section class="students-orgs-section reveal">
     <div class="students-orgs-inner">
+        <div class="students-orgs-blurred">
 
         {{-- Academic Orgs --}}
         <div class="students-orgs-group">
@@ -290,10 +272,8 @@
                         <span class="students-org-abbr">REC</span>
                     </div>
                 </a>
-
             </div>
         </div>
-
     </div>
 </section>
     </main>
