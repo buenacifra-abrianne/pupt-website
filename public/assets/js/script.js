@@ -317,16 +317,185 @@ function initVisionMissionToggles() {
 // =======================
 // 4.1) Global AI button
 // =======================
+const BOTPRESS_SHAREABLE_URL = "https://cdn.botpress.cloud/webchat/v3.6/shareable.html?configUrl=https://files.bpcontent.cloud/2026/04/14/09/20260414093100-492RLU02.json";
+
 function initMessageButton() {
   if (!document.body || !document.querySelector("pup-header") || document.querySelector(".message-button")) return;
+
+  if (!document.getElementById("bp-widget-inline-styles")) {
+    const style = document.createElement("style");
+    style.id = "bp-widget-inline-styles";
+    style.textContent = `
+      .message-button {
+        position: fixed;
+        right: 24px;
+        bottom: 24px;
+        width: 62px;
+        height: 62px;
+        border: 0;
+        border-radius: 999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
+        color: #fff;
+        box-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
+        cursor: pointer;
+        z-index: 1200;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .message-button.is-open {
+        right: 100px;
+        bottom: 24px;
+        background: #8b0000;
+        border: 3px solid #ffffff;
+        box-shadow:
+          0 0 0 3px #8b0000,
+          0 14px 32px rgba(77, 9, 11, 0.35);
+      }
+
+      .message-button:hover,
+      .message-button:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 36px rgba(77, 9, 11, 0.42);
+      }
+
+      .message-button svg {
+        width: 28px;
+        height: 28px;
+      }
+
+      .chatbot-widget-shell {
+        position: fixed;
+        right: 104px;
+        bottom: 96px;
+        width: min(400px, calc(100vw - 32px));
+        height: min(360px, calc(100vh - 300px));
+        max-height: calc(100vh - 280px);
+        display: block;
+        border: 0;
+        border-radius: 20px;
+        overflow: hidden;
+        background: transparent;
+        box-shadow: none;
+        isolation: isolate;
+        z-index: 1199;
+        opacity: 0;
+        transform: translateY(18px) scale(0.98);
+        pointer-events: none;
+        transition: opacity 0.22s ease, transform 0.22s ease;
+      }
+
+      .chatbot-widget-shell.is-open {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+
+      .chatbot-widget-frame {
+        display: block;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        border-radius: 20px;
+        background: #ffffff;
+        color-scheme: light;
+        box-shadow: 0 24px 48px rgba(20, 10, 10, 0.22);
+      }
+
+      body.pup-dark-mode .chatbot-widget-frame {
+        background: #101010;
+        color-scheme: dark;
+      }
+
+      @media (max-width: 640px) {
+        .message-button {
+          right: 16px;
+          bottom: 16px;
+          width: 58px;
+          height: 58px;
+        }
+
+        .message-button.is-open {
+          right: 86px;
+          left: auto;
+          bottom: 16px;
+        }
+
+        .chatbot-widget-shell {
+          right: 84px;
+          left: 16px;
+          bottom: 92px;
+          width: auto;
+          height: min(320px, calc(100vh - 270px));
+          max-height: calc(100vh - 250px);
+        }
+      }
+    `;
+
+    document.head.appendChild(style);
+  }
+
+  const widget = document.createElement("section");
+  widget.className = "chatbot-widget-shell";
+  widget.setAttribute("aria-hidden", "true");
+  widget.innerHTML = `
+    <iframe
+      class="chatbot-widget-frame"
+      src="${BOTPRESS_SHAREABLE_URL}"
+      title="AI Assistant"
+      loading="lazy"
+      allow="clipboard-write; microphone"
+      referrerpolicy="strict-origin-when-cross-origin"
+    ></iframe>
+  `;
 
   const button = document.createElement("button");
   button.type = "button";
   button.className = "message-button";
   button.title = "Chat with AI Assistant";
-  button.setAttribute("aria-label", "Chat with AI Assistant");
-  button.innerHTML = "&#128172;";
+  button.setAttribute("aria-label", "Open AI Assistant");
+  button.setAttribute("aria-expanded", "false");
+  const chatButtonIcon = `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
+    </svg>
+  `.trim();
+  const closeButtonIcon = `
+    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"/>
+    </svg>
+  `.trim();
+  button.innerHTML = chatButtonIcon;
 
+  const setOpenState = (isOpen) => {
+    widget.classList.toggle("is-open", isOpen);
+    widget.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    button.classList.toggle("is-open", isOpen);
+    button.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    button.setAttribute("aria-label", isOpen ? "Close AI Assistant" : "Open AI Assistant");
+    button.title = isOpen ? "Close AI Assistant" : "Chat with AI Assistant";
+    button.innerHTML = isOpen ? closeButtonIcon : chatButtonIcon;
+  };
+
+  button.addEventListener("click", () => {
+    setOpenState(!widget.classList.contains("is-open"));
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!widget.classList.contains("is-open")) return;
+    if (widget.contains(event.target) || button.contains(event.target)) return;
+    setOpenState(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && widget.classList.contains("is-open")) {
+      setOpenState(false);
+    }
+  });
+
+  document.body.appendChild(widget);
   document.body.appendChild(button);
 }
 
