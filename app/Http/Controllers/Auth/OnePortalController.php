@@ -48,7 +48,7 @@ class OnePortalController extends Controller
         }
 
         $clientId = config('services.idp.client_id');
-        $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/login?client_id=' . urlencode($clientId);
+        $authorizeUrl = rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/authorize?client_id=' . urlencode($clientId);
 
         return redirect()->away($authorizeUrl);
     }
