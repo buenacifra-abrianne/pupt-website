@@ -321,24 +321,25 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // Clear local app session first
+    // Clear local session
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // Fallback if IDP config is missing
+    // Fallback if config missing
     if ($baseUrl === '' || $clientId === '') {
         return redirect()->route('public.landing')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
 
-    // Browser must visit the IDP logout endpoint so its own cookies/session are cleared
-    $logoutUrl = $baseUrl . '/api/v1/auth/logout?client_id=' . urlencode($clientId);
-
-    return redirect()->away($logoutUrl)
-        ->withoutCookie('access_token')
-        ->withoutCookie('refresh_token');
+    // Return logout view (IMPORTANT: this is what makes it global)
+    return response()->view('auth.idp-logout', [
+        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
+        'clientId' => $clientId,
+        'afterLogoutUrl' => route('public.landing'),
+    ])->withoutCookie('access_token')
+      ->withoutCookie('refresh_token');
 }
 
     private function redirectByRole($role)
