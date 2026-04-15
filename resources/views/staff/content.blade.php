@@ -147,6 +147,12 @@
                 $academicsPrefill = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) $prefillContent)
                     : null;
+                $researchLive = $tabKey === 'research_extension'
+                    ? \App\Support\ResearchCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
+                $researchPrefill = $tabKey === 'research_extension'
+                    ? \App\Support\ResearchCmsContent::fromStored((string) $prefillContent)
+                    : null;
                 $eventsLive = $tabKey === 'events'
                     ? \App\Support\EventsCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
@@ -215,6 +221,22 @@
                                         </div>
                                     @endforeach
                                 </div>
+                            @elseif($tabKey === 'research_extension')
+                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Page Header</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">
+                                    <strong>{{ $researchLive['page']['title'] ?? 'Research and Extension' }}</strong>
+                                    <div style="margin-top:8px;line-height:1.6;">{{ $researchLive['page']['description'] ?? '' }}</div>
+                                </div>
+
+                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Cards</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
+                                    @foreach(($researchLive['cards'] ?? []) as $card)
+                                        <div style="font-size:13px; margin-bottom:8px;">
+                                            <strong>{{ $card['title'] ?? '' }}</strong>
+                                            <div style="margin-top:4px; opacity:.8;">{{ $card['link'] ?? '' }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             @else
                                 <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Content</div>
                                 <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:180px;">{{ $live['content'] !== '' ? $live['content'] : 'No live content yet.' }}</div>
@@ -269,6 +291,24 @@
                             'academicsEditorRequestId' => $draft['id'] ?? null,
                             'academicsEditorStatus' => $status,
                             'academicsEditorIdPrefix' => 'staff-academics',
+                        ])
+                    @elseif($tabKey === 'research_extension')
+                        @php
+                            $researchPreviewHtml = view('public.research', [
+                                'researchCms' => $researchPrefill,
+                                'cmsPreview' => true,
+                            ])->render();
+                        @endphp
+
+                        @include('partials.research_cms_preview_editor', [
+                            'researchPreviewHtml' => $researchPreviewHtml,
+                            'researchEditorData' => $researchPrefill,
+                            'researchEditorFormClass' => 'cms-edit-form',
+                            'researchEditorSubmitRoute' => route('staff.content.requestEdit'),
+                            'researchEditorSubmitMode' => 'request',
+                            'researchEditorRequestId' => $draft['id'] ?? null,
+                            'researchEditorStatus' => $status,
+                            'researchEditorIdPrefix' => 'staff-research',
                         ])
                     @elseif($tabKey === 'events')
                         @php

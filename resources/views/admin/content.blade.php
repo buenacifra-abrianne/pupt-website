@@ -146,6 +146,9 @@
                 $academicsLive = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
+                $researchLive = $tabKey === 'research_extension'
+                    ? \App\Support\ResearchCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
                 $eventsLive = $tabKey === 'events'
                     ? \App\Support\EventsCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
@@ -199,6 +202,22 @@
                         'academicsEditorSubmitRoute' => route('admin.content.save'),
                         'academicsEditorSubmitMode' => 'save',
                         'academicsEditorIdPrefix' => 'admin-academics',
+                    ])
+                @elseif($tabKey === 'research_extension')
+                    @php
+                        $researchPreviewHtml = view('public.research', [
+                            'researchCms' => $researchLive,
+                            'cmsPreview' => true,
+                        ])->render();
+                    @endphp
+
+                    @include('partials.research_cms_preview_editor', [
+                        'researchPreviewHtml' => $researchPreviewHtml,
+                        'researchEditorData' => $researchLive,
+                        'researchEditorFormClass' => 'cms-save-form',
+                        'researchEditorSubmitRoute' => route('admin.content.save'),
+                        'researchEditorSubmitMode' => 'save',
+                        'researchEditorIdPrefix' => 'admin-research',
                     ])
                 @elseif($tabKey === 'events')
                     @php
