@@ -171,42 +171,34 @@
             const accessToken = @json($accessToken);
             const afterLogoutUrl = @json($afterLogoutUrl);
 
-            try {
-                const response = await fetch(logoutUrl, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`,
-                    },
-                    body: JSON.stringify({
-                        client_id: clientId
-                    })
-                });
+            // Create a real form POST (NOT fetch)
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = logoutUrl;
 
-                let data = null;
-                try {
-                    data = await response.json();
-                } catch (_) {
-                    // ignore if no JSON body
-                }
+            // client_id
+            const clientInput = document.createElement('input');
+            clientInput.type = 'hidden';
+            clientInput.name = 'client_id';
+            clientInput.value = clientId;
+            form.appendChild(clientInput);
 
-                console.log('IDP logout response:', {
-                    status: response.status,
-                    ok: response.ok,
-                    data: data
-                });
+            // access token (if required by IDP)
+            const tokenInput = document.createElement('input');
+            tokenInput.type = 'hidden';
+            tokenInput.name = 'access_token';
+            tokenInput.value = accessToken;
+            form.appendChild(tokenInput);
 
-                // ✅ Only redirect if logout succeeded
-                if (response.ok) {
-                    window.location.href = afterLogoutUrl;
-                } else {
-                    console.error('Logout failed, staying on page.');
-                }
+            // post logout redirect
+            const redirectInput = document.createElement('input');
+            redirectInput.type = 'hidden';
+            redirectInput.name = 'post_logout_redirect_uri';
+            redirectInput.value = afterLogoutUrl;
+            form.appendChild(redirectInput);
 
-            } catch (error) {
-                console.error('IDP logout failed:', error);
-            }
+            document.body.appendChild(form);
+            form.submit();
         })();
     </script>
 
