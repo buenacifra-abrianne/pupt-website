@@ -11,7 +11,7 @@ class VerifyApiKey
     public function handle(Request $request, Closure $next): Response
     {
         $providedKey = (string) $request->header('X-API-KEY');
-        $expectedKey = (string) env('IDP_API_KEY', '');
+        $expectedKey = (string) config('services.idp.api_key');
 
         if ($expectedKey === '' || $providedKey === '' || ! hash_equals($expectedKey, $providedKey)) {
             return response()->json([
