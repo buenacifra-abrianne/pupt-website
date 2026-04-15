@@ -306,34 +306,28 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // Get token BEFORE flushing session/cookies
-    $accessToken = $request->cookie('access_token');
+    // ✅ get user_id directly from session (stored during login)
+    $userId = session('oneportal_id');
 
-    // clear local CMS session first
+    // ✅ clear local session
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    if ($baseUrl === '' || $clientId === '') {
+    // ✅ fallback if missing user_id
+    if (!$userId) {
         return redirect()->route('public.landing')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
 
-    // Call IDP logout with Bearer token
-    try {
-        if ($accessToken) {
-            Http::withToken($accessToken)
-                ->post($baseUrl . '/api/v1/auth/logout', [
-                    'client_id' => $clientId,
-                ]);
-        }
-    } catch (\Exception $e) {
-        // optional: log failure but don’t block logout
-        \Log::warning('IDP logout failed', ['error' => $e->getMessage()]);
-    }
+    // ✅ build REQUIRED IDP logout URL
+    $idpLogoutUrl = $baseUrl . '/logout?client_id=' . urlencode($clientId)
+        . '&user_id=' . urlencode($userId)
+        . '&post_logout_redirect_uri=' . urlencode(route('public.landing'));
 
-    return redirect()->route('public.landing')
+    // ✅ redirect to IDP logout (IMPORTANT)
+    return redirect()->away($idpLogoutUrl)
         ->withoutCookie('access_token')
         ->withoutCookie('refresh_token');
 }
