@@ -15,26 +15,19 @@ class NewsImage
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
-{
-    foreach (self::candidateDisks() as $disk) {
-        try {
-            \Log::info("Trying upload to disk: " . $disk);
-
-            $stored = $file->store($directory, $disk);
-
-            \Log::info("Upload result: " . json_encode($stored));
-
-            if ($stored !== false) {
-                return $stored;
+    {
+        foreach (self::candidateDisks() as $disk) {
+            try {
+                $stored = $file->store($directory, $disk);
+                if ($stored !== false) {
+                    return $stored;
+                }
+            } catch (Throwable) {
             }
-
-        } catch (Throwable $e) {
-            \Log::error("S3 upload failed on disk {$disk}: " . $e->getMessage());
         }
-    }
 
-    return false;
-}
+        return false;
+    }
 
     public static function delete(?string $path): void
     {
@@ -59,7 +52,11 @@ class NewsImage
         $value = trim((string) $path);
 
         if ($value === '') {
-            return null;
+            if ($fallback === null || $fallback === '') {
+                return null;
+            }
+
+            return asset(ltrim($fallback, '/'));
         }
 
         if (self::isExternal($value)) {
@@ -68,11 +65,31 @@ class NewsImage
 
         $normalized = ltrim($value, '/');
 
-        try {
-            return Storage::disk('s3')->url($normalized);
-        } catch (Throwable) {
-            return asset('storage/'.$normalized);
+        if (str_starts_with($normalized, 'assets/') || str_starts_with($normalized, 'storage/')) {
+            return asset($normalized);
         }
+
+        if (App::environment('local')) {
+            try {
+                if (Storage::disk(self::FALLBACK_DISK)->exists($normalized)) {
+                    return asset('storage/'.$normalized);
+                }
+            } catch (Throwable) {
+            }
+        }
+
+        foreach (self::candidateDisks() as $disk) {
+            if ($disk === self::FALLBACK_DISK) {
+                continue;
+            }
+
+            try {
+                return Storage::disk($disk)->url($normalized);
+            } catch (Throwable) {
+            }
+        }
+
+        return asset('storage/'.$normalized);
     }
 
     public static function validationError(?UploadedFile $file): ?string
