@@ -15,19 +15,26 @@ class NewsImage
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
-    {
-        foreach (self::candidateDisks() as $disk) {
-            try {
-                $stored = $file->store($directory, $disk);
-                if ($stored !== false) {
-                    return $stored;
-                }
-            } catch (Throwable) {
-            }
-        }
+{
+    foreach (self::candidateDisks() as $disk) {
+        try {
+            \Log::info("Trying upload to disk: " . $disk);
 
-        return false;
+            $stored = $file->store($directory, $disk);
+
+            \Log::info("Upload result: " . json_encode($stored));
+
+            if ($stored !== false) {
+                return $stored;
+            }
+
+        } catch (Throwable $e) {
+            \Log::error("S3 upload failed on disk {$disk}: " . $e->getMessage());
+        }
     }
+
+    return false;
+}
 
     public static function delete(?string $path): void
     {
