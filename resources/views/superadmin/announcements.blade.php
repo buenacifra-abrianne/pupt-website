@@ -776,6 +776,23 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
+    function normalizeReadMoreHtml(content) {
+        const rawHtml = String(content || '').trim();
+        if (rawHtml === '') {
+            return '';
+        }
+
+        const textarea = document.createElement('textarea');
+        textarea.innerHTML = rawHtml;
+        const decodedHtml = textarea.value.trim();
+
+        if (decodedHtml !== '' && /<\/?[a-z][\s\S]*>/i.test(decodedHtml)) {
+            return decodedHtml;
+        }
+
+        return rawHtml;
+    }
+
     function openReadMoreModal(title, content, link = null) {
         const modal = document.getElementById('readMoreModal');
         const titleEl = document.getElementById('readMoreTitle');
@@ -784,7 +801,7 @@
         const linkEl = document.getElementById('readMoreLink');
 
         titleEl.textContent = title || 'Read More';
-        contentEl.innerHTML = content || '<p>No content available.</p>';
+        contentEl.innerHTML = normalizeReadMoreHtml(content) || '<p>No content available.</p>';
 
         if (link) {
             linkEl.href = link;

@@ -133,10 +133,6 @@
                             onclick="switchCmsTab('{{ $tabKey }}', this)"
                         >
                             <span>{{ $tabDef['label'] }}</span>
-                            @php $pendingForTab = (int)($pendingByTab[$tabKey] ?? 0); @endphp
-                            @if($pendingForTab > 0)
-                                <span class="tab-badge">{{ $pendingForTab }}</span>
-                            @endif
                         </button>
                     </li>
                 @endforeach

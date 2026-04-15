@@ -244,7 +244,7 @@
                             </article>
                         @endif
 
-                        @foreach($sortedCards as $card)
+                        @foreach($displayCards as $card)
                             <article
                                 class="ne-card"
                                 data-events-card
@@ -294,7 +294,7 @@
                         @endforeach
                     </section>
 
-                    <div class="ne-empty-state" data-ne-empty-state @if($sortedCards->isNotEmpty()) hidden @endif>
+                    <div class="ne-empty-state" data-ne-empty-state @if($displayCards->isNotEmpty()) hidden @endif>
                         No events available yet.
                     </div>
                 </div>

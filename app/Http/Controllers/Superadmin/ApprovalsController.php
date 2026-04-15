@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
 use App\Support\AuditLog;
+use App\Support\CmsApprovalPreview;
 use App\Support\CmsSections;
 use App\Support\NewsImage;
 use App\Support\RichText;
@@ -611,21 +612,8 @@ private function attachDisplayFields($paginator)
 
         if (str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT')) {
             $tabKey = (string) ($payload['tab_key'] ?? CmsSections::tabForRequestType($type));
-            $tabLabel = CmsSections::labelForTab($tabKey);
-
-            $displayTitle = trim((string) ($payload['title'] ?? ''));
-            if ($displayTitle === '') {
-                $displayTitle = $tabLabel.' Content';
-            }
-
-            $requested = (string) ($payload['content'] ?? '');
-            $previous = (string) ($payload['previous_content'] ?? '');
-
-            if (trim($previous) !== '' && trim($previous) !== trim($requested)) {
-                $displayContent = "Previous:\n".$previous."\n\nRequested update:\n".$requested;
-            } else {
-                $displayContent = $requested;
-            }
+            $displayTitle = CmsApprovalPreview::titleForRequest($payload, $type);
+            $displayContent = CmsApprovalPreview::htmlForRequest($payload, $type);
         }
 
         if (str_starts_with($type, 'DOWNLOADABLE_')) {

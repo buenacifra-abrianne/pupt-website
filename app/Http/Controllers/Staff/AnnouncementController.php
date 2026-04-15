@@ -396,13 +396,10 @@ $myNews = DB::table('news')
         ->where('requester_email', $email)
         ->update($data);
 
-    // ADMIN notif
-    $this->pushSystemNotif(
+    $this->pushApproverNotifications(
         'INFO',
         'New Approval Request',
-        "{$name} re-submitted a request.",
-        'ADMIN',
-        null
+        "{$name} re-submitted a request."
     );
 
     $userId = (int)(session('user_id') ?? 0);
@@ -421,13 +418,10 @@ $myNews = DB::table('news')
     $data['created_at'] = now();
     DB::table('approval_requests')->insert($data);
 
-    // ADMIN notif
-    $this->pushSystemNotif(
+    $this->pushApproverNotifications(
         'INFO',
         'New Approval Request',
-        "{$name} submitted a request.",
-        'ADMIN',
-        null
+        "{$name} submitted a request."
     );
 
     $userId = (int)(session('user_id') ?? 0);
@@ -478,5 +472,12 @@ $myNews = DB::table('news')
             'target_user_id' => $targetUserId,
             'created_at'     => now(),
         ]);
+    }
+
+    private function pushApproverNotifications(string $type, string $title, string $message): void
+    {
+        foreach (['ADMIN', 'SUPERADMIN'] as $role) {
+            $this->pushSystemNotif($type, $title, $message, $role, null);
+        }
     }
 }

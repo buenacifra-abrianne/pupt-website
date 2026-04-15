@@ -165,6 +165,7 @@
                 $eventsPrefill = $tabKey === 'events'
                     ? \App\Support\EventsCmsContent::fromStored((string) $prefillContent)
                     : null;
+                $isUnderReview = $status === 'pending';
             @endphp
 
             <div
@@ -174,98 +175,7 @@
                 aria-labelledby="cms-tab-trigger-{{ $tabKey }}"
                 @unless($loop->first) hidden @endunless
             >
-                <div style="display:grid;grid-template-columns:{{ $tabKey === 'home' ? '1fr' : '1fr 1fr' }};gap:16px;align-items:start;">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Live {{ $tabDef['label'] }} Content</h3>
-                        </div>
-                        <div style="padding:14px;">
-                            <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Title</div>
-                            <div style="font-weight:700;margin-bottom:12px;">{{ $live['title'] ?: ($tabDef['label'].' Content') }}</div>
-
-                            @if($tabKey === 'home')
-                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">PUP Taguig Campus Description</div>
-                                <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">{{ $homeLive['campus_description'] ?? '' }}</div>
-
-                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Carousel Slides</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
-                                    @foreach(($homeLive['carousel_slides'] ?? []) as $slide)
-                                        <div style="font-size:13px; margin-bottom:8px;">
-                                            <strong>Slide {{ $loop->iteration }}:</strong>
-                                            {{ $slide['title'] }}
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @elseif($tabKey === 'about')
-                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Intro</div>
-                                <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">{{ $aboutLive['overview']['story_description'] ?? '' }}</div>
-
-                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Sections</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
-                                    @foreach(($aboutLive['sections'] ?? []) as $section)
-                                        <div style="font-size:13px; margin-bottom:8px;">
-                                            <strong>{{ $section['label'] ?? '' }}:</strong>
-                                            {{ $section['summary'] ?? '' }}
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @elseif($tabKey === 'events')
-                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Page Header</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">
-                                    <strong>{{ $eventsLive['page']['title'] ?? 'Events' }}</strong>
-                                    <div style="margin-top:8px;line-height:1.6;">{{ strip_tags($eventsLive['page']['description'] ?? '') }}</div>
-                                </div>
-
-                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Event Cards</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
-                                    @foreach(($eventsLive['cards'] ?? []) as $card)
-                                        <div style="font-size:13px; margin-bottom:8px;">
-                                            <strong>{{ $card['title'] ?? '' }}</strong>
-                                            @if(!empty($card['featured']))
-                                                <span style="color:#800000;">(Featured)</span>
-                                            @endif
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @elseif($tabKey === 'research_extension')
-                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Page Header</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">
-                                    <strong>{{ $researchLive['page']['title'] ?? 'Research and Extension' }}</strong>
-                                    <div style="margin-top:8px;line-height:1.6;">{{ $researchLive['page']['description'] ?? '' }}</div>
-                                </div>
-
-                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Cards</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
-                                    @foreach(($researchLive['cards'] ?? []) as $card)
-                                        <div style="font-size:13px; margin-bottom:8px;">
-                                            <strong>{{ $card['title'] ?? '' }}</strong>
-                                            <div style="margin-top:4px; opacity:.8;">{{ $card['link'] ?? '' }}</div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @elseif($tabKey === 'students')
-                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Page Header</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">
-                                    <strong>{{ $studentsLive['page']['title'] ?? 'Students' }}</strong>
-                                    <div style="margin-top:8px;line-height:1.6;">{{ $studentsLive['page']['description'] ?? '' }}</div>
-                                </div>
-
-                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Cards</div>
-                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
-                                    @foreach(($studentsLive['cards'] ?? []) as $card)
-                                        <div style="font-size:13px; margin-bottom:8px;">
-                                            <strong>{{ $card['title'] ?? '' }}</strong>
-                                            <div style="margin-top:4px; opacity:.8;">{{ $card['link'] ?? '' }}</div>
-                                        </div>
-                                    @endforeach
-                                </div>
-                            @else
-                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Content</div>
-                                <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:180px;">{{ $live['content'] !== '' ? $live['content'] : 'No live content yet.' }}</div>
-                            @endif
-                        </div>
-                    </div>
-
+                <div class="cms-staff-review-shell{{ $isUnderReview ? ' is-under-review' : '' }}">
                     @if($tabKey === 'home')
                         @php
                             $homePreviewHtml = view('public.home', [
@@ -417,6 +327,19 @@
                             </div>
                         </div>
                     @endif
+
+                    @if($isUnderReview)
+                        <div class="cms-staff-review-overlay" role="status" aria-live="polite">
+                            <div class="cms-staff-review-card">
+                                <span class="cms-staff-review-pill">Request Under Review</span>
+                                <h3>{{ $tabDef['label'] }} content is currently under review.</h3>
+                                <p>Editing is temporarily locked while admin or superadmin reviews your latest request.</p>
+                                @if(!empty($draft['updated_at']))
+                                    <p class="cms-staff-review-meta">Submitted {{ \Carbon\Carbon::parse($draft['updated_at'])->format('M d, Y h:i A') }}</p>
+                                @endif
+                            </div>
+                        </div>
+                    @endif
                 </div>
             </div>
         @endforeach
@@ -502,6 +425,71 @@
         margin: 10px 0 0;
         color: #6f625c;
         line-height: 1.5;
+    }
+
+    .cms-staff-review-shell {
+        position: relative;
+    }
+
+    .cms-staff-review-shell.is-under-review > *:not(.cms-staff-review-overlay) {
+        filter: blur(10px) saturate(0.88);
+        pointer-events: none;
+        user-select: none;
+    }
+
+    .cms-staff-review-overlay {
+        position: absolute;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 24px;
+        border-radius: 24px;
+        background: rgba(255, 251, 246, 0.36);
+        backdrop-filter: blur(8px);
+    }
+
+    .cms-staff-review-card {
+        width: min(520px, 100%);
+        padding: 28px 30px;
+        border: 1px solid rgba(128, 0, 0, 0.14);
+        border-radius: 24px;
+        background: rgba(255, 253, 250, 0.96);
+        box-shadow: 0 20px 56px rgba(46, 15, 11, 0.16);
+        text-align: center;
+        color: #5c0000;
+    }
+
+    .cms-staff-review-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 14px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(128, 0, 0, 0.08);
+        color: #7f1113;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+    }
+
+    .cms-staff-review-card h3 {
+        margin: 0;
+        font-size: 1.4rem;
+    }
+
+    .cms-staff-review-card p {
+        margin: 12px 0 0;
+        color: #6f625c;
+        line-height: 1.6;
+    }
+
+    .cms-staff-review-meta {
+        font-size: 0.9rem;
+        font-weight: 600;
     }
 
     .cms-page-loading-spinner {

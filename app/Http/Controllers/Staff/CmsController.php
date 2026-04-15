@@ -69,12 +69,28 @@ class CmsController extends Controller
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
             'request_id' => ['nullable', 'integer'],
+            'home_quick_links_version' => ['nullable'],
+            'home_active_quick_link_index' => ['nullable'],
+            'about_contents_version' => ['nullable'],
+            'about_active_contents_slug' => ['nullable', 'string'],
+            'academics_contents_version' => ['nullable'],
+            'academics_active_contents_index' => ['nullable'],
+            'academics_features_version' => ['nullable'],
+            'academics_active_feature_index' => ['nullable'],
+            'students_cards_version' => ['nullable'],
+            'students_active_card_index' => ['nullable'],
+            'students_active_org_key' => ['nullable', 'string'],
+            'research_cards_version' => ['nullable'],
+            'research_active_card_index' => ['nullable'],
+            'events_cards_version' => ['nullable'],
             'home' => ['nullable', 'array'],
             'about' => ['nullable', 'array'],
             'academics' => ['nullable', 'array'],
             'students' => ['nullable', 'array'],
             'research' => ['nullable', 'array'],
             'events' => ['nullable', 'array'],
+            'about.sections' => ['nullable', 'array'],
+            'about.sections.*.visible_in_contents' => ['nullable'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
             'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
@@ -369,12 +385,10 @@ class CmsController extends Controller
             $data['request_id'] ?? null
         );
 
-        $this->pushSystemNotif(
+        $this->pushApproverNotifications(
             'INFO',
             'New CMS Approval Request',
-            ($name !== '' ? $name : $email).' submitted a content update for '.$tabLabel.'.',
-            'ADMIN',
-            null
+            ($name !== '' ? $name : $email).' submitted a content update for '.$tabLabel.'.'
         );
 
         $this->pushSystemNotif(
@@ -875,6 +889,13 @@ class CmsController extends Controller
             'target_user_id' => $targetUserId,
             'created_at' => now(),
         ]);
+    }
+
+    private function pushApproverNotifications(string $type, string $title, string $message): void
+    {
+        foreach (['ADMIN', 'SUPERADMIN'] as $role) {
+            $this->pushSystemNotif($type, $title, $message, $role, null);
+        }
     }
 
     private function loadHomePreviewAnnouncements()
