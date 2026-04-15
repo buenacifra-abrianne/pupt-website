@@ -165,9 +165,50 @@
     </div>
 
     <script>
-    const idpBrowserLogoutUrl = @json($idpBrowserLogoutUrl);
-    window.location.replace(idpBrowserLogoutUrl);
-</script>
+        (async function () {
+            const logoutUrl = @json($idpLogoutUrl);
+            const clientId = @json($clientId);
+            const accessToken = @json($accessToken);
+            const afterLogoutUrl = @json($afterLogoutUrl);
+
+            try {
+                const response = await fetch(logoutUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        client_id: clientId
+                    })
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (_) {
+                    // ignore if no JSON body
+                }
+
+                console.log('IDP logout response:', {
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                });
+
+                // ✅ Only redirect if logout succeeded
+                if (response.ok) {
+                    window.location.href = afterLogoutUrl;
+                } else {
+                    console.error('Logout failed, staying on page.');
+                }
+
+            } catch (error) {
+                console.error('IDP logout failed:', error);
+            }
+        })();
+    </script>
 
     <noscript>
         JavaScript is required to complete logout.
