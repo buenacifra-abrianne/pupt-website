@@ -21,14 +21,7 @@
             ->sortBy(fn ($card) => ($card['event_date'] ?? '9999-12-31').'|'.($card['start_time'] ?? '99:99').'|'.($card['title'] ?? ''))
             ->values();
         $today = now()->toDateString();
-        $isExpiredCard = static function (array $card) use ($today): bool {
-            $date = trim((string) ($card['event_date'] ?? ''));
-            return $date !== '' && $date < $today;
-        };
-        $expiredCards = $sortedCards->filter($isExpiredCard)->values();
-        $displayCards = $cmsPreview
-            ? $sortedCards->reject($isExpiredCard)->values()
-            : $sortedCards;
+        $displayCards = $sortedCards;
         $featuredCard = $eventCards->first(fn ($card) => !empty($card['featured']));
         $ongoingCards = $sortedCards->filter(fn ($card) => ($card['event_date'] ?? '') === $today)->values();
         $upcomingCards = $sortedCards->filter(fn ($card) => ($card['event_date'] ?? '') > $today)->values();

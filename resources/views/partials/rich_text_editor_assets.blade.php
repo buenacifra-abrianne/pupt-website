@@ -306,6 +306,16 @@ input[name="title"] {
     margin: 0.4rem 0 0.8rem;
 }
 
+.rich-text-content strong,
+.rich-text-content b,
+.rich-text-content em,
+.rich-text-content i,
+.rich-text-content u,
+.rich-text-content s,
+.rich-text-content a {
+    color: inherit !important;
+}
+
 .rich-editor-surface * {
     line-height: inherit;
 }

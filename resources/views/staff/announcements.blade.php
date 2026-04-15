@@ -101,6 +101,7 @@
                 @php
                     $annReqs = $myRequests->filter(fn($r) =>
                         in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+                        && strtolower((string)($r->status ?? '')) === 'rejected'
                     );
                 @endphp
 
@@ -206,6 +207,7 @@
         @php
             $newsReqs = $myRequests->filter(fn($r) =>
                 in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
+                && strtolower((string)($r->status ?? '')) === 'rejected'
             );
         @endphp
 

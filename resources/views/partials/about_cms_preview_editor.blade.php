@@ -1,7 +1,9 @@
 @php
     $aboutDefaults = \App\Support\AboutCmsContent::defaults();
     $aboutEditorData = \App\Support\AboutCmsContent::fromInput($aboutEditorData ?? [], null);
+    $aboutPreviewData = \App\Support\AboutCmsContent::fromInput($aboutPreviewData ?? $aboutEditorData, null);
     $aboutSections = $aboutEditorData['sections'] ?? [];
+    $aboutPreviewSections = $aboutPreviewData['sections'] ?? [];
     $overviewEditor = $aboutEditorData['overview'] ?? ($aboutDefaults['overview'] ?? []);
     $formClass = $aboutEditorFormClass ?? 'cms-save-form';
     $submitRoute = $aboutEditorSubmitRoute;
@@ -21,14 +23,14 @@
 
     $aboutPreviewPages = [
         'overview' => view('public.about', [
-            'aboutCms' => $aboutEditorData,
+            'aboutCms' => $aboutPreviewData,
             'cmsPreview' => true,
         ])->render(),
     ];
 
-    foreach ($aboutSections as $slug => $sectionData) {
+    foreach ($aboutPreviewSections as $slug => $sectionData) {
         $aboutPreviewPages[$slug] = view('public.about', [
-            'aboutCms' => $aboutEditorData,
+            'aboutCms' => $aboutPreviewData,
             'selectedSection' => $sectionData,
             'cmsPreview' => true,
         ])->render();

@@ -192,13 +192,15 @@
                                         </div>
                                     </div>
 
-                                    <div class="contents-card-back">
-                                        <div class="contents-card-overlay-copy">
-                                            <h3>{{ $section['label'] }}</h3>
-                                            <p>{{ $section['summary'] }}</p>
+                                    @unless($cmsPreview)
+                                        <div class="contents-card-back">
+                                            <div class="contents-card-overlay-copy">
+                                                <h3>{{ $section['label'] }}</h3>
+                                                <p>{{ $section['summary'] }}</p>
+                                            </div>
+                                            <span class="contents-card-action">See more</span>
                                         </div>
-                                        <span class="contents-card-action">See more</span>
-                                    </div>
+                                    @endunless
                                 </div>
                             @if($cmsPreview)
                                 </article>
@@ -1079,23 +1081,29 @@
             }
 
             .contents-strip.cms-preview-editable .contents-card-back {
-                opacity: 1 !important;
-                transform: translateY(0) !important;
+                opacity: 0 !important;
+                transform: translateY(100%) !important;
+                pointer-events: none !important;
             }
 
             .contents-strip.cms-preview-editable .contents-card-front img {
                 transform: none !important;
-                filter: none !important;
+                filter: blur(3px) saturate(0.88) !important;
             }
 
             .contents-strip.cms-preview-editable .contents-card-overlay-copy,
             .contents-strip.cms-preview-editable .contents-card-action {
-                opacity: 1 !important;
-                transform: none !important;
+                opacity: 0 !important;
+                transform: translateY(18px) !important;
             }
 
             .contents-strip.cms-preview-editable .contents-card-copy {
-                opacity: 0 !important;
+                opacity: 1 !important;
+            }
+
+            .contents-strip.cms-preview-editable .card_without_section .contents-card-copy {
+                min-height: 74px;
+                padding: 10px 16px 12px;
             }
 
             .contents-strip.cms-preview-editable [data-about-contents-card] {
@@ -1103,32 +1111,60 @@
                 cursor: pointer;
             }
 
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within {
+                transform: none !important;
+                filter: none !important;
+                box-shadow: 0 16px 34px rgba(77, 18, 18, 0.12) !important;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-back,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within .contents-card-back {
+                opacity: 0 !important;
+                transform: translateY(100%) !important;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-overlay-copy,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-action,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within .contents-card-overlay-copy,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within .contents-card-action {
+                opacity: 0 !important;
+                transform: translateY(18px) !important;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-front img,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within .contents-card-front img {
+                transform: none !important;
+                filter: blur(3px) saturate(0.88) !important;
+            }
+
             .cms-preview-card-actions {
                 position: absolute;
-                top: 12px;
-                right: 12px;
-                z-index: 7;
-                display: inline-flex;
+                top: 14px;
+                right: 14px;
+                z-index: 12;
+                display: flex;
                 gap: 8px;
             }
 
             .cms-preview-card-action {
-                border: 1px solid rgba(127, 17, 19, 0.22);
-                border-radius: 999px;
-                padding: 8px 14px;
-                background: rgba(255, 250, 244, 0.96);
-                color: #7f1113;
-                font-size: 0.74rem;
+                border: none;
+                border-radius: 12px;
+                padding: 0 12px;
+                min-width: 64px;
+                height: 36px;
+                background: rgba(127, 17, 19, 0.92);
+                color: #fffaf4;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+                font-size: 0.78rem;
                 font-weight: 700;
-                line-height: 1;
-                letter-spacing: 0.04em;
-                box-shadow: 0 10px 20px rgba(32, 8, 8, 0.14);
             }
 
             .cms-preview-card-action-delete {
-                background: rgba(127, 17, 19, 0.96);
-                border-color: rgba(127, 17, 19, 0.96);
-                color: #fffaf4;
+                background: rgba(92, 0, 0, 0.96);
             }
 
             .cms-preview-chip {

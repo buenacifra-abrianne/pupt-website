@@ -37,6 +37,9 @@
                 <a href="{{ route('superadmin.approvals.pending') }}" class="nav-link active">
                     <i class="fas fa-clipboard-check"></i>
                     <span>Pending Approvals</span>
+                    @if(($pendingApprovalCount ?? 0) > 0)
+                        <span style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($pendingApprovalCount ?? 0) > 99 ? '99+' : $pendingApprovalCount }}</span>
+                    @endif
                 </a>
             </li>
 

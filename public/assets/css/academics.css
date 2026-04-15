@@ -649,7 +649,8 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 
 .academic-intro-text-inner p:last-child { margin-bottom: 0; }
 
-.academic-intro-text-inner strong {
+.academic-intro-text-inner strong:not([style*="color"]),
+.academic-intro-text-inner b:not([style*="color"]) {
   color: var(--maroon-deep);
   font-weight: 700;
 }
@@ -2297,7 +2298,8 @@ body.pup-dark-mode .academic-intro-text-inner p {
   color: #c8a8a8;
 }
 
-body.pup-dark-mode .academic-intro-text-inner strong {
+body.pup-dark-mode .academic-intro-text-inner strong:not([style*="color"]),
+body.pup-dark-mode .academic-intro-text-inner b:not([style*="color"]) {
   color: #e08080;
 }
 

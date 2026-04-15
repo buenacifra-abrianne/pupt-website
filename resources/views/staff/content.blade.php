@@ -125,10 +125,20 @@
             @php
                 $live = $contentsByTab[$tabKey] ?? ['title' => $tabDef['label'].' Content', 'content' => ''];
                 $draft = $requestDraftsByTab[$tabKey] ?? null;
+                $reviewSections = $reviewSectionsByTab[$tabKey] ?? [];
+                $reviewSectionLabels = collect($reviewSections)
+                    ->pluck('label')
+                    ->filter(fn ($label) => trim((string) $label) !== '')
+                    ->values()
+                    ->all();
                 $status = strtolower((string)($draft['status'] ?? ''));
                 $badgeClass = $status === 'pending' ? 'status-pending' : ($status === 'rejected' ? 'status-disabled' : 'status-enabled');
-                $prefillTitle = $draft['title'] ?? $live['title'];
-                $prefillContent = $draft['content'] ?? $live['content'];
+                $prefillTitle = trim((string) ($draft['title'] ?? '')) !== ''
+                    ? (string) $draft['title']
+                    : (string) ($live['title'] ?? '');
+                $prefillContent = trim((string) ($draft['content'] ?? '')) !== ''
+                    ? (string) $draft['content']
+                    : (string) ($live['content'] ?? '');
                 $homeLive = $tabKey === 'home'
                     ? \App\Support\HomeCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
@@ -165,7 +175,6 @@
                 $eventsPrefill = $tabKey === 'events'
                     ? \App\Support\EventsCmsContent::fromStored((string) $prefillContent)
                     : null;
-                $isUnderReview = $status === 'pending';
             @endphp
 
             <div
@@ -175,11 +184,39 @@
                 aria-labelledby="cms-tab-trigger-{{ $tabKey }}"
                 @unless($loop->first) hidden @endunless
             >
-                <div class="cms-staff-review-shell{{ $isUnderReview ? ' is-under-review' : '' }}">
+                @if($status === 'pending')
+                    <div class="cms-staff-status-banner cms-staff-status-banner-pending" role="status" aria-live="polite">
+                        <div>
+                            <span class="cms-staff-status-pill">Pending Approval</span>
+                            <h3>{{ $tabDef['label'] }} changes are under review.</h3>
+                            <p>The preview below still shows the approved live content. Your updates will appear after admin or superadmin approval.</p>
+                            @if(!empty($draft['updated_at']))
+                                <p class="cms-staff-status-meta">Submitted {{ \Carbon\Carbon::parse($draft['updated_at'])->format('M d, Y h:i A') }}</p>
+                            @endif
+                        </div>
+                        @if(!empty($reviewSectionLabels))
+                            <div class="cms-staff-status-chips" aria-label="Sections under review">
+                                @foreach($reviewSectionLabels as $sectionLabel)
+                                    <span class="cms-staff-status-chip">{{ $sectionLabel }}</span>
+                                @endforeach
+                            </div>
+                        @endif
+                    </div>
+                @elseif($status === 'rejected' && !empty($draft['rejection_reason']))
+                    <div class="cms-staff-status-banner cms-staff-status-banner-rejected" role="status" aria-live="polite">
+                        <div>
+                            <span class="cms-staff-status-pill cms-staff-status-pill-rejected">Needs Revision</span>
+                            <h3>{{ $tabDef['label'] }} request was rejected.</h3>
+                            <p>{{ $draft['rejection_reason'] }}</p>
+                        </div>
+                    </div>
+                @endif
+
+                <div class="cms-staff-review-shell">
                     @if($tabKey === 'home')
                         @php
                             $homePreviewHtml = view('public.home', [
-                                'homeCms' => $homePrefill,
+                                'homeCms' => $homeLive,
                                 'news' => $homePreviewNews ?? collect(),
                                 'announcements' => $homePreviewAnnouncements ?? collect(),
                                 'cmsPreview' => true,
@@ -198,6 +235,7 @@
                         ])
                     @elseif($tabKey === 'about')
                         @include('partials.about_cms_preview_editor', [
+                            'aboutPreviewData' => $aboutLive,
                             'aboutEditorData' => $aboutPrefill,
                             'aboutEditorFormClass' => 'cms-edit-form',
                             'aboutEditorSubmitRoute' => route('staff.content.requestEdit'),
@@ -209,7 +247,7 @@
                     @elseif($tabKey === 'academics')
                         @php
                             $academicsPreviewHtml = view('public.academics', [
-                                'academicsCms' => $academicsPrefill,
+                                'academicsCms' => $academicsLive,
                                 'cmsPreview' => true,
                             ])->render();
                         @endphp
@@ -227,7 +265,7 @@
                     @elseif($tabKey === 'students')
                         @php
                             $studentsPreviewHtml = view('public.students', [
-                                'studentsCms' => $studentsPrefill,
+                                'studentsCms' => $studentsLive,
                                 'cmsPreview' => true,
                             ])->render();
                         @endphp
@@ -245,7 +283,7 @@
                     @elseif($tabKey === 'research_extension')
                         @php
                             $researchPreviewHtml = view('public.research', [
-                                'researchCms' => $researchPrefill,
+                                'researchCms' => $researchLive,
                                 'cmsPreview' => true,
                             ])->render();
                         @endphp
@@ -263,7 +301,7 @@
                     @elseif($tabKey === 'events')
                         @php
                             $eventsPreviewHtml = view('public.events', [
-                                'eventsCms' => $eventsPrefill,
+                                'eventsCms' => $eventsLive,
                                 'cmsPreview' => true,
                             ])->render();
                         @endphp
@@ -324,19 +362,6 @@
                                         </button>
                                     </div>
                                 </form>
-                            </div>
-                        </div>
-                    @endif
-
-                    @if($isUnderReview)
-                        <div class="cms-staff-review-overlay" role="status" aria-live="polite">
-                            <div class="cms-staff-review-card">
-                                <span class="cms-staff-review-pill">Request Under Review</span>
-                                <h3>{{ $tabDef['label'] }} content is currently under review.</h3>
-                                <p>Editing is temporarily locked while admin or superadmin reviews your latest request.</p>
-                                @if(!empty($draft['updated_at']))
-                                    <p class="cms-staff-review-meta">Submitted {{ \Carbon\Carbon::parse($draft['updated_at'])->format('M d, Y h:i A') }}</p>
-                                @endif
                             </div>
                         </div>
                     @endif
@@ -431,37 +456,30 @@
         position: relative;
     }
 
-    .cms-staff-review-shell.is-under-review > *:not(.cms-staff-review-overlay) {
-        filter: blur(10px) saturate(0.88);
-        pointer-events: none;
-        user-select: none;
-    }
-
-    .cms-staff-review-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 60;
+    .cms-staff-status-banner {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        padding: 24px;
-        border-radius: 24px;
-        background: rgba(255, 251, 246, 0.36);
-        backdrop-filter: blur(8px);
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 18px;
+        margin: 0 0 18px;
+        padding: 20px 22px;
+        border-radius: 22px;
+        border: 1px solid rgba(128, 0, 0, 0.12);
+        background: linear-gradient(180deg, rgba(255, 253, 250, 0.98) 0%, rgba(255, 248, 242, 0.96) 100%);
+        box-shadow: 0 16px 36px rgba(46, 15, 11, 0.08);
     }
 
-    .cms-staff-review-card {
-        width: min(520px, 100%);
-        padding: 28px 30px;
-        border: 1px solid rgba(128, 0, 0, 0.14);
-        border-radius: 24px;
-        background: rgba(255, 253, 250, 0.96);
-        box-shadow: 0 20px 56px rgba(46, 15, 11, 0.16);
-        text-align: center;
-        color: #5c0000;
+    .cms-staff-status-banner-pending {
+        border-color: rgba(127, 17, 19, 0.14);
     }
 
-    .cms-staff-review-pill {
+    .cms-staff-status-banner-rejected {
+        border-color: rgba(148, 37, 37, 0.18);
+        background: linear-gradient(180deg, rgba(255, 249, 249, 0.98) 0%, rgba(255, 241, 241, 0.96) 100%);
+    }
+
+    .cms-staff-status-pill {
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -476,20 +494,48 @@
         text-transform: uppercase;
     }
 
-    .cms-staff-review-card h3 {
-        margin: 0;
-        font-size: 1.4rem;
+    .cms-staff-status-pill-rejected {
+        background: rgba(148, 37, 37, 0.1);
+        color: #932525;
     }
 
-    .cms-staff-review-card p {
+    .cms-staff-status-banner h3 {
+        margin: 0;
+        font-size: 1.4rem;
+        color: #5c0000;
+    }
+
+    .cms-staff-status-banner p {
         margin: 12px 0 0;
         color: #6f625c;
         line-height: 1.6;
     }
 
-    .cms-staff-review-meta {
+    .cms-staff-status-meta {
         font-size: 0.9rem;
         font-weight: 600;
+    }
+
+    .cms-staff-status-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: flex-end;
+        max-width: 420px;
+    }
+
+    .cms-staff-status-chip {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(127, 17, 19, 0.08);
+        color: #7f1113;
+        font-size: 0.84rem;
+        font-weight: 700;
+        text-align: center;
     }
 
     .cms-page-loading-spinner {
@@ -580,6 +626,15 @@
             min-height: 54px;
             padding: 14px 18px;
             font-size: 0.74rem;
+        }
+
+        .cms-staff-status-banner {
+            padding: 18px;
+        }
+
+        .cms-staff-status-chips {
+            justify-content: flex-start;
+            max-width: none;
         }
     }
 

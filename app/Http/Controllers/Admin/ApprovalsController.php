@@ -95,14 +95,9 @@ $history = $this->attachDisplayFields($history);
         // -------------------------
         if ($type === 'ANNOUNCEMENT_CREATE') {
 
-    // created_by is INT in announcements table
-    $creatorId = 0;
-    $u = DB::table('users')->where('email', $row->requester_email)->first();
-    if ($u && isset($u->user_id)) {
-        $creatorId = (int) $u->user_id;
-    } elseif ($u && isset($u->id)) {
-        $creatorId = (int) $u->id;
-    }
+    // created_by must resolve to a real staff account so the approved item
+    // shows back up in the requester's live list.
+    $creatorId = $this->resolveRequesterUserId((string) $row->requester_email);
 
     // ✅ Insert and get the new announcement_id
     $newAnnouncementId = DB::table('announcements')->insertGetId([
@@ -139,14 +134,9 @@ $history = $this->attachDisplayFields($history);
 }
         elseif ($type === 'NEWS_CREATE') {
 
-    // created_by is INT in news table
-    $creatorId = 0;
-    $u = DB::table('users')->where('email', $row->requester_email)->first();
-    if ($u && isset($u->user_id)) {
-        $creatorId = (int) $u->user_id;
-    } elseif ($u && isset($u->id)) {
-        $creatorId = (int) $u->id;
-    }
+    // created_by must resolve to a real staff account so the approved item
+    // shows back up in the requester's live list.
+    $creatorId = $this->resolveRequesterUserId((string) $row->requester_email);
 
     // ✅ Insert and get the new news_id
     $newNewsId = DB::table('news')->insertGetId([
@@ -190,6 +180,8 @@ $history = $this->attachDisplayFields($history);
                 throw new \Exception("Missing announcement_id in request details.");
             }
 
+            $this->findAnnouncementOrFail($aid);
+
             $announcementUpdate = [
                 'title' => $payload['title'] ?? DB::raw('title'),
                 'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
@@ -210,12 +202,14 @@ $history = $this->attachDisplayFields($history);
             $aid = (int)($payload['announcement_id'] ?? 0);
             if (!$aid) throw new \Exception("Missing announcement_id in request details.");
 
+            $this->findAnnouncementOrFail($aid);
             DB::table('announcements')->where('announcement_id', $aid)->delete();
         }
         elseif ($type === 'ANNOUNCEMENT_ENABLE' || $type === 'ANNOUNCEMENT_DISABLE') {
             $aid = (int)($payload['announcement_id'] ?? 0);
             if (!$aid) throw new \Exception("Missing announcement_id in request details.");
 
+            $this->findAnnouncementOrFail($aid);
             $newStatus = ($type === 'ANNOUNCEMENT_DISABLE') ? 'DISABLED' : 'ENABLED';
 
             DB::table('announcements')
@@ -231,6 +225,8 @@ $history = $this->attachDisplayFields($history);
         if ($nid <= 0) {
             throw new \Exception("Missing news_id in request details. Approve NEWS_CREATE first so it saves news_id into the request payload.");
         }
+
+            $this->findNewsOrFail($nid);
 
             DB::table('news')
                 ->where('news_id', $nid)
@@ -250,6 +246,7 @@ $history = $this->attachDisplayFields($history);
             $nid = (int)($payload['news_id'] ?? 0);
             if (!$nid) throw new \Exception("Missing news_id in request details.");
 
+            $this->findNewsOrFail($nid);
             DB::table('news')->where('news_id', $nid)->delete();
         }
         elseif (str_starts_with($type, 'CMS_') && str_ends_with($type, '_EDIT')) {
@@ -547,6 +544,50 @@ private function pushSystemNotif(
         'target_user_id' => $targetUserId,
         'created_at'     => now(),
     ]);
+}
+
+private function resolveRequesterUserId(string $requesterEmail): int
+{
+    $normalizedEmail = strtolower(trim($requesterEmail));
+    if ($normalizedEmail === '') {
+        throw new \Exception('Requester email is missing from the approval request.');
+    }
+
+    $userId = (int) DB::table('users')
+        ->whereRaw('LOWER(email) = ?', [$normalizedEmail])
+        ->value('user_id');
+
+    if ($userId <= 0) {
+        throw new \Exception("Requester account not found for {$requesterEmail}.");
+    }
+
+    return $userId;
+}
+
+private function findAnnouncementOrFail(int $announcementId): object
+{
+    $announcement = DB::table('announcements')
+        ->where('announcement_id', $announcementId)
+        ->first();
+
+    if (!$announcement) {
+        throw new \Exception("Announcement {$announcementId} no longer exists.");
+    }
+
+    return $announcement;
+}
+
+private function findNewsOrFail(int $newsId): object
+{
+    $news = DB::table('news')
+        ->where('news_id', $newsId)
+        ->first();
+
+    if (!$news) {
+        throw new \Exception("News {$newsId} no longer exists.");
+    }
+
+    return $news;
 }
 
 private function attachDisplayFields($paginator)

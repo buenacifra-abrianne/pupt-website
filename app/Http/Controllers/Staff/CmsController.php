@@ -31,6 +31,8 @@ class CmsController extends Controller
         $tabDefs = CmsSections::tabDefinitions($allowedTabs);
         $contentsByTab = $this->loadContents($allowedTabs);
         $requestDraftsByTab = $this->loadLatestDraftRequests($allowedTabs);
+        $requestDraftsByTab = $this->applyLiveFallbackToInvalidDrafts($requestDraftsByTab, $contentsByTab);
+        $reviewSectionsByTab = $this->buildPendingReviewSections($allowedTabs, $contentsByTab, $requestDraftsByTab);
 
         $pendingCount = collect($requestDraftsByTab)->filter(function ($row) {
             return strtolower((string) ($row['status'] ?? '')) === 'pending';
@@ -41,6 +43,7 @@ class CmsController extends Controller
             'allowedTabs' => $allowedTabs,
             'contentsByTab' => $contentsByTab,
             'requestDraftsByTab' => $requestDraftsByTab,
+            'reviewSectionsByTab' => $reviewSectionsByTab,
             'pendingCount' => $pendingCount,
             'homePreviewNews' => $this->loadHomePreviewNews(),
             'homePreviewAnnouncements' => $this->loadHomePreviewAnnouncements(),
@@ -504,6 +507,8 @@ class CmsController extends Controller
                 'status' => (string) ($row->status ?? ''),
                 'title' => (string) ($payload['title'] ?? $row->title ?? ''),
                 'content' => (string) ($payload['content'] ?? ''),
+                'section_key' => trim((string) ($payload['section_key'] ?? '')),
+                'section_label' => trim((string) ($payload['section_label'] ?? '')),
                 'rejection_reason' => (string) ($row->rejection_reason ?? ''),
                 'updated_at' => $row->updated_at,
             ];
@@ -580,6 +585,37 @@ class CmsController extends Controller
             ->first();
     }
 
+    private function applyLiveFallbackToInvalidDrafts(array $draftsByTab, array $contentsByTab): array
+    {
+        foreach ($draftsByTab as $tabKey => $draft) {
+            if (!is_array($draft)) {
+                continue;
+            }
+
+            $draftContent = trim((string) ($draft['content'] ?? ''));
+            if ($draftContent === '' || $this->isStructuredCmsContent($draftContent)) {
+                continue;
+            }
+
+            $live = $contentsByTab[$tabKey] ?? null;
+            if (!is_array($live)) {
+                continue;
+            }
+
+            $draftsByTab[$tabKey]['title'] = (string) ($live['title'] ?? $draft['title'] ?? '');
+            $draftsByTab[$tabKey]['content'] = (string) ($live['content'] ?? '');
+        }
+
+        return $draftsByTab;
+    }
+
+    private function isStructuredCmsContent(string $rawContent): bool
+    {
+        $decoded = json_decode($rawContent, true);
+
+        return is_array($decoded);
+    }
+
     private function extractRequestPayload(?object $requestRow): array
     {
         if (!$requestRow) {
@@ -589,6 +625,194 @@ class CmsController extends Controller
         $payload = json_decode((string) ($requestRow->details ?? '{}'), true);
 
         return is_array($payload) ? $payload : [];
+    }
+
+    private function buildPendingReviewSections(array $tabKeys, array $contentsByTab, array $requestDraftsByTab): array
+    {
+        $out = [];
+
+        foreach ($tabKeys as $tabKey) {
+            $draft = $requestDraftsByTab[$tabKey] ?? null;
+            $status = strtolower((string) ($draft['status'] ?? ''));
+
+            if ($status !== 'pending') {
+                $out[$tabKey] = [];
+                continue;
+            }
+
+            $out[$tabKey] = $this->resolveReviewSectionsForTab(
+                $tabKey,
+                (string) ($contentsByTab[$tabKey]['content'] ?? ''),
+                (string) ($draft['content'] ?? ''),
+                (string) ($draft['section_key'] ?? ''),
+                (string) ($draft['section_label'] ?? '')
+            );
+        }
+
+        return $out;
+    }
+
+    private function resolveReviewSectionsForTab(
+        string $tabKey,
+        string $liveContent,
+        string $draftContent,
+        string $fallbackSectionKey = '',
+        string $fallbackSectionLabel = ''
+    ): array {
+        $liveSections = $this->sectionSnapshotsForTab($tabKey, $liveContent);
+        $draftSections = $this->sectionSnapshotsForTab($tabKey, $draftContent);
+        $reviewSections = [];
+
+        foreach ($draftSections as $sectionKey => $draftValue) {
+            $liveValue = $liveSections[$sectionKey] ?? null;
+
+            if ($this->snapshotMatches($liveValue, $draftValue)) {
+                continue;
+            }
+
+            $reviewSections[] = [
+                'key' => $sectionKey,
+                'label' => $this->sectionLabelForTab($tabKey, $sectionKey),
+            ];
+        }
+
+        if (!empty($reviewSections)) {
+            return $reviewSections;
+        }
+
+        $normalizedFallbackKey = trim($fallbackSectionKey);
+        if ($normalizedFallbackKey === '') {
+            return [];
+        }
+
+        return [[
+            'key' => $normalizedFallbackKey,
+            'label' => trim($fallbackSectionLabel) !== ''
+                ? trim($fallbackSectionLabel)
+                : $this->sectionLabelForTab($tabKey, $normalizedFallbackKey),
+        ]];
+    }
+
+    private function snapshotMatches(mixed $left, mixed $right): bool
+    {
+        return json_encode($left, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            === json_encode($right, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+    }
+
+    private function sectionSnapshotsForTab(string $tabKey, string $content): array
+    {
+        return match ($tabKey) {
+            'home' => $this->homeSectionSnapshots(HomeCmsContent::fromStored($content)),
+            'about' => $this->aboutSectionSnapshots(AboutCmsContent::fromStored($content)),
+            'academics' => $this->academicsSectionSnapshots(AcademicsCmsContent::fromStored($content)),
+            'students' => $this->studentsSectionSnapshots(StudentsCmsContent::fromStored($content)),
+            'research_extension' => $this->researchSectionSnapshots(ResearchCmsContent::fromStored($content)),
+            'events' => $this->eventsSectionSnapshots(EventsCmsContent::fromStored($content)),
+            default => [],
+        };
+    }
+
+    private function homeSectionSnapshots(array $content): array
+    {
+        return [
+            'description' => array_intersect_key($content, array_flip(['campus_title', 'campus_description', 'campus_image'])),
+            'carousel' => [
+                'hero' => $content['hero'] ?? [],
+                'carousel_slides' => $content['carousel_slides'] ?? [],
+            ],
+            'updates' => $content['updates'] ?? [],
+            'quick_links' => $content['quick_links'] ?? [],
+            'feedback' => $content['feedback'] ?? [],
+        ];
+    }
+
+    private function aboutSectionSnapshots(array $content): array
+    {
+        $overview = is_array($content['overview'] ?? null) ? $content['overview'] : [];
+        $sections = is_array($content['sections'] ?? null) ? $content['sections'] : [];
+        $contentsSections = [];
+
+        foreach ($sections as $slug => $section) {
+            if (!is_array($section)) {
+                continue;
+            }
+
+            $contentsSections[$slug] = array_intersect_key($section, array_flip(['label', 'summary', 'visible_in_contents']));
+        }
+
+        $snapshots = [
+            'hero' => array_intersect_key($overview, array_flip([
+                'hero_image',
+                'hero_title_default',
+                'hero_title_history',
+                'hero_title_vision',
+                'section_header_image',
+            ])),
+            'intro' => array_intersect_key($overview, array_flip([
+                'story_tag',
+                'story_title',
+                'story_image',
+                'story_description',
+            ])),
+            'contents' => [
+                'overview' => array_intersect_key($overview, array_flip(['contents_tag', 'contents_title'])),
+                'sections' => $contentsSections,
+            ],
+        ];
+
+        foreach (AboutCmsContent::sectionSlugs() as $slug) {
+            $snapshots[$slug] = is_array($sections[$slug] ?? null) ? $sections[$slug] : [];
+        }
+
+        return $snapshots;
+    }
+
+    private function academicsSectionSnapshots(array $content): array
+    {
+        return [
+            'hero' => $content['hero'] ?? [],
+            'contents' => $content['contents'] ?? [],
+            'intro' => $content['intro'] ?? [],
+            'features' => $content['features'] ?? [],
+        ];
+    }
+
+    private function studentsSectionSnapshots(array $content): array
+    {
+        return [
+            'page' => $content['page'] ?? [],
+            'cards' => $content['cards'] ?? [],
+            'organizations' => $content['organization_sections'] ?? [],
+        ];
+    }
+
+    private function researchSectionSnapshots(array $content): array
+    {
+        return [
+            'page' => $content['page'] ?? [],
+            'cards' => $content['cards'] ?? [],
+        ];
+    }
+
+    private function eventsSectionSnapshots(array $content): array
+    {
+        return [
+            'page' => $content['page'] ?? [],
+            'cards' => $content['cards'] ?? [],
+        ];
+    }
+
+    private function sectionLabelForTab(string $tabKey, string $sectionKey): string
+    {
+        return match ($tabKey) {
+            'home' => $this->homeSectionLabel($sectionKey),
+            'about' => $this->aboutSectionLabel($sectionKey),
+            'academics' => $this->academicsSectionLabel($sectionKey),
+            'students' => $this->studentsSectionLabel($sectionKey),
+            'research_extension' => $this->researchSectionLabel($sectionKey),
+            'events' => $this->eventsSectionLabel($sectionKey),
+            default => $sectionKey,
+        };
     }
 
     private function homeSectionLabel(string $sectionKey): string

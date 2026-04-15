@@ -577,7 +577,7 @@
 .ne-card-desc ol {
   padding-left: 1.2rem;
 }
-.ne-card-desc a {
+.ne-card-desc a:not([style*="color"]) {
   color: var(--ne-maroon);
   text-decoration: underline;
   text-decoration-thickness: 1px;
@@ -752,7 +752,7 @@
 .ne-modal-text li {
   margin-bottom: 0.45em;
 }
-.ne-modal-text a {
+.ne-modal-text a:not([style*="color"]) {
   color: var(--ne-maroon);
   text-decoration: underline;
   text-decoration-thickness: 1px;

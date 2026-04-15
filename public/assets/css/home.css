@@ -800,8 +800,8 @@ body {
   line-height: 1.55;
 }
 
-.quick-link-card.cards_information p strong,
-.quick-link-card .quick-link-rich strong {
+.quick-link-card.cards_information p strong:not([style*="color"]),
+.quick-link-card .quick-link-rich strong:not([style*="color"]) {
   display: block;
   margin-bottom: 10px;
   color: #191919;
@@ -1990,7 +1990,7 @@ body.modal-open {
   margin: 0;
 }
 
-.advisory-modal-text a {
+.advisory-modal-text a:not([style*="color"]) {
   color: #8f161b;
   font-weight: 700;
   text-decoration: underline;
@@ -1999,7 +1999,8 @@ body.modal-open {
   word-break: break-word;
 }
 
-.advisory-modal-text strong {
+.advisory-modal-text strong:not([style*="color"]),
+.advisory-modal-text b:not([style*="color"]) {
   color: #5f1013;
   font-weight: 800;
 }
@@ -2198,8 +2199,8 @@ body.scroll-up .reveal:not(.active) {
     line-height: 1.45;
   }
 
-  .quick-link-card.cards_information p strong,
-  .quick-link-card .quick-link-rich strong {
+  .quick-link-card.cards_information p strong:not([style*="color"]),
+  .quick-link-card .quick-link-rich strong:not([style*="color"]) {
     margin-bottom: 8px;
     font-size: 0.86rem;
     line-height: 1.16;
@@ -2632,8 +2633,8 @@ body.scroll-up .reveal:not(.active) {
     line-height: 1.38;
   }
 
-  .quick-link-card.cards_information p strong,
-  .quick-link-card .quick-link-rich strong {
+  .quick-link-card.cards_information p strong:not([style*="color"]),
+  .quick-link-card .quick-link-rich strong:not([style*="color"]) {
     margin-bottom: 6px;
     font-size: 0.8rem;
     line-height: 1.14;
@@ -2998,8 +2999,8 @@ body.pup-dark-mode .quick-link-card .quick-link-rich .home-rich-copy {
   color: #c8a8a8;
 }
 
-body.pup-dark-mode .quick-link-card.cards_information p strong,
-body.pup-dark-mode .quick-link-card .quick-link-rich strong {
+body.pup-dark-mode .quick-link-card.cards_information p strong:not([style*="color"]),
+body.pup-dark-mode .quick-link-card .quick-link-rich strong:not([style*="color"]) {
   color: #f5e8e8;
 }
 
@@ -3281,11 +3282,12 @@ body.pup-dark-mode .advisory-modal-text {
   color: #c8a8a8;
 }
 
-body.pup-dark-mode .advisory-modal-text a {
+body.pup-dark-mode .advisory-modal-text a:not([style*="color"]) {
   color: #e08080;
 }
 
-body.pup-dark-mode .advisory-modal-text strong {
+body.pup-dark-mode .advisory-modal-text strong:not([style*="color"]),
+body.pup-dark-mode .advisory-modal-text b:not([style*="color"]) {
   color: #f0a0a5;
 }
 
