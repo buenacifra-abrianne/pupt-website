@@ -16,17 +16,15 @@ class NewsImage
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
     {
-        foreach (self::candidateDisks() as $disk) {
-            try {
-                $stored = $file->store($directory, $disk);
-                if ($stored !== false) {
-                    return $stored;
-                }
-            } catch (Throwable) {
-            }
+        try {
+            return $file->store($directory, [
+                'disk' => 's3',
+                'visibility' => 'public',
+            ]);
+        } catch (Throwable $e) {
+            \Log::error('S3 upload failed: '.$e->getMessage());
+            return false;
         }
-
-        return false;
     }
 
     public static function delete(?string $path): void
