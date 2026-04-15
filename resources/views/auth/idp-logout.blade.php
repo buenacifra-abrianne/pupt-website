@@ -165,8 +165,9 @@
     </div>
 
     <script>
-        window.location.href = "{{ route('superadmin.logout') }}";
-    </script>
+    const idpBrowserLogoutUrl = @json($idpBrowserLogoutUrl);
+    window.location.replace(idpBrowserLogoutUrl);
+</script>
 
     <noscript>
         JavaScript is required to complete logout.
