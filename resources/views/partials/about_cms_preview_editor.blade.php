@@ -153,10 +153,12 @@
             </section>
 
             <section class="about-cms-editor-panel" data-about-editor-panel="contents" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-about-contents-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="contents">
+                    <input type="hidden" name="about_contents_version" value="0" data-about-contents-version>
+                    <input type="hidden" name="about_active_contents_slug" value="" data-about-active-contents-slug>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -174,11 +176,13 @@
 
                     <div class="about-cms-card-stack">
                         @foreach($aboutSections as $slug => $section)
-                            <article class="about-cms-card-editor">
+                            <article class="about-cms-card-editor" data-about-contents-editor data-about-contents-slug="{{ $slug }}">
                                 <div class="about-cms-card-editor-head">
                                     <h4>{{ $section['label'] ?? $slug }}</h4>
                                     <span>{{ $slug }}</span>
                                 </div>
+
+                                <input type="hidden" name="about[sections][{{ $slug }}][visible_in_contents]" value="{{ $section['visible_in_contents'] ?? '1' }}" data-about-contents-visible>
 
                                 <div class="about-cms-form-grid">
                                     <div class="form-group">
@@ -938,6 +942,15 @@
         background: #fff;
     }
 
+    .about-cms-card-editor.is-active {
+        border-color: rgba(127, 17, 19, 0.38);
+        box-shadow: 0 0 0 3px rgba(127, 17, 19, 0.08);
+    }
+
+    .about-cms-card-editor.is-disabled {
+        opacity: 0.58;
+    }
+
     .about-cms-card-editor-head {
         display: flex;
         justify-content: space-between;
@@ -1362,6 +1375,17 @@
                 return;
             }
 
+            if (data.type === 'cms-about-contents-card-edit') {
+                openAboutEditor('contents', data.label ? `Edit ${data.label}` : 'Edit about card');
+                setActiveContentsEditor(data.slug || '');
+                return;
+            }
+
+            if (data.type === 'cms-about-contents-card-delete') {
+                confirmDeleteContentsCard(data.slug || '', data.label || '');
+                return;
+            }
+
             if (data.type === 'cms-about-preview-route') {
                 loadAboutPreviewPage(data.route || 'overview');
                 return;
@@ -1396,6 +1420,114 @@
                 closeAboutEditor();
             }
         });
+
+        const contentsForm = document.querySelector('[data-about-contents-form]');
+        const contentsVersionInput = document.querySelector('[data-about-contents-version]');
+        const activeContentsSlugInput = document.querySelector('[data-about-active-contents-slug]');
+
+        const bumpContentsVersion = () => {
+            if (contentsVersionInput) {
+                contentsVersionInput.value = String(Date.now());
+            }
+        };
+
+        const setActiveContentsEditor = (slug = '') => {
+            const editors = Array.from(document.querySelectorAll('[data-about-contents-editor]'));
+
+            if (!editors.length) {
+                if (activeContentsSlugInput) {
+                    activeContentsSlugInput.value = '';
+                }
+                return;
+            }
+
+            let targetEditor = null;
+
+            if (slug !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-contents-slug') === slug) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                editor.classList.toggle('is-active', editor === targetEditor);
+            });
+
+            if (activeContentsSlugInput) {
+                activeContentsSlugInput.value = targetEditor?.getAttribute('data-about-contents-slug') || '';
+            }
+
+            const firstField = targetEditor?.querySelector('input:not([type="hidden"]), textarea, select');
+            firstField?.focus();
+        };
+
+        const submitContentsForm = () => {
+            if (!contentsForm) {
+                return;
+            }
+
+            if (typeof contentsForm.requestSubmit === 'function') {
+                contentsForm.requestSubmit();
+                return;
+            }
+
+            contentsForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
+        const deleteContentsCardBySlug = (slug) => {
+            if (!slug) {
+                return false;
+            }
+
+            const targetEditor = document.querySelector(`[data-about-contents-editor][data-about-contents-slug="${slug}"]`);
+            const visibilityInput = targetEditor?.querySelector('[data-about-contents-visible]');
+            if (!targetEditor || !visibilityInput) {
+                return false;
+            }
+
+            visibilityInput.value = '0';
+            targetEditor.classList.add('is-disabled');
+            bumpContentsVersion();
+            setActiveContentsEditor();
+
+            return true;
+        };
+
+        const confirmDeleteContentsCard = async (slug, label) => {
+            if (!slug) {
+                return;
+            }
+
+            let confirmed = false;
+            const promptLabel = label || slug;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Card',
+                    message: `Do you want to delete "${promptLabel}" from the About contents list?`,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}" from the About contents list?`);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const deleted = deleteContentsCardBySlug(slug);
+            if (!deleted) {
+                return;
+            }
+
+            submitContentsForm();
+        };
 
         const frame = document.querySelector('[data-about-preview-frame]');
         if (frame) {

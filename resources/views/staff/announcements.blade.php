@@ -81,6 +81,10 @@
                 <i class="fas fa-newspaper"></i>
                 News
             </button>
+            <button class="tab-btn" onclick="switchTab('pending-requests', this)">
+                <i class="fas fa-clock"></i>
+                Pending Requests
+            </button>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
                 <input type="text" id="globalSearch" placeholder="Search...">
@@ -89,284 +93,303 @@
 
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content active">
-  <div style="display:grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items:start;">
-
-    {{-- LEFT: MANAGE --}}
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title"> Announcement Requests</h3>
-        <button class="btn btn-primary" onclick="openAnnouncementModal(true)">
-          <i class="fas fa-plus"></i> Request New Announcement
-        </button>
-      </div>
-
-      @php
-        $annReqs = $myRequests->filter(fn($r) =>
-          in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
-        );
-
-        $pendingReqs  = $annReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'pending');
-        $rejectedReqs = $annReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'rejected');
-      @endphp
-
-      <div style="padding: 12px;">
-        <h4 style="margin:0 0 10px 0;">Pending</h4>
-
-        <div id="announcementsList">
-          @forelse($pendingReqs as $row)
-            @include('staff.partials.announcement_request_card', ['row' => $row])
-          @empty
-            <div style="padding: 14px; opacity:.75;">No pending requests.</div>
-          @endforelse
-        </div>
-
-        <hr style="opacity:.2; margin: 16px 0;">
-
-        <h4 style="margin:0 0 10px 0;">Rejected</h4>
-
-        <div>
-          @forelse($rejectedReqs as $row)
-            @include('staff.partials.announcement_request_card', ['row' => $row])
-          @empty
-            <div style="padding: 14px; opacity:.75;">No rejected requests.</div>
-          @endforelse
-        </div>
-      </div>
-    </div>
-
-    {{-- RIGHT: LIVE --}}
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Live (Approved)</h3>
-        <span class="status-badge status-enabled">
-          Total: {{ isset($myAnnouncements) ? $myAnnouncements->count() : 0 }}
-        </span>
-      </div>
-
-      <div style="padding: 12px;">
-        @if(isset($myAnnouncements) && $myAnnouncements->count())
-          @foreach($myAnnouncements as $a)
-            @php
-              $liveStatus = strtoupper((string)($a->status ?? 'ENABLED'));
-              $isDisabled = ($liveStatus === 'DISABLED');
-              $prio = strtoupper((string)($a->priority ?? 'LOW'));
-            @endphp
-
-            <div class="announcement-item {{ $isDisabled ? 'disabled' : '' }} {{ strtolower($prio) }}-priority"
-                 style="margin-bottom: 14px;">
-
-                <div class="announcement-header">
-                    <div class="title-row">
-                        <h3 class="announcement-title">
-                        {{ e($a->title) }}
-                        </h3>
-
-                        <span class="priority-badge priority-{{ strtolower($a->priority ?? 'low') }}">
-                        {{ ucfirst(strtolower($a->priority ?? 'low')) }} Priority
-                        </span>
-                    </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">Manage Announcements</h3>
                 </div>
 
-              <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($a->content ?? '') !!}</div>
+                @php
+                    $annReqs = $myRequests->filter(fn($r) =>
+                        in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+                    );
+                @endphp
 
-              <div class="announcement-actions">
-                {{-- These still SUBMIT REQUESTS --}}
-                <button class="btn btn-sm btn-primary"
-                        type="button"
-                        onclick="editAnnouncementRequest(
-                          0,
-                          {{ \Illuminate\Support\Js::from('ANNOUNCEMENT_UPDATE') }},
-                          {{ (int)$a->announcement_id }},
-                          {{ \Illuminate\Support\Js::from($a->title ?? '') }},
-                          {{ \Illuminate\Support\Js::from($a->content ?? '') }},
-                           {{ \Illuminate\Support\Js::from($a->link ?? '') }},
-                          {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
-                        )">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
+                <div id="announcementsList" class="announcement-grid">
+                    <button type="button" class="announcement-item announcement-card-create" data-static-card="1" onclick="openAnnouncementModal(true)">
+                        <span class="announcement-card-create-icon">+</span>
+                        <span class="announcement-card-create-title">Create Request</span>
+                        <span class="announcement-card-create-text">Submit a new announcement request for admin approval.</span>
+                    </button>
 
-                <button class="btn btn-sm {{ ($a->status ?? '') === 'DISABLED' ? 'btn-success' : 'btn-warning' }}"
-                    type="button"
-                    onclick="requestToggleAnnouncement(
-                        {{ (int)$a->announcement_id }},
-                        {{ \Illuminate\Support\Js::from($a->title ?? '') }},
-                        {{ \Illuminate\Support\Js::from(strtoupper((string)($a->status ?? 'ENABLED'))) }}
-                    )">
-                    <i class="fas {{ ($a->status ?? '') === 'DISABLED' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
-                    {{ ($a->status ?? '') === 'DISABLED' ? 'Enable' : 'Disable' }}
-                </button>
+                    @foreach($annReqs as $row)
+                        @include('staff.partials.announcement_request_card', ['row' => $row])
+                    @endforeach
 
-                <button class="btn btn-sm btn-delete"
-                        type="button"
-                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from($a->title ?? '') }})">
-                  <i class="fas fa-trash"></i>
-                </button>
+                    @forelse($myAnnouncements ?? collect() as $a)
+                        @php
+                            $liveStatus = strtoupper((string)($a->status ?? 'ENABLED'));
+                            $isDisabled = ($liveStatus === 'DISABLED');
+                            $prio = strtoupper((string)($a->priority ?? 'LOW'));
+                        @endphp
 
-                <button class="btn btn-sm btn-view-icon"
-                        type="button"
-                        title="View"
-                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""), @json($a->link ?? ""))'>
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
+                        <div
+                            class="announcement-item {{ $isDisabled ? 'disabled' : '' }} {{ strtolower($prio) }}-priority"
+                            data-search="{{ e(strtolower(($a->title ?? '').' '.\App\Support\RichText::plainText($a->content ?? '').' '.($a->link ?? '').' '.($a->priority ?? '').' live approved')) }}">
 
+                            <div class="announcement-header">
+                                <div class="title-row">
+                                    <h3 class="announcement-title">{{ e($a->title) }}</h3>
+
+                                    <span class="priority-badge priority-{{ strtolower($a->priority ?? 'low') }}">
+                                        {{ ucfirst(strtolower($a->priority ?? 'low')) }} Priority
+                                    </span>
+
+                                    <span class="type-badge type-enable">Live</span>
+                                </div>
+                            </div>
+
+                            <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($a->content ?? '') !!}</div>
+
+                            <div class="announcement-actions">
+                                <button class="btn btn-sm btn-primary"
+                                        type="button"
+                                        onclick="editAnnouncementRequest(
+                                          0,
+                                          {{ \Illuminate\Support\Js::from('ANNOUNCEMENT_UPDATE') }},
+                                          {{ (int)$a->announcement_id }},
+                                          {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                                          {{ \Illuminate\Support\Js::from($a->content ?? '') }},
+                                          {{ \Illuminate\Support\Js::from($a->link ?? '') }},
+                                          {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
+                                        )">
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+
+                                <button class="btn btn-sm {{ ($a->status ?? '') === 'DISABLED' ? 'btn-success' : 'btn-warning' }}"
+                                        type="button"
+                                        onclick="requestToggleAnnouncement(
+                                            {{ (int)$a->announcement_id }},
+                                            {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                                            {{ \Illuminate\Support\Js::from(strtoupper((string)($a->status ?? 'ENABLED'))) }}
+                                        )">
+                                    <i class="fas {{ ($a->status ?? '') === 'DISABLED' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
+                                    {{ ($a->status ?? '') === 'DISABLED' ? 'Enable' : 'Disable' }}
+                                </button>
+
+                                <button class="btn btn-sm btn-delete"
+                                        type="button"
+                                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from($a->title ?? '') }})">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-view-icon"
+                                        type="button"
+                                        title="View"
+                                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""), @json($a->link ?? ""))'>
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                        </div>
+                    @empty
+                        @if($annReqs->isEmpty())
+                            <div class="announcement-item" data-static-card="1">
+                                <div class="announcement-header">
+                                    <div class="title-row">
+                                        <h3 class="announcement-title">No announcement cards yet</h3>
+                                    </div>
+                                </div>
+                                <div class="announcement-description">Create a new request to start the announcements flow.</div>
+                            </div>
+                        @endif
+                    @endforelse
+                </div>
             </div>
-          @endforeach
-        @else
-          <div style="padding: 14px; opacity:.75;">No live announcements yet.</div>
-        @endif
-      </div>
-    </div>
-
-  </div>
-
-  <style>
-    @media (max-width: 980px){
-      #announcements.tab-content.active > div[style*="grid-template-columns"]{
-        grid-template-columns: 1fr !important;
-      }
-    }
-  </style>
-</div>
+        </div>
 
         <!-- News Tab -->
 <div id="news" class="tab-content">
-  <div style="display:grid; grid-template-columns: 1.15fr .85fr; gap: 18px; align-items:start;">
-
-    {{-- LEFT: REQUESTS --}}
     <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">News Requests</h3>
-      </div>
-
-      @php
-        $newsReqs = $myRequests->filter(fn($r) =>
-          in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
-        );
-
-        $pendingNewsReqs  = $newsReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'pending');
-        $rejectedNewsReqs = $newsReqs->filter(fn($r) => strtolower(trim((string)$r->status)) === 'rejected');
-      @endphp
-
-      <div style="padding: 12px;">
-        <h4 style="margin:0 0 10px 0;">Pending</h4>
-
-        <div id="newsRequestsList">
-          @forelse($pendingNewsReqs as $row)
-            @include('staff.partials.news_request_card', ['row' => $row])
-          @empty
-            <div style="padding: 14px; opacity:.75;">No pending news requests.</div>
-          @endforelse
+        <div class="card-header">
+            <h3 class="card-title">Manage News</h3>
         </div>
 
-        <hr style="opacity:.2; margin: 16px 0;">
+        @php
+            $newsReqs = $myRequests->filter(fn($r) =>
+                in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
+            );
+        @endphp
 
-        <h4 style="margin:0 0 10px 0;">Rejected</h4>
+        <div class="news-grid" id="newsRequestsList">
+            <button type="button" class="news-card news-card-create" data-static-card="1" onclick="openNewsModal(true)">
+                <span class="news-card-create-icon">+</span>
+                <span class="news-card-create-title">Create Request</span>
+                <span class="news-card-create-text">Submit a new news request for admin approval.</span>
+            </button>
 
-        <div>
-          @forelse($rejectedNewsReqs as $row)
-            @include('staff.partials.news_request_card', ['row' => $row])
-          @empty
-            <div style="padding: 14px; opacity:.75;">No rejected news requests.</div>
-          @endforelse
-        </div>
-      </div>
-    </div>
+            @foreach($newsReqs as $row)
+                @include('staff.partials.news_request_card', ['row' => $row])
+            @endforeach
 
-    {{-- RIGHT: LIVE --}}
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Live (Approved)</h3>
-        <span class="status-badge status-enabled">
-          Total: {{ isset($myNews) ? $myNews->count() : 0 }}
-        </span>
-      </div>
+            @forelse($myNews ?? collect() as $n)
+                @php
+                    $imgUrl = \App\Support\NewsImage::url($n->image_path);
+                @endphp
 
-      <div style="padding: 12px;">
-        @if(isset($myNews) && $myNews->count())
-          @foreach($myNews as $n)
-            @php
-              $imgUrl = \App\Support\NewsImage::url($n->image_path);
-            @endphp
+                <div
+                    class="news-card"
+                    data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
-            <div class="announcement-item" style="margin-bottom:14px;">
-              <div class="announcement-header">
-                <div class="title-row">
-                  <h3 class="announcement-title">{{ e($n->title) }}</h3>
-                  <div style="display:flex; gap:14px; font-size:13px; opacity:.8; margin-top:6px; flex-wrap:wrap;">
-  @if($n->category)
-    <span>
-      <i class="fas fa-tag" style="margin-right:4px;"></i>
-      {{ e($n->category) }}
-    </span>
-  @endif
+                    <div class="news-image">
+                        @if($imgUrl)
+                            <img src="{{ $imgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($n->title ?? 'News image') }}">
+                        @else
+                            <i class="fas fa-newspaper"></i>
+                        @endif
+                    </div>
 
-  @if($n->location)
-    <span>
-      <i class="fas fa-map-marker-alt" style="margin-right:4px;"></i>
-      {{ e($n->location) }}
-    </span>
-  @endif
-</div>
+                    <div class="news-content">
+                        <div class="news-card-badges">
+                            @if($n->category)
+                                <span class="news-category">{{ e($n->category) }}</span>
+                            @endif
+                            <span class="news-flag-badge news-flag-badge-featured">Live</span>
+                        </div>
+
+                        <h3 class="news-title">{{ e($n->title) }}</h3>
+
+                        <div class="news-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> {{ e($n->location ?? 'No location') }}</span>
+                        </div>
+
+                        <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($n->content ?? '') !!}</div>
+
+                        <div class="news-actions">
+                            <button class="btn btn-sm btn-primary"
+                                type="button"
+                                onclick="editNews(
+                                    {{ (int)$n->news_id }},
+                                    {{ \Illuminate\Support\Js::from($n->title ?? '') }},
+                                    {{ \Illuminate\Support\Js::from($n->content ?? '') }},
+                                    {{ \Illuminate\Support\Js::from($n->category ?? '') }},
+                                    {{ \Illuminate\Support\Js::from($n->location ?? '') }},
+                                    {{ \Illuminate\Support\Js::from($n->link ?? '') }},
+                                    {{ \Illuminate\Support\Js::from($n->image_path ?? '') }},
+                                    {{ \Illuminate\Support\Js::from($imgUrl ?? '') }}
+                                )">
+                                <i class="fas fa-edit"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-delete"
+                                type="button"
+                                onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from($n->title ?? '') }})">
+                                <i class="fas fa-trash"></i>
+                            </button>
+
+                            <button class="btn btn-sm btn-view-icon"
+                                type="button"
+                                title="View"
+                                onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""), @json($n->link ?? ""))'>
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
-              </div>
-
-              @if($imgUrl)
-  <div style="margin: 10px 0;">
-    <img src="{{ $imgUrl }}" alt="news image"
-         style="width:100%; max-height:220px; object-fit:cover; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
-  </div>
-@endif
-
-              <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($n->content ?? '') !!}</div>
-
-              <div class="announcement-actions">
-                <button class="btn btn-sm btn-primary"
-                  type="button"
-                  onclick="editNews(
-                  {{ (int)$n->news_id }},
-                  {{ \Illuminate\Support\Js::from($n->title ?? '') }},
-                  {{ \Illuminate\Support\Js::from($n->content ?? '') }},
-                  {{ \Illuminate\Support\Js::from($n->category ?? '') }},
-                  {{ \Illuminate\Support\Js::from($n->location ?? '') }},
-                  {{ \Illuminate\Support\Js::from($n->link ?? '') }},
-                  {{ \Illuminate\Support\Js::from($n->image_path ?? '') }},
-                  {{ \Illuminate\Support\Js::from($imgUrl ?? '') }}
-                )">
-                  <i class="fas fa-edit"></i> Edit
-                </button>
-
-                <button class="btn btn-sm btn-delete"
-                  type="button"
-                  onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from($n->title ?? '') }})">
-                  <i class="fas fa-trash"></i>
-                </button>
-
-                <button class="btn btn-sm btn-view-icon"
-                  type="button"
-                  title="View"
-                  onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""), @json($n->link ?? ""))'>
-                  <i class="fas fa-eye"></i>
-                </button>
-              </div>
-            </div>
-          @endforeach
-        @else
-          <div style="padding: 14px; opacity:.75;">No live news yet.</div>
-        @endif
-      </div>
+            @empty
+                @if($newsReqs->isEmpty())
+                    <div class="news-card" data-static-card="1">
+                        <div class="news-image">
+                            <i class="fas fa-newspaper"></i>
+                        </div>
+                        <div class="news-content">
+                            <div class="news-card-badges">
+                                <span class="news-flag-badge news-flag-badge-hidden">Empty</span>
+                            </div>
+                            <h3 class="news-title">No news cards yet</h3>
+                            <div class="announcement-description">Create a new request to start the news workflow.</div>
+                        </div>
+                    </div>
+                @endif
+            @endforelse
+        </div>
     </div>
-
-  </div>
-
-  <style>
-    @media (max-width: 980px){
-      #news.tab-content.active > div[style*="grid-template-columns"]{
-        grid-template-columns: 1fr !important;
-      }
-    }
-  </style>
 </div>
+
+        @php
+            $pendingRequests = $myRequests->filter(fn($r) => strtolower((string)($r->status ?? '')) === 'pending');
+            $pendingAnnReqs = $pendingRequests->filter(fn($r) =>
+                in_array(strtoupper((string)$r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+            );
+            $pendingNewsReqs = $pendingRequests->filter(fn($r) =>
+                in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
+            );
+        @endphp
+
+        <div id="pending-requests" class="tab-content">
+            <div class="card">
+                <div class="card-header" style="display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <div>
+                        <h3 class="card-title">My Pending Requests</h3>
+                        <p style="margin:6px 0 0; color:#6b6b6b;">Only your own pending announcement and news requests appear here.</p>
+                    </div>
+                    <span style="display:inline-flex; align-items:center; justify-content:center; min-width:42px; padding:8px 12px; border-radius:999px; background:#f4e7c1; color:#7a0b0b; font-weight:700;">
+                        {{ $pendingRequests->count() }}
+                    </span>
+                </div>
+
+                @if($pendingRequests->isEmpty())
+                    <div class="announcement-item" data-static-card="1">
+                        <div class="announcement-header">
+                            <div class="title-row">
+                                <h3 class="announcement-title">No pending requests</h3>
+                            </div>
+                        </div>
+                        <div class="announcement-description">Your pending announcement and news requests will appear here once submitted.</div>
+                    </div>
+                @else
+                    <div style="display:grid; gap:28px;">
+                        <section>
+                            <div class="card-header" style="padding:0 0 16px; border:none;">
+                                <h3 class="card-title">Announcement Requests</h3>
+                            </div>
+
+                            @if($pendingAnnReqs->isEmpty())
+                                <div class="announcement-item" data-static-card="1">
+                                    <div class="announcement-header">
+                                        <div class="title-row">
+                                            <h3 class="announcement-title">No pending announcement requests</h3>
+                                        </div>
+                                    </div>
+                                    <div class="announcement-description">Announcement requests you submit will show here while waiting for admin approval.</div>
+                                </div>
+                            @else
+                                <div class="announcement-grid" id="pendingAnnouncementsList">
+                                    @foreach($pendingAnnReqs as $row)
+                                        @include('staff.partials.announcement_request_card', ['row' => $row])
+                                    @endforeach
+                                </div>
+                            @endif
+                        </section>
+
+                        <section>
+                            <div class="card-header" style="padding:0 0 16px; border:none;">
+                                <h3 class="card-title">News Requests</h3>
+                            </div>
+
+                            @if($pendingNewsReqs->isEmpty())
+                                <div class="news-card" data-static-card="1">
+                                    <div class="news-image">
+                                        <i class="fas fa-newspaper"></i>
+                                    </div>
+                                    <div class="news-content">
+                                        <div class="news-card-badges">
+                                            <span class="news-flag-badge news-flag-badge-hidden">Empty</span>
+                                        </div>
+                                        <h3 class="news-title">No pending news requests</h3>
+                                        <div class="announcement-description">News requests you submit will show here while waiting for admin approval.</div>
+                                    </div>
+                                </div>
+                            @else
+                                <div class="news-grid" id="pendingNewsList">
+                                    @foreach($pendingNewsReqs as $row)
+                                        @include('staff.partials.news_request_card', ['row' => $row])
+                                    @endforeach
+                                </div>
+                            @endif
+                        </section>
+                    </div>
+                @endif
+            </div>
+        </div>
     </main>
 
     <div id="readMoreModal" class="modal">
@@ -377,8 +400,7 @@
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="read-more-body">
-              <div class="rich-text-content" id="readMoreContent"></div>
+            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
 
               <div id="readMoreLinkWrap" style="display:none; margin-top: 18px;">
                   <a id="readMoreLinkBtn"
@@ -389,7 +411,6 @@
                       <i class="fas fa-external-link-alt"></i> Open Link
                   </a>
               </div>
-          </div>
         </div>
     </div>
 
@@ -797,9 +818,26 @@
         document.getElementById('newsModal').classList.remove('active');
     }
 
+    function normalizeReadMoreHtml(content) {
+      const rawHtml = String(content || '').trim();
+      if (rawHtml === '') {
+          return '';
+      }
+
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = rawHtml;
+      const decodedHtml = textarea.value.trim();
+
+      if (decodedHtml !== '' && /<\/?[a-z][\s\S]*>/i.test(decodedHtml)) {
+          return decodedHtml;
+      }
+
+      return rawHtml;
+    }
+
     function openReadMoreModal(title, content, link = '') {
       document.getElementById('readMoreTitle').textContent = title || 'Read More';
-      document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
+      document.getElementById('readMoreContent').innerHTML = normalizeReadMoreHtml(content) || '<p>No content available.</p>';
 
       const linkWrap = document.getElementById('readMoreLinkWrap');
       const linkBtn = document.getElementById('readMoreLinkBtn');
@@ -986,6 +1024,11 @@
         });
 
         document.querySelectorAll('#news .news-card').forEach(card => {
+            const hay = card.getAttribute('data-search') || '';
+            card.style.display = hay.includes(q) ? '' : 'none';
+        });
+
+        document.querySelectorAll('#pending-requests .announcement-item, #pending-requests .news-card').forEach(card => {
             const hay = card.getAttribute('data-search') || '';
             card.style.display = hay.includes(q) ? '' : 'none';
         });
@@ -1270,7 +1313,7 @@ async function deleteApprovalRequestOnly(a, b) {
     return data;
   })
   .then(() => {
-    const card = btn.closest('.announcement-item');
+    const card = btn.closest('.announcement-item, .news-card');
     if (card) card.remove();
     queueSuccessToast('Request deleted.');
     window.location.reload();

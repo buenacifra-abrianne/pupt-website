@@ -23,6 +23,7 @@ class AboutCmsContent
                 'slug' => 'history',
                 'number' => '01',
                 'label' => 'History',
+                'visible_in_contents' => '1',
                 'summary' => 'Discover how the institution grew into today\'s PUP community.',
                 'image' => 'assets/static_img/pupillar.jpeg',
                 'page_kicker' => 'Campus Timeline',
@@ -76,6 +77,7 @@ class AboutCmsContent
                 'slug' => 'vision-and-mission',
                 'number' => '02',
                 'label' => 'Vision and Mission',
+                'visible_in_contents' => '1',
                 'summary' => 'Read the guiding ideals that shape learning, service, and growth on campus.',
                 'image' => 'assets/static_img/pupillar.jpeg',
                 'page_kicker' => 'Vision and Mission',
@@ -128,6 +130,7 @@ class AboutCmsContent
                 'slug' => 'logo-and-symbols',
                 'number' => '03',
                 'label' => 'Logo and Symbols',
+                'visible_in_contents' => '1',
                 'summary' => 'Understand the campus identity marks and what they communicate.',
                 'image' => 'assets/static_img/logo.png',
                 'lead' => 'The campus identity reflects scholarship, public service, discipline, and institutional pride across official communications and ceremonies.',
@@ -152,6 +155,7 @@ class AboutCmsContent
                 'slug' => 'hymn',
                 'number' => '04',
                 'label' => 'Hymn',
+                'visible_in_contents' => '1',
                 'summary' => 'Explore what the campus hymn represents in ceremonies and student life.',
                 'image' => 'assets/static_img/pupillar.jpeg',
                 'lead' => 'The campus hymn serves as a ceremonial expression of identity, unity, and commitment to the ideals of the University.',
@@ -179,6 +183,7 @@ class AboutCmsContent
                 'slug' => 'maps',
                 'number' => '05',
                 'label' => 'Maps',
+                'visible_in_contents' => '1',
                 'summary' => 'Locate the campus quickly and prepare for visits or transactions.',
                 'image' => 'assets/static_img/pupillar.jpeg',
                 'lead' => 'Use the campus map before travelling so you can plan your route, confirm your destination office, and arrive with enough time for your transaction.',
@@ -204,6 +209,7 @@ class AboutCmsContent
                 'slug' => 'campus-officials',
                 'number' => '06',
                 'label' => 'Campus Officials',
+                'visible_in_contents' => '1',
                 'summary' => 'See the key leadership and service offices that guide campus operations.',
                 'image' => 'assets/static_img/pupillar.jpeg',
                 'lead' => 'Campus leadership is organized through academic, student, administrative, and service offices that support daily operations and long-term development.',
@@ -239,6 +245,7 @@ class AboutCmsContent
                 'slug' => 'strategic-development-plan',
                 'number' => '07',
                 'label' => 'Strategic Development Plan',
+                'visible_in_contents' => '1',
                 'summary' => 'Review the long-term priorities that shape campus growth and improvement.',
                 'image' => 'assets/static_img/about-pup.png',
                 'lead' => 'The campus strategic development plan aligns academic priorities, student support, facilities, and partnerships toward sustainable institutional growth.',
@@ -363,6 +370,7 @@ class AboutCmsContent
             'slug' => $defaults['slug'],
             'number' => self::pickString($source, $base, $defaults, 'number'),
             'label' => self::pickString($source, $base, $defaults, 'label'),
+            'visible_in_contents' => self::pickFlag($source, $base, $defaults, 'visible_in_contents'),
             'summary' => self::pickString($source, $base, $defaults, 'summary', 2000),
             'image' => self::pickString($source, $base, $defaults, 'image'),
         ];
@@ -633,6 +641,14 @@ class AboutCmsContent
         $value = $source[$key] ?? ($base[$key] ?? ($defaults[$key] ?? ''));
 
         return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
+    }
+
+    private static function pickFlag(array $source, array $base, array $defaults, string $key): string
+    {
+        $value = $source[$key] ?? ($base[$key] ?? ($defaults[$key] ?? '1'));
+        $normalized = strtolower(trim((string) $value));
+
+        return in_array($normalized, ['0', 'false', 'off', 'no'], true) ? '0' : '1';
     }
 
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string

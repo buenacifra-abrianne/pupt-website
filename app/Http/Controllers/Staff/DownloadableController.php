@@ -316,24 +316,20 @@ class DownloadableController extends Controller
                 ->where('requester_email', $email)
                 ->update($data);
 
-            $this->pushSystemNotif(
+            $this->pushApproverNotifications(
                 'INFO',
                 'New Approval Request',
-                "{$name} re-submitted a downloadable request.",
-                'ADMIN',
-                null
+                "{$name} re-submitted a downloadable request."
             );
         } else {
             $data['created_at'] = now();
 
             DB::table('approval_requests')->insert($data);
 
-            $this->pushSystemNotif(
+            $this->pushApproverNotifications(
                 'INFO',
                 'New Approval Request',
-                "{$name} submitted a downloadable request.",
-                'ADMIN',
-                null
+                "{$name} submitted a downloadable request."
             );
         }
 
@@ -361,5 +357,12 @@ class DownloadableController extends Controller
             'target_user_id' => $targetUserId,
             'created_at' => now(),
         ]);
+    }
+
+    private function pushApproverNotifications(string $type, string $title, string $message): void
+    {
+        foreach (['ADMIN', 'SUPERADMIN'] as $role) {
+            $this->pushSystemNotif($type, $title, $message, $role, null);
+        }
     }
 }

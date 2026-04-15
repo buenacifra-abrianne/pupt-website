@@ -14,6 +14,9 @@
         $aboutCms = \App\Support\AboutCmsContent::fromInput($aboutCms ?? [], null);
         $overview = $aboutCms['overview'] ?? [];
         $sections = $sections ?? ($aboutCms['sections'] ?? []);
+        $contentsSections = array_values(array_filter($sections, static function ($section) {
+            return (string) ($section['visible_in_contents'] ?? '1') !== '0';
+        }));
         $selectedSection = $selectedSection ?? null;
         $heroTitle = $overview['hero_title_default'] ?? 'ABOUT THE CAMPUS';
 
@@ -155,14 +158,32 @@
                     </div>
 
                     <nav class="contents-cards" aria-label="About page contents">
-                        @foreach($sections as $section)
-                            <a
-                                href="{{ route('public.about.section', ['section' => $section['slug'], 'cms_preview' => $cmsPreview ? 1 : null]) }}"
-                                class="contents-card card_without_section"
+                        @foreach($contentsSections as $section)
+                            @if($cmsPreview)
+                                <article
+                                    class="contents-card card_without_section"
+                                    data-cms-edit-trigger="contents"
+                                    data-cms-section-label="About Contents"
+                                    data-about-contents-card
+                                    data-about-contents-slug="{{ $section['slug'] }}"
+                                    data-about-contents-label="{{ $section['label'] }}"
+                                >
+                            @else
+                                <a
+                                    href="{{ route('public.about.section', ['section' => $section['slug'], 'cms_preview' => $cmsPreview ? 1 : null]) }}"
+                                    class="contents-card card_without_section"
+                                >
+                            @endif
                                 @if($cmsPreview)
-                                    data-about-preview-nav="{{ $section['slug'] }}"
+                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                        <button type="button" class="cms-preview-card-action" data-about-card-edit title="Edit card" aria-label="Edit {{ $section['label'] }}">
+                                            Edit
+                                        </button>
+                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-card-delete title="Delete card" aria-label="Delete {{ $section['label'] }}">
+                                            Delete
+                                        </button>
+                                    </div>
                                 @endif
-                            >
                                 <div class="contents-card-inner">
                                     <div class="contents-card-front">
                                         <img src="{{ asset($section['image'] ?? 'assets/static_img/pupillar.jpeg') }}" alt="{{ $section['label'] }}">
@@ -179,7 +200,11 @@
                                         <span class="contents-card-action">See more</span>
                                     </div>
                                 </div>
-                            </a>
+                            @if($cmsPreview)
+                                </article>
+                            @else
+                                </a>
+                            @endif
                         @endforeach
                     </nav>
                     </div>
@@ -1034,6 +1059,78 @@
                 min-width: 0;
             }
 
+            .contents-strip.cms-preview-editable .contents-card,
+            .contents-strip.cms-preview-editable .contents-card:hover,
+            .contents-strip.cms-preview-editable .contents-card:focus-visible,
+            .contents-strip.cms-preview-editable .contents-card.active {
+                transform: none !important;
+                transition: none !important;
+                box-shadow: 0 16px 34px rgba(77, 18, 18, 0.12);
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-inner,
+            .contents-strip.cms-preview-editable .contents-card-front,
+            .contents-strip.cms-preview-editable .contents-card-back,
+            .contents-strip.cms-preview-editable .contents-card-front img,
+            .contents-strip.cms-preview-editable .contents-card-copy,
+            .contents-strip.cms-preview-editable .contents-card-overlay-copy,
+            .contents-strip.cms-preview-editable .contents-card-action {
+                transition: none !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-back {
+                opacity: 1 !important;
+                transform: translateY(0) !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-front img {
+                transform: none !important;
+                filter: none !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-overlay-copy,
+            .contents-strip.cms-preview-editable .contents-card-action {
+                opacity: 1 !important;
+                transform: none !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-copy {
+                opacity: 0 !important;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card] {
+                position: relative;
+                cursor: pointer;
+            }
+
+            .cms-preview-card-actions {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                z-index: 7;
+                display: inline-flex;
+                gap: 8px;
+            }
+
+            .cms-preview-card-action {
+                border: 1px solid rgba(127, 17, 19, 0.22);
+                border-radius: 999px;
+                padding: 8px 14px;
+                background: rgba(255, 250, 244, 0.96);
+                color: #7f1113;
+                font-size: 0.74rem;
+                font-weight: 700;
+                line-height: 1;
+                letter-spacing: 0.04em;
+                box-shadow: 0 10px 20px rgba(32, 8, 8, 0.14);
+            }
+
+            .cms-preview-card-action-delete {
+                background: rgba(127, 17, 19, 0.96);
+                border-color: rgba(127, 17, 19, 0.96);
+                color: #fffaf4;
+            }
+
             .cms-preview-chip {
                 position: absolute;
                 top: var(--cms-preview-chip-top-offset);
@@ -1200,6 +1297,10 @@
                     const chip = target.querySelector('[data-cms-edit-trigger]');
 
                     const openEditor = (event) => {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card]')) {
+                            return;
+                        }
+
                         if (event.target.closest('[data-about-preview-nav]')) {
                             return;
                         }
@@ -1231,6 +1332,44 @@
                 });
 
                 document.addEventListener('click', (event) => {
+                    const deleteCardTrigger = event.target.closest('[data-about-card-delete]');
+                    if (deleteCardTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = deleteCardTrigger.closest('[data-about-contents-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-contents-card-delete',
+                            slug: card?.getAttribute('data-about-contents-slug') || '',
+                            label: card?.getAttribute('data-about-contents-label') || 'About card',
+                        }, '*');
+                        return;
+                    }
+
+                    const editCardTrigger = event.target.closest('[data-about-card-edit]');
+                    if (editCardTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = editCardTrigger.closest('[data-about-contents-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-contents-card-edit',
+                            slug: card?.getAttribute('data-about-contents-slug') || '',
+                            label: card?.getAttribute('data-about-contents-label') || 'About card',
+                        }, '*');
+                        return;
+                    }
+
+                    const contentCard = event.target.closest('[data-about-contents-card]');
+                    if (contentCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-contents-card-edit',
+                            slug: contentCard.getAttribute('data-about-contents-slug') || '',
+                            label: contentCard.getAttribute('data-about-contents-label') || 'About card',
+                        }, '*');
+                        return;
+                    }
+
                     const navTrigger = event.target.closest('[data-about-preview-nav]');
                     if (navTrigger) {
                         event.preventDefault();
