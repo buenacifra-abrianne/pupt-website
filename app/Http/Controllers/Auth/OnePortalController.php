@@ -303,57 +303,31 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
 {
-    $userId = (int) session('user_id', 0);
-    $userName = (string) session('user_name', 'Unknown');
-    $accessToken = (string) session('access_token', '');
+    $accessToken = session('access_token');
 
-    AuditLog::record(
-        'LOGOUT',
-        'AUTHENTICATION',
-        'User initiated logout.',
-        $userId,
-        [
-            'user_id' => $userId,
-            'user_name' => $userName,
-            'ip_address' => $request->ip(),
-        ]
-    );
-
-    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
-    $clientId = (string) config('services.idp.client_id');
-    $afterLogoutUrl = route('public.landing');
-
-    // Revoke tokens server-side using bearer token
-    if ($baseUrl !== '' && $clientId !== '' && $accessToken !== '') {
+    // Call IDP logout (API-based, correct for your system)
+    if ($accessToken) {
         try {
             Http::withoutVerifying()
                 ->withToken($accessToken)
                 ->asJson()
-                ->post($baseUrl . '/api/v1/auth/logout', [
-                    'client_id' => $clientId,
+                ->post(rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/logout', [
+                    'client_id' => config('services.idp.client_id'),
                 ]);
         } catch (\Throwable $e) {
-            \Log::warning('IDP API logout failed', [
+            \Log::warning('IDP logout failed', [
                 'message' => $e->getMessage(),
             ]);
         }
     }
 
-    $request->session()->flush();
+    // Clear local session
     $request->session()->invalidate();
+    $request->session()->flush();
     $request->session()->regenerateToken();
 
-    if ($baseUrl === '' || $clientId === '') {
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
-    }
-
-    return response()->view('auth.idp-logout', [
-        'idpBrowserLogoutUrl' => $baseUrl . '/logout?client_id=' . urlencode($clientId),
-        'afterLogoutUrl' => $afterLogoutUrl,
-    ])->withoutCookie('access_token')
-      ->withoutCookie('refresh_token');
+    return redirect()->route('public.landing')
+        ->with('success', 'You have been logged out.');
 }
 
     private function redirectByRole($role)
