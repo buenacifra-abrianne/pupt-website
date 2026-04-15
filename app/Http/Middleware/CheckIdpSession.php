@@ -12,25 +12,19 @@ class CheckIdpSession
     {
         $accessToken = session('access_token');
 
-        // If no token → not logged in
         if (!$accessToken) {
             return redirect()->route('public.landing');
         }
 
-        // Validate token via IDP
         $response = Http::withoutVerifying()
             ->withToken($accessToken)
             ->get(rtrim(config('services.idp.base_url'), '/') . '/api/v1/me');
 
-        \Log::info('IDP CHECK', [
-            'status' => $response->status(),
-            'body' => $response->json(),
-        ]);
+        // 🔥 IMPORTANT FIX: treat ANY failure as logout
+        if (!$response->ok()) {
 
-        // If invalid → force logout locally
-        if (!$response->ok() || $response->status() === 401) {
-            $request->session()->flush();
             $request->session()->invalidate();
+            $request->session()->flush();
             $request->session()->regenerateToken();
 
             return redirect()->route('public.landing')
