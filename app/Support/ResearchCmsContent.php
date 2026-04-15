@@ -1,0 +1,173 @@
+<?php
+
+namespace App\Support;
+
+class ResearchCmsContent
+{
+    private const DEFAULTS = [
+        'page' => [
+            'eyebrow' => 'Research & Extension',
+            'title' => 'Research and Extension',
+            'description' => 'Discover the campus initiatives, scholarly work, and community-centered extension programs that connect PUP Taguig with industry, partner institutions, and the wider public.',
+        ],
+        'cards' => [
+            [
+                'title' => 'Research',
+                'description' => 'Explore research initiatives, publications, and scholarly works conducted at PUP Taguig Campus.',
+                'link' => '/research',
+            ],
+            [
+                'title' => 'Extension',
+                'description' => 'Community outreach and extension programs that connect PUP Taguig with the wider community.',
+                'link' => '/research',
+            ],
+        ],
+    ];
+
+    public static function defaults(): array
+    {
+        return self::DEFAULTS;
+    }
+
+    public static function fromStored(?string $raw): array
+    {
+        $content = trim((string) $raw);
+
+        if ($content === '') {
+            return self::defaults();
+        }
+
+        $decoded = json_decode($content, true);
+        if (!is_array($decoded)) {
+            return self::defaults();
+        }
+
+        if (isset($decoded['research']) && is_array($decoded['research'])) {
+            $decoded = $decoded['research'];
+        }
+
+        return self::normalize($decoded, self::defaults());
+    }
+
+    public static function fromInput(mixed $input, ?string $fallbackStored = null): array
+    {
+        $base = self::fromStored($fallbackStored);
+        $source = is_array($input) ? $input : [];
+
+        return self::normalize($source, $base);
+    }
+
+    public static function fromCardsInput(mixed $cardsInput, ?string $fallbackStored = null): array
+    {
+        $base = self::fromStored($fallbackStored);
+
+        return self::normalize([
+            'page' => $base['page'] ?? self::defaults()['page'],
+            'cards' => is_array($cardsInput) ? $cardsInput : [],
+        ], $base);
+    }
+
+    public static function encode(array $data): string
+    {
+        return (string) json_encode(
+            self::normalize($data, self::defaults()),
+            JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES
+        );
+    }
+
+    private static function normalize(array $source, array $base): array
+    {
+        $defaults = self::defaults();
+        $pageSource = is_array($source['page'] ?? null)
+            ? $source['page']
+            : (is_array($base['page'] ?? null) ? $base['page'] : $defaults['page']);
+        $cardsSource = array_key_exists('cards', $source)
+            ? ($source['cards'] ?? [])
+            : ($base['cards'] ?? $defaults['cards']);
+
+        return [
+            'page' => self::normalizePage(
+                is_array($pageSource) ? $pageSource : [],
+                is_array($base['page'] ?? null) ? $base['page'] : $defaults['page'],
+                $defaults['page']
+            ),
+            'cards' => self::normalizeCards(
+                $cardsSource,
+                is_array($base['cards'] ?? null) ? $base['cards'] : $defaults['cards'],
+                $defaults['cards']
+            ),
+        ];
+    }
+
+    private static function normalizePage(array $source, array $base, array $defaults): array
+    {
+        return [
+            'eyebrow' => self::pickString($source, $base, $defaults, 'eyebrow', 120),
+            'title' => self::pickString($source, $base, $defaults, 'title'),
+            'description' => self::pickString($source, $base, $defaults, 'description', 5000),
+        ];
+    }
+
+    private static function normalizeCards(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = is_array($base) ? array_values($base) : [];
+        $defaultItems = is_array($defaults) ? array_values($defaults) : [];
+        $cards = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['title' => '', 'description' => '', 'link' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $normalized = [
+                'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
+                'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
+                'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, ''),
+            ];
+
+            if (
+                $normalized['title'] === ''
+                && $normalized['description'] === ''
+                && $normalized['link'] === ''
+            ) {
+                continue;
+            }
+
+            $cards[] = $normalized;
+
+            if (count($cards) >= 24) {
+                break;
+            }
+        }
+
+        return $cards;
+    }
+
+    private static function pickString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
+    {
+        $value = $source[$key] ?? ($base[$key] ?? ($defaults[$key] ?? ''));
+
+        return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
+    }
+
+    private static function sanitizeString(string $value, int $maxLen, string $fallback): string
+    {
+        $text = trim($value);
+
+        if ($text === '') {
+            $text = trim($fallback);
+        }
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, 0, $maxLen);
+        }
+
+        return substr($text, 0, $maxLen);
+    }
+}

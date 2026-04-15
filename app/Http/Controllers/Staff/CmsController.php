@@ -9,6 +9,7 @@ use App\Support\AuditLog;
 use App\Support\CmsSections;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
+use App\Support\ResearchCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -70,6 +71,7 @@ class CmsController extends Controller
             'home' => ['nullable', 'array'],
             'about' => ['nullable', 'array'],
             'academics' => ['nullable', 'array'],
+            'research' => ['nullable', 'array'],
             'events' => ['nullable', 'array'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
@@ -115,6 +117,14 @@ class CmsController extends Controller
             'academics.features.items' => ['nullable', 'array'],
             'academics.features.items.*.title' => ['nullable', 'string', 'max:255'],
             'academics.features.items.*.body' => ['nullable', 'string'],
+            'research.page' => ['nullable', 'array'],
+            'research.page.eyebrow' => ['nullable', 'string', 'max:120'],
+            'research.page.title' => ['nullable', 'string', 'max:255'],
+            'research.page.description' => ['nullable', 'string'],
+            'research.cards' => ['nullable', 'array'],
+            'research.cards.*.title' => ['nullable', 'string', 'max:255'],
+            'research.cards.*.description' => ['nullable', 'string'],
+            'research.cards.*.link' => ['nullable', 'string', 'max:2048'],
             'events.page' => ['nullable', 'array'],
             'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'events.page.title' => ['nullable', 'string', 'max:255'],
@@ -144,13 +154,14 @@ class CmsController extends Controller
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
-        $sectionKey = in_array($tabKey, ['home', 'about', 'academics', 'events'], true)
+        $sectionKey = in_array($tabKey, ['home', 'about', 'academics', 'research_extension', 'events'], true)
             ? strtolower(trim((string) ($data['section_key'] ?? '')))
             : '';
         $sectionLabel = match ($tabKey) {
             'home' => $this->homeSectionLabel($sectionKey),
             'about' => $this->aboutSectionLabel($sectionKey),
             'academics' => $this->academicsSectionLabel($sectionKey),
+            'research_extension' => $this->researchSectionLabel($sectionKey),
             'events' => $this->eventsSectionLabel($sectionKey),
             default => '',
         };
@@ -237,6 +248,21 @@ class CmsController extends Controller
             );
             $title = $baseTitle;
             $baseContent = $baseAcademicsEncoded;
+        } elseif ($tabKey === 'research_extension') {
+            $baseResearch = ResearchCmsContent::fromStored($baseContent);
+            $baseResearchEncoded = ResearchCmsContent::encode($baseResearch);
+            $researchInput = $this->filterResearchInputBySection(
+                is_array($data['research'] ?? null) ? $data['research'] : [],
+                $sectionKey
+            );
+
+            $content = ResearchCmsContent::encode(
+                $sectionKey === 'cards'
+                    ? ResearchCmsContent::fromCardsInput($researchInput['cards'] ?? [], $baseResearchEncoded)
+                    : ResearchCmsContent::fromInput($researchInput, $baseResearchEncoded)
+            );
+            $title = $baseTitle;
+            $baseContent = $baseResearchEncoded;
         } elseif ($tabKey === 'events') {
             $baseEvents = EventsCmsContent::fromStored($baseContent);
             $baseEventsEncoded = EventsCmsContent::encode($baseEvents);
@@ -326,14 +352,14 @@ class CmsController extends Controller
         AuditLog::record(
             'UPDATED',
             'CONTENT',
-            in_array($tabKey, ['home', 'about', 'academics', 'events'], true) && $sectionLabel !== ''
+            in_array($tabKey, ['home', 'about', 'academics', 'research_extension', 'events'], true) && $sectionLabel !== ''
                 ? 'Submitted CMS edit request for '.$tabLabel.' ('.$sectionLabel.')'
                 : 'Submitted CMS edit request for '.$tabLabel,
             (int) (session('user_id') ?? 0)
         );
 
         $successMessage = 'Content request submitted for admin approval.';
-        if (in_array($tabKey, ['home', 'about', 'academics', 'events'], true) && $sectionLabel !== '') {
+        if (in_array($tabKey, ['home', 'about', 'academics', 'research_extension', 'events'], true) && $sectionLabel !== '') {
             $successMessage = $tabLabel.' '.$sectionLabel.' request submitted for approval.';
         }
 
@@ -577,6 +603,15 @@ class CmsController extends Controller
         };
     }
 
+    private function researchSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'page' => 'Page Header',
+            'cards' => 'Cards',
+            default => '',
+        };
+    }
+
     private function eventsSectionLabel(string $sectionKey): string
     {
         return match ($sectionKey) {
@@ -677,6 +712,29 @@ class CmsController extends Controller
                 ],
             ],
             default => $academicsInput,
+        };
+    }
+
+    private function filterResearchInputBySection(array $researchInput, string $sectionKey): array
+    {
+        if ($sectionKey === '' || $sectionKey === 'all') {
+            return $researchInput;
+        }
+
+        return match ($sectionKey) {
+            'page' => [
+                'page' => is_array($researchInput['page'] ?? null)
+                    ? array_intersect_key($researchInput['page'], array_flip(['eyebrow', 'title', 'description']))
+                    : [],
+            ],
+            'cards' => [
+                'cards' => collect(data_get($researchInput, 'cards', []))
+                    ->map(fn ($item) => is_array($item)
+                        ? array_intersect_key($item, array_flip(['title', 'description', 'link']))
+                        : [])
+                    ->all(),
+            ],
+            default => $researchInput,
         };
     }
 
