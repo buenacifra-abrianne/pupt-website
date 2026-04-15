@@ -147,6 +147,12 @@
                 $academicsPrefill = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) $prefillContent)
                     : null;
+                $studentsLive = $tabKey === 'students'
+                    ? \App\Support\StudentsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
+                $studentsPrefill = $tabKey === 'students'
+                    ? \App\Support\StudentsCmsContent::fromStored((string) $prefillContent)
+                    : null;
                 $researchLive = $tabKey === 'research_extension'
                     ? \App\Support\ResearchCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
@@ -237,6 +243,22 @@
                                         </div>
                                     @endforeach
                                 </div>
+                            @elseif($tabKey === 'students')
+                                <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Page Header</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;min-height:120px;">
+                                    <strong>{{ $studentsLive['page']['title'] ?? 'Students' }}</strong>
+                                    <div style="margin-top:8px;line-height:1.6;">{{ $studentsLive['page']['description'] ?? '' }}</div>
+                                </div>
+
+                                <div style="font-size:13px;opacity:.75;margin-top:12px;margin-bottom:4px;">Cards</div>
+                                <div style="background:#f7f7f7;border-radius:12px;padding:12px;">
+                                    @foreach(($studentsLive['cards'] ?? []) as $card)
+                                        <div style="font-size:13px; margin-bottom:8px;">
+                                            <strong>{{ $card['title'] ?? '' }}</strong>
+                                            <div style="margin-top:4px; opacity:.8;">{{ $card['link'] ?? '' }}</div>
+                                        </div>
+                                    @endforeach
+                                </div>
                             @else
                                 <div style="font-size:13px;opacity:.75;margin-bottom:4px;">Content</div>
                                 <div style="white-space:pre-wrap;background:#f7f7f7;border-radius:12px;padding:12px;min-height:180px;">{{ $live['content'] !== '' ? $live['content'] : 'No live content yet.' }}</div>
@@ -291,6 +313,24 @@
                             'academicsEditorRequestId' => $draft['id'] ?? null,
                             'academicsEditorStatus' => $status,
                             'academicsEditorIdPrefix' => 'staff-academics',
+                        ])
+                    @elseif($tabKey === 'students')
+                        @php
+                            $studentsPreviewHtml = view('public.students', [
+                                'studentsCms' => $studentsPrefill,
+                                'cmsPreview' => true,
+                            ])->render();
+                        @endphp
+
+                        @include('partials.students_cms_preview_editor', [
+                            'studentsPreviewHtml' => $studentsPreviewHtml,
+                            'studentsEditorData' => $studentsPrefill,
+                            'studentsEditorFormClass' => 'cms-edit-form',
+                            'studentsEditorSubmitRoute' => route('staff.content.requestEdit'),
+                            'studentsEditorSubmitMode' => 'request',
+                            'studentsEditorRequestId' => $draft['id'] ?? null,
+                            'studentsEditorStatus' => $status,
+                            'studentsEditorIdPrefix' => 'staff-students',
                         ])
                     @elseif($tabKey === 'research_extension')
                         @php
@@ -814,7 +854,7 @@
             },
         }));
 
-        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-events-preview-frame]');
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-students-preview-frame], [data-research-preview-frame], [data-events-preview-frame]');
         if (!hasPreview) {
             window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
         }

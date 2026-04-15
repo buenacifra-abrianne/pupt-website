@@ -283,35 +283,62 @@ class HomeCmsContent
     {
         $defaults = self::defaults()['quick_links'];
         $source = is_array($input) ? $input : [];
-        $baseItems = is_array($source['items'] ?? null) ? array_values($source['items']) : [];
-        $defaultItems = $defaults['items'];
+        $defaultItems = array_values($defaults['items']);
+        $baseItems = is_array($source['items'] ?? null)
+            ? array_values($source['items'])
+            : array_values(is_array($source['items'] ?? null) ? $source['items'] : ($defaults['items'] ?? []));
+        $itemsSource = array_key_exists('items', $source)
+            ? (is_array($source['items'] ?? null) ? array_values($source['items']) : [])
+            : array_values(is_array($defaults['items'] ?? null) ? $defaults['items'] : []);
         $items = [];
 
-        foreach ($defaultItems as $index => $defaultItem) {
-            $current = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : [];
+        foreach ($itemsSource as $index => $current) {
+            if (!is_array($current)) {
+                continue;
+            }
 
-            $items[] = [
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['label' => '', 'title' => '', 'body' => '', 'href' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $normalizedItem = [
                 'label' => self::sanitizeString(
-                    $current['label'] ?? $defaultItem['label'],
+                    $current['label'] ?? $baseItem['label'] ?? $defaultItem['label'],
                     255,
                     $defaultItem['label']
                 ),
                 'title' => self::sanitizeString(
-                    $current['title'] ?? $defaultItem['title'],
+                    $current['title'] ?? $baseItem['title'] ?? $defaultItem['title'],
                     255,
                     $defaultItem['title']
                 ),
                 'body' => self::sanitizeString(
-                    $current['body'] ?? $defaultItem['body'],
+                    $current['body'] ?? $baseItem['body'] ?? $defaultItem['body'],
                     5000,
                     $defaultItem['body']
                 ),
                 'href' => self::sanitizeString(
-                    $current['href'] ?? $defaultItem['href'],
+                    $current['href'] ?? $baseItem['href'] ?? $defaultItem['href'],
                     2048,
                     $defaultItem['href']
                 ),
             ];
+
+            if (
+                trim($normalizedItem['label']) === ''
+                && trim($normalizedItem['title']) === ''
+                && trim($normalizedItem['body']) === ''
+                && trim($normalizedItem['href']) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $normalizedItem;
+
+            if (count($items) >= 24) {
+                break;
+            }
         }
 
         return [

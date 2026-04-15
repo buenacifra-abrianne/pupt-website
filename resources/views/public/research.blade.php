@@ -322,8 +322,8 @@
                 display: flex;
                 gap: 8px;
                 opacity: 0;
-                transform: translateY(-4px);
-                transition: opacity .18s ease, transform .18s ease;
+                transform: none;
+                transition: none;
             }
 
             .cms-preview-card-action {
@@ -415,7 +415,7 @@
             .students-card[data-cms-edit-trigger]:hover .cms-preview-card-actions,
             .students-card[data-cms-edit-trigger]:focus-within .cms-preview-card-actions {
                 opacity: 1;
-                transform: translateY(0);
+                transform: none;
             }
 
             .students-card-add:hover {
@@ -502,6 +502,72 @@
                         event.preventDefault();
                     });
                 });
+            })();
+        </script>
+
+        <script>
+            (() => {
+                let previewHeightFrame = null;
+
+                const schedulePreviewHeight = () => {
+                    if (previewHeightFrame !== null) {
+                        window.cancelAnimationFrame(previewHeightFrame);
+                    }
+
+                    previewHeightFrame = window.requestAnimationFrame(() => {
+                        const main = document.querySelector('.main-content');
+                        const scope = main instanceof HTMLElement ? main : document.body;
+                        const visible = Array.from(scope.children).filter((node) => {
+                            if (!(node instanceof HTMLElement)) {
+                                return false;
+                            }
+
+                            const styles = window.getComputedStyle(node);
+                            return styles.display !== 'none'
+                                && styles.visibility !== 'hidden'
+                                && styles.position !== 'fixed';
+                        });
+
+                        const contentBottom = visible.reduce((maxBottom, node) => {
+                            const styles = window.getComputedStyle(node);
+                            const marginBottom = Number.parseFloat(styles.marginBottom) || 0;
+
+                            return Math.max(maxBottom, node.offsetTop + node.offsetHeight + marginBottom);
+                        }, 0);
+
+                        window.parent?.postMessage({
+                            type: 'cms-research-preview-height',
+                            height: Math.max(1, Math.ceil(contentBottom)),
+                        }, '*');
+
+                        previewHeightFrame = null;
+                    });
+                };
+
+                if (typeof ResizeObserver !== 'undefined') {
+                    const observer = new ResizeObserver(() => schedulePreviewHeight());
+                    observer.observe(document.body);
+                    document.querySelector('.main-content') && observer.observe(document.querySelector('.main-content'));
+                }
+
+                if (typeof MutationObserver !== 'undefined') {
+                    const observer = new MutationObserver(() => schedulePreviewHeight());
+                    observer.observe(document.body, {
+                        childList: true,
+                        subtree: true,
+                        attributes: true,
+                        attributeFilter: ['class', 'style', 'src'],
+                    });
+                }
+
+                if (document.fonts?.ready) {
+                    document.fonts.ready.then(() => schedulePreviewHeight()).catch(() => {});
+                }
+
+                window.addEventListener('load', schedulePreviewHeight);
+                window.addEventListener('resize', schedulePreviewHeight);
+                window.addEventListener('pageshow', schedulePreviewHeight);
+                schedulePreviewHeight();
             })();
         </script>
     @endif

@@ -200,9 +200,6 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage News</h3>
-                    <button class="btn btn-primary" onclick="openNewsModal(true)">
-                        <i class="fas fa-plus"></i> New News Article
-                    </button>
                 </div>
 
                 <div class="news-bulk-toolbar">

@@ -28,9 +28,7 @@
 
     $slideCount = count($slides);
     $newsFeed = $news->take(5)->values();
-    $priorityAnnouncementFeed = $announcements
-        ->filter(fn ($item) => strtoupper(trim((string) ($item->priority ?? ''))) === 'HIGH')
-        ->values();
+    $announcementFeed = collect($announcements ?? [])->values();
     $quickLinks = $quickLinksSection['items'] ?? $defaults['quick_links']['items'] ?? [];
   @endphp
 
@@ -208,7 +206,7 @@
             </div>
 
             <div class="updates-cards-row announcements-cards-row">
-              @forelse($priorityAnnouncementFeed as $a)
+              @forelse($announcementFeed as $a)
                 @php
                   $announcementDate = \Carbon\Carbon::parse($a->date_published ?? $a->created_at)->format('F d, Y');
                 @endphp
@@ -284,13 +282,31 @@
                 }
               @endphp
 
-              <a href="{{ $linkHref }}" class="quick-link-card cards_information">
-                <h3 class="academic-feature-title">{{ e($link['label'] ?? '') }}</h3>
-                <div class="quick-link-rich">
-                  <strong>{{ e($link['title'] ?? '') }}</strong>
-                  <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($link['body'] ?? ($link['text'] ?? '')) !!}</div>
-                </div>
-              </a>
+              @if($cmsPreview)
+                <article
+                  class="quick-link-card cards_information"
+                  data-home-quick-link-card
+                  data-home-quick-link-index="{{ $loop->index }}"
+                  data-cms-edit-trigger="quick_links"
+                  data-cms-section-label="Explore Section"
+                >
+                  <div class="cms-preview-card-actions" aria-label="Card actions">
+                    <button type="button" class="cms-preview-card-action" data-home-card-edit>Edit</button>
+                    <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-home-card-delete>Delete</button>
+                  </div>
+              @else
+                <a href="{{ $linkHref }}" class="quick-link-card cards_information">
+              @endif
+                  <h3 class="academic-feature-title">{{ e($link['label'] ?? '') }}</h3>
+                  <div class="quick-link-rich">
+                    <strong>{{ e($link['title'] ?? '') }}</strong>
+                    <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($link['body'] ?? ($link['text'] ?? '')) !!}</div>
+                  </div>
+              @if($cmsPreview)
+                </article>
+              @else
+                </a>
+              @endif
             @endforeach
           </div>
         </div>
@@ -458,6 +474,54 @@
       .feedback-banner.cms-preview-editable .submit-btn {
         justify-self: end;
         align-self: center;
+      }
+
+      .quick-link-card[data-home-quick-link-card] {
+        position: relative;
+        transition: none !important;
+        animation: none !important;
+        transform: none !important;
+      }
+
+      .quick-link-card[data-home-quick-link-card]::before,
+      .quick-link-card[data-home-quick-link-card]::after {
+        transition: none !important;
+        animation: none !important;
+      }
+
+      .quick-link-card[data-home-quick-link-card]:hover,
+      .quick-link-card[data-home-quick-link-card]:focus-within {
+        transform: none !important;
+        box-shadow: inherit !important;
+      }
+
+      .cms-preview-card-actions {
+        position: absolute;
+        top: 14px;
+        right: 14px;
+        z-index: 12;
+        display: flex;
+        gap: 8px;
+      }
+
+      .cms-preview-card-action {
+        border: none;
+        border-radius: 12px;
+        padding: 0 12px;
+        min-width: 64px;
+        height: 36px;
+        background: rgba(127, 17, 19, 0.92);
+        color: #fffaf4;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .cms-preview-card-action-delete {
+        background: rgba(92, 0, 0, 0.96);
       }
 
       .cms-preview-editable > [data-cms-boundary]::after {
@@ -679,6 +743,43 @@
           if (chip) {
             chip.addEventListener('click', openEditor);
           }
+        });
+
+        document.querySelectorAll('[data-home-quick-link-card]').forEach((card) => {
+          const cardIndex = Number(card.getAttribute('data-home-quick-link-index'));
+          const editButton = card.querySelector('[data-home-card-edit]');
+          const deleteButton = card.querySelector('[data-home-card-delete]');
+
+          const postCard = (type) => {
+            window.parent?.postMessage({
+              type,
+              section: 'quick_links',
+              label: type === 'cms-home-delete-card' ? 'Delete Explore Card' : 'Edit Explore Card',
+              cardIndex,
+            }, '*');
+          };
+
+          card.addEventListener('click', (event) => {
+            if (event.target.closest('[data-home-card-edit], [data-home-card-delete]')) {
+              return;
+            }
+
+            event.preventDefault();
+            event.stopPropagation();
+            postCard('cms-home-edit-card');
+          });
+
+          editButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            postCard('cms-home-edit-card');
+          });
+
+          deleteButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            postCard('cms-home-delete-card');
+          });
         });
 
         if (typeof ResizeObserver !== 'undefined') {

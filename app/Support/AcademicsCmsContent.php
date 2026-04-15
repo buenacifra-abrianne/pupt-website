@@ -216,19 +216,41 @@ class AcademicsCmsContent
     private static function normalizeContentsItems(mixed $input, array $base, array $defaults): array
     {
         $sourceItems = is_array($input) ? array_values($input) : [];
-        $baseItems = array_values($base);
+        $baseItems = array_values(is_array($base) ? $base : []);
+        $defaultItems = array_values(is_array($defaults) ? $defaults : []);
+        $itemsSource = $sourceItems !== [] ? $sourceItems : $baseItems;
         $items = [];
 
-        foreach ($defaults as $index => $defaultItem) {
-            $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
+        foreach ($itemsSource as $index => $source) {
+            if (!is_array($source)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['label' => '', 'summary' => '', 'image' => '', 'route' => 'public.academics'];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
-            $items[] = [
+            $normalized = [
                 'label' => self::pickString($source, $baseItem, $defaultItem, 'label'),
                 'summary' => self::pickString($source, $baseItem, $defaultItem, 'summary', 4000),
                 'image' => self::pickString($source, $baseItem, $defaultItem, 'image', 2048),
-                'route' => $defaultItem['route'],
+                'route' => self::pickString($source, $baseItem, $defaultItem, 'route', 255),
             ];
+
+            if (
+                trim($normalized['label']) === ''
+                && trim($normalized['summary']) === ''
+                && trim($normalized['image']) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $normalized;
+
+            if (count($items) >= 24) {
+                break;
+            }
         }
 
         return $items;
@@ -237,18 +259,43 @@ class AcademicsCmsContent
     private static function normalizeFeatureItems(mixed $input, array $base, array $defaults): array
     {
         $sourceItems = is_array($input) ? array_values($input) : [];
-        $baseItems = array_values($base);
+        $baseItems = array_values(is_array($base) ? $base : []);
+        $defaultItems = array_values(is_array($defaults) ? $defaults : []);
+        $itemsSource = $sourceItems !== [] ? $sourceItems : $baseItems;
         $items = [];
 
-        foreach ($defaults as $index => $defaultItem) {
-            $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
+        foreach ($itemsSource as $index => $source) {
+            if (!is_array($source)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['title' => '', 'body' => '', 'wide' => false];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
-            $items[] = [
+            $normalized = [
                 'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
                 'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 12000),
-                'wide' => (bool) ($defaultItem['wide'] ?? false),
+                'wide' => filter_var(
+                    $source['wide'] ?? ($baseItem['wide'] ?? ($defaultItem['wide'] ?? false)),
+                    FILTER_VALIDATE_BOOL,
+                    FILTER_NULL_ON_FAILURE
+                ) ?? (bool) ($defaultItem['wide'] ?? false),
             ];
+
+            if (
+                trim($normalized['title']) === ''
+                && trim($normalized['body']) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $normalized;
+
+            if (count($items) >= 24) {
+                break;
+            }
         }
 
         return $items;

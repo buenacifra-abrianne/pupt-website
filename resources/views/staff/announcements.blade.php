@@ -237,9 +237,6 @@
     <div class="card">
       <div class="card-header">
         <h3 class="card-title">News Requests</h3>
-        <button class="btn btn-primary" onclick="openNewsModal(true)">
-          <i class="fas fa-plus"></i> Request New News Article
-        </button>
       </div>
 
       @php

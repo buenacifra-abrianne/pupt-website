@@ -146,6 +146,9 @@
                 $academicsLive = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
+                $studentsLive = $tabKey === 'students'
+                    ? \App\Support\StudentsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
                 $researchLive = $tabKey === 'research_extension'
                     ? \App\Support\ResearchCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
@@ -202,6 +205,22 @@
                         'academicsEditorSubmitRoute' => route('admin.content.save'),
                         'academicsEditorSubmitMode' => 'save',
                         'academicsEditorIdPrefix' => 'admin-academics',
+                    ])
+                @elseif($tabKey === 'students')
+                    @php
+                        $studentsPreviewHtml = view('public.students', [
+                            'studentsCms' => $studentsLive,
+                            'cmsPreview' => true,
+                        ])->render();
+                    @endphp
+
+                    @include('partials.students_cms_preview_editor', [
+                        'studentsPreviewHtml' => $studentsPreviewHtml,
+                        'studentsEditorData' => $studentsLive,
+                        'studentsEditorFormClass' => 'cms-save-form',
+                        'studentsEditorSubmitRoute' => route('admin.content.save'),
+                        'studentsEditorSubmitMode' => 'save',
+                        'studentsEditorIdPrefix' => 'admin-students',
                     ])
                 @elseif($tabKey === 'research_extension')
                     @php
@@ -721,7 +740,7 @@
             },
         }));
 
-        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-events-preview-frame]');
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-students-preview-frame], [data-research-preview-frame], [data-events-preview-frame]');
         if (!hasPreview) {
             window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
         }
@@ -1109,7 +1128,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-<x-app.legal-footer />
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>

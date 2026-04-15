@@ -407,8 +407,8 @@
                 display: flex;
                 gap: 8px;
                 opacity: 0;
-                transform: translateY(-4px);
-                transition: opacity .18s ease, transform .18s ease;
+                transform: none;
+                transition: none;
             }
 
             .cms-preview-card-action {
@@ -434,18 +434,19 @@
             }
 
             .ne-card[data-cms-card-index] {
-                transition: filter .18s ease, box-shadow .18s ease, transform .18s ease;
+                transition: none;
             }
 
             .ne-card[data-cms-card-index]:hover {
-                filter: brightness(0.94);
-                box-shadow: 0 16px 30px rgba(32, 8, 8, 0.16);
+                filter: none;
+                box-shadow: inherit;
+                transform: none;
             }
 
             .ne-card[data-cms-card-index]:hover .cms-preview-card-actions,
             .ne-card[data-cms-card-index]:focus-within .cms-preview-card-actions {
                 opacity: 1;
-                transform: translateY(0);
+                transform: none;
             }
 
             @media (max-width: 768px) {
