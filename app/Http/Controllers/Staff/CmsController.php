@@ -10,6 +10,7 @@ use App\Support\CmsSections;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use App\Support\ResearchCmsContent;
+use App\Support\StudentsCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -63,7 +64,7 @@ class CmsController extends Controller
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
-                'page', 'cards',
+                'page', 'cards', 'organizations',
             ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
@@ -71,6 +72,7 @@ class CmsController extends Controller
             'home' => ['nullable', 'array'],
             'about' => ['nullable', 'array'],
             'academics' => ['nullable', 'array'],
+            'students' => ['nullable', 'array'],
             'research' => ['nullable', 'array'],
             'events' => ['nullable', 'array'],
             'home.campus_description' => ['nullable', 'string'],
@@ -125,6 +127,22 @@ class CmsController extends Controller
             'research.cards.*.title' => ['nullable', 'string', 'max:255'],
             'research.cards.*.description' => ['nullable', 'string'],
             'research.cards.*.link' => ['nullable', 'string', 'max:2048'],
+            'students.page' => ['nullable', 'array'],
+            'students.page.eyebrow' => ['nullable', 'string', 'max:120'],
+            'students.page.title' => ['nullable', 'string', 'max:255'],
+            'students.page.description' => ['nullable', 'string'],
+            'students.page.hero_image' => ['nullable', 'string', 'max:2048'],
+            'students.cards' => ['nullable', 'array'],
+            'students.cards.*.title' => ['nullable', 'string', 'max:255'],
+            'students.cards.*.description' => ['nullable', 'string'],
+            'students.cards.*.link' => ['nullable', 'string', 'max:2048'],
+            'students.organization_sections' => ['nullable', 'array'],
+            'students.organization_sections.*.title' => ['nullable', 'string', 'max:255'],
+            'students.organization_sections.*.items' => ['nullable', 'array'],
+            'students.organization_sections.*.items.*.title' => ['nullable', 'string', 'max:255'],
+            'students.organization_sections.*.items.*.abbr' => ['nullable', 'string', 'max:255'],
+            'students.organization_sections.*.items.*.link' => ['nullable', 'string', 'max:2048'],
+            'students.organization_sections.*.items.*.image' => ['nullable', 'string', 'max:2048'],
             'events.page' => ['nullable', 'array'],
             'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'events.page.title' => ['nullable', 'string', 'max:255'],
@@ -154,13 +172,14 @@ class CmsController extends Controller
 
         $tabKey = (string) $data['tab_key'];
         $tabLabel = CmsSections::labelForTab($tabKey);
-        $sectionKey = in_array($tabKey, ['home', 'about', 'academics', 'research_extension', 'events'], true)
+        $sectionKey = in_array($tabKey, ['home', 'about', 'academics', 'students', 'research_extension', 'events'], true)
             ? strtolower(trim((string) ($data['section_key'] ?? '')))
             : '';
         $sectionLabel = match ($tabKey) {
             'home' => $this->homeSectionLabel($sectionKey),
             'about' => $this->aboutSectionLabel($sectionKey),
             'academics' => $this->academicsSectionLabel($sectionKey),
+            'students' => $this->studentsSectionLabel($sectionKey),
             'research_extension' => $this->researchSectionLabel($sectionKey),
             'events' => $this->eventsSectionLabel($sectionKey),
             default => '',
@@ -248,6 +267,23 @@ class CmsController extends Controller
             );
             $title = $baseTitle;
             $baseContent = $baseAcademicsEncoded;
+        } elseif ($tabKey === 'students') {
+            $baseStudents = StudentsCmsContent::fromStored($baseContent);
+            $baseStudentsEncoded = StudentsCmsContent::encode($baseStudents);
+            $studentsInput = $this->filterStudentsInputBySection(
+                is_array($data['students'] ?? null) ? $data['students'] : [],
+                $sectionKey
+            );
+
+            $content = StudentsCmsContent::encode(
+                $sectionKey === 'cards'
+                    ? StudentsCmsContent::fromCardsInput($studentsInput['cards'] ?? [], $baseStudentsEncoded)
+                    : ($sectionKey === 'organizations'
+                        ? StudentsCmsContent::fromOrganizationsInput($studentsInput['organization_sections'] ?? [], $baseStudentsEncoded)
+                        : StudentsCmsContent::fromInput($studentsInput, $baseStudentsEncoded))
+            );
+            $title = $baseTitle;
+            $baseContent = $baseStudentsEncoded;
         } elseif ($tabKey === 'research_extension') {
             $baseResearch = ResearchCmsContent::fromStored($baseContent);
             $baseResearchEncoded = ResearchCmsContent::encode($baseResearch);
@@ -352,14 +388,14 @@ class CmsController extends Controller
         AuditLog::record(
             'UPDATED',
             'CONTENT',
-            in_array($tabKey, ['home', 'about', 'academics', 'research_extension', 'events'], true) && $sectionLabel !== ''
+            in_array($tabKey, ['home', 'about', 'academics', 'students', 'research_extension', 'events'], true) && $sectionLabel !== ''
                 ? 'Submitted CMS edit request for '.$tabLabel.' ('.$sectionLabel.')'
                 : 'Submitted CMS edit request for '.$tabLabel,
             (int) (session('user_id') ?? 0)
         );
 
         $successMessage = 'Content request submitted for admin approval.';
-        if (in_array($tabKey, ['home', 'about', 'academics', 'research_extension', 'events'], true) && $sectionLabel !== '') {
+        if (in_array($tabKey, ['home', 'about', 'academics', 'students', 'research_extension', 'events'], true) && $sectionLabel !== '') {
             $successMessage = $tabLabel.' '.$sectionLabel.' request submitted for approval.';
         }
 
@@ -603,6 +639,16 @@ class CmsController extends Controller
         };
     }
 
+    private function studentsSectionLabel(string $sectionKey): string
+    {
+        return match ($sectionKey) {
+            'page' => 'Page Header',
+            'cards' => 'Cards',
+            'organizations' => 'Organizations',
+            default => '',
+        };
+    }
+
     private function researchSectionLabel(string $sectionKey): string
     {
         return match ($sectionKey) {
@@ -712,6 +758,47 @@ class CmsController extends Controller
                 ],
             ],
             default => $academicsInput,
+        };
+    }
+
+    private function filterStudentsInputBySection(array $studentsInput, string $sectionKey): array
+    {
+        if ($sectionKey === '' || $sectionKey === 'all') {
+            return $studentsInput;
+        }
+
+        return match ($sectionKey) {
+            'page' => [
+                'page' => is_array($studentsInput['page'] ?? null)
+                    ? array_intersect_key($studentsInput['page'], array_flip(['eyebrow', 'title', 'description', 'hero_image']))
+                    : [],
+            ],
+            'cards' => [
+                'cards' => collect(data_get($studentsInput, 'cards', []))
+                    ->map(fn ($item) => is_array($item)
+                        ? array_intersect_key($item, array_flip(['title', 'description', 'link']))
+                        : [])
+                    ->all(),
+            ],
+            'organizations' => [
+                'organization_sections' => collect(data_get($studentsInput, 'organization_sections', []))
+                    ->map(function ($section) {
+                        if (!is_array($section)) {
+                            return [];
+                        }
+
+                        return [
+                            'title' => (string) ($section['title'] ?? ''),
+                            'items' => collect(data_get($section, 'items', []))
+                                ->map(fn ($item) => is_array($item)
+                                    ? array_intersect_key($item, array_flip(['title', 'abbr', 'link', 'image']))
+                                    : [])
+                                ->all(),
+                        ];
+                    })
+                    ->all(),
+            ],
+            default => $studentsInput,
         };
     }
 

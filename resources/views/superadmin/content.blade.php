@@ -155,6 +155,9 @@
                 $academicsLive = $tabKey === 'academics'
                     ? \App\Support\AcademicsCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
+                $studentsLive = $tabKey === 'students'
+                    ? \App\Support\StudentsCmsContent::fromStored((string) ($live['content'] ?? ''))
+                    : null;
                 $researchLive = $tabKey === 'research_extension'
                     ? \App\Support\ResearchCmsContent::fromStored((string) ($live['content'] ?? ''))
                     : null;
@@ -211,6 +214,22 @@
                         'academicsEditorSubmitRoute' => route('superadmin.content.save'),
                         'academicsEditorSubmitMode' => 'save',
                         'academicsEditorIdPrefix' => 'superadmin-academics',
+                    ])
+                @elseif($tabKey === 'students')
+                    @php
+                        $studentsPreviewHtml = view('public.students', [
+                            'studentsCms' => $studentsLive,
+                            'cmsPreview' => true,
+                        ])->render();
+                    @endphp
+
+                    @include('partials.students_cms_preview_editor', [
+                        'studentsPreviewHtml' => $studentsPreviewHtml,
+                        'studentsEditorData' => $studentsLive,
+                        'studentsEditorFormClass' => 'cms-save-form',
+                        'studentsEditorSubmitRoute' => route('superadmin.content.save'),
+                        'studentsEditorSubmitMode' => 'save',
+                        'studentsEditorIdPrefix' => 'superadmin-students',
                     ])
                 @elseif($tabKey === 'research_extension')
                     @php
@@ -730,7 +749,7 @@
             },
         }));
 
-        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-events-preview-frame]');
+        const hasPreview = !!nextPanel?.querySelector('[data-home-preview-frame], [data-about-preview-frame], [data-academics-preview-frame], [data-students-preview-frame], [data-research-preview-frame], [data-events-preview-frame]');
         if (!hasPreview) {
             window.setTimeout(() => hideCmsPreviewLoading(sessionId), 1500);
         }

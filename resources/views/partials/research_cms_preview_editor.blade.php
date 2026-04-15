@@ -529,8 +529,11 @@
                     .filter((element) => isMeasuredElement(element));
 
                 const contentBottom = visibleElements.reduce((maxBottom, element) => {
-                    return Math.max(maxBottom, element.offsetTop + element.offsetHeight);
-                }, scope.offsetHeight);
+                    const styles = window.getComputedStyle(element);
+                    const marginBottom = Number.parseFloat(styles.marginBottom) || 0;
+
+                    return Math.max(maxBottom, element.offsetTop + element.offsetHeight + marginBottom);
+                }, 0);
 
                 return Math.max(1, Math.ceil(contentBottom));
             } catch (error) {
@@ -614,19 +617,7 @@
                     event.stopPropagation();
                     const card = deleteCardTrigger.closest('[data-research-card-index]');
                     const cardIndex = card?.getAttribute('data-research-card-index') ?? null;
-                    if (cardIndex === null) {
-                        return;
-                    }
-
-                    const targetEditor = modal.querySelector(`[data-research-card-editor][data-research-card-index="${cardIndex}"]`);
-                    if (!targetEditor) {
-                        return;
-                    }
-
-                    targetEditor.remove();
-                    bumpCardsVersion();
-                    relabelCards();
-                    setActiveCardEditor();
+                    void confirmDeleteCard(cardIndex);
                     return;
                 }
 
@@ -698,6 +689,20 @@
             loadFrame(frame);
         });
 
+        window.addEventListener('message', (event) => {
+            const data = event.data || {};
+            if (!data || data.type !== 'cms-research-preview-height') {
+                return;
+            }
+
+            const targetFrame = frames.find((frame) => frame.contentWindow === event.source);
+            if (!targetFrame) {
+                return;
+            }
+
+            syncResearchPreviewHeight(targetFrame, data.height);
+        });
+
         document.querySelectorAll('[data-close-research-editor]').forEach((trigger) => {
             trigger.addEventListener('click', closeEditor);
         });
@@ -710,6 +715,7 @@
 
         const cardTemplate = modal.querySelector('[data-research-card-template]');
         const cardStack = modal.querySelector('[data-research-card-stack]');
+        const cardsForm = modal.querySelector('[data-research-cards-form]');
         const versionInput = modal.querySelector('[data-research-cards-version]');
         const activeCardIndexInput = modal.querySelector('[data-research-active-card-index]');
 
@@ -721,6 +727,79 @@
 
         const relabelCards = () => {
             return;
+        };
+
+        const submitCardsForm = () => {
+            if (!cardsForm) {
+                return;
+            }
+
+            if (typeof cardsForm.requestSubmit === 'function') {
+                cardsForm.requestSubmit();
+                return;
+            }
+
+            cardsForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
+        const deleteCardByIndex = (cardIndex) => {
+            if (cardIndex === null || cardIndex === undefined) {
+                return false;
+            }
+
+            const targetEditor = modal.querySelector(`[data-research-card-editor][data-research-card-index="${cardIndex}"]`);
+            if (!targetEditor) {
+                return false;
+            }
+
+            targetEditor.remove();
+            bumpCardsVersion();
+            relabelCards();
+            setActiveCardEditor();
+
+            return true;
+        };
+
+        const confirmDeleteCard = async (cardIndex) => {
+            const targetEditor = modal.querySelector(`[data-research-card-editor][data-research-card-index="${cardIndex}"]`);
+            if (!targetEditor) {
+                return;
+            }
+
+            const titleInput = targetEditor.querySelector('input[name*="[title]"]');
+            const cardTitle = String(titleInput?.value || '').trim();
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Card',
+                    message: cardTitle
+                        ? `Do you want to delete "${cardTitle}"?`
+                        : 'Do you want to delete this research card?',
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(
+                    cardTitle
+                        ? `Do you want to delete "${cardTitle}"?`
+                        : 'Do you want to delete this research card?'
+                );
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const deleted = deleteCardByIndex(cardIndex);
+            if (!deleted) {
+                return;
+            }
+
+            submitCardsForm();
         };
 
         const setActiveCardEditor = (cardIndex = null) => {

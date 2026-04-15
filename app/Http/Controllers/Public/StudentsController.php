@@ -3,11 +3,30 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Support\StudentsCmsContent;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class StudentsController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return view('public.students');
+        $studentsCms = StudentsCmsContent::defaults();
+
+        if (Schema::hasTable('cms_contents')) {
+            $studentsRow = DB::table('cms_contents')
+                ->where('tab_key', 'students')
+                ->first();
+
+            if ($studentsRow) {
+                $studentsCms = StudentsCmsContent::fromStored((string) ($studentsRow->content ?? ''));
+            }
+        }
+
+        return view('public.students', [
+            'studentsCms' => $studentsCms,
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
     }
 }

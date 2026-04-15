@@ -714,7 +714,6 @@ async function postJSON(url, data) {
     }
 
 </script>
-<x-app.legal-footer />
 </body>
 </html>
 

@@ -497,7 +497,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
   </script>
-  <x-app.legal-footer />
   <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>

@@ -150,10 +150,12 @@
             </section>
 
             <section class="home-cms-editor-panel" data-home-editor-panel="quick_links" hidden>
-                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-quick-links-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="home">
                     <input type="hidden" name="section_key" value="quick_links">
+                    <input type="hidden" name="home_quick_links_version" value="0" data-home-quick-links-version>
+                    <input type="hidden" name="home_active_quick_link_index" value="" data-home-active-quick-link-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -169,9 +171,9 @@
                         </div>
                     </div>
 
-                    <div class="home-cms-card-stack">
+                    <div class="home-cms-card-stack" data-home-quick-link-stack>
                         @foreach(($quickLinksEditor['items'] ?? []) as $index => $item)
-                            <article class="home-cms-card-editor">
+                            <article class="home-cms-card-editor" data-home-quick-link-editor data-home-quick-link-index="{{ $index }}">
                                 <div class="home-cms-card-editor-head">
                                     <h4>Explore Card {{ $loop->iteration }}</h4>
                                     <span>{{ $item['href'] ?? '' }}</span>
@@ -437,6 +439,11 @@
         border: 1px solid #efe3dc;
         border-radius: 16px;
         background: #fff;
+        display: none;
+    }
+
+    .home-cms-card-editor.is-active {
+        display: block;
     }
 
     .home-cms-card-editor-head {
@@ -805,7 +812,114 @@
             });
         }
 
-        function openHomeEditor(sectionKey, label) {
+        const quickLinksForm = document.querySelector('[data-home-quick-links-form]');
+        const quickLinksStack = quickLinksForm?.querySelector('[data-home-quick-link-stack]');
+        const quickLinksVersionInput = quickLinksForm?.querySelector('[data-home-quick-links-version]');
+        const activeQuickLinkIndexInput = quickLinksForm?.querySelector('[data-home-active-quick-link-index]');
+
+        function bumpQuickLinksVersion() {
+            if (quickLinksVersionInput) {
+                quickLinksVersionInput.value = String(Date.now());
+            }
+        }
+
+        function submitQuickLinksForm() {
+            if (!quickLinksForm) {
+                return;
+            }
+
+            syncEditorsInScope(quickLinksForm);
+
+            if (typeof quickLinksForm.requestSubmit === 'function') {
+                quickLinksForm.requestSubmit();
+                return;
+            }
+
+            quickLinksForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        }
+
+        function setActiveQuickLinkEditor(targetIndex = null) {
+            const editors = Array.from(quickLinksStack?.querySelectorAll('[data-home-quick-link-editor]') ?? []);
+
+            if (!editors.length) {
+                if (activeQuickLinkIndexInput) {
+                    activeQuickLinkIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = targetIndex === null || targetIndex === undefined || targetIndex === ''
+                ? null
+                : String(targetIndex);
+            let activeEditor = null;
+
+            editors.forEach((editor) => {
+                const isMatch = normalizedIndex !== null && editor.getAttribute('data-home-quick-link-index') === normalizedIndex;
+                const shouldActivate = normalizedIndex === null ? editor === editors[0] : isMatch;
+                editor.classList.toggle('is-active', shouldActivate);
+
+                if (shouldActivate) {
+                    activeEditor = editor;
+                }
+            });
+
+            if (activeQuickLinkIndexInput) {
+                activeQuickLinkIndexInput.value = activeEditor?.getAttribute('data-home-quick-link-index') || '';
+            }
+
+            return activeEditor;
+        }
+
+        function deleteQuickLinkByIndex(targetIndex) {
+            const editor = quickLinksStack?.querySelector(`[data-home-quick-link-editor][data-home-quick-link-index="${targetIndex}"]`);
+            if (!editor) {
+                return false;
+            }
+
+            editor.remove();
+            bumpQuickLinksVersion();
+            setActiveQuickLinkEditor();
+            return true;
+        }
+
+        async function confirmDeleteQuickLink(targetIndex) {
+            const editor = quickLinksStack?.querySelector(`[data-home-quick-link-editor][data-home-quick-link-index="${targetIndex}"]`);
+            if (!editor) {
+                return;
+            }
+
+            const titleInput = editor.querySelector('input[name*="[title]"]');
+            const cardTitle = String(titleInput?.value || '').trim();
+            const message = cardTitle
+                ? `Do you want to delete "${cardTitle}"?`
+                : 'Do you want to delete this explore card?';
+
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Card',
+                    message,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(message);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            if (deleteQuickLinkByIndex(targetIndex)) {
+                submitQuickLinksForm();
+            }
+        }
+
+        function openHomeEditor(sectionKey, label, options = {}) {
             const modal = document.querySelector('[data-home-editor-modal]');
             if (!modal) {
                 return;
@@ -830,11 +944,16 @@
                         description.textContent = 'Update this section and save to refresh the homepage preview.';
                     }
 
+                    const activeQuickLinkEditor = sectionKey === 'quick_links'
+                        ? setActiveQuickLinkEditor(options.cardIndex ?? null)
+                        : null;
+
                     if (typeof window.initializeRichTextEditors === 'function') {
                         window.initializeRichTextEditors(panel);
                     }
 
-                    const firstField = panel.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
+                    const focusScope = activeQuickLinkEditor || panel;
+                    const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                     firstField?.focus();
                 }
             });
@@ -860,6 +979,18 @@
 
             if (data.type === 'cms-home-edit') {
                 openHomeEditor(data.section || '', data.label || 'Edit homepage section');
+                return;
+            }
+
+            if (data.type === 'cms-home-edit-card') {
+                openHomeEditor('quick_links', data.label || 'Edit explore card', {
+                    cardIndex: data.cardIndex,
+                });
+                return;
+            }
+
+            if (data.type === 'cms-home-delete-card') {
+                confirmDeleteQuickLink(data.cardIndex);
                 return;
             }
 
@@ -965,6 +1096,7 @@
         };
 
         scheduleFitAllHomePreviews();
+        setActiveQuickLinkEditor();
 
         window.__homeCmsPreviewEditorReady = true;
     })();

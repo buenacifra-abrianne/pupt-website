@@ -78,10 +78,12 @@
             </section>
 
             <section class="academics-cms-editor-panel" data-academics-editor-panel="contents" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-contents-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="academics">
                     <input type="hidden" name="section_key" value="contents">
+                    <input type="hidden" name="academics_contents_version" value="0" data-academics-contents-version>
+                    <input type="hidden" name="academics_active_contents_index" value="" data-academics-active-contents-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -91,13 +93,15 @@
                         <input type="text" name="academics[contents][tag]" maxlength="80" value="{{ $contentsEditor['tag'] ?? '' }}">
                     </div>
 
-                    <div class="academics-cms-card-stack">
+                    <div class="academics-cms-card-stack" data-academics-contents-stack>
                         @foreach(($contentsEditor['items'] ?? []) as $index => $item)
-                            <article class="academics-cms-card-editor">
+                            <article class="academics-cms-card-editor" data-academics-contents-editor data-academics-contents-index="{{ $index }}">
                                 <div class="academics-cms-card-editor-head">
                                     <h4>Contents Card {{ $loop->iteration }}</h4>
                                     <span>{{ $item['route'] ?? '' }}</span>
                                 </div>
+
+                                <input type="hidden" name="academics[contents][items][{{ $index }}][route]" value="{{ $item['route'] ?? '' }}">
 
                                 <div class="academics-cms-form-grid">
                                     <div class="form-group">
@@ -149,10 +153,12 @@
             </section>
 
             <section class="academics-cms-editor-panel" data-academics-editor-panel="features" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-features-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="academics">
                     <input type="hidden" name="section_key" value="features">
+                    <input type="hidden" name="academics_features_version" value="0" data-academics-features-version>
+                    <input type="hidden" name="academics_active_feature_index" value="" data-academics-active-feature-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -162,13 +168,15 @@
                         <input type="text" name="academics[features][eyebrow]" maxlength="120" value="{{ $featuresEditor['eyebrow'] ?? '' }}">
                     </div>
 
-                    <div class="academics-cms-card-stack">
+                    <div class="academics-cms-card-stack" data-academics-features-stack>
                         @foreach(($featuresEditor['items'] ?? []) as $index => $item)
-                            <article class="academics-cms-card-editor">
+                            <article class="academics-cms-card-editor" data-academics-feature-editor data-academics-feature-index="{{ $index }}">
                                 <div class="academics-cms-card-editor-head">
                                     <h4>Feature Card {{ $loop->iteration }}</h4>
                                     <span>{{ !empty($item['wide']) ? 'Wide card' : 'Standard card' }}</span>
                                 </div>
+
+                                <input type="hidden" name="academics[features][items][{{ $index }}][wide]" value="{{ !empty($item['wide']) ? '1' : '0' }}">
 
                                 <div class="form-group">
                                     <label>Card Title</label>
@@ -355,6 +363,11 @@
         border: 1px solid #efe3dc;
         border-radius: 16px;
         background: #fff;
+        display: none;
+    }
+
+    .academics-cms-card-editor.is-active {
+        display: block;
     }
 
     .academics-cms-card-editor-head {
@@ -712,7 +725,126 @@
             });
         }
 
-        function openAcademicsEditor(sectionKey, label) {
+        const contentsForm = document.querySelector('[data-academics-contents-form]');
+        const contentsStack = contentsForm?.querySelector('[data-academics-contents-stack]');
+        const contentsVersionInput = contentsForm?.querySelector('[data-academics-contents-version]');
+        const activeContentsIndexInput = contentsForm?.querySelector('[data-academics-active-contents-index]');
+        const featuresForm = document.querySelector('[data-academics-features-form]');
+        const featuresStack = featuresForm?.querySelector('[data-academics-features-stack]');
+        const featuresVersionInput = featuresForm?.querySelector('[data-academics-features-version]');
+        const activeFeatureIndexInput = featuresForm?.querySelector('[data-academics-active-feature-index]');
+
+        function bumpEditorVersion(input) {
+            if (input) {
+                input.value = String(Date.now());
+            }
+        }
+
+        function submitEditorForm(form) {
+            if (!form) {
+                return;
+            }
+
+            syncEditorsInScope(form);
+
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+                return;
+            }
+
+            form.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        }
+
+        function setActiveEditor(stack, selector, indexAttribute, hiddenInput, targetIndex = null) {
+            const editors = Array.from(stack?.querySelectorAll(selector) ?? []);
+
+            if (!editors.length) {
+                if (hiddenInput) {
+                    hiddenInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = targetIndex === null || targetIndex === undefined || targetIndex === ''
+                ? null
+                : String(targetIndex);
+            let activeEditor = null;
+
+            editors.forEach((editor) => {
+                const isMatch = normalizedIndex !== null && editor.getAttribute(indexAttribute) === normalizedIndex;
+                const shouldActivate = normalizedIndex === null ? editor === editors[0] : isMatch;
+                editor.classList.toggle('is-active', shouldActivate);
+
+                if (shouldActivate) {
+                    activeEditor = editor;
+                }
+            });
+
+            if (hiddenInput) {
+                hiddenInput.value = activeEditor?.getAttribute(indexAttribute) || '';
+            }
+
+            return activeEditor;
+        }
+
+        function deleteEditorByIndex(stack, selector, indexAttribute, versionInput, hiddenInput, targetIndex) {
+            const editor = stack?.querySelector(`${selector}[${indexAttribute}="${targetIndex}"]`);
+            if (!editor) {
+                return false;
+            }
+
+            editor.remove();
+            bumpEditorVersion(versionInput);
+            setActiveEditor(stack, selector, indexAttribute, hiddenInput);
+            return true;
+        }
+
+        async function confirmDeleteAcademicsCard(type, targetIndex) {
+            const isContents = type === 'contents';
+            const stack = isContents ? contentsStack : featuresStack;
+            const selector = isContents ? '[data-academics-contents-editor]' : '[data-academics-feature-editor]';
+            const indexAttribute = isContents ? 'data-academics-contents-index' : 'data-academics-feature-index';
+            const versionInput = isContents ? contentsVersionInput : featuresVersionInput;
+            const hiddenInput = isContents ? activeContentsIndexInput : activeFeatureIndexInput;
+            const form = isContents ? contentsForm : featuresForm;
+            const editor = stack?.querySelector(`${selector}[${indexAttribute}="${targetIndex}"]`);
+
+            if (!editor) {
+                return;
+            }
+
+            const titleInput = editor.querySelector('input[name*="[label]"], input[name*="[title]"]');
+            const cardTitle = String(titleInput?.value || '').trim();
+            const message = cardTitle
+                ? `Do you want to delete "${cardTitle}"?`
+                : 'Do you want to delete this card?';
+
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Card',
+                    message,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(message);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            if (deleteEditorByIndex(stack, selector, indexAttribute, versionInput, hiddenInput, targetIndex)) {
+                submitEditorForm(form);
+            }
+        }
+
+        function openAcademicsEditor(sectionKey, label, options = {}) {
             const modal = document.querySelector('[data-academics-editor-modal]');
             if (!modal) {
                 return;
@@ -737,11 +869,31 @@
                         description.textContent = 'Update this section and save to refresh the Academics page preview.';
                     }
 
+                    let activeCardEditor = null;
+                    if (sectionKey === 'contents') {
+                        activeCardEditor = setActiveEditor(
+                            contentsStack,
+                            '[data-academics-contents-editor]',
+                            'data-academics-contents-index',
+                            activeContentsIndexInput,
+                            options.cardIndex ?? null
+                        );
+                    } else if (sectionKey === 'features') {
+                        activeCardEditor = setActiveEditor(
+                            featuresStack,
+                            '[data-academics-feature-editor]',
+                            'data-academics-feature-index',
+                            activeFeatureIndexInput,
+                            options.cardIndex ?? null
+                        );
+                    }
+
                     if (typeof window.initializeRichTextEditors === 'function') {
                         window.initializeRichTextEditors(panel);
                     }
 
-                    const firstField = panel.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
+                    const focusScope = activeCardEditor || panel;
+                    const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                     firstField?.focus();
                 }
             });
@@ -765,6 +917,18 @@
 
             if (data.type === 'cms-academics-edit') {
                 openAcademicsEditor(data.section || '', data.label || 'Edit academics section');
+                return;
+            }
+
+            if (data.type === 'cms-academics-edit-card') {
+                openAcademicsEditor(data.section || '', data.label || 'Edit academics card', {
+                    cardIndex: data.cardIndex,
+                });
+                return;
+            }
+
+            if (data.type === 'cms-academics-delete-card') {
+                confirmDeleteAcademicsCard(data.section || '', data.cardIndex);
                 return;
             }
 
@@ -868,6 +1032,8 @@
         };
 
         scheduleFitAllAcademicsPreviews();
+        setActiveEditor(contentsStack, '[data-academics-contents-editor]', 'data-academics-contents-index', activeContentsIndexInput);
+        setActiveEditor(featuresStack, '[data-academics-feature-editor]', 'data-academics-feature-index', activeFeatureIndexInput);
         window.__academicsCmsPreviewEditorReady = true;
     })();
 </script>

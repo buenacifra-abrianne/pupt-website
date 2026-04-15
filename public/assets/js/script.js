@@ -775,13 +775,24 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  function decodeEscapedHtml(value) {
+    const source = (value || "").trim();
+    if (!source) return "";
+
+    const textarea = document.createElement("textarea");
+    textarea.innerHTML = source;
+
+    return textarea.value.trim();
+  }
+
   function renderAdvisoryContent(rawContent, rawHtml = "") {
     if (!text) return;
 
     text.replaceChildren();
 
     if (rawHtml && rawHtml.trim()) {
-      text.innerHTML = rawHtml;
+      const normalizedHtml = decodeEscapedHtml(rawHtml);
+      text.innerHTML = normalizedHtml || rawHtml;
       return;
     }
 

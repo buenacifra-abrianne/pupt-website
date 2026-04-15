@@ -186,9 +186,6 @@
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage News</h3>
-                    <button class="btn btn-primary" onclick="openNewsModal(true)">
-                        <i class="fas fa-plus"></i> New News Article
-                    </button>
                 </div>
 
                 <div class="news-bulk-toolbar">
@@ -1455,7 +1452,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 </script>
-<x-app.legal-footer />
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
