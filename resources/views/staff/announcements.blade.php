@@ -230,8 +230,9 @@
                     data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
                     <div class="news-image">
-                        @if($imgUrl)
-                            <img src="{{ $imgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($n->title ?? 'News image') }}">
+                        @if(!empty($request->image_path))
+                            <img src="{{ \App\Support\NewsImage::url($request->image_path) }}" 
+                                style="width:100%; height:150px; object-fit:cover;">
                         @else
                             <i class="fas fa-newspaper"></i>
                         @endif
