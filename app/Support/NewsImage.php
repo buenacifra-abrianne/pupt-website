@@ -59,11 +59,7 @@ class NewsImage
         $value = trim((string) $path);
 
         if ($value === '') {
-            if ($fallback === null || $fallback === '') {
-                return null;
-            }
-
-            return asset(ltrim($fallback, '/'));
+            return null;
         }
 
         if (self::isExternal($value)) {
@@ -72,31 +68,11 @@ class NewsImage
 
         $normalized = ltrim($value, '/');
 
-        if (str_starts_with($normalized, 'assets/') || str_starts_with($normalized, 'storage/')) {
-            return asset($normalized);
+        try {
+            return Storage::disk('s3')->url($normalized);
+        } catch (Throwable) {
+            return asset('storage/'.$normalized);
         }
-
-        if (App::environment('local')) {
-            try {
-                if (Storage::disk(self::FALLBACK_DISK)->exists($normalized)) {
-                    return asset('storage/'.$normalized);
-                }
-            } catch (Throwable) {
-            }
-        }
-
-        foreach (self::candidateDisks() as $disk) {
-            if ($disk === self::FALLBACK_DISK) {
-                continue;
-            }
-
-            try {
-                return Storage::disk($disk)->url($normalized);
-            } catch (Throwable) {
-            }
-        }
-
-        return asset('storage/'.$normalized);
     }
 
     public static function validationError(?UploadedFile $file): ?string
