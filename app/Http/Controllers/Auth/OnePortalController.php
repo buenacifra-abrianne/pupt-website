@@ -309,6 +309,10 @@ class OnePortalController extends Controller
     // ✅ get user_id directly from session (stored during login)
     $userId = session('oneportal_id');
 
+    // ✅ remove tokens explicitly (IMPORTANT)
+    $request->session()->forget('access_token');
+    $request->session()->forget('refresh_token');
+
     // ✅ clear local session
     $request->session()->flush();
     $request->session()->invalidate();
