@@ -323,8 +323,7 @@ class OnePortalController extends Controller
 
     // ✅ build REQUIRED IDP logout URL
     $idpLogoutUrl = $baseUrl . '/logout?client_id=' . urlencode($clientId)
-        . '&user_id=' . urlencode($userId)
-        . '&post_logout_redirect_uri=' . urlencode(route('public.landing'));
+        . '&user_id=' . urlencode($userId);
 
     // ✅ redirect to IDP logout (IMPORTANT)
     return redirect()->away($idpLogoutUrl)
