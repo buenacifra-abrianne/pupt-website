@@ -305,14 +305,32 @@ class OnePortalController extends Controller
 {
     $accessToken = session('access_token');
 
-    // Call IDP logout (API-based, correct for your system)
+    $userId = (int) session('user_id', 0);
+    $userName = (string) session('user_name', 'Unknown');
+
+    AuditLog::record(
+        'LOGOUT',
+        'AUTHENTICATION',
+        'User initiated logout.',
+        $userId,
+        [
+            'user_id' => $userId,
+            'user_name' => $userName,
+            'ip_address' => $request->ip(),
+        ]
+    );
+
+    $baseUrl = rtrim(config('services.idp.base_url'), '/');
+    $clientId = config('services.idp.client_id');
+
+    // 🔥 IDP REQUIRED LOGOUT CALL (THIS IS THE ONLY CORRECT ONE)
     if ($accessToken) {
         try {
             Http::withoutVerifying()
                 ->withToken($accessToken)
                 ->asJson()
-                ->post(rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/logout', [
-                    'client_id' => config('services.idp.client_id'),
+                ->post($baseUrl . '/api/v1/auth/logout', [
+                    'client_id' => $clientId,
                 ]);
         } catch (\Throwable $e) {
             \Log::warning('IDP logout failed', [
@@ -321,11 +339,12 @@ class OnePortalController extends Controller
         }
     }
 
-    // Clear local session
+    // 🔥 ALWAYS CLEAR LOCAL SESSION
     $request->session()->invalidate();
     $request->session()->flush();
     $request->session()->regenerateToken();
 
+    // 🔥 REMOVE TOKENS (IMPORTANT FOR CLEAN STATE)
     return redirect()->route('public.landing')
         ->with('success', 'You have been logged out.');
 }
