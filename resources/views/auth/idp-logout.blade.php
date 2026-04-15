@@ -165,40 +165,21 @@
     </div>
 
     <script>
-        (async function () {
-            const logoutUrl = @json($idpLogoutUrl);
+         (function () {
+            const baseLogoutUrl = @json($idpLogoutUrl);
             const clientId = @json($clientId);
-            const accessToken = @json($accessToken);
+            const userId = @json($userId);
             const afterLogoutUrl = @json($afterLogoutUrl);
 
-            // Create a real form POST (NOT fetch)
-            const form = document.createElement('form');
-            form.method = 'POST';
-            form.action = logoutUrl;
+            // Build IDP logout URL (GET request required by your IDP)
+            const logoutUrl =
+                `${baseLogoutUrl}` +
+                `?client_id=${encodeURIComponent(clientId)}` +
+                `&user_id=${encodeURIComponent(userId)}` +
+                `&redirect_uri=${encodeURIComponent(afterLogoutUrl)}`;
 
-            // client_id
-            const clientInput = document.createElement('input');
-            clientInput.type = 'hidden';
-            clientInput.name = 'client_id';
-            clientInput.value = clientId;
-            form.appendChild(clientInput);
-
-            // access token (if required by IDP)
-            const tokenInput = document.createElement('input');
-            tokenInput.type = 'hidden';
-            tokenInput.name = 'access_token';
-            tokenInput.value = accessToken;
-            form.appendChild(tokenInput);
-
-            // post logout redirect
-            const redirectInput = document.createElement('input');
-            redirectInput.type = 'hidden';
-            redirectInput.name = 'post_logout_redirect_uri';
-            redirectInput.value = afterLogoutUrl;
-            form.appendChild(redirectInput);
-
-            document.body.appendChild(form);
-            form.submit();
+            // Force real browser navigation (clears SSO session)
+            window.location.href = logoutUrl;
         })();
     </script>
 

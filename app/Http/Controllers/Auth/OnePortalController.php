@@ -303,36 +303,12 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
 {
-    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
-    $clientId = (string) config('services.idp.client_id');
-
-    // Get token BEFORE flushing session/cookies
-    $accessToken = $request->cookie('access_token');
-
-    // clear local CMS session first
+    // Clear local CMS session
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    if ($baseUrl === '' || $clientId === '') {
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
-    }
-
-    // Call IDP logout with Bearer token
-    try {
-        if ($accessToken) {
-            Http::withToken($accessToken)
-                ->post($baseUrl . '/api/v1/auth/logout', [
-                    'client_id' => $clientId,
-                ]);
-        }
-    } catch (\Exception $e) {
-        // optional: log failure but don’t block logout
-        \Log::warning('IDP logout failed', ['error' => $e->getMessage()]);
-    }
-
+    // Clear auth cookies
     return redirect()->route('public.landing')
         ->withoutCookie('access_token')
         ->withoutCookie('refresh_token');
