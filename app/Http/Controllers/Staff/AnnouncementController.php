@@ -27,14 +27,7 @@ class AnnouncementController extends Controller
             'NEWS_CREATE', 'NEWS_UPDATE', 'NEWS_DELETE'
         ])
         ->orderByDesc('created_at')
-        ->get()
-        ->map(function ($req) {
-            $details = json_decode($req->details ?? '{}', true);
-
-            $req->image_path = $details['image_path'] ?? null; // ✅ ADD THIS
-
-            return $req;
-        });
+        ->get();
 
     // ✅ Get announcement_ids that currently have PENDING requests (so we hide them from LIVE)
     $pendingAnnIds = DB::table('approval_requests')
