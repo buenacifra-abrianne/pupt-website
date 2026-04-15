@@ -165,7 +165,11 @@
     </div>
 
     <script>
-        window.location.href = "{{ route('superadmin.logout') }}";
+        const idpLogoutUrl = @json($idpLogoutUrl);
+        const afterLogoutUrl = @json($afterLogoutUrl);
+
+        // Open IDP logout in the SAME tab (not iframe)
+        window.location.href = idpLogoutUrl + '&post_logout_redirect_uri=' + encodeURIComponent(afterLogoutUrl);
     </script>
 
     <noscript>

@@ -303,50 +303,24 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
 {
-    $accessToken = session('access_token');
+    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+    $clientId = (string) config('services.idp.client_id');
 
-    $userId = (int) session('user_id', 0);
-    $userName = (string) session('user_name', 'Unknown');
-
-    AuditLog::record(
-        'LOGOUT',
-        'AUTHENTICATION',
-        'User initiated logout.',
-        $userId,
-        [
-            'user_id' => $userId,
-            'user_name' => $userName,
-            'ip_address' => $request->ip(),
-        ]
-    );
-
-    $baseUrl = rtrim(config('services.idp.base_url'), '/');
-    $clientId = config('services.idp.client_id');
-
-    // 🔥 IDP REQUIRED LOGOUT CALL (THIS IS THE ONLY CORRECT ONE)
-    if ($accessToken) {
-        try {
-            Http::withoutVerifying()
-                ->withToken($accessToken)
-                ->asJson()
-                ->post($baseUrl . '/api/v1/auth/logout', [
-                    'client_id' => $clientId,
-                ]);
-        } catch (\Throwable $e) {
-            \Log::warning('IDP logout failed', [
-                'message' => $e->getMessage(),
-            ]);
-        }
-    }
-
-    // 🔥 ALWAYS CLEAR LOCAL SESSION
-    $request->session()->invalidate();
+    // 1. Clear local session FIRST
     $request->session()->flush();
+    $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // 🔥 REMOVE TOKENS (IMPORTANT FOR CLEAN STATE)
-    return redirect()->route('public.landing')
-        ->with('success', 'You have been logged out.');
+    // 2. Use browser-based SSO logout (THIS is the correct one)
+    if ($baseUrl === '' || $clientId === '') {
+        return redirect()->route('public.landing');
+    }
+
+    return response()->view('auth.idp-logout', [
+        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout?client_id=' . urlencode($clientId),
+        'afterLogoutUrl' => route('public.landing'),
+    ])->withoutCookie('access_token')
+      ->withoutCookie('refresh_token');
 }
 
     private function redirectByRole($role)
