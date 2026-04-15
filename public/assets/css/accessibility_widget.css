@@ -731,3 +731,23 @@ body.pup-dark-mode .acc-container [class*="language"] ::-webkit-scrollbar-thumb 
   background: rgba(200, 80, 80, 0.3) !important;
   border-radius: 4px !important;
 }
+
+body.pup-dark-mode .footer-social-link {
+  background: #7f1113;
+  color: #ffffff;
+}
+
+body.pup-dark-mode .footer-social-link svg {
+  fill: #ffffff;
+  color: #ffffff;
+}
+
+body.pup-dark-mode .footer-social-link:hover {
+  background: #f0c85a;
+  color: #000000;
+}
+
+body.pup-dark-mode .footer-social-link:hover svg {
+  fill: #000000;
+  color: #000000;
+}

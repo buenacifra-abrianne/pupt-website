@@ -258,7 +258,9 @@ class CmsController extends Controller
             }
 
             $content = EventsCmsContent::encode(
-                EventsCmsContent::fromInput($eventsInput, $baseEventsEncoded)
+                $sectionKey === 'cards'
+                    ? EventsCmsContent::fromCardsInput($eventsInput['cards'] ?? [], $baseEventsEncoded)
+                    : EventsCmsContent::fromInput($eventsInput, $baseEventsEncoded)
             );
             $title = $baseTitle;
             $baseContent = $baseEventsEncoded;
