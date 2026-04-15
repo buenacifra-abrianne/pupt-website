@@ -303,15 +303,77 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
 {
-    // Clear local CMS session
+    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+    $clientId = (string) config('services.idp.client_id');
+
+    // clear local session first
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // Clear auth cookies
-    return redirect()->route('public.landing')
+    // clear cookies
+    $cookieResponse = response()
         ->withoutCookie('access_token')
         ->withoutCookie('refresh_token');
+
+    if ($baseUrl === '' || $clientId === '') {
+        return $cookieResponse->redirectToRoute('public.landing');
+    }
+
+    $accessToken = $request->cookie('access_token');
+
+    if (!$accessToken) {
+        return $cookieResponse->redirectToRoute('public.landing');
+    }
+
+    /**
+     * 1. Call IDP /me endpoint
+     */
+    $client = new \GuzzleHttp\Client();
+
+    try {
+        $meResponse = $client->get($baseUrl . '/api/v1/auth/me', [
+            'headers' => [
+                'Authorization' => 'Bearer ' . $accessToken,
+                'Accept'        => 'application/json',
+            ]
+        ]);
+
+        $meData = json_decode($meResponse->getBody(), true);
+
+        // IDP user id
+        $idpUserId = $meData['id'] ?? null;
+
+        if (!$idpUserId) {
+            return $cookieResponse->redirectToRoute('public.landing');
+        }
+
+        /**
+         * 2. Find local user via oneportal_id
+         */
+        $user = \App\Models\User::where('oneportal_id', $idpUserId)->first();
+
+        if (!$user) {
+            return $cookieResponse->redirectToRoute('public.landing');
+        }
+
+        /**
+         * 3. Construct logout URL
+         */
+        $logoutUrl = $baseUrl . '/logout?' . http_build_query([
+            'client_id' => $clientId,
+            'user_id'   => $idpUserId,
+        ]);
+
+        /**
+         * 4. Redirect to IDP logout
+         */
+        return $cookieResponse->redirect()->away($logoutUrl);
+
+    } catch (\Throwable $e) {
+        // fallback safe logout
+        return $cookieResponse->redirectToRoute('public.landing');
+    }
 }
 
     private function redirectByRole($role)

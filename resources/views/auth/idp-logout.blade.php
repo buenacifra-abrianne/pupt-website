@@ -165,22 +165,7 @@
     </div>
 
     <script>
-         (function () {
-            const baseLogoutUrl = @json($idpLogoutUrl);
-            const clientId = @json($clientId);
-            const userId = @json($userId);
-            const afterLogoutUrl = @json($afterLogoutUrl);
-
-            // Build IDP logout URL (GET request required by your IDP)
-            const logoutUrl =
-                `${baseLogoutUrl}` +
-                `?client_id=${encodeURIComponent(clientId)}` +
-                `&user_id=${encodeURIComponent(userId)}` +
-                `&redirect_uri=${encodeURIComponent(afterLogoutUrl)}`;
-
-            // Force real browser navigation (clears SSO session)
-            window.location.href = logoutUrl;
-        })();
+        window.location.href = @json($idpLogoutUrl);
     </script>
 
     <noscript>
