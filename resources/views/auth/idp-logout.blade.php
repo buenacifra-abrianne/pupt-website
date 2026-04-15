@@ -165,11 +165,49 @@
     </div>
 
     <script>
-        const idpLogoutUrl = @json($idpLogoutUrl);
-        const afterLogoutUrl = @json($afterLogoutUrl);
+        (async function () {
+            const logoutUrl = @json($idpLogoutUrl);
+            const clientId = @json($clientId);
+            const accessToken = @json($accessToken);
+            const afterLogoutUrl = @json($afterLogoutUrl);
 
-        // Open IDP logout in the SAME tab (not iframe)
-        window.location.href = idpLogoutUrl + '&post_logout_redirect_uri=' + encodeURIComponent(afterLogoutUrl);
+            try {
+                const response = await fetch(logoutUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'Authorization': `Bearer ${accessToken}`,
+                    },
+                    body: JSON.stringify({
+                        client_id: clientId
+                    })
+                });
+
+                let data = null;
+                try {
+                    data = await response.json();
+                } catch (_) {
+                    // ignore if no JSON body
+                }
+
+                console.log('IDP logout response:', {
+                    status: response.status,
+                    ok: response.ok,
+                    data: data
+                });
+
+                // ✅ Only redirect if logout succeeded
+                if (response.ok) {
+                    window.location.href = afterLogoutUrl;
+                } else {
+                    console.error('Logout failed, staying on page.');
+                }
+
+            } catch (error) {
+                console.error('IDP logout failed:', error);
+            }
+        })();
     </script>
 
     <noscript>

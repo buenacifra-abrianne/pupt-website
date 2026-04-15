@@ -306,21 +306,36 @@ class OnePortalController extends Controller
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // 1. Clear local session FIRST
+    // Get token BEFORE flushing session/cookies
+    $accessToken = $request->cookie('access_token');
+
+    // clear local CMS session first
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    // 2. Use browser-based SSO logout (THIS is the correct one)
     if ($baseUrl === '' || $clientId === '') {
-        return redirect()->route('public.landing');
+        return redirect()->route('public.landing')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
     }
 
-    return response()->view('auth.idp-logout', [
-        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout?client_id=' . urlencode($clientId),
-        'afterLogoutUrl' => route('public.landing'),
-    ])->withoutCookie('access_token')
-      ->withoutCookie('refresh_token');
+    // Call IDP logout with Bearer token
+    try {
+        if ($accessToken) {
+            Http::withToken($accessToken)
+                ->post($baseUrl . '/api/v1/auth/logout', [
+                    'client_id' => $clientId,
+                ]);
+        }
+    } catch (\Exception $e) {
+        // optional: log failure but don’t block logout
+        \Log::warning('IDP logout failed', ['error' => $e->getMessage()]);
+    }
+
+    return redirect()->route('public.landing')
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
 }
 
     private function redirectByRole($role)
