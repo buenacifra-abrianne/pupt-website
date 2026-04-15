@@ -28,7 +28,7 @@ class CheckIdpSession
         ]);
 
         // If invalid → force logout locally
-        if (!$response->successful()) {
+        if (!$response->ok() || $response->status() === 401) {
             $request->session()->flush();
             $request->session()->invalidate();
             $request->session()->regenerateToken();

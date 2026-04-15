@@ -165,19 +165,8 @@
     </div>
 
     <script>
-const idpBrowserLogoutUrl = @json($idpBrowserLogoutUrl);
-
-// silently call IDP logout
-const iframe = document.createElement('iframe');
-iframe.style.display = 'none';
-iframe.src = idpBrowserLogoutUrl;
-document.body.appendChild(iframe);
-
-// after logout, go to landing
-setTimeout(() => {
-    window.location.href = "{{ route('public.landing') }}";
-}, 1500);
-</script>
+        window.location.href = "{{ route('superadmin.logout') }}";
+    </script>
 
     <noscript>
         JavaScript is required to complete logout.
