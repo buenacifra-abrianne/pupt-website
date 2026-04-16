@@ -181,7 +181,7 @@
                       data-content="{{ e(\App\Support\RichText::plainText($n->content)) }}"
                       data-link="{{ e($n->link ?? '') }}"
                     >
-                      Read more
+                      Read More
                     </button>
                   </div>
                 </div>
@@ -227,7 +227,7 @@
                     data-content="{{ e(\App\Support\RichText::plainText($a->content)) }}"
                     data-link="{{ e($a->link ?? '') }}"
                   >
-                    Read more
+                    Read More
                   </button>
                 </article>
               @empty
@@ -331,7 +331,7 @@
             rel="noopener noreferrer"
             hidden
           >
-            Open original link
+            Open Original Link
           </a>
         </div>
       </div>

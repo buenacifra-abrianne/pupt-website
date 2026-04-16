@@ -847,13 +847,14 @@ document.addEventListener("DOMContentLoaded", () => {
     date.textContent = trigger.dataset.date || "";
     renderAdvisoryContent(trigger.dataset.content || "", trigger.dataset.contentHtml || "");
 
-    const advisoryLink = trigger.dataset.link || "";
-    if (advisoryLink) {
-      link.href = advisoryLink;
-      link.hidden = false;
+    const rawLink = trigger.getAttribute('data-link');
+
+    if (rawLink && rawLink.trim() !== '' && rawLink !== 'null') {
+      link.href = rawLink.trim();
+      link.removeAttribute('hidden');
     } else {
-      link.href = "#";
-      link.hidden = true;
+      link.removeAttribute('href'); // 🔥 important
+      link.setAttribute('hidden', 'true');
     }
 
     openModal();
