@@ -141,31 +141,55 @@
                 </div>
             </section>
 
-            @if(!$cmsPreview && $featuredCard)
-                <section id="featuredEventMount" class="ne-featured reveal" aria-label="Featured event">
-                    <div class="ne-featured-img">
-                        <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $featuredCard['title'] ?? 'Featured event' }}">
-                        <span class="ne-featured-badge">Featured Event</span>
-                    </div>
-                    <div class="ne-featured-body">
-                        <span class="ne-tag">{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}</span>
-                        <h2 class="ne-featured-title">{{ $featuredCard['title'] ?? '' }}</h2>
-                        <p class="ne-featured-meta">{{ $formatDateLine($featuredCard) }}</p>
-                        <p class="ne-featured-desc">{{ $summaryFor($featuredCard) }}</p>
-                        <a
-                            href="#"
-                            class="ne-btn-gold"
-                            data-ne-modal-trigger
-                            data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}"
-                            data-date="{{ $formatDateLine($featuredCard) }}"
-                            data-title="{{ $featuredCard['title'] ?? '' }}"
-                            data-summary="{{ e($summaryFor($featuredCard)) }}"
-                            data-location="{{ $featuredCard['location'] ?? '' }}"
-                            data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
-                            data-content-html="{{ e(\App\Support\RichText::sanitize($featuredCard['content'] ?? '')) }}"
+            @if($featuredCard)
+                <section
+                    id="featuredEventMount"
+                    class="ne-featured reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                    aria-label="Featured event"
+                    @if($cmsPreview)
+                        data-cms-section="cards"
+                        data-cms-section-label="Featured Event"
+                        data-cms-featured-card-index="{{ $featuredCard['source_index'] ?? 0 }}"
+                    @endif
+                >
+                    @if($cmsPreview)
+                        <button
+                            type="button"
+                            class="cms-preview-chip"
+                            data-cms-featured-edit-trigger
+                            aria-label="Edit Featured Event"
                         >
-                            Learn More
-                        </a>
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                            </svg>
+                        </button>
+                    @endif
+
+                    <div data-cms-boundary class="cms-preview-boundary-full">
+                        <div class="ne-featured-img">
+                            <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $featuredCard['title'] ?? 'Featured event' }}">
+                            <span class="ne-featured-badge">Featured Event</span>
+                        </div>
+                        <div class="ne-featured-body">
+                            <span class="ne-tag">{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}</span>
+                            <h2 class="ne-featured-title">{{ $featuredCard['title'] ?? '' }}</h2>
+                            <p class="ne-featured-meta">{{ $formatDateLine($featuredCard) }}</p>
+                            <p class="ne-featured-desc">{{ $summaryFor($featuredCard) }}</p>
+                            <a
+                                href="#"
+                                class="ne-btn-gold"
+                                data-ne-modal-trigger
+                                data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}"
+                                data-date="{{ $formatDateLine($featuredCard) }}"
+                                data-title="{{ $featuredCard['title'] ?? '' }}"
+                                data-summary="{{ e($summaryFor($featuredCard)) }}"
+                                data-location="{{ $featuredCard['location'] ?? '' }}"
+                                data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
+                                data-content-html="{{ e(\App\Support\RichText::sanitize($featuredCard['content'] ?? '')) }}"
+                            >
+                                Learn More
+                            </a>
+                        </div>
                     </div>
                 </section>
             @endif
@@ -325,6 +349,7 @@
     @if($cmsPreview)
         <style>
             .ne-page-intro,
+            .ne-featured,
             .ne-events-main {
                 --cms-preview-outline-offset: 12px;
                 --cms-preview-chip-top-offset: 50%;
@@ -444,6 +469,7 @@
 
             @media (max-width: 768px) {
                 .ne-page-intro,
+                .ne-featured,
                 .ne-events-main {
                     --cms-preview-outline-offset: 8px;
                     --cms-preview-chip-right-offset: 8px;
@@ -469,6 +495,8 @@
             const revealElements = Array.from(document.querySelectorAll('.reveal'));
             const filters = Array.from(document.querySelectorAll('.ne-filter'));
             const addCardTrigger = document.querySelector('[data-cms-add-card-trigger]');
+            const featuredSection = document.querySelector('[data-cms-featured-card-index]');
+            const featuredEditTrigger = document.querySelector('[data-cms-featured-edit-trigger]');
             const emptyState = document.querySelector('[data-ne-empty-state]');
             const modal = document.getElementById('detailsModal');
             const modalImg = document.getElementById('modalImg');
@@ -710,6 +738,17 @@
                 event.preventDefault();
                 event.stopPropagation();
                 requestAddCard();
+            });
+
+            featuredEditTrigger?.addEventListener('click', (event) => {
+                const featuredCardIndex = Number(featuredSection?.getAttribute('data-cms-featured-card-index'));
+                if (!Number.isFinite(featuredCardIndex)) {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                requestEditCard(featuredCardIndex);
             });
 
             addCardTrigger?.addEventListener('keydown', (event) => {

@@ -15,12 +15,13 @@ class AnnouncementController extends Controller
     public function index()
 {
     $email  = (string) session('user_email');
+    $normalizedEmail = strtolower(trim($email));
     $name   = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
     $userId = (int) (session('user_id') ?? 0);
 
     // Staff sees THEIR requests only (Announcements + News)
     $myRequests = DB::table('approval_requests')
-        ->where('requester_email', $email)
+        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
         ->whereIn('type', [
             'ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_DELETE',
             'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE',
@@ -31,8 +32,8 @@ class AnnouncementController extends Controller
 
     // ✅ Get announcement_ids that currently have PENDING requests (so we hide them from LIVE)
     $pendingAnnIds = DB::table('approval_requests')
-        ->where('requester_email', $email)
-        ->where('status', 'pending')
+        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(status) = ?', ['pending'])
         ->whereIn('type', ['ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
         ->get()
         ->map(function ($r) {
@@ -46,9 +47,32 @@ class AnnouncementController extends Controller
 
     // ✅ LIVE = approved announcements created by this admin,
     // minus those with pending changes
+    $approvedAnnouncementIds = DB::table('approval_requests')
+        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(status) = ?', ['approved'])
+        ->whereIn('type', ['ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE'])
+        ->get()
+        ->map(function ($r) {
+            $p = json_decode($r->details ?? '{}', true) ?: [];
+            return (int)($p['announcement_id'] ?? 0);
+        })
+        ->filter(fn($id) => $id > 0)
+        ->unique()
+        ->values()
+        ->all();
+
     $myAnnouncements = DB::table('announcements')
-        ->where('created_by', $userId)
-        ->when(count($pendingAnnIds) > 0, function ($q) use ($pendingAnnIds) {
+        ->where(function ($q) use ($userId, $approvedAnnouncementIds) {
+            if ($userId > 0) {
+                $q->where('created_by', $userId);
+            }
+
+            if ($approvedAnnouncementIds !== []) {
+                $method = $userId > 0 ? 'orWhereIn' : 'whereIn';
+                $q->{$method}('announcement_id', $approvedAnnouncementIds);
+            }
+        })
+        ->when($pendingAnnIds !== [], function ($q) use ($pendingAnnIds) {
             $q->whereNotIn('announcement_id', $pendingAnnIds);
         })
         ->orderByDesc('created_at')
@@ -56,8 +80,8 @@ class AnnouncementController extends Controller
 
 // ✅ Get news_ids that currently have PENDING requests (hide from LIVE)
 $pendingNewsIds = DB::table('approval_requests')
-    ->where('requester_email', $email)
-    ->where('status', 'pending')
+    ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+    ->whereRaw('LOWER(status) = ?', ['pending'])
     ->whereIn('type', ['NEWS_UPDATE','NEWS_DELETE'])
     ->get()
     ->map(function ($r) {
@@ -71,10 +95,33 @@ $pendingNewsIds = DB::table('approval_requests')
 
 // ✅ LIVE = approved news created by this admin,
 // minus those with pending changes
-$myNews = DB::table('news')
-    ->where('created_by', $userId)
+    $approvedNewsIds = DB::table('approval_requests')
+        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(status) = ?', ['approved'])
+        ->whereIn('type', ['NEWS_CREATE', 'NEWS_UPDATE'])
+        ->get()
+        ->map(function ($r) {
+            $p = json_decode($r->details ?? '{}', true) ?: [];
+            return (int)($p['news_id'] ?? 0);
+        })
+        ->filter(fn($id) => $id > 0)
+        ->unique()
+        ->values()
+        ->all();
+
+ $myNews = DB::table('news')
+    ->where(function ($q) use ($userId, $approvedNewsIds) {
+        if ($userId > 0) {
+            $q->where('created_by', $userId);
+        }
+
+        if ($approvedNewsIds !== []) {
+            $method = $userId > 0 ? 'orWhereIn' : 'whereIn';
+            $q->{$method}('news_id', $approvedNewsIds);
+        }
+    })
     ->where('status', 'APPROVED') // keep it clean for public consistency
-    ->when(count($pendingNewsIds) > 0, function ($q) use ($pendingNewsIds) {
+    ->when($pendingNewsIds !== [], function ($q) use ($pendingNewsIds) {
         $q->whereNotIn('news_id', $pendingNewsIds);
     })
     ->orderByDesc('created_at')

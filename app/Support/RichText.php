@@ -15,12 +15,12 @@ class RichText
     private const ALLOWED_TAGS = [
         'p' => ['style'],
         'br' => [],
-        'strong' => [],
-        'b' => [],
-        'em' => [],
-        'i' => [],
-        'u' => [],
-        's' => [],
+        'strong' => ['style'],
+        'b' => ['style'],
+        'em' => ['style'],
+        'i' => ['style'],
+        'u' => ['style'],
+        's' => ['style'],
         'span' => ['style'],
         'ul' => [],
         'ol' => [],
@@ -104,6 +104,11 @@ class RichText
     private static function sanitizeElement(DOMElement $element): void
     {
         $tagName = strtolower($element->tagName);
+
+        if ($tagName === 'font') {
+            self::convertFontElementToSpan($element);
+            return;
+        }
 
         if (!array_key_exists($tagName, self::ALLOWED_TAGS)) {
             self::unwrapNode($element);
@@ -269,6 +274,67 @@ class RichText
         $value = strtolower(trim($value));
 
         return in_array($value, ['inline', 'inline-block', 'block'], true) ? $value : '';
+    }
+
+    private static function convertFontElementToSpan(DOMElement $element): void
+    {
+        $document = $element->ownerDocument;
+        $parent = $element->parentNode;
+
+        if (!$document || !$parent) {
+            self::unwrapNode($element);
+
+            return;
+        }
+
+        $replacement = $document->createElement('span');
+        $styles = [];
+
+        $color = trim((string) $element->getAttribute('color'));
+        if ($color !== '') {
+            $styles[] = 'color: '.$color;
+        }
+
+        $size = self::fontTagSizeToCssValue($element->getAttribute('size'));
+        if ($size !== '') {
+            $styles[] = 'font-size: '.$size;
+        }
+
+        $inlineStyle = trim((string) $element->getAttribute('style'));
+        if ($inlineStyle !== '') {
+            $styles[] = $inlineStyle;
+        }
+
+        if ($styles !== []) {
+            $replacement->setAttribute('style', implode('; ', $styles));
+        }
+
+        while ($element->firstChild) {
+            $replacement->appendChild($element->firstChild);
+        }
+
+        $parent->replaceChild($replacement, $element);
+        self::sanitizeElement($replacement);
+    }
+
+    private static function fontTagSizeToCssValue(?string $size): string
+    {
+        $value = trim((string) $size);
+        if ($value === '') {
+            return '';
+        }
+
+        $mappedSizes = [
+            '1' => '10px',
+            '2' => '13px',
+            '3' => '16px',
+            '4' => '18px',
+            '5' => '24px',
+            '6' => '32px',
+            '7' => '48px',
+        ];
+
+        return $mappedSizes[$value] ?? '';
     }
 
     private static function unwrapNode(DOMElement $element): void

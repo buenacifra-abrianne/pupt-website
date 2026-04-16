@@ -306,14 +306,14 @@ input[name="title"] {
     margin: 0.4rem 0 0.8rem;
 }
 
-.rich-text-content strong,
-.rich-text-content b,
-.rich-text-content em,
-.rich-text-content i,
-.rich-text-content u,
-.rich-text-content s,
-.rich-text-content a {
-    color: inherit !important;
+.rich-text-content strong:not([style*="color"]),
+.rich-text-content b:not([style*="color"]),
+.rich-text-content em:not([style*="color"]),
+.rich-text-content i:not([style*="color"]),
+.rich-text-content u:not([style*="color"]),
+.rich-text-content s:not([style*="color"]),
+.rich-text-content a:not([style*="color"]) {
+    color: inherit;
 }
 
 .rich-editor-surface * {

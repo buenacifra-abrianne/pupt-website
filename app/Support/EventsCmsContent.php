@@ -114,6 +114,38 @@ class EventsCmsContent
         return asset($normalized);
     }
 
+    public static function displayCollections(iterable $cards, ?string $today = null): array
+    {
+        $sortedCards = collect($cards)
+            ->filter(fn ($card) => is_array($card))
+            ->sortBy(fn (array $card) => self::cardSortKey($card))
+            ->values();
+
+        $todayKey = self::sanitizeDate($today ?? '') ?: now()->toDateString();
+
+        $activeCards = $sortedCards
+            ->reject(fn (array $card) => self::isExpiredCard($card, $todayKey))
+            ->values();
+
+        $expiredCards = $sortedCards
+            ->filter(fn (array $card) => self::isExpiredCard($card, $todayKey))
+            ->sortByDesc(fn (array $card) => self::cardSortKey($card))
+            ->values();
+
+        return [
+            'all' => $sortedCards,
+            'active' => $activeCards,
+            'expired' => $expiredCards,
+            'featured' => $activeCards->first(fn (array $card) => self::toBool($card['featured'] ?? false)),
+            'ongoing' => $activeCards
+                ->filter(fn (array $card) => ($card['event_date'] ?? '') === $todayKey)
+                ->values(),
+            'upcoming' => $activeCards
+                ->filter(fn (array $card) => ($card['event_date'] ?? '') > $todayKey)
+                ->values(),
+        ];
+    }
+
     private static function normalize(array $source, array $base): array
     {
         $defaults = self::defaults();
@@ -223,6 +255,20 @@ class EventsCmsContent
         $time = trim((string) $value);
 
         return preg_match('/^\d{2}:\d{2}$/', $time) === 1 ? $time : '';
+    }
+
+    private static function cardSortKey(array $card): string
+    {
+        return ($card['event_date'] ?? '9999-12-31')
+            .'|'.($card['start_time'] ?? '99:99')
+            .'|'.($card['title'] ?? '');
+    }
+
+    private static function isExpiredCard(array $card, string $today): bool
+    {
+        $eventDate = self::sanitizeDate($card['event_date'] ?? '');
+
+        return $eventDate !== '' && $eventDate < $today;
     }
 
     private static function pickString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
