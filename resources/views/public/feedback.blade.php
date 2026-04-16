@@ -36,7 +36,7 @@
       @csrf
 
       <div class="feedback-item" data-question="q1">
-        <p class="question">1. Question...</p>
+        <p class="question">1. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="options">
           <label><input type="radio" name="q1" value="4" {{ old('q1') == '4' ? 'checked' : '' }}> 4 - Outstanding</label>
           <label><input type="radio" name="q1" value="3" {{ old('q1') == '3' ? 'checked' : '' }}> 3 - Very Satisfactory</label>
@@ -47,7 +47,7 @@
       </div>
 
       <div class="feedback-item" data-question="q2">
-        <p class="question">2. Question...</p>
+        <p class="question">2. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="options">
           <label><input type="radio" name="q2" value="4" {{ old('q2') == '4' ? 'checked' : '' }}> 4 - Outstanding</label>
           <label><input type="radio" name="q2" value="3" {{ old('q2') == '3' ? 'checked' : '' }}> 3 - Very Satisfactory</label>
@@ -58,7 +58,7 @@
       </div>
 
       <div class="feedback-item" data-question="q3">
-        <p class="question">3. Question...</p>
+        <p class="question">3. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="options">
           <label><input type="radio" name="q3" value="4" {{ old('q3') == '4' ? 'checked' : '' }}> 4 - Outstanding</label>
           <label><input type="radio" name="q3" value="3" {{ old('q3') == '3' ? 'checked' : '' }}> 3 - Very Satisfactory</label>
@@ -69,7 +69,7 @@
       </div>
 
       <div class="feedback-item" data-question="q4">
-        <p class="question">4. Question...</p>
+        <p class="question">4. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="options">
           <label><input type="radio" name="q4" value="4" {{ old('q4') == '4' ? 'checked' : '' }}> 4 - Outstanding</label>
           <label><input type="radio" name="q4" value="3" {{ old('q4') == '3' ? 'checked' : '' }}> 3 - Very Satisfactory</label>
@@ -80,7 +80,7 @@
       </div>
 
       <div class="feedback-item" data-question="q5">
-        <p class="question">5. Question...</p>
+        <p class="question">5. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="options">
           <label><input type="radio" name="q5" value="4" {{ old('q5') == '4' ? 'checked' : '' }}> 4 - Outstanding</label>
           <label><input type="radio" name="q5" value="3" {{ old('q5') == '3' ? 'checked' : '' }}> 3 - Very Satisfactory</label>
@@ -91,7 +91,7 @@
       </div>
 
       <div class="feedback-item" data-question="q6">
-        <p class="question">6. Question...</p>
+        <p class="question">6. QLorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
         <div class="options">
           <label><input type="radio" name="q6" value="4" {{ old('q6') == '4' ? 'checked' : '' }}> 4 - Outstanding</label>
           <label><input type="radio" name="q6" value="3" {{ old('q6') == '3' ? 'checked' : '' }}> 3 - Very Satisfactory</label>
