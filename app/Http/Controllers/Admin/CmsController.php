@@ -62,6 +62,8 @@ class CmsController extends Controller
             'content' => ['nullable', 'string'],
             'home_quick_links_version' => ['nullable'],
             'home_active_quick_link_index' => ['nullable'],
+            'home_feedback_questions_version' => ['nullable'],
+            'home_active_feedback_question_index' => ['nullable'],
             'about_contents_version' => ['nullable'],
             'about_active_contents_slug' => ['nullable', 'string'],
             'academics_contents_version' => ['nullable'],
@@ -82,6 +84,8 @@ class CmsController extends Controller
             'events' => ['nullable', 'array'],
             'about.sections' => ['nullable', 'array'],
             'about.sections.*.visible_in_contents' => ['nullable'],
+            'about.sections.*.image' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.image_file' => ['nullable', 'image', 'max:5120'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
             'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
@@ -105,6 +109,8 @@ class CmsController extends Controller
             'home.feedback.title' => ['nullable', 'string', 'max:255'],
             'home.feedback.description' => ['nullable', 'string'],
             'home.feedback.button_label' => ['nullable', 'string', 'max:120'],
+            'home.feedback.questions' => ['nullable', 'array', 'max:10'],
+            'home.feedback.questions.*.question' => ['nullable', 'string'],
             'home.carousel' => ['nullable', 'array'],
             'home.carousel.*.title' => ['nullable', 'string', 'max:255'],
             'home.carousel.*.subtitle' => ['nullable', 'string', 'max:255'],
@@ -119,6 +125,7 @@ class CmsController extends Controller
             'academics.contents.items.*.label' => ['nullable', 'string', 'max:255'],
             'academics.contents.items.*.summary' => ['nullable', 'string'],
             'academics.contents.items.*.image' => ['nullable', 'string', 'max:2048'],
+            'academics.contents.items.*.image_file' => ['nullable', 'image', 'max:5120'],
             'academics.intro' => ['nullable', 'array'],
             'academics.intro.body' => ['nullable', 'string'],
             'academics.features' => ['nullable', 'array'],
@@ -134,6 +141,8 @@ class CmsController extends Controller
             'research.cards.*.title' => ['nullable', 'string', 'max:255'],
             'research.cards.*.description' => ['nullable', 'string'],
             'research.cards.*.link' => ['nullable', 'string', 'max:2048'],
+            'research.cards.*.image' => ['nullable', 'string', 'max:2048'],
+            'research.cards.*.image_file' => ['nullable', 'image', 'max:5120'],
             'students.page' => ['nullable', 'array'],
             'students.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'students.page.title' => ['nullable', 'string', 'max:255'],
@@ -143,6 +152,8 @@ class CmsController extends Controller
             'students.cards.*.title' => ['nullable', 'string', 'max:255'],
             'students.cards.*.description' => ['nullable', 'string'],
             'students.cards.*.link' => ['nullable', 'string', 'max:2048'],
+            'students.cards.*.image' => ['nullable', 'string', 'max:2048'],
+            'students.cards.*.image_file' => ['nullable', 'image', 'max:5120'],
             'students.organization_sections' => ['nullable', 'array'],
             'students.organization_sections.*.title' => ['nullable', 'string', 'max:255'],
             'students.organization_sections.*.items' => ['nullable', 'array'],
@@ -150,6 +161,7 @@ class CmsController extends Controller
             'students.organization_sections.*.items.*.abbr' => ['nullable', 'string', 'max:255'],
             'students.organization_sections.*.items.*.link' => ['nullable', 'string', 'max:2048'],
             'students.organization_sections.*.items.*.image' => ['nullable', 'string', 'max:2048'],
+            'students.organization_sections.*.items.*.image_file' => ['nullable', 'image', 'max:5120'],
             'events.page' => ['nullable', 'array'],
             'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'events.page.title' => ['nullable', 'string', 'max:255'],
@@ -246,6 +258,21 @@ class CmsController extends Controller
                 $sectionKey
             );
 
+            if ($sectionKey === '' || $sectionKey === 'contents') {
+                $sectionUploads = $request->file('about.sections', []);
+
+                if (is_array($sectionUploads)) {
+                    foreach ($sectionUploads as $slug => $sectionUpload) {
+                        $upload = is_array($sectionUpload) ? ($sectionUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $aboutInput['sections'][$slug]['image'] = $upload->store('about/sections', 'public');
+                    }
+                }
+            }
+
             $content = AboutCmsContent::encode(
                 AboutCmsContent::fromInput($aboutInput, $baseAboutEncoded)
             );
@@ -259,6 +286,18 @@ class CmsController extends Controller
                 $sectionKey
             );
 
+            $academicsUploads = $request->file('academics.contents.items', []);
+            if (is_array($academicsUploads)) {
+                foreach ($academicsUploads as $index => $itemUpload) {
+                    $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
+                    if (!$upload instanceof UploadedFile) {
+                        continue;
+                    }
+
+                    $academicsInput['contents']['items'][$index]['image'] = $upload->store('academics/contents', 'public');
+                }
+            }
+
             $content = AcademicsCmsContent::encode(
                 AcademicsCmsContent::fromInput($academicsInput, $baseAcademicsEncoded)
             );
@@ -271,6 +310,37 @@ class CmsController extends Controller
                 is_array($data['students'] ?? null) ? $data['students'] : [],
                 $sectionKey
             );
+
+            $studentCardUploads = $request->file('students.cards', []);
+            if (is_array($studentCardUploads)) {
+                foreach ($studentCardUploads as $index => $cardUpload) {
+                    $upload = is_array($cardUpload) ? ($cardUpload['image_file'] ?? null) : null;
+                    if (!$upload instanceof UploadedFile) {
+                        continue;
+                    }
+
+                    $studentsInput['cards'][$index]['image'] = $upload->store('students/cards', 'public');
+                }
+            }
+
+            $organizationUploads = $request->file('students.organization_sections', []);
+            if (is_array($organizationUploads)) {
+                foreach ($organizationUploads as $sectionIndex => $sectionUpload) {
+                    $itemUploads = is_array($sectionUpload) ? ($sectionUpload['items'] ?? []) : [];
+                    if (!is_array($itemUploads)) {
+                        continue;
+                    }
+
+                    foreach ($itemUploads as $orgIndex => $itemUpload) {
+                        $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $studentsInput['organization_sections'][$sectionIndex]['items'][$orgIndex]['image'] = $upload->store('students/organizations', 'public');
+                    }
+                }
+            }
 
             $content = StudentsCmsContent::encode(
                 $sectionKey === 'cards'
@@ -288,6 +358,18 @@ class CmsController extends Controller
                 is_array($data['research'] ?? null) ? $data['research'] : [],
                 $sectionKey
             );
+
+            $researchCardUploads = $request->file('research.cards', []);
+            if (is_array($researchCardUploads)) {
+                foreach ($researchCardUploads as $index => $cardUpload) {
+                    $upload = is_array($cardUpload) ? ($cardUpload['image_file'] ?? null) : null;
+                    if (!$upload instanceof UploadedFile) {
+                        continue;
+                    }
+
+                    $researchInput['cards'][$index]['image'] = $upload->store('research/cards', 'public');
+                }
+            }
 
             $content = ResearchCmsContent::encode(
                 $sectionKey === 'cards'
@@ -489,7 +571,7 @@ class CmsController extends Controller
                 'overview' => array_intersect_key($overview, array_flip(['contents_tag', 'contents_title'])),
                 'sections' => collect($sections)
                     ->map(fn ($section) => is_array($section)
-                        ? array_intersect_key($section, array_flip(['label', 'summary']))
+                        ? array_intersect_key($section, array_flip(['label', 'summary', 'image', 'visible_in_contents']))
                         : [])
                     ->all(),
             ],
@@ -577,7 +659,7 @@ class CmsController extends Controller
             'cards' => [
                 'cards' => collect(data_get($studentsInput, 'cards', []))
                     ->map(fn ($item) => is_array($item)
-                        ? array_intersect_key($item, array_flip(['title', 'description', 'link']))
+                        ? array_intersect_key($item, array_flip(['title', 'description', 'link', 'image']))
                         : [])
                     ->all(),
             ],
@@ -618,7 +700,7 @@ class CmsController extends Controller
             'cards' => [
                 'cards' => collect(data_get($researchInput, 'cards', []))
                     ->map(fn ($item) => is_array($item)
-                        ? array_intersect_key($item, array_flip(['title', 'description', 'link']))
+                        ? array_intersect_key($item, array_flip(['title', 'description', 'link', 'image']))
                         : [])
                     ->all(),
             ],

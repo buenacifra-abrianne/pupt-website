@@ -464,6 +464,22 @@
                                         <span class="feedback-question-label">Q6</span>
                                         <span class="feedback-question-value" id="fbQ6Avg">0.00 / 4</span>
                                     </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q7</span>
+                                        <span class="feedback-question-value" id="fbQ7Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q8</span>
+                                        <span class="feedback-question-value" id="fbQ8Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q9</span>
+                                        <span class="feedback-question-value" id="fbQ9Avg">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row">
+                                        <span class="feedback-question-label">Q10</span>
+                                        <span class="feedback-question-value" id="fbQ10Avg">0.00 / 4</span>
+                                    </div>
                                     <div class="feedback-question-row total">
                                         <span class="feedback-question-label">Total Average</span>
                                         <span class="feedback-question-value" id="fbAverageTotal">0.00 / 4</span>
@@ -949,12 +965,9 @@ async function postJSON(url, data) {
             return n;
         };
 
-        const q1 = toSafeAvg(results.question_1_avg);
-        const q2 = toSafeAvg(results.question_2_avg);
-        const q3 = toSafeAvg(results.question_3_avg);
-        const q4 = toSafeAvg(results.question_4_avg);
-        const q5 = toSafeAvg(results.question_5_avg);
-        const q6 = toSafeAvg(results.question_6_avg);
+        const questionAverages = Array.from({ length: 10 }, (_, index) =>
+            toSafeAvg(results[`question_${index + 1}_avg`])
+        );
         const overallAverage = toSafeAvg(results.overall_average);
         const totalResponses = toSafeCount(results.total_responses);
 
@@ -971,12 +984,9 @@ async function postJSON(url, data) {
 
         const finalResult = String(results.final_rating || '').trim() || ratingFromAverage(overallAverage);
 
-        setTextSafe('fbQ1Avg', `${q1.toFixed(2)} / 4`);
-        setTextSafe('fbQ2Avg', `${q2.toFixed(2)} / 4`);
-        setTextSafe('fbQ3Avg', `${q3.toFixed(2)} / 4`);
-        setTextSafe('fbQ4Avg', `${q4.toFixed(2)} / 4`);
-        setTextSafe('fbQ5Avg', `${q5.toFixed(2)} / 4`);
-        setTextSafe('fbQ6Avg', `${q6.toFixed(2)} / 4`);
+        questionAverages.forEach((value, index) => {
+            setTextSafe(`fbQ${index + 1}Avg`, `${value.toFixed(2)} / 4`);
+        });
         setTextSafe('fbAverageTotal', `${overallAverage.toFixed(2)} / 4`);
         setTextSafe('fbFinalResultText', finalResult);
 

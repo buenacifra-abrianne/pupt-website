@@ -16,21 +16,25 @@ class StudentsCmsContent
                 'title' => 'Student Handbook',
                 'description' => 'Guidelines, policies, and procedures that govern student life at PUP Taguig Campus.',
                 'link' => 'https://drive.google.com/file/d/0B1BuDAuN0r8SX1BWX2NSN3FURzg/view?resourcekey=0-oi8lUy9PCFysh0FDyL5ipw',
+                'image' => 'assets/static_img/pupillar.jpeg',
             ],
             [
                 'title' => 'PUPSIS',
                 'description' => 'Access the PUP Student Information System for enrollment, grades, and academic records.',
                 'link' => 'https://sis.pup.edu.ph/',
+                'image' => 'assets/static_img/pupillar.jpeg',
             ],
             [
                 'title' => 'ODRS',
                 'description' => 'Request official documents and records online through the PUP Online Document Request System.',
                 'link' => 'https://odrs.pup.edu.ph/',
+                'image' => 'assets/static_img/pupillar.jpeg',
             ],
             [
                 'title' => 'Downloadable Forms',
                 'description' => 'Access and download official forms needed for various student transactions and requests.',
                 'link' => '#',
+                'image' => 'assets/static_img/pupillar.jpeg',
             ],
         ],
         'organization_sections' => [
@@ -240,19 +244,22 @@ class StudentsCmsContent
 
             $defaultItem = is_array($defaultItems[$index] ?? null)
                 ? $defaultItems[$index]
-                : ['title' => '', 'description' => '', 'link' => ''];
+                : ['title' => '', 'description' => '', 'link' => '', 'image' => 'assets/static_img/pupillar.jpeg'];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
             $normalized = [
                 'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
                 'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
                 'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, ''),
+                'image' => self::sanitizeString((string) ($item['image'] ?? ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg')), 2048, 'assets/static_img/pupillar.jpeg'),
             ];
+            $hasExplicitImage = trim((string) ($item['image'] ?? '')) !== '';
 
             if (
                 $normalized['title'] === ''
                 && $normalized['description'] === ''
                 && $normalized['link'] === ''
+                && !$hasExplicitImage
             ) {
                 continue;
             }

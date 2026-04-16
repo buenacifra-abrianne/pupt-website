@@ -478,6 +478,7 @@
 
       .quick-link-card[data-home-quick-link-card] {
         position: relative;
+        cursor: default;
         transition: none !important;
         animation: none !important;
         transform: none !important;
@@ -516,6 +517,7 @@
         align-items: center;
         justify-content: center;
         box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+        cursor: pointer;
         font-size: 0.78rem;
         font-weight: 700;
       }
@@ -722,6 +724,10 @@
           const boundary = target.querySelector('[data-cms-boundary]');
 
           const openEditor = (event) => {
+            if (event.target.closest('[data-home-quick-link-card]')) {
+              return;
+            }
+
             event.preventDefault();
             event.stopPropagation();
             postSection(section, label);
@@ -758,16 +764,6 @@
               cardIndex,
             }, '*');
           };
-
-          card.addEventListener('click', (event) => {
-            if (event.target.closest('[data-home-card-edit], [data-home-card-delete]')) {
-              return;
-            }
-
-            event.preventDefault();
-            event.stopPropagation();
-            postCard('cms-home-edit-card');
-          });
 
           editButton?.addEventListener('click', (event) => {
             event.preventDefault();

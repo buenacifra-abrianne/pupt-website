@@ -107,6 +107,7 @@
                             @php
                                 $cardLink = trim((string) ($card['link'] ?? ''));
                                 $cardTitle = trim((string) ($card['title'] ?? ''));
+                                $cardImage = trim((string) ($card['image'] ?? 'assets/static_img/pupillar.jpeg'));
                             @endphp
 
                             @if($cmsPreview)
@@ -138,7 +139,7 @@
 
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Student card' }}">
+                                        <img src="{{ \App\Support\NewsImage::url($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Student card' }}">
                                         <div class="students-card-copy">
                                             <h3>{{ $cardTitle !== '' ? $cardTitle : 'Student Card' }}</h3>
                                         </div>
@@ -343,12 +344,12 @@
             }
 
             .students-card[data-cms-edit-trigger] {
-                cursor: pointer;
+                cursor: default;
             }
 
             .students-org-card[data-cms-edit-trigger] {
                 position: relative;
-                cursor: pointer;
+                cursor: default;
             }
 
             .cms-preview-card-actions {
@@ -375,6 +376,7 @@
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+                cursor: pointer;
             }
 
             .cms-preview-card-action-delete {

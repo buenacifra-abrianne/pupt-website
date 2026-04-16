@@ -3,49 +3,89 @@
 namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
+use App\Support\HomeCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class FeedbackController extends Controller
 {
-    private const QUESTION_FIELDS = ['q1', 'q2', 'q3', 'q4', 'q5', 'q6'];
-
     public function index()
     {
-        return view('public.feedback');
+        $feedbackContent = $this->resolveFeedbackContent();
+
+        return view('public.feedback', [
+            'homeFeedbackPreview' => $feedbackContent,
+            'feedbackQuestions' => $this->resolveFeedbackQuestions($feedbackContent),
+        ]);
     }
 
     public function store(Request $request)
     {
+        $feedbackContent = $this->resolveFeedbackContent();
+        $questions = $this->resolveFeedbackQuestions($feedbackContent);
+
+        if ($questions === []) {
+            return redirect()
+                ->route('public.feedback')
+                ->withErrors([
+                    'feedback_form' => 'The feedback form is not available right now.',
+                ]);
+        }
+
         $rules = [];
-        foreach (self::QUESTION_FIELDS as $field) {
-            $rules[$field] = ['required', 'integer', 'between:1,4'];
+        foreach (array_keys($questions) as $index) {
+            $rules['responses.'.$index] = ['required', 'integer', 'between:1,4'];
         }
 
         $validated = $request->validate($rules);
 
-        $scores = collect(self::QUESTION_FIELDS)
-            ->map(fn (string $field) => (int) $validated[$field])
+        $scores = collect(array_keys($questions))
+            ->map(fn (int|string $index) => (int) data_get($validated, 'responses.'.$index))
             ->all();
 
         $overallScore = round(array_sum($scores) / max(1, count($scores)), 2);
-
-        DB::table('feedback_submissions')->insert([
-            'q1_score' => $scores[0],
-            'q2_score' => $scores[1],
-            'q3_score' => $scores[2],
-            'q4_score' => $scores[3],
-            'q5_score' => $scores[4],
-            'q6_score' => $scores[5],
+        $payload = [
             'overall_score' => $overallScore,
             'overall_rating' => $this->scoreToRating($overallScore),
             'created_at' => now(),
             'updated_at' => now(),
-        ]);
+        ];
+
+        foreach (range(1, 10) as $questionNumber) {
+            $payload['q'.$questionNumber.'_score'] = $scores[$questionNumber - 1] ?? null;
+        }
+
+        DB::table('feedback_submissions')->insert($payload);
 
         return redirect()
             ->route('public.feedback')
             ->with('feedback_submitted', true);
+    }
+
+    private function resolveFeedbackContent(): array
+    {
+        $homeCms = HomeCmsContent::defaults();
+
+        if (Schema::hasTable('cms_contents')) {
+            $homeRow = DB::table('cms_contents')->where('tab_key', 'home')->first();
+            if ($homeRow) {
+                $homeCms = HomeCmsContent::fromStored((string) ($homeRow->content ?? ''));
+            }
+        }
+
+        return is_array($homeCms['feedback'] ?? null)
+            ? $homeCms['feedback']
+            : (HomeCmsContent::defaults()['feedback'] ?? []);
+    }
+
+    private function resolveFeedbackQuestions(array $feedbackContent): array
+    {
+        return collect($feedbackContent['questions'] ?? [])
+            ->filter(fn ($item) => is_array($item) && trim((string) ($item['question'] ?? '')) !== '')
+            ->take(10)
+            ->values()
+            ->all();
     }
 
     private function scoreToRating(float $score): string

@@ -92,7 +92,7 @@
             </section>
 
             <section class="research-cms-editor-panel" data-research-editor-panel="cards" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-research-cards-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-research-cards-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="research_extension">
                     <input type="hidden" name="section_key" value="cards">
@@ -105,6 +105,8 @@
                     <div class="research-cms-card-stack" data-research-card-stack>
                         @foreach($cardsEditor as $index => $card)
                             <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="{{ $index }}">
+                                <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
+
                                 <div class="form-group">
                                     <label>Title</label>
                                     <input type="text" name="research[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
@@ -119,12 +121,26 @@
                                     <label>Link</label>
                                     <input type="text" name="research[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
                                 </div>
+
+                                <div class="form-group">
+                                    <label>Upload Card Image</label>
+                                    <div class="research-cms-upload-preview-shell">
+                                        <img
+                                            src="{{ \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg') }}"
+                                            alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Research card preview' }}"
+                                            class="research-cms-upload-preview-image"
+                                        >
+                                    </div>
+                                    <input type="file" name="research[cards][{{ $index }}][image_file]" accept="image/*">
+                                </div>
                             </article>
                         @endforeach
                     </div>
 
                     <template data-research-card-template>
                         <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="__INDEX__">
+                            <input type="hidden" name="research[cards][__INDEX__][image]" value="">
+
                             <div class="form-group">
                                 <label>Title</label>
                                 <input type="text" name="research[cards][__INDEX__][title]" maxlength="255" value="">
@@ -138,6 +154,18 @@
                             <div class="form-group">
                                 <label>Link</label>
                                 <input type="text" name="research[cards][__INDEX__][link]" maxlength="2048" value="">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload Card Image</label>
+                                <div class="research-cms-upload-preview-shell">
+                                    <img
+                                        src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        alt="Research card preview"
+                                        class="research-cms-upload-preview-image"
+                                    >
+                                </div>
+                                <input type="file" name="research[cards][__INDEX__][image_file]" accept="image/*">
                             </div>
                         </article>
                     </template>
@@ -333,6 +361,30 @@
         background: #f8ece6;
         color: #7f1113;
         cursor: pointer;
+    }
+
+    .research-cms-upload-preview-shell {
+        width: min(240px, 100%);
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 16px;
+        background: #f6ede8;
+        margin-bottom: 12px;
+    }
+
+    .research-cms-upload-preview-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .research-cms-upload-hint {
+        display: block;
+        margin-top: 8px;
+        color: #7a6a63;
+        line-height: 1.5;
     }
 
     .research-cms-modal-footer {
@@ -591,6 +643,10 @@
                 return;
             }
 
+            if (typeof window.bindCmsPreviewScrollBridge === 'function') {
+                window.bindCmsPreviewScrollBridge(frame);
+            }
+
             doc.addEventListener('click', (event) => {
                 const addCardTrigger = event.target.closest('[data-research-add-card-trigger]');
                 if (addCardTrigger) {
@@ -618,6 +674,10 @@
                     const card = deleteCardTrigger.closest('[data-research-card-index]');
                     const cardIndex = card?.getAttribute('data-research-card-index') ?? null;
                     void confirmDeleteCard(cardIndex);
+                    return;
+                }
+
+                if (event.target.closest('[data-research-card-index]')) {
                     return;
                 }
 

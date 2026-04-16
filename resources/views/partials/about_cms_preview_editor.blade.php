@@ -155,7 +155,7 @@
             </section>
 
             <section class="about-cms-editor-panel" data-about-editor-panel="contents" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-about-contents-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-about-contents-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="contents">
@@ -178,6 +178,9 @@
 
                     <div class="about-cms-card-stack">
                         @foreach($aboutSections as $slug => $section)
+                            @php
+                                $sectionImagePreview = \App\Support\NewsImage::url($section['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                            @endphp
                             <article class="about-cms-card-editor" data-about-contents-editor data-about-contents-slug="{{ $slug }}">
                                 <div class="about-cms-card-editor-head">
                                     <h4>{{ $section['label'] ?? $slug }}</h4>
@@ -185,6 +188,7 @@
                                 </div>
 
                                 <input type="hidden" name="about[sections][{{ $slug }}][visible_in_contents]" value="{{ $section['visible_in_contents'] ?? '1' }}" data-about-contents-visible>
+                                <input type="hidden" name="about[sections][{{ $slug }}][image]" value="{{ $section['image'] ?? '' }}">
 
                                 <div class="about-cms-form-grid">
                                     <div class="form-group">
@@ -194,6 +198,16 @@
                                     <div class="form-group">
                                         <label>Card Summary</label>
                                         <textarea name="about[sections][{{ $slug }}][summary]" rows="4">{{ $section['summary'] ?? '' }}</textarea>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Upload Card Image</label>
+                                    <div class="about-cms-image-upload-shell">
+                                        <img src="{{ $sectionImagePreview }}" alt="{{ $section['label'] ?? $slug }} preview" class="about-cms-image-upload-preview">
+                                        <div class="about-cms-image-upload-copy">
+                                            <input type="file" name="about[sections][{{ $slug }}][image_file]" accept="image/*">
+                                        </div>
                                     </div>
                                 </div>
                             </article>
@@ -944,6 +958,14 @@
         background: #fff;
     }
 
+    .about-cms-card-editor[data-about-contents-editor] {
+        display: none;
+    }
+
+    .about-cms-card-editor[data-about-contents-editor].is-active {
+        display: block;
+    }
+
     .about-cms-card-editor.is-active {
         border-color: rgba(127, 17, 19, 0.38);
         box-shadow: 0 0 0 3px rgba(127, 17, 19, 0.08);
@@ -972,6 +994,34 @@
         font-size: 0.8rem;
     }
 
+    .about-cms-image-upload-shell {
+        display: grid;
+        grid-template-columns: 180px minmax(0, 1fr);
+        gap: 14px;
+        align-items: start;
+    }
+
+    .about-cms-image-upload-preview {
+        width: 100%;
+        height: 132px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 1px solid #efe3dc;
+        background: #f7ede8;
+    }
+
+    .about-cms-image-upload-copy {
+        min-width: 0;
+    }
+
+    .about-cms-upload-hint {
+        display: block;
+        margin-top: 6px;
+        color: #8a7a73;
+        font-size: 0.78rem;
+        line-height: 1.5;
+    }
+
     .about-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -996,6 +1046,10 @@
         }
 
         .about-cms-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-cms-image-upload-shell {
             grid-template-columns: 1fr;
         }
 
@@ -1209,6 +1263,10 @@
             const schedule = () => queueAboutPreviewSettledSync(frame);
             const main = doc.querySelector('.main-content');
 
+            if (typeof window.bindCmsPreviewScrollBridge === 'function') {
+                window.bindCmsPreviewScrollBridge(frame, cleanups);
+            }
+
             const bindPreviewImages = () => {
                 doc.querySelectorAll('img').forEach((image) => {
                     if (image.dataset.cmsPreviewHeightBound === '1') {
@@ -1330,7 +1388,7 @@
             });
         }
 
-        function openAboutEditor(sectionKey, label) {
+        function openAboutEditor(sectionKey, label, options = {}) {
             const modal = document.querySelector('[data-about-editor-modal]');
             if (!modal) {
                 return;
@@ -1355,7 +1413,10 @@
                         description.textContent = 'Update this section and save to refresh the About page preview.';
                     }
 
-                    const firstField = panel.querySelector('input:not([type="hidden"]), textarea, select');
+                    const focusScope = sectionKey === 'contents'
+                        ? (setActiveContentsEditor(options.slug || '') || panel)
+                        : panel;
+                    const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select');
                     firstField?.focus();
                 }
             });
@@ -1383,8 +1444,9 @@
             }
 
             if (data.type === 'cms-about-contents-card-edit') {
-                openAboutEditor('contents', data.label ? `Edit ${data.label}` : 'Edit about card');
-                setActiveContentsEditor(data.slug || '');
+                openAboutEditor('contents', data.label ? `Edit ${data.label}` : 'Edit about card', {
+                    slug: data.slug || '',
+                });
                 return;
             }
 
@@ -1445,7 +1507,7 @@
                 if (activeContentsSlugInput) {
                     activeContentsSlugInput.value = '';
                 }
-                return;
+                return null;
             }
 
             let targetEditor = null;
@@ -1466,8 +1528,7 @@
                 activeContentsSlugInput.value = targetEditor?.getAttribute('data-about-contents-slug') || '';
             }
 
-            const firstField = targetEditor?.querySelector('input:not([type="hidden"]), textarea, select');
-            firstField?.focus();
+            return targetEditor;
         };
 
         const submitContentsForm = () => {

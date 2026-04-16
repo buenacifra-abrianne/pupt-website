@@ -131,6 +131,8 @@
                         @forelse($cards as $card)
                             @php
                                 $cardLink = trim((string) ($card['link'] ?? ''));
+                                $cardTitle = trim((string) ($card['title'] ?? ''));
+                                $cardImage = trim((string) ($card['image'] ?? 'assets/static_img/pupillar.jpeg'));
                             @endphp
 
                             @if($cmsPreview)
@@ -148,24 +150,24 @@
                             @endif
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit card" aria-label="Edit {{ $card['title'] ?? 'research card' }}">
+                                        <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit card" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'research card' }}">
                                             Edit
                                         </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete card" aria-label="Delete {{ $card['title'] ?? 'research card' }}">
+                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete card" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research card' }}">
                                             Delete
                                         </button>
                                     </div>
                                 @endif
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="{{ $card['title'] ?? 'Research card' }}">
+                                        <img src="{{ \App\Support\NewsImage::url($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research card' }}">
                                         <div class="students-card-copy">
-                                            <h3>{{ $card['title'] ?? 'Card' }}</h3>
+                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Card' }}</h3>
                                         </div>
                                     </div>
                                     <div class="students-card-back">
                                         <div class="students-card-overlay-copy">
-                                            <h3>{{ $card['title'] ?? 'Card' }}</h3>
+                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Card' }}</h3>
                                             <p>{{ $card['description'] ?? '' }}</p>
                                         </div>
                                         <span class="students-card-action">{{ $cardLink !== '' ? 'Open link' : 'Update soon' }}</span>
@@ -311,7 +313,7 @@
             }
 
             .students-card[data-cms-edit-trigger] {
-                cursor: pointer;
+                cursor: default;
             }
 
             .cms-preview-card-actions {

@@ -381,12 +381,54 @@
             );
         }
 
+        function bindCmsPreviewScrollBridge(frame, cleanups = []) {
+            if (!(frame instanceof HTMLIFrameElement)) {
+                return;
+            }
+
+            const doc = frame.contentDocument;
+            if (!doc) {
+                return;
+            }
+
+            const handleWheel = (event) => {
+                if (!event || event.defaultPrevented || event.ctrlKey || event.metaKey) {
+                    return;
+                }
+
+                const deltaX = Number(event.deltaX || 0);
+                const deltaY = Number(event.deltaY || 0);
+
+                if (Math.abs(deltaX) < 1 && Math.abs(deltaY) < 1) {
+                    return;
+                }
+
+                window.scrollBy({
+                    left: deltaX,
+                    top: deltaY,
+                    behavior: 'auto',
+                });
+
+                event.preventDefault();
+            };
+
+            doc.addEventListener('wheel', handleWheel, {
+                passive: false,
+                capture: true,
+            });
+
+            cleanups.push(() => {
+                doc.removeEventListener('wheel', handleWheel, true);
+            });
+        }
+
         function initializeCmsCompatLayout() {
             syncCmsViewportHeight();
             moveManagedModalsToBody();
         }
 
         window.measureCmsPreviewFrameHeight = measureCmsPreviewFrameHeight;
+        window.bindCmsPreviewScrollBridge = bindCmsPreviewScrollBridge;
 
         window.addEventListener('beforeunload', () => {
             document.querySelectorAll('iframe[data-home-preview-frame], iframe[data-about-preview-frame], iframe[data-academics-preview-frame], iframe[data-students-preview-frame], iframe[data-research-preview-frame], iframe[data-events-preview-frame]')

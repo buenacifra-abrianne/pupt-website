@@ -61,6 +61,38 @@ class HomeCmsContent
             'title' => 'Help improve the public experience',
             'description' => 'Share questions, issues, or suggestions through the campus feedback form.',
             'button_label' => 'Open Feedback Form',
+            'questions' => [
+                [
+                    'question' => 'The website content is clear, understandable, and easy to follow.',
+                ],
+                [
+                    'question' => 'The information I need is easy to find on the website.',
+                ],
+                [
+                    'question' => 'The website design feels organized and user-friendly.',
+                ],
+                [
+                    'question' => 'The pages load properly and work well on my device.',
+                ],
+                [
+                    'question' => 'The website helps me complete my purpose quickly and efficiently.',
+                ],
+                [
+                    'question' => 'Overall, I am satisfied with my experience using the website.',
+                ],
+                [
+                    'question' => 'The website works consistently across the browser or device I use.',
+                ],
+                [
+                    'question' => 'Important announcements and updates are easy to notice on the website.',
+                ],
+                [
+                    'question' => 'The website helps me trust the information provided by the campus.',
+                ],
+                [
+                    'question' => 'I would recommend this website to others who need campus information.',
+                ],
+            ],
         ],
         'carousel_slides' => [
             [
@@ -182,7 +214,8 @@ class HomeCmsContent
                 $source['quick_links'] ?? ($base['quick_links'] ?? [])
             ),
             'feedback' => self::normalizeFeedback(
-                $source['feedback'] ?? ($base['feedback'] ?? [])
+                $source['feedback'] ?? ($base['feedback'] ?? []),
+                is_array($base['feedback'] ?? null) ? $base['feedback'] : $defaults['feedback']
             ),
             'carousel_slides' => self::normalizeSlides(
                 $source['carousel_slides'] ?? $source['carousel'] ?? null,
@@ -356,32 +389,68 @@ class HomeCmsContent
         ];
     }
 
-    private static function normalizeFeedback(mixed $input): array
+    private static function normalizeFeedback(mixed $input, array $base): array
     {
         $defaults = self::defaults()['feedback'];
         $source = is_array($input) ? $input : [];
+        $baseQuestions = is_array($base['questions'] ?? null)
+            ? array_values($base['questions'])
+            : array_values($defaults['questions'] ?? []);
+        $questionsSource = array_key_exists('questions', $source)
+            ? (is_array($source['questions'] ?? null) ? array_values($source['questions']) : [])
+            : $baseQuestions;
+        $questions = [];
+
+        foreach ($questionsSource as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaults['questions'][$index] ?? null)
+                ? $defaults['questions'][$index]
+                : ['question' => ''];
+            $baseItem = is_array($baseQuestions[$index] ?? null) ? $baseQuestions[$index] : $defaultItem;
+            $question = trim((string) ($item['question'] ?? ($baseItem['question'] ?? '')));
+
+            if ($question === '') {
+                continue;
+            }
+
+            $questions[] = [
+                'question' => self::sanitizeString(
+                    $question,
+                    5000,
+                    (string) ($defaultItem['question'] ?? '')
+                ),
+            ];
+
+            if (count($questions) >= 10) {
+                break;
+            }
+        }
 
         return [
             'tag' => self::sanitizeString(
-                $source['tag'] ?? $defaults['tag'],
+                $source['tag'] ?? ($base['tag'] ?? $defaults['tag']),
                 80,
                 $defaults['tag']
             ),
             'title' => self::sanitizeString(
-                $source['title'] ?? $defaults['title'],
+                $source['title'] ?? ($base['title'] ?? $defaults['title']),
                 255,
                 $defaults['title']
             ),
             'description' => self::sanitizeString(
-                $source['description'] ?? $defaults['description'],
+                $source['description'] ?? ($base['description'] ?? $defaults['description']),
                 5000,
                 $defaults['description']
             ),
             'button_label' => self::sanitizeString(
-                $source['button_label'] ?? $defaults['button_label'],
+                $source['button_label'] ?? ($base['button_label'] ?? $defaults['button_label']),
                 120,
                 $defaults['button_label']
             ),
+            'questions' => $questions,
         ];
     }
 

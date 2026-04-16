@@ -98,7 +98,7 @@
             </section>
 
             <section class="students-cms-editor-panel" data-students-editor-panel="cards" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-cards-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-cards-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
                     <input type="hidden" name="section_key" value="cards">
@@ -111,6 +111,8 @@
                     <div class="students-cms-card-stack" data-students-card-stack>
                         @foreach($cardsEditor as $index => $card)
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
+                                <input type="hidden" name="students[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
+
                                 <div class="form-group">
                                     <label>Title</label>
                                     <input type="text" name="students[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
@@ -125,12 +127,26 @@
                                     <label>Link</label>
                                     <input type="text" name="students[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
                                 </div>
+
+                                <div class="form-group">
+                                    <label>Upload Card Image</label>
+                                    <div class="students-cms-upload-preview-shell">
+                                        <img
+                                            src="{{ \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg') }}"
+                                            alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Student card preview' }}"
+                                            class="students-cms-upload-preview-image"
+                                        >
+                                    </div>
+                                    <input type="file" name="students[cards][{{ $index }}][image_file]" accept="image/*">
+                                </div>
                             </article>
                         @endforeach
                     </div>
 
                     <template data-students-card-template>
                         <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="__INDEX__">
+                            <input type="hidden" name="students[cards][__INDEX__][image]" value="">
+
                             <div class="form-group">
                                 <label>Title</label>
                                 <input type="text" name="students[cards][__INDEX__][title]" maxlength="255" value="">
@@ -145,6 +161,18 @@
                                 <label>Link</label>
                                 <input type="text" name="students[cards][__INDEX__][link]" maxlength="2048" value="">
                             </div>
+
+                            <div class="form-group">
+                                <label>Upload Card Image</label>
+                                <div class="students-cms-upload-preview-shell">
+                                    <img
+                                        src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        alt="Student card preview"
+                                        class="students-cms-upload-preview-image"
+                                    >
+                                </div>
+                                <input type="file" name="students[cards][__INDEX__][image_file]" accept="image/*">
+                            </div>
                         </article>
                     </template>
 
@@ -158,7 +186,7 @@
             </section>
 
             <section class="students-cms-editor-panel" data-students-editor-panel="organizations" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-organizations-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-organizations-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
                     <input type="hidden" name="section_key" value="organizations">
@@ -182,6 +210,7 @@
 
                                     <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][title]" value="{{ $organizationSection['title'] ?? '' }}">
                                     <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][key]" value="{{ $organizationSection['key'] ?? '' }}">
+                                    <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image]" value="{{ $organization['image'] ?? '' }}">
 
                                     <div class="form-group">
                                         <label>Organization Name</label>
@@ -200,8 +229,8 @@
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Image Path</label>
-                                        <input type="text" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image]" maxlength="2048" value="{{ $organization['image'] ?? '' }}">
+                                        <label>Upload Organization Image</label>
+                                        <input type="file" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image_file]" accept="image/*">
                                     </div>
                                 </article>
                             @endforeach
@@ -407,6 +436,31 @@
     .students-cms-card-editor-head span {
         color: #8a7a73;
         font-size: 0.8rem;
+    }
+
+    .students-cms-upload-preview-shell {
+        width: min(240px, 100%);
+        aspect-ratio: 4 / 3;
+        overflow: hidden;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 16px;
+        background: #f6ede8;
+        margin-bottom: 12px;
+    }
+
+    .students-cms-upload-preview-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .students-cms-upload-hint {
+        display: block;
+        margin-top: 8px;
+        color: #7a6a63;
+        font-size: 0.78rem;
+        line-height: 1.5;
     }
 
     .students-cms-modal-footer {
@@ -674,6 +728,10 @@
                 return;
             }
 
+            if (typeof window.bindCmsPreviewScrollBridge === 'function') {
+                window.bindCmsPreviewScrollBridge(frame);
+            }
+
             doc.addEventListener('click', (event) => {
                 const addCardTrigger = event.target.closest('[data-students-add-card-trigger]');
                 if (addCardTrigger) {
@@ -713,6 +771,10 @@
                     const card = deleteCardTrigger.closest('[data-students-card-index]');
                     const cardIndex = card?.getAttribute('data-students-card-index') ?? null;
                     void confirmDeleteCard(cardIndex);
+                    return;
+                }
+
+                if (event.target.closest('[data-students-card-index], [data-students-org-index]')) {
                     return;
                 }
 

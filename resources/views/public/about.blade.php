@@ -1108,7 +1108,7 @@
 
             .contents-strip.cms-preview-editable [data-about-contents-card] {
                 position: relative;
-                cursor: pointer;
+                cursor: default;
             }
 
             .contents-strip.cms-preview-editable [data-about-contents-card]:hover,
@@ -1159,6 +1159,7 @@
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+                cursor: pointer;
                 font-size: 0.78rem;
                 font-weight: 700;
             }
@@ -1390,18 +1391,6 @@
                             type: 'cms-about-contents-card-edit',
                             slug: card?.getAttribute('data-about-contents-slug') || '',
                             label: card?.getAttribute('data-about-contents-label') || 'About card',
-                        }, '*');
-                        return;
-                    }
-
-                    const contentCard = event.target.closest('[data-about-contents-card]');
-                    if (contentCard) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        window.parent?.postMessage({
-                            type: 'cms-about-contents-card-edit',
-                            slug: contentCard.getAttribute('data-about-contents-slug') || '',
-                            label: contentCard.getAttribute('data-about-contents-label') || 'About card',
                         }, '*');
                         return;
                     }

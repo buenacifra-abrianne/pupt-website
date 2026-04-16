@@ -364,6 +364,7 @@
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+                cursor: pointer;
                 font-size: 0.78rem;
                 font-weight: 700;
             }
@@ -544,6 +545,10 @@
                 const chip = target.querySelector('[data-cms-edit-trigger]');
 
                     const openEditor = (event) => {
+                        if (event.target.closest('[data-academics-contents-card], [data-academics-feature-card]')) {
+                            return;
+                        }
+
                         event.preventDefault();
                         event.stopPropagation();
                         postSection(section, label);
@@ -573,16 +578,6 @@
                         }, '*');
                     };
 
-                    card.addEventListener('click', (event) => {
-                        if (event.target.closest('[data-academics-card-edit], [data-academics-card-delete]')) {
-                            return;
-                        }
-
-                        event.preventDefault();
-                        event.stopPropagation();
-                        postCard('cms-academics-edit-card');
-                    });
-
                     card.querySelector('[data-academics-card-edit]')?.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
@@ -606,16 +601,6 @@
                             cardIndex,
                         }, '*');
                     };
-
-                    card.addEventListener('click', (event) => {
-                        if (event.target.closest('[data-academics-feature-edit], [data-academics-feature-delete]')) {
-                            return;
-                        }
-
-                        event.preventDefault();
-                        event.stopPropagation();
-                        postCard('cms-academics-edit-card');
-                    });
 
                     card.querySelector('[data-academics-feature-edit]')?.addEventListener('click', (event) => {
                         event.preventDefault();

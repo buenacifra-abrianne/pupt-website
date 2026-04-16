@@ -15,11 +15,13 @@ class ResearchCmsContent
                 'title' => 'Research',
                 'description' => 'Explore research initiatives, publications, and scholarly works conducted at PUP Taguig Campus.',
                 'link' => '/research',
+                'image' => 'assets/static_img/pupillar.jpeg',
             ],
             [
                 'title' => 'Extension',
                 'description' => 'Community outreach and extension programs that connect PUP Taguig with the wider community.',
                 'link' => '/research',
+                'image' => 'assets/static_img/pupillar.jpeg',
             ],
         ],
     ];
@@ -122,19 +124,22 @@ class ResearchCmsContent
 
             $defaultItem = is_array($defaultItems[$index] ?? null)
                 ? $defaultItems[$index]
-                : ['title' => '', 'description' => '', 'link' => ''];
+                : ['title' => '', 'description' => '', 'link' => '', 'image' => 'assets/static_img/pupillar.jpeg'];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
             $normalized = [
                 'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
                 'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
                 'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, ''),
+                'image' => self::sanitizeString((string) ($item['image'] ?? ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg')), 2048, 'assets/static_img/pupillar.jpeg'),
             ];
+            $hasExplicitImage = trim((string) ($item['image'] ?? '')) !== '';
 
             if (
                 $normalized['title'] === ''
                 && $normalized['description'] === ''
                 && $normalized['link'] === ''
+                && !$hasExplicitImage
             ) {
                 continue;
             }

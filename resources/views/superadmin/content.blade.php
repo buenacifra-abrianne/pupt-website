@@ -193,6 +193,7 @@
                     ])
                 @elseif($tabKey === 'about')
                     @include('partials.about_cms_preview_editor', [
+                        'aboutPreviewData' => $aboutLive,
                         'aboutEditorData' => $aboutLive,
                         'aboutEditorFormClass' => 'cms-save-form',
                         'aboutEditorSubmitRoute' => route('superadmin.content.save'),

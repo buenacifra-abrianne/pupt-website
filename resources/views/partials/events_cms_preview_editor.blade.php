@@ -172,11 +172,8 @@
                                                 <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Link</label>
-                                                <input type="text" name="events[cards][{{ $index }}][image]" maxlength="2048" value="{{ $card['image'] ?? '' }}">
-                                            </div>
-                                            <div class="form-group">
                                                 <label>Upload Card Image</label>
+                                                <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
                                                 <input type="file" name="events[cards][{{ $index }}][image_file]" accept="image/*">
                                             </div>
                                         </div>
@@ -264,11 +261,8 @@
                                                 <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Link</label>
-                                                <input type="text" name="events[cards][{{ $index }}][image]" maxlength="2048" value="{{ $card['image'] ?? '' }}">
-                                            </div>
-                                            <div class="form-group">
                                                 <label>Upload Card Image</label>
+                                                <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
                                                 <input type="file" name="events[cards][{{ $index }}][image_file]" accept="image/*">
                                             </div>
                                         </div>
@@ -342,12 +336,12 @@
                                     <input type="time" name="events[cards][__INDEX__][end_time]" value="">
                                 </div>
                                 <div class="form-group">
-                                    <label>Link</label>
-                                    <input type="text" name="events[cards][__INDEX__][image]" maxlength="2048" value="">
-                                </div>
-                                <div class="form-group">
                                     <label>Upload Card Image</label>
+                                    <input type="hidden" name="events[cards][__INDEX__][image]" value="">
                                     <input type="file" name="events[cards][__INDEX__][image_file]" accept="image/*">
+                                    <small class="events-cms-upload-hint">
+                                        Leave this empty to use the default `pupillar`.
+                                    </small>
                                 </div>
                             </div>
 
@@ -737,6 +731,15 @@
         margin-top: 18px;
     }
 
+    .events-cms-upload-hint,
+    .academics-cms-upload-hint {
+        display: block;
+        margin-top: 6px;
+        color: #8a7a73;
+        font-size: 0.78rem;
+        line-height: 1.5;
+    }
+
     @media (max-width: 768px) {
         .events-cms-workspace {
             --events-preview-width: 1440px;
@@ -962,6 +965,10 @@
             const cleanups = [];
             const schedule = () => queueEventsPreviewSettledSync(frame);
             const main = doc.querySelector('.main-content');
+
+            if (typeof window.bindCmsPreviewScrollBridge === 'function') {
+                window.bindCmsPreviewScrollBridge(frame, cleanups);
+            }
 
             const bindPreviewImages = () => {
                 doc.querySelectorAll('img').forEach((image) => {

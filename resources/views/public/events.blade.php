@@ -604,7 +604,7 @@
                 background: linear-gradient(165deg, #f2f2f2 0%, #dcdcdc 100%);
                 border-color: rgba(84, 84, 84, 0.16);
                 box-shadow: 0 12px 28px rgba(80, 80, 80, 0.12);
-                cursor: pointer;
+                cursor: default;
             }
 
             .ne-card-expired.is-selected {
@@ -976,6 +976,10 @@
                 const chip = target.querySelector('[data-cms-edit-trigger]');
 
                 const openSectionEditor = (event) => {
+                    if (event.target.closest('[data-cms-card-index], [data-ne-modal-trigger], .ne-filter, [data-ne-expired-select], [data-ne-expired-remove-selected]')) {
+                        return;
+                    }
+
                     event.preventDefault();
                     event.stopPropagation();
                     postSection(section, label);
@@ -1072,13 +1076,6 @@
                     toggleSelection();
                 });
 
-                card.addEventListener('click', (event) => {
-                    if (event.target.closest('a, button')) {
-                        return;
-                    }
-
-                    toggleSelection();
-                });
             });
 
             window.addEventListener('message', (event) => {

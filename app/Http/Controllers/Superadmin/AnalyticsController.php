@@ -194,6 +194,10 @@ class AnalyticsController extends Controller
             ->selectRaw('AVG(q4_score) as question_4_avg')
             ->selectRaw('AVG(q5_score) as question_5_avg')
             ->selectRaw('AVG(q6_score) as question_6_avg')
+            ->selectRaw('AVG(q7_score) as question_7_avg')
+            ->selectRaw('AVG(q8_score) as question_8_avg')
+            ->selectRaw('AVG(q9_score) as question_9_avg')
+            ->selectRaw('AVG(q10_score) as question_10_avg')
             ->selectRaw('SUM(CASE WHEN overall_score >= 3.5 THEN 1 ELSE 0 END) as outstanding')
             ->selectRaw('SUM(CASE WHEN overall_score >= 2.5 AND overall_score < 3.5 THEN 1 ELSE 0 END) as very_satisfactory')
             ->selectRaw('SUM(CASE WHEN overall_score >= 1.5 AND overall_score < 2.5 THEN 1 ELSE 0 END) as satisfactory')
@@ -205,23 +209,42 @@ class AnalyticsController extends Controller
             return $this->feedbackDefaults();
         }
 
-        $q1 = round((float) ($row->question_1_avg ?? 0), 2);
-        $q2 = round((float) ($row->question_2_avg ?? 0), 2);
-        $q3 = round((float) ($row->question_3_avg ?? 0), 2);
-        $q4 = round((float) ($row->question_4_avg ?? 0), 2);
-        $q5 = round((float) ($row->question_5_avg ?? 0), 2);
-        $q6 = round((float) ($row->question_6_avg ?? 0), 2);
-
-        $overallAverage = round(($q1 + $q2 + $q3 + $q4 + $q5 + $q6) / 6, 2);
+        $questionAverages = [
+            $row->question_1_avg,
+            $row->question_2_avg,
+            $row->question_3_avg,
+            $row->question_4_avg,
+            $row->question_5_avg,
+            $row->question_6_avg,
+            $row->question_7_avg,
+            $row->question_8_avg,
+            $row->question_9_avg,
+            $row->question_10_avg,
+        ];
+        $roundedQuestionAverages = collect($questionAverages)
+            ->map(fn ($value) => round((float) ($value ?? 0), 2))
+            ->values()
+            ->all();
+        $activeQuestionAverages = collect($questionAverages)
+            ->filter(fn ($value) => $value !== null)
+            ->map(fn ($value) => (float) $value)
+            ->values();
+        $overallAverage = $activeQuestionAverages->isNotEmpty()
+            ? round($activeQuestionAverages->avg(), 2)
+            : 0.0;
 
         return [
             'total_responses' => (int) ($row->total_responses ?? 0),
-            'question_1_avg' => $q1,
-            'question_2_avg' => $q2,
-            'question_3_avg' => $q3,
-            'question_4_avg' => $q4,
-            'question_5_avg' => $q5,
-            'question_6_avg' => $q6,
+            'question_1_avg' => $roundedQuestionAverages[0] ?? 0,
+            'question_2_avg' => $roundedQuestionAverages[1] ?? 0,
+            'question_3_avg' => $roundedQuestionAverages[2] ?? 0,
+            'question_4_avg' => $roundedQuestionAverages[3] ?? 0,
+            'question_5_avg' => $roundedQuestionAverages[4] ?? 0,
+            'question_6_avg' => $roundedQuestionAverages[5] ?? 0,
+            'question_7_avg' => $roundedQuestionAverages[6] ?? 0,
+            'question_8_avg' => $roundedQuestionAverages[7] ?? 0,
+            'question_9_avg' => $roundedQuestionAverages[8] ?? 0,
+            'question_10_avg' => $roundedQuestionAverages[9] ?? 0,
             'overall_average' => $overallAverage,
             'final_rating' => $this->feedbackLabelFromScore($overallAverage),
             'outstanding' => (int) ($row->outstanding ?? 0),
@@ -241,6 +264,10 @@ class AnalyticsController extends Controller
             'question_4_avg' => 0,
             'question_5_avg' => 0,
             'question_6_avg' => 0,
+            'question_7_avg' => 0,
+            'question_8_avg' => 0,
+            'question_9_avg' => 0,
+            'question_10_avg' => 0,
             'overall_average' => 0,
             'final_rating' => 'No Data',
             'outstanding' => 0,
@@ -308,6 +335,10 @@ class AnalyticsController extends Controller
                 'q4_score',
                 'q5_score',
                 'q6_score',
+                'q7_score',
+                'q8_score',
+                'q9_score',
+                'q10_score',
                 'overall_score',
                 'created_at',
             ]);

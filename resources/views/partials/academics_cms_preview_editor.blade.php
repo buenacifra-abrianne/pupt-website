@@ -78,7 +78,7 @@
             </section>
 
             <section class="academics-cms-editor-panel" data-academics-editor-panel="contents" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-contents-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-academics-contents-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="academics">
                     <input type="hidden" name="section_key" value="contents">
@@ -102,6 +102,7 @@
                                 </div>
 
                                 <input type="hidden" name="academics[contents][items][{{ $index }}][route]" value="{{ $item['route'] ?? '' }}">
+                                <input type="hidden" name="academics[contents][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}">
 
                                 <div class="academics-cms-form-grid">
                                     <div class="form-group">
@@ -109,8 +110,8 @@
                                         <input type="text" name="academics[contents][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
                                     </div>
                                     <div class="form-group">
-                                        <label>Card Image Path</label>
-                                        <input type="text" name="academics[contents][items][{{ $index }}][image]" maxlength="2048" value="{{ $item['image'] ?? '' }}">
+                                        <label>Upload Card Image</label>
+                                        <input type="file" name="academics[contents][items][{{ $index }}][image_file]" accept="image/*">
                                     </div>
                                 </div>
 
@@ -622,6 +623,10 @@
             const cleanups = [];
             const schedule = () => queueAcademicsPreviewSettledSync(frame);
             const main = doc.querySelector('.main-content');
+
+            if (typeof window.bindCmsPreviewScrollBridge === 'function') {
+                window.bindCmsPreviewScrollBridge(frame, cleanups);
+            }
 
             const bindPreviewImages = () => {
                 doc.querySelectorAll('img').forEach((image) => {

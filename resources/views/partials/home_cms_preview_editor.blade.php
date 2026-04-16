@@ -5,6 +5,7 @@
     $updatesEditor = $homeEditorData['updates'] ?? $homeDefaults['updates'];
     $quickLinksEditor = $homeEditorData['quick_links'] ?? $homeDefaults['quick_links'];
     $feedbackEditor = $homeEditorData['feedback'] ?? $homeDefaults['feedback'];
+    $feedbackQuestionsEditor = $feedbackEditor['questions'] ?? ($homeDefaults['feedback']['questions'] ?? []);
     $slidesEditor = $homeEditorData['carousel_slides'] ?? $homeDefaults['carousel_slides'];
     $formClass = $homeEditorFormClass ?? 'cms-save-form';
     $submitRoute = $homeEditorSubmitRoute;
@@ -21,15 +22,21 @@
 
         return 'Save '.$sectionLabel;
     };
+    $homePreviewPages = [
+        'overview' => $homePreviewHtml,
+        'feedback_form' => view('public.feedback', [
+            'cmsPreview' => true,
+            'homeFeedbackPreview' => $feedbackEditor,
+        ])->render(),
+    ];
 @endphp
 
 <div class="home-cms-workspace">
     <div class="home-cms-preview-shell">
         <div class="home-cms-preview-head">
-            <div>
-                <span class="home-cms-eyebrow">Homepage CMS</span>
-                <h3>Live website preview</h3>
-                <p>Click the highlighted sections inside the preview to edit the contents of the Home page.</p>
+            <div class="home-cms-preview-nav" aria-label="Home preview pages">
+                <button type="button" class="home-cms-preview-nav-btn is-active" data-home-preview-page="overview">Sections Overview</button>
+                <button type="button" class="home-cms-preview-nav-btn" data-home-preview-page="feedback_form">Feedback Form</button>
             </div>
         </div>
 
@@ -214,43 +221,81 @@
             </section>
 
             <section class="home-cms-editor-panel" data-home-editor-panel="feedback" hidden>
-                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-feedback-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="home">
                     <input type="hidden" name="section_key" value="feedback">
+                    <input type="hidden" name="home_feedback_questions_version" value="0" data-home-feedback-questions-version>
+                    <input type="hidden" name="home_active_feedback_question_index" value="" data-home-active-feedback-question-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="home-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Tag</label>
-                            <input type="text" name="home[feedback][tag]" maxlength="80" value="{{ $feedbackEditor['tag'] ?? '' }}">
+                    <div data-home-feedback-banner-fields>
+                        <div class="home-cms-form-grid">
+                            <div class="form-group">
+                                <label>Section Tag</label>
+                                <input type="text" name="home[feedback][tag]" maxlength="80" value="{{ $feedbackEditor['tag'] ?? '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Button Label</label>
+                                <input type="text" name="home[feedback][button_label]" maxlength="120" value="{{ $feedbackEditor['button_label'] ?? '' }}">
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label>Button Label</label>
-                            <input type="text" name="home[feedback][button_label]" maxlength="120" value="{{ $feedbackEditor['button_label'] ?? '' }}">
+                            <label>Banner Title</label>
+                            <input type="text" name="home[feedback][title]" maxlength="255" value="{{ $feedbackEditor['title'] ?? '' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Banner Description</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'home[feedback][description]',
+                                'value' => $feedbackEditor['description'] ?? '',
+                                'placeholder' => 'Write the supporting copy shown in the feedback banner...',
+                            ])
                         </div>
                     </div>
 
-                    <div class="form-group">
-                        <label>Banner Title</label>
-                        <input type="text" name="home[feedback][title]" maxlength="255" value="{{ $feedbackEditor['title'] ?? '' }}">
+                    <div class="home-cms-card-stack" data-home-feedback-question-stack>
+                        @foreach($feedbackQuestionsEditor as $index => $item)
+                            <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="{{ $index }}">
+                                <div class="home-cms-card-editor-head">
+                                    <h4>Question {{ str_pad((string) ($loop->iteration), 2, '0', STR_PAD_LEFT) }}</h4>
+                                    <span>Ratings: 4 / 3 / 2 / 1</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Question</label>
+                                    <textarea name="home[feedback][questions][{{ $index }}][question]" rows="5">{{ $item['question'] ?? '' }}</textarea>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
 
-                    <div class="form-group">
-                        <label>Banner Description</label>
-                        @include('partials.rich_text_editor', [
-                            'name' => 'home[feedback][description]',
-                            'value' => $feedbackEditor['description'] ?? '',
-                            'placeholder' => 'Write the supporting copy shown in the feedback banner...',
-                        ])
-                    </div>
+                    <template data-home-feedback-question-template>
+                        <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="__INDEX__">
+                            <div class="home-cms-card-editor-head">
+                                <h4>Question __NUMBER__</h4>
+                                <span>Ratings: 4 / 3 / 2 / 1</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Question</label>
+                                <textarea name="home[feedback][questions][__INDEX__][question]" rows="5"></textarea>
+                            </div>
+                        </article>
+                    </template>
 
                     <div class="home-cms-modal-footer">
+                        <button type="button" class="btn btn-secondary" data-home-feedback-add-question>
+                            <i class="fas fa-plus"></i>
+                            Add Question
+                        </button>
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Feedback Banner') }}
+                            {{ $submitLabel('Feedback Form') }}
                         </button>
                     </div>
                 </form>
@@ -260,7 +305,7 @@
 </div>
 
 <script type="application/json" data-home-preview-json>
-{!! json_encode($homePreviewHtml, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+{!! json_encode($homePreviewPages, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
 </script>
 
 @include('partials.rich_text_editor_assets')
@@ -287,33 +332,32 @@
     }
 
     .home-cms-preview-head {
-        display: none;
+        margin-bottom: 18px;
     }
 
-    .home-cms-preview-head h3,
-    .home-cms-side-card h4 {
-        margin: 0;
+    .home-cms-preview-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-content: flex-start;
+    }
+
+    .home-cms-preview-nav-btn {
+        border: 1px solid #d7c5bd;
+        background: #fff8f5;
         color: #5c0000;
-        font-size: 1.1rem;
+        border-radius: 999px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
     }
 
-    .home-cms-preview-head p,
-    .home-cms-side-card p {
-        margin: 8px 0 0;
-        color: #6f625c;
-        font-size: 0.92rem;
-        line-height: 1.55;
-    }
-
-    .home-cms-eyebrow,
-    .home-cms-side-kicker {
-        display: inline-flex;
-        margin-bottom: 8px;
-        color: #9f6b00;
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
+    .home-cms-preview-nav-btn.is-active {
+        background: #800000;
+        border-color: #800000;
+        color: #fff;
     }
 
     .home-cms-preview-frame-shell {
@@ -465,6 +509,32 @@
         font-size: 0.8rem;
     }
 
+    .home-cms-section-toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        margin-top: 22px;
+        margin-bottom: 16px;
+        padding: 16px 18px;
+        border: 1px solid #efe3dc;
+        border-radius: 16px;
+        background: linear-gradient(180deg, #fffaf7 0%, #fff 100%);
+    }
+
+    .home-cms-section-toolbar-title {
+        margin: 0;
+        color: #5c0000;
+        font-size: 1rem;
+    }
+
+    .home-cms-section-toolbar-copy {
+        margin: 6px 0 0;
+        color: #7d6d65;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+
     .home-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -483,7 +553,8 @@
         }
 
         .home-cms-preview-head,
-        .home-cms-card-editor-head {
+        .home-cms-card-editor-head,
+        .home-cms-section-toolbar {
             flex-direction: column;
             align-items: flex-start;
         }
@@ -513,6 +584,7 @@
 
         const HOME_PREVIEW_MIN_LOADING_MS = 1500;
         let homePreviewFitFrame = null;
+        let currentHomePreviewRoute = 'overview';
 
         function syncEditorsInScope(scope) {
             if (typeof window.syncRichTextEditors === 'function') {
@@ -648,6 +720,10 @@
             const schedule = () => queueHomePreviewSettledSync(frame);
             const main = doc.querySelector('.main-content');
 
+            if (typeof window.bindCmsPreviewScrollBridge === 'function') {
+                window.bindCmsPreviewScrollBridge(frame, cleanups);
+            }
+
             const bindPreviewImages = () => {
                 doc.querySelectorAll('img').forEach((image) => {
                     if (image.dataset.cmsPreviewHeightBound === '1') {
@@ -777,11 +853,18 @@
             });
         }
 
+        function setActiveHomePreviewPage(routeKey) {
+            document.querySelectorAll('[data-home-preview-page]').forEach((button) => {
+                button.classList.toggle('is-active', button.getAttribute('data-home-preview-page') === routeKey);
+            });
+        }
+
         function loadHomePreview(frame, options = {}) {
             const payloads = document.querySelectorAll('[data-home-preview-json]');
             const frameIndex = Array.from(document.querySelectorAll('[data-home-preview-frame]')).indexOf(frame);
             const payload = payloads[frameIndex] || payloads[0];
             const explicitSessionId = options.sessionId;
+            const routeKey = String(options.routeKey || currentHomePreviewRoute || 'overview');
 
             if (!payload || !frame) {
                 return;
@@ -794,7 +877,10 @@
             setHomePreviewLoading(frame, true);
 
             try {
-                const previewHtml = JSON.parse(payload.textContent || '""');
+                const parsedPayload = JSON.parse(payload.textContent || '{}');
+                const previewHtml = typeof parsedPayload === 'string'
+                    ? parsedPayload
+                    : (parsedPayload[routeKey] || parsedPayload.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
                 if (typeof window.applyCmsPreviewFrameContent === 'function') {
                     window.applyCmsPreviewFrameContent(frame, previewHtml);
                 } else {
@@ -807,6 +893,32 @@
                     frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
                 }
             }
+        }
+
+        function loadHomePreviewPage(routeKey, options = {}) {
+            const payload = document.querySelector('[data-home-preview-json]');
+            let targetKey = routeKey || 'overview';
+
+            if (payload) {
+                try {
+                    const parsedPayload = JSON.parse(payload.textContent || '{}');
+                    if (parsedPayload && typeof parsedPayload === 'object' && !Array.isArray(parsedPayload) && !Object.prototype.hasOwnProperty.call(parsedPayload, targetKey)) {
+                        targetKey = 'overview';
+                    }
+                } catch (_) {
+                    targetKey = 'overview';
+                }
+            }
+
+            currentHomePreviewRoute = targetKey;
+            setActiveHomePreviewPage(targetKey);
+
+            document.querySelectorAll('[data-home-preview-frame]').forEach((frame) => {
+                loadHomePreview(frame, {
+                    routeKey: targetKey,
+                    sessionId: options.sessionId,
+                });
+            });
         }
 
         function scheduleFitAllHomePreviews() {
@@ -928,6 +1040,187 @@
             }
         }
 
+        const feedbackForm = document.querySelector('[data-home-feedback-form]');
+        const feedbackQuestionStack = feedbackForm?.querySelector('[data-home-feedback-question-stack]');
+        const feedbackQuestionsVersionInput = feedbackForm?.querySelector('[data-home-feedback-questions-version]');
+        const activeFeedbackQuestionIndexInput = feedbackForm?.querySelector('[data-home-active-feedback-question-index]');
+        const feedbackQuestionTemplate = feedbackForm?.querySelector('[data-home-feedback-question-template]');
+        const feedbackBannerFields = feedbackForm?.querySelector('[data-home-feedback-banner-fields]');
+        const feedbackToolbar = feedbackForm?.querySelector('[data-home-feedback-toolbar]');
+
+        function bumpFeedbackQuestionsVersion() {
+            if (feedbackQuestionsVersionInput) {
+                feedbackQuestionsVersionInput.value = String(Date.now());
+            }
+        }
+
+        function submitFeedbackForm() {
+            if (!feedbackForm) {
+                return;
+            }
+
+            syncEditorsInScope(feedbackForm);
+
+            if (typeof feedbackForm.requestSubmit === 'function') {
+                feedbackForm.requestSubmit();
+                return;
+            }
+
+            feedbackForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        }
+
+        function relabelFeedbackQuestions() {
+            const editors = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? []);
+
+            editors.forEach((editor, index) => {
+                const title = editor.querySelector('.home-cms-card-editor-head h4');
+                if (title) {
+                    title.textContent = `Question ${String(index + 1).padStart(2, '0')}`;
+                }
+            });
+        }
+
+        function setActiveFeedbackQuestionEditor(targetIndex = null) {
+            const editors = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? []);
+
+            if (!editors.length) {
+                if (activeFeedbackQuestionIndexInput) {
+                    activeFeedbackQuestionIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = targetIndex === null || targetIndex === undefined || targetIndex === ''
+                ? null
+                : String(targetIndex);
+            let activeEditor = null;
+
+            editors.forEach((editor) => {
+                const isMatch = normalizedIndex !== null && editor.getAttribute('data-home-feedback-question-index') === normalizedIndex;
+                const shouldActivate = normalizedIndex === null ? editor === editors[0] : isMatch;
+                editor.classList.toggle('is-active', shouldActivate);
+
+                if (shouldActivate) {
+                    activeEditor = editor;
+                }
+            });
+
+            if (activeFeedbackQuestionIndexInput) {
+                activeFeedbackQuestionIndexInput.value = activeEditor?.getAttribute('data-home-feedback-question-index') || '';
+            }
+
+            return activeEditor;
+        }
+
+        function nextFeedbackQuestionIndex() {
+            const indexes = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? [])
+                .map((editor) => Number(editor.getAttribute('data-home-feedback-question-index') || '0'))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        }
+
+        function notifyFeedbackQuestionLimit() {
+            const message = 'Question limit reached. You can add up to 10 feedback questions.';
+
+            if (typeof window.notify === 'function') {
+                window.notify(message, 'warning');
+                return;
+            }
+
+            window.alert(message);
+        }
+
+        function addFeedbackQuestion() {
+            if (!feedbackQuestionStack || !feedbackQuestionTemplate) {
+                return null;
+            }
+
+            const currentCount = feedbackQuestionStack.querySelectorAll('[data-home-feedback-question-editor]').length;
+            if (currentCount >= 10) {
+                notifyFeedbackQuestionLimit();
+                return null;
+            }
+
+            const index = nextFeedbackQuestionIndex();
+            const number = currentCount + 1;
+            const markup = feedbackQuestionTemplate.innerHTML
+                .replaceAll('__INDEX__', String(index))
+                .replaceAll('__NUMBER__', String(number).padStart(2, '0'));
+            feedbackQuestionStack.insertAdjacentHTML('beforeend', markup);
+            bumpFeedbackQuestionsVersion();
+            relabelFeedbackQuestions();
+            const activeEditor = setActiveFeedbackQuestionEditor(index);
+            const questionField = activeEditor?.querySelector('textarea[name*="[question]"]');
+            if (questionField) {
+                questionField.value = '';
+            }
+
+            return activeEditor;
+        }
+
+        function deleteFeedbackQuestionByIndex(targetIndex) {
+            const editor = feedbackQuestionStack?.querySelector(`[data-home-feedback-question-editor][data-home-feedback-question-index="${targetIndex}"]`);
+            if (!editor) {
+                return false;
+            }
+
+            editor.remove();
+            bumpFeedbackQuestionsVersion();
+            relabelFeedbackQuestions();
+            setActiveFeedbackQuestionEditor();
+            return true;
+        }
+
+        async function confirmDeleteFeedbackQuestion(targetIndex) {
+            const editor = feedbackQuestionStack?.querySelector(`[data-home-feedback-question-editor][data-home-feedback-question-index="${targetIndex}"]`);
+            if (!editor) {
+                return;
+            }
+
+            const questionInput = editor.querySelector('textarea[name*="[question]"]');
+            const questionText = String(questionInput?.value || '').trim();
+            const message = questionText
+                ? `Do you want to delete "${questionText}"?`
+                : 'Do you want to delete this feedback question?';
+
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Question',
+                    message,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(message);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            if (deleteFeedbackQuestionByIndex(targetIndex)) {
+                submitFeedbackForm();
+            }
+        }
+
+        function setFeedbackEditorMode(mode = 'full') {
+            const isQuestionFocus = mode === 'question-focus';
+
+            if (feedbackBannerFields) {
+                feedbackBannerFields.hidden = isQuestionFocus;
+            }
+
+            if (feedbackToolbar) {
+                feedbackToolbar.hidden = isQuestionFocus;
+            }
+        }
+
         function openHomeEditor(sectionKey, label, options = {}) {
             const modal = document.querySelector('[data-home-editor-modal]');
             if (!modal) {
@@ -950,18 +1243,40 @@
                     }
 
                     if (description) {
-                        description.textContent = 'Update this section and save to refresh the homepage preview.';
+                        description.textContent = sectionKey === 'feedback' && (options.feedbackQuestionIndex !== undefined || options.addFeedbackQuestion === true)
+                            ? 'Update this question and save to refresh the feedback form preview.'
+                            : 'Update this section and save to refresh the homepage preview.';
                     }
 
                     const activeQuickLinkEditor = sectionKey === 'quick_links'
                         ? setActiveQuickLinkEditor(options.cardIndex ?? null)
                         : null;
+                    const activeFeedbackQuestionEditor = sectionKey === 'feedback'
+                            ? (options.addFeedbackQuestion === true
+                            ? addFeedbackQuestion()
+                            : setActiveFeedbackQuestionEditor(options.feedbackQuestionIndex ?? null))
+                        : null;
+
+                    if (sectionKey === 'feedback' && options.addFeedbackQuestion === true && !activeFeedbackQuestionEditor) {
+                        closeHomeEditor();
+                        return;
+                    }
+
+                    if (sectionKey === 'feedback') {
+                        setFeedbackEditorMode(
+                            options.feedbackQuestionIndex !== undefined || options.addFeedbackQuestion === true
+                                ? 'question-focus'
+                                : 'full'
+                        );
+                    } else {
+                        setFeedbackEditorMode('full');
+                    }
 
                     if (typeof window.initializeRichTextEditors === 'function') {
                         window.initializeRichTextEditors(panel);
                     }
 
-                    const focusScope = activeQuickLinkEditor || panel;
+                    const focusScope = activeQuickLinkEditor || activeFeedbackQuestionEditor || panel;
                     const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                     firstField?.focus();
                 }
@@ -1003,6 +1318,25 @@
                 return;
             }
 
+            if (data.type === 'cms-home-feedback-question-edit') {
+                openHomeEditor('feedback', data.label || 'Edit feedback question', {
+                    feedbackQuestionIndex: data.questionIndex,
+                });
+                return;
+            }
+
+            if (data.type === 'cms-home-feedback-question-delete') {
+                confirmDeleteFeedbackQuestion(data.questionIndex);
+                return;
+            }
+
+            if (data.type === 'cms-home-feedback-question-add') {
+                openHomeEditor('feedback', data.label || 'Add feedback question', {
+                    addFeedbackQuestion: true,
+                });
+                return;
+            }
+
             if (data.type === 'cms-home-preview-height') {
                 const targetFrame = Array.from(document.querySelectorAll('[data-home-preview-frame]'))
                     .find((frame) => frame.contentWindow === event.source);
@@ -1021,6 +1355,12 @@
             if (event.target.closest('[data-close-home-editor]')) {
                 event.preventDefault();
                 closeHomeEditor();
+                return;
+            }
+
+            if (event.target.closest('[data-home-feedback-add-question]')) {
+                event.preventDefault();
+                addFeedbackQuestion()?.querySelector('textarea')?.focus();
             }
         });
 
@@ -1035,12 +1375,20 @@
         });
 
         document.querySelectorAll('[data-home-preview-frame]').forEach((frame, index) => {
-            loadHomePreview(frame);
+            loadHomePreview(frame, {
+                routeKey: currentHomePreviewRoute,
+            });
 
             frame.addEventListener('load', () => {
                 bindHomePreviewDocument(frame);
                 queueHomePreviewSettledSync(frame);
                 scheduleFitAllHomePreviews();
+            });
+        });
+
+        document.querySelectorAll('[data-home-preview-page]').forEach((button) => {
+            button.addEventListener('click', () => {
+                loadHomePreviewPage(button.getAttribute('data-home-preview-page') || 'overview');
             });
         });
 
@@ -1078,15 +1426,16 @@
             const tabPanel = event.detail?.panel;
             const sessionId = Number(event.detail?.sessionId || 0) || undefined;
 
-            document.querySelectorAll('[data-home-preview-frame]').forEach((frame) => {
-                if (!tabPanel || !tabPanel.contains(frame)) {
-                    return;
-                }
+            const targetFrame = Array.from(document.querySelectorAll('[data-home-preview-frame]'))
+                .find((frame) => !tabPanel || tabPanel.contains(frame));
 
-                loadHomePreview(frame, { sessionId });
-                window.setTimeout(() => scheduleFitAllHomePreviews(), 40);
-                window.setTimeout(() => scheduleFitAllHomePreviews(), 180);
-            });
+            if (!targetFrame) {
+                return;
+            }
+
+            loadHomePreviewPage(currentHomePreviewRoute || 'overview', { sessionId });
+            window.setTimeout(() => scheduleFitAllHomePreviews(), 40);
+            window.setTimeout(() => scheduleFitAllHomePreviews(), 180);
         });
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
@@ -1100,12 +1449,18 @@
                 : Array.from(document.querySelectorAll('[data-home-preview-frame]'));
 
             frames.forEach((frame) => {
-                loadHomePreview(frame);
+                loadHomePreview(frame, {
+                    routeKey: currentHomePreviewRoute,
+                });
             });
         };
 
         scheduleFitAllHomePreviews();
         setActiveQuickLinkEditor();
+        relabelFeedbackQuestions();
+        setActiveFeedbackQuestionEditor();
+        setFeedbackEditorMode('full');
+        setActiveHomePreviewPage(currentHomePreviewRoute);
 
         window.__homeCmsPreviewEditorReady = true;
     })();
