@@ -17,7 +17,8 @@
   $location = $payload['location'] ?? '';
   $link = $payload['link'] ?? '';
   $imagePath = $payload['image_path'] ?? null;
-$imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
+  $imageUrl = \App\Support\NewsImage::url($imagePath);
+  $displayImageUrl = \App\Support\NewsImage::url($imagePath, 'assets/static_img/pupillar.jpeg');
 
   $targetNewsId = (int)($payload['news_id'] ?? 0);
   $reqStatus = strtolower(trim((string)$row->status));
@@ -29,11 +30,7 @@ $imageUrl = $imagePath ? asset('storage/' . ltrim($imagePath,'/')) : null;
      data-search="{{ e($searchHay) }}">
 
   <div class="news-image">
-    @if($imageUrl)
-      <img src="{{ $imageUrl }}" alt="news image" style="width:100%; height:150px; object-fit:cover;">
-    @else
-      <i class="fas fa-newspaper"></i>
-    @endif
+    <img src="{{ $displayImageUrl }}" alt="news image" style="width:100%; height:150px; object-fit:cover;">
   </div>
 
   <div class="news-content">

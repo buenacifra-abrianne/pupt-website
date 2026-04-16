@@ -677,7 +677,11 @@
 
         const loadFrame = (frame) => {
             setResearchPreviewLoading(frame, true);
-            frame.srcdoc = typeof previewHtml === 'string' ? previewHtml : '';
+            if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                window.applyCmsPreviewFrameContent(frame, typeof previewHtml === 'string' ? previewHtml : '');
+            } else {
+                frame.srcdoc = typeof previewHtml === 'string' ? previewHtml : '';
+            }
         };
 
         frames.forEach((frame) => {

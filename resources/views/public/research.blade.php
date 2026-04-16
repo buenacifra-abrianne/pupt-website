@@ -52,7 +52,7 @@
                         <div class="carousel-stage">
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
-                                    <img src="{{ asset('assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                    <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
                                 </div>
                                 <div class="carousel-caption">
                                     <h2>{{ $pageSection['title'] ?? 'Research and Extension' }}</h2>
@@ -158,7 +158,7 @@
                                 @endif
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ asset('assets/static_img/about_header_image.png') }}" alt="{{ $card['title'] ?? 'Research card' }}">
+                                        <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="{{ $card['title'] ?? 'Research card' }}">
                                         <div class="students-card-copy">
                                             <h3>{{ $card['title'] ?? 'Card' }}</h3>
                                         </div>
@@ -180,7 +180,7 @@
                             <article class="students-card students-card-empty">
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ asset('assets/static_img/about_header_image.png') }}" alt="Research placeholder">
+                                        <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Research placeholder">
                                         <div class="students-card-copy">
                                             <h3>No cards yet</h3>
                                         </div>

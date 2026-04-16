@@ -71,6 +71,108 @@
   margin-bottom: 1em;
 }
 
+.ne-rich-copy,
+.ne-page-copy,
+.ne-featured-desc,
+.ne-card-desc,
+.ne-modal-summary,
+.ne-modal-text {
+  white-space: normal;
+}
+
+.ne-rich-copy strong,
+.ne-page-copy strong,
+.ne-featured-desc strong,
+.ne-card-desc strong,
+.ne-modal-summary strong,
+.ne-modal-text strong,
+.ne-rich-copy b,
+.ne-page-copy b,
+.ne-featured-desc b,
+.ne-card-desc b,
+.ne-modal-summary b,
+.ne-modal-text b {
+  font-weight: 700;
+}
+
+.ne-rich-copy em,
+.ne-page-copy em,
+.ne-featured-desc em,
+.ne-card-desc em,
+.ne-modal-summary em,
+.ne-modal-text em,
+.ne-rich-copy i,
+.ne-page-copy i,
+.ne-featured-desc i,
+.ne-card-desc i,
+.ne-modal-summary i,
+.ne-modal-text i {
+  font-style: italic;
+}
+
+.ne-rich-copy u,
+.ne-page-copy u,
+.ne-featured-desc u,
+.ne-card-desc u,
+.ne-modal-summary u,
+.ne-modal-text u {
+  text-decoration: underline;
+}
+
+.ne-rich-copy s,
+.ne-page-copy s,
+.ne-featured-desc s,
+.ne-card-desc s,
+.ne-modal-summary s,
+.ne-modal-text s {
+  text-decoration: line-through;
+}
+
+.ne-rich-copy strong:not([style*="color"]),
+.ne-page-copy strong:not([style*="color"]),
+.ne-featured-desc strong:not([style*="color"]),
+.ne-card-desc strong:not([style*="color"]),
+.ne-modal-summary strong:not([style*="color"]),
+.ne-modal-text strong:not([style*="color"]),
+.ne-rich-copy b:not([style*="color"]),
+.ne-page-copy b:not([style*="color"]),
+.ne-featured-desc b:not([style*="color"]),
+.ne-card-desc b:not([style*="color"]),
+.ne-modal-summary b:not([style*="color"]),
+.ne-modal-text b:not([style*="color"]),
+.ne-rich-copy em:not([style*="color"]),
+.ne-page-copy em:not([style*="color"]),
+.ne-featured-desc em:not([style*="color"]),
+.ne-card-desc em:not([style*="color"]),
+.ne-modal-summary em:not([style*="color"]),
+.ne-modal-text em:not([style*="color"]),
+.ne-rich-copy i:not([style*="color"]),
+.ne-page-copy i:not([style*="color"]),
+.ne-featured-desc i:not([style*="color"]),
+.ne-card-desc i:not([style*="color"]),
+.ne-modal-summary i:not([style*="color"]),
+.ne-modal-text i:not([style*="color"]),
+.ne-rich-copy u:not([style*="color"]),
+.ne-page-copy u:not([style*="color"]),
+.ne-featured-desc u:not([style*="color"]),
+.ne-card-desc u:not([style*="color"]),
+.ne-modal-summary u:not([style*="color"]),
+.ne-modal-text u:not([style*="color"]),
+.ne-rich-copy s:not([style*="color"]),
+.ne-page-copy s:not([style*="color"]),
+.ne-featured-desc s:not([style*="color"]),
+.ne-card-desc s:not([style*="color"]),
+.ne-modal-summary s:not([style*="color"]),
+.ne-modal-text s:not([style*="color"]),
+.ne-rich-copy span:not([style*="color"]),
+.ne-page-copy span:not([style*="color"]),
+.ne-featured-desc span:not([style*="color"]),
+.ne-card-desc span:not([style*="color"]),
+.ne-modal-summary span:not([style*="color"]),
+.ne-modal-text span:not([style*="color"]) {
+  color: inherit;
+}
+
 .ne-card[hidden] {
   display: none !important;
 }

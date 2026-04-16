@@ -350,17 +350,17 @@ class AboutCmsContent
     private static function normalizeOverview(array $source, array $base, array $defaults): array
     {
         return [
-            'hero_image' => self::pickString($source, $base, $defaults, 'hero_image'),
+            'hero_image' => self::pickOptionalString($source, $base, $defaults, 'hero_image', 2048),
             'hero_title_default' => self::pickString($source, $base, $defaults, 'hero_title_default'),
             'hero_title_history' => self::pickString($source, $base, $defaults, 'hero_title_history'),
             'hero_title_vision' => self::pickString($source, $base, $defaults, 'hero_title_vision'),
             'story_tag' => self::pickString($source, $base, $defaults, 'story_tag'),
             'story_title' => self::pickString($source, $base, $defaults, 'story_title'),
-            'story_image' => self::pickString($source, $base, $defaults, 'story_image'),
+            'story_image' => self::pickOptionalString($source, $base, $defaults, 'story_image', 2048),
             'story_description' => self::pickString($source, $base, $defaults, 'story_description', 12000),
             'contents_tag' => self::pickString($source, $base, $defaults, 'contents_tag'),
             'contents_title' => self::pickString($source, $base, $defaults, 'contents_title'),
-            'section_header_image' => self::pickString($source, $base, $defaults, 'section_header_image'),
+            'section_header_image' => self::pickOptionalString($source, $base, $defaults, 'section_header_image', 2048),
         ];
     }
 
@@ -372,7 +372,7 @@ class AboutCmsContent
             'label' => self::pickString($source, $base, $defaults, 'label'),
             'visible_in_contents' => self::pickFlag($source, $base, $defaults, 'visible_in_contents'),
             'summary' => self::pickString($source, $base, $defaults, 'summary', 2000),
-            'image' => self::pickString($source, $base, $defaults, 'image'),
+            'image' => self::pickOptionalString($source, $base, $defaults, 'image', 2048),
         ];
 
         return match ($slug) {
@@ -643,6 +643,15 @@ class AboutCmsContent
         return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
     }
 
+    private static function pickOptionalString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
+    {
+        if (array_key_exists($key, $source)) {
+            return self::sanitizeOptionalString((string) $source[$key], $maxLen);
+        }
+
+        return self::pickString($source, $base, $defaults, $key, $maxLen);
+    }
+
     private static function pickFlag(array $source, array $base, array $defaults, string $key): string
     {
         $value = $source[$key] ?? ($base[$key] ?? ($defaults[$key] ?? '1'));
@@ -658,6 +667,17 @@ class AboutCmsContent
         if ($text === '') {
             $text = trim($fallback);
         }
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, 0, $maxLen);
+        }
+
+        return substr($text, 0, $maxLen);
+    }
+
+    private static function sanitizeOptionalString(string $value, int $maxLen): string
+    {
+        $text = trim($value);
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);

@@ -56,7 +56,7 @@
                         <div class="carousel-stage">
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
-                                    <img src="{{ asset($pageSection['hero_image'] ?? 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                    <img src="{{ \App\Support\NewsImage::url($pageSection['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
                                 </div>
                                 <div class="carousel-caption">
                                     <h2>{{ strtoupper((string) ($pageSection['title'] ?? 'Students')) }}</h2>
@@ -219,7 +219,7 @@
                                     @endif
 
                                     <div class="students-org-img-wrap">
-                                        <img src="{{ asset($orgImage !== '' ? $orgImage : 'assets/static_img/pupillar.jpeg') }}" alt="{{ $orgAbbr !== '' ? $orgAbbr : $orgTitle }}">
+                                        <img src="{{ \App\Support\NewsImage::url($orgImage !== '' ? $orgImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $orgAbbr !== '' ? $orgAbbr : $orgTitle }}">
                                     </div>
                                     <div class="students-org-copy">
                                         <h3>{{ $orgTitle !== '' ? $orgTitle : 'Organization' }}</h3>

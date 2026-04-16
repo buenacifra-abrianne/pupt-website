@@ -65,7 +65,7 @@
                     <div class="carousel-stage">
                         <div class="carousel-slide active">
                             <div class="carousel-split" aria-hidden="true">
-                                <img src="{{ asset($overview['hero_image'] ?? 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                <img src="{{ \App\Support\NewsImage::url($overview['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
                             </div>
 
                             <div class="carousel-caption">
@@ -126,7 +126,7 @@
                             </div>
 
                             <div class="campus-story-visual">
-                                <img src="{{ asset($overview['story_image'] ?? 'assets/static_img/about-pup.png') }}" alt="{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}">
+                                <img src="{{ \App\Support\NewsImage::url($overview['story_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}">
                             </div>
 
                             <div class="campus-story-description">
@@ -186,7 +186,7 @@
                                 @endif
                                 <div class="contents-card-inner">
                                     <div class="contents-card-front">
-                                        <img src="{{ asset($section['image'] ?? 'assets/static_img/pupillar.jpeg') }}" alt="{{ $section['label'] }}">
+                                        <img src="{{ \App\Support\NewsImage::url($section['image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $section['label'] }}">
                                         <div class="contents-card-copy">
                                             <h3>{{ $section['label'] }}</h3>
                                         </div>
@@ -216,7 +216,7 @@
             @if($selectedSection)
                 @php
                     $selectedSlug = $selectedSection['slug'] ?? '';
-                    $detailImage = $overview['section_header_image'] ?? 'assets/static_img/about_header_image.png';
+                    $detailImage = \App\Support\NewsImage::url($overview['section_header_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                 @endphp
                 <section class="about-sections">
                     @if($selectedSlug === 'history')

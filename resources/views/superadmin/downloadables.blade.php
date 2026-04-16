@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.rich_text_editor_assets')
 </head>
 <body>
     <nav class="sidebar" id="sidebar">
@@ -124,8 +125,8 @@
                             </div>
 
                         @if(!empty($row->description))
-                            <div class="announcement-description">
-                                {!! $row->description !!}
+                            <div class="announcement-description rich-text-content">
+                                {!! \App\Support\RichText::sanitize($row->description) !!}
                             </div>
                         @endif
 
@@ -194,7 +195,7 @@
 
                 <div class="form-group">
                     <label>Description</label>
-                    <textarea name="description" rows="4" placeholder="Enter file description"></textarea>
+                    @include('partials.rich_text_editor', ['name' => 'description', 'placeholder' => 'Enter file description'])
                 </div>
 
                 <div class="form-group">
@@ -299,6 +300,10 @@
             currentFileText.textContent = '';
         }
 
+        if (typeof window.setRichTextEditorValue === 'function') {
+            window.setRichTextEditorValue(form.querySelector('[name="description"]'), '');
+        }
+
         downloadableBaseline = null;
     }
 
@@ -327,7 +332,11 @@
         if (modalTitle) modalTitle.innerText = 'Edit Downloadable';
 
         form.querySelector('[name="title"]').value = title || '';
-        form.querySelector('[name="description"]').value = description || '';
+        if (typeof window.setRichTextEditorValue === 'function') {
+            window.setRichTextEditorValue(form.querySelector('[name="description"]'), description || '');
+        } else {
+            form.querySelector('[name="description"]').value = description || '';
+        }
 
         let idInput = document.getElementById('edit_downloadable_id');
         if (!idInput) {
@@ -349,8 +358,7 @@
 
         downloadableBaseline = {
             title: (title || '').trim(),
-            description: (description || '').trim(),
-            category: (category || '').trim()
+            description: (description || '').trim()
         };
     }
 
@@ -383,6 +391,10 @@
 
         const form = e.target;
         const isEdit = !!document.getElementById('edit_downloadable_id');
+
+        if (typeof window.syncRichTextEditors === 'function') {
+            window.syncRichTextEditors(form);
+        }
 
         if (isEdit && !downloadableHasChanges(form)) {
             showToast('No changes detected.', 'info', 'No Changes');
@@ -481,7 +493,7 @@ function setActiveEditableField(el) {
 function getRichTextHiddenFieldFromEditor(target) {
     const form = target.closest('form');
     if (!form) return null;
-    return form.querySelector('[name="content"]');
+    return form.querySelector('[name="description"], [name="content"]');
 }
 
 function insertSpeechIntoActiveField(text) {

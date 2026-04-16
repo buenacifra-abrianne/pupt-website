@@ -794,9 +794,18 @@
             setHomePreviewLoading(frame, true);
 
             try {
-                frame.srcdoc = JSON.parse(payload.textContent || '""');
+                const previewHtml = JSON.parse(payload.textContent || '""');
+                if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                    window.applyCmsPreviewFrameContent(frame, previewHtml);
+                } else {
+                    frame.srcdoc = previewHtml;
+                }
             } catch (_) {
-                frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+                if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                    window.applyCmsPreviewFrameContent(frame, '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                } else {
+                    frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+                }
             }
         }
 

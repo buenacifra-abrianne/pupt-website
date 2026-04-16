@@ -225,6 +225,7 @@
             @forelse($myNews ?? collect() as $n)
                 @php
                     $imgUrl = \App\Support\NewsImage::url($n->image_path);
+                    $displayImgUrl = \App\Support\NewsImage::url($n->image_path, 'assets/static_img/pupillar.jpeg');
                 @endphp
 
                 <div
@@ -232,11 +233,7 @@
                     data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
                     <div class="news-image">
-                        @if($imgUrl)
-                            <img src="{{ $imgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($n->title ?? 'News image') }}">
-                        @else
-                            <i class="fas fa-newspaper"></i>
-                        @endif
+                        <img src="{{ $displayImgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($n->title ?? 'News image') }}">
                     </div>
 
                     <div class="news-content">

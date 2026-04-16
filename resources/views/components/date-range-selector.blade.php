@@ -90,6 +90,9 @@
         align-items: center;
         gap: 10px;
         flex-wrap: wrap;
+        position: relative;
+        z-index: 30;
+        overflow: visible;
     }
 
     .date-range-selector label {
@@ -113,6 +116,9 @@
         border-radius: 12px;
         background: linear-gradient(180deg, #fff 0%, #fcfcfc 100%);
         transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+        position: relative;
+        overflow: visible;
+        z-index: 1;
     }
 
     .date-range-selector .filter-field i {
@@ -136,6 +142,12 @@
     .date-range-selector .cms-dropdown {
         position: relative;
         width: 100%;
+        z-index: 2;
+        overflow: visible;
+    }
+
+    .date-range-selector .cms-dropdown.open {
+        z-index: 1600;
     }
 
     .date-range-selector .cms-dropdown-trigger {
@@ -176,7 +188,7 @@
         border-radius: 12px;
         box-shadow: 0 14px 30px rgba(22, 29, 37, 0.16);
         padding: 8px;
-        z-index: 1200;
+        z-index: 1650;
         display: none;
         max-height: 260px;
         overflow-y: auto;
@@ -216,6 +228,9 @@
         display: flex;
         align-items: center;
         gap: 8px;
+        position: relative;
+        z-index: 5;
+        overflow: visible;
     }
 
     .date-range-selector .date-range-custom-wrap[hidden] {

@@ -787,6 +787,9 @@ justify-content: space-between;
 align-items: center;
 flex-wrap: wrap;
 gap: 15px;
+position: relative;
+z-index: 25;
+overflow: visible;
 }
 
 .analytics-empty-state {

@@ -380,7 +380,9 @@ input[name="title"] {
         }
 
         surface.focus();
+        restoreSelection(root.__richEditorSavedRange || null);
         document.execCommand(command, false, value);
+        saveSelection(root);
         syncEditor(root);
     }
 
@@ -535,7 +537,9 @@ input[name="title"] {
         }
 
         surface.focus();
+        restoreSelection(root.__richEditorSavedRange || null);
         applyInlineStyleToSelection(surface, { fontSize: size });
+        saveSelection(root);
         normalizeStyledSpans(root);
         syncEditor(root);
     }
@@ -901,10 +905,16 @@ input[name="title"] {
         surface.innerHTML = input.value || '';
 
         root.querySelectorAll('.rich-editor-btn').forEach((button) => {
+            button.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                saveSelection(root);
+            });
+
             if (!button.classList.contains('js-font-size-trigger') && !button.classList.contains('js-text-color-trigger')) {
                 button.addEventListener('click', () => {
                     handleCommand(root, button);
                     updateToolbarState(root);
+                    updateTextColorState(root);
                 });
             }
         });
@@ -923,11 +933,17 @@ input[name="title"] {
         }
 
         root.querySelectorAll('.js-font-size-option').forEach((option) => {
+            option.addEventListener('mousedown', (event) => {
+                event.preventDefault();
+                saveSelection(root);
+            });
+
             option.addEventListener('click', () => {
                 const size = option.dataset.size;
                 setFontSizeState(root, size);
                 applyFontSize(root, size);
                 closeFontSizePopover(root);
+                updateTextColorState(root);
             });
         });
 

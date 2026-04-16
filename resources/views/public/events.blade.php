@@ -17,14 +17,13 @@
             ->filter(fn ($card) => is_array($card))
             ->map(fn ($card, $index) => array_merge($card, ['source_index' => $index]))
             ->values();
-        $sortedCards = $eventCards
-            ->sortBy(fn ($card) => ($card['event_date'] ?? '9999-12-31').'|'.($card['start_time'] ?? '99:99').'|'.($card['title'] ?? ''))
-            ->values();
         $today = now()->toDateString();
-        $displayCards = $sortedCards;
-        $featuredCard = $eventCards->first(fn ($card) => !empty($card['featured']));
-        $ongoingCards = $sortedCards->filter(fn ($card) => ($card['event_date'] ?? '') === $today)->values();
-        $upcomingCards = $sortedCards->filter(fn ($card) => ($card['event_date'] ?? '') > $today)->values();
+        $cardCollections = \App\Support\EventsCmsContent::displayCollections($eventCards, $today);
+        $displayCards = collect($cardCollections['active'] ?? []);
+        $expiredCards = collect($cardCollections['expired'] ?? []);
+        $featuredCard = $cardCollections['featured'] ?? null;
+        $ongoingCards = collect($cardCollections['ongoing'] ?? []);
+        $upcomingCards = collect($cardCollections['upcoming'] ?? []);
 
         $formatDate = static function (?string $date, string $format = 'F d, Y'): string {
             $value = trim((string) $date);
@@ -76,15 +75,6 @@
             } catch (\Throwable $e) {
                 return 'TBA';
             }
-        };
-
-        $summaryFor = static function (array $card): string {
-            $summary = trim((string) ($card['summary'] ?? ''));
-            if ($summary !== '') {
-                return $summary;
-            }
-
-            return \Illuminate\Support\Str::limit(strip_tags((string) ($card['content'] ?? '')), 170);
         };
 
         $summaryHtmlFor = static function (array $card): string {
@@ -174,7 +164,7 @@
                             <span class="ne-tag">{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}</span>
                             <h2 class="ne-featured-title">{{ $featuredCard['title'] ?? '' }}</h2>
                             <p class="ne-featured-meta">{{ $formatDateLine($featuredCard) }}</p>
-                            <p class="ne-featured-desc">{{ $summaryFor($featuredCard) }}</p>
+                            <div class="ne-featured-desc ne-rich-copy">{!! $summaryHtmlFor($featuredCard) !!}</div>
                             <a
                                 href="#"
                                 class="ne-btn-gold"
@@ -182,7 +172,7 @@
                                 data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}"
                                 data-date="{{ $formatDateLine($featuredCard) }}"
                                 data-title="{{ $featuredCard['title'] ?? '' }}"
-                                data-summary="{{ e($summaryFor($featuredCard)) }}"
+                                data-summary-html="{{ e($summaryHtmlFor($featuredCard)) }}"
                                 data-location="{{ $featuredCard['location'] ?? '' }}"
                                 data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                 data-content-html="{{ e(\App\Support\RichText::sanitize($featuredCard['content'] ?? '')) }}"
@@ -195,7 +185,11 @@
             @endif
 
             <section
-                class="ne-events-main reveal"
+                class="ne-events-main reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                @if($cmsPreview)
+                    data-cms-section="cards"
+                    data-cms-section-label="Event Listings"
+                @endif
             >
                 <div data-cms-boundary class="cms-preview-boundary-full">
                     @unless($cmsPreview)
@@ -298,7 +292,7 @@
                                             data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($card['category'] ?? 'events') }}"
                                             data-date="{{ $formatDateLine($card) }}"
                                             data-title="{{ $card['title'] ?? '' }}"
-                                            data-summary="{{ e($summaryFor($card)) }}"
+                                            data-summary-html="{{ e($summaryHtmlFor($card)) }}"
                                             data-location="{{ $card['location'] ?? '' }}"
                                             data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                             data-content-html="{{ e(\App\Support\RichText::sanitize($card['content'] ?? '')) }}"
@@ -314,6 +308,84 @@
                     <div class="ne-empty-state" data-ne-empty-state @if($displayCards->isNotEmpty()) hidden @endif>
                         No events available yet.
                     </div>
+
+                    @if($cmsPreview)
+                        <section class="ne-expired-preview-section" aria-label="Expired events preview">
+                            <div class="ne-expired-preview-header">
+                                <div>
+                                    <h3 class="ne-expired-preview-title">Expired Events</h3>
+                                    <p class="ne-expired-preview-copy">These are finished events from the public page. You can view and remove them here in the CMS.</p>
+                                </div>
+                                <button
+                                    type="button"
+                                    class="ne-expired-remove-selected"
+                                    data-ne-expired-remove-selected
+                                    @if($expiredCards->isEmpty()) hidden @endif
+                                    disabled
+                                >
+                                    Remove Selected
+                                </button>
+                            </div>
+
+                            <section class="ne-card-grid ne-card-grid-expired" aria-label="Expired event cards">
+                                @foreach($expiredCards as $card)
+                                    <article
+                                        class="ne-card ne-card-expired"
+                                        data-cms-card-index="{{ $card['source_index'] ?? 0 }}"
+                                        data-ne-expired-card
+                                    >
+                                        <button
+                                            type="button"
+                                            class="ne-expired-select-toggle"
+                                            data-ne-expired-select
+                                            aria-pressed="false"
+                                            aria-label="Select {{ $card['title'] ?? 'expired event' }}"
+                                        >
+                                            Select
+                                        </button>
+
+                                        <div class="cms-preview-card-actions" aria-label="Expired card actions">
+                                            <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Remove card" aria-label="Remove {{ $card['title'] ?? 'expired event card' }}">
+                                                Remove
+                                            </button>
+                                        </div>
+
+                                        <div class="ne-card-img">
+                                            <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $card['title'] ?? 'Expired event card' }}" loading="lazy">
+                                            <span class="ne-card-tag">Expired</span>
+                                        </div>
+                                        <div class="ne-card-body">
+                                            <p class="ne-card-date">Expired on {{ $formatDate($card['event_date'] ?? null, 'F d, Y') }}</p>
+                                            <h3 class="ne-card-title">{{ $card['title'] ?? '' }}</h3>
+                                            <div class="ne-card-desc ne-rich-copy">{!! $summaryHtmlFor($card) !!}</div>
+                                            <hr class="ne-card-rule">
+                                            <div class="ne-card-foot">
+                                                <span class="ne-card-loc">{{ $card['location'] ?? 'Location to be announced' }}</span>
+                                                <a
+                                                    href="#"
+                                                    class="ne-read-more"
+                                                    data-ne-modal-trigger
+                                                    data-tag="Expired Event"
+                                                    data-date="{{ $formatDateLine($card) }}"
+                                                    data-title="{{ $card['title'] ?? '' }}"
+                                                    data-summary-html="{{ e($summaryHtmlFor($card)) }}"
+                                                    data-location="{{ $card['location'] ?? '' }}"
+                                                    data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
+                                                    data-content-html="{{ e(\App\Support\RichText::sanitize($card['content'] ?? '')) }}"
+                                                >
+                                                    View Event
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </article>
+                                @endforeach
+                            </section>
+
+                            <div class="ne-empty-state ne-expired-preview-empty" data-ne-expired-empty-state @if($expiredCards->isNotEmpty()) hidden @endif>
+                                No expired events to review.
+                            </div>
+                        </section>
+                    @endif
                 </div>
             </section>
         </section>
@@ -329,7 +401,7 @@
                         <span class="ne-tag" id="modalTag"></span>
                         <p class="ne-modal-date" id="modalDate"></p>
                         <h3 class="ne-modal-title" id="modalTitle"></h3>
-                        <p class="ne-modal-summary" id="modalSummary"></p>
+                        <div class="ne-modal-summary ne-rich-copy" id="modalSummary"></div>
                         <p class="ne-modal-loc" id="modalLocation"></p>
                         <hr class="ne-modal-rule">
                         <p class="ne-modal-details-label" id="modalDetailsLabel">Details</p>
@@ -467,6 +539,155 @@
                 transform: none;
             }
 
+            .ne-expired-preview-section {
+                margin: 0 var(--ne-page-gutter) 52px;
+                padding: 26px 0 0;
+                border-top: 1px solid rgba(74, 74, 74, 0.16);
+            }
+
+            .ne-expired-preview-header {
+                display: flex;
+                align-items: flex-start;
+                justify-content: space-between;
+                gap: 16px;
+                margin-bottom: 22px;
+            }
+
+            .ne-expired-preview-title {
+                margin: 6px 0 8px;
+                color: #4f4f4f;
+                font-family: "Poppins", sans-serif;
+                font-size: clamp(1.3rem, 2.2vw, 1.7rem);
+                font-weight: 800;
+                line-height: 1.1;
+            }
+
+            .ne-expired-preview-copy {
+                max-width: 760px;
+                margin: 0;
+                color: #767676;
+                font-size: 0.95rem;
+                line-height: 1.7;
+            }
+
+            .ne-expired-remove-selected {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                min-width: 164px;
+                min-height: 46px;
+                padding: 0 18px;
+                border-radius: 999px;
+                border: 1px solid rgba(82, 82, 82, 0.18);
+                background: linear-gradient(160deg, #6a6a6a 0%, #464646 100%);
+                color: #faf8f6;
+                font-size: 0.85rem;
+                font-weight: 800;
+                letter-spacing: 0.02em;
+                box-shadow: 0 12px 22px rgba(72, 72, 72, 0.16);
+                cursor: pointer;
+            }
+
+            .ne-expired-remove-selected[disabled] {
+                opacity: 0.55;
+                cursor: not-allowed;
+                box-shadow: none;
+            }
+
+            .ne-card-grid-expired {
+                padding-left: 0;
+                padding-right: 0;
+                padding-bottom: 0;
+            }
+
+            .ne-card-expired {
+                background: linear-gradient(165deg, #f2f2f2 0%, #dcdcdc 100%);
+                border-color: rgba(84, 84, 84, 0.16);
+                box-shadow: 0 12px 28px rgba(80, 80, 80, 0.12);
+                cursor: pointer;
+            }
+
+            .ne-card-expired.is-selected {
+                outline: 3px solid rgba(88, 88, 88, 0.54);
+                outline-offset: 0;
+                box-shadow: 0 18px 32px rgba(70, 70, 70, 0.18);
+            }
+
+            .ne-expired-select-toggle {
+                position: absolute;
+                top: 14px;
+                left: 14px;
+                z-index: 13;
+                min-width: 74px;
+                height: 34px;
+                padding: 0 12px;
+                border: 1px solid rgba(255, 255, 255, 0.2);
+                border-radius: 999px;
+                background: rgba(52, 52, 52, 0.78);
+                color: #f7f7f7;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 0.76rem;
+                font-weight: 800;
+                letter-spacing: 0.03em;
+                cursor: pointer;
+            }
+
+            .ne-card-expired.is-selected .ne-expired-select-toggle {
+                background: linear-gradient(160deg, #565656 0%, #3a3a3a 100%);
+                border-color: rgba(255, 255, 255, 0.32);
+            }
+
+            .ne-card-expired .ne-card-img {
+                background: linear-gradient(160deg, #d0d0d0 0%, #b5b5b5 100%);
+            }
+
+            .ne-card-expired .ne-card-img img {
+                filter: grayscale(1) saturate(0.2) brightness(0.94);
+            }
+
+            .ne-card-expired .ne-card-tag {
+                background: rgba(58, 58, 58, 0.78);
+                border-color: rgba(255, 255, 255, 0.18);
+                color: #f8f8f8;
+            }
+
+            .ne-card-expired .ne-card-date,
+            .ne-card-expired .ne-card-loc,
+            .ne-card-expired .ne-card-desc,
+            .ne-card-expired .ne-read-more {
+                color: #5f5f5f;
+            }
+
+            .ne-card-expired .ne-card-title {
+                color: #303030;
+            }
+
+            .ne-card-expired .ne-card-rule {
+                border-top-color: rgba(78, 78, 78, 0.12);
+            }
+
+            .ne-card-expired:hover,
+            .ne-card-expired:focus-within {
+                transform: none !important;
+                box-shadow: 0 12px 28px rgba(80, 80, 80, 0.12) !important;
+            }
+
+            .ne-card-expired:hover .ne-card-img img,
+            .ne-card-expired:focus-within .ne-card-img img {
+                transform: none !important;
+                filter: grayscale(1) saturate(0.2) brightness(0.94) !important;
+            }
+
+            .ne-expired-preview-empty {
+                margin: 20px 0 0;
+                background: linear-gradient(160deg, #f5f5f5 0%, #e3e3e3 100%);
+                border-color: rgba(84, 84, 84, 0.14);
+                color: #646464;
+                box-shadow: none;
+            }
+
             @media (max-width: 768px) {
                 .ne-page-intro,
                 .ne-featured,
@@ -485,6 +706,10 @@
                     opacity: 1;
                     transform: none;
                 }
+
+                .ne-expired-preview-header {
+                    flex-direction: column;
+                }
             }
         </style>
     @endif
@@ -498,6 +723,8 @@
             const featuredSection = document.querySelector('[data-cms-featured-card-index]');
             const featuredEditTrigger = document.querySelector('[data-cms-featured-edit-trigger]');
             const emptyState = document.querySelector('[data-ne-empty-state]');
+            const expiredRemoveSelectedButton = document.querySelector('[data-ne-expired-remove-selected]');
+            const expiredEmptyState = document.querySelector('[data-ne-expired-empty-state]');
             const modal = document.getElementById('detailsModal');
             const modalImg = document.getElementById('modalImg');
             const modalTag = document.getElementById('modalTag');
@@ -509,6 +736,7 @@
             const modalText = document.getElementById('modalText');
             const closeBtn = modal?.querySelector('.ne-modal-close');
             let lastTrigger = null;
+            const selectedExpiredCards = new Set();
 
             // CMS preview does not load the public reveal script, so force visible content there.
             if (cmsPreview) {
@@ -516,6 +744,60 @@
             }
 
             const getCards = () => Array.from(document.querySelectorAll('[data-events-card]'));
+            const getCmsCards = () => Array.from(document.querySelectorAll('.ne-card[data-cms-card-index]'));
+            const getExpiredCards = () => Array.from(document.querySelectorAll('.ne-card-expired[data-cms-card-index]'));
+
+            const syncExpiredSelectionState = () => {
+                const expiredCards = getExpiredCards();
+
+                expiredCards.forEach((card) => {
+                    const cardIndex = String(card.getAttribute('data-cms-card-index') || '');
+                    const isSelected = selectedExpiredCards.has(cardIndex);
+                    const toggle = card.querySelector('[data-ne-expired-select]');
+
+                    card.classList.toggle('is-selected', isSelected);
+
+                    if (toggle) {
+                        toggle.setAttribute('aria-pressed', isSelected ? 'true' : 'false');
+                        toggle.textContent = isSelected ? 'Selected' : 'Select';
+                    }
+                });
+
+                if (expiredRemoveSelectedButton) {
+                    const selectedCount = selectedExpiredCards.size;
+                    expiredRemoveSelectedButton.disabled = selectedCount === 0;
+                    expiredRemoveSelectedButton.textContent = selectedCount > 0
+                        ? `Remove Selected (${selectedCount})`
+                        : 'Remove Selected';
+                }
+            };
+
+            const syncExpiredPreviewState = () => {
+                const remainingExpiredCards = getExpiredCards();
+                const remainingIndexes = new Set(
+                    remainingExpiredCards
+                        .map((card) => String(card.getAttribute('data-cms-card-index') || ''))
+                        .filter((value) => value !== '')
+                );
+
+                Array.from(selectedExpiredCards).forEach((cardIndex) => {
+                    if (!remainingIndexes.has(cardIndex)) {
+                        selectedExpiredCards.delete(cardIndex);
+                    }
+                });
+
+                if (expiredRemoveSelectedButton) {
+                    expiredRemoveSelectedButton.hidden = remainingExpiredCards.length === 0;
+                }
+
+                if (!expiredEmptyState) {
+                    syncExpiredSelectionState();
+                    return;
+                }
+
+                expiredEmptyState.hidden = remainingExpiredCards.length !== 0;
+                syncExpiredSelectionState();
+            };
 
             const applyFilter = (filterKey) => {
                 let visibleCount = 0;
@@ -569,7 +851,7 @@
                 modalTag.textContent = trigger.dataset.tag || '';
                 modalDate.textContent = trigger.dataset.date || '';
                 modalTitle.textContent = trigger.dataset.title || '';
-                modalSummary.textContent = decodeHtmlEntities(trigger.dataset.summary || '');
+                modalSummary.innerHTML = decodeHtmlEntities(trigger.dataset.summaryHtml || '');
                 modalSummary.hidden = modalSummary.textContent.trim() === '';
                 modalLocation.textContent = trigger.dataset.location || '';
                 modalLocation.hidden = modalLocation.textContent.trim() === '';
@@ -626,6 +908,14 @@
             }
 
             let previewHeightFrame = null;
+            const sectionTargets = Array.from(document.querySelectorAll('[data-cms-section]'));
+            const postSection = (section, label) => {
+                window.parent?.postMessage({
+                    type: 'cms-events-edit',
+                    section,
+                    label: label || section,
+                }, '*');
+            };
 
             const requestAddCard = () => {
                 window.parent?.postMessage({
@@ -652,6 +942,47 @@
                     cardIndex: Number(cardIndex),
                 }, '*');
             };
+
+            const requestDeleteExpiredCards = (cardIndexes) => {
+                const normalizedIndexes = Array.from(new Set(
+                    (Array.isArray(cardIndexes) ? cardIndexes : [])
+                        .map((value) => Number(value))
+                        .filter((value) => Number.isFinite(value))
+                ));
+
+                if (!normalizedIndexes.length) {
+                    return;
+                }
+
+                window.parent?.postMessage({
+                    type: 'cms-events-delete-expired-cards',
+                    section: 'cards',
+                    label: 'Remove Expired Events',
+                    cardIndexes: normalizedIndexes,
+                }, '*');
+            };
+
+            sectionTargets.forEach((target) => {
+                const section = target.getAttribute('data-cms-section') || '';
+                const label = target.getAttribute('data-cms-section-label') || section;
+                const chip = target.querySelector('[data-cms-edit-trigger]');
+
+                const openSectionEditor = (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    postSection(section, label);
+                };
+
+                target.addEventListener('mouseenter', () => target.classList.add('is-active'));
+                target.addEventListener('mouseleave', () => target.classList.remove('is-active'));
+                target.addEventListener('click', openSectionEditor);
+
+                chip?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    postSection(section, label);
+                });
+            });
 
             const schedulePreviewHeight = () => {
                 if (previewHeightFrame !== null) {
@@ -689,11 +1020,7 @@
                 });
             };
 
-            getCards().forEach((card) => {
-                if (!card.hasAttribute('data-cms-card-index')) {
-                    return;
-                }
-
+            getCmsCards().forEach((card) => {
                 const editButton = card.querySelector('[data-cms-card-edit]');
                 const deleteButton = card.querySelector('[data-cms-card-delete]');
 
@@ -713,25 +1040,82 @@
                 deleteButton?.addEventListener('click', deleteCard);
             });
 
+            getExpiredCards().forEach((card) => {
+                const cardIndex = String(card.getAttribute('data-cms-card-index') || '');
+                const selectToggle = card.querySelector('[data-ne-expired-select]');
+
+                const toggleSelection = () => {
+                    if (cardIndex === '') {
+                        return;
+                    }
+
+                    if (selectedExpiredCards.has(cardIndex)) {
+                        selectedExpiredCards.delete(cardIndex);
+                    } else {
+                        selectedExpiredCards.add(cardIndex);
+                    }
+
+                    syncExpiredSelectionState();
+                };
+
+                selectToggle?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    toggleSelection();
+                });
+
+                card.addEventListener('click', (event) => {
+                    if (event.target.closest('a, button')) {
+                        return;
+                    }
+
+                    toggleSelection();
+                });
+            });
+
             window.addEventListener('message', (event) => {
                 const data = event.data || {};
-                if (!data || data.type !== 'cms-events-prune-card') {
+                if (!data || !data.type) {
                     return;
                 }
 
-                const targetIndex = Number(data.cardIndex);
-                if (!Number.isFinite(targetIndex)) {
+                if (data.type === 'cms-events-prune-card') {
+                    const targetIndex = Number(data.cardIndex);
+                    if (!Number.isFinite(targetIndex)) {
+                        return;
+                    }
+
+                    const targetCard = document.querySelector(`.ne-card[data-cms-card-index="${targetIndex}"]`);
+                    if (!targetCard) {
+                        return;
+                    }
+
+                    targetCard.remove();
+                    applyFilter('all');
+                    syncExpiredPreviewState();
+                    schedulePreviewHeight();
                     return;
                 }
 
-                const targetCard = document.querySelector(`[data-events-card][data-cms-card-index="${targetIndex}"]`);
-                if (!targetCard) {
-                    return;
-                }
+                if (data.type === 'cms-events-prune-cards') {
+                    const targetIndexes = Array.from(new Set(
+                        (Array.isArray(data.cardIndexes) ? data.cardIndexes : [])
+                            .map((value) => Number(value))
+                            .filter((value) => Number.isFinite(value))
+                    ));
 
-                targetCard.remove();
-                applyFilter('all');
-                schedulePreviewHeight();
+                    if (!targetIndexes.length) {
+                        return;
+                    }
+
+                    targetIndexes.forEach((cardIndex) => {
+                        document.querySelector(`.ne-card[data-cms-card-index="${cardIndex}"]`)?.remove();
+                    });
+
+                    applyFilter('all');
+                    syncExpiredPreviewState();
+                    schedulePreviewHeight();
+                }
             });
 
             addCardTrigger?.addEventListener('click', (event) => {
@@ -760,6 +1144,12 @@
                 requestAddCard();
             });
 
+            expiredRemoveSelectedButton?.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                requestDeleteExpiredCards(Array.from(selectedExpiredCards));
+            });
+
             if (typeof ResizeObserver !== 'undefined') {
                 const observer = new ResizeObserver(() => schedulePreviewHeight());
                 observer.observe(document.body);
@@ -783,6 +1173,7 @@
             window.addEventListener('load', schedulePreviewHeight);
             window.addEventListener('resize', schedulePreviewHeight);
             window.addEventListener('pageshow', schedulePreviewHeight);
+            syncExpiredPreviewState();
             schedulePreviewHeight();
         });
     </script>

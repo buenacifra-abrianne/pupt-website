@@ -198,6 +198,9 @@ class RichText
             $sanitizedValue = match ($property) {
                 'color', 'background-color' => self::sanitizeColorValue($value),
                 'font-size' => self::sanitizeFontSizeValue($value),
+                'font-weight' => self::sanitizeFontWeightValue($value),
+                'font-style' => self::sanitizeFontStyleValue($value),
+                'text-decoration', 'text-decoration-line' => self::sanitizeTextDecorationValue($value),
                 'text-align' => self::sanitizeTextAlignValue($value),
                 'line-height' => self::sanitizeLineHeightValue($value),
                 'vertical-align' => self::sanitizeVerticalAlignValue($value),
@@ -246,6 +249,45 @@ class RichText
         $value = trim($value);
 
         return preg_match('/^\d+(?:\.\d+)?(?:px|em|rem|%)$/i', $value) ? strtolower($value) : '';
+    }
+
+    private static function sanitizeFontWeightValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+
+        if (in_array($value, ['normal', 'bold', 'bolder', 'lighter'], true)) {
+            return $value;
+        }
+
+        return preg_match('/^[1-9]00$/', $value) === 1 ? $value : '';
+    }
+
+    private static function sanitizeFontStyleValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+
+        return in_array($value, ['normal', 'italic', 'oblique'], true) ? $value : '';
+    }
+
+    private static function sanitizeTextDecorationValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+        if ($value === '') {
+            return '';
+        }
+
+        $parts = preg_split('/\s+/', $value) ?: [];
+        $allowed = ['none', 'underline', 'line-through', 'overline'];
+
+        if ($parts === [] || array_diff($parts, $allowed) !== []) {
+            return '';
+        }
+
+        if (in_array('none', $parts, true)) {
+            return count($parts) === 1 ? 'none' : '';
+        }
+
+        return implode(' ', array_values(array_unique($parts)));
     }
 
     private static function sanitizeTextAlignValue(string $value): string

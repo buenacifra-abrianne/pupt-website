@@ -1310,7 +1310,7 @@
                 frame.__aboutPreviewLoadingSession = Number(explicitSessionId) - 1;
             }
 
-            if (!shouldForceReload && currentAboutPreviewRoute === targetKey && frame.srcdoc) {
+            if (!shouldForceReload && currentAboutPreviewRoute === targetKey && (typeof window.hasCmsPreviewFrameContent === 'function' ? window.hasCmsPreviewFrameContent(frame) : !!frame.srcdoc)) {
                 setAboutPreviewLoading(frame, true);
                 queueAboutPreviewSettledSync(frame);
                 return;
@@ -1318,7 +1318,12 @@
 
             currentAboutPreviewRoute = targetKey;
             setAboutPreviewLoading(frame, true);
-            frame.srcdoc = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+            const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+            if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                window.applyCmsPreviewFrameContent(frame, previewHtml);
+            } else {
+                frame.srcdoc = previewHtml;
+            }
 
             document.querySelectorAll('[data-about-preview-page]').forEach((btn) => {
                 btn.classList.toggle('is-active', btn.getAttribute('data-about-preview-page') === targetKey);

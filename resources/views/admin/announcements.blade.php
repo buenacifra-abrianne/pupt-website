@@ -229,11 +229,7 @@
                             </label>
 
                             <div class="news-image">
-                                @if(!empty($news->image_path))
-                                    <img src="{{ \App\Support\NewsImage::url($news->image_path) }}" style="width:100%; height:150px; object-fit:cover;">
-                                @else
-                                    <i class="fas fa-newspaper"></i>
-                                @endif
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($news->title ?? 'News image') }}">
                             </div>
 
                             <div class="news-content">

@@ -63,4 +63,38 @@ class EventsCmsContentTest extends TestCase
         $this->assertSame('events/cards/first.jpg', $result['cards'][0]['image']);
         $this->assertFalse($result['cards'][0]['featured']);
     }
+
+    public function test_display_collections_moves_past_events_into_expired_bucket(): void
+    {
+        $cards = [
+            [
+                'title' => 'Past Event',
+                'event_date' => '2026-04-14',
+                'start_time' => '09:00',
+                'featured' => true,
+            ],
+            [
+                'title' => 'Today Event',
+                'event_date' => '2026-04-16',
+                'start_time' => '10:00',
+                'featured' => false,
+            ],
+            [
+                'title' => 'Future Event',
+                'event_date' => '2026-04-18',
+                'start_time' => '08:00',
+                'featured' => true,
+            ],
+        ];
+
+        $result = EventsCmsContent::displayCollections($cards, '2026-04-16');
+
+        $this->assertCount(2, $result['active']);
+        $this->assertSame(['Today Event', 'Future Event'], $result['active']->pluck('title')->all());
+        $this->assertCount(1, $result['expired']);
+        $this->assertSame(['Past Event'], $result['expired']->pluck('title')->all());
+        $this->assertSame('Future Event', $result['featured']['title']);
+        $this->assertSame(['Today Event'], $result['ongoing']->pluck('title')->all());
+        $this->assertSame(['Future Event'], $result['upcoming']->pluck('title')->all());
+    }
 }

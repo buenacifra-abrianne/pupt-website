@@ -811,7 +811,7 @@ function setActiveEditableField(el) {
 function getRichTextHiddenFieldFromEditor(target) {
     const form = target.closest('form');
     if (!form) return null;
-    return form.querySelector('[name="content"]');
+    return form.querySelector('[name="description"], [name="content"]');
 }
 
 function insertSpeechIntoActiveField(text) {

@@ -222,7 +222,7 @@ class StudentsCmsContent
             'eyebrow' => self::pickString($source, $base, $defaults, 'eyebrow', 120),
             'title' => self::pickString($source, $base, $defaults, 'title'),
             'description' => self::pickString($source, $base, $defaults, 'description', 5000),
-            'hero_image' => self::pickString($source, $base, $defaults, 'hero_image', 2048),
+            'hero_image' => self::pickOptionalString($source, $base, $defaults, 'hero_image', 2048),
         ];
     }
 
@@ -300,7 +300,9 @@ class StudentsCmsContent
                     'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
                     'abbr' => self::sanitizeString((string) ($item['abbr'] ?? ($baseItem['abbr'] ?? '')), 255, ''),
                     'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '#')), 2048, '#'),
-                    'image' => self::sanitizeString((string) ($item['image'] ?? ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg')), 2048, 'assets/static_img/pupillar.jpeg'),
+                    'image' => array_key_exists('image', $item)
+                        ? self::sanitizeOptionalString((string) $item['image'], 2048)
+                        : self::sanitizeString((string) ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg'), 2048, 'assets/static_img/pupillar.jpeg'),
                 ];
 
                 if (
@@ -335,6 +337,15 @@ class StudentsCmsContent
         return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
     }
 
+    private static function pickOptionalString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
+    {
+        if (array_key_exists($key, $source)) {
+            return self::sanitizeOptionalString((string) $source[$key], $maxLen);
+        }
+
+        return self::pickString($source, $base, $defaults, $key, $maxLen);
+    }
+
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
         $text = trim($value);
@@ -342,6 +353,17 @@ class StudentsCmsContent
         if ($text === '') {
             $text = trim($fallback);
         }
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, 0, $maxLen);
+        }
+
+        return substr($text, 0, $maxLen);
+    }
+
+    private static function sanitizeOptionalString(string $value, int $maxLen): string
+    {
+        $text = trim($value);
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);

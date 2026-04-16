@@ -177,7 +177,7 @@ class AcademicsCmsContent
     private static function normalizeHero(array $source, array $base, array $defaults): array
     {
         return [
-            'image' => self::pickString($source, $base, $defaults, 'image', 2048),
+            'image' => self::pickOptionalString($source, $base, $defaults, 'image', 2048),
             'title' => self::pickString($source, $base, $defaults, 'title'),
         ];
     }
@@ -234,7 +234,7 @@ class AcademicsCmsContent
             $normalized = [
                 'label' => self::pickString($source, $baseItem, $defaultItem, 'label'),
                 'summary' => self::pickString($source, $baseItem, $defaultItem, 'summary', 4000),
-                'image' => self::pickString($source, $baseItem, $defaultItem, 'image', 2048),
+                'image' => self::pickOptionalString($source, $baseItem, $defaultItem, 'image', 2048),
                 'route' => self::pickString($source, $baseItem, $defaultItem, 'route', 255),
             ];
 
@@ -308,6 +308,15 @@ class AcademicsCmsContent
         return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
     }
 
+    private static function pickOptionalString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
+    {
+        if (array_key_exists($key, $source)) {
+            return self::sanitizeOptionalString((string) $source[$key], $maxLen);
+        }
+
+        return self::pickString($source, $base, $defaults, $key, $maxLen);
+    }
+
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
         $text = trim($value);
@@ -315,6 +324,17 @@ class AcademicsCmsContent
         if ($text === '') {
             $text = trim($fallback);
         }
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, 0, $maxLen);
+        }
+
+        return substr($text, 0, $maxLen);
+    }
+
+    private static function sanitizeOptionalString(string $value, int $maxLen): string
+    {
+        $text = trim($value);
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);
