@@ -220,6 +220,14 @@
 
     @if($cmsPreview)
         <style>
+            .reveal,
+            .reveal.active {
+                opacity: 1 !important;
+                transform: none !important;
+                transition: none !important;
+                will-change: auto !important;
+            }
+
             .academic-intro-rich-copy > :first-child,
             .academic-feature-copy > :first-child {
                 margin-top: 0;
