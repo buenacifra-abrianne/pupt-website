@@ -737,6 +737,7 @@
             const closeBtn = modal?.querySelector('.ne-modal-close');
             let lastTrigger = null;
             const selectedExpiredCards = new Set();
+            let lockedScrollY = 0;
 
             // CMS preview does not load the public reveal script, so force visible content there.
             if (cmsPreview) {
@@ -858,10 +859,14 @@
                 modalText.innerHTML = decodeHtmlEntities(trigger.dataset.contentHtml || '');
                 modalDetailsLabel.hidden = modalText.textContent.trim() === '';
 
+                lockedScrollY = window.scrollY || window.pageYOffset || 0;
+                document.documentElement.classList.add('modal-open');
+                document.body.classList.add('modal-open');
+                document.body.style.top = `-${lockedScrollY}px`;
+
                 modal.classList.remove('closing');
                 modal.classList.add('show');
                 modal.setAttribute('aria-hidden', 'false');
-                document.body.classList.add('modal-open');
             };
 
             const closeModal = () => {
@@ -874,7 +879,10 @@
                 window.setTimeout(() => {
                     modal.classList.remove('show', 'closing');
                     modal.setAttribute('aria-hidden', 'true');
+                    document.documentElement.classList.remove('modal-open');
                     document.body.classList.remove('modal-open');
+                    document.body.style.top = '';
+                    window.scrollTo(0, lockedScrollY);
                     lastTrigger?.focus();
                     lastTrigger = null;
                 }, 350);

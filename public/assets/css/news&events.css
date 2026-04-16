@@ -734,6 +734,7 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity .35s ease;
+  overflow: hidden;
 }
 .ne-modal-overlay.show {
   display: flex;
@@ -745,7 +746,7 @@
 .ne-modal-card {
   position: relative;
   width: min(720px, 94vw);
-  max-height: 88vh;
+  max-height: min(88vh, calc(100dvh - 40px));
   background: linear-gradient(160deg, #fffcf8 0%, #f7efe8 100%);
   border-radius: 28px;
   overflow: hidden;
@@ -781,8 +782,10 @@
 .ne-modal-body {
   display: flex;
   flex-direction: column;
-  max-height: 88vh;
+  max-height: inherit;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 
 .ne-modal-img-wrap {
@@ -871,7 +874,17 @@
 .reveal.delay-2           { transition-delay: .2s; }
 body.scroll-down .reveal:not(.active) { transform: translateY(38px); }
 body.scroll-up   .reveal:not(.active) { transform: translateY(-38px); }
-body.modal-open  { overflow: hidden; }
+html.modal-open,
+body.modal-open  {
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+body.modal-open {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+}
 
 @media (max-width: 1100px) {
   .ne-card-grid { grid-template-columns: repeat(2, 1fr); }
