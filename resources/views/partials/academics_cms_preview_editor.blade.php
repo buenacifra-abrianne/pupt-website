@@ -531,6 +531,16 @@
         }
 
         function measureAcademicsPreviewHeight(frame) {
+            if (typeof window.measureCmsPreviewFrameHeight === 'function') {
+                const measuredHeight = window.measureCmsPreviewFrameHeight(frame, {
+                    scopeSelector: '.main-content',
+                });
+
+                if (measuredHeight > 0) {
+                    return measuredHeight;
+                }
+            }
+
             const doc = frame.contentDocument;
 
             if (!doc) {

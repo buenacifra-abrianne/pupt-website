@@ -467,9 +467,23 @@
                     const scope = main instanceof HTMLElement ? main : document.body;
                     const visibleElements = Array.from(scope.children)
                         .filter((node) => isMeasuredElement(node));
-                    const height = visibleElements.reduce((maxBottom, node) => {
+                    const childBottom = visibleElements.reduce((maxBottom, node) => {
                         return Math.max(maxBottom, getElementBottom(node));
-                    }, scope.offsetHeight);
+                    }, 0);
+                    const html = document.documentElement;
+                    const body = document.body;
+                    const height = Math.max(
+                        scope.offsetHeight,
+                        scope.scrollHeight,
+                        scope.clientHeight,
+                        body?.offsetHeight || 0,
+                        body?.scrollHeight || 0,
+                        body?.clientHeight || 0,
+                        html?.offsetHeight || 0,
+                        html?.scrollHeight || 0,
+                        html?.clientHeight || 0,
+                        childBottom
+                    );
 
                     window.parent?.postMessage({
                         type: 'cms-academics-preview-height',

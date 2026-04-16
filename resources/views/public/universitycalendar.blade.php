@@ -113,7 +113,14 @@
                             loading="lazy"
                         ></iframe>
                     </div>
+                    <p class="uc-calendar-note">
+                        If the embedded preview does not load on your browser or device, open the PDF directly in a new tab or download it below.
+                    </p>
                     <div class="uc-calendar-actions reveal delay-200">
+                        <a href="{{ asset('assets/static_img/university_calendar.pdf') }}" target="_blank" rel="noopener" class="apply-now-btn uc-btn-outline">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3h7v7"/><path d="M10 14L21 3"/><path d="M21 14v7h-7"/><path d="M3 10V3h7"/><path d="M3 21l7-7"/></svg>
+                            Open PDF in New Tab
+                        </a>
                         <a href="{{ asset('assets/static_img/university_calendar.pdf') }}" download class="apply-now-btn">
                             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
                             Download Calendar
