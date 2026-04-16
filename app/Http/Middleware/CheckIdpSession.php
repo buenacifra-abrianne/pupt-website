@@ -14,6 +14,10 @@ class CheckIdpSession
 
         $accessToken = session('access_token');
 
+        \Log::info('🔑 TOKEN FROM SESSION', [
+            'token' => $accessToken,
+        ]);
+
         if (!$accessToken) {
             \Log::warning('NO TOKEN FOUND');
             return $next($request);
