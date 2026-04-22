@@ -76,17 +76,6 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="home-cms-form-grid" data-home-card-panel-meta>
-                        <div class="form-group">
-                            <label>Crest Heading</label>
-                            <textarea name="home[hero][crest_heading]" rows="5">{{ $heroEditor['crest_heading'] ?? '' }}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Crest Year</label>
-                            <input type="text" name="home[hero][crest_year]" maxlength="50" value="{{ $heroEditor['crest_year'] ?? '' }}">
-                        </div>
-                    </div>
-
                     <div class="carousel-manager-grid">
                         @for($idx = 0; $idx < 3; $idx++)
                             @php
@@ -95,18 +84,52 @@
                                 $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <div class="carousel-manager-item">
-                                <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}">
+                                <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}" data-home-carousel-image-field>
                                 <input type="hidden" name="home[carousel][{{ $idx }}][title]" value="{{ $slide['title'] }}">
                                 <input type="hidden" name="home[carousel][{{ $idx }}][subtitle]" value="{{ $slide['subtitle'] }}">
 
-                                <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}">
-                                    <img src="{{ $slidePreview }}" alt="Slide {{ $idx + 1 }} preview" class="slide-preview" data-preview-for="{{ $slideInputId }}">
+                                <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}" data-home-carousel-dropzone-for="{{ $slideInputId }}">
+                                    <span class="home-cms-carousel-media">
+                                        <img
+                                            src="{{ $slidePreview }}"
+                                            alt="Slide {{ $idx + 1 }} preview"
+                                            class="slide-preview"
+                                            data-home-carousel-preview-for="{{ $slideInputId }}"
+                                            data-home-carousel-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="home-cms-carousel-remove"
+                                            data-home-carousel-clear-for="{{ $slideInputId }}"
+                                            aria-label="Delete slide {{ $idx + 1 }} image"
+                                            title="Delete image"
+                                        >
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
                                     <span class="dropzone-label">Slide {{ $idx + 1 }}</span>
-                                    <span class="dropzone-file-name" data-file-name-for="{{ $slideInputId }}">Drop image here or click to replace</span>
+                                    <span class="dropzone-file-name" data-home-carousel-file-name-for="{{ $slideInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </label>
-                                <input id="{{ $slideInputId }}" class="home-dropzone-input" type="file" name="home[carousel][{{ $idx }}][image_file]" accept="image/*">
+                                <input
+                                    id="{{ $slideInputId }}"
+                                    class="home-dropzone-input"
+                                    type="file"
+                                    name="home[carousel][{{ $idx }}][image_file]"
+                                    accept="image/*"
+                                >
                             </div>
                         @endfor
+                    </div>
+
+                    <div class="home-cms-form-grid home-cms-carousel-meta-grid" data-home-card-panel-meta>
+                        <div class="form-group">
+                            <label>Crest Heading</label>
+                            <textarea name="home[hero][crest_heading]" rows="5">{{ $heroEditor['crest_heading'] ?? '' }}</textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Crest Year</label>
+                            <input type="text" name="home[hero][crest_year]" maxlength="50" value="{{ $heroEditor['crest_year'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="home-cms-modal-footer">
@@ -535,6 +558,110 @@
         line-height: 1.5;
     }
 
+    .home-cms-carousel-meta-grid {
+        margin-top: 18px;
+    }
+
+    .home-dropzone {
+        border: 1px dashed #d4af37;
+        border-radius: 18px;
+        padding: 14px;
+        display: block;
+        cursor: pointer;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+    }
+
+    .home-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .home-dropzone-input {
+        display: none;
+    }
+
+    .carousel-manager-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .carousel-manager-item {
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid #efe3dc;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 10px 24px rgba(92, 12, 6, 0.04);
+    }
+
+    .slide-dropzone {
+        min-height: 100%;
+        text-align: center;
+    }
+
+    .home-cms-carousel-media {
+        position: relative;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .slide-preview {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 14px;
+        display: block;
+        background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .home-cms-carousel-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(127, 17, 19, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #7f1113;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .home-cms-carousel-remove:hover {
+        background: #7f1113;
+        color: #fff8f1;
+    }
+
+    .home-cms-carousel-remove[hidden] {
+        display: none;
+    }
+
+    .dropzone-label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #5c0000;
+        font-size: 1.02rem;
+    }
+
+    .dropzone-file-name {
+        display: block;
+        font-size: 0.88rem;
+        color: #6f625c;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
     .home-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -620,6 +747,11 @@
         .home-cms-form-grid {
             grid-template-columns: 1fr;
         }
+
+        .carousel-manager-grid {
+            grid-template-columns: 1fr;
+        }
+
         .home-cms-modal-dialog {
             width: min(100vw - 20px, 1080px);
             max-height: calc(100vh - 20px);
@@ -1052,52 +1184,6 @@
             return activeEditor;
         }
 
-        function deleteQuickLinkByIndex(targetIndex) {
-            const editor = quickLinksStack?.querySelector(`[data-home-quick-link-editor][data-home-quick-link-index="${targetIndex}"]`);
-            if (!editor) {
-                return false;
-            }
-
-            editor.remove();
-            bumpQuickLinksVersion();
-            setActiveQuickLinkEditor();
-            return true;
-        }
-
-        async function confirmDeleteQuickLink(targetIndex) {
-            const editor = quickLinksStack?.querySelector(`[data-home-quick-link-editor][data-home-quick-link-index="${targetIndex}"]`);
-            if (!editor) {
-                return;
-            }
-
-            const titleInput = editor.querySelector('input[name*="[title]"]');
-            const cardTitle = String(titleInput?.value || '').trim();
-            const message = cardTitle
-                ? `Do you want to delete "${cardTitle}"?`
-                : 'Do you want to delete this explore card?';
-
-            let confirmed = false;
-
-            if (typeof window.confirmAction === 'function') {
-                confirmed = await window.confirmAction({
-                    title: 'Delete Card',
-                    message,
-                    confirmText: 'Delete',
-                    tone: 'danger',
-                });
-            } else {
-                confirmed = window.confirm(message);
-            }
-
-            if (!confirmed) {
-                return;
-            }
-
-            if (deleteQuickLinkByIndex(targetIndex)) {
-                submitQuickLinksForm();
-            }
-        }
-
         const feedbackForm = document.querySelector('[data-home-feedback-form]');
         const feedbackQuestionStack = feedbackForm?.querySelector('[data-home-feedback-question-stack]');
         const feedbackQuestionsVersionInput = feedbackForm?.querySelector('[data-home-feedback-questions-version]');
@@ -1375,11 +1461,6 @@
                 openHomeEditor('quick_links', data.label || 'Edit explore card', {
                     cardIndex: data.cardIndex,
                 });
-                return;
-            }
-
-            if (data.type === 'cms-home-delete-card') {
-                confirmDeleteQuickLink(data.cardIndex);
                 return;
             }
 

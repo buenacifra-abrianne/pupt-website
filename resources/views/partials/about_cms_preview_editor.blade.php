@@ -324,7 +324,15 @@
 
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <textarea name="about[sections][{{ $slug }}][summary]" rows="4">{{ $section['summary'] ?? '' }}</textarea>
+                                    <div class="about-cms-textarea-field" data-about-char-limit="50">
+                                        <textarea
+                                            name="about[sections][{{ $slug }}][summary]"
+                                            rows="4"
+                                            maxlength="50"
+                                            data-about-char-input
+                                        >{{ $section['summary'] ?? '' }}</textarea>
+                                        <div class="about-cms-char-counter" data-about-char-counter aria-live="polite">0/50</div>
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
@@ -1290,6 +1298,23 @@
         line-height: 1.5;
     }
 
+    .about-cms-textarea-field {
+        display: grid;
+        gap: 8px;
+    }
+
+    .about-cms-char-counter {
+        justify-self: end;
+        color: #8a7a73;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .about-cms-char-counter.is-limit {
+        color: #b91c1c;
+    }
+
     .about-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -2030,6 +2055,39 @@
             });
         };
 
+        const initAboutCharCounters = (scope = document) => {
+            scope.querySelectorAll('[data-about-char-limit]').forEach((field) => {
+                if (field.dataset.aboutCharCounterBound === '1') {
+                    return;
+                }
+
+                const input = field.querySelector('[data-about-char-input]');
+                const counter = field.querySelector('[data-about-char-counter]');
+                const limit = Number(field.getAttribute('data-about-char-limit') || input?.getAttribute('maxlength') || 0);
+
+                if (!input || !counter || limit <= 0) {
+                    return;
+                }
+
+                field.dataset.aboutCharCounterBound = '1';
+                input.setAttribute('maxlength', String(limit));
+
+                const syncCounter = () => {
+                    const chars = Array.from(input.value || '');
+                    if (chars.length > limit) {
+                        input.value = chars.slice(0, limit).join('');
+                    }
+
+                    const count = Array.from(input.value || '').length;
+                    counter.textContent = `${count}/${limit}`;
+                    counter.classList.toggle('is-limit', count >= limit);
+                };
+
+                input.addEventListener('input', syncCounter);
+                syncCounter();
+            });
+        };
+
         const deleteContentsCardBySlug = (slug) => {
             if (!slug) {
                 return false;
@@ -2153,6 +2211,7 @@
         loadAboutPreviewPage('overview');
         scheduleFitAboutPreviews();
         initAboutImageDropzones(document);
+        initAboutCharCounters(document);
         bindAboutContentsDirtyTracking();
         window.__aboutCmsPreviewEditorReady = true;
     })();

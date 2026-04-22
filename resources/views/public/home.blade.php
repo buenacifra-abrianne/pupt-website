@@ -292,7 +292,6 @@
                 >
                   <div class="cms-preview-card-actions" aria-label="Card actions">
                     <button type="button" class="cms-preview-card-action" data-home-card-edit>Edit</button>
-                    <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-home-card-delete>Delete</button>
                   </div>
               @else
                 <a href="{{ $linkHref }}" class="quick-link-card cards_information">
@@ -754,13 +753,12 @@
         document.querySelectorAll('[data-home-quick-link-card]').forEach((card) => {
           const cardIndex = Number(card.getAttribute('data-home-quick-link-index'));
           const editButton = card.querySelector('[data-home-card-edit]');
-          const deleteButton = card.querySelector('[data-home-card-delete]');
 
-          const postCard = (type) => {
+          const postCard = () => {
             window.parent?.postMessage({
-              type,
+              type: 'cms-home-edit-card',
               section: 'quick_links',
-              label: type === 'cms-home-delete-card' ? 'Delete Explore Card' : 'Edit Explore Card',
+              label: 'Edit Explore Card',
               cardIndex,
             }, '*');
           };
@@ -768,13 +766,7 @@
           editButton?.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            postCard('cms-home-edit-card');
-          });
-
-          deleteButton?.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            postCard('cms-home-delete-card');
+            postCard();
           });
         });
 

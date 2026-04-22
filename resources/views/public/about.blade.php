@@ -193,7 +193,7 @@
                                         <div class="contents-card-back">
                                             <div class="contents-card-overlay-copy">
                                                 <h3>{{ $section['label'] }}</h3>
-                                                <p>{{ $section['summary'] }}</p>
+                                                <p>{{ \Illuminate\Support\Str::limit((string) ($section['summary'] ?? ''), 50) }}</p>
                                             </div>
                                             <span class="contents-card-action">See more</span>
                                         </div>

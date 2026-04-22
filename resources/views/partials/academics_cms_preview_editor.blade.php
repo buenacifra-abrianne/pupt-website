@@ -195,7 +195,15 @@
 
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <textarea name="academics[contents][items][{{ $index }}][summary]" rows="4">{{ $item['summary'] ?? '' }}</textarea>
+                                    <div class="academics-cms-textarea-field" data-academics-char-limit="50">
+                                        <textarea
+                                            name="academics[contents][items][{{ $index }}][summary]"
+                                            rows="4"
+                                            maxlength="50"
+                                            data-academics-char-input
+                                        >{{ $item['summary'] ?? '' }}</textarea>
+                                        <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/50</div>
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
@@ -639,6 +647,23 @@
 
     .academics-cms-image-dropzone-remove[hidden] {
         display: none;
+    }
+
+    .academics-cms-textarea-field {
+        display: grid;
+        gap: 8px;
+    }
+
+    .academics-cms-char-counter {
+        justify-self: end;
+        color: #8a7a73;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .academics-cms-char-counter.is-limit {
+        color: #b91c1c;
     }
 
     .academics-cms-modal-footer {
@@ -1222,6 +1247,39 @@
             });
         }
 
+        function initAcademicsCharCounters(scope = document) {
+            scope.querySelectorAll('[data-academics-char-limit]').forEach((field) => {
+                if (field.dataset.academicsCharCounterBound === '1') {
+                    return;
+                }
+
+                const input = field.querySelector('[data-academics-char-input]');
+                const counter = field.querySelector('[data-academics-char-counter]');
+                const limit = Number(field.getAttribute('data-academics-char-limit') || input?.getAttribute('maxlength') || 0);
+
+                if (!input || !counter || limit <= 0) {
+                    return;
+                }
+
+                field.dataset.academicsCharCounterBound = '1';
+                input.setAttribute('maxlength', String(limit));
+
+                const syncCounter = () => {
+                    const chars = Array.from(input.value || '');
+                    if (chars.length > limit) {
+                        input.value = chars.slice(0, limit).join('');
+                    }
+
+                    const count = Array.from(input.value || '').length;
+                    counter.textContent = `${count}/${limit}`;
+                    counter.classList.toggle('is-limit', count >= limit);
+                };
+
+                input.addEventListener('input', syncCounter);
+                syncCounter();
+            });
+        }
+
         function submitEditorForm(form) {
             if (!form) {
                 return;
@@ -1524,6 +1582,7 @@
         setActiveEditor(contentsStack, '[data-academics-contents-editor]', 'data-academics-contents-index', activeContentsIndexInput);
         setActiveEditor(featuresStack, '[data-academics-feature-editor]', 'data-academics-feature-index', activeFeatureIndexInput);
         initAcademicsImageDropzones(document);
+        initAcademicsCharCounters(document);
         bindAcademicsDirtyTracking(contentsForm, contentsVersionInput, 'academicsContentsDirtyTrackingBound');
         bindAcademicsDirtyTracking(featuresForm, featuresVersionInput, 'academicsFeaturesDirtyTrackingBound');
         window.__academicsCmsPreviewEditorReady = true;
