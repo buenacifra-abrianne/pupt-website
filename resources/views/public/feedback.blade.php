@@ -112,13 +112,6 @@
           <p class="feedback-form-note">Choose one answer for each question.</p>
         </div>
 
-        @if($cmsPreview)
-          <button type="button" class="feedback-add-question-card" data-home-feedback-question-add>
-            <span class="feedback-add-question-icon">+</span>
-            <span class="feedback-add-question-copy">Add Question</span>
-          </button>
-        @endif
-
         @forelse($feedbackQuestions as $index => $questionItem)
           @php
             $questionText = trim((string) ($questionItem['question'] ?? ''));
@@ -129,17 +122,7 @@
           <div
             class="feedback-item{{ $cmsPreview ? ' cms-preview-feedback-card' : '' }}{{ $questionHasError ? ' error' : '' }}"
             data-question="{{ $questionField }}"
-            @if($cmsPreview)
-              data-home-feedback-question-index="{{ $index }}"
-            @endif
           >
-            @if($cmsPreview)
-              <div class="cms-preview-card-actions" aria-label="Question actions">
-                <button type="button" class="cms-preview-card-action" data-home-feedback-question-edit aria-label="Edit question {{ $index + 1 }}">Edit</button>
-                <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-home-feedback-question-delete aria-label="Delete question {{ $index + 1 }}">Delete</button>
-              </div>
-            @endif
-
             <div class="feedback-item-head">
               <span class="feedback-number">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
               <p class="question">{{ $questionText }}</p>
@@ -164,7 +147,7 @@
         @empty
           <div class="feedback-empty-state">
             @if($cmsPreview)
-              No feedback questions yet. Use the add button to create the first question card.
+              No feedback questions available in the current preview.
             @else
               The feedback form is not available right now.
             @endif
@@ -268,7 +251,7 @@
         width: 44px;
         min-width: 44px;
         height: 44px;
-        display: inline-flex;
+        display: none !important;
         align-items: center;
         justify-content: center;
         background: rgba(127, 17, 19, 0.96);
@@ -388,8 +371,6 @@
       document.addEventListener('DOMContentLoaded', () => {
         const target = document.querySelector('[data-cms-section="feedback"]');
         const scope = document.querySelector('.main-content') || document.querySelector('.feedback-page');
-        const questionCards = Array.from(document.querySelectorAll('[data-home-feedback-question-index]'));
-        const addQuestionTrigger = document.querySelector('[data-home-feedback-question-add]');
 
         const postMessageToParent = (payload) => {
           window.parent?.postMessage(payload, '*');
@@ -432,44 +413,6 @@
           chip?.addEventListener('click', openEditor);
           boundary?.addEventListener('click', openEditor);
         }
-
-        questionCards.forEach((card, index) => {
-          const questionIndex = Number(card.getAttribute('data-home-feedback-question-index') || index);
-          const editButton = card.querySelector('[data-home-feedback-question-edit]');
-          const deleteButton = card.querySelector('[data-home-feedback-question-delete]');
-
-          editButton?.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            postMessageToParent({
-              type: 'cms-home-feedback-question-edit',
-              section: 'feedback',
-              label: `Edit Question ${questionIndex + 1}`,
-              questionIndex,
-            });
-          });
-
-          deleteButton?.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            postMessageToParent({
-              type: 'cms-home-feedback-question-delete',
-              section: 'feedback',
-              label: `Delete Question ${questionIndex + 1}`,
-              questionIndex,
-            });
-          });
-        });
-
-        addQuestionTrigger?.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          postMessageToParent({
-            type: 'cms-home-feedback-question-add',
-            section: 'feedback',
-            label: 'Add Question',
-          });
-        });
 
         if (typeof MutationObserver !== 'undefined') {
           const observer = new MutationObserver(() => reportHeight());

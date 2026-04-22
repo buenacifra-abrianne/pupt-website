@@ -214,11 +214,18 @@ input[name="title"] {
     line-height: 1.55;
     background: #fff;
     font-size: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    word-wrap: break-word;
 }
 
 .rich-editor-surface p,
 .rich-editor-surface div {
     margin: 0 0 0.45rem;
+    white-space: inherit;
+    overflow-wrap: inherit;
+    word-break: inherit;
 }
 
 .rich-editor-surface p:last-child,
@@ -318,6 +325,9 @@ input[name="title"] {
 
 .rich-editor-surface * {
     line-height: inherit;
+    max-width: 100%;
+    overflow-wrap: inherit;
+    word-break: inherit;
 }
 
 .rich-editor-surface span[style*="font-size"] {

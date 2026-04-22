@@ -21,6 +21,7 @@ class HomeCmsContent
         'quick_links' => [
             'tag' => 'Explore',
             'title' => 'Navigate the campus experience.',
+            'description' => '',
             'items' => [
                 [
                     'label' => 'About',
@@ -175,11 +176,13 @@ class HomeCmsContent
                 5000,
                 $defaults['campus_description']
             ),
-            'campus_image' => self::sanitizeString(
-                $source['campus_image'] ?? $base['campus_image'] ?? $defaults['campus_image'],
-                2048,
-                $defaults['campus_image']
-            ),
+            'campus_image' => array_key_exists('campus_image', $source)
+                ? self::sanitizeOptionalString($source['campus_image'], 2048)
+                : self::sanitizeString(
+                    $base['campus_image'] ?? $defaults['campus_image'],
+                    2048,
+                    $defaults['campus_image']
+                ),
             'announcements' => self::normalizeAnnouncements(
                 $source['announcements'] ?? ($base['announcements'] ?? [])
             ),
@@ -364,6 +367,11 @@ class HomeCmsContent
                 255,
                 $defaults['title']
             ),
+            'description' => self::sanitizeString(
+                $source['description'] ?? $defaults['description'],
+                5000,
+                $defaults['description']
+            ),
             'items' => $items,
         ];
     }
@@ -455,15 +463,32 @@ class HomeCmsContent
                     255,
                     $defaultSlide['subtitle']
                 ),
-                'image' => self::sanitizeString(
-                    $current['image'] ?? $baseSlide['image'] ?? $defaultSlide['image'],
-                    2048,
-                    $defaultSlide['image']
-                ),
+                'image' => array_key_exists('image', $current)
+                    ? self::sanitizeOptionalString((string) $current['image'], 2048)
+                    : self::sanitizeString(
+                        $baseSlide['image'] ?? $defaultSlide['image'],
+                        2048,
+                        $defaultSlide['image']
+                    ),
             ];
         }
 
         return $normalized;
+    }
+
+    private static function sanitizeOptionalString(mixed $value, int $maxLen): string
+    {
+        $text = trim((string) $value);
+
+        if ($text === '') {
+            return '';
+        }
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, 0, $maxLen);
+        }
+
+        return substr($text, 0, $maxLen);
     }
 
     private static function sanitizeString(mixed $value, int $maxLen, string $fallback): string

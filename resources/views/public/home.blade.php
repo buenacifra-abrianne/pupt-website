@@ -259,13 +259,13 @@
         </button>
       @endif
 
-      <div data-cms-boundary>
-        <div class="quick-links-inner layout-inset">
-          <div class="section-heading">
-            <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
-            <h2>{{ e($quickLinksSection['title'] ?? 'Navigate the campus experience.') }}</h2>
-          </div>
+      <div class="section-heading layout-inset reveal" data-cms-boundary>
+        <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
+        <h2>{{ e($quickLinksSection['title'] ?? 'Navigate the campus experience.') }}</h2>
+        <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($quickLinksSection['description'] ?? '') !!}</div>
+      </div>
 
+      <div class="quick-links-inner layout-inset">
           <div class="quick-links-grid">
             @foreach($quickLinks as $link)
               @php
@@ -308,7 +308,6 @@
               @endif
             @endforeach
           </div>
-        </div>
       </div>
     </section>
 
@@ -561,7 +560,7 @@
         padding: 0;
         background: rgba(127, 17, 19, 0.96);
         color: #fffaf4;
-        display: inline-flex;
+        display: none !important;
         align-items: center;
         justify-content: center;
         box-shadow: 0 14px 28px rgba(32, 8, 8, 0.22);
@@ -631,6 +630,7 @@
           justify-self: start;
           align-self: flex-start;
         }
+
       }
     </style>
 

@@ -106,6 +106,7 @@ class CmsController extends Controller
             'home.quick_links' => ['nullable', 'array'],
             'home.quick_links.tag' => ['nullable', 'string', 'max:80'],
             'home.quick_links.title' => ['nullable', 'string', 'max:255'],
+            'home.quick_links.description' => ['nullable', 'string'],
             'home.quick_links.items' => ['nullable', 'array'],
             'home.quick_links.items.*.label' => ['nullable', 'string', 'max:255'],
             'home.quick_links.items.*.title' => ['nullable', 'string', 'max:255'],
