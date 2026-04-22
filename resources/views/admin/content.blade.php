@@ -350,6 +350,16 @@
         pointer-events: none !important;
     }
 
+    body.cms-editor-modal-open #floatingVoiceBtn,
+    body.cms-editor-modal-open .acc-container .acc-toggle-btn,
+    body.cms-editor-modal-open .acc-container .acc-panel,
+    body.cms-editor-modal-open .acc-container .acc-menu {
+        filter: blur(8px);
+        opacity: 0.2;
+        pointer-events: none !important;
+        transition: filter 0.2s ease, opacity 0.2s ease;
+    }
+
     .cms-page-loading-card {
         min-width: min(360px, calc(100vw - 48px));
         max-width: 420px;
@@ -838,6 +848,17 @@
         });
     }
 
+    function hasServerTrackedCardVersion(form) {
+        return !!form.querySelector(
+            '[data-about-contents-version], ' +
+            '[data-academics-contents-version], ' +
+            '[data-academics-features-version], ' +
+            '[data-students-cards-version], ' +
+            '[data-research-cards-version], ' +
+            '[data-events-cards-version]'
+        );
+    }
+
     async function submitSave(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
@@ -887,7 +908,7 @@
     document.querySelectorAll('.cms-save-form').forEach((form) => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!formHasChanges(form)) {
+            if (!formHasChanges(form) && !hasServerTrackedCardVersion(form)) {
                 if (typeof window.showToast === 'function') {
                     window.showToast('No changes detected.', 'info', 'No Changes');
                 } else {

@@ -56,7 +56,7 @@
                         <div class="carousel-stage">
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
-                                    <img src="{{ \App\Support\NewsImage::url($pageSection['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
+                                    <img src="{{ \App\Support\NewsImage::url($pageSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
                                 </div>
                                 <div class="carousel-caption">
                                     <h2>{{ strtoupper((string) ($pageSection['title'] ?? 'Students')) }}</h2>

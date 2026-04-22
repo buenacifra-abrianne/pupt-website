@@ -81,8 +81,17 @@
         </div>
 
         <div class="about-cms-modal-panels">
+            @php
+                $aboutCombinedHeaderImage = trim((string) ($overviewEditor['hero_image'] ?? '')) !== ''
+                    ? (string) $overviewEditor['hero_image']
+                    : (string) ($overviewEditor['section_header_image'] ?? '');
+                $aboutHeroInputId = $idPrefix.'-about-hero-image';
+                $aboutHeroFieldId = $idPrefix.'-about-hero-image-field';
+                $aboutHeroPreview = \App\Support\NewsImage::url($aboutCombinedHeaderImage !== '' ? $aboutCombinedHeaderImage : null, 'assets/static_img/about_header_image.png');
+                $aboutSectionHeaderFieldId = $idPrefix.'-about-section-header-image-field';
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="hero" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="hero">
@@ -90,31 +99,63 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Landing Hero Title</label>
-                            <input type="text" name="about[overview][hero_title_default]" maxlength="255" value="{{ $overviewEditor['hero_title_default'] ?? '' }}">
+                    <input type="hidden" id="{{ $aboutHeroFieldId }}" name="about[overview][hero_image]" value="{{ $aboutCombinedHeaderImage }}">
+                    <input type="hidden" id="{{ $aboutSectionHeaderFieldId }}" name="about[overview][section_header_image]" value="{{ $aboutCombinedHeaderImage }}">
+
+                    <div class="form-group">
+                        <label>Upload Header Image</label>
+                        <div class="about-cms-image-dropzone-shell">
+                            <div class="about-cms-image-dropzone cms-image-dropzone-hero" data-about-dropzone-for="{{ $aboutHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
+                                <span class="about-cms-image-dropzone-preview-column">
+                                    <span class="about-cms-image-dropzone-media">
+                                        <img
+                                            src="{{ $aboutHeroPreview }}"
+                                            alt="About hero image preview"
+                                            class="about-cms-image-dropzone-preview"
+                                            data-about-preview-for="{{ $aboutHeroInputId }}"
+                                            data-about-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
+                                        >
+                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-label">Header Image</span>
+                                </span>
+                                <span class="about-cms-image-dropzone-upload">
+                                    <span class="about-cms-image-dropzone-icon">
+                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="about-cms-image-dropzone-upload-copy">This one image is used for both the main hero and the section header.</span>
+                                    <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $aboutHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>History Hero Title</label>
-                            <input type="text" name="about[overview][hero_title_history]" maxlength="255" value="{{ $overviewEditor['hero_title_history'] ?? '' }}">
-                        </div>
+                        <input
+                            id="{{ $aboutHeroInputId }}"
+                            class="about-cms-image-dropzone-input"
+                            type="file"
+                            name="about[overview][hero_image_file]"
+                            accept="image/*"
+                            data-about-image-field-id="{{ $aboutHeroFieldId }}"
+                            data-about-sync-image-field-id="{{ $aboutSectionHeaderFieldId }}"
+                        >
                     </div>
 
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Vision Hero Title</label>
-                            <input type="text" name="about[overview][hero_title_vision]" maxlength="255" value="{{ $overviewEditor['hero_title_vision'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Hero Image Path</label>
-                            <input type="text" name="about[overview][hero_image]" maxlength="2048" value="{{ $overviewEditor['hero_image'] ?? '' }}">
-                        </div>
+                    <div class="form-group" data-about-card-panel-meta>
+                        <label>Landing Hero Title</label>
+                        <input type="text" name="about[overview][hero_title_default]" maxlength="255" value="{{ $overviewEditor['hero_title_default'] ?? '' }}">
                     </div>
 
                     <div class="form-group">
-                        <label>Section Header Image Path</label>
-                        <input type="text" name="about[overview][section_header_image]" maxlength="2048" value="{{ $overviewEditor['section_header_image'] ?? '' }}">
+                        <label>History Hero Title</label>
+                        <input type="text" name="about[overview][hero_title_history]" maxlength="255" value="{{ $overviewEditor['hero_title_history'] ?? '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Vision Hero Title</label>
+                        <input type="text" name="about[overview][hero_title_vision]" maxlength="255" value="{{ $overviewEditor['hero_title_vision'] ?? '' }}">
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -124,13 +165,60 @@
             </section>
 
             <section class="about-cms-editor-panel" data-about-editor-panel="intro" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                @php
+                    $aboutStoryImageInputId = $idPrefix.'-about-story-image';
+                    $aboutStoryImageFieldId = $idPrefix.'-about-story-image-field';
+                    $aboutStoryImagePreview = \App\Support\NewsImage::url($overviewEditor['story_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                @endphp
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="intro">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
+
+                    <input type="hidden" id="{{ $aboutStoryImageFieldId }}" name="about[overview][story_image]" value="{{ $overviewEditor['story_image'] ?? '' }}">
+
+                    <div class="form-group">
+                        <label>Upload Story Image</label>
+                        <div class="about-cms-image-dropzone-shell">
+                            <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $aboutStoryImageInputId }}" role="button" tabindex="0" aria-label="Upload story image">
+                                <span class="about-cms-image-dropzone-preview-column">
+                                    <span class="about-cms-image-dropzone-media">
+                                        <img
+                                            src="{{ $aboutStoryImagePreview }}"
+                                            alt="About story image preview"
+                                            class="about-cms-image-dropzone-preview"
+                                            data-about-preview-for="{{ $aboutStoryImageInputId }}"
+                                            data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        >
+                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutStoryImageInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-label">Story Image</span>
+                                </span>
+                                <span class="about-cms-image-dropzone-upload">
+                                    <span class="about-cms-image-dropzone-icon">
+                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="about-cms-image-dropzone-upload-copy">This image appears on the right side of the Campus Story section.</span>
+                                    <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $aboutStoryImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                        <input
+                            id="{{ $aboutStoryImageInputId }}"
+                            class="about-cms-image-dropzone-input"
+                            type="file"
+                            name="about[overview][story_image_file]"
+                            accept="image/*"
+                            data-about-image-field-id="{{ $aboutStoryImageFieldId }}"
+                        >
+                    </div>
 
                     <div class="about-cms-form-grid">
                         <div class="form-group">
@@ -165,50 +253,78 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Contents Tag</label>
-                            <input type="text" name="about[overview][contents_tag]" maxlength="255" value="{{ $overviewEditor['contents_tag'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Contents Title</label>
-                            <input type="text" name="about[overview][contents_title]" maxlength="255" value="{{ $overviewEditor['contents_title'] ?? '' }}">
-                        </div>
-                    </div>
+                    <input type="hidden" name="about[overview][contents_tag]" value="{{ $overviewEditor['contents_tag'] ?? '' }}">
+                    <input type="hidden" name="about[overview][contents_title]" value="{{ $overviewEditor['contents_title'] ?? '' }}">
 
                     <div class="about-cms-card-stack">
                         @foreach($aboutSections as $slug => $section)
                             @php
                                 $sectionImagePreview = \App\Support\NewsImage::url($section['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $sectionImageInputId = $idPrefix.'-about-card-image-'.$slug;
                             @endphp
                             <article class="about-cms-card-editor" data-about-contents-editor data-about-contents-slug="{{ $slug }}">
-                                <div class="about-cms-card-editor-head">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
                                     <h4>{{ $section['label'] ?? $slug }}</h4>
                                     <span>{{ $slug }}</span>
                                 </div>
 
                                 <input type="hidden" name="about[sections][{{ $slug }}][visible_in_contents]" value="{{ $section['visible_in_contents'] ?? '1' }}" data-about-contents-visible>
-                                <input type="hidden" name="about[sections][{{ $slug }}][image]" value="{{ $section['image'] ?? '' }}">
-
-                                <div class="about-cms-form-grid">
-                                    <div class="form-group">
-                                        <label>Card Title</label>
-                                        <input type="text" name="about[sections][{{ $slug }}][label]" maxlength="255" value="{{ $section['label'] ?? '' }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Card Summary</label>
-                                        <textarea name="about[sections][{{ $slug }}][summary]" rows="4">{{ $section['summary'] ?? '' }}</textarea>
-                                    </div>
-                                </div>
+                                <input type="hidden" name="about[sections][{{ $slug }}][image]" value="{{ $section['image'] ?? '' }}" data-about-image-field>
 
                                 <div class="form-group">
                                     <label>Upload Card Image</label>
-                                    <div class="about-cms-image-upload-shell">
-                                        <img src="{{ $sectionImagePreview }}" alt="{{ $section['label'] ?? $slug }} preview" class="about-cms-image-upload-preview">
-                                        <div class="about-cms-image-upload-copy">
-                                            <input type="file" name="about[sections][{{ $slug }}][image_file]" accept="image/*">
+                                    <div class="about-cms-image-dropzone-shell">
+                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $sectionImageInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                            <span class="about-cms-image-dropzone-preview-column">
+                                                <span class="about-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $sectionImagePreview }}"
+                                                        alt="{{ $section['label'] ?? $slug }} preview"
+                                                        class="about-cms-image-dropzone-preview"
+                                                        data-about-preview-for="{{ $sectionImageInputId }}"
+                                                        data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    >
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $sectionImageInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="about-cms-image-dropzone-label">{{ $section['label'] ?? $slug }}</span>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload">
+                                                <span class="about-cms-image-dropzone-icon">
+                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                </span>
+                                                <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="about-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $sectionImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
                                         </div>
                                     </div>
+                                    <input
+                                        id="{{ $sectionImageInputId }}"
+                                        class="about-cms-image-dropzone-input"
+                                        type="file"
+                                        name="about[sections][{{ $slug }}][image_file]"
+                                        accept="image/*"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input
+                                        type="text"
+                                        name="about[sections][{{ $slug }}][label]"
+                                        maxlength="255"
+                                        value="{{ $section['label'] ?? '' }}"
+                                        readonly
+                                        aria-readonly="true"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="about[sections][{{ $slug }}][summary]" rows="4">{{ $section['summary'] ?? '' }}</textarea>
                                 </div>
                             </article>
                         @endforeach
@@ -896,6 +1012,10 @@
         position: fixed;
         inset: 0;
         z-index: 1200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
     }
 
     .about-cms-modal-backdrop {
@@ -910,7 +1030,7 @@
         z-index: 1;
         width: min(1080px, calc(100vw - 32px));
         max-height: calc(100vh - 32px);
-        margin: 16px auto;
+        margin: 0;
         overflow: auto;
         border-radius: 24px;
         background: #fffdfc;
@@ -994,24 +1114,172 @@
         font-size: 0.8rem;
     }
 
-    .about-cms-image-upload-shell {
-        display: grid;
-        grid-template-columns: 180px minmax(0, 1fr);
-        gap: 14px;
-        align-items: start;
-    }
-
-    .about-cms-image-upload-preview {
+    .about-cms-image-dropzone-shell {
         width: 100%;
-        height: 132px;
-        object-fit: cover;
-        border-radius: 14px;
-        border: 1px solid #efe3dc;
-        background: #f7ede8;
+        margin: 0 auto;
     }
 
-    .about-cms-image-upload-copy {
+    .about-cms-image-dropzone {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        width: 100%;
+        padding: 14px;
+        border: 1px dashed #d4af37;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+        cursor: pointer;
+        align-items: stretch;
+    }
+
+    .about-cms-image-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .about-cms-image-dropzone-preview-column {
+        display: flex;
         min-width: 0;
+        min-height: 180px;
+    }
+
+    .about-cms-image-dropzone-media {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .about-cms-image-dropzone-preview {
+        width: 100%;
+        height: 100%;
+        min-height: 180px;
+        object-fit: cover;
+        border-radius: 18px;
+        background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .about-cms-image-dropzone-label {
+        display: none;
+        color: #7f1113;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .about-cms-image-dropzone-upload {
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 20px 18px;
+        border-radius: 18px;
+        background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
+        color: #f8f4ef;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        min-height: 100%;
+    }
+
+    .about-cms-image-dropzone-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 82px;
+        height: 82px;
+        border-radius: 999px;
+        background: rgba(73, 8, 13, 0.42);
+        color: #f2f0ed;
+        font-size: 2rem;
+    }
+
+    .about-cms-image-dropzone-upload-title {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .about-cms-image-dropzone-upload-copy {
+        display: block;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .about-cms-image-dropzone-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        background: #fff8f1;
+        color: #1b1714;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .about-cms-image-dropzone-file {
+        display: block;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .about-cms-image-dropzone-input {
+        display: none;
+    }
+
+    .about-cms-image-dropzone-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(127, 17, 19, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #7f1113;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .about-cms-image-dropzone-remove:hover {
+        background: #7f1113;
+        color: #fff8f1;
+    }
+
+    @media (max-width: 460px) {
+        .about-cms-image-dropzone {
+            grid-template-columns: 1fr;
+        }
+
+        .about-cms-image-dropzone-upload {
+            min-height: 280px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .about-cms-image-dropzone-remove {
+            top: 12px;
+            right: 12px;
+        }
+    }
+
+    .about-cms-image-dropzone-remove[hidden] {
+        display: none;
     }
 
     .about-cms-upload-hint {
@@ -1026,6 +1294,68 @@
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    .about-cms-modal.is-card-focus .about-cms-modal-header {
+        display: none;
+    }
+
+    .about-cms-modal.is-card-focus {
+        align-items: center !important;
+    }
+
+    .about-cms-modal.is-card-focus .about-cms-modal-dialog {
+        width: min(760px, calc(100vw - 24px));
+        max-width: min(760px, calc(100vw - 24px));
+        border-radius: 30px;
+        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+    }
+
+    .about-cms-modal.is-card-focus .about-cms-modal-panels {
+        padding: 18px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
+            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+    }
+
+    .about-cms-editor-panel.is-card-focus form {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-card-stack {
+        gap: 0;
+    }
+
+    .about-cms-editor-panel.is-card-focus [data-about-card-panel-meta],
+    .about-cms-editor-panel.is-card-focus [data-about-card-editor-head] {
+        display: none;
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active {
+        padding: 22px;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow:
+            0 16px 34px rgba(92, 12, 6, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .form-group + .form-group {
+        margin-top: 14px;
+    }
+
+    .about-cms-modal.is-card-focus .about-cms-modal-close {
+        top: 14px;
+        right: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(127, 17, 19, 0.08);
+        font-size: 1.35rem;
     }
 
     @media (max-width: 768px) {
@@ -1046,10 +1376,6 @@
         }
 
         .about-cms-form-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .about-cms-image-upload-shell {
             grid-template-columns: 1fr;
         }
 
@@ -1399,12 +1725,16 @@
 
             modal.hidden = false;
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('cms-editor-modal-open');
 
             modal.querySelectorAll('[data-about-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-about-editor-panel') === sectionKey;
+                const isCardFocus = sectionKey === 'contents' && String(options.slug || '').trim() !== '';
                 panel.hidden = !isActive;
+                panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
                 if (isActive) {
+                    modal.classList.toggle('is-card-focus', isCardFocus);
                     if (title) {
                         title.textContent = label || 'Edit about section';
                     }
@@ -1429,7 +1759,9 @@
             }
 
             modal.hidden = true;
+            modal.classList.remove('is-card-focus');
             document.body.style.overflow = '';
+            document.body.classList.remove('cms-editor-modal-open');
         }
 
         window.addEventListener('message', (event) => {
@@ -1500,6 +1832,38 @@
             }
         };
 
+        const shouldTrackAboutContentsField = (target) => {
+            if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+                return false;
+            }
+
+            const type = (target.type || '').toLowerCase();
+            return type !== 'file'
+                && type !== 'hidden'
+                && type !== 'submit'
+                && type !== 'button'
+                && type !== 'reset';
+        };
+
+        const bindAboutContentsDirtyTracking = () => {
+            if (!contentsForm || contentsForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            contentsForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                if (!shouldTrackAboutContentsField(event.target)) {
+                    return;
+                }
+
+                bumpContentsVersion();
+            };
+
+            contentsForm.addEventListener('input', markDirty);
+            contentsForm.addEventListener('change', markDirty);
+        };
+
         const setActiveContentsEditor = (slug = '') => {
             const editors = Array.from(document.querySelectorAll('[data-about-contents-editor]'));
 
@@ -1545,6 +1909,125 @@
                 bubbles: true,
                 cancelable: true,
             }));
+        };
+
+        const initAboutImageDropzones = (scope = document) => {
+            scope.querySelectorAll('.about-cms-image-dropzone-input').forEach((input) => {
+                if (input.dataset.aboutDropzoneBound === '1') {
+                    return;
+                }
+
+                const label = scope.querySelector(`[data-about-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-about-dropzone-for="${input.id}"]`);
+                const fileNameEl = scope.querySelector(`[data-about-file-name-for="${input.id}"]`)
+                    || document.querySelector(`[data-about-file-name-for="${input.id}"]`);
+                const previewEl = scope.querySelector(`[data-about-preview-for="${input.id}"]`)
+                    || document.querySelector(`[data-about-preview-for="${input.id}"]`);
+                const removeButton = scope.querySelector(`[data-about-clear-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-about-clear-image-for="${input.id}"]`);
+                const imageField = input.dataset.aboutImageFieldId
+                    ? document.getElementById(input.dataset.aboutImageFieldId)
+                    : (input.closest('[data-about-contents-editor]')?.querySelector('[data-about-image-field]') || null);
+                const syncImageField = input.dataset.aboutSyncImageFieldId
+                    ? document.getElementById(input.dataset.aboutSyncImageFieldId)
+                    : null;
+
+                if (!label || !fileNameEl) {
+                    return;
+                }
+
+                input.dataset.aboutDropzoneBound = '1';
+                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
+                const defaultSrc = previewEl?.dataset.aboutDefaultSrc || '';
+
+                const syncRemoveState = () => {
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
+                    removeButton.hidden = !hasImage;
+                };
+
+                const applyFile = (file) => {
+                    if (!file) {
+                        syncRemoveState();
+                        return;
+                    }
+
+                    fileNameEl.textContent = `Selected: ${file.name}`;
+
+                    if (previewEl) {
+                        previewEl.src = URL.createObjectURL(file);
+                    }
+
+                    syncRemoveState();
+                };
+
+                input.addEventListener('change', () => {
+                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                });
+
+                label.addEventListener('click', (event) => {
+                    if (event.target.closest('[data-about-clear-image-for]')) {
+                        return;
+                    }
+
+                    input.click();
+                });
+
+                label.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    input.click();
+                });
+
+                label.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    label.classList.add('dragover');
+                });
+
+                label.addEventListener('dragleave', () => {
+                    label.classList.remove('dragover');
+                });
+
+                label.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    label.classList.remove('dragover');
+
+                    const file = event.dataTransfer?.files?.[0] ?? null;
+                    if (!file) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    applyFile(file);
+                });
+
+                removeButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    input.value = '';
+                    if (imageField) {
+                        imageField.value = '';
+                    }
+                    if (syncImageField) {
+                        syncImageField.value = '';
+                    }
+                    if (previewEl && defaultSrc) {
+                        previewEl.src = defaultSrc;
+                    }
+                    fileNameEl.textContent = emptyText;
+                    syncRemoveState();
+                });
+
+                syncRemoveState();
+            });
         };
 
         const deleteContentsCardBySlug = (slug) => {
@@ -1669,6 +2152,8 @@
 
         loadAboutPreviewPage('overview');
         scheduleFitAboutPreviews();
+        initAboutImageDropzones(document);
+        bindAboutContentsDirtyTracking();
         window.__aboutCmsPreviewEditorReady = true;
     })();
 </script>

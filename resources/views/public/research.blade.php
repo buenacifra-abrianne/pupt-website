@@ -455,7 +455,7 @@
             .students-card:hover .students-card-front img,
             .students-card:focus-visible .students-card-front img {
                 transform: none;
-                filter: blur(3px) saturate(0.88);
+                filter: none;
             }
 
             .students-card-add:focus-visible {

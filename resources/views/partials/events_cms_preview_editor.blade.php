@@ -130,7 +130,11 @@
 
                             <div class="events-cms-card-group-list" data-events-card-group-list="active">
                                 @foreach($activeCardsEditor as $card)
-                                    @php($index = $card['source_index'] ?? 0)
+                                    @php
+                                        $index = $card['source_index'] ?? 0;
+                                        $cardInputId = $idPrefix.'-events-card-image-'.$index;
+                                        $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                    @endphp
                                     <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="{{ $index }}">
                                         <div class="events-cms-card-editor-head">
                                             <div>
@@ -142,11 +146,57 @@
                                             </button>
                                         </div>
 
-                                        <div class="events-cms-form-grid">
-                                            <div class="form-group">
-                                                <label>Event Title</label>
-                                                <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
+                                        <div class="form-group">
+                                            <label>Upload Card Image</label>
+                                            <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-events-image-field>
+                                            <div class="events-cms-image-dropzone-shell">
+                                                <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                                    <span class="events-cms-image-dropzone-preview-column">
+                                                        <span class="events-cms-image-dropzone-media">
+                                                            <img
+                                                                src="{{ $cardPreview }}"
+                                                                alt="{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Event card preview' }}"
+                                                                class="events-cms-image-dropzone-preview"
+                                                                data-events-preview-for="{{ $cardInputId }}"
+                                                                data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                            >
+                                                            <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                            </button>
+                                                        </span>
+                                                        <span class="events-cms-image-dropzone-label">Event {{ $index + 1 }}</span>
+                                                    </span>
+                                                    <span class="events-cms-image-dropzone-upload">
+                                                        <span class="events-cms-image-dropzone-icon">
+                                                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                        </span>
+                                                        <span class="events-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                        <span class="events-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                        <span class="events-cms-image-dropzone-upload-button">Select image</span>
+                                                        <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                    </span>
+                                                </div>
                                             </div>
+                                            <input
+                                                id="{{ $cardInputId }}"
+                                                class="events-cms-image-dropzone-input"
+                                                type="file"
+                                                name="events[cards][{{ $index }}][image_file]"
+                                                accept="image/*"
+                                            >
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Event Title</label>
+                                            <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea name="events[cards][{{ $index }}][summary]" rows="4">{{ $card['summary'] ?? '' }}</textarea>
+                                        </div>
+
+                                        <div class="events-cms-form-grid">
                                             <div class="form-group">
                                                 <label>Category</label>
                                                 <select name="events[cards][{{ $index }}][category]">
@@ -171,11 +221,6 @@
                                                 <label>End Time</label>
                                                 <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
                                             </div>
-                                            <div class="form-group">
-                                                <label>Upload Card Image</label>
-                                                <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
-                                                <input type="file" name="events[cards][{{ $index }}][image_file]" accept="image/*">
-                                            </div>
                                         </div>
 
                                         <label class="events-cms-feature-check">
@@ -185,11 +230,6 @@
                                                 <small>Pin this card to the highlighted event section.</small>
                                             </span>
                                         </label>
-
-                                        <div class="form-group">
-                                            <label>Card Summary</label>
-                                            <textarea name="events[cards][{{ $index }}][summary]" rows="4">{{ $card['summary'] ?? '' }}</textarea>
-                                        </div>
 
                                         <div class="form-group">
                                             <label>Modal Details</label>
@@ -219,7 +259,11 @@
 
                             <div class="events-cms-card-group-list" data-events-card-group-list="expired">
                                 @foreach($expiredCardsEditor as $card)
-                                    @php($index = $card['source_index'] ?? 0)
+                                    @php
+                                        $index = $card['source_index'] ?? 0;
+                                        $cardInputId = $idPrefix.'-events-card-image-'.$index;
+                                        $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                    @endphp
                                     <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="{{ $index }}">
                                         <div class="events-cms-card-editor-head">
                                             <div>
@@ -231,11 +275,57 @@
                                             </button>
                                         </div>
 
-                                        <div class="events-cms-form-grid">
-                                            <div class="form-group">
-                                                <label>Event Title</label>
-                                                <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
+                                        <div class="form-group">
+                                            <label>Upload Card Image</label>
+                                            <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-events-image-field>
+                                            <div class="events-cms-image-dropzone-shell">
+                                                <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                                    <span class="events-cms-image-dropzone-preview-column">
+                                                        <span class="events-cms-image-dropzone-media">
+                                                            <img
+                                                                src="{{ $cardPreview }}"
+                                                                alt="{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Event card preview' }}"
+                                                                class="events-cms-image-dropzone-preview"
+                                                                data-events-preview-for="{{ $cardInputId }}"
+                                                                data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                            >
+                                                            <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                            </button>
+                                                        </span>
+                                                        <span class="events-cms-image-dropzone-label">Event {{ $index + 1 }}</span>
+                                                    </span>
+                                                    <span class="events-cms-image-dropzone-upload">
+                                                        <span class="events-cms-image-dropzone-icon">
+                                                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                        </span>
+                                                        <span class="events-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                        <span class="events-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                        <span class="events-cms-image-dropzone-upload-button">Select image</span>
+                                                        <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                    </span>
+                                                </div>
                                             </div>
+                                            <input
+                                                id="{{ $cardInputId }}"
+                                                class="events-cms-image-dropzone-input"
+                                                type="file"
+                                                name="events[cards][{{ $index }}][image_file]"
+                                                accept="image/*"
+                                            >
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Event Title</label>
+                                            <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label>Card Summary</label>
+                                            <textarea name="events[cards][{{ $index }}][summary]" rows="4">{{ $card['summary'] ?? '' }}</textarea>
+                                        </div>
+
+                                        <div class="events-cms-form-grid">
                                             <div class="form-group">
                                                 <label>Category</label>
                                                 <select name="events[cards][{{ $index }}][category]">
@@ -260,11 +350,6 @@
                                                 <label>End Time</label>
                                                 <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
                                             </div>
-                                            <div class="form-group">
-                                                <label>Upload Card Image</label>
-                                                <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
-                                                <input type="file" name="events[cards][{{ $index }}][image_file]" accept="image/*">
-                                            </div>
                                         </div>
 
                                         <label class="events-cms-feature-check">
@@ -274,11 +359,6 @@
                                                 <small>Pin this card to the highlighted event section.</small>
                                             </span>
                                         </label>
-
-                                        <div class="form-group">
-                                            <label>Card Summary</label>
-                                            <textarea name="events[cards][{{ $index }}][summary]" rows="4">{{ $card['summary'] ?? '' }}</textarea>
-                                        </div>
 
                                         <div class="form-group">
                                             <label>Modal Details</label>
@@ -306,11 +386,60 @@
                                 </button>
                             </div>
 
-                            <div class="events-cms-form-grid">
-                                <div class="form-group">
-                                    <label>Event Title</label>
-                                    <input type="text" name="events[cards][__INDEX__][title]" maxlength="255" value="">
+                            <div class="form-group">
+                                <label>Upload Card Image</label>
+                                <input type="hidden" name="events[cards][__INDEX__][image]" value="" data-events-image-field>
+                                <div class="events-cms-image-dropzone-shell">
+                                    <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $idPrefix }}-events-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload card image">
+                                        <span class="events-cms-image-dropzone-preview-column">
+                                            <span class="events-cms-image-dropzone-media">
+                                                <img
+                                                    src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    alt="Event card preview"
+                                                    class="events-cms-image-dropzone-preview"
+                                                    data-events-preview-for="{{ $idPrefix }}-events-card-image-__INDEX__"
+                                                    data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                >
+                                                <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $idPrefix }}-events-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="events-cms-image-dropzone-label">Event __CARD_NUMBER__</span>
+                                        </span>
+                                        <span class="events-cms-image-dropzone-upload">
+                                            <span class="events-cms-image-dropzone-icon">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="events-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="events-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                            <span class="events-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $idPrefix }}-events-card-image-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
                                 </div>
+                                <input
+                                    id="{{ $idPrefix }}-events-card-image-__INDEX__"
+                                    class="events-cms-image-dropzone-input"
+                                    type="file"
+                                    name="events[cards][__INDEX__][image_file]"
+                                    accept="image/*"
+                                >
+                                <small class="events-cms-upload-hint">
+                                    Leave this empty to use the default `pupillar`.
+                                </small>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Event Title</label>
+                                <input type="text" name="events[cards][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Card Summary</label>
+                                <textarea name="events[cards][__INDEX__][summary]" rows="4"></textarea>
+                            </div>
+
+                            <div class="events-cms-form-grid">
                                 <div class="form-group">
                                     <label>Category</label>
                                     <select name="events[cards][__INDEX__][category]">
@@ -335,14 +464,6 @@
                                     <label>End Time</label>
                                     <input type="time" name="events[cards][__INDEX__][end_time]" value="">
                                 </div>
-                                <div class="form-group">
-                                    <label>Upload Card Image</label>
-                                    <input type="hidden" name="events[cards][__INDEX__][image]" value="">
-                                    <input type="file" name="events[cards][__INDEX__][image_file]" accept="image/*">
-                                    <small class="events-cms-upload-hint">
-                                        Leave this empty to use the default `pupillar`.
-                                    </small>
-                                </div>
                             </div>
 
                             <label class="events-cms-feature-check">
@@ -352,11 +473,6 @@
                                     <small>Pin this card to the highlighted event section.</small>
                                 </span>
                             </label>
-
-                            <div class="form-group">
-                                <label>Card Summary</label>
-                                <textarea name="events[cards][__INDEX__][summary]" rows="4"></textarea>
-                            </div>
 
                             <div class="form-group">
                                 <label>Modal Details</label>
@@ -475,6 +591,10 @@
         position: fixed;
         inset: 0;
         z-index: 1200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
     }
 
     .events-cms-modal-backdrop {
@@ -489,7 +609,7 @@
         z-index: 1;
         width: min(1080px, calc(100vw - 32px));
         max-height: calc(100vh - 32px);
-        margin: 16px auto;
+        margin: 0;
         overflow: auto;
         border-radius: 24px;
         background: #fffdfc;
@@ -725,10 +845,250 @@
         line-height: 1.45;
     }
 
+    .events-cms-image-dropzone-shell {
+        width: 100%;
+        margin: 0 auto;
+    }
+
+    .events-cms-image-dropzone {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        width: 100%;
+        padding: 14px;
+        border: 1px dashed #d4af37;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+        cursor: pointer;
+        align-items: stretch;
+    }
+
+    .events-cms-image-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .events-cms-image-dropzone-preview-column {
+        display: flex;
+        min-width: 0;
+        min-height: 180px;
+    }
+
+    .events-cms-image-dropzone-media {
+        position: relative;
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    .events-cms-image-dropzone-preview {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 180px;
+        object-fit: cover;
+        border-radius: 18px;
+        background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .events-cms-image-dropzone-label {
+        display: none;
+        color: #7f1113;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .events-cms-image-dropzone-upload {
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 20px 18px;
+        border-radius: 18px;
+        background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
+        color: #f8f4ef;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        min-height: 100%;
+    }
+
+    .events-cms-image-dropzone-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 82px;
+        height: 82px;
+        border-radius: 999px;
+        background: rgba(73, 8, 13, 0.42);
+        color: #f2f0ed;
+        font-size: 2rem;
+    }
+
+    .events-cms-image-dropzone-upload-title {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .events-cms-image-dropzone-upload-copy {
+        display: block;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .events-cms-image-dropzone-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        background: #fff8f1;
+        color: #1b1714;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .events-cms-image-dropzone-file {
+        display: block;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .events-cms-image-dropzone-input {
+        display: none;
+    }
+
+    .events-cms-image-dropzone-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(127, 17, 19, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #7f1113;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .events-cms-image-dropzone-remove:hover {
+        background: #7f1113;
+        color: #fff8f1;
+    }
+
+    @media (max-width: 460px) {
+        .events-cms-image-dropzone {
+            grid-template-columns: 1fr;
+        }
+
+        .events-cms-image-dropzone-upload {
+            min-height: 280px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .events-cms-image-dropzone-remove {
+            top: 12px;
+            right: 12px;
+        }
+    }
+
+    .events-cms-image-dropzone-remove[hidden] {
+        display: none;
+    }
+
     .events-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    .events-cms-modal.is-card-focus .events-cms-modal-header {
+        display: none;
+    }
+
+    .events-cms-modal.is-card-focus {
+        align-items: center !important;
+    }
+
+    .events-cms-modal.is-card-focus .events-cms-modal-dialog {
+        width: min(760px, calc(100vw - 24px));
+        max-width: min(760px, calc(100vw - 24px));
+        border-radius: 30px;
+        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+    }
+
+    .events-cms-modal.is-card-focus .events-cms-modal-panels {
+        padding: 18px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
+            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+    }
+
+    .events-cms-editor-panel.is-card-focus form {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .events-cms-editor-panel.is-card-focus .events-cms-card-stack,
+    .events-cms-editor-panel.is-card-focus .events-cms-card-group-list {
+        gap: 0;
+    }
+
+    .events-cms-editor-panel.is-card-focus .events-cms-card-group {
+        padding: 0;
+        border: 0;
+        background: transparent;
+    }
+
+    .events-cms-editor-panel.is-card-focus .events-cms-card-group-head,
+    .events-cms-editor-panel.is-card-focus .events-cms-card-empty {
+        display: none;
+    }
+
+    .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected {
+        padding: 22px;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow:
+            0 16px 34px rgba(92, 12, 6, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected .form-group + .form-group,
+    .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected .events-cms-form-grid + .form-group,
+    .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected .form-group + .events-cms-form-grid {
+        margin-top: 14px;
+    }
+
+    .events-cms-modal.is-card-focus .events-cms-modal-close {
+        top: 14px;
+        right: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(127, 17, 19, 0.08);
+        font-size: 1.35rem;
     }
 
     .events-cms-upload-hint,
@@ -1131,6 +1491,38 @@
             marker.value = String(Number.isFinite(currentValue) ? currentValue + 1 : 1);
         }
 
+        function shouldTrackEventsCardField(target) {
+            if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+                return false;
+            }
+
+            const type = (target.type || '').toLowerCase();
+            return type !== 'file'
+                && type !== 'hidden'
+                && type !== 'submit'
+                && type !== 'button'
+                && type !== 'reset';
+        }
+
+        function bindEventsCardsDirtyTracking(form) {
+            if (!form || form.dataset.eventsDirtyTrackingBound === '1') {
+                return;
+            }
+
+            form.dataset.eventsDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                if (!shouldTrackEventsCardField(event.target)) {
+                    return;
+                }
+
+                markEventsCardsChanged(form);
+            };
+
+            form.addEventListener('input', markDirty);
+            form.addEventListener('change', markDirty);
+        }
+
         function getEventsTodayKey(stack) {
             const value = String(stack?.getAttribute('data-events-today') || '').trim();
 
@@ -1216,6 +1608,117 @@
             dateInput.addEventListener('input', syncGroup);
         }
 
+        function initEventsImageDropzones(scope = document) {
+            scope.querySelectorAll('.events-cms-image-dropzone-input').forEach((input) => {
+                if (input.dataset.eventsDropzoneBound === '1') {
+                    return;
+                }
+
+                const label = scope.querySelector(`[data-events-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-events-dropzone-for="${input.id}"]`);
+                const fileNameEl = scope.querySelector(`[data-events-file-name-for="${input.id}"]`)
+                    || document.querySelector(`[data-events-file-name-for="${input.id}"]`);
+                const previewEl = scope.querySelector(`[data-events-preview-for="${input.id}"]`)
+                    || document.querySelector(`[data-events-preview-for="${input.id}"]`);
+                const removeButton = scope.querySelector(`[data-events-clear-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-events-clear-image-for="${input.id}"]`);
+                const imageField = input.closest('[data-events-card-editor]')?.querySelector('[data-events-image-field]') || null;
+
+                if (!label || !fileNameEl) {
+                    return;
+                }
+
+                input.dataset.eventsDropzoneBound = '1';
+                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
+                const defaultSrc = previewEl?.dataset.eventsDefaultSrc || '';
+
+                const syncRemoveState = () => {
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
+                    removeButton.hidden = !hasImage;
+                };
+
+                const applyFile = (file) => {
+                    if (!file) {
+                        syncRemoveState();
+                        return;
+                    }
+
+                    fileNameEl.textContent = `Selected: ${file.name}`;
+
+                    if (previewEl) {
+                        previewEl.src = URL.createObjectURL(file);
+                    }
+
+                    syncRemoveState();
+                };
+
+                input.addEventListener('change', () => {
+                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                });
+
+                label.addEventListener('click', (event) => {
+                    if (event.target.closest('[data-events-clear-image-for]')) {
+                        return;
+                    }
+
+                    input.click();
+                });
+
+                label.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    input.click();
+                });
+
+                label.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    label.classList.add('dragover');
+                });
+
+                label.addEventListener('dragleave', () => {
+                    label.classList.remove('dragover');
+                });
+
+                label.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    label.classList.remove('dragover');
+
+                    const file = event.dataTransfer?.files?.[0] ?? null;
+                    if (!file) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    applyFile(file);
+                });
+
+                removeButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    input.value = '';
+                    if (imageField) {
+                        imageField.value = '';
+                    }
+                    if (previewEl && defaultSrc) {
+                        previewEl.src = defaultSrc;
+                    }
+                    fileNameEl.textContent = emptyText;
+                    syncRemoveState();
+                });
+
+                syncRemoveState();
+            });
+        }
+
         function deleteEventsCardEditor(editor, options = {}) {
             const stack = editor?.closest('[data-events-card-stack]');
 
@@ -1258,12 +1761,19 @@
 
             modal.hidden = false;
             document.body.style.overflow = 'hidden';
+            document.body.classList.add('cms-editor-modal-open');
 
             modal.querySelectorAll('[data-events-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-events-editor-panel') === sectionKey;
+                const isCardFocus = sectionKey === 'cards'
+                    && options.cardIndex !== null
+                    && options.cardIndex !== undefined
+                    && options.cardIndex !== '';
                 panel.hidden = !isActive;
+                panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
                 if (isActive) {
+                    modal.classList.toggle('is-card-focus', isCardFocus);
                     if (title) {
                         title.textContent = label || 'Edit events section';
                     }
@@ -1329,6 +1839,7 @@
             }
 
             bindEventsCardDateInput(newCard);
+            initEventsImageDropzones(newCard);
             moveEventsCardEditorToGroup(newCard);
 
             markEventsCardsChanged(form);
@@ -1351,7 +1862,9 @@
             }
 
             modal.hidden = true;
+            modal.classList.remove('is-card-focus');
             document.body.style.overflow = '';
+            document.body.classList.remove('cms-editor-modal-open');
         }
 
         function bindAddEventsCard() {
@@ -1689,7 +2202,10 @@
             bindEventsCardDateInput(editor);
             moveEventsCardEditorToGroup(editor);
         });
-        refreshEventsCardGroups(document.querySelector('[data-events-cards-form]'));
+        const eventsCardsForm = document.querySelector('[data-events-cards-form]');
+        initEventsImageDropzones(eventsCardsForm || document);
+        bindEventsCardsDirtyTracking(eventsCardsForm);
+        refreshEventsCardGroups(eventsCardsForm);
         scheduleFitAllEventsPreviews();
         window.__eventsCmsPreviewEditorReady = true;
     })();

@@ -4,6 +4,12 @@ namespace App\Support;
 
 class AboutCmsContent
 {
+    private const DEFAULT_CARD_IMAGE = 'assets/static_img/pupillar.jpeg';
+    private const LEGACY_CARD_IMAGES = [
+        'assets/static_img/logo.png',
+        'assets/static_img/about-pup.png',
+    ];
+
     private const DEFAULTS = [
         'overview' => [
             'hero_image' => 'assets/static_img/about_header_image.png',
@@ -25,7 +31,7 @@ class AboutCmsContent
                 'label' => 'History',
                 'visible_in_contents' => '1',
                 'summary' => 'Discover how the institution grew into today\'s PUP community.',
-                'image' => 'assets/static_img/pupillar.jpeg',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'page_kicker' => 'Campus Timeline',
                 'page_title' => 'How PUP Taguig has evolved over the years',
                 'timeline' => [
@@ -79,7 +85,7 @@ class AboutCmsContent
                 'label' => 'Vision and Mission',
                 'visible_in_contents' => '1',
                 'summary' => 'Read the guiding ideals that shape learning, service, and growth on campus.',
-                'image' => 'assets/static_img/pupillar.jpeg',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'page_kicker' => 'Vision and Mission',
                 'page_title' => 'Vision, Mission, Core Values, and Strategic Goals of the University',
                 'vision' => 'A LEADING COMPREHENSIVE POLYTECHNIC UNIVERSITY IN ASIA',
@@ -132,7 +138,7 @@ class AboutCmsContent
                 'label' => 'Logo and Symbols',
                 'visible_in_contents' => '1',
                 'summary' => 'Understand the campus identity marks and what they communicate.',
-                'image' => 'assets/static_img/logo.png',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'The campus identity reflects scholarship, public service, discipline, and institutional pride across official communications and ceremonies.',
                 'identity_marks' => [
                     [
@@ -157,7 +163,7 @@ class AboutCmsContent
                 'label' => 'Hymn',
                 'visible_in_contents' => '1',
                 'summary' => 'Explore what the campus hymn represents in ceremonies and student life.',
-                'image' => 'assets/static_img/pupillar.jpeg',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'The campus hymn serves as a ceremonial expression of identity, unity, and commitment to the ideals of the University.',
                 'hymn_sections' => [
                     [
@@ -185,7 +191,7 @@ class AboutCmsContent
                 'label' => 'Maps',
                 'visible_in_contents' => '1',
                 'summary' => 'Locate the campus quickly and prepare for visits or transactions.',
-                'image' => 'assets/static_img/pupillar.jpeg',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'Use the campus map before travelling so you can plan your route, confirm your destination office, and arrive with enough time for your transaction.',
                 'map_url' => 'https://maps.app.goo.gl/RDAwxBvDzyGzUbVN7',
                 'visit_planning_text' => 'Open the official map to check live directions, nearby access roads, and updated travel time before heading to campus.',
@@ -211,7 +217,7 @@ class AboutCmsContent
                 'label' => 'Campus Officials',
                 'visible_in_contents' => '1',
                 'summary' => 'See the key leadership and service offices that guide campus operations.',
-                'image' => 'assets/static_img/pupillar.jpeg',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'Campus leadership is organized through academic, student, administrative, and service offices that support daily operations and long-term development.',
                 'official_groups' => [
                     [
@@ -247,7 +253,7 @@ class AboutCmsContent
                 'label' => 'Strategic Development Plan',
                 'visible_in_contents' => '1',
                 'summary' => 'Review the long-term priorities that shape campus growth and improvement.',
-                'image' => 'assets/static_img/about-pup.png',
+                'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'The campus strategic development plan aligns academic priorities, student support, facilities, and partnerships toward sustainable institutional growth.',
                 'development_priorities' => [
                     [
@@ -372,7 +378,9 @@ class AboutCmsContent
             'label' => self::pickString($source, $base, $defaults, 'label'),
             'visible_in_contents' => self::pickFlag($source, $base, $defaults, 'visible_in_contents'),
             'summary' => self::pickString($source, $base, $defaults, 'summary', 2000),
-            'image' => self::pickOptionalString($source, $base, $defaults, 'image', 2048),
+            'image' => self::normalizeCardImage(
+                self::pickOptionalString($source, $base, $defaults, 'image', 2048)
+            ),
         ];
 
         return match ($slug) {
@@ -684,5 +692,16 @@ class AboutCmsContent
         }
 
         return substr($text, 0, $maxLen);
+    }
+
+    private static function normalizeCardImage(string $path): string
+    {
+        $normalized = trim($path);
+
+        if (in_array($normalized, self::LEGACY_CARD_IMAGES, true)) {
+            return self::DEFAULT_CARD_IMAGE;
+        }
+
+        return $normalized;
     }
 }

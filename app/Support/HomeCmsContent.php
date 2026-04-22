@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\Storage;
-
 class HomeCmsContent
 {
     private const DEFAULTS = [
@@ -159,26 +157,7 @@ class HomeCmsContent
 
     public static function resolveImagePath(?string $path, string $fallbackPath): string
     {
-        $value = trim((string) $path);
-        if ($value === '') {
-            return asset(ltrim($fallbackPath, '/'));
-        }
-
-        if (preg_match('/^(https?:)?\/\//i', $value) === 1 || str_starts_with($value, 'data:')) {
-            return $value;
-        }
-
-        $normalized = ltrim($value, '/');
-
-        if (str_starts_with($normalized, 'assets/') || str_starts_with($normalized, 'storage/')) {
-            return asset($normalized);
-        }
-
-        if (Storage::disk('public')->exists($normalized)) {
-            return asset('storage/'.$normalized);
-        }
-
-        return asset($normalized);
+        return (string) (ImageStorage::url($path, $fallbackPath) ?? asset(ltrim($fallbackPath, '/')));
     }
 
     private static function normalize(array $source, array $base): array

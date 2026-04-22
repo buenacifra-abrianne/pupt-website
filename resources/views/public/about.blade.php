@@ -65,7 +65,7 @@
                     <div class="carousel-stage">
                         <div class="carousel-slide active">
                             <div class="carousel-split" aria-hidden="true">
-                                <img src="{{ \App\Support\NewsImage::url($overview['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
+                                <img src="{{ \App\Support\NewsImage::url($overview['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
                             </div>
 
                             <div class="carousel-caption">
@@ -179,9 +179,6 @@
                                         <button type="button" class="cms-preview-card-action" data-about-card-edit title="Edit card" aria-label="Edit {{ $section['label'] }}">
                                             Edit
                                         </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-card-delete title="Delete card" aria-label="Delete {{ $section['label'] }}">
-                                            Delete
-                                        </button>
                                     </div>
                                 @endif
                                 <div class="contents-card-inner">
@@ -216,7 +213,7 @@
             @if($selectedSection)
                 @php
                     $selectedSlug = $selectedSection['slug'] ?? '';
-                    $detailImage = \App\Support\NewsImage::url($overview['section_header_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                    $detailImage = \App\Support\NewsImage::url($overview['section_header_image'] ?? null, 'assets/static_img/about_header_image.png');
                 @endphp
                 <section class="about-sections">
                     @if($selectedSlug === 'history')
@@ -1088,7 +1085,7 @@
 
             .contents-strip.cms-preview-editable .contents-card-front img {
                 transform: none !important;
-                filter: blur(3px) saturate(0.88) !important;
+                filter: none !important;
             }
 
             .contents-strip.cms-preview-editable .contents-card-overlay-copy,
@@ -1135,7 +1132,7 @@
             .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-front img,
             .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within .contents-card-front img {
                 transform: none !important;
-                filter: blur(3px) saturate(0.88) !important;
+                filter: none !important;
             }
 
             .cms-preview-card-actions {

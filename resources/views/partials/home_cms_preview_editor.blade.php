@@ -76,7 +76,7 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="home-cms-form-grid">
+                    <div class="home-cms-form-grid" data-home-card-panel-meta>
                         <div class="form-group">
                             <label>Crest Heading</label>
                             <textarea name="home[hero][crest_heading]" rows="5">{{ $heroEditor['crest_heading'] ?? '' }}</textarea>
@@ -181,7 +181,7 @@
                     <div class="home-cms-card-stack" data-home-quick-link-stack>
                         @foreach(($quickLinksEditor['items'] ?? []) as $index => $item)
                             <article class="home-cms-card-editor" data-home-quick-link-editor data-home-quick-link-index="{{ $index }}">
-                                <div class="home-cms-card-editor-head">
+                                <div class="home-cms-card-editor-head" data-home-card-editor-head>
                                     <h4>Explore Card {{ $loop->iteration }}</h4>
                                     <span>{{ $item['href'] ?? '' }}</span>
                                 </div>
@@ -539,6 +539,64 @@
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-header {
+        display: none;
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-dialog {
+        width: min(620px, calc(100vw - 24px));
+        max-width: min(620px, calc(100vw - 24px));
+        border-radius: 30px;
+        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-panels {
+        padding: 18px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
+            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+    }
+
+    .home-cms-editor-panel.is-card-focus form {
+        max-width: 540px;
+        margin: 0 auto;
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-card-stack {
+        gap: 0;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-card-panel-meta],
+    .home-cms-editor-panel.is-card-focus [data-home-card-editor-head] {
+        display: none;
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-card-editor.is-active {
+        padding: 22px;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow:
+            0 16px 34px rgba(92, 12, 6, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-card-editor.is-active .form-group + .form-group {
+        margin-top: 14px;
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-close {
+        top: 14px;
+        right: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(127, 17, 19, 0.08);
+        font-size: 1.35rem;
     }
 
     @media (max-width: 768px) {
@@ -1235,9 +1293,15 @@
 
             modal.querySelectorAll('[data-home-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-home-editor-panel') === sectionKey;
+                const isCardFocus = sectionKey === 'quick_links'
+                    && options.cardIndex !== null
+                    && options.cardIndex !== undefined
+                    && options.cardIndex !== '';
                 panel.hidden = !isActive;
+                panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
                 if (isActive) {
+                    modal.classList.toggle('is-card-focus', isCardFocus);
                     if (title) {
                         title.textContent = label || 'Edit homepage section';
                     }
@@ -1290,6 +1354,7 @@
             }
 
             modal.hidden = true;
+            modal.classList.remove('is-card-focus');
             document.body.style.overflow = '';
         }
 

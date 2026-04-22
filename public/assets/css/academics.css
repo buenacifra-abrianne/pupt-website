@@ -955,8 +955,8 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   object-fit: cover;
   object-position: center;
   display: block;
-  filter: blur(3px) saturate(0.88);
-  transition: transform 0.45s ease, filter 0.45s ease;
+  filter: none;
+  transition: transform 0.45s ease;
 }
 
 .contents-card-copy {
@@ -1072,7 +1072,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .contents-card:focus-visible .contents-card-front img,
 .contents-card.active .contents-card-front img {
   transform: scale(1.05);
-  filter: blur(3px) saturate(0.86) brightness(0.94);
+  filter: none;
 }
 
 .iapply-schedule-strip {

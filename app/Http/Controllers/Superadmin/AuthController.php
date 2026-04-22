@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Support\AuditLog;
+use App\Support\ImageStorage;
 
 class AuthController extends Controller
 {
@@ -247,8 +247,12 @@ return back()->withErrors([
         }
 
         if (!$shouldResetAvatar && !isset($updates['profile_picture']) && $request->hasFile('profile_picture') && Schema::hasColumn('users', 'profile_picture')) {
-            $storedPath = $request->file('profile_picture')->store('profile_pictures', 'public');
-            $updates['profile_picture'] = 'storage/' . $storedPath;
+            $storedPath = ImageStorage::store($request->file('profile_picture'), 'profile_pictures');
+            if ($storedPath === false) {
+                return back()->withErrors(['profile_picture' => 'Unable to upload profile picture. Please try again.'], 'profileInfo');
+            }
+
+            $updates['profile_picture'] = $storedPath;
         }
 
         if ($updates === []) {
@@ -257,10 +261,10 @@ return back()->withErrors([
 
         DB::table('users')->where($idColumn, data_get($user, $idColumn))->update($updates);
 
-        if (array_key_exists('profile_picture', $updates) && str_starts_with($oldProfilePicture, 'storage/profile_pictures/')) {
+        if (array_key_exists('profile_picture', $updates)) {
             $newProfilePicture = (string) ($updates['profile_picture'] ?? '');
             if ($newProfilePicture !== $oldProfilePicture) {
-                Storage::disk('public')->delete(substr($oldProfilePicture, strlen('storage/')));
+                ImageStorage::delete($oldProfilePicture);
             }
         }
 
@@ -383,9 +387,11 @@ return back()->withErrors([
         }
 
         $filePath = 'profile_pictures/' . now()->format('Ymd_His') . '_' . Str::random(10) . '.' . $extension;
-        Storage::disk('public')->put($filePath, $binary);
+        if (!ImageStorage::put($filePath, $binary)) {
+            return null;
+        }
 
-        return 'storage/' . $filePath;
+        return $filePath;
     }
 
     private function passwordMatches(string $input, string $stored): bool

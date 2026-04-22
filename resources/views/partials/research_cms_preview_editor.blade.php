@@ -104,8 +104,51 @@
 
                     <div class="research-cms-card-stack" data-research-card-stack>
                         @foreach($cardsEditor as $index => $card)
+                            @php
+                                $cardInputId = $idPrefix.'-research-card-image-'.$index;
+                                $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                            @endphp
                             <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="{{ $index }}">
-                                <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
+                                <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-research-image-field>
+
+                                <div class="form-group">
+                                    <label>Upload Card Image</label>
+                                    <div class="research-cms-image-dropzone-shell">
+                                        <div class="research-cms-image-dropzone" data-research-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                            <span class="research-cms-image-dropzone-preview-column">
+                                                <span class="research-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $cardPreview }}"
+                                                        alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Research card preview' }}"
+                                                        class="research-cms-image-dropzone-preview"
+                                                        data-research-preview-for="{{ $cardInputId }}"
+                                                        data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    >
+                                                    <button type="button" class="research-cms-image-dropzone-remove" data-research-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="research-cms-image-dropzone-label">Card {{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="research-cms-image-dropzone-upload">
+                                                <span class="research-cms-image-dropzone-icon">
+                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                </span>
+                                                <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="research-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                <span class="research-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input
+                                        id="{{ $cardInputId }}"
+                                        class="research-cms-image-dropzone-input"
+                                        type="file"
+                                        name="research[cards][{{ $index }}][image_file]"
+                                        accept="image/*"
+                                    >
+                                </div>
 
                                 <div class="form-group">
                                     <label>Title</label>
@@ -121,25 +164,52 @@
                                     <label>Link</label>
                                     <input type="text" name="research[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
                                 </div>
-
-                                <div class="form-group">
-                                    <label>Upload Card Image</label>
-                                    <div class="research-cms-upload-preview-shell">
-                                        <img
-                                            src="{{ \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg') }}"
-                                            alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Research card preview' }}"
-                                            class="research-cms-upload-preview-image"
-                                        >
-                                    </div>
-                                    <input type="file" name="research[cards][{{ $index }}][image_file]" accept="image/*">
-                                </div>
                             </article>
                         @endforeach
                     </div>
 
                     <template data-research-card-template>
                         <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="__INDEX__">
-                            <input type="hidden" name="research[cards][__INDEX__][image]" value="">
+                            <input type="hidden" name="research[cards][__INDEX__][image]" value="" data-research-image-field>
+
+                            <div class="form-group">
+                                <label>Upload Card Image</label>
+                                <div class="research-cms-image-dropzone-shell">
+                                    <div class="research-cms-image-dropzone" data-research-dropzone-for="{{ $idPrefix }}-research-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload card image">
+                                        <span class="research-cms-image-dropzone-preview-column">
+                                            <span class="research-cms-image-dropzone-media">
+                                                <img
+                                                    src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    alt="Research card preview"
+                                                    class="research-cms-image-dropzone-preview"
+                                                    data-research-preview-for="{{ $idPrefix }}-research-card-image-__INDEX__"
+                                                    data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                >
+                                                <button type="button" class="research-cms-image-dropzone-remove" data-research-clear-image-for="{{ $idPrefix }}-research-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="research-cms-image-dropzone-label">Card __INDEX__</span>
+                                        </span>
+                                        <span class="research-cms-image-dropzone-upload">
+                                            <span class="research-cms-image-dropzone-icon">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="research-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                            <span class="research-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $idPrefix }}-research-card-image-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input
+                                    id="{{ $idPrefix }}-research-card-image-__INDEX__"
+                                    class="research-cms-image-dropzone-input"
+                                    type="file"
+                                    name="research[cards][__INDEX__][image_file]"
+                                    accept="image/*"
+                                >
+                            </div>
 
                             <div class="form-group">
                                 <label>Title</label>
@@ -154,18 +224,6 @@
                             <div class="form-group">
                                 <label>Link</label>
                                 <input type="text" name="research[cards][__INDEX__][link]" maxlength="2048" value="">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Upload Card Image</label>
-                                <div class="research-cms-upload-preview-shell">
-                                    <img
-                                        src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                        alt="Research card preview"
-                                        class="research-cms-upload-preview-image"
-                                    >
-                                </div>
-                                <input type="file" name="research[cards][__INDEX__][image_file]" accept="image/*">
                             </div>
                         </article>
                     </template>
@@ -261,6 +319,10 @@
         position: fixed;
         inset: 0;
         z-index: 1200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
     }
 
     .research-cms-modal-backdrop {
@@ -275,7 +337,7 @@
         z-index: 1;
         width: min(1080px, calc(100vw - 32px));
         max-height: calc(100vh - 32px);
-        margin: 16px auto;
+        margin: 0;
         overflow: auto;
         border-radius: 24px;
         background: #fffdfc;
@@ -363,21 +425,173 @@
         cursor: pointer;
     }
 
-    .research-cms-upload-preview-shell {
-        width: min(240px, 100%);
-        aspect-ratio: 4 / 3;
-        overflow: hidden;
-        border: 1px solid rgba(127, 17, 19, 0.12);
-        border-radius: 16px;
-        background: #f6ede8;
-        margin-bottom: 12px;
+    .research-cms-image-dropzone-shell {
+        width: 100%;
+        margin: 0 auto;
     }
 
-    .research-cms-upload-preview-image {
+    .research-cms-image-dropzone {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        width: 100%;
+        padding: 14px;
+        border: 1px dashed #d4af37;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+        cursor: pointer;
+        align-items: stretch;
+    }
+
+    .research-cms-image-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .research-cms-image-dropzone-preview-column {
+        display: flex;
+        min-width: 0;
+        min-height: 180px;
+    }
+
+    .research-cms-image-dropzone-media {
+        position: relative;
         display: block;
         width: 100%;
         height: 100%;
+    }
+
+    .research-cms-image-dropzone-preview {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 180px;
         object-fit: cover;
+        border-radius: 18px;
+        background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .research-cms-image-dropzone-label {
+        display: none;
+        color: #7f1113;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .research-cms-image-dropzone-upload {
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 20px 18px;
+        border-radius: 18px;
+        background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
+        color: #f8f4ef;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        min-height: 100%;
+    }
+
+    .research-cms-image-dropzone-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 82px;
+        height: 82px;
+        border-radius: 999px;
+        background: rgba(73, 8, 13, 0.42);
+        color: #f2f0ed;
+        font-size: 2rem;
+    }
+
+    .research-cms-image-dropzone-upload-title {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .research-cms-image-dropzone-upload-copy {
+        display: block;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .research-cms-image-dropzone-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        background: #fff8f1;
+        color: #1b1714;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .research-cms-image-dropzone-file {
+        display: block;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .research-cms-image-dropzone-input {
+        display: none;
+    }
+
+    .research-cms-image-dropzone-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(127, 17, 19, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #7f1113;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .research-cms-image-dropzone-remove:hover {
+        background: #7f1113;
+        color: #fff8f1;
+    }
+
+    @media (max-width: 460px) {
+        .research-cms-image-dropzone {
+            grid-template-columns: 1fr;
+        }
+
+        .research-cms-image-dropzone-upload {
+            min-height: 280px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .research-cms-image-dropzone-remove {
+            top: 12px;
+            right: 12px;
+        }
+    }
+
+    .research-cms-image-dropzone-remove[hidden] {
+        display: none;
     }
 
     .research-cms-upload-hint {
@@ -391,6 +605,63 @@
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    .research-cms-modal.is-card-focus .research-cms-modal-header {
+        display: none;
+    }
+
+    .research-cms-modal.is-card-focus {
+        align-items: center !important;
+    }
+
+    .research-cms-modal.is-card-focus .research-cms-modal-dialog {
+        width: min(760px, calc(100vw - 24px));
+        max-width: min(760px, calc(100vw - 24px));
+        border-radius: 30px;
+        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+    }
+
+    .research-cms-modal.is-card-focus .research-cms-modal-panels {
+        padding: 18px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
+            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+    }
+
+    .research-cms-editor-panel.is-card-focus form {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .research-cms-editor-panel.is-card-focus .research-cms-card-stack {
+        gap: 0;
+    }
+
+    .research-cms-editor-panel.is-card-focus .research-cms-card-editor.is-active {
+        padding: 22px;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow:
+            0 16px 34px rgba(92, 12, 6, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .research-cms-editor-panel.is-card-focus .research-cms-card-editor.is-active .form-group + .form-group {
+        margin-top: 14px;
+    }
+
+    .research-cms-modal.is-card-focus .research-cms-modal-close {
+        top: 14px;
+        right: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(127, 17, 19, 0.08);
+        font-size: 1.35rem;
     }
 
     @media (max-width: 768px) {
@@ -446,8 +717,12 @@
 
         const closeEditor = () => {
             modal.hidden = true;
+            modal.classList.remove('is-card-focus');
+            document.body.style.overflow = '';
+            document.body.classList.remove('cms-editor-modal-open');
             panels.forEach((panel) => {
                 panel.hidden = true;
+                panel.classList.remove('is-card-focus');
             });
         };
 
@@ -466,9 +741,18 @@
         };
 
         const openEditor = (sectionKey, label, options = {}) => {
+            const isCardFocus = sectionKey === 'cards'
+                && options.cardIndex !== null
+                && options.cardIndex !== undefined
+                && options.cardIndex !== '';
+
             panels.forEach((panel) => {
-                panel.hidden = panel.getAttribute('data-research-editor-panel') !== sectionKey;
+                const isActive = panel.getAttribute('data-research-editor-panel') === sectionKey;
+                panel.hidden = !isActive;
+                panel.classList.toggle('is-card-focus', isActive && isCardFocus);
             });
+
+            modal.classList.toggle('is-card-focus', isCardFocus);
 
             if (modalTitle) {
                 modalTitle.textContent = label || 'Edit research and extension section';
@@ -481,6 +765,8 @@
             }
 
             modal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('cms-editor-modal-open');
 
             if (sectionKey === 'cards') {
                 setActiveCardEditor(options.cardIndex ?? null);
@@ -789,6 +1075,38 @@
             }
         };
 
+        const shouldTrackResearchCardField = (target) => {
+            if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+                return false;
+            }
+
+            const type = (target.type || '').toLowerCase();
+            return type !== 'file'
+                && type !== 'hidden'
+                && type !== 'submit'
+                && type !== 'button'
+                && type !== 'reset';
+        };
+
+        const bindResearchCardsDirtyTracking = () => {
+            if (!cardsForm || cardsForm.dataset.researchDirtyTrackingBound === '1') {
+                return;
+            }
+
+            cardsForm.dataset.researchDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                if (!shouldTrackResearchCardField(event.target)) {
+                    return;
+                }
+
+                bumpCardsVersion();
+            };
+
+            cardsForm.addEventListener('input', markDirty);
+            cardsForm.addEventListener('change', markDirty);
+        };
+
         const relabelCards = () => {
             return;
         };
@@ -903,6 +1221,117 @@
             return indexes.length ? Math.max(...indexes) + 1 : 0;
         };
 
+        const initResearchImageDropzones = (scope = document) => {
+            scope.querySelectorAll('.research-cms-image-dropzone-input').forEach((input) => {
+                if (input.dataset.researchDropzoneBound === '1') {
+                    return;
+                }
+
+                const label = scope.querySelector(`[data-research-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-research-dropzone-for="${input.id}"]`);
+                const fileNameEl = scope.querySelector(`[data-research-file-name-for="${input.id}"]`)
+                    || document.querySelector(`[data-research-file-name-for="${input.id}"]`);
+                const previewEl = scope.querySelector(`[data-research-preview-for="${input.id}"]`)
+                    || document.querySelector(`[data-research-preview-for="${input.id}"]`);
+                const removeButton = scope.querySelector(`[data-research-clear-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-research-clear-image-for="${input.id}"]`);
+                const imageField = input.closest('[data-research-card-editor]')?.querySelector('[data-research-image-field]') || null;
+
+                if (!label || !fileNameEl) {
+                    return;
+                }
+
+                input.dataset.researchDropzoneBound = '1';
+                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
+                const defaultSrc = previewEl?.dataset.researchDefaultSrc || '';
+
+                const syncRemoveState = () => {
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
+                    removeButton.hidden = !hasImage;
+                };
+
+                const applyFile = (file) => {
+                    if (!file) {
+                        syncRemoveState();
+                        return;
+                    }
+
+                    fileNameEl.textContent = `Selected: ${file.name}`;
+
+                    if (previewEl) {
+                        previewEl.src = URL.createObjectURL(file);
+                    }
+
+                    syncRemoveState();
+                };
+
+                input.addEventListener('change', () => {
+                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                });
+
+                label.addEventListener('click', (event) => {
+                    if (event.target.closest('[data-research-clear-image-for]')) {
+                        return;
+                    }
+
+                    input.click();
+                });
+
+                label.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    input.click();
+                });
+
+                label.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    label.classList.add('dragover');
+                });
+
+                label.addEventListener('dragleave', () => {
+                    label.classList.remove('dragover');
+                });
+
+                label.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    label.classList.remove('dragover');
+
+                    const file = event.dataTransfer?.files?.[0] ?? null;
+                    if (!file) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    applyFile(file);
+                });
+
+                removeButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    input.value = '';
+                    if (imageField) {
+                        imageField.value = '';
+                    }
+                    if (previewEl && defaultSrc) {
+                        previewEl.src = defaultSrc;
+                    }
+                    fileNameEl.textContent = emptyText;
+                    syncRemoveState();
+                });
+
+                syncRemoveState();
+            });
+        };
+
         const addCard = () => {
             if (!cardTemplate || !cardStack) {
                 return;
@@ -919,7 +1348,40 @@
                 element.setAttribute('data-research-card-index', String(index));
             });
 
+            const dropzoneId = `{{ $idPrefix }}-research-card-image-${index}`;
+            const dropzoneInput = fragment.querySelector('.research-cms-image-dropzone-input');
+            const dropzoneLabel = fragment.querySelector('.research-cms-image-dropzone');
+            const dropzonePreview = fragment.querySelector('[data-research-preview-for]');
+            const dropzoneFileName = fragment.querySelector('[data-research-file-name-for]');
+            const dropzoneTitle = fragment.querySelector('.research-cms-image-dropzone-label');
+            const dropzoneRemove = fragment.querySelector('[data-research-clear-image-for]');
+
+            if (dropzoneInput) {
+                dropzoneInput.id = dropzoneId;
+            }
+
+            if (dropzoneLabel) {
+                dropzoneLabel.setAttribute('data-research-dropzone-for', dropzoneId);
+            }
+
+            if (dropzonePreview) {
+                dropzonePreview.setAttribute('data-research-preview-for', dropzoneId);
+            }
+
+            if (dropzoneFileName) {
+                dropzoneFileName.setAttribute('data-research-file-name-for', dropzoneId);
+            }
+
+            if (dropzoneRemove) {
+                dropzoneRemove.setAttribute('data-research-clear-image-for', dropzoneId);
+            }
+
+            if (dropzoneTitle) {
+                dropzoneTitle.textContent = `Card ${index + 1}`;
+            }
+
             cardStack.appendChild(fragment);
+            initResearchImageDropzones(cardStack);
             bumpCardsVersion();
             relabelCards();
             setActiveCardEditor(index);
@@ -1020,6 +1482,8 @@
 
         relabelCards();
         setActiveCardEditor();
+        initResearchImageDropzones(cardStack || modal);
+        bindResearchCardsDirtyTracking();
         window.__researchCmsPreviewEditorReady = true;
     })();
 </script>

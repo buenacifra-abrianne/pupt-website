@@ -9,6 +9,7 @@ use App\Support\AuditLog;
 use App\Support\CmsSections;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
+use App\Support\ImageStorage;
 use App\Support\ResearchCmsContent;
 use App\Support\StudentsCmsContent;
 use Illuminate\Http\Request;
@@ -95,9 +96,15 @@ class CmsController extends Controller
             'research' => ['nullable', 'array'],
             'events' => ['nullable', 'array'],
             'about.sections' => ['nullable', 'array'],
+            'about.sections.*.label' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.summary' => ['nullable', 'string'],
             'about.sections.*.visible_in_contents' => ['nullable'],
             'about.sections.*.image' => ['nullable', 'string', 'max:2048'],
             'about.sections.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.overview.story_image' => ['nullable', 'string', 'max:2048'],
+            'about.overview.story_image_file' => ['nullable', 'image', 'max:5120'],
+            'about.overview.hero_image_file' => ['nullable', 'image', 'max:5120'],
+            'about.overview.section_header_image_file' => ['nullable', 'image', 'max:5120'],
             'home.campus_description' => ['nullable', 'string'],
             'home.campus_image' => ['nullable', 'string', 'max:2048'],
             'home.campus_image_file' => ['nullable', 'image', 'max:5120'],
@@ -131,6 +138,7 @@ class CmsController extends Controller
             'academics.hero' => ['nullable', 'array'],
             'academics.hero.title' => ['nullable', 'string', 'max:255'],
             'academics.hero.image' => ['nullable', 'string', 'max:2048'],
+            'academics.hero.image_file' => ['nullable', 'image', 'max:5120'],
             'academics.contents' => ['nullable', 'array'],
             'academics.contents.tag' => ['nullable', 'string', 'max:80'],
             'academics.contents.items' => ['nullable', 'array'],
@@ -160,6 +168,7 @@ class CmsController extends Controller
             'students.page.title' => ['nullable', 'string', 'max:255'],
             'students.page.description' => ['nullable', 'string'],
             'students.page.hero_image' => ['nullable', 'string', 'max:2048'],
+            'students.page.hero_image_file' => ['nullable', 'image', 'max:5120'],
             'students.cards' => ['nullable', 'array'],
             'students.cards.*.title' => ['nullable', 'string', 'max:255'],
             'students.cards.*.description' => ['nullable', 'string'],
@@ -237,18 +246,21 @@ class CmsController extends Controller
         $title = trim((string) ($data['title'] ?? ''));
         $content = (string) ($data['content'] ?? '');
 
-        if ($tabKey === 'home') {
-            $baseHome = HomeCmsContent::fromStored($baseContent);
-            $baseHomeEncoded = HomeCmsContent::encode($baseHome);
-            $homeInput = $this->filterHomeInputBySection(
-                is_array($data['home'] ?? null) ? $data['home'] : [],
+            if ($tabKey === 'home') {
+                $baseHome = HomeCmsContent::fromStored($baseContent);
+                $baseHomeEncoded = HomeCmsContent::encode($baseHome);
+                $homeInput = $this->filterHomeInputBySection(
+                    is_array($data['home'] ?? null) ? $data['home'] : [],
                 $sectionKey
             );
 
             if ($sectionKey === '' || $sectionKey === 'description') {
                 $campusImageUpload = $request->file('home.campus_image_file');
                 if ($campusImageUpload instanceof UploadedFile) {
-                    $homeInput['campus_image'] = $campusImageUpload->store('home/description', 'public');
+                    $storedPath = ImageStorage::store($campusImageUpload, 'home/description');
+                    if ($storedPath !== false) {
+                        $homeInput['campus_image'] = $storedPath;
+                    }
                 }
             }
 
@@ -262,7 +274,10 @@ class CmsController extends Controller
                             continue;
                         }
 
-                        $homeInput['carousel'][$index]['image'] = $upload->store('home/carousel', 'public');
+                        $storedPath = ImageStorage::store($upload, 'home/carousel');
+                        if ($storedPath !== false) {
+                            $homeInput['carousel'][$index]['image'] = $storedPath;
+                        }
                     }
                 }
             }
@@ -280,6 +295,34 @@ class CmsController extends Controller
                 $sectionKey
             );
 
+            if ($sectionKey === '' || $sectionKey === 'hero') {
+                if ($request->exists('about.overview.hero_image')) {
+                    $aboutInput['overview']['hero_image'] = (string) ($request->input('about.overview.hero_image') ?? '');
+                }
+
+                if ($request->exists('about.overview.section_header_image')) {
+                    $aboutInput['overview']['section_header_image'] = (string) ($request->input('about.overview.section_header_image') ?? '');
+                }
+
+                $heroImageUpload = $request->file('about.overview.hero_image_file');
+                if ($heroImageUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($heroImageUpload, 'about/hero');
+                    if ($storedPath !== false) {
+                        $aboutInput['overview']['hero_image'] = $storedPath;
+                        $aboutInput['overview']['section_header_image'] = $storedPath;
+                    }
+                }
+
+                $sectionHeaderUpload = $request->file('about.overview.section_header_image_file');
+                if (!($heroImageUpload instanceof UploadedFile) && $sectionHeaderUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($sectionHeaderUpload, 'about/hero');
+                    if ($storedPath !== false) {
+                        $aboutInput['overview']['hero_image'] = $storedPath;
+                        $aboutInput['overview']['section_header_image'] = $storedPath;
+                    }
+                }
+            }
+
             if ($sectionKey === '' || $sectionKey === 'contents') {
                 $sectionUploads = $request->file('about.sections', []);
 
@@ -290,7 +333,24 @@ class CmsController extends Controller
                             continue;
                         }
 
-                        $aboutInput['sections'][$slug]['image'] = $upload->store('about/sections', 'public');
+                        $storedPath = ImageStorage::store($upload, 'about/sections');
+                        if ($storedPath !== false) {
+                            $aboutInput['sections'][$slug]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
+            if ($sectionKey === '' || $sectionKey === 'intro') {
+                if ($request->exists('about.overview.story_image')) {
+                    $aboutInput['overview']['story_image'] = (string) ($request->input('about.overview.story_image') ?? '');
+                }
+
+                $storyImageUpload = $request->file('about.overview.story_image_file');
+                if ($storyImageUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($storyImageUpload, 'about/story');
+                    if ($storedPath !== false) {
+                        $aboutInput['overview']['story_image'] = $storedPath;
                     }
                 }
             }
@@ -308,6 +368,18 @@ class CmsController extends Controller
                 $sectionKey
             );
 
+            if (($sectionKey === '' || $sectionKey === 'hero') && $request->exists('academics.hero.image')) {
+                $academicsInput['hero']['image'] = (string) ($request->input('academics.hero.image') ?? '');
+            }
+
+            $academicsHeroUpload = $request->file('academics.hero.image_file');
+            if (($sectionKey === '' || $sectionKey === 'hero') && $academicsHeroUpload instanceof UploadedFile) {
+                $storedPath = ImageStorage::store($academicsHeroUpload, 'academics/hero');
+                if ($storedPath !== false) {
+                    $academicsInput['hero']['image'] = $storedPath;
+                }
+            }
+
             $academicsUploads = $request->file('academics.contents.items', []);
             if (is_array($academicsUploads)) {
                 foreach ($academicsUploads as $index => $itemUpload) {
@@ -316,7 +388,10 @@ class CmsController extends Controller
                         continue;
                     }
 
-                    $academicsInput['contents']['items'][$index]['image'] = $upload->store('academics/contents', 'public');
+                    $storedPath = ImageStorage::store($upload, 'academics/contents');
+                    if ($storedPath !== false) {
+                        $academicsInput['contents']['items'][$index]['image'] = $storedPath;
+                    }
                 }
             }
 
@@ -333,6 +408,18 @@ class CmsController extends Controller
                 $sectionKey
             );
 
+            if (($sectionKey === '' || $sectionKey === 'page') && $request->exists('students.page.hero_image')) {
+                $studentsInput['page']['hero_image'] = (string) ($request->input('students.page.hero_image') ?? '');
+            }
+
+            $studentsHeroUpload = $request->file('students.page.hero_image_file');
+            if (($sectionKey === '' || $sectionKey === 'page') && $studentsHeroUpload instanceof UploadedFile) {
+                $storedPath = ImageStorage::store($studentsHeroUpload, 'students/page');
+                if ($storedPath !== false) {
+                    $studentsInput['page']['hero_image'] = $storedPath;
+                }
+            }
+
             $studentCardUploads = $request->file('students.cards', []);
             if (is_array($studentCardUploads)) {
                 foreach ($studentCardUploads as $index => $cardUpload) {
@@ -341,7 +428,10 @@ class CmsController extends Controller
                         continue;
                     }
 
-                    $studentsInput['cards'][$index]['image'] = $upload->store('students/cards', 'public');
+                    $storedPath = ImageStorage::store($upload, 'students/cards');
+                    if ($storedPath !== false) {
+                        $studentsInput['cards'][$index]['image'] = $storedPath;
+                    }
                 }
             }
 
@@ -359,7 +449,10 @@ class CmsController extends Controller
                             continue;
                         }
 
-                        $studentsInput['organization_sections'][$sectionIndex]['items'][$orgIndex]['image'] = $upload->store('students/organizations', 'public');
+                        $storedPath = ImageStorage::store($upload, 'students/organizations');
+                        if ($storedPath !== false) {
+                            $studentsInput['organization_sections'][$sectionIndex]['items'][$orgIndex]['image'] = $storedPath;
+                        }
                     }
                 }
             }
@@ -389,7 +482,10 @@ class CmsController extends Controller
                         continue;
                     }
 
-                    $researchInput['cards'][$index]['image'] = $upload->store('research/cards', 'public');
+                    $storedPath = ImageStorage::store($upload, 'research/cards');
+                    if ($storedPath !== false) {
+                        $researchInput['cards'][$index]['image'] = $storedPath;
+                    }
                 }
             }
 
@@ -416,7 +512,10 @@ class CmsController extends Controller
                         continue;
                     }
 
-                    $eventsInput['cards'][$index]['image'] = $upload->store('events/cards', 'public');
+                    $storedPath = ImageStorage::store($upload, 'events/cards');
+                    if ($storedPath !== false) {
+                        $eventsInput['cards'][$index]['image'] = $storedPath;
+                    }
                 }
             }
 
@@ -432,6 +531,13 @@ class CmsController extends Controller
         }
 
         if ($title === $baseTitle && $content === $baseContent) {
+            if ($this->requestHasUploadedFiles($request)) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Image upload failed. Check the S3 storage configuration and try again.',
+                ], 422);
+            }
+
             return response()->json([
                 'ok' => true,
                 'no_changes' => true,
@@ -987,6 +1093,26 @@ class CmsController extends Controller
         };
     }
 
+    private function requestHasUploadedFiles(Request $request): bool
+    {
+        return $this->hasUploadedFiles($request->allFiles());
+    }
+
+    private function hasUploadedFiles(array $files): bool
+    {
+        foreach ($files as $file) {
+            if ($file instanceof UploadedFile) {
+                return true;
+            }
+
+            if (is_array($file) && $this->hasUploadedFiles($file)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     private function filterAboutInputBySection(array $aboutInput, string $sectionKey): array
     {
         if ($sectionKey === '' || $sectionKey === 'all') {
@@ -1002,7 +1128,7 @@ class CmsController extends Controller
                 'overview' => array_intersect_key($overview, array_flip(['hero_image', 'hero_title_default', 'hero_title_history', 'hero_title_vision', 'section_header_image'])),
             ],
             'intro' => [
-                'overview' => array_intersect_key($overview, array_flip(['story_tag', 'story_title', 'story_description'])),
+                'overview' => array_intersect_key($overview, array_flip(['story_tag', 'story_title', 'story_description', 'story_image'])),
             ],
             'contents' => [
                 'overview' => array_intersect_key($overview, array_flip(['contents_tag', 'contents_title'])),

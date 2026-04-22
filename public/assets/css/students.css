@@ -660,7 +660,7 @@ body.pup-dark-mode .academic-breadcrumb strong {
   object-fit: cover;
   object-position: center;
   display: block;
-  filter: blur(3px) saturate(0.88);
+  filter: none;
   transition: none;
 }
 

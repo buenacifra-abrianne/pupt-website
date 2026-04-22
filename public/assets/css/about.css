@@ -436,8 +436,8 @@ body {
   object-fit: cover;
   object-position: center;
   display: block;
-  filter: blur(3px) saturate(0.88);
-  transition: transform 0.45s ease, filter 0.45s ease;
+  filter: none;
+  transition: transform 0.45s ease;
 }
 
 .contents-card-copy {
@@ -589,7 +589,7 @@ body {
 .contents-card:focus-visible .contents-card-front img,
 .contents-card.active .contents-card-front img {
   transform: scale(1.05);
-  filter: blur(3px) saturate(0.86) brightness(0.94);
+  filter: none;
 }
 
 /* Info card variant */
@@ -3242,7 +3242,7 @@ pup-footer .footer { margin-top: 0; }
 
   .contents-card:hover .contents-card-front img {
     transform: none;
-    filter: blur(3px) saturate(0.88);
+    filter: none;
   }
 
   .contents-card.active .contents-card-back {
@@ -3258,7 +3258,7 @@ pup-footer .footer { margin-top: 0; }
 
   .contents-card.active .contents-card-front img {
     transform: scale(1.05);
-    filter: blur(3px) saturate(0.86) brightness(0.94);
+    filter: none;
   }
 
   .section-link:hover { transform: none; }

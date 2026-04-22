@@ -58,8 +58,13 @@
         </div>
 
         <div class="students-cms-modal-panels">
+            @php
+                $studentsHeroInputId = $idPrefix.'-students-page-hero-image';
+                $studentsHeroFieldId = $idPrefix.'-students-page-hero-image-field';
+                $studentsHeroPreview = \App\Support\NewsImage::url($pageEditor['hero_image'] ?? null, 'assets/static_img/about_header_image.png');
+            @endphp
             <section class="students-cms-editor-panel" data-students-editor-panel="page" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
                     <input type="hidden" name="section_key" value="page">
@@ -67,25 +72,61 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="students-cms-form-grid">
-                        <div class="form-group">
-                            <label>Eyebrow</label>
-                            <input type="text" name="students[page][eyebrow]" maxlength="120" value="{{ $pageEditor['eyebrow'] ?? '' }}">
+                    <input type="hidden" id="{{ $studentsHeroFieldId }}" name="students[page][hero_image]" value="{{ $pageEditor['hero_image'] ?? '' }}">
+
+                    <div class="form-group">
+                        <label>Upload Hero Image</label>
+                        <div class="students-cms-image-dropzone-shell">
+                            <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $studentsHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
+                                <span class="students-cms-image-dropzone-preview-column">
+                                    <span class="students-cms-image-dropzone-media">
+                                        <img
+                                            src="{{ $studentsHeroPreview }}"
+                                            alt="Students hero image preview"
+                                            class="students-cms-image-dropzone-preview"
+                                            data-students-preview-for="{{ $studentsHeroInputId }}"
+                                            data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
+                                        >
+                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $studentsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-label">Hero Image</span>
+                                </span>
+                                <span class="students-cms-image-dropzone-upload">
+                                    <span class="students-cms-image-dropzone-icon">
+                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="students-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
+                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $studentsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Page Title</label>
-                            <input type="text" name="students[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
-                        </div>
+                        <input
+                            id="{{ $studentsHeroInputId }}"
+                            class="students-cms-image-dropzone-input"
+                            type="file"
+                            name="students[page][hero_image_file]"
+                            accept="image/*"
+                            data-students-image-field-id="{{ $studentsHeroFieldId }}"
+                        >
+                    </div>
+
+                    <div class="form-group">
+                        <label>Eyebrow</label>
+                        <input type="text" name="students[page][eyebrow]" maxlength="120" value="{{ $pageEditor['eyebrow'] ?? '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Page Title</label>
+                        <input type="text" name="students[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
                     </div>
 
                     <div class="form-group">
                         <label>Description</label>
                         <textarea name="students[page][description]" rows="5">{{ $pageEditor['description'] ?? '' }}</textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Hero Image Path</label>
-                        <input type="text" name="students[page][hero_image]" maxlength="2048" value="{{ $pageEditor['hero_image'] ?? '' }}">
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -110,8 +151,51 @@
 
                     <div class="students-cms-card-stack" data-students-card-stack>
                         @foreach($cardsEditor as $index => $card)
+                            @php
+                                $cardInputId = $idPrefix.'-students-card-image-'.$index;
+                                $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                            @endphp
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
-                                <input type="hidden" name="students[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}">
+                                <input type="hidden" name="students[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-students-image-field>
+
+                                <div class="form-group">
+                                    <label>Upload Card Image</label>
+                                    <div class="students-cms-image-dropzone-shell">
+                                        <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                            <span class="students-cms-image-dropzone-preview-column">
+                                                <span class="students-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $cardPreview }}"
+                                                        alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Student card preview' }}"
+                                                        class="students-cms-image-dropzone-preview"
+                                                        data-students-preview-for="{{ $cardInputId }}"
+                                                        data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    >
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-label">Card {{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-upload">
+                                                <span class="students-cms-image-dropzone-icon">
+                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="students-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input
+                                        id="{{ $cardInputId }}"
+                                        class="students-cms-image-dropzone-input"
+                                        type="file"
+                                        name="students[cards][{{ $index }}][image_file]"
+                                        accept="image/*"
+                                    >
+                                </div>
 
                                 <div class="form-group">
                                     <label>Title</label>
@@ -127,25 +211,52 @@
                                     <label>Link</label>
                                     <input type="text" name="students[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
                                 </div>
-
-                                <div class="form-group">
-                                    <label>Upload Card Image</label>
-                                    <div class="students-cms-upload-preview-shell">
-                                        <img
-                                            src="{{ \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg') }}"
-                                            alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Student card preview' }}"
-                                            class="students-cms-upload-preview-image"
-                                        >
-                                    </div>
-                                    <input type="file" name="students[cards][{{ $index }}][image_file]" accept="image/*">
-                                </div>
                             </article>
                         @endforeach
                     </div>
 
                     <template data-students-card-template>
                         <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="__INDEX__">
-                            <input type="hidden" name="students[cards][__INDEX__][image]" value="">
+                            <input type="hidden" name="students[cards][__INDEX__][image]" value="" data-students-image-field>
+
+                            <div class="form-group">
+                                <label>Upload Card Image</label>
+                                <div class="students-cms-image-dropzone-shell">
+                                    <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $idPrefix }}-students-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload card image">
+                                        <span class="students-cms-image-dropzone-preview-column">
+                                            <span class="students-cms-image-dropzone-media">
+                                                <img
+                                                    src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    alt="Student card preview"
+                                                    class="students-cms-image-dropzone-preview"
+                                                    data-students-preview-for="{{ $idPrefix }}-students-card-image-__INDEX__"
+                                                    data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                >
+                                                <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-label">Card __INDEX__</span>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-upload">
+                                            <span class="students-cms-image-dropzone-icon">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="students-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                            <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $idPrefix }}-students-card-image-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input
+                                    id="{{ $idPrefix }}-students-card-image-__INDEX__"
+                                    class="students-cms-image-dropzone-input"
+                                    type="file"
+                                    name="students[cards][__INDEX__][image_file]"
+                                    accept="image/*"
+                                >
+                            </div>
 
                             <div class="form-group">
                                 <label>Title</label>
@@ -160,18 +271,6 @@
                             <div class="form-group">
                                 <label>Link</label>
                                 <input type="text" name="students[cards][__INDEX__][link]" maxlength="2048" value="">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Upload Card Image</label>
-                                <div class="students-cms-upload-preview-shell">
-                                    <img
-                                        src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                        alt="Student card preview"
-                                        class="students-cms-upload-preview-image"
-                                    >
-                                </div>
-                                <input type="file" name="students[cards][__INDEX__][image_file]" accept="image/*">
                             </div>
                         </article>
                     </template>
@@ -203,7 +302,7 @@
                                     data-students-org-editor
                                     data-students-org-key="{{ $sectionIndex }}-{{ $orgIndex }}"
                                 >
-                                    <div class="students-cms-card-editor-head">
+                                <div class="students-cms-card-editor-head" data-students-org-editor-head>
                                         <h4>{{ $organizationSection['title'] ?? 'Organizations' }}</h4>
                                         <span>{{ $organization['abbr'] ?? '' }}</span>
                                     </div>
@@ -213,24 +312,23 @@
                                     <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image]" value="{{ $organization['image'] ?? '' }}">
 
                                     <div class="form-group">
+                                        <label>Upload Organization Image</label>
+                                        <input type="file" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image_file]" accept="image/*">
+                                    </div>
+
+                                    <div class="form-group">
                                         <label>Organization Name</label>
                                         <input type="text" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][title]" maxlength="255" value="{{ $organization['title'] ?? '' }}">
                                     </div>
 
-                                    <div class="students-cms-form-grid">
-                                        <div class="form-group">
-                                            <label>Abbreviation / Caption</label>
-                                            <input type="text" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][abbr]" maxlength="255" value="{{ $organization['abbr'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Link</label>
-                                            <input type="text" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][link]" maxlength="2048" value="{{ $organization['link'] ?? '' }}">
-                                        </div>
+                                    <div class="form-group">
+                                        <label>Abbreviation / Caption</label>
+                                        <input type="text" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][abbr]" maxlength="255" value="{{ $organization['abbr'] ?? '' }}">
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Upload Organization Image</label>
-                                        <input type="file" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image_file]" accept="image/*">
+                                        <label>Link</label>
+                                        <input type="text" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][link]" maxlength="2048" value="{{ $organization['link'] ?? '' }}">
                                     </div>
                                 </article>
                             @endforeach
@@ -328,6 +426,10 @@
         position: fixed;
         inset: 0;
         z-index: 1200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
     }
 
     .students-cms-modal-backdrop {
@@ -342,7 +444,7 @@
         z-index: 1;
         width: min(1080px, calc(100vw - 32px));
         max-height: calc(100vh - 32px);
-        margin: 16px auto;
+        margin: 0;
         overflow: auto;
         border-radius: 24px;
         background: #fffdfc;
@@ -438,21 +540,173 @@
         font-size: 0.8rem;
     }
 
-    .students-cms-upload-preview-shell {
-        width: min(240px, 100%);
-        aspect-ratio: 4 / 3;
-        overflow: hidden;
-        border: 1px solid rgba(127, 17, 19, 0.12);
-        border-radius: 16px;
-        background: #f6ede8;
-        margin-bottom: 12px;
+    .students-cms-image-dropzone-shell {
+        width: 100%;
+        margin: 0 auto;
     }
 
-    .students-cms-upload-preview-image {
+    .students-cms-image-dropzone {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 16px;
+        width: 100%;
+        padding: 14px;
+        border: 1px dashed #d4af37;
+        border-radius: 24px;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+        cursor: pointer;
+        align-items: stretch;
+    }
+
+    .students-cms-image-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .students-cms-image-dropzone-preview-column {
+        display: flex;
+        min-width: 0;
+        min-height: 180px;
+    }
+
+    .students-cms-image-dropzone-media {
+        position: relative;
         display: block;
         width: 100%;
         height: 100%;
+    }
+
+    .students-cms-image-dropzone-preview {
+        display: block;
+        width: 100%;
+        height: 100%;
+        min-height: 180px;
         object-fit: cover;
+        border-radius: 18px;
+        background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .students-cms-image-dropzone-label {
+        display: none;
+        color: #7f1113;
+        font-size: 1.05rem;
+        font-weight: 700;
+        line-height: 1.2;
+        text-align: center;
+    }
+
+    .students-cms-image-dropzone-upload {
+        display: grid;
+        justify-items: center;
+        align-content: center;
+        gap: 12px;
+        min-width: 0;
+        padding: 20px 18px;
+        border-radius: 18px;
+        background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
+        color: #f8f4ef;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+        min-height: 100%;
+    }
+
+    .students-cms-image-dropzone-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 82px;
+        height: 82px;
+        border-radius: 999px;
+        background: rgba(73, 8, 13, 0.42);
+        color: #f2f0ed;
+        font-size: 2rem;
+    }
+
+    .students-cms-image-dropzone-upload-title {
+        display: block;
+        font-size: 1rem;
+        font-weight: 600;
+        line-height: 1.4;
+    }
+
+    .students-cms-image-dropzone-upload-copy {
+        display: block;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: 0.84rem;
+        line-height: 1.55;
+    }
+
+    .students-cms-image-dropzone-upload-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 18px;
+        border-radius: 999px;
+        background: #fff8f1;
+        color: #1b1714;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .students-cms-image-dropzone-file {
+        display: block;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 0.8rem;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
+    .students-cms-image-dropzone-input {
+        display: none;
+    }
+
+    .students-cms-image-dropzone-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(127, 17, 19, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #7f1113;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .students-cms-image-dropzone-remove:hover {
+        background: #7f1113;
+        color: #fff8f1;
+    }
+
+    @media (max-width: 460px) {
+        .students-cms-image-dropzone {
+            grid-template-columns: 1fr;
+        }
+
+        .students-cms-image-dropzone-upload {
+            min-height: 280px;
+        }
+    }
+
+    @media (max-width: 640px) {
+        .students-cms-image-dropzone-remove {
+            top: 12px;
+            right: 12px;
+        }
+    }
+
+    .students-cms-image-dropzone-remove[hidden] {
+        display: none;
     }
 
     .students-cms-upload-hint {
@@ -467,6 +721,67 @@
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    .students-cms-modal.is-card-focus .students-cms-modal-header {
+        display: none;
+    }
+
+    .students-cms-modal.is-card-focus {
+        align-items: center !important;
+    }
+
+    .students-cms-modal.is-card-focus .students-cms-modal-dialog {
+        width: min(760px, calc(100vw - 24px));
+        max-width: min(760px, calc(100vw - 24px));
+        border-radius: 30px;
+        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+    }
+
+    .students-cms-modal.is-card-focus .students-cms-modal-panels {
+        padding: 18px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
+            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+    }
+
+    .students-cms-editor-panel.is-card-focus form {
+        max-width: 680px;
+        margin: 0 auto;
+    }
+
+    .students-cms-editor-panel.is-card-focus .students-cms-card-stack {
+        gap: 0;
+    }
+
+    .students-cms-editor-panel.is-card-focus [data-students-org-editor-head] {
+        display: none;
+    }
+
+    .students-cms-editor-panel.is-card-focus .students-cms-card-editor.is-active {
+        padding: 22px;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow:
+            0 16px 34px rgba(92, 12, 6, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .students-cms-editor-panel.is-card-focus .students-cms-card-editor.is-active .form-group + .form-group {
+        margin-top: 14px;
+    }
+
+    .students-cms-modal.is-card-focus .students-cms-modal-close {
+        top: 14px;
+        right: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(127, 17, 19, 0.08);
+        font-size: 1.35rem;
     }
 
     @media (max-width: 768px) {
@@ -517,8 +832,12 @@
 
         const closeEditor = () => {
             modal.hidden = true;
+            modal.classList.remove('is-card-focus');
+            document.body.style.overflow = '';
+            document.body.classList.remove('cms-editor-modal-open');
             panels.forEach((panel) => {
                 panel.hidden = true;
+                panel.classList.remove('is-card-focus');
             });
         };
 
@@ -551,9 +870,23 @@
         };
 
         const openEditor = (sectionKey, label, options = {}) => {
+            const isCardFocus = (
+                sectionKey === 'cards'
+                && options.cardIndex !== null
+                && options.cardIndex !== undefined
+                && options.cardIndex !== ''
+            ) || (
+                sectionKey === 'organizations'
+                && String(options.orgKey || '').trim() !== ''
+            );
+
             panels.forEach((panel) => {
-                panel.hidden = panel.getAttribute('data-students-editor-panel') !== sectionKey;
+                const isActive = panel.getAttribute('data-students-editor-panel') === sectionKey;
+                panel.hidden = !isActive;
+                panel.classList.toggle('is-card-focus', isActive && isCardFocus);
             });
+
+            modal.classList.toggle('is-card-focus', isCardFocus);
 
             if (modalTitle) {
                 modalTitle.textContent = label || 'Edit students section';
@@ -566,6 +899,8 @@
             }
 
             modal.hidden = false;
+            document.body.style.overflow = 'hidden';
+            document.body.classList.add('cms-editor-modal-open');
 
             if (sectionKey === 'cards') {
                 setActiveCardEditor(options.cardIndex ?? null);
@@ -877,6 +1212,38 @@
             }
         };
 
+        const shouldTrackStudentsCardField = (target) => {
+            if (!(target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement)) {
+                return false;
+            }
+
+            const type = (target.type || '').toLowerCase();
+            return type !== 'file'
+                && type !== 'hidden'
+                && type !== 'submit'
+                && type !== 'button'
+                && type !== 'reset';
+        };
+
+        const bindStudentsCardsDirtyTracking = () => {
+            if (!cardsForm || cardsForm.dataset.studentsDirtyTrackingBound === '1') {
+                return;
+            }
+
+            cardsForm.dataset.studentsDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                if (!shouldTrackStudentsCardField(event.target)) {
+                    return;
+                }
+
+                bumpCardsVersion();
+            };
+
+            cardsForm.addEventListener('input', markDirty);
+            cardsForm.addEventListener('change', markDirty);
+        };
+
         const relabelCards = () => {
             return;
         };
@@ -1020,6 +1387,119 @@
             return indexes.length ? Math.max(...indexes) + 1 : 0;
         };
 
+        const initStudentsImageDropzones = (scope = document) => {
+            scope.querySelectorAll('.students-cms-image-dropzone-input').forEach((input) => {
+                if (input.dataset.studentsDropzoneBound === '1') {
+                    return;
+                }
+
+                const label = scope.querySelector(`[data-students-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-students-dropzone-for="${input.id}"]`);
+                const fileNameEl = scope.querySelector(`[data-students-file-name-for="${input.id}"]`)
+                    || document.querySelector(`[data-students-file-name-for="${input.id}"]`);
+                const previewEl = scope.querySelector(`[data-students-preview-for="${input.id}"]`)
+                    || document.querySelector(`[data-students-preview-for="${input.id}"]`);
+                const removeButton = scope.querySelector(`[data-students-clear-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-students-clear-image-for="${input.id}"]`);
+                const imageField = input.dataset.studentsImageFieldId
+                    ? document.getElementById(input.dataset.studentsImageFieldId)
+                    : (input.closest('[data-students-card-editor]')?.querySelector('[data-students-image-field]') || null);
+
+                if (!label || !fileNameEl) {
+                    return;
+                }
+
+                input.dataset.studentsDropzoneBound = '1';
+                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
+                const defaultSrc = previewEl?.dataset.studentsDefaultSrc || '';
+
+                const syncRemoveState = () => {
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
+                    removeButton.hidden = !hasImage;
+                };
+
+                const applyFile = (file) => {
+                    if (!file) {
+                        syncRemoveState();
+                        return;
+                    }
+
+                    fileNameEl.textContent = `Selected: ${file.name}`;
+
+                    if (previewEl) {
+                        previewEl.src = URL.createObjectURL(file);
+                    }
+
+                    syncRemoveState();
+                };
+
+                input.addEventListener('change', () => {
+                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                });
+
+                label.addEventListener('click', (event) => {
+                    if (event.target.closest('[data-students-clear-image-for]')) {
+                        return;
+                    }
+
+                    input.click();
+                });
+
+                label.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    input.click();
+                });
+
+                label.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    label.classList.add('dragover');
+                });
+
+                label.addEventListener('dragleave', () => {
+                    label.classList.remove('dragover');
+                });
+
+                label.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    label.classList.remove('dragover');
+
+                    const file = event.dataTransfer?.files?.[0] ?? null;
+                    if (!file) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    applyFile(file);
+                });
+
+                removeButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    input.value = '';
+                    if (imageField) {
+                        imageField.value = '';
+                    }
+                    if (previewEl && defaultSrc) {
+                        previewEl.src = defaultSrc;
+                    }
+                    fileNameEl.textContent = emptyText;
+                    syncRemoveState();
+                });
+
+                syncRemoveState();
+            });
+        };
+
         const addCard = () => {
             if (!cardTemplate || !cardStack) {
                 return;
@@ -1036,7 +1516,40 @@
                 element.setAttribute('data-students-card-index', String(index));
             });
 
+            const dropzoneId = `{{ $idPrefix }}-students-card-image-${index}`;
+            const dropzoneInput = fragment.querySelector('.students-cms-image-dropzone-input');
+            const dropzoneLabel = fragment.querySelector('.students-cms-image-dropzone');
+            const dropzonePreview = fragment.querySelector('[data-students-preview-for]');
+            const dropzoneFileName = fragment.querySelector('[data-students-file-name-for]');
+            const dropzoneTitle = fragment.querySelector('.students-cms-image-dropzone-label');
+            const dropzoneRemove = fragment.querySelector('[data-students-clear-image-for]');
+
+            if (dropzoneInput) {
+                dropzoneInput.id = dropzoneId;
+            }
+
+            if (dropzoneLabel) {
+                dropzoneLabel.setAttribute('data-students-dropzone-for', dropzoneId);
+            }
+
+            if (dropzonePreview) {
+                dropzonePreview.setAttribute('data-students-preview-for', dropzoneId);
+            }
+
+            if (dropzoneFileName) {
+                dropzoneFileName.setAttribute('data-students-file-name-for', dropzoneId);
+            }
+
+            if (dropzoneRemove) {
+                dropzoneRemove.setAttribute('data-students-clear-image-for', dropzoneId);
+            }
+
+            if (dropzoneTitle) {
+                dropzoneTitle.textContent = `Card ${index + 1}`;
+            }
+
             cardStack.appendChild(fragment);
+            initStudentsImageDropzones(cardStack);
             bumpCardsVersion();
             relabelCards();
             setActiveCardEditor(index);
@@ -1138,6 +1651,8 @@
         relabelCards();
         setActiveCardEditor();
         setActiveOrganizationEditor('');
+        initStudentsImageDropzones(modal);
+        bindStudentsCardsDirtyTracking();
         window.__studentsCmsPreviewEditorReady = true;
     })();
 </script>
