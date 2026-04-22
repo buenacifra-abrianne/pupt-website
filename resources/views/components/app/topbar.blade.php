@@ -245,7 +245,225 @@
         border: none;
         box-shadow: none;
     }
+
+    body.pup-dark-mode {
+        background:
+            radial-gradient(circle at 12% 12%, rgba(224, 128, 128, 0.16), transparent 42%),
+            linear-gradient(160deg, #14080a 0%, #1c0d10 45%, #281316 100%) !important;
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode .sidebar {
+        background: linear-gradient(180deg, #2a0c10 0%, #3f1015 55%, #25070b 100%) !important;
+        box-shadow: 12px 0 28px rgba(0, 0, 0, 0.36) !important;
+    }
+
+    body.pup-dark-mode .topbar {
+        background: linear-gradient(120deg, #3d1014 0%, #2a090d 100%) !important;
+        box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    body.pup-dark-mode .nav-link:hover,
+    body.pup-dark-mode .nav-link.active {
+        background: rgba(240, 200, 90, 0.12) !important;
+        border-left-color: #f0c85a !important;
+    }
+
+    body.pup-dark-mode .user-profile:hover {
+        background: rgba(240, 200, 90, 0.14) !important;
+    }
+
+    body.pup-dark-mode .profile-dropdown,
+    body.pup-dark-mode .cms-dropdown-menu,
+    body.pup-dark-mode .searchable-dropdown,
+    body.pup-dark-mode .search-results,
+    body.pup-dark-mode .dropdown-menu,
+    body.pup-dark-mode .menu-panel,
+    body.pup-dark-mode .popover {
+        background: #241215 !important;
+        border-color: rgba(240, 200, 90, 0.14) !important;
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28) !important;
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode .profile-dropdown-item,
+    body.pup-dark-mode .cms-dropdown-option,
+    body.pup-dark-mode .search-result-item,
+    body.pup-dark-mode .dropdown-item {
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode .profile-dropdown-item:hover,
+    body.pup-dark-mode .cms-dropdown-option:hover,
+    body.pup-dark-mode .search-result-item:hover,
+    body.pup-dark-mode .dropdown-item:hover {
+        background: rgba(240, 200, 90, 0.12) !important;
+        color: #f0c85a !important;
+    }
+
+    body.pup-dark-mode .cms-dropdown-trigger,
+    body.pup-dark-mode input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+    body.pup-dark-mode select,
+    body.pup-dark-mode textarea {
+        background: rgba(48, 22, 26, 0.92) !important;
+        border-color: rgba(240, 200, 90, 0.18) !important;
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode input::placeholder,
+    body.pup-dark-mode textarea::placeholder {
+        color: rgba(246, 235, 235, 0.58) !important;
+    }
+
+    body.pup-dark-mode .main-content,
+    body.pup-dark-mode .page-header,
+    body.pup-dark-mode .tab-content,
+    body.pup-dark-mode .top-tab-content,
+    body.pup-dark-mode .content-panel,
+    body.pup-dark-mode .content-grid,
+    body.pup-dark-mode .two-col-grid {
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode .card,
+    body.pup-dark-mode .stat-card,
+    body.pup-dark-mode .announcement-item,
+    body.pup-dark-mode .notification-item,
+    body.pup-dark-mode .activity-item,
+    body.pup-dark-mode .content-card,
+    body.pup-dark-mode .table-container,
+    body.pup-dark-mode .table-card,
+    body.pup-dark-mode .modal-content,
+    body.pup-dark-mode .modal-card,
+    body.pup-dark-mode .searchable-select,
+    body.pup-dark-mode .search-box,
+    body.pup-dark-mode .filter-bar,
+    body.pup-dark-mode .tab-navigation,
+    body.pup-dark-mode .top-tabs,
+    body.pup-dark-mode .stats-row .stat-card,
+    body.pup-dark-mode .stats-grid .stat-card {
+        background: linear-gradient(180deg, rgba(39, 17, 20, 0.96) 0%, rgba(29, 12, 15, 0.98) 100%) !important;
+        border-color: rgba(224, 128, 128, 0.14) !important;
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24) !important;
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode .card-header,
+    body.pup-dark-mode .table-header,
+    body.pup-dark-mode .modal-header,
+    body.pup-dark-mode .filter-bar,
+    body.pup-dark-mode .tab-navigation,
+    body.pup-dark-mode .top-tabs {
+        border-color: rgba(224, 128, 128, 0.14) !important;
+    }
+
+    body.pup-dark-mode .page-title,
+    body.pup-dark-mode .card-title,
+    body.pup-dark-mode .stat-value,
+    body.pup-dark-mode .stat-val,
+    body.pup-dark-mode .modal-title,
+    body.pup-dark-mode h1,
+    body.pup-dark-mode h2,
+    body.pup-dark-mode h3,
+    body.pup-dark-mode h4,
+    body.pup-dark-mode h5,
+    body.pup-dark-mode h6 {
+        color: #fff2f2 !important;
+    }
+
+    body.pup-dark-mode .page-subtitle,
+    body.pup-dark-mode .stat-label,
+    body.pup-dark-mode .stat-lbl,
+    body.pup-dark-mode .notification-time,
+    body.pup-dark-mode .notification-message,
+    body.pup-dark-mode .announcement-meta,
+    body.pup-dark-mode .announcement-text,
+    body.pup-dark-mode .user-role,
+    body.pup-dark-mode .empty-state,
+    body.pup-dark-mode .dashboard-empty-state,
+    body.pup-dark-mode p,
+    body.pup-dark-mode label,
+    body.pup-dark-mode li,
+    body.pup-dark-mode td,
+    body.pup-dark-mode th,
+    body.pup-dark-mode span:not(.badge):not(.type-badge) {
+        color: #d8c4c6 !important;
+    }
+
+    body.pup-dark-mode .nav-link,
+    body.pup-dark-mode .nav-link i,
+    body.pup-dark-mode .user-name,
+    body.pup-dark-mode .menu-toggle,
+    body.pup-dark-mode .icon-btn,
+    body.pup-dark-mode .btn-outline,
+    body.pup-dark-mode .btn-secondary,
+    body.pup-dark-mode .export-btn {
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode .btn-secondary,
+    body.pup-dark-mode .btn-outline,
+    body.pup-dark-mode .export-btn {
+        background: rgba(255, 255, 255, 0.04) !important;
+        border-color: rgba(240, 200, 90, 0.26) !important;
+    }
+
+    body.pup-dark-mode .btn-secondary:hover,
+    body.pup-dark-mode .btn-outline:hover,
+    body.pup-dark-mode .export-btn:hover {
+        background: #800000 !important;
+        border-color: #800000 !important;
+        color: #fff !important;
+    }
+
+    body.pup-dark-mode a {
+        color: #f0c85a;
+    }
+
+    body.pup-dark-mode a:hover {
+        color: #ffd978;
+    }
+
+    body.pup-dark-mode table,
+    body.pup-dark-mode .data-table,
+    body.pup-dark-mode .table {
+        background: transparent !important;
+        color: #f6ebeb !important;
+    }
+
+    body.pup-dark-mode tr,
+    body.pup-dark-mode .table-row,
+    body.pup-dark-mode .notification-item,
+    body.pup-dark-mode .announcement-item {
+        border-color: rgba(224, 128, 128, 0.12) !important;
+    }
+
+    body.pup-dark-mode ::-webkit-scrollbar-track {
+        background: #18090c;
+    }
+
+    body.pup-dark-mode ::-webkit-scrollbar-thumb {
+        background: rgba(224, 128, 128, 0.48);
+    }
+
+    body.pup-dark-mode ::-webkit-scrollbar-thumb:hover {
+        background: rgba(240, 200, 90, 0.6);
+    }
 </style>
+
+<script>
+(() => {
+    try {
+        if (window.__cmsSavedDarkModeApplied) return;
+        window.__cmsSavedDarkModeApplied = true;
+        if (localStorage.getItem('pup-dark-mode') === 'true') {
+            document.body.classList.add('pup-dark-mode');
+        }
+    } catch (error) {
+        console.warn('CMS dark mode bootstrap failed.', error);
+    }
+})();
+</script>
 
 <header class="topbar">
     <div class="topbar-left">
@@ -426,6 +644,9 @@
     if (window.__cmsAccessibilityWidgetInit) return;
     window.__cmsAccessibilityWidgetInit = true;
 
+    const DARK_CLASS = 'pup-dark-mode';
+    const STORAGE_KEY = 'pup-dark-mode';
+
     const existingOptions = window.AccessibleWebWidgetOptions || {};
     window.AccessibleWebWidgetOptions = {
         ...existingOptions,
@@ -439,6 +660,111 @@
             focusRingColor: '#800000',
         },
     };
+
+    const setDarkMode = (enabled) => {
+        document.body.classList.toggle(DARK_CLASS, enabled);
+        try {
+            localStorage.setItem(STORAGE_KEY, String(enabled));
+        } catch (error) {
+            console.warn('CMS dark mode persistence failed.', error);
+        }
+        document.dispatchEvent(new CustomEvent('cms-dark-mode-changed', {
+            detail: { enabled },
+        }));
+    };
+
+    const updateDarkModeToggleUI = (dark) => {
+        const row = document.getElementById('pup-dark-mode-row');
+        const toggle = document.getElementById('pup-dm-toggle');
+        const thumb = document.getElementById('pup-dm-thumb');
+
+        if (toggle) toggle.style.background = dark ? '#800000' : 'rgba(128,0,0,0.2)';
+        if (thumb) thumb.classList.toggle('on', dark);
+        if (row) {
+            row.setAttribute('aria-pressed', String(dark));
+            row.setAttribute('aria-label', dark ? 'Disable dark mode' : 'Enable dark mode');
+        }
+    };
+
+    const injectDarkModeRow = () => {
+        if (document.getElementById('pup-dark-mode-row')) {
+            updateDarkModeToggleUI(document.body.classList.contains(DARK_CLASS));
+            return;
+        }
+
+        const panel =
+            document.querySelector('.acc-container .acc-panel') ||
+            document.querySelector('.acc-container .acc-body') ||
+            document.querySelector('.acc-container .acc-content') ||
+            document.querySelector('.acc-container [class*="body"]') ||
+            document.querySelector('.acc-container [class*="content"]');
+
+        if (!panel) return;
+
+        const isDark = document.body.classList.contains(DARK_CLASS);
+        const row = document.createElement('div');
+        row.id = 'pup-dark-mode-row';
+        row.setAttribute('role', 'button');
+        row.setAttribute('tabindex', '0');
+
+        row.innerHTML = `
+            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
+                    style="color:#f0c85a;flex-shrink:0;"
+                    aria-hidden="true">
+                    <path d="M12 3a9 9 0 1 0 9 9c0-.46-.04-.92-.1-1.36a5.389 5.389 0 0 1-4.4 2.26
+                            5.403 5.403 0 0 1-3.14-9.8c-.44-.06-.9-.1-1.36-.1z"/>
+                </svg>
+                <div>
+                    <div style="font-size:13px;font-weight:600;color:inherit;line-height:1.2;">Dark Mode</div>
+                    <div style="font-size:11px;opacity:0.72;margin-top:2px;line-height:1.3;">Easier on the eyes at night</div>
+                </div>
+            </div>
+            <div id="pup-dm-toggle" style="background:${isDark ? '#800000' : 'rgba(128,0,0,0.2)'};">
+                <div id="pup-dm-thumb" class="${isDark ? 'on' : ''}"></div>
+            </div>
+        `;
+
+        const toggleDarkMode = () => {
+            const nowDark = !document.body.classList.contains(DARK_CLASS);
+            setDarkMode(nowDark);
+            updateDarkModeToggleUI(nowDark);
+        };
+
+        row.addEventListener('click', toggleDarkMode);
+        row.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                toggleDarkMode();
+            }
+        });
+
+        panel.insertBefore(row, panel.firstChild);
+        updateDarkModeToggleUI(isDark);
+    };
+
+    try {
+        setDarkMode(localStorage.getItem(STORAGE_KEY) === 'true');
+    } catch (error) {
+        console.warn('CMS dark mode restore failed.', error);
+    }
+
+    const darkModeObserver = new MutationObserver(() => injectDarkModeRow());
+    darkModeObserver.observe(document.body, { childList: true, subtree: true });
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', injectDarkModeRow, { once: true });
+    } else {
+        injectDarkModeRow();
+    }
+
+    window.addEventListener('load', injectDarkModeRow, { once: true });
+    window.addEventListener('storage', (event) => {
+        if (event.key !== STORAGE_KEY) return;
+        const enabled = event.newValue === 'true';
+        document.body.classList.toggle(DARK_CLASS, enabled);
+        updateDarkModeToggleUI(enabled);
+    });
 
     const existingScript = document.querySelector('script[data-accessible-web-widget="true"]');
     if (existingScript) return;
