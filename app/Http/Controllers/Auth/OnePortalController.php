@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Support\AuditLog;
-use Illuminate\Support\Facades\Auth;
 
 class OnePortalController extends Controller
 {
@@ -302,6 +301,40 @@ class OnePortalController extends Controller
         ->cookie('refresh_token', $refreshToken ?? '', 60, '/', null, $request->isSecure(), true, false, 'Lax');
 }
 
+    public function logout(Request $request)
+{
+    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+    $clientId = (string) config('services.idp.client_id');
+
+    // ✅ get user_id directly from session (stored during login)
+    $userId = session('oneportal_id');
+
+    // ✅ remove tokens explicitly (IMPORTANT)
+    $request->session()->forget('access_token');
+    $request->session()->forget('refresh_token');
+
+    // ✅ clear local session
+    $request->session()->flush();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    // ✅ fallback if missing user_id
+    if (!$userId) {
+        return redirect()->route('public.landing')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
+    }
+
+    // ✅ build REQUIRED IDP logout URL
+    $idpLogoutUrl = $baseUrl . '/logout?client_id=' . urlencode($clientId)
+        . '&user_id=' . urlencode($userId);
+
+    // ✅ redirect to IDP logout (IMPORTANT)
+    return redirect()->away($idpLogoutUrl)
+        ->withoutCookie('access_token')
+        ->withoutCookie('refresh_token');
+}
+
     private function redirectByRole($role)
     {
         $role = strtoupper((string) $role);
@@ -337,129 +370,4 @@ class OnePortalController extends Controller
 
         return redirect('/');
     }
-public function logout(Request $request)
-{
-    $config = [
-        'client_id' => config('services.idp.client_id'),
-        'logout_url' => config('services.idp.logout_url'),
-    ];
-
-    $accessToken = $request->cookie('access_token');
-    $refreshToken = $request->cookie('refresh_token');
-
-    \Log::info('LOGOUT TRIGGERED', [
-        'has_access_token' => !empty($accessToken),
-        'has_refresh_token' => !empty($refreshToken),
-    ]);
-
-    // 🔥 CLEAR LOCAL SESSION
-    $this->clearLocalAuthentication($request);
-
-    // 🔥 CALL IDP LOGOUT (SERVER SIDE)
-    $this->revokeIdpTokens(
-        $config['logout_url'] ?? null,
-        $config['client_id'] ?? null,
-        $accessToken,
-        $refreshToken
-    );
-
-    $response = redirect()->route('public.landing');
-
-    // 🔥 CLEAR COOKIES
-    return $this->attachCookieExpiryHeaders($response, $request);
-}
-
-public function idpLogout(Request $request)
-{
-    Auth::logout();
-
-    $request->session()->forget('access_token');
-    $request->session()->forget('refresh_token');
-    $request->session()->flush();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    $response = redirect()->route('public.landing');
-
-    return $this->expireAuthCookies($response, $request);
-}
-
-protected function expireAuthCookies($response, Request $request)
-{
-    $cookieNames = [
-        'access_token',
-        'refresh_token',
-        'jwt_token',
-        config('session.cookie'),
-        'XSRF-TOKEN',
-    ];
-
-    foreach ($cookieNames as $cookieName) {
-        $response->withCookie(cookie()->forget($cookieName, '/'));
-        $response->withCookie(cookie()->forget($cookieName, '/', $request->getHost()));
-    }
-
-    return $response;
-}
-
-protected function clearLocalAuthentication(Request $request): void
-{
-    Auth::logout();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-}
-
-protected function revokeIdpTokens(?string $logoutUrl, ?string $clientId, ?string $accessToken, ?string $refreshToken = null): void
-{
-    if (empty($logoutUrl) || empty($clientId)) {
-        \Log::warning('IDP logout skipped because logout URL or client ID is missing.', [
-            'has_logout_url' => !empty($logoutUrl),
-            'has_client_id' => !empty($clientId),
-        ]);
-        return;
-    }
-
-    $httpClient = Http::asJson()->connectTimeout(5)->timeout(10);
-
-    if (app()->environment(['local', 'testing'])) {
-        $httpClient = $httpClient->withoutVerifying();
-    }
-
-    try {
-        $payload = [
-            'client_id' => $clientId,
-        ];
-
-        if (!empty($accessToken)) {
-            $payload['access_token'] = $accessToken;
-        }
-
-        if (!empty($refreshToken)) {
-            $payload['refresh_token'] = $refreshToken;
-        }
-
-        $requestClient = !empty($accessToken)
-            ? $httpClient->withToken($accessToken)
-            : $httpClient;
-
-        $finalLogoutUrl = rtrim($logoutUrl, '/') . '?client_id=' . urlencode($clientId);
-
-        \Log::info('IDP logout request', [
-            'url' => $finalLogoutUrl,
-            'has_access_token' => !empty($accessToken),
-            'payload' => array_keys($payload),
-        ]);
-
-        $response = $requestClient->post($finalLogoutUrl, $payload);
-
-        \Log::info('IDP logout response', [
-            'status' => $response->status(),
-            'body' => $response->body(),
-        ]);
-    } catch (\Throwable $e) {
-        \Log::error('IDP logout failed', [
-            'error' => $e->getMessage(),
-        ]);
-    }
-}
 }
