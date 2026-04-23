@@ -97,20 +97,12 @@
                 <div class="contents-cards dp-diploma-cards reveal delay-100">
 
                     {{-- 01 MEM --}}
-                    <a href="#mem" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Master in Educational Management" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>Master in Educational Management</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>Master in Educational Management</h3>
-                                    <p>MEM — Delivered via the Open University System. Develops educational leaders with expertise in curriculum, policy, and institutional management.</p>
-                                </div>
-                            </div>
+                    <a href="#mem" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">MEM</span>
+                            <h3 class="dp-diploma-title">Master in Educational Management</h3>
+                            <p class="dp-diploma-desc">Develops educational leaders with expertise in curriculum, policy, and institutional management. Delivered via the Open University System for working professionals.</p>
+                            <span class="dp-diploma-dept">Open University System</span>
                         </div>
                     </a>
 

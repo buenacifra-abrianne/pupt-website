@@ -93,43 +93,27 @@
                     <h2>Diploma Programs</h2>
                 </div>
 
-                <div class="contents-cards dp-diploma-cards reveal delay-100">
+        <div class="contents-cards dp-diploma-cards reveal delay-100">
 
-                    {{-- 01 DICT --}}
-                    <a href="#dict" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Information Communication Technology" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>Diploma in Information Communication Technology</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>Diploma in Information Communication Technology</h3>
-                                    <p>DICT — A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
+            {{-- 01 DICT --}}
+            <a href="#dict" class="contents-card" tabindex="0">
+                <div class="dp-diploma-card-body">
+                    <span class="dp-diploma-badge">DICT</span>
+                    <h3 class="dp-diploma-title">Diploma in Information Communication Technology</h3>
+                    <p class="dp-diploma-desc">A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.</p>
+                    <span class="dp-diploma-dept">Dept. of Information &amp; Communications Technology</span>
+                </div>
+            </a>
 
-                    {{-- 02 DOMT --}}
-                    <a href="#domt" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Office Management Technology" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>Diploma in Office Management Technology</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>Diploma in Office Management Technology</h3>
-                                    <p>DOMT — Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </a>
+            {{-- 02 DOMT --}}
+            <a href="#domt" class="contents-card" tabindex="0">
+                <div class="dp-diploma-card-body">
+                    <span class="dp-diploma-badge">DOMT</span>
+                    <h3 class="dp-diploma-title">Diploma in Office Management Technology</h3>
+                    <p class="dp-diploma-desc">Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.</p>
+                    <span class="dp-diploma-dept">Dept. of Office Administration</span>
+                </div>
+            </a>
 
                 </div>{{-- /.contents-cards --}}
             </div>{{-- /.contents-strip-inner --}}
