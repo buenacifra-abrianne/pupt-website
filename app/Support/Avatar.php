@@ -6,21 +6,7 @@ class Avatar
 {
     public static function resolveUrl(?string $profilePicture): string
     {
-        $profilePicture = trim((string) $profilePicture);
-        if ($profilePicture === '') {
-            return '';
-        }
-
-        if (
-            str_starts_with($profilePicture, 'http://')
-            || str_starts_with($profilePicture, 'https://')
-            || str_starts_with($profilePicture, '//')
-            || str_starts_with($profilePicture, 'data:')
-        ) {
-            return $profilePicture;
-        }
-
-        return asset(ltrim($profilePicture, '/'));
+        return (string) (ImageStorage::url($profilePicture) ?? '');
     }
 
     public static function initials(?string $name = '', ?string $firstName = '', ?string $lastName = ''): string

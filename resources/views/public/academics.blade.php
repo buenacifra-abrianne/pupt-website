@@ -55,7 +55,7 @@
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
                                     <img
-                                        src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($heroSection['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
+                                        src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($heroSection['image'] ?? '', 'assets/static_img/about_header_image.png') }}"
                                         alt=""
                                         class="carousel-half carousel-half-left"
                                     >
@@ -127,7 +127,7 @@
                                     <div class="contents-card-back">
                                         <div class="contents-card-overlay-copy">
                                             <h3>{{ $item['label'] ?? '' }}</h3>
-                                            <p>{{ $item['summary'] ?? '' }}</p>
+                                            <p>{{ \Illuminate\Support\Str::limit((string) ($item['summary'] ?? ''), 50) }}</p>
                                         </div>
                                         <span class="contents-card-action">See more</span>
                                     </div>
@@ -327,7 +327,7 @@
                 padding: 0;
                 background: rgba(127, 17, 19, 0.96);
                 color: #fffaf4;
-                display: inline-flex;
+                display: none !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 14px 28px rgba(32, 8, 8, 0.22);
@@ -360,7 +360,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: inline-flex;
+                display: none !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);

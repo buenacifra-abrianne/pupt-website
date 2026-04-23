@@ -995,20 +995,46 @@
         });
     }
 
+    function hasServerTrackedCardVersion(form) {
+        return !!form.querySelector(
+            '[data-home-quick-links-version], ' +
+            '[data-home-feedback-questions-version], ' +
+            '[data-about-contents-version], ' +
+            '[data-academics-contents-version], ' +
+            '[data-academics-features-version], ' +
+            '[data-students-cards-version], ' +
+            '[data-research-cards-version], ' +
+            '[data-events-cards-version]'
+        );
+    }
+
+    function getActiveCsrfToken(form) {
+        const formToken = form.querySelector('input[name="_token"]')?.value?.trim();
+        const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')?.trim();
+        return formToken || metaToken || CSRF || '';
+    }
+
     async function postForm(form) {
         const submitBtn = form.querySelector('button[type="submit"]');
         if (submitBtn) submitBtn.disabled = true;
         syncFormEditors(form);
+        const csrfToken = getActiveCsrfToken(form);
+        const formData = new FormData(form);
+
+        if (csrfToken) {
+            formData.set('_token', csrfToken);
+        }
 
         try {
             const res = await fetch(form.action, {
                 method: 'POST',
+                credentials: 'same-origin',
                 headers: {
-                    'X-CSRF-TOKEN': CSRF,
+                    'X-CSRF-TOKEN': csrfToken,
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
                 },
-                body: new FormData(form)
+                body: formData
             });
 
             const raw = await res.text();
@@ -1051,7 +1077,7 @@
     document.querySelectorAll('.cms-edit-form').forEach((form) => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!formHasChanges(form)) {
+            if (!formHasChanges(form) && !hasServerTrackedCardVersion(form)) {
                 if (typeof window.showToast === 'function') {
                     window.showToast('No changes detected.', 'info', 'No Changes');
                 } else {

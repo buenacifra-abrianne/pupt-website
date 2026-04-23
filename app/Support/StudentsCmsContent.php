@@ -251,7 +251,9 @@ class StudentsCmsContent
                 'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
                 'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
                 'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, ''),
-                'image' => self::sanitizeString((string) ($item['image'] ?? ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg')), 2048, 'assets/static_img/pupillar.jpeg'),
+                'image' => array_key_exists('image', $item)
+                    ? self::sanitizeOptionalString((string) $item['image'], 2048)
+                    : self::sanitizeString((string) ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg'), 2048, 'assets/static_img/pupillar.jpeg'),
             ];
             $hasExplicitImage = trim((string) ($item['image'] ?? '')) !== '';
 

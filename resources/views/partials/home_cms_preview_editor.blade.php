@@ -76,17 +76,6 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="home-cms-form-grid">
-                        <div class="form-group">
-                            <label>Crest Heading</label>
-                            <textarea name="home[hero][crest_heading]" rows="5">{{ $heroEditor['crest_heading'] ?? '' }}</textarea>
-                        </div>
-                        <div class="form-group">
-                            <label>Crest Year</label>
-                            <input type="text" name="home[hero][crest_year]" maxlength="50" value="{{ $heroEditor['crest_year'] ?? '' }}">
-                        </div>
-                    </div>
-
                     <div class="carousel-manager-grid">
                         @for($idx = 0; $idx < 3; $idx++)
                             @php
@@ -95,18 +84,53 @@
                                 $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <div class="carousel-manager-item">
-                                <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}">
+                                <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}" data-home-carousel-image-field>
                                 <input type="hidden" name="home[carousel][{{ $idx }}][title]" value="{{ $slide['title'] }}">
                                 <input type="hidden" name="home[carousel][{{ $idx }}][subtitle]" value="{{ $slide['subtitle'] }}">
 
-                                <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}">
-                                    <img src="{{ $slidePreview }}" alt="Slide {{ $idx + 1 }} preview" class="slide-preview" data-preview-for="{{ $slideInputId }}">
+                                <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}" data-home-carousel-dropzone-for="{{ $slideInputId }}">
+                                    <span class="home-cms-carousel-media">
+                                        <img
+                                            src="{{ $slidePreview }}"
+                                            alt="Slide {{ $idx + 1 }} preview"
+                                            class="slide-preview"
+                                            data-home-carousel-preview-for="{{ $slideInputId }}"
+                                            data-home-carousel-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="home-cms-carousel-remove"
+                                            data-home-carousel-clear-for="{{ $slideInputId }}"
+                                            aria-label="Delete slide {{ $idx + 1 }} image"
+                                            title="Delete image"
+                                        >
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
                                     <span class="dropzone-label">Slide {{ $idx + 1 }}</span>
-                                    <span class="dropzone-file-name" data-file-name-for="{{ $slideInputId }}">Drop image here or click to replace</span>
+                                    <span class="dropzone-file-name" data-home-carousel-file-name-for="{{ $slideInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </label>
-                                <input id="{{ $slideInputId }}" class="home-dropzone-input" type="file" name="home[carousel][{{ $idx }}][image_file]" accept="image/*">
+                                <input
+                                    id="{{ $slideInputId }}"
+                                    class="home-dropzone-input"
+                                    type="file"
+                                    name="home[carousel][{{ $idx }}][image_file]"
+                                    accept="image/*"
+                                >
                             </div>
                         @endfor
+                    </div>
+
+                    <div class="home-cms-form-grid home-cms-carousel-meta-grid" data-home-card-panel-meta>
+                        @php($crestHeadingValue = str_replace(["\r", "\n"], ' ', (string) ($heroEditor['crest_heading'] ?? '')))
+                        <div class="form-group">
+                            <label>Crest Heading</label>
+                            <input type="text" name="home[hero][crest_heading]" maxlength="255" value="{{ $crestHeadingValue }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Crest Year</label>
+                            <input type="text" name="home[hero][crest_year]" maxlength="50" value="{{ $heroEditor['crest_year'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="home-cms-modal-footer">
@@ -139,11 +163,13 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Intro Copy</label>
+                        <label>Description</label>
                         @include('partials.rich_text_editor', [
                             'name' => 'home[updates][description]',
                             'value' => $updatesEditor['description'] ?? '',
-                            'placeholder' => 'Write the intro shown above the news and announcement panels...',
+                            'placeholder' => 'Write the description for the updates section...',
+                            'characterLimit' => 100,
+                            'counterMode' => 'limit',
                         ])
                     </div>
 
@@ -157,81 +183,122 @@
             </section>
 
             <section class="home-cms-editor-panel" data-home-editor-panel="quick_links" hidden>
-                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-quick-links-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="home">
-                    <input type="hidden" name="section_key" value="quick_links">
-                    <input type="hidden" name="home_quick_links_version" value="0" data-home-quick-links-version>
-                    <input type="hidden" name="home_active_quick_link_index" value="" data-home-active-quick-link-index>
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
+                <div data-home-quick-links-section-shell>
+                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="tab_key" value="home">
+                        <input type="hidden" name="section_key" value="quick_links">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
 
-                    <div class="home-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Tag</label>
-                            <input type="text" name="home[quick_links][tag]" maxlength="80" value="{{ $quickLinksEditor['tag'] ?? '' }}">
+                        <div class="home-cms-form-grid" data-home-card-panel-meta>
+                            <div class="form-group">
+                                <label>Section Tag</label>
+                                <input type="text" name="home[quick_links][tag]" maxlength="80" value="{{ $quickLinksEditor['tag'] ?? '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Section Title</label>
+                                <input type="text" name="home[quick_links][title]" maxlength="255" value="{{ $quickLinksEditor['title'] ?? '' }}">
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label>Section Title</label>
-                            <input type="text" name="home[quick_links][title]" maxlength="255" value="{{ $quickLinksEditor['title'] ?? '' }}">
-                        </div>
-                    </div>
 
-                    <div class="home-cms-card-stack" data-home-quick-link-stack>
+                        <div class="form-group">
+                            <label>Description</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'home[quick_links][description]',
+                                'value' => $quickLinksEditor['description'] ?? '',
+                                'placeholder' => 'Write the description for the Explore section...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
+                            ])
+                        </div>
+
                         @foreach(($quickLinksEditor['items'] ?? []) as $index => $item)
-                            <article class="home-cms-card-editor" data-home-quick-link-editor data-home-quick-link-index="{{ $index }}">
-                                <div class="home-cms-card-editor-head">
-                                    <h4>Explore Card {{ $loop->iteration }}</h4>
-                                    <span>{{ $item['href'] ?? '' }}</span>
-                                </div>
-
-                                <input type="hidden" name="home[quick_links][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
-
-                                <div class="home-cms-form-grid">
-                                    <div class="form-group">
-                                        <label>Card Label</label>
-                                        <input type="text" name="home[quick_links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Card Title</label>
-                                        <input type="text" name="home[quick_links][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Card Description</label>
-                                    @include('partials.rich_text_editor', [
-                                        'name' => 'home[quick_links][items]['.$index.'][body]',
-                                        'value' => $item['body'] ?? '',
-                                        'placeholder' => 'Write the card description shown in the Explore section...',
-                                    ])
-                                </div>
-                            </article>
+                            <input type="hidden" name="home[quick_links][items][{{ $index }}][label]" value="{{ $item['label'] ?? '' }}">
+                            <input type="hidden" name="home[quick_links][items][{{ $index }}][title]" value="{{ $item['title'] ?? '' }}">
+                            <input type="hidden" name="home[quick_links][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
+                            <input type="hidden" name="home[quick_links][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
                         @endforeach
-                    </div>
 
-                    <div class="home-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Explore Section') }}
-                        </button>
-                    </div>
-                </form>
+                        <div class="home-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                                {{ $submitLabel('Explore Section') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div data-home-quick-links-card-shell>
+                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-quick-links-form>
+                        @csrf
+                        <input type="hidden" name="tab_key" value="home">
+                        <input type="hidden" name="section_key" value="quick_links">
+                        <input type="hidden" name="home_quick_links_version" value="0" data-home-quick-links-version>
+                        <input type="hidden" name="home_active_quick_link_index" value="" data-home-active-quick-link-index>
+                        <input type="hidden" name="home[quick_links][tag]" value="{{ $quickLinksEditor['tag'] ?? '' }}">
+                        <input type="hidden" name="home[quick_links][title]" value="{{ $quickLinksEditor['title'] ?? '' }}">
+                        <input type="hidden" name="home[quick_links][description]" value="{{ $quickLinksEditor['description'] ?? '' }}">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
+
+                        <div class="home-cms-card-stack" data-home-quick-link-stack>
+                            @foreach(($quickLinksEditor['items'] ?? []) as $index => $item)
+                                <article class="home-cms-card-editor" data-home-quick-link-editor data-home-quick-link-index="{{ $index }}">
+                                    <div class="home-cms-card-editor-head" data-home-card-editor-head>
+                                        <h4>Explore Card {{ $loop->iteration }}</h4>
+                                        <span>{{ $item['href'] ?? '' }}</span>
+                                    </div>
+
+                                    <input type="hidden" name="home[quick_links][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
+
+                                    <div class="home-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Card Label</label>
+                                            <input type="text" name="home[quick_links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Card Title</label>
+                                            <input type="text" name="home[quick_links][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Card Description</label>
+                                        @include('partials.rich_text_editor', [
+                                            'name' => 'home[quick_links][items]['.$index.'][body]',
+                                            'value' => $item['body'] ?? '',
+                                            'placeholder' => 'Write the card description shown in the Explore section...',
+                                            'characterLimit' => 75,
+                                            'counterMode' => 'limit',
+                                        ])
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+
+                        <div class="home-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                                {{ $submitLabel('Explore Card') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </section>
 
             <section class="home-cms-editor-panel" data-home-editor-panel="feedback" hidden>
-                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-feedback-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="home">
-                    <input type="hidden" name="section_key" value="feedback">
-                    <input type="hidden" name="home_feedback_questions_version" value="0" data-home-feedback-questions-version>
-                    <input type="hidden" name="home_active_feedback_question_index" value="" data-home-active-feedback-question-index>
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
+                <div data-home-feedback-section-shell>
+                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="tab_key" value="home">
+                        <input type="hidden" name="section_key" value="feedback">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
 
-                    <div data-home-feedback-banner-fields>
                         <div class="home-cms-form-grid">
                             <div class="form-group">
                                 <label>Section Tag</label>
@@ -254,51 +321,77 @@
                                 'name' => 'home[feedback][description]',
                                 'value' => $feedbackEditor['description'] ?? '',
                                 'placeholder' => 'Write the supporting copy shown in the feedback banner...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
                             ])
                         </div>
-                    </div>
 
-                    <div class="home-cms-card-stack" data-home-feedback-question-stack>
                         @foreach($feedbackQuestionsEditor as $index => $item)
-                            <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="{{ $index }}">
+                            <input type="hidden" name="home[feedback][questions][{{ $index }}][question]" value="{{ $item['question'] ?? '' }}">
+                        @endforeach
+
+                        <div class="home-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                                {{ $submitLabel('Feedback Form') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div data-home-feedback-question-shell>
+                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-feedback-form>
+                        @csrf
+                        <input type="hidden" name="tab_key" value="home">
+                        <input type="hidden" name="section_key" value="feedback">
+                        <input type="hidden" name="home_feedback_questions_version" value="0" data-home-feedback-questions-version>
+                        <input type="hidden" name="home_active_feedback_question_index" value="" data-home-active-feedback-question-index>
+                        <input type="hidden" name="home[feedback][tag]" value="{{ $feedbackEditor['tag'] ?? '' }}">
+                        <input type="hidden" name="home[feedback][button_label]" value="{{ $feedbackEditor['button_label'] ?? '' }}">
+                        <input type="hidden" name="home[feedback][title]" value="{{ $feedbackEditor['title'] ?? '' }}">
+                        <input type="hidden" name="home[feedback][description]" value="{{ $feedbackEditor['description'] ?? '' }}">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
+
+                        <div class="home-cms-card-stack" data-home-feedback-question-stack>
+                            @foreach($feedbackQuestionsEditor as $index => $item)
+                                <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="{{ $index }}">
+                                    <div class="home-cms-card-editor-head">
+                                        <h4>Question {{ str_pad((string) ($loop->iteration), 2, '0', STR_PAD_LEFT) }}</h4>
+                                        <span>Ratings: 4 / 3 / 2 / 1</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Question</label>
+                                        <textarea name="home[feedback][questions][{{ $index }}][question]" rows="5">{{ $item['question'] ?? '' }}</textarea>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+
+                        <template data-home-feedback-question-template>
+                            <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="__INDEX__">
                                 <div class="home-cms-card-editor-head">
-                                    <h4>Question {{ str_pad((string) ($loop->iteration), 2, '0', STR_PAD_LEFT) }}</h4>
+                                    <h4>Question __NUMBER__</h4>
                                     <span>Ratings: 4 / 3 / 2 / 1</span>
                                 </div>
 
                                 <div class="form-group">
                                     <label>Question</label>
-                                    <textarea name="home[feedback][questions][{{ $index }}][question]" rows="5">{{ $item['question'] ?? '' }}</textarea>
+                                    <textarea name="home[feedback][questions][__INDEX__][question]" rows="5"></textarea>
                                 </div>
                             </article>
-                        @endforeach
-                    </div>
+                        </template>
 
-                    <template data-home-feedback-question-template>
-                        <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="__INDEX__">
-                            <div class="home-cms-card-editor-head">
-                                <h4>Question __NUMBER__</h4>
-                                <span>Ratings: 4 / 3 / 2 / 1</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label>Question</label>
-                                <textarea name="home[feedback][questions][__INDEX__][question]" rows="5"></textarea>
-                            </div>
-                        </article>
-                    </template>
-
-                    <div class="home-cms-modal-footer">
-                        <button type="button" class="btn btn-secondary" data-home-feedback-add-question>
-                            <i class="fas fa-plus"></i>
-                            Add Question
-                        </button>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Feedback Form') }}
-                        </button>
-                    </div>
-                </form>
+                        <div class="home-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                                {{ $submitLabel('Feedback Question') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </section>
         </div>
     </div>
@@ -411,6 +504,10 @@
         position: fixed;
         inset: 0;
         z-index: 1200;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 16px;
     }
 
     .home-cms-modal-backdrop {
@@ -425,7 +522,7 @@
         z-index: 1;
         width: min(1080px, calc(100vw - 32px));
         max-height: calc(100vh - 32px);
-        margin: 16px auto;
+        margin: 0;
         overflow: auto;
         border-radius: 24px;
         background: #fffdfc;
@@ -471,6 +568,10 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
+    }
+
+    .home-cms-form-grid > * {
+        min-width: 0;
     }
 
     .home-cms-card-stack {
@@ -535,10 +636,202 @@
         line-height: 1.5;
     }
 
+    .home-cms-carousel-meta-grid {
+        margin-top: 18px;
+        align-items: start;
+    }
+
+    .home-dropzone {
+        border: 1px dashed #d4af37;
+        border-radius: 18px;
+        padding: 14px;
+        display: block;
+        cursor: pointer;
+        background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
+    }
+
+    .home-dropzone.dragover {
+        background: #fff4cf;
+        border-color: #bf8f00;
+    }
+
+    .home-dropzone-input {
+        display: none;
+    }
+
+    .carousel-manager-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .carousel-manager-item {
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid #efe3dc;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 10px 24px rgba(92, 12, 6, 0.04);
+    }
+
+    .slide-dropzone {
+        min-height: 100%;
+        text-align: center;
+    }
+
+    .home-cms-carousel-media {
+        position: relative;
+        display: block;
+        margin-bottom: 12px;
+    }
+
+    .slide-preview {
+        width: 100%;
+        height: 150px;
+        object-fit: cover;
+        border-radius: 14px;
+        display: block;
+        background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .home-cms-carousel-remove {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(127, 17, 19, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #7f1113;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
+        backdrop-filter: blur(6px);
+    }
+
+    .home-cms-carousel-remove:hover {
+        background: #7f1113;
+        color: #fff8f1;
+    }
+
+    .home-cms-carousel-remove[hidden] {
+        display: none;
+    }
+
+    .dropzone-label {
+        display: block;
+        font-weight: 700;
+        margin-bottom: 6px;
+        color: #5c0000;
+        font-size: 1.02rem;
+    }
+
+    .dropzone-file-name {
+        display: block;
+        font-size: 0.88rem;
+        color: #6f625c;
+        line-height: 1.5;
+        word-break: break-word;
+    }
+
     .home-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    [data-home-quick-links-card-shell] {
+        display: none;
+    }
+
+    [data-home-feedback-question-shell] {
+        display: none;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-quick-links-section-shell] {
+        display: none;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-quick-links-card-shell] {
+        display: block;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-feedback-section-shell] {
+        display: none;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-feedback-question-shell] {
+        display: block;
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-header {
+        display: none;
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-dialog {
+        width: min(620px, calc(100vw - 24px));
+        max-width: min(620px, calc(100vw - 24px));
+        border-radius: 30px;
+        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
+        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-panels {
+        padding: 18px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
+            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+    }
+
+    .home-cms-editor-panel.is-card-focus form {
+        max-width: 540px;
+        margin: 0 auto;
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-form-grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-card-stack {
+        gap: 0;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-card-panel-meta],
+    .home-cms-editor-panel.is-card-focus [data-home-card-editor-head] {
+        display: none;
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-card-editor.is-active {
+        padding: 22px;
+        border: 1px solid rgba(127, 17, 19, 0.12);
+        border-radius: 24px;
+        background:
+            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow:
+            0 16px 34px rgba(92, 12, 6, 0.08),
+            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-card-editor.is-active .form-group + .form-group {
+        margin-top: 10px;
+    }
+
+    .home-cms-modal.is-card-focus .home-cms-modal-close {
+        top: 14px;
+        right: 14px;
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: rgba(127, 17, 19, 0.08);
+        font-size: 1.35rem;
     }
 
     @media (max-width: 768px) {
@@ -562,6 +855,11 @@
         .home-cms-form-grid {
             grid-template-columns: 1fr;
         }
+
+        .carousel-manager-grid {
+            grid-template-columns: 1fr;
+        }
+
         .home-cms-modal-dialog {
             width: min(100vw - 20px, 1080px);
             max-height: calc(100vh - 20px);
@@ -583,13 +881,120 @@
         }
 
         const HOME_PREVIEW_MIN_LOADING_MS = 1500;
+        const HOME_PREVIEW_ROUTE_STORAGE_KEY = `cms:home-preview-route:${window.location.pathname}`;
         let homePreviewFitFrame = null;
-        let currentHomePreviewRoute = 'overview';
+        let currentHomePreviewRoute = readStoredHomePreviewRoute();
+
+        function readStoredHomePreviewRoute() {
+            try {
+                return window.localStorage.getItem(HOME_PREVIEW_ROUTE_STORAGE_KEY) || 'overview';
+            } catch (_) {
+                return 'overview';
+            }
+        }
+
+        function persistHomePreviewRoute(routeKey) {
+            try {
+                window.localStorage.setItem(HOME_PREVIEW_ROUTE_STORAGE_KEY, String(routeKey || 'overview'));
+            } catch (_) {
+                // Ignore storage access failures and keep the in-memory state.
+            }
+        }
 
         function syncEditorsInScope(scope) {
             if (typeof window.syncRichTextEditors === 'function') {
                 window.syncRichTextEditors(scope);
             }
+        }
+
+        function initHomeCarouselDropzones(scope = document) {
+            scope.querySelectorAll('.home-dropzone-input').forEach((input) => {
+                if (input.dataset.homeCarouselDropzoneBound === '1') {
+                    return;
+                }
+
+                const dropzone = scope.querySelector(`[data-home-carousel-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-carousel-dropzone-for="${input.id}"]`);
+                const fileNameEl = scope.querySelector(`[data-home-carousel-file-name-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-carousel-file-name-for="${input.id}"]`);
+                const previewEl = scope.querySelector(`[data-home-carousel-preview-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-carousel-preview-for="${input.id}"]`);
+                const removeButton = scope.querySelector(`[data-home-carousel-clear-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-carousel-clear-for="${input.id}"]`);
+                const imageField = input.closest('.carousel-manager-item')?.querySelector('[data-home-carousel-image-field]') || null;
+
+                if (!dropzone || !fileNameEl || !previewEl) {
+                    return;
+                }
+
+                input.dataset.homeCarouselDropzoneBound = '1';
+                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
+                const defaultSrc = previewEl.dataset.homeCarouselDefaultSrc || '';
+
+                const syncRemoveState = () => {
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
+                    removeButton.hidden = !hasImage;
+                };
+
+                const applyFile = (file) => {
+                    if (!file) {
+                        syncRemoveState();
+                        return;
+                    }
+
+                    fileNameEl.textContent = `Selected: ${file.name}`;
+                    previewEl.src = URL.createObjectURL(file);
+                    syncRemoveState();
+                };
+
+                input.addEventListener('change', () => {
+                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                });
+
+                dropzone.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    dropzone.classList.add('dragover');
+                });
+
+                dropzone.addEventListener('dragleave', () => {
+                    dropzone.classList.remove('dragover');
+                });
+
+                dropzone.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    dropzone.classList.remove('dragover');
+
+                    const file = event.dataTransfer?.files?.[0] ?? null;
+                    if (!file) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    applyFile(file);
+                });
+
+                removeButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    input.value = '';
+                    if (imageField) {
+                        imageField.value = '';
+                    }
+                    if (defaultSrc) {
+                        previewEl.src = defaultSrc;
+                    }
+                    fileNameEl.textContent = emptyText;
+                    syncRemoveState();
+                });
+
+                syncRemoveState();
+            });
         }
 
         function readCssNumber(element, variableName, fallback) {
@@ -853,6 +1258,30 @@
             });
         }
 
+        function normalizeHomePreviewRoute(routeKey) {
+            const payload = document.querySelector('[data-home-preview-json]');
+            const fallbackKey = 'overview';
+            const nextKey = String(routeKey || fallbackKey);
+
+            if (!payload) {
+                return nextKey;
+            }
+
+            try {
+                const parsedPayload = JSON.parse(payload.textContent || '{}');
+
+                if (parsedPayload && typeof parsedPayload === 'object' && !Array.isArray(parsedPayload)) {
+                    return Object.prototype.hasOwnProperty.call(parsedPayload, nextKey)
+                        ? nextKey
+                        : fallbackKey;
+                }
+            } catch (_) {
+                return fallbackKey;
+            }
+
+            return fallbackKey;
+        }
+
         function setActiveHomePreviewPage(routeKey) {
             document.querySelectorAll('[data-home-preview-page]').forEach((button) => {
                 button.classList.toggle('is-active', button.getAttribute('data-home-preview-page') === routeKey);
@@ -896,21 +1325,9 @@
         }
 
         function loadHomePreviewPage(routeKey, options = {}) {
-            const payload = document.querySelector('[data-home-preview-json]');
-            let targetKey = routeKey || 'overview';
-
-            if (payload) {
-                try {
-                    const parsedPayload = JSON.parse(payload.textContent || '{}');
-                    if (parsedPayload && typeof parsedPayload === 'object' && !Array.isArray(parsedPayload) && !Object.prototype.hasOwnProperty.call(parsedPayload, targetKey)) {
-                        targetKey = 'overview';
-                    }
-                } catch (_) {
-                    targetKey = 'overview';
-                }
-            }
-
+            const targetKey = normalizeHomePreviewRoute(routeKey);
             currentHomePreviewRoute = targetKey;
+            persistHomePreviewRoute(targetKey);
             setActiveHomePreviewPage(targetKey);
 
             document.querySelectorAll('[data-home-preview-frame]').forEach((frame) => {
@@ -962,7 +1379,7 @@
             }));
         }
 
-        function setActiveQuickLinkEditor(targetIndex = null) {
+        function setActiveQuickLinkEditor(targetIndex = null, activateFirstWhenEmpty = true) {
             const editors = Array.from(quickLinksStack?.querySelectorAll('[data-home-quick-link-editor]') ?? []);
 
             if (!editors.length) {
@@ -979,7 +1396,9 @@
 
             editors.forEach((editor) => {
                 const isMatch = normalizedIndex !== null && editor.getAttribute('data-home-quick-link-index') === normalizedIndex;
-                const shouldActivate = normalizedIndex === null ? editor === editors[0] : isMatch;
+                const shouldActivate = normalizedIndex === null
+                    ? (activateFirstWhenEmpty && editor === editors[0])
+                    : isMatch;
                 editor.classList.toggle('is-active', shouldActivate);
 
                 if (shouldActivate) {
@@ -994,59 +1413,11 @@
             return activeEditor;
         }
 
-        function deleteQuickLinkByIndex(targetIndex) {
-            const editor = quickLinksStack?.querySelector(`[data-home-quick-link-editor][data-home-quick-link-index="${targetIndex}"]`);
-            if (!editor) {
-                return false;
-            }
-
-            editor.remove();
-            bumpQuickLinksVersion();
-            setActiveQuickLinkEditor();
-            return true;
-        }
-
-        async function confirmDeleteQuickLink(targetIndex) {
-            const editor = quickLinksStack?.querySelector(`[data-home-quick-link-editor][data-home-quick-link-index="${targetIndex}"]`);
-            if (!editor) {
-                return;
-            }
-
-            const titleInput = editor.querySelector('input[name*="[title]"]');
-            const cardTitle = String(titleInput?.value || '').trim();
-            const message = cardTitle
-                ? `Do you want to delete "${cardTitle}"?`
-                : 'Do you want to delete this explore card?';
-
-            let confirmed = false;
-
-            if (typeof window.confirmAction === 'function') {
-                confirmed = await window.confirmAction({
-                    title: 'Delete Card',
-                    message,
-                    confirmText: 'Delete',
-                    tone: 'danger',
-                });
-            } else {
-                confirmed = window.confirm(message);
-            }
-
-            if (!confirmed) {
-                return;
-            }
-
-            if (deleteQuickLinkByIndex(targetIndex)) {
-                submitQuickLinksForm();
-            }
-        }
-
         const feedbackForm = document.querySelector('[data-home-feedback-form]');
         const feedbackQuestionStack = feedbackForm?.querySelector('[data-home-feedback-question-stack]');
         const feedbackQuestionsVersionInput = feedbackForm?.querySelector('[data-home-feedback-questions-version]');
         const activeFeedbackQuestionIndexInput = feedbackForm?.querySelector('[data-home-active-feedback-question-index]');
         const feedbackQuestionTemplate = feedbackForm?.querySelector('[data-home-feedback-question-template]');
-        const feedbackBannerFields = feedbackForm?.querySelector('[data-home-feedback-banner-fields]');
-        const feedbackToolbar = feedbackForm?.querySelector('[data-home-feedback-toolbar]');
 
         function bumpFeedbackQuestionsVersion() {
             if (feedbackQuestionsVersionInput) {
@@ -1083,7 +1454,7 @@
             });
         }
 
-        function setActiveFeedbackQuestionEditor(targetIndex = null) {
+        function setActiveFeedbackQuestionEditor(targetIndex = null, activateFirstWhenEmpty = true) {
             const editors = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? []);
 
             if (!editors.length) {
@@ -1100,7 +1471,9 @@
 
             editors.forEach((editor) => {
                 const isMatch = normalizedIndex !== null && editor.getAttribute('data-home-feedback-question-index') === normalizedIndex;
-                const shouldActivate = normalizedIndex === null ? editor === editors[0] : isMatch;
+                const shouldActivate = normalizedIndex === null
+                    ? (activateFirstWhenEmpty && editor === editors[0])
+                    : isMatch;
                 editor.classList.toggle('is-active', shouldActivate);
 
                 if (shouldActivate) {
@@ -1134,12 +1507,20 @@
             window.alert(message);
         }
 
+        function getFeedbackQuestionCount() {
+            return feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]').length ?? 0;
+        }
+
+        function canAddFeedbackQuestion() {
+            return getFeedbackQuestionCount() < 10;
+        }
+
         function addFeedbackQuestion() {
             if (!feedbackQuestionStack || !feedbackQuestionTemplate) {
                 return null;
             }
 
-            const currentCount = feedbackQuestionStack.querySelectorAll('[data-home-feedback-question-editor]').length;
+            const currentCount = getFeedbackQuestionCount();
             if (currentCount >= 10) {
                 notifyFeedbackQuestionLimit();
                 return null;
@@ -1150,6 +1531,7 @@
             const markup = feedbackQuestionTemplate.innerHTML
                 .replaceAll('__INDEX__', String(index))
                 .replaceAll('__NUMBER__', String(number).padStart(2, '0'));
+
             feedbackQuestionStack.insertAdjacentHTML('beforeend', markup);
             bumpFeedbackQuestionsVersion();
             relabelFeedbackQuestions();
@@ -1209,19 +1591,12 @@
             }
         }
 
-        function setFeedbackEditorMode(mode = 'full') {
-            const isQuestionFocus = mode === 'question-focus';
-
-            if (feedbackBannerFields) {
-                feedbackBannerFields.hidden = isQuestionFocus;
-            }
-
-            if (feedbackToolbar) {
-                feedbackToolbar.hidden = isQuestionFocus;
-            }
-        }
-
         function openHomeEditor(sectionKey, label, options = {}) {
+            if (sectionKey === 'feedback' && options.addFeedbackQuestion === true && !canAddFeedbackQuestion()) {
+                notifyFeedbackQuestionLimit();
+                return;
+            }
+
             const modal = document.querySelector('[data-home-editor-modal]');
             if (!modal) {
                 return;
@@ -1235,42 +1610,41 @@
 
             modal.querySelectorAll('[data-home-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-home-editor-panel') === sectionKey;
+                const isQuickLinkCardFocus = sectionKey === 'quick_links'
+                    && options.cardIndex !== null
+                    && options.cardIndex !== undefined
+                    && options.cardIndex !== '';
+                const isFeedbackQuestionFocus = sectionKey === 'feedback'
+                    && (
+                        options.addFeedbackQuestion === true
+                        || (options.feedbackQuestionIndex !== null
+                            && options.feedbackQuestionIndex !== undefined
+                            && options.feedbackQuestionIndex !== '')
+                    );
+                const isCardFocus = isQuickLinkCardFocus || isFeedbackQuestionFocus;
                 panel.hidden = !isActive;
+                panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
                 if (isActive) {
+                    modal.classList.toggle('is-card-focus', isCardFocus);
                     if (title) {
                         title.textContent = label || 'Edit homepage section';
                     }
 
                     if (description) {
-                        description.textContent = sectionKey === 'feedback' && (options.feedbackQuestionIndex !== undefined || options.addFeedbackQuestion === true)
-                            ? 'Update this question and save to refresh the feedback form preview.'
-                            : 'Update this section and save to refresh the homepage preview.';
+                        description.textContent = 'Update this section and save to refresh the homepage preview.';
                     }
 
                     const activeQuickLinkEditor = sectionKey === 'quick_links'
-                        ? setActiveQuickLinkEditor(options.cardIndex ?? null)
+                        ? setActiveQuickLinkEditor(options.cardIndex ?? null, isCardFocus)
                         : null;
                     const activeFeedbackQuestionEditor = sectionKey === 'feedback'
-                            ? (options.addFeedbackQuestion === true
-                            ? addFeedbackQuestion()
-                            : setActiveFeedbackQuestionEditor(options.feedbackQuestionIndex ?? null))
+                        ? (
+                            options.addFeedbackQuestion === true
+                                ? addFeedbackQuestion()
+                                : setActiveFeedbackQuestionEditor(options.feedbackQuestionIndex ?? null, isFeedbackQuestionFocus)
+                        )
                         : null;
-
-                    if (sectionKey === 'feedback' && options.addFeedbackQuestion === true && !activeFeedbackQuestionEditor) {
-                        closeHomeEditor();
-                        return;
-                    }
-
-                    if (sectionKey === 'feedback') {
-                        setFeedbackEditorMode(
-                            options.feedbackQuestionIndex !== undefined || options.addFeedbackQuestion === true
-                                ? 'question-focus'
-                                : 'full'
-                        );
-                    } else {
-                        setFeedbackEditorMode('full');
-                    }
 
                     if (typeof window.initializeRichTextEditors === 'function') {
                         window.initializeRichTextEditors(panel);
@@ -1290,6 +1664,7 @@
             }
 
             modal.hidden = true;
+            modal.classList.remove('is-card-focus');
             document.body.style.overflow = '';
         }
 
@@ -1313,11 +1688,6 @@
                 return;
             }
 
-            if (data.type === 'cms-home-delete-card') {
-                confirmDeleteQuickLink(data.cardIndex);
-                return;
-            }
-
             if (data.type === 'cms-home-feedback-question-edit') {
                 openHomeEditor('feedback', data.label || 'Edit feedback question', {
                     feedbackQuestionIndex: data.questionIndex,
@@ -1331,6 +1701,11 @@
             }
 
             if (data.type === 'cms-home-feedback-question-add') {
+                if (!canAddFeedbackQuestion()) {
+                    notifyFeedbackQuestionLimit();
+                    return;
+                }
+
                 openHomeEditor('feedback', data.label || 'Add feedback question', {
                     addFeedbackQuestion: true,
                 });
@@ -1357,11 +1732,6 @@
                 closeHomeEditor();
                 return;
             }
-
-            if (event.target.closest('[data-home-feedback-add-question]')) {
-                event.preventDefault();
-                addFeedbackQuestion()?.querySelector('textarea')?.focus();
-            }
         });
 
         document.addEventListener('keydown', (event) => {
@@ -1373,6 +1743,11 @@
         document.querySelectorAll('.{{ $formClass }}').forEach((form) => {
             form.addEventListener('submit', () => syncEditorsInScope(form));
         });
+
+        initHomeCarouselDropzones(document);
+
+        currentHomePreviewRoute = normalizeHomePreviewRoute(currentHomePreviewRoute);
+        persistHomePreviewRoute(currentHomePreviewRoute);
 
         document.querySelectorAll('[data-home-preview-frame]').forEach((frame, index) => {
             loadHomePreview(frame, {
@@ -1458,8 +1833,7 @@
         scheduleFitAllHomePreviews();
         setActiveQuickLinkEditor();
         relabelFeedbackQuestions();
-        setActiveFeedbackQuestionEditor();
-        setFeedbackEditorMode('full');
+        setActiveFeedbackQuestionEditor(null, false);
         setActiveHomePreviewPage(currentHomePreviewRoute);
 
         window.__homeCmsPreviewEditorReady = true;

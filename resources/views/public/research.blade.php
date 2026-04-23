@@ -296,7 +296,7 @@
                 padding: 0;
                 background: rgba(127, 17, 19, 0.96);
                 color: #fffaf4;
-                display: inline-flex;
+                display: none !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 14px 28px rgba(32, 8, 8, 0.22);
@@ -336,7 +336,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: inline-flex;
+                display: none !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
@@ -455,7 +455,7 @@
             .students-card:hover .students-card-front img,
             .students-card:focus-visible .students-card-front img {
                 transform: none;
-                filter: blur(3px) saturate(0.88);
+                filter: none;
             }
 
             .students-card-add:focus-visible {

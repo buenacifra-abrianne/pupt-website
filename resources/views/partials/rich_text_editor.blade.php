@@ -1,4 +1,11 @@
-<div class="rich-editor js-rich-editor" data-placeholder="{{ $placeholder ?? 'Write here...' }}">
+<div
+    class="rich-editor js-rich-editor"
+    data-placeholder="{{ $placeholder ?? 'Write here...' }}"
+    @if(isset($characterLimit) && (int) $characterLimit > 0)
+        data-character-limit="{{ (int) $characterLimit }}"
+        data-counter-mode="{{ $counterMode ?? 'limit' }}"
+    @endif
+>
     <div class="rich-editor-toolbar" role="toolbar" aria-label="Text formatting">
         <div class="rich-editor-group">
             <button type="button" class="rich-editor-btn" data-command="bold" data-active-command="bold" title="Bold"><strong>B</strong></button>
@@ -138,7 +145,13 @@
 
     <div class="rich-editor-surface" contenteditable="true" spellcheck="true" data-placeholder="{{ $placeholder ?? 'Write here...' }}"></div>
     <div class="rich-editor-footer">
-        <span class="rich-editor-count">0 characters</span>
+        <span class="rich-editor-count">
+            @if(isset($characterLimit) && (int) $characterLimit > 0)
+                0/{{ (int) $characterLimit }}
+            @else
+                0 characters
+            @endif
+        </span>
     </div>
     <textarea name="{{ $name }}" class="rich-editor-input" hidden>{{ $value ?? '' }}</textarea>
 </div>

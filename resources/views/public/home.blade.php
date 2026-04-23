@@ -259,13 +259,13 @@
         </button>
       @endif
 
-      <div data-cms-boundary>
-        <div class="quick-links-inner layout-inset">
-          <div class="section-heading">
-            <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
-            <h2>{{ e($quickLinksSection['title'] ?? 'Navigate the campus experience.') }}</h2>
-          </div>
+      <div class="section-heading layout-inset reveal" data-cms-boundary>
+        <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
+        <h2>{{ e($quickLinksSection['title'] ?? 'Navigate the campus experience.') }}</h2>
+        <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($quickLinksSection['description'] ?? '') !!}</div>
+      </div>
 
+      <div class="quick-links-inner layout-inset">
           <div class="quick-links-grid">
             @foreach($quickLinks as $link)
               @php
@@ -292,7 +292,6 @@
                 >
                   <div class="cms-preview-card-actions" aria-label="Card actions">
                     <button type="button" class="cms-preview-card-action" data-home-card-edit>Edit</button>
-                    <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-home-card-delete>Delete</button>
                   </div>
               @else
                 <a href="{{ $linkHref }}" class="quick-link-card cards_information">
@@ -309,7 +308,6 @@
               @endif
             @endforeach
           </div>
-        </div>
       </div>
     </section>
 
@@ -562,7 +560,7 @@
         padding: 0;
         background: rgba(127, 17, 19, 0.96);
         color: #fffaf4;
-        display: inline-flex;
+        display: none !important;
         align-items: center;
         justify-content: center;
         box-shadow: 0 14px 28px rgba(32, 8, 8, 0.22);
@@ -632,6 +630,7 @@
           justify-self: start;
           align-self: flex-start;
         }
+
       }
     </style>
 
@@ -754,13 +753,12 @@
         document.querySelectorAll('[data-home-quick-link-card]').forEach((card) => {
           const cardIndex = Number(card.getAttribute('data-home-quick-link-index'));
           const editButton = card.querySelector('[data-home-card-edit]');
-          const deleteButton = card.querySelector('[data-home-card-delete]');
 
-          const postCard = (type) => {
+          const postCard = () => {
             window.parent?.postMessage({
-              type,
+              type: 'cms-home-edit-card',
               section: 'quick_links',
-              label: type === 'cms-home-delete-card' ? 'Delete Explore Card' : 'Edit Explore Card',
+              label: 'Edit Explore Card',
               cardIndex,
             }, '*');
           };
@@ -768,13 +766,7 @@
           editButton?.addEventListener('click', (event) => {
             event.preventDefault();
             event.stopPropagation();
-            postCard('cms-home-edit-card');
-          });
-
-          deleteButton?.addEventListener('click', (event) => {
-            event.preventDefault();
-            event.stopPropagation();
-            postCard('cms-home-delete-card');
+            postCard();
           });
         });
 

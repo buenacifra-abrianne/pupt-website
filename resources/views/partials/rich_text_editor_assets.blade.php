@@ -214,11 +214,18 @@ input[name="title"] {
     line-height: 1.55;
     background: #fff;
     font-size: 14px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    word-wrap: break-word;
 }
 
 .rich-editor-surface p,
 .rich-editor-surface div {
     margin: 0 0 0.45rem;
+    white-space: inherit;
+    overflow-wrap: inherit;
+    word-break: inherit;
 }
 
 .rich-editor-surface p:last-child,
@@ -277,6 +284,10 @@ input[name="title"] {
     font-weight: 600;
 }
 
+.rich-editor-count.is-limit {
+    color: #b12a2a;
+}
+
 .announcement-description.rich-text-content,
 .announcement-text.rich-text-content,
 .news-rich-content {
@@ -318,6 +329,9 @@ input[name="title"] {
 
 .rich-editor-surface * {
     line-height: inherit;
+    max-width: 100%;
+    overflow-wrap: inherit;
+    word-break: inherit;
 }
 
 .rich-editor-surface span[style*="font-size"] {
@@ -358,16 +372,77 @@ input[name="title"] {
         const input = root.querySelector('.rich-editor-input');
         const surface = root.querySelector('.rich-editor-surface');
         const counter = root.querySelector('.rich-editor-count');
+        const characterLimit = Number(root.dataset.characterLimit || 0);
+        const counterMode = String(root.dataset.counterMode || '');
 
         if (!input || !surface) {
             return;
         }
 
+        if (characterLimit > 0) {
+            enforceCharacterLimit(surface, characterLimit);
+        }
+
         input.value = normalizeEditorHtml(surface.innerHTML);
 
         if (counter) {
-            counter.textContent = `${surface.textContent.trim().length} characters`;
+            const textLength = Array.from(surface.textContent || '').length;
+
+            if (characterLimit > 0 || counterMode === 'limit') {
+                const safeLimit = characterLimit > 0 ? characterLimit : textLength;
+                counter.textContent = `${Math.min(textLength, safeLimit)}/${safeLimit}`;
+                counter.classList.toggle('is-limit', safeLimit > 0 && textLength >= safeLimit);
+            } else {
+                counter.textContent = `${textLength} characters`;
+                counter.classList.remove('is-limit');
+            }
         }
+    }
+
+    function enforceCharacterLimit(surface, limit) {
+        if (!surface || !Number.isFinite(limit) || limit <= 0) {
+            return;
+        }
+
+        let used = 0;
+        const walker = document.createTreeWalker(surface, NodeFilter.SHOW_TEXT);
+        const textNodes = [];
+
+        while (walker.nextNode()) {
+            textNodes.push(walker.currentNode);
+        }
+
+        textNodes.forEach((node) => {
+            const value = node.textContent || '';
+            const chars = Array.from(value);
+
+            if (used >= limit) {
+                node.textContent = '';
+                return;
+            }
+
+            const nextCount = used + chars.length;
+            if (nextCount <= limit) {
+                used = nextCount;
+                return;
+            }
+
+            const remaining = Math.max(0, limit - used);
+            node.textContent = chars.slice(0, remaining).join('');
+            used = limit;
+        });
+
+        surface.querySelectorAll('*').forEach((element) => {
+            if (!element.textContent?.trim() && !element.querySelector('img, br')) {
+                if (element === surface) {
+                    return;
+                }
+
+                if (!element.children.length) {
+                    element.remove();
+                }
+            }
+        });
     }
 
     function handleCommand(root, button) {
@@ -769,6 +844,53 @@ input[name="title"] {
         });
     }
 
+    function normalizeFontSizeValue(size) {
+        const parsed = Number.parseFloat(String(size || '').replace('px', '').trim());
+
+        if (!Number.isFinite(parsed) || parsed <= 0) {
+            return '14px';
+        }
+
+        return `${Math.round(parsed)}px`;
+    }
+
+    function findEditorContentElement(surface) {
+        if (!surface) {
+            return null;
+        }
+
+        const selectionElement = getSelectionElement(surface);
+        if (selectionElement && selectionElement !== surface) {
+            return selectionElement;
+        }
+
+        const walker = document.createTreeWalker(surface, NodeFilter.SHOW_TEXT);
+
+        while (walker.nextNode()) {
+            const textNode = walker.currentNode;
+            if ((textNode.textContent || '').trim() !== '') {
+                return textNode.parentNode instanceof HTMLElement ? textNode.parentNode : surface;
+            }
+        }
+
+        return surface.firstElementChild instanceof HTMLElement ? surface.firstElementChild : surface;
+    }
+
+    function updateFontSizeState(root) {
+        const surface = root.querySelector('.rich-editor-surface');
+
+        if (!surface) {
+            return;
+        }
+
+        const sourceElement = findEditorContentElement(surface);
+        const computedSize = sourceElement
+            ? window.getComputedStyle(sourceElement).fontSize
+            : '14px';
+
+        setFontSizeState(root, normalizeFontSizeValue(computedSize));
+    }
+
     function openFontSizePopover(root) {
         const popover = root.querySelector('.js-font-size-popover');
         if (!popover) {
@@ -988,32 +1110,38 @@ input[name="title"] {
 
         surface.addEventListener('click', () => {
             saveSelection(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('mouseup', () => {
             saveSelection(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('keyup', () => {
             saveSelection(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('focus', () => {
             saveSelection(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('input', () => {
             saveSelection(root);
             syncEditor(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('blur', () => {
             syncEditor(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
@@ -1028,6 +1156,7 @@ input[name="title"] {
             if (selectionInsideList(surface)) {
                 document.execCommand(event.shiftKey ? 'outdent' : 'indent', false, null);
                 syncEditor(root);
+                updateFontSizeState(root);
                 updateToolbarState(root);
                 updateTextColorState(root);
                 return;
@@ -1042,6 +1171,7 @@ input[name="title"] {
             }
 
             syncEditor(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
@@ -1057,6 +1187,7 @@ input[name="title"] {
 
             document.execCommand('insertHTML', false, escaped);
             syncEditor(root);
+            updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
@@ -1088,7 +1219,7 @@ input[name="title"] {
         });
 
         root.dataset.richEditorReady = 'true';
-        setFontSizeState(root, '14px');
+        updateFontSizeState(root);
         syncEditor(root);
         updateToolbarState(root);
         updateTextColorState(root);
@@ -1122,6 +1253,7 @@ input[name="title"] {
         }
 
         syncEditor(root);
+        updateFontSizeState(root);
         updateToolbarState(root);
         updateTextColorState(root);
     };

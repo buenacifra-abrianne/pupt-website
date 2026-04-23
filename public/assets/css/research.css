@@ -438,7 +438,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   object-fit: cover;
   object-position: center;
   display: block;
-  filter: blur(3px) saturate(0.88);
+  filter: none;
   transition: transform 0.45s ease, filter 0.45s ease;
 }
 
@@ -554,7 +554,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .students-card:hover .students-card-front img,
 .students-card:focus-visible .students-card-front img {
   transform: scale(1.05);
-  filter: blur(3px) saturate(0.86) brightness(0.94);
+  filter: none;
 }
 
 /* ============================================================
@@ -695,7 +695,7 @@ pup-footer .footer { margin-top: 0; }
   .students-card:hover .students-card-back { opacity: 0; transform: translateY(100%); }
   .students-card:hover .students-card-overlay-copy,
   .students-card:hover .students-card-action { opacity: 0; transform: translateY(18px); }
-  .students-card:hover .students-card-front img { transform: none; filter: blur(3px) saturate(0.88); }
+  .students-card:hover .students-card-front img { transform: none; filter: none; }
 }
 
 body.pup-dark-mode .students-card:hover,

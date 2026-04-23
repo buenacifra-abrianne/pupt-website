@@ -18,6 +18,7 @@
     $previewTag = trim((string) ($previewFeedbackSource['tag'] ?? ''));
     $previewTitle = trim((string) ($previewFeedbackSource['title'] ?? ''));
     $previewDescription = trim((string) ($previewFeedbackSource['description'] ?? ''));
+    $feedbackQuestionLimitReached = $feedbackQuestions->count() >= 10;
     $feedbackHeroTag = $cmsPreview
       ? ($previewTag !== '' ? $previewTag : (string) ($previewFeedbackDefaults['tag'] ?? 'Feedback'))
       : 'Campus Feedback';
@@ -113,9 +114,14 @@
         </div>
 
         @if($cmsPreview)
-          <button type="button" class="feedback-add-question-card" data-home-feedback-question-add>
+          <button
+            type="button"
+            class="feedback-add-question-card{{ $feedbackQuestionLimitReached ? ' is-limit' : '' }}"
+            data-home-feedback-question-add
+            data-home-feedback-question-limit-reached="{{ $feedbackQuestionLimitReached ? '1' : '0' }}"
+          >
             <span class="feedback-add-question-icon">+</span>
-            <span class="feedback-add-question-copy">Add Question</span>
+            <span class="feedback-add-question-copy">{{ $feedbackQuestionLimitReached ? 'Limit 10 cards only' : 'Add Question' }}</span>
           </button>
         @endif
 
@@ -129,9 +135,7 @@
           <div
             class="feedback-item{{ $cmsPreview ? ' cms-preview-feedback-card' : '' }}{{ $questionHasError ? ' error' : '' }}"
             data-question="{{ $questionField }}"
-            @if($cmsPreview)
-              data-home-feedback-question-index="{{ $index }}"
-            @endif
+            {!! $cmsPreview ? 'data-home-feedback-question-index="'.$index.'"' : '' !!}
           >
             @if($cmsPreview)
               <div class="cms-preview-card-actions" aria-label="Question actions">
@@ -152,7 +156,7 @@
                     name="{{ $questionField }}"
                     value="{{ $rating['score'] }}"
                     {{ (string) $questionOldValue === (string) $rating['score'] ? 'checked' : '' }}
-                    @if($cmsPreview) disabled tabindex="-1" @endif
+                    {{ $cmsPreview ? 'disabled tabindex=-1' : '' }}
                   >
                   <span class="option-score">{{ $rating['score'] }}</span>
                   <span class="option-copy">{{ $rating['label'] }}</span>
@@ -164,7 +168,7 @@
         @empty
           <div class="feedback-empty-state">
             @if($cmsPreview)
-              No feedback questions yet. Use the add button to create the first question card.
+              No feedback questions available in the current preview.
             @else
               The feedback form is not available right now.
             @endif
@@ -268,7 +272,7 @@
         width: 44px;
         min-width: 44px;
         height: 44px;
-        display: inline-flex;
+        display: none !important;
         align-items: center;
         justify-content: center;
         background: rgba(127, 17, 19, 0.96);
@@ -314,6 +318,11 @@
         justify-content: center;
         border-width: 2px;
         border-color: rgba(225, 181, 63, 0.72);
+      }
+
+      .feedback-page.cms-preview-mode .feedback-add-question-card.is-limit {
+        background: rgba(255, 248, 240, 0.96);
+        color: #7c0a02;
       }
 
       .feedback-page.cms-preview-mode .options {
@@ -389,7 +398,6 @@
         const target = document.querySelector('[data-cms-section="feedback"]');
         const scope = document.querySelector('.main-content') || document.querySelector('.feedback-page');
         const questionCards = Array.from(document.querySelectorAll('[data-home-feedback-question-index]'));
-        const addQuestionTrigger = document.querySelector('[data-home-feedback-question-add]');
 
         const postMessageToParent = (payload) => {
           window.parent?.postMessage(payload, '*');
@@ -461,9 +469,11 @@
           });
         });
 
+        const addQuestionTrigger = document.querySelector('[data-home-feedback-question-add]');
         addQuestionTrigger?.addEventListener('click', (event) => {
           event.preventDefault();
           event.stopPropagation();
+
           postMessageToParent({
             type: 'cms-home-feedback-question-add',
             section: 'feedback',

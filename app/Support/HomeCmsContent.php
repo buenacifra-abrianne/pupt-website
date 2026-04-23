@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\Storage;
-
 class HomeCmsContent
 {
     private const DEFAULTS = [
@@ -23,6 +21,7 @@ class HomeCmsContent
         'quick_links' => [
             'tag' => 'Explore',
             'title' => 'Navigate the campus experience.',
+            'description' => '',
             'items' => [
                 [
                     'label' => 'About',
@@ -159,26 +158,7 @@ class HomeCmsContent
 
     public static function resolveImagePath(?string $path, string $fallbackPath): string
     {
-        $value = trim((string) $path);
-        if ($value === '') {
-            return asset(ltrim($fallbackPath, '/'));
-        }
-
-        if (preg_match('/^(https?:)?\/\//i', $value) === 1 || str_starts_with($value, 'data:')) {
-            return $value;
-        }
-
-        $normalized = ltrim($value, '/');
-
-        if (str_starts_with($normalized, 'assets/') || str_starts_with($normalized, 'storage/')) {
-            return asset($normalized);
-        }
-
-        if (Storage::disk('public')->exists($normalized)) {
-            return asset('storage/'.$normalized);
-        }
-
-        return asset($normalized);
+        return (string) (ImageStorage::url($path, $fallbackPath) ?? asset(ltrim($fallbackPath, '/')));
     }
 
     private static function normalize(array $source, array $base): array
@@ -196,11 +176,13 @@ class HomeCmsContent
                 5000,
                 $defaults['campus_description']
             ),
-            'campus_image' => self::sanitizeString(
-                $source['campus_image'] ?? $base['campus_image'] ?? $defaults['campus_image'],
-                2048,
-                $defaults['campus_image']
-            ),
+            'campus_image' => array_key_exists('campus_image', $source)
+                ? self::sanitizeOptionalString($source['campus_image'], 2048)
+                : self::sanitizeString(
+                    $base['campus_image'] ?? $defaults['campus_image'],
+                    2048,
+                    $defaults['campus_image']
+                ),
             'announcements' => self::normalizeAnnouncements(
                 $source['announcements'] ?? ($base['announcements'] ?? [])
             ),
@@ -385,6 +367,11 @@ class HomeCmsContent
                 255,
                 $defaults['title']
             ),
+            'description' => self::sanitizeString(
+                $source['description'] ?? $defaults['description'],
+                5000,
+                $defaults['description']
+            ),
             'items' => $items,
         ];
     }
@@ -476,15 +463,32 @@ class HomeCmsContent
                     255,
                     $defaultSlide['subtitle']
                 ),
-                'image' => self::sanitizeString(
-                    $current['image'] ?? $baseSlide['image'] ?? $defaultSlide['image'],
-                    2048,
-                    $defaultSlide['image']
-                ),
+                'image' => array_key_exists('image', $current)
+                    ? self::sanitizeOptionalString((string) $current['image'], 2048)
+                    : self::sanitizeString(
+                        $baseSlide['image'] ?? $defaultSlide['image'],
+                        2048,
+                        $defaultSlide['image']
+                    ),
             ];
         }
 
         return $normalized;
+    }
+
+    private static function sanitizeOptionalString(mixed $value, int $maxLen): string
+    {
+        $text = trim((string) $value);
+
+        if ($text === '') {
+            return '';
+        }
+
+        if (function_exists('mb_substr')) {
+            return mb_substr($text, 0, $maxLen);
+        }
+
+        return substr($text, 0, $maxLen);
     }
 
     private static function sanitizeString(mixed $value, int $maxLen, string $fallback): string
