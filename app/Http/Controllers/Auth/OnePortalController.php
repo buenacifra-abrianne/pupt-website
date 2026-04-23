@@ -307,14 +307,8 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
 {
-    $logoutUrl = (string) config('services.idp.logout_url');
-    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
-    $clientId = (string) config('services.idp.client_id');
-
-    $userId = session('oneportal_id');
-    $isIdpBackedSession = !empty($userId)
-        || !empty(session('access_token'))
-        || !empty($request->cookie('access_token'));
+    $accessToken = (string) (session('access_token') ?: $request->cookie('access_token') ?: '');
+    $refreshToken = (string) (session('refresh_token') ?: $request->cookie('refresh_token') ?: '');
 
     AuditLog::record(
         'LOGOUT',
@@ -323,30 +317,18 @@ class OnePortalController extends Controller
         (int) session('user_id', 0)
     );
 
-    if (!$isIdpBackedSession) {
-        return $this->buildLoggedOutRedirect($request);
-    }
+    $this->revokeIdpTokens($request, $accessToken, $refreshToken);
 
-    if ($logoutUrl === '') {
-        $logoutUrl = $baseUrl !== '' ? $baseUrl . '/logout' : '';
-    }
-
-    if ($logoutUrl === '') {
-        return $this->buildLoggedOutRedirect($request);
-    }
-
-    $idpLogoutUrl = $logoutUrl
-        . '?client_id=' . urlencode($clientId)
-        . '&user_id=' . urlencode((string) $userId);
-
-    return $this->clearLocalSession(
-        $request,
-        redirect()->away($idpLogoutUrl)
-    );
+    return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
 }
 
     public function idpLogout(Request $request): Response
     {
+        $accessToken = (string) (session('access_token') ?: $request->cookie('access_token') ?: '');
+        $refreshToken = (string) (session('refresh_token') ?: $request->cookie('refresh_token') ?: '');
+
+        $this->revokeIdpTokens($request, $accessToken, $refreshToken);
+
         return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
     }
 
@@ -422,16 +404,107 @@ class OnePortalController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        foreach ([
+        return $this->attachCookieExpiryHeaders($response);
+    }
+
+    private function revokeIdpTokens(Request $request, ?string $accessToken = null, ?string $refreshToken = null): void
+    {
+        $logoutUrl = (string) config('services.idp.logout_url');
+        $clientId = (string) config('services.idp.client_id');
+
+        if ($logoutUrl === '' || $clientId === '') {
+            \Log::warning('IDP logout skipped due to missing configuration.', [
+                'has_logout_url' => $logoutUrl !== '',
+                'has_client_id' => $clientId !== '',
+            ]);
+
+            return;
+        }
+
+        $payload = array_filter([
+            'client_id' => $clientId,
+            'access_token' => $accessToken ?: null,
+            'refresh_token' => $refreshToken ?: null,
+        ], fn ($value) => $value !== null && $value !== '');
+
+        try {
+            $http = Http::asJson()->acceptJson();
+
+            if ($accessToken) {
+                $http = $http->withToken($accessToken);
+            }
+
+            if (app()->environment(['local', 'testing'])) {
+                $http = $http->withoutVerifying();
+            }
+
+            $response = $http->post($logoutUrl, $payload);
+
+            if ($response->successful()) {
+                \Log::info('IDP tokens revoked successfully.', [
+                    'status' => $response->status(),
+                ]);
+                return;
+            }
+
+            if ($response->status() === 401) {
+                \Log::info('IDP logout returned 401; token already invalid.', [
+                    'status' => $response->status(),
+                ]);
+                return;
+            }
+
+            \Log::warning('IDP token revocation failed.', [
+                'status' => $response->status(),
+                'body' => $response->body(),
+            ]);
+        } catch (\Throwable $e) {
+            \Log::warning('IDP token revocation request failed.', [
+                'error' => $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function attachCookieExpiryHeaders(Response $response): Response
+    {
+        $cookieNames = [
             'access_token',
             'refresh_token',
             'jwt_token',
             config('session.cookie'),
             'XSRF-TOKEN',
-        ] as $cookieName) {
-            $response->withCookie(cookie()->forget($cookieName, '/'));
+        ];
+
+        $paths = ['/', ''];
+        $domains = array_values(array_unique(array_filter([
+            null,
+            config('session.domain'),
+            parse_url((string) config('app.url'), PHP_URL_HOST),
+            $this->normalizeCookieDomain((string) config('session.domain')),
+            $this->normalizeCookieDomain((string) parse_url((string) config('app.url'), PHP_URL_HOST)),
+        ], fn ($value) => $value !== '')));
+
+        foreach ($cookieNames as $cookieName) {
+            foreach ($paths as $path) {
+                $response->withCookie(cookie()->forget($cookieName, $path ?: '/'));
+
+                foreach ($domains as $domain) {
+                    $response->withCookie(cookie()->forget($cookieName, $path ?: '/', $domain));
+                }
+            }
         }
 
         return $response;
+    }
+
+    private function normalizeCookieDomain(string $domain): string
+    {
+        $trimmed = trim($domain);
+
+        if ($trimmed === '') {
+            return '';
+        }
+
+        return ltrim($trimmed, '.');
     }
 }
