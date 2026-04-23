@@ -43,6 +43,10 @@ return [
         'api_key' => env('IDP_API_KEY'),
     ],
 
+    'oneportal' => [
+        'url' => env('ONEPORTAL_URL'),
+    ],
+
     'flss' => [
             'base_url' => env('FLSS_API_BASE_URL'),
             'api_key'  => env('FLSS_API_KEY'),
