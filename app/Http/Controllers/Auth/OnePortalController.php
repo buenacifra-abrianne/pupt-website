@@ -337,7 +337,6 @@ class OnePortalController extends Controller
 
         return redirect('/');
     }
-
 public function logout(Request $request)
 {   
     AuditLog::record(
@@ -346,10 +345,9 @@ public function logout(Request $request)
             'User logged out.',
             (int) session('user_id', 0)
         );
-        
+
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
-
     $accessToken = session('access_token') ?: $request->cookie('access_token');
 
     Auth::logout();
@@ -358,27 +356,19 @@ public function logout(Request $request)
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    if ($baseUrl && $clientId && $accessToken) {
-        try {
-            $http = Http::asJson()->withToken($accessToken);
-
-            if (app()->environment(['local', 'testing'])) {
-                $http = $http->withoutVerifying();
-            }
-
-            $http->post($baseUrl . '/api/v1/auth/logout', [
-                'client_id' => $clientId,
-            ]);
-
-        } catch (\Throwable $e) {
-            \Log::error('IDP LOGOUT FAILED', [
-                'error' => $e->getMessage(),
-            ]);
-        }
+    if ($baseUrl === '' || $clientId === '') {
+        return redirect()->route('public.landing')
+            ->withoutCookie('access_token')
+            ->withoutCookie('refresh_token');
     }
 
-    return redirect()->route('public.landing')
-        ->withoutCookie('access_token');
+    return response()->view('auth.idp-logout', [
+        'idpLogoutUrl' => $baseUrl . '/api/v1/auth/logout',
+        'clientId' => $clientId,
+        'afterLogoutUrl' => route('public.landing'),
+        'accessToken' => $accessToken,
+    ])->withoutCookie('access_token')
+      ->withoutCookie('refresh_token');
 }
 
 public function idpLogout(Request $request)
