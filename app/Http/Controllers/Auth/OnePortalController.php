@@ -409,8 +409,10 @@ class OnePortalController extends Controller
 
     private function revokeIdpTokens(Request $request, ?string $accessToken = null, ?string $refreshToken = null): void
     {
-        $logoutUrl = (string) config('services.idp.logout_url');
+        $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+        $configuredLogoutUrl = (string) config('services.idp.logout_url');
         $clientId = (string) config('services.idp.client_id');
+        $logoutUrl = $baseUrl !== '' ? $baseUrl . '/api/v1/auth/logout' : $configuredLogoutUrl;
 
         if ($logoutUrl === '' || $clientId === '') {
             \Log::warning('IDP logout skipped due to missing configuration.', [
@@ -428,7 +430,11 @@ class OnePortalController extends Controller
         ], fn ($value) => $value !== null && $value !== '');
 
         try {
-            $http = Http::asJson()->acceptJson();
+            $http = Http::asJson()
+                ->acceptJson()
+                ->withOptions([
+                    'allow_redirects' => false,
+                ]);
 
             if ($accessToken) {
                 $http = $http->withToken($accessToken);
@@ -438,11 +444,12 @@ class OnePortalController extends Controller
                 $http = $http->withoutVerifying();
             }
 
-            $response = $http->post($logoutUrl, $payload);
+            $response = $http->post($logoutUrl . '?client_id=' . urlencode($clientId), $payload);
 
-            if ($response->successful()) {
+            if ($response->successful() || $response->status() === 302) {
                 \Log::info('IDP tokens revoked successfully.', [
                     'status' => $response->status(),
+                    'location' => $response->header('Location'),
                 ]);
                 return;
             }
