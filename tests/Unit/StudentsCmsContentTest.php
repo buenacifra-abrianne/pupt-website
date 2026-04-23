@@ -14,6 +14,9 @@ class StudentsCmsContentTest extends TestCase
                 'eyebrow' => 'Student Services',
                 'title' => 'Students',
                 'description' => '',
+                'contents_tag' => 'Contents',
+                'contents_title' => 'Student Services',
+                'contents_description' => '',
                 'hero_image' => 'assets/static_img/about_header_image.png',
             ],
             'cards' => [
@@ -44,6 +47,48 @@ class StudentsCmsContentTest extends TestCase
         $this->assertSame('https://example.com/handbook', $result['cards'][0]['link']);
     }
 
+    public function test_from_cards_input_updates_contents_header_fields_and_preserves_page_header(): void
+    {
+        $stored = StudentsCmsContent::encode([
+            'page' => [
+                'eyebrow' => 'Student Services',
+                'title' => 'Students',
+                'description' => 'Original hero description',
+                'contents_tag' => 'Contents',
+                'contents_title' => 'Student Services',
+                'contents_description' => '',
+                'hero_image' => 'assets/static_img/about_header_image.png',
+            ],
+            'cards' => [
+                [
+                    'title' => 'Student Handbook',
+                    'description' => 'Existing handbook link',
+                    'link' => 'https://example.com/handbook',
+                ],
+            ],
+        ]);
+
+        $result = StudentsCmsContent::fromCardsInput([
+            'page' => [
+                'contents_tag' => 'Contents',
+                'contents_title' => 'Student Support Services',
+                'contents_description' => 'Everything students need in one place.',
+            ],
+            'cards' => [
+                [
+                    'title' => 'Student Handbook',
+                    'description' => 'Existing handbook link',
+                    'link' => 'https://example.com/handbook',
+                ],
+            ],
+        ], $stored);
+
+        $this->assertSame('Students', $result['page']['title']);
+        $this->assertSame('Original hero description', $result['page']['description']);
+        $this->assertSame('Student Support Services', $result['page']['contents_title']);
+        $this->assertSame('Everything students need in one place.', $result['page']['contents_description']);
+    }
+
     public function test_from_organizations_input_replaces_existing_items_and_preserves_other_sections(): void
     {
         $stored = StudentsCmsContent::encode([
@@ -51,6 +96,9 @@ class StudentsCmsContentTest extends TestCase
                 'eyebrow' => 'Student Services',
                 'title' => 'Students',
                 'description' => 'Original intro',
+                'contents_tag' => 'Contents',
+                'contents_title' => 'Student Services',
+                'contents_description' => '',
                 'hero_image' => 'assets/static_img/about_header_image.png',
             ],
             'cards' => [

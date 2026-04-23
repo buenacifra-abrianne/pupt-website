@@ -9,8 +9,13 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
+    @php
+        $cmsPreview = (bool) ($cmsPreview ?? false);
+        $academicsCms = \App\Support\AcademicsCmsContent::fromInput($academicsCms ?? [], null);
+        $pageData = $academicsCms['pages']['degree-programs'] ?? [];
+    @endphp
 
-    <!-- Header -->
+    @unless($cmsPreview)
     <pup-header
         data-home="{{ route('public.home') }}"
         data-about="{{ route('public.about') }}"
@@ -20,8 +25,20 @@
         data-research="{{ route('public.research') }}"
         data-assets="{{ asset('assets') }}"
     ></pup-header>
+    @endunless
 
     <main class="main-content">
+<<<<<<< HEAD
+        @include('partials.academics_program_page', [
+            'programPageKey' => 'degree-programs',
+            'programPageTitle' => 'Degree Programs',
+            'pageData' => $pageData,
+            'cmsPreview' => $cmsPreview,
+        ])
+    </main>
+
+    @unless($cmsPreview)
+=======
 
         {{-- ── Breadcrumb ── --}}
         <div class="academic-shell page-shell">
@@ -207,10 +224,13 @@
     </main>
 
     <!-- Footer -->
+>>>>>>> eb45e5bc3866cfccc71eae761ec2fa3e5be8cedf
     <pup-footer></pup-footer>
 
     <script src="{{ asset('assets/js/script.js') }}" defer></script>
     <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-
+    @else
+    @include('partials.academics_preview_page_assets')
+    @endunless
 </body>
 </html>

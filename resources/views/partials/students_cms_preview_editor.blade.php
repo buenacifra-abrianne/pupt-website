@@ -38,6 +38,7 @@
                         title="Students page preview"
                         class="students-cms-preview-frame"
                         data-students-preview-frame
+                        scrolling="no"
                     ></iframe>
                 </div>
             </div>
@@ -149,6 +150,23 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Section Tag</label>
+                            <input type="text" name="students[page][contents_tag]" maxlength="120" value="{{ $pageEditor['contents_tag'] ?? 'Contents' }}">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Header Title</label>
+                            <input type="text" name="students[page][contents_title]" maxlength="255" value="{{ $pageEditor['contents_title'] ?? ($pageEditor['eyebrow'] ?? 'Student Services') }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Header Description</label>
+                        <textarea name="students[page][contents_description]" rows="4">{{ $pageEditor['contents_description'] ?? '' }}</textarea>
+                    </div>
+
                     <div class="students-cms-card-stack" data-students-card-stack>
                         @foreach($cardsEditor as $index => $card)
                             @php
@@ -156,6 +174,16 @@
                                 $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
+                                <div class="students-cms-card-editor-head" data-students-card-editor-head>
+                                    <div>
+                                        <h4>Service Card {{ $loop->iteration }}</h4>
+                                        <span>{{ $card['title'] ?? '' }}</span>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-remove-students-card>
+                                        Delete Service
+                                    </button>
+                                </div>
+
                                 <input type="hidden" name="students[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-students-image-field>
 
                                 <div class="form-group">
@@ -204,7 +232,15 @@
 
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <textarea name="students[cards][{{ $index }}][description]" rows="4">{{ $card['description'] ?? '' }}</textarea>
+                                    <div class="students-cms-textarea-field" data-students-char-limit="255">
+                                        <textarea
+                                            name="students[cards][{{ $index }}][description]"
+                                            rows="4"
+                                            maxlength="255"
+                                            data-students-char-input
+                                        >{{ $card['description'] ?? '' }}</textarea>
+                                        <div class="students-cms-char-counter" data-students-char-counter aria-live="polite">0/255</div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -217,6 +253,16 @@
 
                     <template data-students-card-template>
                         <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="__INDEX__">
+                            <div class="students-cms-card-editor-head" data-students-card-editor-head>
+                                <div>
+                                    <h4>Service Card __NUMBER__</h4>
+                                    <span></span>
+                                </div>
+                                <button type="button" class="btn students-cms-delete-card" data-remove-students-card>
+                                    Delete Service
+                                </button>
+                            </div>
+
                             <input type="hidden" name="students[cards][__INDEX__][image]" value="" data-students-image-field>
 
                             <div class="form-group">
@@ -265,7 +311,15 @@
 
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea name="students[cards][__INDEX__][description]" rows="4"></textarea>
+                                <div class="students-cms-textarea-field" data-students-char-limit="255">
+                                    <textarea
+                                        name="students[cards][__INDEX__][description]"
+                                        rows="4"
+                                        maxlength="255"
+                                        data-students-char-input
+                                    ></textarea>
+                                    <div class="students-cms-char-counter" data-students-char-counter aria-live="polite">0/255</div>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -414,6 +468,7 @@
         min-height: 0;
         border: 0;
         background: #fff;
+        overflow: hidden;
         transform: scale(var(--students-preview-scale));
         transform-origin: top left;
     }
@@ -538,6 +593,20 @@
     .students-cms-card-editor-head span {
         color: #8a7a73;
         font-size: 0.8rem;
+    }
+
+    .students-cms-delete-card {
+        border: none;
+        border-radius: 12px;
+        padding: 0 14px;
+        min-width: 128px;
+        height: 38px;
+        background: rgba(80, 10, 12, 0.96);
+        color: #fffaf4;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 18px rgba(32, 8, 8, 0.16);
     }
 
     .students-cms-image-dropzone-shell {
@@ -715,6 +784,23 @@
         color: #7a6a63;
         font-size: 0.78rem;
         line-height: 1.5;
+    }
+
+    .students-cms-textarea-field {
+        display: grid;
+        gap: 8px;
+    }
+
+    .students-cms-char-counter {
+        justify-self: end;
+        color: #8a7a73;
+        font-size: 0.78rem;
+        font-weight: 700;
+        line-height: 1;
+    }
+
+    .students-cms-char-counter.is-limit {
+        color: #b91c1c;
     }
 
     .students-cms-modal-footer {
@@ -930,6 +1016,17 @@
             workspace.style.setProperty('--students-preview-scale', `${scale}`);
         };
 
+        const fitAllStudentsPreviews = () => {
+            frames.forEach((frame) => {
+                scheduleStudentsPreviewSync(frame);
+            });
+        };
+
+        const scheduleFitAllStudentsPreviews = () => {
+            fitAllStudentsPreviews();
+            window.setTimeout(fitAllStudentsPreviews, 140);
+        };
+
         const setStudentsPreviewLoading = (frame, isLoading) => {
             if (frame.__studentsPreviewLoadingTimeout) {
                 window.clearTimeout(frame.__studentsPreviewLoadingTimeout);
@@ -974,6 +1071,10 @@
             }, remaining);
         };
 
+        const getStudentsPreviewElementBottom = (element) => {
+            return element.offsetTop + element.offsetHeight;
+        };
+
         const isMeasuredElement = (element) => {
             if (!(element instanceof HTMLElement)) {
                 return false;
@@ -988,6 +1089,16 @@
 
         const measureFrame = (frame) => {
             try {
+                if (typeof window.measureCmsPreviewFrameHeight === 'function') {
+                    const measuredHeight = window.measureCmsPreviewFrameHeight(frame, {
+                        scopeSelector: '.main-content',
+                    });
+
+                    if (measuredHeight > 0) {
+                        return measuredHeight;
+                    }
+                }
+
                 const doc = frame.contentDocument;
                 if (!doc) {
                     return 0;
@@ -1004,7 +1115,7 @@
                     .filter((element) => isMeasuredElement(element));
 
                 const contentBottom = visibleElements.reduce((maxBottom, element) => {
-                    return Math.max(maxBottom, element.offsetTop + element.offsetHeight);
+                    return Math.max(maxBottom, getStudentsPreviewElementBottom(element));
                 }, scope.offsetHeight);
 
                 return Math.max(1, Math.ceil(contentBottom));
@@ -1061,6 +1172,14 @@
             const doc = frame.contentDocument;
             if (!doc) {
                 return;
+            }
+
+            if (doc.documentElement) {
+                doc.documentElement.style.overflow = 'hidden';
+            }
+
+            if (doc.body) {
+                doc.body.style.overflow = 'hidden';
             }
 
             if (typeof window.bindCmsPreviewScrollBridge === 'function') {
@@ -1238,6 +1357,7 @@
                 }
 
                 bumpCardsVersion();
+                relabelCards();
             };
 
             cardsForm.addEventListener('input', markDirty);
@@ -1245,7 +1365,27 @@
         };
 
         const relabelCards = () => {
-            return;
+            const editors = Array.from(cardStack?.querySelectorAll('[data-students-card-editor]') ?? []);
+
+            editors.forEach((editor, index) => {
+                const displayNumber = index + 1;
+                const headTitle = editor.querySelector('[data-students-card-editor-head] h4');
+                const headSubtitle = editor.querySelector('[data-students-card-editor-head] span');
+                const titleInput = editor.querySelector('input[name*="[title]"]');
+                const dropzoneTitle = editor.querySelector('.students-cms-image-dropzone-label');
+
+                if (headTitle) {
+                    headTitle.textContent = `Service Card ${displayNumber}`;
+                }
+
+                if (headSubtitle) {
+                    headSubtitle.textContent = String(titleInput?.value || '').trim();
+                }
+
+                if (dropzoneTitle) {
+                    dropzoneTitle.textContent = `Card ${displayNumber}`;
+                }
+            });
         };
 
         const submitCardsForm = () => {
@@ -1500,6 +1640,39 @@
             });
         };
 
+        const initStudentsCharCounters = (scope = document) => {
+            scope.querySelectorAll('[data-students-char-limit]').forEach((field) => {
+                if (field.dataset.studentsCharCounterBound === '1') {
+                    return;
+                }
+
+                const input = field.querySelector('[data-students-char-input]');
+                const counter = field.querySelector('[data-students-char-counter]');
+                const limit = Number(field.getAttribute('data-students-char-limit') || input?.getAttribute('maxlength') || 0);
+
+                if (!input || !counter || limit <= 0) {
+                    return;
+                }
+
+                field.dataset.studentsCharCounterBound = '1';
+                input.setAttribute('maxlength', String(limit));
+
+                const syncCounter = () => {
+                    const chars = Array.from(input.value || '');
+                    if (chars.length > limit) {
+                        input.value = chars.slice(0, limit).join('');
+                    }
+
+                    const count = Array.from(input.value || '').length;
+                    counter.textContent = `${count}/${limit}`;
+                    counter.classList.toggle('is-limit', count >= limit);
+                };
+
+                input.addEventListener('input', syncCounter);
+                syncCounter();
+            });
+        };
+
         const addCard = () => {
             if (!cardTemplate || !cardStack) {
                 return;
@@ -1550,6 +1723,7 @@
 
             cardStack.appendChild(fragment);
             initStudentsImageDropzones(cardStack);
+            initStudentsCharCounters(cardStack);
             bumpCardsVersion();
             relabelCards();
             setActiveCardEditor(index);
@@ -1572,19 +1746,29 @@
                     return;
                 }
 
-                const editors = Array.from(cardStack?.querySelectorAll('[data-students-card-editor]') ?? []);
-                const editorIndex = editors.indexOf(editor);
-                editor.remove();
-                bumpCardsVersion();
-                relabelCards();
-                const remainingEditors = Array.from(cardStack?.querySelectorAll('[data-students-card-editor]') ?? []);
-                const fallbackEditor = remainingEditors[Math.max(0, editorIndex - 1)] || remainingEditors[0] || null;
-                setActiveCardEditor(fallbackEditor?.getAttribute('data-students-card-index') ?? null);
+                const cardIndex = editor.getAttribute('data-students-card-index');
+                void confirmDeleteCard(cardIndex === null ? null : Number(cardIndex));
             }
         });
 
+        window.addEventListener('message', (event) => {
+            const data = event.data || {};
+            if (!data || data.type !== 'cms-students-preview-height') {
+                return;
+            }
+
+            const targetFrame = Array.from(document.querySelectorAll('[data-students-preview-frame]'))
+                .find((frame) => frame.contentWindow === event.source);
+
+            if (!targetFrame) {
+                return;
+            }
+
+            syncStudentsPreviewHeight(targetFrame, data.height);
+        });
+
         window.addEventListener('resize', () => {
-            frames.forEach((frame) => scheduleStudentsPreviewSync(frame));
+            scheduleFitAllStudentsPreviews();
         });
 
         window.addEventListener('cms:tab-activated', (event) => {
@@ -1595,13 +1779,16 @@
                     loadFrame(frame);
                     window.setTimeout(() => scheduleStudentsPreviewSync(frame), 40);
                     window.setTimeout(() => scheduleStudentsPreviewSync(frame), 180);
+                    window.setTimeout(() => scheduleStudentsPreviewSync(frame), 320);
                 }
             });
+
+            scheduleFitAllStudentsPreviews();
         });
 
         if (typeof ResizeObserver !== 'undefined') {
             const previewResizeObserver = new ResizeObserver(() => {
-                frames.forEach((frame) => scheduleStudentsPreviewSync(frame));
+                scheduleFitAllStudentsPreviews();
             });
 
             document.querySelectorAll('.students-cms-preview-frame-shell').forEach((shell) => {
@@ -1617,7 +1804,7 @@
         const sidebar = document.getElementById('sidebar');
         if (sidebar && typeof MutationObserver !== 'undefined') {
             const sidebarObserver = new MutationObserver(() => {
-                frames.forEach((frame) => scheduleStudentsPreviewSync(frame));
+                scheduleFitAllStudentsPreviews();
             });
 
             sidebarObserver.observe(sidebar, {
@@ -1627,16 +1814,16 @@
         }
 
         window.addEventListener('pageshow', () => {
-            frames.forEach((frame) => scheduleStudentsPreviewSync(frame));
+            scheduleFitAllStudentsPreviews();
         });
 
         window.addEventListener('load', () => {
-            frames.forEach((frame) => scheduleStudentsPreviewSync(frame));
+            scheduleFitAllStudentsPreviews();
         });
 
         document.addEventListener('visibilitychange', () => {
             if (!document.hidden) {
-                frames.forEach((frame) => scheduleStudentsPreviewSync(frame));
+                scheduleFitAllStudentsPreviews();
             }
         });
 
@@ -1652,7 +1839,9 @@
         setActiveCardEditor();
         setActiveOrganizationEditor('');
         initStudentsImageDropzones(modal);
+        initStudentsCharCounters(modal);
         bindStudentsCardsDirtyTracking();
+        scheduleFitAllStudentsPreviews();
         window.__studentsCmsPreviewEditorReady = true;
     })();
 </script>

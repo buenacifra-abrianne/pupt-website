@@ -83,20 +83,24 @@
                 data-cms-section-label="Student Cards"
             @endif
         >
-            <div data-cms-boundary class="cms-preview-boundary-edge">
+            <div data-cms-boundary class="cms-preview-boundary-full">
                 <div class="students-contents-inner">
                     <div class="students-contents-head">
-                        <p class="section-tag">Contents</p>
+                        <p class="section-tag">{{ trim((string) ($pageSection['contents_tag'] ?? '')) !== '' ? (string) $pageSection['contents_tag'] : 'Contents' }}</p>
+                        <h2>{{ trim((string) ($pageSection['contents_title'] ?? '')) !== '' ? (string) $pageSection['contents_title'] : 'Student Services' }}</h2>
+                        @if(trim((string) ($pageSection['contents_description'] ?? '')) !== '')
+                            <p class="students-contents-description">{{ $pageSection['contents_description'] }}</p>
+                        @endif
                     </div>
 
                     <nav class="students-cards" aria-label="Student services">
                         @if($cmsPreview)
-                            <article class="students-card students-card-add" data-students-add-card-trigger tabindex="0" role="button" aria-label="Add a new student card">
+                            <article class="students-card students-card-add" data-students-add-card-trigger tabindex="0" role="button" aria-label="Add services">
                                 <div class="students-card-inner">
                                     <div class="students-card-front students-card-front-add">
                                         <div class="students-card-add-inner">
                                             <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                            <p class="students-card-add-label">Add Card</p>
+                                            <p class="students-card-add-label">Add Services</p>
                                         </div>
                                     </div>
                                 </div>
@@ -107,6 +111,7 @@
                             @php
                                 $cardLink = trim((string) ($card['link'] ?? ''));
                                 $cardTitle = trim((string) ($card['title'] ?? ''));
+                                $cardDescription = trim((string) ($card['description'] ?? ''));
                                 $cardImage = trim((string) ($card['image'] ?? 'assets/static_img/pupillar.jpeg'));
                             @endphp
 
@@ -144,6 +149,16 @@
                                             <h3>{{ $cardTitle !== '' ? $cardTitle : 'Student Card' }}</h3>
                                         </div>
                                     </div>
+
+                                    @unless($cmsPreview)
+                                        <div class="students-card-back">
+                                            <div class="students-card-overlay-copy">
+                                                <h3>{{ $cardTitle !== '' ? $cardTitle : 'Student Card' }}</h3>
+                                                <p>{{ \Illuminate\Support\Str::limit($cardDescription !== '' ? $cardDescription : 'Explore this student service and open the official page for more details.', 120) }}</p>
+                                            </div>
+                                            <span class="students-card-action">See more</span>
+                                        </div>
+                                    @endunless
                                 </div>
                             @if($cmsPreview)
                                 </article>
@@ -249,6 +264,24 @@
 
     @if($cmsPreview)
         <style>
+            html,
+            body {
+                overflow: hidden !important;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            html::-webkit-scrollbar,
+            body::-webkit-scrollbar {
+                width: 0 !important;
+                height: 0 !important;
+                display: none !important;
+            }
+
+            .main-content.students-review-page {
+                overflow: hidden !important;
+            }
+
             .reveal {
                 opacity: 1 !important;
                 transform: none !important;
@@ -347,6 +380,79 @@
                 cursor: default;
             }
 
+            .students-contents-strip.cms-preview-editable {
+                overflow: visible !important;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-cards {
+                grid-auto-flow: row;
+                grid-auto-columns: unset;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 250px));
+                justify-content: start;
+                overflow: visible !important;
+                padding-bottom: 0;
+                scroll-snap-type: none;
+                touch-action: auto;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card {
+                min-width: 0;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card,
+            .students-contents-strip.cms-preview-editable .students-card:hover,
+            .students-contents-strip.cms-preview-editable .students-card:focus-visible,
+            .students-contents-strip.cms-preview-editable .students-card.active {
+                transform: none !important;
+                transition: none !important;
+                box-shadow: 0 16px 34px rgba(77, 18, 18, 0.12) !important;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card-inner,
+            .students-contents-strip.cms-preview-editable .students-card-front,
+            .students-contents-strip.cms-preview-editable .students-card-back,
+            .students-contents-strip.cms-preview-editable .students-card-front img,
+            .students-contents-strip.cms-preview-editable .students-card-copy,
+            .students-contents-strip.cms-preview-editable .students-card-overlay-copy,
+            .students-contents-strip.cms-preview-editable .students-card-action {
+                transition: none !important;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card-back {
+                opacity: 0 !important;
+                transform: translateY(100%) !important;
+                pointer-events: none !important;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card-front img {
+                transform: none !important;
+                filter: none !important;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card-overlay-copy,
+            .students-contents-strip.cms-preview-editable .students-card-action {
+                opacity: 0 !important;
+                transform: translateY(18px) !important;
+            }
+
+            .students-contents-strip.cms-preview-editable .students-card-copy {
+                opacity: 1 !important;
+                min-height: 74px;
+                padding: 10px 16px 12px;
+            }
+
+            .students-cards {
+                overflow: visible !important;
+                scrollbar-width: none;
+                -ms-overflow-style: none;
+            }
+
+            .students-cards::-webkit-scrollbar {
+                width: 0 !important;
+                height: 0 !important;
+                display: none !important;
+            }
+
             .students-org-card[data-cms-edit-trigger] {
                 position: relative;
                 cursor: default;
@@ -359,7 +465,7 @@
                 z-index: 12;
                 display: flex;
                 gap: 8px;
-                opacity: 0;
+                opacity: 1;
                 transform: none;
                 transition: none;
             }
@@ -372,7 +478,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: none !important;
+                display: inline-flex !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
@@ -381,14 +487,6 @@
 
             .cms-preview-card-action-delete {
                 background: rgba(80, 10, 12, 0.96);
-            }
-
-            .students-card[data-cms-edit-trigger]:hover .cms-preview-card-actions,
-            .students-card[data-cms-edit-trigger]:focus-within .cms-preview-card-actions,
-            .students-org-card[data-cms-edit-trigger]:hover .cms-preview-card-actions,
-            .students-org-card[data-cms-edit-trigger]:focus-within .cms-preview-card-actions {
-                opacity: 1;
-                transform: none;
             }
 
             .students-card-add {
@@ -458,6 +556,114 @@
                 }
             }
         </style>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                let previewHeightFrame = null;
+
+                const getElementBottom = (element) => {
+                    if (!(element instanceof HTMLElement)) {
+                        return 0;
+                    }
+
+                    const styles = window.getComputedStyle(element);
+                    const marginBottom = Number.parseFloat(styles.marginBottom || '') || 0;
+
+                    return element.offsetTop + element.offsetHeight + marginBottom;
+                };
+
+                const isMeasuredElement = (element) => {
+                    if (!(element instanceof HTMLElement)) {
+                        return false;
+                    }
+
+                    const styles = window.getComputedStyle(element);
+                    return styles.display !== 'none'
+                        && styles.visibility !== 'hidden'
+                        && styles.position !== 'fixed';
+                };
+
+                const postPreviewHeight = () => {
+                    const main = document.querySelector('.main-content');
+                    const scope = main instanceof HTMLElement ? main : document.body;
+                    const visibleElements = Array.from(scope.children)
+                        .filter((node) => isMeasuredElement(node));
+                    const childBottom = visibleElements.reduce((maxBottom, node) => {
+                        return Math.max(maxBottom, getElementBottom(node));
+                    }, 0);
+                    const html = document.documentElement;
+                    const body = document.body;
+                    const height = Math.max(
+                        scope.offsetHeight,
+                        scope.scrollHeight,
+                        scope.clientHeight,
+                        body?.offsetHeight || 0,
+                        body?.scrollHeight || 0,
+                        body?.clientHeight || 0,
+                        html?.offsetHeight || 0,
+                        html?.scrollHeight || 0,
+                        html?.clientHeight || 0,
+                        childBottom
+                    );
+
+                    window.parent?.postMessage({
+                        type: 'cms-students-preview-height',
+                        height: Math.max(1, Math.ceil(height)),
+                    }, '*');
+                };
+
+                const schedulePreviewHeight = () => {
+                    if (previewHeightFrame !== null) {
+                        window.cancelAnimationFrame(previewHeightFrame);
+                    }
+
+                    previewHeightFrame = window.requestAnimationFrame(() => {
+                        postPreviewHeight();
+                        previewHeightFrame = null;
+                    });
+                };
+
+                const scheduleSettledPreviewHeight = () => {
+                    schedulePreviewHeight();
+                    [80, 220, 480, 900].forEach((delay) => {
+                        window.setTimeout(schedulePreviewHeight, delay);
+                    });
+                };
+
+                if (typeof ResizeObserver !== 'undefined') {
+                    const observer = new ResizeObserver(() => {
+                        schedulePreviewHeight();
+                    });
+
+                    if (document.body) {
+                        observer.observe(document.body);
+                    }
+
+                    if (document.documentElement) {
+                        observer.observe(document.documentElement);
+                    }
+                }
+
+                document.querySelectorAll('img').forEach((image) => {
+                    if (image.complete) {
+                        return;
+                    }
+
+                    image.addEventListener('load', scheduleSettledPreviewHeight, { once: true });
+                    image.addEventListener('error', scheduleSettledPreviewHeight, { once: true });
+                });
+
+                window.addEventListener('load', scheduleSettledPreviewHeight);
+                window.addEventListener('pageshow', scheduleSettledPreviewHeight);
+                document.addEventListener('visibilitychange', () => {
+                    if (!document.hidden) {
+                        scheduleSettledPreviewHeight();
+                    }
+                });
+
+                scheduleSettledPreviewHeight();
+            });
+        </script>
     @endif
 </body>
 </html>

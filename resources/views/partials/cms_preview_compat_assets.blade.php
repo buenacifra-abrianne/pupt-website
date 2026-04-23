@@ -548,11 +548,20 @@
                     return;
                 }
 
-                window.scrollBy({
-                    left: deltaX,
-                    top: deltaY,
-                    behavior: 'auto',
-                });
+                const scrollTarget = document.scrollingElement || document.documentElement || document.body;
+                if (scrollTarget && typeof scrollTarget.scrollBy === 'function') {
+                    scrollTarget.scrollBy({
+                        left: deltaX,
+                        top: deltaY,
+                        behavior: 'auto',
+                    });
+                } else {
+                    window.scrollBy({
+                        left: deltaX,
+                        top: deltaY,
+                        behavior: 'auto',
+                    });
+                }
 
                 event.preventDefault();
             };

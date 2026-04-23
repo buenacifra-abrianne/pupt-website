@@ -247,14 +247,22 @@
                         ])
                     @elseif($tabKey === 'academics')
                         @php
-                            $academicsPreviewHtml = view('public.academics', [
-                                'academicsCms' => $academicsLive,
-                                'cmsPreview' => true,
-                            ])->render();
+                            $academicsPreviewData = $academicsLive;
+                            $academicsPreviewPages = [
+                                'overview' => view('public.academics', [
+                                    'academicsCms' => $academicsLive,
+                                    'cmsPreview' => true,
+                                ])->render(),
+                                'degree-programs' => view('public.degreeprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
+                                'diploma-programs' => view('public.diplomaprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
+                                'graduate-programs' => view('public.graduateprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
+                                'pup-iapply' => view('public.pupiapply', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
+                                'university-calendar' => view('public.universitycalendar', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
+                            ];
                         @endphp
 
                         @include('partials.academics_cms_preview_editor', [
-                            'academicsPreviewHtml' => $academicsPreviewHtml,
+                            'academicsPreviewPages' => $academicsPreviewPages,
                             'academicsEditorData' => $academicsPrefill,
                             'academicsEditorFormClass' => 'cms-edit-form',
                             'academicsEditorSubmitRoute' => route('staff.content.requestEdit'),

@@ -116,12 +116,12 @@
 
                     <nav class="students-cards" aria-label="Research and Extension services">
                         @if($cmsPreview)
-                            <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add a new research card">
+                            <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add services">
                                 <div class="students-card-inner">
                                     <div class="students-card-front students-card-front-add">
                                         <div class="students-card-add-inner">
                                             <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                            <p class="students-card-add-label">Add Card</p>
+                                            <p class="students-card-add-label">Add Services</p>
                                         </div>
                                     </div>
                                 </div>
@@ -336,7 +336,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: none !important;
+                display: inline-flex !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
