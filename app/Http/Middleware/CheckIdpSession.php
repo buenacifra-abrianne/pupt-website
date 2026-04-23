@@ -21,6 +21,11 @@ class CheckIdpSession
             'has_cookie_token' => !empty($request->cookie('access_token')),
         ]);
 
+        \Log::info('TOKEN SOURCE DEBUG', [
+            'session_token_prefix' => session('access_token') ? substr(session('access_token'), 0, 20) : null,
+            'cookie_token_prefix' => $request->cookie('access_token') ? substr($request->cookie('access_token'), 0, 20) : null,
+        ]);
+
         if (!$accessToken) {
             \Log::warning('NO TOKEN FOUND');
             return $next($request);
