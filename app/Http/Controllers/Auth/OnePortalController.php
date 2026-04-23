@@ -339,7 +339,10 @@ class OnePortalController extends Controller
     }
 public function logout(Request $request)
 {
-    $config = $this->getIdpConfig('idp');
+    $config = [
+        'client_id' => config('services.idp.client_id'),
+        'logout_url' => config('services.idp.logout_url'),
+    ];
 
     $accessToken = $request->cookie('access_token');
     $refreshToken = $request->cookie('refresh_token');
