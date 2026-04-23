@@ -18,6 +18,7 @@
     $previewTag = trim((string) ($previewFeedbackSource['tag'] ?? ''));
     $previewTitle = trim((string) ($previewFeedbackSource['title'] ?? ''));
     $previewDescription = trim((string) ($previewFeedbackSource['description'] ?? ''));
+    $feedbackQuestionLimitReached = $feedbackQuestions->count() >= 10;
     $feedbackHeroTag = $cmsPreview
       ? ($previewTag !== '' ? $previewTag : (string) ($previewFeedbackDefaults['tag'] ?? 'Feedback'))
       : 'Campus Feedback';
@@ -112,6 +113,18 @@
           <p class="feedback-form-note">Choose one answer for each question.</p>
         </div>
 
+        @if($cmsPreview)
+          <button
+            type="button"
+            class="feedback-add-question-card{{ $feedbackQuestionLimitReached ? ' is-limit' : '' }}"
+            data-home-feedback-question-add
+            data-home-feedback-question-limit-reached="{{ $feedbackQuestionLimitReached ? '1' : '0' }}"
+          >
+            <span class="feedback-add-question-icon">+</span>
+            <span class="feedback-add-question-copy">{{ $feedbackQuestionLimitReached ? 'Limit 10 cards only' : 'Add Question' }}</span>
+          </button>
+        @endif
+
         @forelse($feedbackQuestions as $index => $questionItem)
           @php
             $questionText = trim((string) ($questionItem['question'] ?? ''));
@@ -122,7 +135,15 @@
           <div
             class="feedback-item{{ $cmsPreview ? ' cms-preview-feedback-card' : '' }}{{ $questionHasError ? ' error' : '' }}"
             data-question="{{ $questionField }}"
+            {!! $cmsPreview ? 'data-home-feedback-question-index="'.$index.'"' : '' !!}
           >
+            @if($cmsPreview)
+              <div class="cms-preview-card-actions" aria-label="Question actions">
+                <button type="button" class="cms-preview-card-action" data-home-feedback-question-edit aria-label="Edit question {{ $index + 1 }}">Edit</button>
+                <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-home-feedback-question-delete aria-label="Delete question {{ $index + 1 }}">Delete</button>
+              </div>
+            @endif
+
             <div class="feedback-item-head">
               <span class="feedback-number">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
               <p class="question">{{ $questionText }}</p>
@@ -135,7 +156,7 @@
                     name="{{ $questionField }}"
                     value="{{ $rating['score'] }}"
                     {{ (string) $questionOldValue === (string) $rating['score'] ? 'checked' : '' }}
-                    @if($cmsPreview) disabled tabindex="-1" @endif
+                    {{ $cmsPreview ? 'disabled tabindex=-1' : '' }}
                   >
                   <span class="option-score">{{ $rating['score'] }}</span>
                   <span class="option-copy">{{ $rating['label'] }}</span>
@@ -299,6 +320,11 @@
         border-color: rgba(225, 181, 63, 0.72);
       }
 
+      .feedback-page.cms-preview-mode .feedback-add-question-card.is-limit {
+        background: rgba(255, 248, 240, 0.96);
+        color: #7c0a02;
+      }
+
       .feedback-page.cms-preview-mode .options {
         pointer-events: none;
       }
@@ -371,6 +397,7 @@
       document.addEventListener('DOMContentLoaded', () => {
         const target = document.querySelector('[data-cms-section="feedback"]');
         const scope = document.querySelector('.main-content') || document.querySelector('.feedback-page');
+        const questionCards = Array.from(document.querySelectorAll('[data-home-feedback-question-index]'));
 
         const postMessageToParent = (payload) => {
           window.parent?.postMessage(payload, '*');
@@ -413,6 +440,46 @@
           chip?.addEventListener('click', openEditor);
           boundary?.addEventListener('click', openEditor);
         }
+
+        questionCards.forEach((card, index) => {
+          const questionIndex = Number(card.getAttribute('data-home-feedback-question-index') || index);
+          const editButton = card.querySelector('[data-home-feedback-question-edit]');
+          const deleteButton = card.querySelector('[data-home-feedback-question-delete]');
+
+          editButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            postMessageToParent({
+              type: 'cms-home-feedback-question-edit',
+              section: 'feedback',
+              label: `Edit Question ${questionIndex + 1}`,
+              questionIndex,
+            });
+          });
+
+          deleteButton?.addEventListener('click', (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            postMessageToParent({
+              type: 'cms-home-feedback-question-delete',
+              section: 'feedback',
+              label: `Delete Question ${questionIndex + 1}`,
+              questionIndex,
+            });
+          });
+        });
+
+        const addQuestionTrigger = document.querySelector('[data-home-feedback-question-add]');
+        addQuestionTrigger?.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          postMessageToParent({
+            type: 'cms-home-feedback-question-add',
+            section: 'feedback',
+            label: 'Add Question',
+          });
+        });
 
         if (typeof MutationObserver !== 'undefined') {
           const observer = new MutationObserver(() => reportHeight());

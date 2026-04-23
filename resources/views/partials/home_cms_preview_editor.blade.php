@@ -5,6 +5,7 @@
     $updatesEditor = $homeEditorData['updates'] ?? $homeDefaults['updates'];
     $quickLinksEditor = $homeEditorData['quick_links'] ?? $homeDefaults['quick_links'];
     $feedbackEditor = $homeEditorData['feedback'] ?? $homeDefaults['feedback'];
+    $feedbackQuestionsEditor = $feedbackEditor['questions'] ?? ($homeDefaults['feedback']['questions'] ?? []);
     $slidesEditor = $homeEditorData['carousel_slides'] ?? $homeDefaults['carousel_slides'];
     $formClass = $homeEditorFormClass ?? 'cms-save-form';
     $submitRoute = $homeEditorSubmitRoute;
@@ -167,6 +168,8 @@
                             'name' => 'home[updates][description]',
                             'value' => $updatesEditor['description'] ?? '',
                             'placeholder' => 'Write the description for the updates section...',
+                            'characterLimit' => 100,
+                            'counterMode' => 'limit',
                         ])
                     </div>
 
@@ -206,6 +209,8 @@
                                 'name' => 'home[quick_links][description]',
                                 'value' => $quickLinksEditor['description'] ?? '',
                                 'placeholder' => 'Write the description for the Explore section...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
                             ])
                         </div>
 
@@ -266,6 +271,8 @@
                                             'name' => 'home[quick_links][items]['.$index.'][body]',
                                             'value' => $item['body'] ?? '',
                                             'placeholder' => 'Write the card description shown in the Explore section...',
+                                            'characterLimit' => 75,
+                                            'counterMode' => 'limit',
                                         ])
                                     </div>
                                 </article>
@@ -283,46 +290,108 @@
             </section>
 
             <section class="home-cms-editor-panel" data-home-editor-panel="feedback" hidden>
-                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-feedback-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="home">
-                    <input type="hidden" name="section_key" value="feedback">
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
+                <div data-home-feedback-section-shell>
+                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" name="tab_key" value="home">
+                        <input type="hidden" name="section_key" value="feedback">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
 
-                    <div class="home-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Tag</label>
-                            <input type="text" name="home[feedback][tag]" maxlength="80" value="{{ $feedbackEditor['tag'] ?? '' }}">
+                        <div class="home-cms-form-grid">
+                            <div class="form-group">
+                                <label>Section Tag</label>
+                                <input type="text" name="home[feedback][tag]" maxlength="80" value="{{ $feedbackEditor['tag'] ?? '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Button Label</label>
+                                <input type="text" name="home[feedback][button_label]" maxlength="120" value="{{ $feedbackEditor['button_label'] ?? '' }}">
+                            </div>
                         </div>
+
                         <div class="form-group">
-                            <label>Button Label</label>
-                            <input type="text" name="home[feedback][button_label]" maxlength="120" value="{{ $feedbackEditor['button_label'] ?? '' }}">
+                            <label>Banner Title</label>
+                            <input type="text" name="home[feedback][title]" maxlength="255" value="{{ $feedbackEditor['title'] ?? '' }}">
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Banner Title</label>
-                        <input type="text" name="home[feedback][title]" maxlength="255" value="{{ $feedbackEditor['title'] ?? '' }}">
-                    </div>
+                        <div class="form-group">
+                            <label>Banner Description</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'home[feedback][description]',
+                                'value' => $feedbackEditor['description'] ?? '',
+                                'placeholder' => 'Write the supporting copy shown in the feedback banner...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
+                            ])
+                        </div>
 
-                    <div class="form-group">
-                        <label>Banner Description</label>
-                        @include('partials.rich_text_editor', [
-                            'name' => 'home[feedback][description]',
-                            'value' => $feedbackEditor['description'] ?? '',
-                            'placeholder' => 'Write the supporting copy shown in the feedback banner...',
-                        ])
-                    </div>
+                        @foreach($feedbackQuestionsEditor as $index => $item)
+                            <input type="hidden" name="home[feedback][questions][{{ $index }}][question]" value="{{ $item['question'] ?? '' }}">
+                        @endforeach
 
-                    <div class="home-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Feedback Form') }}
-                        </button>
-                    </div>
-                </form>
+                        <div class="home-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                                {{ $submitLabel('Feedback Form') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div data-home-feedback-question-shell>
+                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-feedback-form>
+                        @csrf
+                        <input type="hidden" name="tab_key" value="home">
+                        <input type="hidden" name="section_key" value="feedback">
+                        <input type="hidden" name="home_feedback_questions_version" value="0" data-home-feedback-questions-version>
+                        <input type="hidden" name="home_active_feedback_question_index" value="" data-home-active-feedback-question-index>
+                        <input type="hidden" name="home[feedback][tag]" value="{{ $feedbackEditor['tag'] ?? '' }}">
+                        <input type="hidden" name="home[feedback][button_label]" value="{{ $feedbackEditor['button_label'] ?? '' }}">
+                        <input type="hidden" name="home[feedback][title]" value="{{ $feedbackEditor['title'] ?? '' }}">
+                        <input type="hidden" name="home[feedback][description]" value="{{ $feedbackEditor['description'] ?? '' }}">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
+
+                        <div class="home-cms-card-stack" data-home-feedback-question-stack>
+                            @foreach($feedbackQuestionsEditor as $index => $item)
+                                <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="{{ $index }}">
+                                    <div class="home-cms-card-editor-head">
+                                        <h4>Question {{ str_pad((string) ($loop->iteration), 2, '0', STR_PAD_LEFT) }}</h4>
+                                        <span>Ratings: 4 / 3 / 2 / 1</span>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Question</label>
+                                        <textarea name="home[feedback][questions][{{ $index }}][question]" rows="5">{{ $item['question'] ?? '' }}</textarea>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+
+                        <template data-home-feedback-question-template>
+                            <article class="home-cms-card-editor" data-home-feedback-question-editor data-home-feedback-question-index="__INDEX__">
+                                <div class="home-cms-card-editor-head">
+                                    <h4>Question __NUMBER__</h4>
+                                    <span>Ratings: 4 / 3 / 2 / 1</span>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Question</label>
+                                    <textarea name="home[feedback][questions][__INDEX__][question]" rows="5"></textarea>
+                                </div>
+                            </article>
+                        </template>
+
+                        <div class="home-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                                {{ $submitLabel('Feedback Question') }}
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </section>
         </div>
     </div>
@@ -682,11 +751,23 @@
         display: none;
     }
 
+    [data-home-feedback-question-shell] {
+        display: none;
+    }
+
     .home-cms-editor-panel.is-card-focus [data-home-quick-links-section-shell] {
         display: none;
     }
 
     .home-cms-editor-panel.is-card-focus [data-home-quick-links-card-shell] {
+        display: block;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-feedback-section-shell] {
+        display: none;
+    }
+
+    .home-cms-editor-panel.is-card-focus [data-home-feedback-question-shell] {
         display: block;
     }
 
@@ -800,8 +881,25 @@
         }
 
         const HOME_PREVIEW_MIN_LOADING_MS = 1500;
+        const HOME_PREVIEW_ROUTE_STORAGE_KEY = `cms:home-preview-route:${window.location.pathname}`;
         let homePreviewFitFrame = null;
-        let currentHomePreviewRoute = 'overview';
+        let currentHomePreviewRoute = readStoredHomePreviewRoute();
+
+        function readStoredHomePreviewRoute() {
+            try {
+                return window.localStorage.getItem(HOME_PREVIEW_ROUTE_STORAGE_KEY) || 'overview';
+            } catch (_) {
+                return 'overview';
+            }
+        }
+
+        function persistHomePreviewRoute(routeKey) {
+            try {
+                window.localStorage.setItem(HOME_PREVIEW_ROUTE_STORAGE_KEY, String(routeKey || 'overview'));
+            } catch (_) {
+                // Ignore storage access failures and keep the in-memory state.
+            }
+        }
 
         function syncEditorsInScope(scope) {
             if (typeof window.syncRichTextEditors === 'function') {
@@ -1160,6 +1258,30 @@
             });
         }
 
+        function normalizeHomePreviewRoute(routeKey) {
+            const payload = document.querySelector('[data-home-preview-json]');
+            const fallbackKey = 'overview';
+            const nextKey = String(routeKey || fallbackKey);
+
+            if (!payload) {
+                return nextKey;
+            }
+
+            try {
+                const parsedPayload = JSON.parse(payload.textContent || '{}');
+
+                if (parsedPayload && typeof parsedPayload === 'object' && !Array.isArray(parsedPayload)) {
+                    return Object.prototype.hasOwnProperty.call(parsedPayload, nextKey)
+                        ? nextKey
+                        : fallbackKey;
+                }
+            } catch (_) {
+                return fallbackKey;
+            }
+
+            return fallbackKey;
+        }
+
         function setActiveHomePreviewPage(routeKey) {
             document.querySelectorAll('[data-home-preview-page]').forEach((button) => {
                 button.classList.toggle('is-active', button.getAttribute('data-home-preview-page') === routeKey);
@@ -1203,21 +1325,9 @@
         }
 
         function loadHomePreviewPage(routeKey, options = {}) {
-            const payload = document.querySelector('[data-home-preview-json]');
-            let targetKey = routeKey || 'overview';
-
-            if (payload) {
-                try {
-                    const parsedPayload = JSON.parse(payload.textContent || '{}');
-                    if (parsedPayload && typeof parsedPayload === 'object' && !Array.isArray(parsedPayload) && !Object.prototype.hasOwnProperty.call(parsedPayload, targetKey)) {
-                        targetKey = 'overview';
-                    }
-                } catch (_) {
-                    targetKey = 'overview';
-                }
-            }
-
+            const targetKey = normalizeHomePreviewRoute(routeKey);
             currentHomePreviewRoute = targetKey;
+            persistHomePreviewRoute(targetKey);
             setActiveHomePreviewPage(targetKey);
 
             document.querySelectorAll('[data-home-preview-frame]').forEach((frame) => {
@@ -1304,7 +1414,189 @@
         }
 
         const feedbackForm = document.querySelector('[data-home-feedback-form]');
+        const feedbackQuestionStack = feedbackForm?.querySelector('[data-home-feedback-question-stack]');
+        const feedbackQuestionsVersionInput = feedbackForm?.querySelector('[data-home-feedback-questions-version]');
+        const activeFeedbackQuestionIndexInput = feedbackForm?.querySelector('[data-home-active-feedback-question-index]');
+        const feedbackQuestionTemplate = feedbackForm?.querySelector('[data-home-feedback-question-template]');
+
+        function bumpFeedbackQuestionsVersion() {
+            if (feedbackQuestionsVersionInput) {
+                feedbackQuestionsVersionInput.value = String(Date.now());
+            }
+        }
+
+        function submitFeedbackForm() {
+            if (!feedbackForm) {
+                return;
+            }
+
+            syncEditorsInScope(feedbackForm);
+
+            if (typeof feedbackForm.requestSubmit === 'function') {
+                feedbackForm.requestSubmit();
+                return;
+            }
+
+            feedbackForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        }
+
+        function relabelFeedbackQuestions() {
+            const editors = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? []);
+
+            editors.forEach((editor, index) => {
+                const title = editor.querySelector('.home-cms-card-editor-head h4');
+                if (title) {
+                    title.textContent = `Question ${String(index + 1).padStart(2, '0')}`;
+                }
+            });
+        }
+
+        function setActiveFeedbackQuestionEditor(targetIndex = null, activateFirstWhenEmpty = true) {
+            const editors = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? []);
+
+            if (!editors.length) {
+                if (activeFeedbackQuestionIndexInput) {
+                    activeFeedbackQuestionIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = targetIndex === null || targetIndex === undefined || targetIndex === ''
+                ? null
+                : String(targetIndex);
+            let activeEditor = null;
+
+            editors.forEach((editor) => {
+                const isMatch = normalizedIndex !== null && editor.getAttribute('data-home-feedback-question-index') === normalizedIndex;
+                const shouldActivate = normalizedIndex === null
+                    ? (activateFirstWhenEmpty && editor === editors[0])
+                    : isMatch;
+                editor.classList.toggle('is-active', shouldActivate);
+
+                if (shouldActivate) {
+                    activeEditor = editor;
+                }
+            });
+
+            if (activeFeedbackQuestionIndexInput) {
+                activeFeedbackQuestionIndexInput.value = activeEditor?.getAttribute('data-home-feedback-question-index') || '';
+            }
+
+            return activeEditor;
+        }
+
+        function nextFeedbackQuestionIndex() {
+            const indexes = Array.from(feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]') ?? [])
+                .map((editor) => Number(editor.getAttribute('data-home-feedback-question-index') || '0'))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        }
+
+        function notifyFeedbackQuestionLimit() {
+            const message = 'Question limit reached. You can add up to 10 feedback questions.';
+
+            if (typeof window.notify === 'function') {
+                window.notify(message, 'warning');
+                return;
+            }
+
+            window.alert(message);
+        }
+
+        function getFeedbackQuestionCount() {
+            return feedbackQuestionStack?.querySelectorAll('[data-home-feedback-question-editor]').length ?? 0;
+        }
+
+        function canAddFeedbackQuestion() {
+            return getFeedbackQuestionCount() < 10;
+        }
+
+        function addFeedbackQuestion() {
+            if (!feedbackQuestionStack || !feedbackQuestionTemplate) {
+                return null;
+            }
+
+            const currentCount = getFeedbackQuestionCount();
+            if (currentCount >= 10) {
+                notifyFeedbackQuestionLimit();
+                return null;
+            }
+
+            const index = nextFeedbackQuestionIndex();
+            const number = currentCount + 1;
+            const markup = feedbackQuestionTemplate.innerHTML
+                .replaceAll('__INDEX__', String(index))
+                .replaceAll('__NUMBER__', String(number).padStart(2, '0'));
+
+            feedbackQuestionStack.insertAdjacentHTML('beforeend', markup);
+            bumpFeedbackQuestionsVersion();
+            relabelFeedbackQuestions();
+            const activeEditor = setActiveFeedbackQuestionEditor(index);
+            const questionField = activeEditor?.querySelector('textarea[name*="[question]"]');
+            if (questionField) {
+                questionField.value = '';
+            }
+
+            return activeEditor;
+        }
+
+        function deleteFeedbackQuestionByIndex(targetIndex) {
+            const editor = feedbackQuestionStack?.querySelector(`[data-home-feedback-question-editor][data-home-feedback-question-index="${targetIndex}"]`);
+            if (!editor) {
+                return false;
+            }
+
+            editor.remove();
+            bumpFeedbackQuestionsVersion();
+            relabelFeedbackQuestions();
+            setActiveFeedbackQuestionEditor();
+            return true;
+        }
+
+        async function confirmDeleteFeedbackQuestion(targetIndex) {
+            const editor = feedbackQuestionStack?.querySelector(`[data-home-feedback-question-editor][data-home-feedback-question-index="${targetIndex}"]`);
+            if (!editor) {
+                return;
+            }
+
+            const questionInput = editor.querySelector('textarea[name*="[question]"]');
+            const questionText = String(questionInput?.value || '').trim();
+            const message = questionText
+                ? `Do you want to delete "${questionText}"?`
+                : 'Do you want to delete this feedback question?';
+
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Question',
+                    message,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(message);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            if (deleteFeedbackQuestionByIndex(targetIndex)) {
+                submitFeedbackForm();
+            }
+        }
+
         function openHomeEditor(sectionKey, label, options = {}) {
+            if (sectionKey === 'feedback' && options.addFeedbackQuestion === true && !canAddFeedbackQuestion()) {
+                notifyFeedbackQuestionLimit();
+                return;
+            }
+
             const modal = document.querySelector('[data-home-editor-modal]');
             if (!modal) {
                 return;
@@ -1318,10 +1610,18 @@
 
             modal.querySelectorAll('[data-home-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-home-editor-panel') === sectionKey;
-                const isCardFocus = sectionKey === 'quick_links'
+                const isQuickLinkCardFocus = sectionKey === 'quick_links'
                     && options.cardIndex !== null
                     && options.cardIndex !== undefined
                     && options.cardIndex !== '';
+                const isFeedbackQuestionFocus = sectionKey === 'feedback'
+                    && (
+                        options.addFeedbackQuestion === true
+                        || (options.feedbackQuestionIndex !== null
+                            && options.feedbackQuestionIndex !== undefined
+                            && options.feedbackQuestionIndex !== '')
+                    );
+                const isCardFocus = isQuickLinkCardFocus || isFeedbackQuestionFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -1338,12 +1638,19 @@
                     const activeQuickLinkEditor = sectionKey === 'quick_links'
                         ? setActiveQuickLinkEditor(options.cardIndex ?? null, isCardFocus)
                         : null;
+                    const activeFeedbackQuestionEditor = sectionKey === 'feedback'
+                        ? (
+                            options.addFeedbackQuestion === true
+                                ? addFeedbackQuestion()
+                                : setActiveFeedbackQuestionEditor(options.feedbackQuestionIndex ?? null, isFeedbackQuestionFocus)
+                        )
+                        : null;
 
                     if (typeof window.initializeRichTextEditors === 'function') {
                         window.initializeRichTextEditors(panel);
                     }
 
-                    const focusScope = activeQuickLinkEditor || panel;
+                    const focusScope = activeQuickLinkEditor || activeFeedbackQuestionEditor || panel;
                     const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                     firstField?.focus();
                 }
@@ -1381,6 +1688,30 @@
                 return;
             }
 
+            if (data.type === 'cms-home-feedback-question-edit') {
+                openHomeEditor('feedback', data.label || 'Edit feedback question', {
+                    feedbackQuestionIndex: data.questionIndex,
+                });
+                return;
+            }
+
+            if (data.type === 'cms-home-feedback-question-delete') {
+                confirmDeleteFeedbackQuestion(data.questionIndex);
+                return;
+            }
+
+            if (data.type === 'cms-home-feedback-question-add') {
+                if (!canAddFeedbackQuestion()) {
+                    notifyFeedbackQuestionLimit();
+                    return;
+                }
+
+                openHomeEditor('feedback', data.label || 'Add feedback question', {
+                    addFeedbackQuestion: true,
+                });
+                return;
+            }
+
             if (data.type === 'cms-home-preview-height') {
                 const targetFrame = Array.from(document.querySelectorAll('[data-home-preview-frame]'))
                     .find((frame) => frame.contentWindow === event.source);
@@ -1414,6 +1745,9 @@
         });
 
         initHomeCarouselDropzones(document);
+
+        currentHomePreviewRoute = normalizeHomePreviewRoute(currentHomePreviewRoute);
+        persistHomePreviewRoute(currentHomePreviewRoute);
 
         document.querySelectorAll('[data-home-preview-frame]').forEach((frame, index) => {
             loadHomePreview(frame, {
@@ -1498,6 +1832,8 @@
 
         scheduleFitAllHomePreviews();
         setActiveQuickLinkEditor();
+        relabelFeedbackQuestions();
+        setActiveFeedbackQuestionEditor(null, false);
         setActiveHomePreviewPage(currentHomePreviewRoute);
 
         window.__homeCmsPreviewEditorReady = true;
