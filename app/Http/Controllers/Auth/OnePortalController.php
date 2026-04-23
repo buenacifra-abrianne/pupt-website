@@ -338,43 +338,47 @@ class OnePortalController extends Controller
         return redirect('/');
     }
 
-
 public function logout(Request $request)
-{
+{   
     AuditLog::record(
             'LOGOUT',
             'AUTHENTICATION',
             'User logged out.',
             (int) session('user_id', 0)
         );
-
-    $baseUrl = rtrim(config('services.idp.base_url'), '/');
-    $clientId = config('services.idp.client_id');
+        
+    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
+    $clientId = (string) config('services.idp.client_id');
 
     $accessToken = session('access_token') ?: $request->cookie('access_token');
-    $refreshToken = session('refresh_token') ?: $request->cookie('refresh_token');
-    $userId = session('oneportal_id') ?: session('idp_user_id');
 
     Auth::logout();
 
-    $request->session()->forget('access_token');
-    $request->session()->forget('refresh_token');
     $request->session()->flush();
     $request->session()->invalidate();
     $request->session()->regenerateToken();
 
-    if ($baseUrl && $clientId) {
-        $logoutUrl = $baseUrl . '/logout?' . http_build_query([
-            'client_id' => $clientId,
-            'user_id' => $userId ?? '',
-        ]);
+    if ($baseUrl && $clientId && $accessToken) {
+        try {
+            $http = Http::asJson()->withToken($accessToken);
 
-        $response = redirect()->away($logoutUrl);
-    } else {
-        $response = redirect()->route('public.landing');
+            if (app()->environment(['local', 'testing'])) {
+                $http = $http->withoutVerifying();
+            }
+
+            $http->post($baseUrl . '/api/v1/auth/logout', [
+                'client_id' => $clientId,
+            ]);
+
+        } catch (\Throwable $e) {
+            \Log::error('IDP LOGOUT FAILED', [
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
-    return $this->expireAuthCookies($response, $request);
+    return redirect()->route('public.landing')
+        ->withoutCookie('access_token');
 }
 
 public function idpLogout(Request $request)
