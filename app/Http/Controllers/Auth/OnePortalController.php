@@ -412,11 +412,14 @@ protected function clearLocalAuthentication(Request $request): void
 protected function revokeIdpTokens(?string $logoutUrl, ?string $clientId, ?string $accessToken, ?string $refreshToken = null): void
 {
     if (empty($logoutUrl) || empty($clientId)) {
-        \Log::warning('IDP logout skipped: missing config');
+        \Log::warning('IDP logout skipped because logout URL or client ID is missing.', [
+            'has_logout_url' => !empty($logoutUrl),
+            'has_client_id' => !empty($clientId),
+        ]);
         return;
     }
 
-    $httpClient = Http::asJson();
+    $httpClient = Http::asJson()->connectTimeout(5)->timeout(10);
 
     if (app()->environment(['local', 'testing'])) {
         $httpClient = $httpClient->withoutVerifying();
@@ -435,17 +438,24 @@ protected function revokeIdpTokens(?string $logoutUrl, ?string $clientId, ?strin
             $payload['refresh_token'] = $refreshToken;
         }
 
-        $requestClient = $accessToken
+        $requestClient = !empty($accessToken)
             ? $httpClient->withToken($accessToken)
             : $httpClient;
 
-        $response = $requestClient->post($logoutUrl, $payload);
+        $finalLogoutUrl = rtrim($logoutUrl, '/') . '?client_id=' . urlencode($clientId);
+
+        \Log::info('IDP logout request', [
+            'url' => $finalLogoutUrl,
+            'has_access_token' => !empty($accessToken),
+            'payload' => array_keys($payload),
+        ]);
+
+        $response = $requestClient->post($finalLogoutUrl, $payload);
 
         \Log::info('IDP logout response', [
             'status' => $response->status(),
-            'success' => $response->successful(),
+            'body' => $response->body(),
         ]);
-
     } catch (\Throwable $e) {
         \Log::error('IDP logout failed', [
             'error' => $e->getMessage(),
