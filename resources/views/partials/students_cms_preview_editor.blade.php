@@ -116,18 +116,8 @@
                     </div>
 
                     <div class="form-group">
-                        <label>Eyebrow</label>
-                        <input type="text" name="students[page][eyebrow]" maxlength="120" value="{{ $pageEditor['eyebrow'] ?? '' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Page Title</label>
+                        <label>Hero Title</label>
                         <input type="text" name="students[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea name="students[page][description]" rows="5">{{ $pageEditor['description'] ?? '' }}</textarea>
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -139,13 +129,11 @@
                 </form>
             </section>
 
-            <section class="students-cms-editor-panel" data-students-editor-panel="cards" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-cards-form>
+            <section class="students-cms-editor-panel" data-students-editor-panel="cards_header" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="cards">
-                    <input type="hidden" name="students_cards_version" value="0" data-students-cards-version>
-                    <input type="hidden" name="students_active_card_index" value="" data-students-active-card-index>
+                    <input type="hidden" name="section_key" value="cards_header">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -164,8 +152,34 @@
 
                     <div class="form-group">
                         <label>Header Description</label>
-                        <textarea name="students[page][contents_description]" rows="4">{{ $pageEditor['contents_description'] ?? '' }}</textarea>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'students[page][contents_description]',
+                            'value' => $pageEditor['contents_description'] ?? '',
+                            'placeholder' => 'Write the supporting copy shown above the student cards...',
+                            'characterLimit' => 100,
+                            'counterMode' => 'limit',
+                        ])
                     </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Cards Header') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="cards" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-cards-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="cards">
+                    <input type="hidden" name="students_cards_version" value="0" data-students-cards-version>
+                    <input type="hidden" name="students_active_card_index" value="" data-students-active-card-index>
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-card-stack" data-students-card-stack>
                         @foreach($cardsEditor as $index => $card)
@@ -450,6 +464,8 @@
 <script type="application/json" data-students-preview-json>
 {!! json_encode($studentsPreviewHtml, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
 </script>
+
+@include('partials.rich_text_editor_assets')
 
 <style>
     .students-cms-workspace {
@@ -962,6 +978,12 @@
             return;
         }
 
+        const syncEditorsInScope = (scope) => {
+            if (typeof window.syncRichTextEditors === 'function') {
+                window.syncRichTextEditors(scope);
+            }
+        };
+
         const closeEditor = () => {
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
@@ -1027,12 +1049,19 @@
             if (modalDescription) {
                 modalDescription.textContent = sectionKey === 'cards'
                     ? 'Manage the public cards shown in the student contents strip.'
-                    : 'Update the student page hero and introduction content.';
+                    : (sectionKey === 'cards_header'
+                        ? 'Update the heading, title, and supporting copy above the student cards.'
+                        : 'Update the student page hero and introduction content.');
             }
 
             modal.hidden = false;
             document.body.style.overflow = 'hidden';
             document.body.classList.add('cms-editor-modal-open');
+
+            const activePanel = panels.find((panel) => panel.getAttribute('data-students-editor-panel') === sectionKey) || null;
+            if (activePanel && typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(activePanel);
+            }
 
             if (sectionKey === 'cards') {
                 setActiveCardEditor(options.cardIndex ?? null);
@@ -1040,6 +1069,9 @@
             } else if (sectionKey === 'organizations') {
                 setActiveOrganizationEditor(options.orgKey ?? '');
                 window.setTimeout(() => focusOrganizationEditor(options.orgKey ?? ''), 40);
+            } else if (activePanel) {
+                const firstField = activePanel.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
+                window.setTimeout(() => firstField?.focus(), 40);
             }
         };
 
@@ -1884,6 +1916,7 @@
         relabelCards();
         setActiveCardEditor();
         setActiveOrganizationEditor('');
+        syncEditorsInScope(modal);
         initStudentsImageDropzones(modal);
         initStudentsCharCounters(modal);
         bindStudentsCardsDirtyTracking();

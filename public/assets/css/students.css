@@ -601,6 +601,14 @@ body.pup-dark-mode .academic-breadcrumb strong {
   line-height: 1.65;
 }
 
+.students-rich-copy > :first-child {
+  margin-top: 0;
+}
+
+.students-rich-copy > :last-child {
+  margin-bottom: 0;
+}
+
 .students-cards {
   display: grid;
   grid-auto-flow: column;

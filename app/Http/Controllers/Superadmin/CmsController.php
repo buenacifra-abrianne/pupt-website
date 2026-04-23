@@ -938,10 +938,12 @@ class CmsController extends Controller
                     ? array_intersect_key($studentsInput['page'], array_flip(['eyebrow', 'title', 'description', 'hero_image']))
                     : [],
             ],
-            'cards' => [
+            'cards_header' => [
                 'page' => is_array($studentsInput['page'] ?? null)
                     ? array_intersect_key($studentsInput['page'], array_flip(['contents_tag', 'contents_title', 'contents_description']))
                     : [],
+            ],
+            'cards' => [
                 'cards' => collect(data_get($studentsInput, 'cards', []))
                     ->map(fn ($item) => is_array($item)
                         ? array_intersect_key($item, array_flip(['title', 'description', 'link', 'image']))
