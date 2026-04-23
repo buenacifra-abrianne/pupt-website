@@ -14,7 +14,7 @@ class CheckIdpSession
     {
         \Log::info('IDP MIDDLEWARE HIT');
 
-        $accessToken = session('access_token') ?: $request->cookie('access_token');
+        $accessToken = $request->cookie('access_token');
 
         \Log::info('TOKEN CHECK', [
             'has_session_token' => !empty(session('access_token')),
