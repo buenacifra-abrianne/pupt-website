@@ -341,6 +341,13 @@ class OnePortalController extends Controller
 
 public function logout(Request $request)
 {
+    AuditLog::record(
+            'LOGOUT',
+            'AUTHENTICATION',
+            'User logged out.',
+            (int) session('user_id', 0)
+        );
+
     $baseUrl = rtrim(config('services.idp.base_url'), '/');
     $clientId = config('services.idp.client_id');
 
