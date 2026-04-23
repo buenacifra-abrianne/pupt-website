@@ -195,14 +195,14 @@
 
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <div class="academics-cms-textarea-field" data-academics-char-limit="50">
+                                    <div class="academics-cms-textarea-field" data-academics-char-limit="100">
                                         <textarea
                                             name="academics[contents][items][{{ $index }}][summary]"
                                             rows="4"
-                                            maxlength="50"
+                                            maxlength="100"
                                             data-academics-char-input
                                         >{{ $item['summary'] ?? '' }}</textarea>
-                                        <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/50</div>
+                                        <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/100</div>
                                     </div>
                                 </div>
                             </article>
@@ -240,52 +240,97 @@
             </section>
 
             <section class="academics-cms-editor-panel" data-academics-editor-panel="features" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-features-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="academics">
-                    <input type="hidden" name="section_key" value="features">
-                    <input type="hidden" name="academics_features_version" value="0" data-academics-features-version>
-                    <input type="hidden" name="academics_active_feature_index" value="" data-academics-active-feature-index>
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
+                <div data-academics-features-section-shell>
+                    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                        @csrf
+                        <input type="hidden" name="tab_key" value="academics">
+                        <input type="hidden" name="section_key" value="features">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
 
-                    <div class="form-group">
-                        <label>Section Eyebrow</label>
-                        <input type="text" name="academics[features][eyebrow]" maxlength="120" value="{{ $featuresEditor['eyebrow'] ?? '' }}">
-                    </div>
+                        <div class="academics-cms-form-grid" data-academics-card-panel-meta>
+                            <div class="form-group">
+                                <label>Section Tag</label>
+                                <input type="text" name="academics[features][tag]" maxlength="120" value="{{ $featuresEditor['tag'] ?? ($featuresEditor['eyebrow'] ?? '') }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Section Title</label>
+                                <input type="text" name="academics[features][title]" maxlength="255" value="{{ $featuresEditor['title'] ?? '' }}">
+                            </div>
+                        </div>
 
-                    <div class="academics-cms-card-stack" data-academics-features-stack>
+                        <div class="form-group">
+                            <label>Description</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'academics[features][description]',
+                                'value' => $featuresEditor['description'] ?? '',
+                                'placeholder' => 'Write the description for the What We Offer section...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
+                            ])
+                        </div>
+
                         @foreach(($featuresEditor['items'] ?? []) as $index => $item)
-                            <article class="academics-cms-card-editor" data-academics-feature-editor data-academics-feature-index="{{ $index }}">
-                                <div class="academics-cms-card-editor-head">
-                                    <h4>Feature Card {{ $loop->iteration }}</h4>
-                                    <span>{{ !empty($item['wide']) ? 'Wide card' : 'Standard card' }}</span>
-                                </div>
-
-                                <input type="hidden" name="academics[features][items][{{ $index }}][wide]" value="{{ !empty($item['wide']) ? '1' : '0' }}">
-
-                                <div class="form-group">
-                                    <label>Card Title</label>
-                                    <input type="text" name="academics[features][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Card Description</label>
-                                    @include('partials.rich_text_editor', [
-                                        'name' => 'academics[features][items]['.$index.'][body]',
-                                        'value' => $item['body'] ?? '',
-                                        'placeholder' => 'Write the supporting copy for this offer card...',
-                                    ])
-                                </div>
-                            </article>
+                            <input type="hidden" name="academics[features][items][{{ $index }}][title]" value="{{ $item['title'] ?? '' }}">
+                            <input type="hidden" name="academics[features][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
+                            <input type="hidden" name="academics[features][items][{{ $index }}][wide]" value="{{ !empty($item['wide']) ? '1' : '0' }}">
                         @endforeach
-                    </div>
 
-                    <div class="academics-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">{{ $submitLabel('What We Offer') }}</button>
-                    </div>
-                </form>
+                        <div class="academics-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">{{ $submitLabel('What We Offer') }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div data-academics-features-card-shell>
+                    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-features-form>
+                        @csrf
+                        <input type="hidden" name="tab_key" value="academics">
+                        <input type="hidden" name="section_key" value="features">
+                        <input type="hidden" name="academics_features_version" value="0" data-academics-features-version>
+                        <input type="hidden" name="academics_active_feature_index" value="" data-academics-active-feature-index>
+                        <input type="hidden" name="academics[features][tag]" value="{{ $featuresEditor['tag'] ?? ($featuresEditor['eyebrow'] ?? '') }}">
+                        <input type="hidden" name="academics[features][title]" value="{{ $featuresEditor['title'] ?? '' }}">
+                        <input type="hidden" name="academics[features][description]" value="{{ $featuresEditor['description'] ?? '' }}">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
+
+                        <div class="academics-cms-card-stack" data-academics-features-stack>
+                            @foreach(($featuresEditor['items'] ?? []) as $index => $item)
+                                <article class="academics-cms-card-editor" data-academics-feature-editor data-academics-feature-index="{{ $index }}">
+                                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
+                                        <h4>Feature Card {{ $loop->iteration }}</h4>
+                                        <span>{{ !empty($item['wide']) ? 'Wide card' : 'Standard card' }}</span>
+                                    </div>
+
+                                    <input type="hidden" name="academics[features][items][{{ $index }}][wide]" value="{{ !empty($item['wide']) ? '1' : '0' }}">
+
+                                    <div class="form-group">
+                                        <label>Card Tag</label>
+                                        <input type="text" name="academics[features][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Card Description</label>
+                                        @include('partials.rich_text_editor', [
+                                            'name' => 'academics[features][items]['.$index.'][body]',
+                                            'value' => $item['body'] ?? '',
+                                            'placeholder' => 'Write the supporting copy for this offer card...',
+                                            'characterLimit' => 255,
+                                            'counterMode' => 'limit',
+                                        ])
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+
+                        <div class="academics-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">{{ $submitLabel('What We Offer Card') }}</button>
+                        </div>
+                    </form>
+                </div>
             </section>
         </div>
     </div>
@@ -670,6 +715,18 @@
         display: flex;
         justify-content: flex-end;
         margin-top: 18px;
+    }
+
+    [data-academics-features-card-shell] {
+        display: none;
+    }
+
+    .academics-cms-editor-panel.is-card-focus [data-academics-features-section-shell] {
+        display: none;
+    }
+
+    .academics-cms-editor-panel.is-card-focus [data-academics-features-card-shell] {
+        display: block;
     }
 
     .academics-cms-modal.is-card-focus .academics-cms-modal-header {

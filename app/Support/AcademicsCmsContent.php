@@ -48,7 +48,9 @@ class AcademicsCmsContent
             'body' => '<p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p><p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p><p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>',
         ],
         'features' => [
-            'eyebrow' => 'What we offer',
+            'tag' => 'What we offer',
+            'title' => '',
+            'description' => '',
             'items' => [
                 [
                     'title' => 'QUALITY',
@@ -182,8 +184,18 @@ class AcademicsCmsContent
 
     private static function normalizeFeatures(array $source, array $base, array $defaults): array
     {
+        $fallbackTag = (string) ($source['eyebrow'] ?? ($base['eyebrow'] ?? ($defaults['eyebrow'] ?? '')));
+
         return [
-            'eyebrow' => self::pickString($source, $base, $defaults, 'eyebrow', 120),
+            'tag' => self::pickString(
+                ['tag' => ($source['tag'] ?? $fallbackTag)],
+                ['tag' => ($base['tag'] ?? ($base['eyebrow'] ?? ($defaults['tag'] ?? '')))],
+                ['tag' => ($defaults['tag'] ?? ($defaults['eyebrow'] ?? ''))],
+                'tag',
+                120
+            ),
+            'title' => self::pickString($source, $base, $defaults, 'title'),
+            'description' => self::pickString($source, $base, $defaults, 'description', 12000),
             'items' => self::normalizeFeatureItems(
                 $source['items'] ?? [],
                 $base['items'] ?? $defaults['items'],
