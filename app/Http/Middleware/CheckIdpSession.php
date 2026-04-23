@@ -14,11 +14,20 @@ class CheckIdpSession
     {
         \Log::info('IDP MIDDLEWARE HIT');
 
-        $accessToken = $request->cookie('access_token');
+        if (!session('user_logged_in')) {
+            return $next($request);
+        }
+
+        $accessToken = (string) ($request->cookie('access_token') ?: session('access_token') ?: '');
+        $isIdpBackedSession = !empty(session('oneportal_id'))
+            || !empty(session('access_token'))
+            || !empty($request->cookie('access_token'));
 
         \Log::info('TOKEN CHECK', [
             'has_session_token' => !empty(session('access_token')),
             'has_cookie_token' => !empty($request->cookie('access_token')),
+            'has_oneportal_id' => !empty(session('oneportal_id')),
+            'is_idp_backed_session' => $isIdpBackedSession,
         ]);
 
         \Log::info('TOKEN SOURCE DEBUG', [
@@ -30,9 +39,13 @@ class CheckIdpSession
             'token' => $request->cookie('access_token'),
         ]);
 
-        if (!$accessToken) {
-            \Log::warning('NO TOKEN FOUND');
+        if (!$isIdpBackedSession) {
             return $next($request);
+        }
+
+        if ($accessToken === '') {
+            \Log::warning('NO TOKEN FOUND FOR IDP-BACKED SESSION');
+            return $this->forceLogout($request);
         }
 
         try {
@@ -69,8 +82,23 @@ class CheckIdpSession
     {
         Auth::logout();
 
-        $request->session()->forget('access_token');
-        $request->session()->forget('refresh_token');
+        $request->session()->forget([
+            'access_token',
+            'refresh_token',
+            'oneportal_id',
+            'user_logged_in',
+            'user_id',
+            'user_email',
+            'user_first_name',
+            'user_middle_name',
+            'user_last_name',
+            'user_name',
+            'user_role',
+            'role',
+            'user_roles',
+            'user_profile_picture',
+            'terms_accepted',
+        ]);
         $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

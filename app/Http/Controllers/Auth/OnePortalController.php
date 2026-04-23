@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Support\AuditLog;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
 class OnePortalController extends Controller
 {
@@ -268,6 +269,8 @@ class OnePortalController extends Controller
         'updated_at' => now(),
     ]);
 
+    $request->session()->regenerate();
+
     // create local session only after role is valid
     session([
         'user_logged_in' => true,
@@ -304,37 +307,48 @@ class OnePortalController extends Controller
 
     public function logout(Request $request)
 {
+    $logoutUrl = (string) config('services.idp.logout_url');
     $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
     $clientId = (string) config('services.idp.client_id');
 
-    // ✅ get user_id directly from session (stored during login)
     $userId = session('oneportal_id');
+    $isIdpBackedSession = !empty($userId)
+        || !empty(session('access_token'))
+        || !empty($request->cookie('access_token'));
 
-    // ✅ remove tokens explicitly (IMPORTANT)
-    $request->session()->forget('access_token');
-    $request->session()->forget('refresh_token');
+    AuditLog::record(
+        'LOGOUT',
+        'AUTHENTICATION',
+        'User logged out.',
+        (int) session('user_id', 0)
+    );
 
-    // ✅ clear local session
-    $request->session()->flush();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    // ✅ fallback if missing user_id
-    if (!$userId) {
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
+    if (!$isIdpBackedSession) {
+        return $this->buildLoggedOutRedirect($request);
     }
 
-    // ✅ build REQUIRED IDP logout URL
-    $idpLogoutUrl = $baseUrl . '/logout?client_id=' . urlencode($clientId)
-        . '&user_id=' . urlencode($userId);
+    if ($logoutUrl === '') {
+        $logoutUrl = $baseUrl !== '' ? $baseUrl . '/logout' : '';
+    }
 
-    // ✅ redirect to IDP logout (IMPORTANT)
-    return redirect()->away($idpLogoutUrl)
-        ->withoutCookie('access_token')
-        ->withoutCookie('refresh_token');
+    if ($logoutUrl === '') {
+        return $this->buildLoggedOutRedirect($request);
+    }
+
+    $idpLogoutUrl = $logoutUrl
+        . '?client_id=' . urlencode($clientId)
+        . '&user_id=' . urlencode((string) $userId);
+
+    return $this->clearLocalSession(
+        $request,
+        redirect()->away($idpLogoutUrl)
+    );
 }
+
+    public function idpLogout(Request $request): Response
+    {
+        return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
+    }
 
     private function redirectByRole($role)
     {
@@ -370,5 +384,54 @@ class OnePortalController extends Controller
         }
 
         return redirect('/');
+    }
+
+    private function buildLoggedOutRedirect(Request $request, ?string $message = null): Response
+    {
+        $response = redirect()->route('public.landing');
+
+        if ($message !== null && $message !== '') {
+            $response->with('success', $message);
+        }
+
+        return $this->clearLocalSession($request, $response);
+    }
+
+    private function clearLocalSession(Request $request, Response $response): Response
+    {
+        Auth::logout();
+
+        $request->session()->forget([
+            'user_logged_in',
+            'user_id',
+            'user_email',
+            'user_first_name',
+            'user_middle_name',
+            'user_last_name',
+            'user_name',
+            'user_role',
+            'role',
+            'user_roles',
+            'user_profile_picture',
+            'oneportal_id',
+            'access_token',
+            'refresh_token',
+            'terms_accepted',
+        ]);
+        $request->session()->flush();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        foreach ([
+            'access_token',
+            'refresh_token',
+            'jwt_token',
+            config('session.cookie'),
+            'XSRF-TOKEN',
+        ] as $cookieName) {
+            $response->withCookie(cookie()->forget($cookieName, '/'));
+        }
+
+        return $response;
     }
 }
