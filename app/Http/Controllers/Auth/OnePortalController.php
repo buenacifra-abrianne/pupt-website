@@ -317,7 +317,14 @@ class OnePortalController extends Controller
         (int) session('user_id', 0)
     );
 
-    $this->revokeIdpTokens($request, $accessToken, $refreshToken);
+    $idpRedirectUrl = $this->revokeIdpTokens($request, $accessToken, $refreshToken);
+
+    if ($idpRedirectUrl) {
+        return $this->clearLocalSession(
+            $request,
+            redirect()->away($idpRedirectUrl)
+        );
+    }
 
     return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
 }
@@ -407,7 +414,7 @@ class OnePortalController extends Controller
         return $this->attachCookieExpiryHeaders($response);
     }
 
-    private function revokeIdpTokens(Request $request, ?string $accessToken = null, ?string $refreshToken = null): void
+    private function revokeIdpTokens(Request $request, ?string $accessToken = null, ?string $refreshToken = null): ?string
     {
         $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
         $configuredLogoutUrl = (string) config('services.idp.logout_url');
@@ -420,7 +427,7 @@ class OnePortalController extends Controller
                 'has_client_id' => $clientId !== '',
             ]);
 
-            return;
+            return null;
         }
 
         $payload = array_filter([
@@ -447,18 +454,21 @@ class OnePortalController extends Controller
             $response = $http->post($logoutUrl . '?client_id=' . urlencode($clientId), $payload);
 
             if ($response->successful() || $response->status() === 302) {
+                $location = (string) $response->header('Location', '');
+
                 \Log::info('IDP tokens revoked successfully.', [
                     'status' => $response->status(),
-                    'location' => $response->header('Location'),
+                    'location' => $location,
                 ]);
-                return;
+
+                return $location !== '' ? $location : null;
             }
 
             if ($response->status() === 401) {
                 \Log::info('IDP logout returned 401; token already invalid.', [
                     'status' => $response->status(),
                 ]);
-                return;
+                return null;
             }
 
             \Log::warning('IDP token revocation failed.', [
@@ -470,6 +480,8 @@ class OnePortalController extends Controller
                 'error' => $e->getMessage(),
             ]);
         }
+
+        return null;
     }
 
     private function attachCookieExpiryHeaders(Response $response): Response
