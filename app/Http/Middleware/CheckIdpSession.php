@@ -103,6 +103,14 @@ class CheckIdpSession
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
+        if ($request->expectsJson() || $request->header('X-CMS-IDP-CHECK') === '1') {
+            return response()->json([
+                'message' => 'Session expired.',
+                'logout' => true,
+                'redirect' => route('public.landing'),
+            ], 401);
+        }
+
         $response = redirect()->route('public.landing')
             ->with('error', 'Session expired.');
 
