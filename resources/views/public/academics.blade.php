@@ -93,12 +93,11 @@
                 </button>
             @endif
 
-            <div data-cms-boundary class="cms-preview-boundary-full">
-                <div class="contents-strip-inner">
-                    <div class="contents-strip-head">
-                        <p class="section-tag">{{ $contentsSection['tag'] ?? 'Contents' }}</p>
-                    </div>
+            <div class="contents-strip-head layout-inset" data-cms-boundary>
+                <p class="section-tag">{{ $contentsSection['tag'] ?? 'Contents' }}</p>
+            </div>
 
+            <div class="contents-strip-inner">
                     <nav class="contents-cards show-card-action" aria-label="Academic page contents">
                         @foreach($contentsItems as $item)
                             @if($cmsPreview)
@@ -138,7 +137,6 @@
                             @endif
                         @endforeach
                     </nav>
-                </div>
             </div>
         </section>
 
@@ -179,17 +177,19 @@
                 </button>
             @endif
 
-                <div data-cms-boundary class="cms-preview-boundary-full">
-                <div class="academic-features-inner layout-inset">
-                    <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['tag'] ?? ($featuresSection['eyebrow'] ?? 'What we offer') }}</p>
-                    @if(trim((string) ($featuresSection['title'] ?? '')) !== '')
-                        <h2 class="academic-features-heading">{{ $featuresSection['title'] }}</h2>
-                    @endif
-                    @if(trim((string) ($featuresSection['description'] ?? '')) !== '')
-                        <div class="academic-feature-copy academic-rich-copy academic-features-description">
-                            {!! \App\Support\RichText::sanitize($featuresSection['description'] ?? '') !!}
-                        </div>
-                    @endif
+            <div class="academic-features-header layout-inset" data-cms-boundary>
+                <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['tag'] ?? ($featuresSection['eyebrow'] ?? 'What we offer') }}</p>
+                @if(trim((string) ($featuresSection['title'] ?? '')) !== '')
+                    <h2 class="academic-features-heading">{{ $featuresSection['title'] }}</h2>
+                @endif
+                @if(trim((string) ($featuresSection['description'] ?? '')) !== '')
+                    <div class="academic-feature-copy academic-rich-copy academic-features-description">
+                        {!! \App\Support\RichText::sanitize($featuresSection['description'] ?? '') !!}
+                    </div>
+                @endif
+            </div>
+
+            <div class="academic-features-inner layout-inset">
                     <div class="academic-features-grid">
                         @foreach($featureItems as $item)
                             <div
@@ -212,7 +212,6 @@
                             </div>
                         @endforeach
                     </div>
-                </div>
             </div>
         </section>
     </main>
@@ -387,6 +386,69 @@
                 animation: none !important;
             }
 
+            .contents-strip.cms-preview-editable {
+                overflow: visible !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-cards {
+                grid-auto-flow: row;
+                grid-auto-columns: unset;
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                overflow: visible !important;
+                padding-bottom: 0;
+                scroll-snap-type: none;
+                touch-action: auto;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card {
+                min-width: 0;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card,
+            .contents-strip.cms-preview-editable .contents-card:hover,
+            .contents-strip.cms-preview-editable .contents-card:focus-visible,
+            .contents-strip.cms-preview-editable .contents-card.active {
+                transform: none !important;
+                transition: none !important;
+                box-shadow: 0 16px 34px rgba(77, 18, 18, 0.12) !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-inner,
+            .contents-strip.cms-preview-editable .contents-card-front,
+            .contents-strip.cms-preview-editable .contents-card-back,
+            .contents-strip.cms-preview-editable .contents-card-front img,
+            .contents-strip.cms-preview-editable .contents-card-copy,
+            .contents-strip.cms-preview-editable .contents-card-overlay-copy,
+            .contents-strip.cms-preview-editable .contents-card-action {
+                transition: none !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-back {
+                opacity: 0 !important;
+                transform: translateY(100%) !important;
+                pointer-events: none !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-front img {
+                transform: none !important;
+                filter: none !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-overlay-copy,
+            .contents-strip.cms-preview-editable .contents-card-action {
+                opacity: 0 !important;
+                transform: translateY(18px) !important;
+            }
+
+            .contents-strip.cms-preview-editable .contents-card-copy {
+                opacity: 1 !important;
+            }
+
+            .contents-strip.cms-preview-editable .card_without_section .contents-card-copy {
+                min-height: 74px;
+                padding: 10px 16px 12px;
+            }
+
             .contents-card[data-academics-contents-card]:hover,
             .contents-card[data-academics-contents-card]:focus-within,
             .academic-feature-card[data-academics-feature-card]:hover,
@@ -548,7 +610,8 @@
                 targets.forEach((target) => {
                     const section = target.getAttribute('data-cms-section') || '';
                     const label = target.getAttribute('data-cms-section-label') || section;
-                const chip = target.querySelector('[data-cms-edit-trigger]');
+                    const chip = target.querySelector('[data-cms-edit-trigger]');
+                    const boundary = target.querySelector('[data-cms-boundary]');
 
                     const openEditor = (event) => {
                         if (event.target.closest('[data-academics-contents-card], [data-academics-feature-card]')) {
@@ -562,24 +625,23 @@
 
                     target.addEventListener('mouseenter', () => target.classList.add('is-active'));
                     target.addEventListener('mouseleave', () => target.classList.remove('is-active'));
-                    target.addEventListener('click', openEditor);
+
+                    if (boundary) {
+                        boundary.addEventListener('click', openEditor);
+                    }
 
                     if (chip) {
-                        chip.addEventListener('click', (event) => {
-                            event.preventDefault();
-                            event.stopPropagation();
-                            postSection(section, label);
-                        });
-                }
-            });
+                        chip.addEventListener('click', openEditor);
+                    }
+                });
 
                 document.querySelectorAll('[data-academics-contents-card]').forEach((card) => {
                     const cardIndex = Number(card.getAttribute('data-academics-contents-index'));
-                    const postCard = (type) => {
+                    const postCard = () => {
                         window.parent?.postMessage({
-                            type,
+                            type: 'cms-academics-edit-card',
                             section: 'contents',
-                            label: type === 'cms-academics-delete-card' ? 'Delete Contents Card' : 'Edit Contents Card',
+                            label: 'Edit Contents Card',
                             cardIndex,
                         }, '*');
                     };
@@ -587,23 +649,17 @@
                     card.querySelector('[data-academics-card-edit]')?.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        postCard('cms-academics-edit-card');
-                    });
-
-                    card.querySelector('[data-academics-card-delete]')?.addEventListener('click', (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        postCard('cms-academics-delete-card');
+                        postCard();
                     });
                 });
 
                 document.querySelectorAll('[data-academics-feature-card]').forEach((card) => {
                     const cardIndex = Number(card.getAttribute('data-academics-feature-index'));
-                    const postCard = (type) => {
+                    const postCard = () => {
                         window.parent?.postMessage({
-                            type,
+                            type: 'cms-academics-edit-card',
                             section: 'features',
-                            label: type === 'cms-academics-delete-card' ? 'Delete Feature Card' : 'Edit Feature Card',
+                            label: 'Edit Feature Card',
                             cardIndex,
                         }, '*');
                     };
@@ -611,13 +667,7 @@
                     card.querySelector('[data-academics-feature-edit]')?.addEventListener('click', (event) => {
                         event.preventDefault();
                         event.stopPropagation();
-                        postCard('cms-academics-edit-card');
-                    });
-
-                    card.querySelector('[data-academics-feature-delete]')?.addEventListener('click', (event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        postCard('cms-academics-delete-card');
+                        postCard();
                     });
                 });
 

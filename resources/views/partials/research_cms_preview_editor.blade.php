@@ -109,6 +109,16 @@
                                 $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="{{ $index }}">
+                                <div class="research-cms-card-editor-head" data-research-card-editor-head>
+                                    <div>
+                                        <h4>Service Card {{ $loop->iteration }}</h4>
+                                        <span>{{ $card['title'] ?? '' }}</span>
+                                    </div>
+                                    <button type="button" class="btn research-cms-delete-card" data-remove-research-card>
+                                        Delete Service
+                                    </button>
+                                </div>
+
                                 <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-research-image-field>
 
                                 <div class="form-group">
@@ -157,7 +167,15 @@
 
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <textarea name="research[cards][{{ $index }}][description]" rows="4">{{ $card['description'] ?? '' }}</textarea>
+                                    <div class="research-cms-textarea-field" data-research-char-limit="255">
+                                        <textarea
+                                            name="research[cards][{{ $index }}][description]"
+                                            rows="4"
+                                            maxlength="255"
+                                            data-research-char-input
+                                        >{{ $card['description'] ?? '' }}</textarea>
+                                        <div class="research-cms-char-counter" data-research-char-counter aria-live="polite">0/255</div>
+                                    </div>
                                 </div>
 
                                 <div class="form-group">
@@ -170,6 +188,16 @@
 
                     <template data-research-card-template>
                         <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="__INDEX__">
+                            <div class="research-cms-card-editor-head" data-research-card-editor-head>
+                                <div>
+                                    <h4>Service Card __NUMBER__</h4>
+                                    <span></span>
+                                </div>
+                                <button type="button" class="btn research-cms-delete-card" data-remove-research-card>
+                                    Delete Service
+                                </button>
+                            </div>
+
                             <input type="hidden" name="research[cards][__INDEX__][image]" value="" data-research-image-field>
 
                             <div class="form-group">
@@ -218,7 +246,15 @@
 
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea name="research[cards][__INDEX__][description]" rows="4"></textarea>
+                                <div class="research-cms-textarea-field" data-research-char-limit="255">
+                                    <textarea
+                                        name="research[cards][__INDEX__][description]"
+                                        rows="4"
+                                        maxlength="255"
+                                        data-research-char-input
+                                    ></textarea>
+                                    <div class="research-cms-char-counter" data-research-char-counter aria-live="polite">0/255</div>
+                                </div>
                             </div>
 
                             <div class="form-group">
@@ -415,14 +451,37 @@
         display: block;
     }
 
-    .research-cms-card-remove {
-        width: 38px;
-        height: 38px;
+    .research-cms-card-editor-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 14px;
+    }
+
+    .research-cms-card-editor-head h4 {
+        margin: 0;
+        color: #5c0000;
+        font-size: 1rem;
+    }
+
+    .research-cms-card-editor-head span {
+        color: #8a7a73;
+        font-size: 0.8rem;
+    }
+
+    .research-cms-delete-card {
         border: none;
         border-radius: 12px;
-        background: #f8ece6;
-        color: #7f1113;
+        padding: 0 14px;
+        min-width: 128px;
+        height: 38px;
+        background: rgba(80, 10, 12, 0.96);
+        color: #fffaf4;
+        font-size: 0.82rem;
+        font-weight: 700;
         cursor: pointer;
+        box-shadow: 0 10px 18px rgba(32, 8, 8, 0.16);
     }
 
     .research-cms-image-dropzone-shell {
@@ -1101,6 +1160,7 @@
                 }
 
                 bumpCardsVersion();
+                relabelCards();
             };
 
             cardsForm.addEventListener('input', markDirty);
@@ -1108,7 +1168,27 @@
         };
 
         const relabelCards = () => {
-            return;
+            const editors = Array.from(cardStack?.querySelectorAll('[data-research-card-editor]') ?? []);
+
+            editors.forEach((editor, index) => {
+                const displayNumber = index + 1;
+                const headTitle = editor.querySelector('[data-research-card-editor-head] h4');
+                const headSubtitle = editor.querySelector('[data-research-card-editor-head] span');
+                const titleInput = editor.querySelector('input[name*="[title]"]');
+                const dropzoneTitle = editor.querySelector('.research-cms-image-dropzone-label');
+
+                if (headTitle) {
+                    headTitle.textContent = `Service Card ${displayNumber}`;
+                }
+
+                if (headSubtitle) {
+                    headSubtitle.textContent = String(titleInput?.value || '').trim();
+                }
+
+                if (dropzoneTitle) {
+                    dropzoneTitle.textContent = `Card ${displayNumber}`;
+                }
+            });
         };
 
         const submitCardsForm = () => {
@@ -1404,14 +1484,8 @@
                     return;
                 }
 
-                const editors = Array.from(cardStack?.querySelectorAll('[data-research-card-editor]') ?? []);
-                const editorIndex = editors.indexOf(editor);
-                editor.remove();
-                bumpCardsVersion();
-                relabelCards();
-                const remainingEditors = Array.from(cardStack?.querySelectorAll('[data-research-card-editor]') ?? []);
-                const fallbackEditor = remainingEditors[Math.max(0, editorIndex - 1)] || remainingEditors[0] || null;
-                setActiveCardEditor(fallbackEditor?.getAttribute('data-research-card-index') ?? null);
+                const cardIndex = editor.getAttribute('data-research-card-index');
+                void confirmDeleteCard(cardIndex === null ? null : Number(cardIndex));
             }
         });
 

@@ -759,10 +759,37 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   color: rgba(42, 22, 22, 0.86);
 }
 
-.academic-features-grid {
+.academic-features:not(.cms-preview-editable) .academic-features-grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 310px);
+  grid-template-columns: none;
+  gap: 22px;
+  overflow-x: auto;
+  overflow-y: visible;
+  padding: 4px 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 17, 19, 0.24) transparent;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+}
+
+.academic-features:not(.cms-preview-editable) .academic-features-grid::-webkit-scrollbar {
+  height: 8px;
+}
+
+.academic-features:not(.cms-preview-editable) .academic-features-grid::-webkit-scrollbar-thumb {
+  background: rgba(127, 17, 19, 0.22);
+  border-radius: 999px;
+}
+
+.academic-features.cms-preview-editable .academic-features-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 22px;
+  overflow: visible;
+  padding: 0;
+  scroll-snap-type: none;
 }
 
 .academic-feature-card,
@@ -780,6 +807,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   box-sizing: border-box;
   overflow: hidden;
   transition: transform 0.22s ease, border-color 0.22s ease, box-shadow 0.22s ease;
+  scroll-snap-align: start;
 }
 
 .academic-feature-card:hover,

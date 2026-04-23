@@ -79,6 +79,252 @@ class AcademicsCmsContent
                 ],
             ],
         ],
+        'pages' => [
+            'degree-programs' => [
+                'hero' => [
+                    'tag' => 'PUP Taguig Branch',
+                    'title' => 'Degree Programs',
+                    'subtitle' => 'Academic Year 2024-2025',
+                    'body' => 'Pursue excellence through our CHED-accredited degree programs designed to prepare you for professional success. PUP Taguig Branch offers quality education rooted in science, technology, and professional practice.',
+                    'list_title' => 'Offered Colleges',
+                    'list_items' => [
+                        'College of Engineering',
+                        'College of Accountancy and Finance',
+                        'College of Business Administration',
+                        'College of Science',
+                        'College of Education',
+                        'College of Office Administration and Business Education',
+                        'College of Social Sciences and Development',
+                    ],
+                    'image' => 'assets/static_img/pupillar.jpeg',
+                ],
+                'info' => [
+                    'tag' => 'Quick Info',
+                    'title' => 'Program Admission at a Glance',
+                    'items' => [
+                        ['label' => 'Program Type', 'value' => 'CHED-Accredited BS & AB Degrees', 'href' => ''],
+                        ['label' => 'Mode of Study', 'value' => 'Face-to-face / Blended Learning', 'href' => ''],
+                        ['label' => 'Location', 'value' => 'PUP Taguig Branch, Gen. Santos Ave., Taguig City', 'href' => ''],
+                    ],
+                ],
+                'cards' => [
+                    'tag' => 'Academic Offerings',
+                    'title' => "Bachelor's Degree Programs",
+                    'items' => [
+                        ['title' => 'BS Electronics Engineering', 'body' => 'BSECE — A rigorous program covering circuits, communications, and embedded systems. Graduates are equipped to sit for the ECE Licensure Examination.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsece', 'cta' => 'View Program'],
+                        ['title' => 'BS Mechanical Engineering', 'body' => 'BSME — Covers thermodynamics, fluid mechanics, and machine design. Prepares students for the Mechanical Engineering Licensure Exam.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsme', 'cta' => 'View Program'],
+                        ['title' => 'BS Accountancy', 'body' => 'BSA — A comprehensive program in financial reporting, auditing, and taxation. Aligned with the CPA Licensure Examination competencies.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsa', 'cta' => 'View Program'],
+                        ['title' => 'BS Business Administration', 'body' => 'BSBA — Offered with majors in Human Resource Development Management and Marketing Management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsba', 'cta' => 'View Program'],
+                        ['title' => 'BS Applied Mathematics', 'body' => 'BSAM — Develops strong analytical and problem-solving skills for careers in data science, finance, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsam', 'cta' => 'View Program'],
+                        ['title' => 'BS Information Technology', 'body' => 'BSIT — Covers software development, networking, and database systems. Prepares students for the IT Licensure Examination.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsit', 'cta' => 'View Program'],
+                        ['title' => 'BS Entrepreneurship', 'body' => 'BSENTREP — Equips students with the mindset and skills to launch and manage successful ventures in the Philippine and global market.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsentrep', 'cta' => 'View Program'],
+                        ['title' => 'Bachelor in Secondary Education', 'body' => 'BSED — Offered with majors in English and Mathematics. Aligned with the LET competency standards.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsed', 'cta' => 'View Program'],
+                        ['title' => 'BS Office Administration', 'body' => 'BSOA — Trains students in records management, office systems, and administrative operations for both public and private sectors.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsoa', 'cta' => 'View Program'],
+                        ['title' => 'BS Psychology', 'body' => 'BSPSY — Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bspsy', 'cta' => 'View Program'],
+                    ],
+                ],
+                'contact' => [
+                    'campus_name' => 'PUP Taguig',
+                    'campus_sub' => 'Branch Campus',
+                    'address' => 'Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila',
+                    'tag' => 'Get in Touch',
+                    'title' => 'Want more information?',
+                    'description' => 'Contact PUP Taguig Branch today and our admissions team will be happy to assist you.',
+                    'rows' => [
+                        ['label' => 'Telephone', 'value' => '(63 2) 837-5858', 'href' => 'tel:+6328375858', 'tone' => 'maroon'],
+                        ['label' => 'Telephone', 'value' => '(63 2) 837-5859', 'href' => 'tel:+6328375859', 'tone' => 'maroon'],
+                        ['label' => 'Email', 'value' => 'taguig@pup.edu.ph', 'href' => 'mailto:taguig@pup.edu.ph', 'tone' => 'gold'],
+                    ],
+                    'cta_label' => 'Send Us a Message',
+                    'cta_href' => 'mailto:taguig@pup.edu.ph',
+                ],
+            ],
+            'diploma-programs' => [
+                'hero' => [
+                    'tag' => 'PUP Taguig Branch',
+                    'title' => 'Diploma Programs',
+                    'subtitle' => 'Academic Year 2024-2025',
+                    'body' => 'Gain practical, career-ready skills through our diploma programs designed for students who seek focused, industry-relevant training. PUP Taguig Branch offers CHED-recognized diploma courses that open pathways to employment and further study.',
+                    'list_title' => 'Offered Departments',
+                    'list_items' => [
+                        'Department of Information and Communications Technology',
+                        'Department of Office Administration',
+                    ],
+                    'image' => 'assets/static_img/pupillar.jpeg',
+                ],
+                'info' => [
+                    'tag' => 'Quick Info',
+                    'title' => 'Program Admission at a Glance',
+                    'items' => [
+                        ['label' => 'Program Type', 'value' => 'CHED-Recognized Diploma Courses', 'href' => ''],
+                        ['label' => 'Mode of Study', 'value' => 'Face-to-face / Blended Learning', 'href' => ''],
+                        ['label' => 'Location', 'value' => 'PUP Taguig Branch, Gen. Santos Ave., Taguig City', 'href' => ''],
+                    ],
+                ],
+                'cards' => [
+                    'tag' => 'Academic Offerings',
+                    'title' => 'Diploma Programs',
+                    'items' => [
+                        ['title' => 'Diploma in Information Communication Technology', 'body' => 'DICT — A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#dict', 'cta' => 'View Program'],
+                        ['title' => 'Diploma in Office Management Technology', 'body' => 'DOMT — Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#domt', 'cta' => 'View Program'],
+                    ],
+                ],
+                'contact' => [
+                    'campus_name' => 'PUP Taguig',
+                    'campus_sub' => 'Branch Campus',
+                    'address' => 'Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila',
+                    'tag' => 'Get in Touch',
+                    'title' => 'Want more information?',
+                    'description' => 'Contact PUP Taguig Branch today and our admissions team will be happy to assist you.',
+                    'rows' => [
+                        ['label' => 'Telephone', 'value' => '(63 2) 837-5858', 'href' => 'tel:+6328375858', 'tone' => 'maroon'],
+                        ['label' => 'Telephone', 'value' => '(63 2) 837-5859', 'href' => 'tel:+6328375859', 'tone' => 'maroon'],
+                        ['label' => 'Email', 'value' => 'taguig@pup.edu.ph', 'href' => 'mailto:taguig@pup.edu.ph', 'tone' => 'gold'],
+                    ],
+                    'cta_label' => 'Send Us a Message',
+                    'cta_href' => 'mailto:taguig@pup.edu.ph',
+                ],
+            ],
+            'graduate-programs' => [
+                'hero' => [
+                    'tag' => 'PUP Taguig Branch',
+                    'title' => 'Graduate Programs',
+                    'subtitle' => 'Open University System - Academic Year 2024-2025',
+                    'body' => "Advance your career through PUP's Open University System, offering flexible graduate education for working professionals. Our programs are designed to deepen expertise, foster research, and develop leaders committed to public service.",
+                    'list_title' => 'Delivery Mode',
+                    'list_items' => [
+                        'Open University System (OUS)',
+                        'Flexible / Blended Learning',
+                        'Available to working professionals',
+                    ],
+                    'image' => 'assets/static_img/pupillar.jpeg',
+                ],
+                'info' => [
+                    'tag' => 'Quick Info',
+                    'title' => 'Program Admission at a Glance',
+                    'items' => [
+                        ['label' => 'Program Type', 'value' => 'CHED-Recognized Graduate Program', 'href' => ''],
+                        ['label' => 'Delivery', 'value' => 'Open University System (OUS)', 'href' => ''],
+                        ['label' => 'Location', 'value' => 'PUP Taguig Branch, Gen. Santos Ave., Taguig City', 'href' => ''],
+                    ],
+                ],
+                'cards' => [
+                    'tag' => 'Academic Offerings',
+                    'title' => 'Graduate Programs',
+                    'items' => [
+                        ['title' => 'Master in Educational Management', 'body' => 'MEM — Delivered via the Open University System. Develops educational leaders with expertise in curriculum, policy, and institutional management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#mem', 'cta' => 'View Program'],
+                    ],
+                ],
+                'contact' => [
+                    'campus_name' => 'PUP Taguig',
+                    'campus_sub' => 'Branch Campus',
+                    'address' => 'Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila',
+                    'tag' => 'Get in Touch',
+                    'title' => 'Want more information?',
+                    'description' => 'Contact PUP Taguig Branch today and our admissions team will be happy to assist you.',
+                    'rows' => [
+                        ['label' => 'Telephone', 'value' => '(63 2) 837-5858', 'href' => 'tel:+6328375858', 'tone' => 'maroon'],
+                        ['label' => 'Telephone', 'value' => '(63 2) 837-5859', 'href' => 'tel:+6328375859', 'tone' => 'maroon'],
+                        ['label' => 'Email', 'value' => 'taguig@pup.edu.ph', 'href' => 'mailto:taguig@pup.edu.ph', 'tone' => 'gold'],
+                    ],
+                    'cta_label' => 'Send Us a Message',
+                    'cta_href' => 'mailto:taguig@pup.edu.ph',
+                ],
+            ],
+            'pup-iapply' => [
+                'hero' => [
+                    'tag' => 'Admissions',
+                    'title' => 'PUP iApply',
+                    'subtitle' => 'CAEPUP - College Admission Evaluation of PUP',
+                    'body' => "PUP iApply (formerly PUPCET iApply), a Web-based Registration System, streamlines the University's ability to develop, deploy, and operate a massive admission process in a more efficient method, lower its costs of operation, and deliver a more efficient and reliable ICT-enabled system that effectively works for the community.",
+                    'list_title' => 'System Benefits',
+                    'list_items' => [
+                        'Apply anytime at their convenience;',
+                        'Save on cumulative expenses;',
+                        'Save on time and energy; and',
+                        'Verify status of application anytime.',
+                    ],
+                    'image' => '',
+                    'visual_title' => 'Ready to Apply?',
+                    'visual_body' => 'Enable applicants to register for University college admission evaluation and entrance exams online.',
+                    'cta_label' => 'Apply Now ↗',
+                    'cta_href' => '#',
+                ],
+                'schedule' => [
+                    'tag' => 'Schedule & Key Dates',
+                    'title' => 'Branch Campus - Taguig City',
+                    'items' => [
+                        ['label' => 'Online Application', 'value' => 'January 27, 2022 - May 30, 2022', 'href' => ''],
+                        ['label' => 'Last Day of Issuance', 'value' => 'June 15, 2022', 'href' => ''],
+                        ['label' => 'Evaluation Result', 'value' => 'June 15, 2022', 'href' => ''],
+                        ['label' => 'Criteria', 'value' => 'View on Google Drive ↗', 'href' => '#'],
+                    ],
+                ],
+                'guide' => [
+                    'tag' => 'How to Apply',
+                    'title' => 'Step-by-step CAEPUP Application Guide',
+                    'description' => 'Online application for the College Admission Evaluation of PUP #CAEPUP for the First Semester, Academic Year 2022-2023.',
+                    'video_url' => 'https://www.youtube.com/embed/A7Ed_9_nB50',
+                ],
+                'reminders' => [
+                    'tag' => 'Before You Apply',
+                    'title' => 'Important - Please Read Carefully',
+                    'notice_title' => 'Reminders',
+                    'notice_items' => [
+                        'Once your online application is finalized, no more editing of application.',
+                        'Multiple accounts and multiple applications are grounds for disqualification.',
+                        'Wrong entry of information and grades are grounds for disqualification.',
+                    ],
+                    'body_html' => '<p><strong>Note:</strong> For general admission requirements, please read the Specific Academic Program Criteria.</p><p>Before you apply online, please make sure that you have the following files on your device or USB drive <em>(each file size must not be more than 300 kilobytes / KB)</em>:</p>',
+                    'checklist_items' => [
+                        "Applicant's photo (JPEG file - read photo guidelines)",
+                        'Grades in English, Math, Science and General Weighted Average (GWA) in Grade 10; and Grades in all subjects in Grade 11 and GWA in Grade 11.',
+                        'Scanned Grade 10 Report Card (JPEG file)',
+                        'Scanned Grade 11 Report Card (JPEG file)',
+                        'Report Cards must clearly show your complete name, LRN, grades in English, Math, Science and GWA.',
+                    ],
+                ],
+            ],
+            'university-calendar' => [
+                'hero' => [
+                    'tag' => 'PUP Taguig Branch',
+                    'title' => 'University Calendar',
+                    'subtitle' => 'Academic Year 2024-2025',
+                    'body' => "Stay on top of your academic journey with PUP Taguig's official university calendar. Find important dates including enrollment periods, class schedules, holidays, examinations, and university-wide events.",
+                    'list_title' => 'Key Dates Include',
+                    'list_items' => [
+                        'Enrollment & Registration periods',
+                        'Start and end of classes',
+                        'Midterm & Final examination schedules',
+                        'Regular & special holidays',
+                        'University events & activities',
+                    ],
+                    'image' => 'assets/static_img/campus_photo.jpg',
+                ],
+                'info' => [
+                    'tag' => 'At a Glance',
+                    'title' => 'Academic Year 2024-2025',
+                    'items' => [
+                        ['label' => '1st Semester', 'value' => 'August - December 2024', 'href' => ''],
+                        ['label' => '2nd Semester', 'value' => 'January - May 2025', 'href' => ''],
+                        ['label' => 'Summer', 'value' => 'June - July 2025', 'href' => ''],
+                        ['label' => 'Issued By', 'value' => 'Office of the University Registrar', 'href' => ''],
+                        ['label' => 'Official Source', 'value' => 'pup.edu.ph →', 'href' => 'https://www.pup.edu.ph'],
+                    ],
+                ],
+                'calendar' => [
+                    'tag' => 'Official Calendar',
+                    'title' => 'University Academic Calendar',
+                    'pdf_url' => 'assets/static_img/university_calendar.pdf',
+                    'note' => 'If the embedded preview does not load on your browser or device, open the PDF directly in a new tab or download it below.',
+                    'actions' => [
+                        ['label' => 'Open PDF in New Tab', 'href' => 'assets/static_img/university_calendar.pdf', 'style' => 'outline', 'download' => false],
+                        ['label' => 'Download Calendar', 'href' => 'assets/static_img/university_calendar.pdf', 'style' => 'primary', 'download' => true],
+                        ['label' => 'View on PUP Website', 'href' => 'https://www.pup.edu.ph', 'style' => 'outline', 'download' => false],
+                    ],
+                ],
+            ],
+        ],
     ];
 
     public static function defaults(): array
@@ -151,6 +397,11 @@ class AcademicsCmsContent
                 is_array($source['features'] ?? null) ? $source['features'] : [],
                 is_array($base['features'] ?? null) ? $base['features'] : $defaults['features'],
                 $defaults['features']
+            ),
+            'pages' => self::normalizePages(
+                is_array($source['pages'] ?? null) ? $source['pages'] : [],
+                is_array($base['pages'] ?? null) ? $base['pages'] : $defaults['pages'],
+                $defaults['pages']
             ),
         ];
     }
@@ -290,6 +541,69 @@ class AcademicsCmsContent
         }
 
         return $items;
+    }
+
+    private static function normalizePages(array $source, array $base, array $defaults): array
+    {
+        $pages = [];
+
+        foreach ($defaults as $pageKey => $pageDefaults) {
+            $sourcePage = is_array($source[$pageKey] ?? null) ? $source[$pageKey] : [];
+            $basePage = is_array($base[$pageKey] ?? null) ? $base[$pageKey] : $pageDefaults;
+            $pages[$pageKey] = self::mergePageTree($sourcePage, $basePage, $pageDefaults);
+        }
+
+        return $pages;
+    }
+
+    private static function mergePageTree(mixed $source, mixed $base, mixed $defaults): mixed
+    {
+        if (!is_array($defaults)) {
+            if (is_bool($defaults)) {
+                if ($source !== null && $source !== '') {
+                    return filter_var($source, FILTER_VALIDATE_BOOL, FILTER_NULL_ON_FAILURE) ?? $defaults;
+                }
+
+                return is_bool($base) ? $base : $defaults;
+            }
+
+            $candidate = $source;
+            if ($candidate === null || (is_string($candidate) && trim($candidate) === '')) {
+                $candidate = $base;
+            }
+            if ($candidate === null || (is_string($candidate) && trim($candidate) === '')) {
+                $candidate = $defaults;
+            }
+
+            return is_string($candidate) ? trim($candidate) : (string) $candidate;
+        }
+
+        $sourceArray = is_array($source) ? $source : [];
+        $baseArray = is_array($base) ? $base : [];
+
+        if (array_is_list($defaults)) {
+            $itemsSource = $sourceArray !== [] ? $sourceArray : ($baseArray !== [] ? $baseArray : $defaults);
+            $items = [];
+
+            foreach (array_values($itemsSource) as $index => $item) {
+                $defaultItem = $defaults[$index] ?? ($defaults[0] ?? []);
+                $baseItem = $baseArray[$index] ?? $defaultItem;
+                $items[] = self::mergePageTree($item, $baseItem, $defaultItem);
+            }
+
+            return $items;
+        }
+
+        $merged = [];
+        foreach ($defaults as $key => $defaultValue) {
+            $merged[$key] = self::mergePageTree(
+                $sourceArray[$key] ?? null,
+                $baseArray[$key] ?? null,
+                $defaultValue
+            );
+        }
+
+        return $merged;
     }
 
     private static function pickString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string

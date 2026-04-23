@@ -11,6 +11,14 @@
     $requestId = (int) ($academicsEditorRequestId ?? 0);
     $status = strtolower((string) ($academicsEditorStatus ?? ''));
     $idPrefix = trim((string) ($academicsEditorIdPrefix ?? 'academics-editor'));
+    $academicsPreviewNav = [
+        'overview' => 'Overview',
+        'degree-programs' => 'Degree Programs',
+        'diploma-programs' => 'Diploma Programs',
+        'graduate-programs' => 'Graduate Programs',
+        'pup-iapply' => 'PUP iApply',
+        'university-calendar' => 'University Calendar',
+    ];
     $submitLabel = static function (string $sectionLabel) use ($submitMode, $status): string {
         if ($submitMode === 'request') {
             return $status === 'pending'
@@ -24,6 +32,19 @@
 
 <div class="academics-cms-workspace">
     <div class="academics-cms-preview-shell">
+        <div class="academics-cms-preview-nav" role="tablist" aria-label="Academics preview sections">
+            @foreach($academicsPreviewNav as $routeKey => $routeLabel)
+                <button
+                    type="button"
+                    class="academics-cms-preview-nav-btn{{ $routeKey === 'overview' ? ' is-active' : '' }}"
+                    data-academics-preview-page="{{ $routeKey }}"
+                    role="tab"
+                    aria-selected="{{ $routeKey === 'overview' ? 'true' : 'false' }}"
+                >
+                    {{ $routeLabel }}
+                </button>
+            @endforeach
+        </div>
         <div class="academics-cms-preview-frame-shell">
             <div class="academics-cms-preview-stage">
                 <div class="academics-cms-preview-canvas">
@@ -119,35 +140,59 @@
             </section>
 
             <section class="academics-cms-editor-panel" data-academics-editor-panel="contents" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-academics-contents-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="academics">
-                    <input type="hidden" name="section_key" value="contents">
-                    <input type="hidden" name="academics_contents_version" value="0" data-academics-contents-version>
-                    <input type="hidden" name="academics_active_contents_index" value="" data-academics-active-contents-index>
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
+                <div data-academics-contents-section-shell>
+                    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                        @csrf
+                        <input type="hidden" name="tab_key" value="academics">
+                        <input type="hidden" name="section_key" value="contents">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
 
-                    <div class="form-group" data-academics-card-panel-meta>
-                        <label>Section Tag</label>
-                        <input type="text" name="academics[contents][tag]" maxlength="80" value="{{ $contentsEditor['tag'] ?? '' }}">
-                    </div>
+                        <div class="form-group" data-academics-card-panel-meta>
+                            <label>Section Tag</label>
+                            <input type="text" name="academics[contents][tag]" maxlength="80" value="{{ $contentsEditor['tag'] ?? '' }}">
+                        </div>
 
-                    <div class="academics-cms-card-stack" data-academics-contents-stack>
                         @foreach(($contentsEditor['items'] ?? []) as $index => $item)
-                            @php
-                                $itemInputId = $idPrefix.'-academics-card-image-'.$index;
-                                $itemPreview = \App\Support\NewsImage::url($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                            @endphp
-                            <article class="academics-cms-card-editor" data-academics-contents-editor data-academics-contents-index="{{ $index }}">
-                                <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                                    <h4>Contents Card {{ $loop->iteration }}</h4>
-                                    <span>{{ $item['route'] ?? '' }}</span>
-                                </div>
+                            <input type="hidden" name="academics[contents][items][{{ $index }}][route]" value="{{ $item['route'] ?? '' }}">
+                            <input type="hidden" name="academics[contents][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}">
+                            <input type="hidden" name="academics[contents][items][{{ $index }}][label]" value="{{ $item['label'] ?? '' }}">
+                            <input type="hidden" name="academics[contents][items][{{ $index }}][summary]" value="{{ $item['summary'] ?? '' }}">
+                        @endforeach
 
-                                <input type="hidden" name="academics[contents][items][{{ $index }}][route]" value="{{ $item['route'] ?? '' }}">
-                                <input type="hidden" name="academics[contents][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-academics-image-field>
+                        <div class="academics-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">{{ $submitLabel('Academics Contents') }}</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div data-academics-contents-card-shell>
+                    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-academics-contents-form data-academics-card-form="contents">
+                        @csrf
+                        <input type="hidden" name="tab_key" value="academics">
+                        <input type="hidden" name="section_key" value="contents">
+                        <input type="hidden" name="academics_contents_version" value="0" data-academics-contents-version data-academics-card-version>
+                        <input type="hidden" name="academics_active_contents_index" value="" data-academics-active-contents-index data-academics-card-active-index>
+                        <input type="hidden" name="academics[contents][tag]" value="{{ $contentsEditor['tag'] ?? '' }}">
+                        @if($requestId > 0)
+                            <input type="hidden" name="request_id" value="{{ $requestId }}">
+                        @endif
+
+                        <div class="academics-cms-card-stack" data-academics-contents-stack data-academics-card-stack="contents">
+                            @foreach(($contentsEditor['items'] ?? []) as $index => $item)
+                                @php
+                                    $itemInputId = $idPrefix.'-academics-card-image-'.$index;
+                                    $itemPreview = \App\Support\NewsImage::url($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                @endphp
+                                <article class="academics-cms-card-editor" data-academics-contents-editor data-academics-contents-index="{{ $index }}" data-academics-page-card-editor="contents" data-academics-page-card-index="{{ $index }}">
+                                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
+                                        <h4>Contents Card {{ $loop->iteration }}</h4>
+                                        <span>{{ $item['route'] ?? '' }}</span>
+                                    </div>
+
+                                    <input type="hidden" name="academics[contents][items][{{ $index }}][route]" value="{{ $item['route'] ?? '' }}">
+                                    <input type="hidden" name="academics[contents][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-academics-image-field>
 
                                     <div class="form-group">
                                         <label>Upload Card Image</label>
@@ -182,37 +227,38 @@
                                         <input
                                             id="{{ $itemInputId }}"
                                             class="academics-cms-image-dropzone-input"
-                                        type="file"
+                                            type="file"
                                             name="academics[contents][items][{{ $index }}][image_file]"
                                             accept="image/*"
                                         >
                                     </div>
 
-                                <div class="form-group">
-                                    <label>Title</label>
-                                    <input type="text" name="academics[contents][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
-                                </div>
-
-                                <div class="form-group">
-                                    <label>Description</label>
-                                    <div class="academics-cms-textarea-field" data-academics-char-limit="100">
-                                        <textarea
-                                            name="academics[contents][items][{{ $index }}][summary]"
-                                            rows="4"
-                                            maxlength="100"
-                                            data-academics-char-input
-                                        >{{ $item['summary'] ?? '' }}</textarea>
-                                        <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/100</div>
+                                    <div class="form-group">
+                                        <label>Title</label>
+                                        <input type="text" name="academics[contents][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
                                     </div>
-                                </div>
-                            </article>
-                        @endforeach
-                    </div>
 
-                    <div class="academics-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Academics Contents') }}</button>
-                    </div>
-                </form>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <div class="academics-cms-textarea-field" data-academics-char-limit="100">
+                                            <textarea
+                                                name="academics[contents][items][{{ $index }}][summary]"
+                                                rows="4"
+                                                maxlength="100"
+                                                data-academics-char-input
+                                            >{{ $item['summary'] ?? '' }}</textarea>
+                                            <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/100</div>
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
+
+                        <div class="academics-cms-modal-footer">
+                            <button type="submit" class="btn btn-primary">{{ $submitLabel('Academics Content Card') }}</button>
+                        </div>
+                    </form>
+                </div>
             </section>
 
             <section class="academics-cms-editor-panel" data-academics-editor-panel="intro" hidden>
@@ -284,12 +330,12 @@
                 </div>
 
                 <div data-academics-features-card-shell>
-                    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-features-form>
+                    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-features-form data-academics-card-form="features">
                         @csrf
                         <input type="hidden" name="tab_key" value="academics">
                         <input type="hidden" name="section_key" value="features">
-                        <input type="hidden" name="academics_features_version" value="0" data-academics-features-version>
-                        <input type="hidden" name="academics_active_feature_index" value="" data-academics-active-feature-index>
+                        <input type="hidden" name="academics_features_version" value="0" data-academics-features-version data-academics-card-version>
+                        <input type="hidden" name="academics_active_feature_index" value="" data-academics-active-feature-index data-academics-card-active-index>
                         <input type="hidden" name="academics[features][tag]" value="{{ $featuresEditor['tag'] ?? ($featuresEditor['eyebrow'] ?? '') }}">
                         <input type="hidden" name="academics[features][title]" value="{{ $featuresEditor['title'] ?? '' }}">
                         <input type="hidden" name="academics[features][description]" value="{{ $featuresEditor['description'] ?? '' }}">
@@ -297,9 +343,9 @@
                             <input type="hidden" name="request_id" value="{{ $requestId }}">
                         @endif
 
-                        <div class="academics-cms-card-stack" data-academics-features-stack>
+                        <div class="academics-cms-card-stack" data-academics-features-stack data-academics-card-stack="features">
                             @foreach(($featuresEditor['items'] ?? []) as $index => $item)
-                                <article class="academics-cms-card-editor" data-academics-feature-editor data-academics-feature-index="{{ $index }}">
+                                <article class="academics-cms-card-editor" data-academics-feature-editor data-academics-feature-index="{{ $index }}" data-academics-page-card-editor="features" data-academics-page-card-index="{{ $index }}">
                                     <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
                                         <h4>Feature Card {{ $loop->iteration }}</h4>
                                         <span>{{ !empty($item['wide']) ? 'Wide card' : 'Standard card' }}</span>
@@ -332,12 +378,14 @@
                     </form>
                 </div>
             </section>
+
+            @include('partials.academics_linked_pages_editor_panels')
         </div>
     </div>
 </div>
 
-<script type="application/json" data-academics-preview-json>
-{!! json_encode($academicsPreviewHtml, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+<script type="application/json" data-academics-preview-pages>
+{!! json_encode(($academicsPreviewPages ?? ['overview' => ($academicsPreviewHtml ?? '')]), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
 </script>
 
 @include('partials.rich_text_editor_assets')
@@ -360,6 +408,37 @@
         border-radius: 0;
         background: transparent;
         box-shadow: none;
+    }
+
+    .academics-cms-preview-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-content: flex-start;
+        margin-bottom: 18px;
+    }
+
+    .academics-cms-preview-nav-btn {
+        border: 1px solid #d7c5bd;
+        background: #fff8f5;
+        color: #5c0000;
+        border-radius: 999px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .academics-cms-preview-nav-btn:hover,
+    .academics-cms-preview-nav-btn:focus-visible {
+        outline: none;
+    }
+
+    .academics-cms-preview-nav-btn.is-active {
+        background: #800000;
+        border-color: #800000;
+        color: #fff;
     }
 
     .academics-cms-preview-frame-shell {
@@ -717,15 +796,21 @@
         margin-top: 18px;
     }
 
-    [data-academics-features-card-shell] {
+    [data-academics-contents-card-shell],
+    [data-academics-features-card-shell],
+    [data-academics-page-card-item-shell] {
         display: none;
     }
 
-    .academics-cms-editor-panel.is-card-focus [data-academics-features-section-shell] {
+    .academics-cms-editor-panel.is-card-focus [data-academics-contents-section-shell],
+    .academics-cms-editor-panel.is-card-focus [data-academics-features-section-shell],
+    .academics-cms-editor-panel.is-card-focus [data-academics-page-card-section-shell] {
         display: none;
     }
 
-    .academics-cms-editor-panel.is-card-focus [data-academics-features-card-shell] {
+    .academics-cms-editor-panel.is-card-focus [data-academics-contents-card-shell],
+    .academics-cms-editor-panel.is-card-focus [data-academics-features-card-shell],
+    .academics-cms-editor-panel.is-card-focus [data-academics-page-card-item-shell] {
         display: block;
     }
 
@@ -829,6 +914,28 @@
 
         const ACADEMICS_PREVIEW_MIN_LOADING_MS = 1500;
         let academicsPreviewFitFrame = null;
+        let currentAcademicsPreviewRoute = 'overview';
+
+        function getAcademicsPreviewPayloads() {
+            const el = document.querySelector('[data-academics-preview-pages]');
+            if (!el) {
+                return {};
+            }
+
+            try {
+                return JSON.parse(el.textContent || '{}');
+            } catch (_) {
+                return {};
+            }
+        }
+
+        function syncAcademicsPreviewNav(routeKey) {
+            document.querySelectorAll('[data-academics-preview-page]').forEach((button) => {
+                const isActive = (button.getAttribute('data-academics-preview-page') || '') === routeKey;
+                button.classList.toggle('is-active', isActive);
+                button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+        }
 
         function syncEditorsInScope(scope) {
             if (typeof window.syncRichTextEditors === 'function') {
@@ -1101,12 +1208,14 @@
         }
 
         function loadAcademicsPreview(frame, options = {}) {
-            const payloads = document.querySelectorAll('[data-academics-preview-json]');
-            const frameIndex = Array.from(document.querySelectorAll('[data-academics-preview-frame]')).indexOf(frame);
-            const payload = payloads[frameIndex] || payloads[0];
+            const payloads = getAcademicsPreviewPayloads();
+            const targetKey = options.routeKey && payloads[options.routeKey]
+                ? options.routeKey
+                : currentAcademicsPreviewRoute;
+            const shouldForceReload = options.forceReload === true;
             const explicitSessionId = options.sessionId;
 
-            if (!payload || !frame) {
+            if (!frame) {
                 return;
             }
 
@@ -1114,10 +1223,18 @@
                 frame.__academicsPreviewLoadingSession = Number(explicitSessionId) - 1;
             }
 
+            if (!shouldForceReload && currentAcademicsPreviewRoute === targetKey && (typeof window.hasCmsPreviewFrameContent === 'function' ? window.hasCmsPreviewFrameContent(frame) : !!frame.srcdoc)) {
+                setAcademicsPreviewLoading(frame, true);
+                queueAcademicsPreviewSettledSync(frame);
+                return;
+            }
+
+            currentAcademicsPreviewRoute = targetKey;
+            syncAcademicsPreviewNav(targetKey);
             setAcademicsPreviewLoading(frame, true);
+            const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
 
             try {
-                const previewHtml = JSON.parse(payload.textContent || '""');
                 if (typeof window.applyCmsPreviewFrameContent === 'function') {
                     window.applyCmsPreviewFrameContent(frame, previewHtml);
                 } else {
@@ -1144,14 +1261,29 @@
             });
         }
 
-        const contentsForm = document.querySelector('[data-academics-contents-form]');
-        const contentsStack = contentsForm?.querySelector('[data-academics-contents-stack]');
-        const contentsVersionInput = contentsForm?.querySelector('[data-academics-contents-version]');
-        const activeContentsIndexInput = contentsForm?.querySelector('[data-academics-active-contents-index]');
-        const featuresForm = document.querySelector('[data-academics-features-form]');
-        const featuresStack = featuresForm?.querySelector('[data-academics-features-stack]');
-        const featuresVersionInput = featuresForm?.querySelector('[data-academics-features-version]');
-        const activeFeatureIndexInput = featuresForm?.querySelector('[data-academics-active-feature-index]');
+        const getCardEditorCollections = () => {
+            const collections = {};
+
+            document.querySelectorAll('[data-academics-card-form]').forEach((form) => {
+                const sectionKey = form.getAttribute('data-academics-card-form') || '';
+                if (!sectionKey) {
+                    return;
+                }
+
+                collections[sectionKey] = {
+                    form,
+                    stack: form.querySelector(`[data-academics-card-stack="${sectionKey}"]`),
+                    versionInput: form.querySelector('[data-academics-card-version]'),
+                    hiddenInput: form.querySelector('[data-academics-card-active-index]'),
+                    selector: `[data-academics-page-card-editor="${sectionKey}"]`,
+                    indexAttribute: 'data-academics-page-card-index',
+                };
+            });
+
+            return collections;
+        };
+
+        const cardEditorCollections = getCardEditorCollections();
 
         function bumpEditorVersion(input) {
             if (input) {
@@ -1207,7 +1339,11 @@
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
-                    : (input.closest('[data-academics-contents-editor]')?.querySelector('[data-academics-image-field]') || null);
+                    : (
+                        input.closest('[data-academics-page-card-editor]')?.querySelector('[data-academics-image-field]')
+                        || input.closest('[data-academics-contents-editor]')?.querySelector('[data-academics-image-field]')
+                        || null
+                    );
 
                 if (!label || !fileNameEl) {
                     return;
@@ -1400,13 +1536,12 @@
         }
 
         async function confirmDeleteAcademicsCard(type, targetIndex) {
-            const isContents = type === 'contents';
-            const stack = isContents ? contentsStack : featuresStack;
-            const selector = isContents ? '[data-academics-contents-editor]' : '[data-academics-feature-editor]';
-            const indexAttribute = isContents ? 'data-academics-contents-index' : 'data-academics-feature-index';
-            const versionInput = isContents ? contentsVersionInput : featuresVersionInput;
-            const hiddenInput = isContents ? activeContentsIndexInput : activeFeatureIndexInput;
-            const form = isContents ? contentsForm : featuresForm;
+            const collection = cardEditorCollections[type];
+            if (!collection) {
+                return;
+            }
+
+            const { stack, selector, indexAttribute, versionInput, hiddenInput, form } = collection;
             const editor = stack?.querySelector(`${selector}[${indexAttribute}="${targetIndex}"]`);
 
             if (!editor) {
@@ -1457,7 +1592,8 @@
             modal.querySelectorAll('[data-academics-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-academics-editor-panel') === sectionKey;
                 const hasCardTarget = options.cardIndex !== null && options.cardIndex !== undefined && options.cardIndex !== '';
-                const isCardFocus = (sectionKey === 'contents' || sectionKey === 'features') && hasCardTarget;
+                const cardCollection = cardEditorCollections[sectionKey] || null;
+                const isCardFocus = Boolean(cardCollection && hasCardTarget);
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -1472,20 +1608,12 @@
                     }
 
                     let activeCardEditor = null;
-                    if (sectionKey === 'contents') {
+                    if (cardCollection) {
                         activeCardEditor = setActiveEditor(
-                            contentsStack,
-                            '[data-academics-contents-editor]',
-                            'data-academics-contents-index',
-                            activeContentsIndexInput,
-                            options.cardIndex ?? null
-                        );
-                    } else if (sectionKey === 'features') {
-                        activeCardEditor = setActiveEditor(
-                            featuresStack,
-                            '[data-academics-feature-editor]',
-                            'data-academics-feature-index',
-                            activeFeatureIndexInput,
+                            cardCollection.stack,
+                            cardCollection.selector,
+                            cardCollection.indexAttribute,
+                            cardCollection.hiddenInput,
                             options.cardIndex ?? null
                         );
                     }
@@ -1545,6 +1673,18 @@
                 }
 
                 syncAcademicsPreviewHeight(targetFrame, data.height);
+                return;
+            }
+
+            if (data.type === 'cms-academics-preview-route') {
+                const frame = document.querySelector('[data-academics-preview-frame]');
+                if (!frame) {
+                    return;
+                }
+
+                loadAcademicsPreview(frame, {
+                    routeKey: data.route || 'overview',
+                });
             }
         });
 
@@ -1552,6 +1692,20 @@
             if (event.target.closest('[data-close-academics-editor]')) {
                 event.preventDefault();
                 closeAcademicsEditor();
+                return;
+            }
+
+            const previewButton = event.target.closest('[data-academics-preview-page]');
+            if (previewButton) {
+                event.preventDefault();
+                const frame = document.querySelector('[data-academics-preview-frame]');
+                if (!frame) {
+                    return;
+                }
+
+                loadAcademicsPreview(frame, {
+                    routeKey: previewButton.getAttribute('data-academics-preview-page') || 'overview',
+                });
             }
         });
 
@@ -1614,7 +1768,11 @@
                     return;
                 }
 
-                loadAcademicsPreview(frame, { sessionId });
+                loadAcademicsPreview(frame, {
+                    sessionId,
+                    routeKey: currentAcademicsPreviewRoute,
+                    forceReload: true,
+                });
                 window.setTimeout(() => scheduleFitAllAcademicsPreviews(), 40);
                 window.setTimeout(() => scheduleFitAllAcademicsPreviews(), 180);
             });
@@ -1631,17 +1789,25 @@
                 : Array.from(document.querySelectorAll('[data-academics-preview-frame]'));
 
             frames.forEach((frame) => {
-                loadAcademicsPreview(frame);
+                loadAcademicsPreview(frame, {
+                    routeKey: currentAcademicsPreviewRoute,
+                    forceReload: true,
+                });
             });
         };
 
         scheduleFitAllAcademicsPreviews();
-        setActiveEditor(contentsStack, '[data-academics-contents-editor]', 'data-academics-contents-index', activeContentsIndexInput);
-        setActiveEditor(featuresStack, '[data-academics-feature-editor]', 'data-academics-feature-index', activeFeatureIndexInput);
+        syncAcademicsPreviewNav(currentAcademicsPreviewRoute);
+        Object.values(cardEditorCollections).forEach((collection) => {
+            setActiveEditor(collection.stack, collection.selector, collection.indexAttribute, collection.hiddenInput);
+            bindAcademicsDirtyTracking(
+                collection.form,
+                collection.versionInput,
+                `academicsCardDirtyTrackingBound${collection.form.getAttribute('data-academics-card-form') || ''}`
+            );
+        });
         initAcademicsImageDropzones(document);
         initAcademicsCharCounters(document);
-        bindAcademicsDirtyTracking(contentsForm, contentsVersionInput, 'academicsContentsDirtyTrackingBound');
-        bindAcademicsDirtyTracking(featuresForm, featuresVersionInput, 'academicsFeaturesDirtyTrackingBound');
         window.__academicsCmsPreviewEditorReady = true;
     })();
 </script>

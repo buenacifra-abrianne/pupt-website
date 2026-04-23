@@ -9,7 +9,10 @@ class StudentsCmsContent
             'eyebrow' => 'Student Services',
             'title' => 'Students',
             'description' => '',
-            'hero_image' => 'assets/static_img/about_header_image.png',
+            'contents_tag' => 'Contents',
+            'contents_title' => 'Student Services',
+            'contents_description' => '',
+            'hero_image' => 'assets/static_img/about_heser_image.png',
         ],
         'cards' => [
             [
@@ -161,10 +164,15 @@ class StudentsCmsContent
     public static function fromCardsInput(mixed $cardsInput, ?string $fallbackStored = null): array
     {
         $base = self::fromStored($fallbackStored);
+        $source = is_array($cardsInput) ? $cardsInput : [];
+        $pageInput = is_array($source['page'] ?? null) ? $source['page'] : ($base['page'] ?? self::defaults()['page']);
+        $normalizedCardsInput = array_key_exists('cards', $source)
+            ? ($source['cards'] ?? [])
+            : $source;
 
         return self::normalize([
-            'page' => $base['page'] ?? self::defaults()['page'],
-            'cards' => is_array($cardsInput) ? $cardsInput : [],
+            'page' => is_array($pageInput) ? $pageInput : ($base['page'] ?? self::defaults()['page']),
+            'cards' => is_array($normalizedCardsInput) ? $normalizedCardsInput : [],
             'organization_sections' => $base['organization_sections'] ?? self::defaults()['organization_sections'],
         ], $base);
     }
@@ -226,6 +234,9 @@ class StudentsCmsContent
             'eyebrow' => self::pickString($source, $base, $defaults, 'eyebrow', 120),
             'title' => self::pickString($source, $base, $defaults, 'title'),
             'description' => self::pickString($source, $base, $defaults, 'description', 5000),
+            'contents_tag' => self::pickString($source, $base, $defaults, 'contents_tag', 120),
+            'contents_title' => self::pickString($source, $base, $defaults, 'contents_title'),
+            'contents_description' => self::pickString($source, $base, $defaults, 'contents_description', 5000),
             'hero_image' => self::pickOptionalString($source, $base, $defaults, 'hero_image', 2048),
         ];
     }

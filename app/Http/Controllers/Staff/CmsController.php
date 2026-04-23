@@ -157,6 +157,83 @@ class CmsController extends Controller
             'academics.features.items' => ['nullable', 'array'],
             'academics.features.items.*.title' => ['nullable', 'string', 'max:255'],
             'academics.features.items.*.body' => ['nullable', 'string'],
+            'academics.pages' => ['nullable', 'array'],
+            'academics.pages.*.hero' => ['nullable', 'array'],
+            'academics.pages.*.hero.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.hero.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.hero.subtitle' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.hero.body' => ['nullable', 'string'],
+            'academics.pages.*.hero.list_title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.hero.list_items' => ['nullable', 'array'],
+            'academics.pages.*.hero.list_items.*' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.hero.image' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.hero.image_file' => ['nullable', 'image', 'max:5120'],
+            'academics.pages.*.hero.visual_title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.hero.visual_body' => ['nullable', 'string'],
+            'academics.pages.*.hero.cta_label' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.hero.cta_href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.info' => ['nullable', 'array'],
+            'academics.pages.*.info.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.info.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.info.items' => ['nullable', 'array'],
+            'academics.pages.*.info.items.*.label' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.info.items.*.value' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.info.items.*.href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.cards' => ['nullable', 'array'],
+            'academics.pages.*.cards.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.cards.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.cards.items' => ['nullable', 'array'],
+            'academics.pages.*.cards.items.*.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.cards.items.*.body' => ['nullable', 'string'],
+            'academics.pages.*.cards.items.*.image' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.cards.items.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'academics.pages.*.cards.items.*.href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.cards.items.*.cta' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.contact' => ['nullable', 'array'],
+            'academics.pages.*.contact.campus_name' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.contact.campus_sub' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.contact.address' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.contact.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.contact.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.contact.description' => ['nullable', 'string'],
+            'academics.pages.*.contact.rows' => ['nullable', 'array'],
+            'academics.pages.*.contact.rows.*.label' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.contact.rows.*.value' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.contact.rows.*.href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.contact.rows.*.tone' => ['nullable', 'string', 'max:40'],
+            'academics.pages.*.contact.cta_label' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.contact.cta_href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.schedule' => ['nullable', 'array'],
+            'academics.pages.*.schedule.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.schedule.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.schedule.items' => ['nullable', 'array'],
+            'academics.pages.*.schedule.items.*.label' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.schedule.items.*.value' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.schedule.items.*.href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.guide' => ['nullable', 'array'],
+            'academics.pages.*.guide.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.guide.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.guide.description' => ['nullable', 'string'],
+            'academics.pages.*.guide.video_url' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.reminders' => ['nullable', 'array'],
+            'academics.pages.*.reminders.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.reminders.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.reminders.notice_title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.reminders.notice_items' => ['nullable', 'array'],
+            'academics.pages.*.reminders.notice_items.*' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.reminders.body_html' => ['nullable', 'string'],
+            'academics.pages.*.reminders.checklist_items' => ['nullable', 'array'],
+            'academics.pages.*.reminders.checklist_items.*' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.calendar' => ['nullable', 'array'],
+            'academics.pages.*.calendar.tag' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.calendar.title' => ['nullable', 'string', 'max:255'],
+            'academics.pages.*.calendar.pdf_url' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.calendar.note' => ['nullable', 'string'],
+            'academics.pages.*.calendar.actions' => ['nullable', 'array'],
+            'academics.pages.*.calendar.actions.*.label' => ['nullable', 'string', 'max:120'],
+            'academics.pages.*.calendar.actions.*.href' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.calendar.actions.*.style' => ['nullable', 'string', 'max:40'],
+            'academics.pages.*.calendar.actions.*.download' => ['nullable'],
             'research.page' => ['nullable', 'array'],
             'research.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'research.page.title' => ['nullable', 'string', 'max:255'],
@@ -399,6 +476,35 @@ class CmsController extends Controller
                 }
             }
 
+            foreach (['degree-programs', 'diploma-programs', 'graduate-programs', 'pup-iapply', 'university-calendar'] as $pageKey) {
+                if (($sectionKey === '' || $sectionKey === $pageKey.'-hero') && $request->exists("academics.pages.$pageKey.hero.image")) {
+                    $academicsInput['pages'][$pageKey]['hero']['image'] = (string) ($request->input("academics.pages.$pageKey.hero.image") ?? '');
+                }
+
+                $pageHeroUpload = $request->file("academics.pages.$pageKey.hero.image_file");
+                if (($sectionKey === '' || $sectionKey === $pageKey.'-hero') && $pageHeroUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($pageHeroUpload, 'academics/'.$pageKey.'/hero');
+                    if ($storedPath !== false) {
+                        $academicsInput['pages'][$pageKey]['hero']['image'] = $storedPath;
+                    }
+                }
+
+                $pageCardUploads = $request->file("academics.pages.$pageKey.cards.items", []);
+                if (($sectionKey === '' || $sectionKey === $pageKey.'-cards') && is_array($pageCardUploads)) {
+                    foreach ($pageCardUploads as $index => $itemUpload) {
+                        $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'academics/'.$pageKey.'/cards');
+                        if ($storedPath !== false) {
+                            $academicsInput['pages'][$pageKey]['cards']['items'][$index]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
             $content = AcademicsCmsContent::encode(
                 AcademicsCmsContent::fromInput($academicsInput, $baseAcademicsEncoded)
             );
@@ -463,7 +569,7 @@ class CmsController extends Controller
 
             $content = StudentsCmsContent::encode(
                 $sectionKey === 'cards'
-                    ? StudentsCmsContent::fromCardsInput($studentsInput['cards'] ?? [], $baseStudentsEncoded)
+                    ? StudentsCmsContent::fromCardsInput($studentsInput, $baseStudentsEncoded)
                     : ($sectionKey === 'organizations'
                         ? StudentsCmsContent::fromOrganizationsInput($studentsInput['organization_sections'] ?? [], $baseStudentsEncoded)
                         : StudentsCmsContent::fromInput($studentsInput, $baseStudentsEncoded))
@@ -966,6 +1072,7 @@ class CmsController extends Controller
             'contents' => $content['contents'] ?? [],
             'intro' => $content['intro'] ?? [],
             'features' => $content['features'] ?? [],
+            'pages' => $content['pages'] ?? [],
         ];
     }
 
@@ -1207,8 +1314,34 @@ class CmsController extends Controller
                         ->all(),
                 ],
             ],
+            'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
+            'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
+            'graduate-programs-hero', 'graduate-programs-info', 'graduate-programs-cards', 'graduate-programs-contact',
+            'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
+            'university-calendar-hero', 'university-calendar-info', 'university-calendar-calendar'
+                => $this->filterAcademicsPageSectionInput($academicsInput, $sectionKey),
             default => $academicsInput,
         };
+    }
+
+    private function filterAcademicsPageSectionInput(array $academicsInput, string $sectionKey): array
+    {
+        $matches = [];
+        if (!preg_match('/^(degree-programs|diploma-programs|graduate-programs|pup-iapply|university-calendar)\-(hero|info|cards|contact|schedule|guide|reminders|calendar)$/', $sectionKey, $matches)) {
+            return $academicsInput;
+        }
+
+        $pageKey = $matches[1];
+        $subSection = $matches[2];
+        $pageSection = data_get($academicsInput, 'pages.'.$pageKey.'.'.$subSection, []);
+
+        return [
+            'pages' => [
+                $pageKey => [
+                    $subSection => is_array($pageSection) ? $pageSection : [],
+                ],
+            ],
+        ];
     }
 
     private function filterStudentsInputBySection(array $studentsInput, string $sectionKey): array
@@ -1224,6 +1357,9 @@ class CmsController extends Controller
                     : [],
             ],
             'cards' => [
+                'page' => is_array($studentsInput['page'] ?? null)
+                    ? array_intersect_key($studentsInput['page'], array_flip(['contents_tag', 'contents_title', 'contents_description']))
+                    : [],
                 'cards' => collect(data_get($studentsInput, 'cards', []))
                     ->map(fn ($item) => is_array($item)
                         ? array_intersect_key($item, array_flip(['title', 'description', 'link', 'image']))
