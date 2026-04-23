@@ -655,6 +655,81 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   font-weight: 700;
 }
 
+.academic-intro-rich-copy {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.academic-intro-rich-copy p,
+.academic-intro-rich-copy div,
+.academic-intro-rich-copy li {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.academic-intro-rich-copy p,
+.academic-intro-rich-copy div {
+  margin: 0 0 0.45rem;
+}
+
+.academic-intro-rich-copy p:last-child,
+.academic-intro-rich-copy div:last-child {
+  margin-bottom: 0;
+}
+
+.academic-intro-rich-copy blockquote {
+  margin: 0.6rem 0;
+  padding: 0.15rem 0 0.15rem 1rem;
+  border-left: 3px solid rgba(127, 17, 19, 0.38);
+  color: inherit;
+  background: rgba(127, 17, 19, 0.04);
+  border-radius: 0 14px 14px 0;
+}
+
+.academic-intro-rich-copy blockquote > :first-child {
+  margin-top: 0;
+}
+
+.academic-intro-rich-copy blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+.academic-intro-rich-copy blockquote p,
+.academic-intro-rich-copy blockquote div,
+.academic-intro-rich-copy blockquote li,
+.academic-intro-rich-copy blockquote strong,
+.academic-intro-rich-copy blockquote b,
+.academic-intro-rich-copy blockquote span {
+  color: inherit;
+}
+
+.academic-intro-rich-copy ul,
+.academic-intro-rich-copy ol {
+  margin: 0.35rem 0 0.6rem;
+  padding-left: 1.65rem;
+}
+
+.academic-intro-rich-copy li {
+  margin: 0.15rem 0;
+}
+
+.academic-intro-rich-copy strong,
+.academic-intro-rich-copy b {
+  font-weight: 700;
+}
+
+.academic-intro-rich-copy strong:not([style*="color"]),
+.academic-intro-rich-copy b:not([style*="color"]) {
+  color: var(--maroon-deep);
+}
+
+.academic-intro-rich-copy span[style*="color"] strong:not([style*="color"]),
+.academic-intro-rich-copy span[style*="color"] b:not([style*="color"]) {
+  color: inherit;
+}
+
 .academic-features {
   margin-top: 0;
   padding: 40px var(--page-gutter);
@@ -669,6 +744,19 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .academic-features-inner {
   position: relative;
   z-index: 1;
+}
+
+.academic-features-heading {
+  margin: 6px 0 0;
+  color: var(--ink);
+  font-size: clamp(1.8rem, 3vw, 2.8rem);
+  line-height: 1.08;
+}
+
+.academic-features-description {
+  max-width: 760px;
+  margin: 12px 0 24px;
+  color: rgba(42, 22, 22, 0.86);
 }
 
 .academic-features-grid {

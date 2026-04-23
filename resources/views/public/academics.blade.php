@@ -109,7 +109,6 @@
                                 >
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
                                         <button type="button" class="cms-preview-card-action" data-academics-card-edit>Edit</button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-academics-card-delete>Delete</button>
                                     </div>
                             @else
                                 <a href="{{ route($item['route'] ?? 'public.academics') }}" class="contents-card card_without_section">
@@ -127,7 +126,7 @@
                                     <div class="contents-card-back">
                                         <div class="contents-card-overlay-copy">
                                             <h3>{{ $item['label'] ?? '' }}</h3>
-                                            <p>{{ \Illuminate\Support\Str::limit((string) ($item['summary'] ?? ''), 50) }}</p>
+                                            <p>{{ \Illuminate\Support\Str::limit((string) ($item['summary'] ?? ''), 100) }}</p>
                                         </div>
                                         <span class="contents-card-action">See more</span>
                                     </div>
@@ -180,9 +179,17 @@
                 </button>
             @endif
 
-            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div data-cms-boundary class="cms-preview-boundary-full">
                 <div class="academic-features-inner layout-inset">
-                    <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['eyebrow'] ?? 'What we offer' }}</p>
+                    <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['tag'] ?? ($featuresSection['eyebrow'] ?? 'What we offer') }}</p>
+                    @if(trim((string) ($featuresSection['title'] ?? '')) !== '')
+                        <h2 class="academic-features-heading">{{ $featuresSection['title'] }}</h2>
+                    @endif
+                    @if(trim((string) ($featuresSection['description'] ?? '')) !== '')
+                        <div class="academic-feature-copy academic-rich-copy academic-features-description">
+                            {!! \App\Support\RichText::sanitize($featuresSection['description'] ?? '') !!}
+                        </div>
+                    @endif
                     <div class="academic-features-grid">
                         @foreach($featureItems as $item)
                             <div
@@ -195,7 +202,6 @@
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
                                         <button type="button" class="cms-preview-card-action" data-academics-feature-edit>Edit</button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-academics-feature-delete>Delete</button>
                                     </div>
                                 @endif
                                 <div class="academic-feature-card-accent"></div>
@@ -360,7 +366,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: none !important;
+                display: inline-flex;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
