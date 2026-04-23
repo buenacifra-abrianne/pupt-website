@@ -98,195 +98,105 @@
                     <h2>Bachelor's Degree Programs</h2>
                 </div>
 
-                <div class="contents-cards reveal delay-100">
+                <div class="contents-cards dp-diploma-cards reveal delay-100">
 
                     {{-- 01 BSECE --}}
-                    <a href="#bsece" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Electronics Engineering" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Electronics Engineering</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Electronics Engineering</h3>
-                                    <p>BSECE — A rigorous program covering circuits, communications, and embedded systems. Graduates are equipped to sit for the ECE Licensure Examination.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsece" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSECE</span>
+                            <h3 class="dp-diploma-title">BS Electronics Engineering</h3>
+                            <p class="dp-diploma-desc">A rigorous program covering circuits, communications, and embedded systems. Graduates are equipped to sit for the ECE Licensure Examination.</p>
+                            <span class="dp-diploma-dept">College of Engineering</span>
                         </div>
                     </a>
 
                     {{-- 02 BSME --}}
-                    <a href="#bsme" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Mechanical Engineering" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Mechanical Engineering</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Mechanical Engineering</h3>
-                                    <p>BSME — Covers thermodynamics, fluid mechanics, and machine design. Prepares students for the Mechanical Engineering Licensure Exam.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsme" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSME</span>
+                            <h3 class="dp-diploma-title">BS Mechanical Engineering</h3>
+                            <p class="dp-diploma-desc">Covers thermodynamics, fluid mechanics, and machine design. Prepares students for the Mechanical Engineering Licensure Exam.</p>
+                            <span class="dp-diploma-dept">College of Engineering</span>
                         </div>
                     </a>
 
                     {{-- 03 BSA --}}
-                    <a href="#bsa" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Accountancy" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Accountancy</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Accountancy</h3>
-                                    <p>BSA — A comprehensive program in financial reporting, auditing, and taxation. Aligned with the CPA Licensure Examination competencies.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsa" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSA</span>
+                            <h3 class="dp-diploma-title">BS Accountancy</h3>
+                            <p class="dp-diploma-desc">A comprehensive program in financial reporting, auditing, and taxation. Aligned with the CPA Licensure Examination competencies.</p>
+                            <span class="dp-diploma-dept">College of Accountancy and Finance</span>
                         </div>
                     </a>
 
                     {{-- 04 BSBA --}}
-                    <a href="#bsba" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Business Administration" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Business Administration</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Business Administration</h3>
-                                    <p>BSBA — Offered with majors in <strong class="dp-card-major">Human Resource Development Management</strong> and <strong class="dp-card-major">Marketing Management</strong>.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsba" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSBA</span>
+                            <h3 class="dp-diploma-title">BS Business Administration</h3>
+                            <p class="dp-diploma-desc">Offered with majors in Human Resource Development Management and Marketing Management.</p>
+                            <span class="dp-diploma-dept">College of Business Administration</span>
                         </div>
                     </a>
 
                     {{-- 05 BSAM --}}
-                    <a href="#bsam" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Applied Mathematics" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Applied Mathematics</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Applied Mathematics</h3>
-                                    <p>BSAM — Develops strong analytical and problem-solving skills for careers in data science, finance, and research.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsam" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSAM</span>
+                            <h3 class="dp-diploma-title">BS Applied Mathematics</h3>
+                            <p class="dp-diploma-desc">Develops strong analytical and problem-solving skills for careers in data science, finance, and research.</p>
+                            <span class="dp-diploma-dept">College of Science</span>
                         </div>
                     </a>
 
                     {{-- 06 BSIT --}}
-                    <a href="#bsit" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Information Technology" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Information Technology</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Information Technology</h3>
-                                    <p>BSIT — Covers software development, networking, and database systems. Prepares students for the IT Licensure Examination.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsit" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSIT</span>
+                            <h3 class="dp-diploma-title">BS Information Technology</h3>
+                            <p class="dp-diploma-desc">Covers software development, networking, and database systems. Prepares students for the IT Licensure Examination.</p>
+                            <span class="dp-diploma-dept">College of Science</span>
                         </div>
                     </a>
 
                     {{-- 07 BSEntrep --}}
-                    <a href="#bsentrep" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Entrepreneurship" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Entrepreneurship</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Entrepreneurship</h3>
-                                    <p>BSENTREP — Equips students with the mindset and skills to launch and manage successful ventures in the Philippine and global market.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsentrep" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSEntrep</span>
+                            <h3 class="dp-diploma-title">BS Entrepreneurship</h3>
+                            <p class="dp-diploma-desc">Equips students with the mindset and skills to launch and manage successful ventures in the Philippine and global market.</p>
+                            <span class="dp-diploma-dept">College of Business Administration</span>
                         </div>
                     </a>
 
                     {{-- 08 BSED --}}
-                    <a href="#bsed" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Secondary Education" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>Bachelor in Secondary Education</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>Bachelor in Secondary Education</h3>
-                                    <p>BSED — Offered with majors in <strong class="dp-card-major">English</strong> and <strong class="dp-card-major">Mathematics</strong>. Aligned with the LET competency standards.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsed" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSED</span>
+                            <h3 class="dp-diploma-title">Bachelor in Secondary Education</h3>
+                            <p class="dp-diploma-desc">Offered with majors in English and Mathematics. Aligned with the LET competency standards.</p>
+                            <span class="dp-diploma-dept">College of Education</span>
                         </div>
                     </a>
 
                     {{-- 09 BSOA --}}
-                    <a href="#bsoa" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Office Administration" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Office Administration</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Office Administration</h3>
-                                    <p>BSOA — Trains students in records management, office systems, and administrative operations for both public and private sectors.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bsoa" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSOA</span>
+                            <h3 class="dp-diploma-title">BS Office Administration</h3>
+                            <p class="dp-diploma-desc">Trains students in records management, office systems, and administrative operations for both public and private sectors.</p>
+                            <span class="dp-diploma-dept">College of Office Administration and Business Education</span>
                         </div>
                     </a>
 
                     {{-- 10 BSPsy --}}
-                    <a href="#bspsy" class="contents-card card_without_section" tabindex="0">
-                        <div class="contents-card-inner">
-                            <div class="contents-card-front">
-                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Psychology" loading="lazy">
-                                <div class="contents-card-copy">
-                                    <h3>BS Psychology</h3>
-                                </div>
-                            </div>
-                            <div class="contents-card-back">
-                                <div class="contents-card-overlay-copy">
-                                    <h3>BS Psychology</h3>
-                                    <p>BSPSY — Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.</p>
-                                </div>
-                                <span class="contents-card-action">View Program</span>
-                            </div>
+                    <a href="#bspsy" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSPsy</span>
+                            <h3 class="dp-diploma-title">BS Psychology</h3>
+                            <p class="dp-diploma-desc">Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.</p>
+                            <span class="dp-diploma-dept">College of Social Sciences and Development</span>
                         </div>
                     </a>
 
@@ -294,95 +204,7 @@
             </div>{{-- /.contents-strip-inner --}}
         </div>{{-- /.contents-strip --}}
 
-
-        {{-- ── Contact Information Card ── --}}
-        <div class="dp-contact-wrap">
-            <div class="contact-info-card reveal">
-
-                {{-- Brand / photo panel --}}
-                <div class="dp-contact-photo-panel">
-                    <div class="dp-contact-logo-wrap">
-                        <img
-                            src="{{ asset('assets/static_img/logo.png') }}"
-                            alt="PUP Taguig Branch"
-                            class="dp-contact-logo-img"
-                            onerror="this.style.display='none'"
-                        >
-                    </div>
-                    <div class="dp-contact-branch-info">
-                        <p class="dp-contact-branch-name">PUP Taguig</p>
-                        <p class="dp-contact-branch-sub">Branch Campus</p>
-                    </div>
-                    <div class="dp-contact-divider"></div>
-                    <p class="dp-contact-address">
-                        Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila
-                    </p>
-                </div>
-
-                {{-- Contact details panel --}}
-                <div class="dp-contact-details-panel">
-
-                    <div class="dp-contact-intro">
-                        <span class="section-tag">Get in Touch</span>
-                        <h2 class="dp-contact-heading">Want more information?</h2>
-                        <p class="dp-contact-subtext">Contact PUP Taguig Branch today and our admissions team will be happy to assist you.</p>
-                    </div>
-
-                    <div class="dp-contact-rows">
-
-                        {{-- Phone 1 --}}
-                        <div class="dp-contact-row dp-contact-row--maroon">
-                            <div class="dp-contact-icon dp-contact-icon--maroon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fffaf4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13 1 .37 1.98.71 2.93a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l.96-.95a2 2 0 0 1 2.11-.45c.95.34 1.93.58 2.93.71A2 2 0 0 1 22 16.92z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="dp-contact-row-label">Telephone</span>
-                                <a href="tel:+6328375858" class="dp-contact-row-value">(63 2) 837-5858</a>
-                            </div>
-                        </div>
-
-                        {{-- Phone 2 --}}
-                        <div class="dp-contact-row dp-contact-row--maroon">
-                            <div class="dp-contact-icon dp-contact-icon--maroon">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fffaf4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13 1 .37 1.98.71 2.93a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l.96-.95a2 2 0 0 1 2.11-.45c.95.34 1.93.58 2.93.71A2 2 0 0 1 22 16.92z"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="dp-contact-row-label">Telephone</span>
-                                <a href="tel:+6328375859" class="dp-contact-row-value">(63 2) 837-5859</a>
-                            </div>
-                        </div>
-
-                        {{-- Email --}}
-                        <div class="dp-contact-row dp-contact-row--gold">
-                            <div class="dp-contact-icon dp-contact-icon--gold">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2d1606" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                                </svg>
-                            </div>
-                            <div>
-                                <span class="dp-contact-row-label">Email</span>
-                                <a href="mailto:taguig@pup.edu.ph" class="dp-contact-row-value">taguig@pup.edu.ph</a>
-                            </div>
-                        </div>
-
-                    </div>{{-- /.dp-contact-rows --}}
-
-                    <a href="mailto:taguig@pup.edu.ph" class="apply-now-btn dp-contact-cta">
-                        Send Us a Message
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                    </a>
-
-                </div>{{-- /.dp-contact-details-panel --}}
-            </div>{{-- /.contact-info-card --}}
-        </div>{{-- /.dp-contact-wrap --}}
-
     </main>
-
 
     <!-- Footer -->
     <pup-footer></pup-footer>
