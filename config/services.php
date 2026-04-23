@@ -41,6 +41,7 @@ return [
         'client_id' => env('IDP_CLIENT_ID'),
         'client_secret' => env('IDP_CLIENT_SECRET'),
         'api_key' => env('IDP_API_KEY'),
+        'logout_url' => env('IDP_LOGOUT_URL'),
     ],
 
     'oneportal' => [

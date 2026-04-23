@@ -28,12 +28,103 @@
     @endunless
 
     <main class="main-content">
+<<<<<<< HEAD
         @include('partials.academics_program_page', [
             'programPageKey' => 'graduate-programs',
             'programPageTitle' => 'Graduate Programs',
             'pageData' => $pageData,
             'cmsPreview' => $cmsPreview,
         ])
+=======
+
+        {{-- ── Breadcrumb ── --}}
+        <div class="academic-shell page-shell">
+            <nav class="academic-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
+                <a href="{{ route('public.home') }}">Home</a>
+                <span>&gt;</span>
+                <a href="{{ route('public.academics') }}">Academics</a>
+                <span>&gt;</span>
+                <strong>Graduate Programs</strong>
+            </nav>
+        </div>
+
+        {{-- ── Hero strip ── --}}
+        <section class="iapply-hero">
+            <div class="iapply-hero-content">
+                <p class="iapply-hero-tag">PUP Taguig Branch</p>
+                <h1>Graduate Programs</h1>
+                <p class="iapply-hero-sub">Open University System — Academic Year 2024–2025</p>
+                <p>Advance your career through PUP's Open University System, offering flexible graduate education for working professionals. Our programs are designed to deepen expertise, foster research, and develop leaders committed to public service.</p>
+
+                <div class="iapply-hero-desc">
+                    <p>Delivery Mode</p>
+                    <ul>
+                        <li>Open University System (OUS)</li>
+                        <li>Flexible / Blended Learning</li>
+                        <li>Available to working professionals</li>
+                    </ul>
+                </div>
+
+                {{-- Floating photo panel --}}
+                <div class="iapply-hero-visual dp-hero-photo-panel">
+                    <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP Taguig Campus" class="dp-hero-photo">
+                </div>
+            </div>
+        </section>
+
+        {{-- ── Quick Info strip ── --}}
+        <div class="iapply-schedule-strip">
+            <div class="iapply-schedule-inner">
+                <div class="iapply-schedule-head">
+                    <span class="section-tag">Quick Info</span>
+                    <h2>Program Admission at a Glance</h2>
+                </div>
+                <div class="iapply-schedule-grid">
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Admission</span>
+                        <span class="iapply-schedule-box-value">Open for AY 2025–2026</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Program Type</span>
+                        <span class="iapply-schedule-box-value">CHED-Recognized Graduate Program</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Delivery</span>
+                        <span class="iapply-schedule-box-value">Open University System (OUS)</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Location</span>
+                        <span class="iapply-schedule-box-value">PUP Taguig Branch, Gen. Santos Ave., Taguig City</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Graduate Programs Cards ── --}}
+        <div class="contents-strip dp-programs-strip">
+            <div class="contents-strip-inner">
+                <div class="contents-strip-head reveal">
+                    <span class="section-tag">Academic Offerings</span>
+                    <h2>Graduate Programs</h2>
+                </div>
+
+                <div class="contents-cards dp-diploma-cards reveal delay-100">
+
+                    {{-- 01 MEM --}}
+                    <a href="#mem" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">MEM</span>
+                            <h3 class="dp-diploma-title">Master in Educational Management</h3>
+                            <p class="dp-diploma-desc">Develops educational leaders with expertise in curriculum, policy, and institutional management. Delivered via the Open University System for working professionals.</p>
+                            <span class="dp-diploma-dept">Open University System</span>
+                        </div>
+                    </a>
+
+                </div>{{-- /.contents-cards --}}
+            </div>{{-- /.contents-strip-inner --}}
+        </div>{{-- /.contents-strip --}}
+
+>>>>>>> eb45e5bc3866cfccc71eae761ec2fa3e5be8cedf
     </main>
 
     @unless($cmsPreview)

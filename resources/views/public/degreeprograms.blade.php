@@ -28,6 +28,7 @@
     @endunless
 
     <main class="main-content">
+<<<<<<< HEAD
         @include('partials.academics_program_page', [
             'programPageKey' => 'degree-programs',
             'programPageTitle' => 'Degree Programs',
@@ -37,6 +38,193 @@
     </main>
 
     @unless($cmsPreview)
+=======
+
+        {{-- ── Breadcrumb ── --}}
+        <div class="academic-shell page-shell">
+            <nav class="academic-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
+                <a href="{{ route('public.home') }}">Home</a>
+                <span>&gt;</span>
+                <a href="{{ route('public.academics') }}">Academics</a>
+                <span>&gt;</span>
+                <strong>Degree Programs</strong>
+            </nav>
+        </div>
+
+        {{-- ── Hero strip ── --}}
+        <section class="iapply-hero">
+            <div class="iapply-hero-content">
+                <p class="iapply-hero-tag">PUP Taguig Branch</p>
+                <h1>Degree Programs</h1>
+                <p class="iapply-hero-sub">Academic Year 2024–2025</p>
+                <p>Pursue excellence through our CHED-accredited degree programs designed to develop globally competitive graduates. PUP Taguig Branch offers quality education rooted in science, technology, and professional practice.</p>
+
+                <div class="iapply-hero-desc">
+                    <p>Offered Colleges</p>
+                    <ul>
+                        <li>College of Engineering</li>
+                        <li>College of Accountancy and Finance</li>
+                        <li>College of Business Administration</li>
+                        <li>College of Science</li>
+                        <li>College of Education</li>
+                        <li>College of Office Administration and Business Education</li>
+                        <li>College of Social Sciences and Development</li>
+                    </ul>
+                </div>
+
+                {{-- Floating photo panel --}}
+                <div class="iapply-hero-visual dp-hero-photo-panel">
+                    <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP Taguig Campus" class="dp-hero-photo">
+                </div>
+            </div>
+        </section>
+
+        {{-- ── Quick Info strip ── --}}
+        <div class="iapply-schedule-strip">
+            <div class="iapply-schedule-inner">
+                <div class="iapply-schedule-head">
+                    <span class="section-tag">Quick Info</span>
+                    <h2>Program Admission at a Glance</h2>
+                </div>
+                <div class="iapply-schedule-grid">
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Admission</span>
+                        <span class="iapply-schedule-box-value">Open for AY 2025–2026</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Program Type</span>
+                        <span class="iapply-schedule-box-value">CHED-Accredited BS &amp; AB Degrees</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Mode of Study</span>
+                        <span class="iapply-schedule-box-value">Face-to-face / Blended Learning</span>
+                    </div>
+                    <div class="iapply-schedule-box">
+                        <span class="iapply-schedule-box-label">Location</span>
+                        <span class="iapply-schedule-box-value">PUP Taguig Branch, Gen. Santos Ave., Taguig City</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- ── Degree Programs Cards ── --}}
+        <div class="contents-strip dp-programs-strip">
+            <div class="contents-strip-inner">
+                <div class="contents-strip-head reveal">
+                    <span class="section-tag">Academic Offerings</span>
+                    <h2>Bachelor's Degree Programs</h2>
+                </div>
+
+                <div class="contents-cards dp-diploma-cards reveal delay-100">
+
+                    {{-- 01 BSECE --}}
+                    <a href="#bsece" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSECE</span>
+                            <h3 class="dp-diploma-title">BS Electronics Engineering</h3>
+                            <p class="dp-diploma-desc">A rigorous program covering circuits, communications, and embedded systems. Graduates are equipped to sit for the ECE Licensure Examination.</p>
+                            <span class="dp-diploma-dept">College of Engineering</span>
+                        </div>
+                    </a>
+
+                    {{-- 02 BSME --}}
+                    <a href="#bsme" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSME</span>
+                            <h3 class="dp-diploma-title">BS Mechanical Engineering</h3>
+                            <p class="dp-diploma-desc">Covers thermodynamics, fluid mechanics, and machine design. Prepares students for the Mechanical Engineering Licensure Exam.</p>
+                            <span class="dp-diploma-dept">College of Engineering</span>
+                        </div>
+                    </a>
+
+                    {{-- 03 BSA --}}
+                    <a href="#bsa" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSA</span>
+                            <h3 class="dp-diploma-title">BS Accountancy</h3>
+                            <p class="dp-diploma-desc">A comprehensive program in financial reporting, auditing, and taxation. Aligned with the CPA Licensure Examination competencies.</p>
+                            <span class="dp-diploma-dept">College of Accountancy and Finance</span>
+                        </div>
+                    </a>
+
+                    {{-- 04 BSBA --}}
+                    <a href="#bsba" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSBA</span>
+                            <h3 class="dp-diploma-title">BS Business Administration</h3>
+                            <p class="dp-diploma-desc">Offered with majors in Human Resource Development Management and Marketing Management.</p>
+                            <span class="dp-diploma-dept">College of Business Administration</span>
+                        </div>
+                    </a>
+
+                    {{-- 05 BSAM --}}
+                    <a href="#bsam" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSAM</span>
+                            <h3 class="dp-diploma-title">BS Applied Mathematics</h3>
+                            <p class="dp-diploma-desc">Develops strong analytical and problem-solving skills for careers in data science, finance, and research.</p>
+                            <span class="dp-diploma-dept">College of Science</span>
+                        </div>
+                    </a>
+
+                    {{-- 06 BSIT --}}
+                    <a href="#bsit" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSIT</span>
+                            <h3 class="dp-diploma-title">BS Information Technology</h3>
+                            <p class="dp-diploma-desc">Covers software development, networking, and database systems. Prepares students for the IT Licensure Examination.</p>
+                            <span class="dp-diploma-dept">College of Science</span>
+                        </div>
+                    </a>
+
+                    {{-- 07 BSEntrep --}}
+                    <a href="#bsentrep" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSEntrep</span>
+                            <h3 class="dp-diploma-title">BS Entrepreneurship</h3>
+                            <p class="dp-diploma-desc">Equips students with the mindset and skills to launch and manage successful ventures in the Philippine and global market.</p>
+                            <span class="dp-diploma-dept">College of Business Administration</span>
+                        </div>
+                    </a>
+
+                    {{-- 08 BSED --}}
+                    <a href="#bsed" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSED</span>
+                            <h3 class="dp-diploma-title">Bachelor in Secondary Education</h3>
+                            <p class="dp-diploma-desc">Offered with majors in English and Mathematics. Aligned with the LET competency standards.</p>
+                            <span class="dp-diploma-dept">College of Education</span>
+                        </div>
+                    </a>
+
+                    {{-- 09 BSOA --}}
+                    <a href="#bsoa" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSOA</span>
+                            <h3 class="dp-diploma-title">BS Office Administration</h3>
+                            <p class="dp-diploma-desc">Trains students in records management, office systems, and administrative operations for both public and private sectors.</p>
+                            <span class="dp-diploma-dept">College of Office Administration and Business Education</span>
+                        </div>
+                    </a>
+
+                    {{-- 10 BSPsy --}}
+                    <a href="#bspsy" class="contents-card" tabindex="0">
+                        <div class="dp-diploma-card-body">
+                            <span class="dp-diploma-badge">BSPsy</span>
+                            <h3 class="dp-diploma-title">BS Psychology</h3>
+                            <p class="dp-diploma-desc">Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.</p>
+                            <span class="dp-diploma-dept">College of Social Sciences and Development</span>
+                        </div>
+                    </a>
+
+                </div>{{-- /.contents-cards --}}
+            </div>{{-- /.contents-strip-inner --}}
+        </div>{{-- /.contents-strip --}}
+
+    </main>
+
+    <!-- Footer -->
+>>>>>>> eb45e5bc3866cfccc71eae761ec2fa3e5be8cedf
     <pup-footer></pup-footer>
 
     <script src="{{ asset('assets/js/script.js') }}" defer></script>
