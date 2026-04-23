@@ -98,7 +98,7 @@
         <div class="uc-calendar-frame reveal delay-100">
             <div class="uc-calendar-embed">
                 <iframe
-                    src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($calendar['pdf_url'] ?? '', 'assets/static_img/university_calendar.pdf') }}"
+                    src="{{ \App\Support\DownloadableFile::url($calendar['pdf_url'] ?? null, 'assets/static_img/university_calendar.pdf') }}"
                     title="{{ $calendar['title'] ?? 'PUP University Academic Calendar' }}"
                     class="uc-calendar-iframe"
                     loading="lazy"
@@ -109,7 +109,7 @@
                 @foreach(($calendar['actions'] ?? []) as $action)
                     @php
                         $style = strtolower(trim((string) ($action['style'] ?? 'primary'))) === 'outline' ? ' uc-btn-outline' : '';
-                        $href = \App\Support\AcademicsCmsContent::resolveImagePath($action['href'] ?? '', 'assets/static_img/university_calendar.pdf');
+                        $href = \App\Support\DownloadableFile::url($action['href'] ?? null, 'assets/static_img/university_calendar.pdf');
                     @endphp
                     <a
                         href="{{ $href }}"

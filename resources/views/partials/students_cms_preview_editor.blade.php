@@ -351,6 +351,11 @@
                     <div class="students-cms-card-stack" data-students-org-stack>
                         @foreach($organizationSectionsEditor as $sectionIndex => $organizationSection)
                             @foreach(($organizationSection['items'] ?? []) as $orgIndex => $organization)
+                                @php
+                                    $orgInputId = $idPrefix.'-students-org-image-'.$sectionIndex.'-'.$orgIndex;
+                                    $orgFieldId = $idPrefix.'-students-org-image-field-'.$sectionIndex.'-'.$orgIndex;
+                                    $orgPreview = \App\Support\NewsImage::url($organization['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                @endphp
                                 <article
                                     class="students-cms-card-editor"
                                     data-students-org-editor
@@ -363,11 +368,52 @@
 
                                     <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][title]" value="{{ $organizationSection['title'] ?? '' }}">
                                     <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][key]" value="{{ $organizationSection['key'] ?? '' }}">
-                                    <input type="hidden" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image]" value="{{ $organization['image'] ?? '' }}">
+                                    <input
+                                        type="hidden"
+                                        id="{{ $orgFieldId }}"
+                                        name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image]"
+                                        value="{{ $organization['image'] ?? '' }}"
+                                        data-students-image-field
+                                    >
 
                                     <div class="form-group">
                                         <label>Upload Organization Image</label>
-                                        <input type="file" name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image_file]" accept="image/*">
+                                        <div class="students-cms-image-dropzone-shell">
+                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $orgInputId }}" role="button" tabindex="0" aria-label="Upload organization image">
+                                                <span class="students-cms-image-dropzone-preview-column">
+                                                    <span class="students-cms-image-dropzone-media">
+                                                        <img
+                                                            src="{{ $orgPreview }}"
+                                                            alt="{{ ($organization['title'] ?? '') !== '' ? $organization['title'] : 'Organization image preview' }}"
+                                                            class="students-cms-image-dropzone-preview"
+                                                            data-students-preview-for="{{ $orgInputId }}"
+                                                            data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                        >
+                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $orgInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-label">Organization Image</span>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload">
+                                                    <span class="students-cms-image-dropzone-icon">
+                                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                    <span class="students-cms-image-dropzone-upload-copy">Your organization image preview updates instantly while you edit this entry.</span>
+                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $orgInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input
+                                            id="{{ $orgInputId }}"
+                                            class="students-cms-image-dropzone-input"
+                                            type="file"
+                                            name="students[organization_sections][{{ $sectionIndex }}][items][{{ $orgIndex }}][image_file]"
+                                            accept="image/*"
+                                            data-students-image-field-id="{{ $orgFieldId }}"
+                                        >
                                     </div>
 
                                     <div class="form-group">

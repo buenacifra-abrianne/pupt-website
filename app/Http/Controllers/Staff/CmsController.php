@@ -7,6 +7,7 @@ use App\Support\AcademicsCmsContent;
 use App\Support\AboutCmsContent;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\DownloadableFile;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use App\Support\ImageStorage;
@@ -228,6 +229,7 @@ class CmsController extends Controller
             'academics.pages.*.calendar.tag' => ['nullable', 'string', 'max:120'],
             'academics.pages.*.calendar.title' => ['nullable', 'string', 'max:255'],
             'academics.pages.*.calendar.pdf_url' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.calendar.pdf_file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
             'academics.pages.*.calendar.note' => ['nullable', 'string'],
             'academics.pages.*.calendar.actions' => ['nullable', 'array'],
             'academics.pages.*.calendar.actions.*.label' => ['nullable', 'string', 'max:120'],
@@ -501,6 +503,24 @@ class CmsController extends Controller
                         if ($storedPath !== false) {
                             $academicsInput['pages'][$pageKey]['cards']['items'][$index]['image'] = $storedPath;
                         }
+                    }
+                }
+
+                $calendarPdfUpload = $request->file("academics.pages.$pageKey.calendar.pdf_file");
+                if (($sectionKey === '' || $sectionKey === $pageKey.'-calendar') && $calendarPdfUpload instanceof UploadedFile) {
+                    $storedPath = DownloadableFile::store($calendarPdfUpload, 'academics/'.$pageKey.'/calendar');
+                    if ($storedPath !== false) {
+                        $currentCalendar = data_get($academicsInput, "pages.$pageKey.calendar", []);
+                        $previousPdfPath = (string) data_get(
+                            $currentCalendar,
+                            'pdf_url',
+                            data_get($baseAcademics, "pages.$pageKey.calendar.pdf_url", '')
+                        );
+                        $academicsInput['pages'][$pageKey]['calendar'] = AcademicsCmsContent::syncCalendarPdfReferences(
+                            is_array($currentCalendar) ? $currentCalendar : [],
+                            $storedPath,
+                            $previousPdfPath
+                        );
                     }
                 }
             }

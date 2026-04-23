@@ -373,6 +373,40 @@ class AcademicsCmsContent
         return (string) (ImageStorage::url($path, $fallbackPath) ?? asset(ltrim($fallbackPath, '/')));
     }
 
+    public static function syncCalendarPdfReferences(array $calendar, string $nextPath, ?string $previousPath = null): array
+    {
+        $resolvedPath = trim($nextPath);
+
+        if ($resolvedPath === '') {
+            return $calendar;
+        }
+
+        $currentPdfPath = trim((string) ($calendar['pdf_url'] ?? ''));
+        $replaceablePaths = array_values(array_unique(array_filter([
+            trim((string) $previousPath),
+            $currentPdfPath,
+            'assets/static_img/university_calendar.pdf',
+        ], static fn ($value) => is_string($value) && trim($value) !== '')));
+
+        $calendar['pdf_url'] = $resolvedPath;
+        $actions = is_array($calendar['actions'] ?? null) ? array_values($calendar['actions']) : [];
+
+        foreach ($actions as $index => $action) {
+            if (!is_array($action)) {
+                continue;
+            }
+
+            $href = trim((string) ($action['href'] ?? ''));
+            if ($href === '' || in_array($href, $replaceablePaths, true)) {
+                $actions[$index]['href'] = $resolvedPath;
+            }
+        }
+
+        $calendar['actions'] = $actions;
+
+        return $calendar;
+    }
+
     private static function normalize(array $source, array $base): array
     {
         $defaults = self::defaults();

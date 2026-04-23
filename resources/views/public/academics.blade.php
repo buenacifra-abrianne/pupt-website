@@ -48,7 +48,7 @@
                 </button>
             @endif
 
-            <div data-cms-boundary class="cms-preview-boundary-edge">
+            <div data-cms-boundary class="cms-preview-boundary-full">
                 <section class="carousel-section">
                     <div class="carousel full-carousel">
                         <div class="carousel-stage">
@@ -296,6 +296,11 @@
                 margin: 0;
             }
 
+            .hero-shell.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full {
+                width: 100%;
+                margin: 0;
+            }
+
             .cms-preview-editable > [data-cms-boundary]::after {
                 content: "";
                 position: absolute;
@@ -309,6 +314,10 @@
             }
 
             .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge::after {
+                inset: var(--cms-preview-outline-offset);
+            }
+
+            .hero-shell.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full::after {
                 inset: var(--cms-preview-outline-offset);
             }
 
