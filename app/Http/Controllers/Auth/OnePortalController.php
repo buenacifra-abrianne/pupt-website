@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use App\Support\AuditLog;
+use Illuminate\Support\Facades\Auth;
 
 class OnePortalController extends Controller
 {
@@ -301,40 +302,6 @@ class OnePortalController extends Controller
         ->cookie('refresh_token', $refreshToken ?? '', 60, '/', null, $request->isSecure(), true, false, 'Lax');
 }
 
-    public function logout(Request $request)
-{
-    $baseUrl = rtrim((string) config('services.idp.base_url'), '/');
-    $clientId = (string) config('services.idp.client_id');
-
-    // ✅ get user_id directly from session (stored during login)
-    $userId = session('oneportal_id');
-
-    // ✅ remove tokens explicitly (IMPORTANT)
-    $request->session()->forget('access_token');
-    $request->session()->forget('refresh_token');
-
-    // ✅ clear local session
-    $request->session()->flush();
-    $request->session()->invalidate();
-    $request->session()->regenerateToken();
-
-    // ✅ fallback if missing user_id
-    if (!$userId) {
-        return redirect()->route('public.landing')
-            ->withoutCookie('access_token')
-            ->withoutCookie('refresh_token');
-    }
-
-    // ✅ build REQUIRED IDP logout URL
-    $idpLogoutUrl = $baseUrl . '/logout?client_id=' . urlencode($clientId)
-        . '&user_id=' . urlencode($userId);
-
-    // ✅ redirect to IDP logout (IMPORTANT)
-    return redirect()->away($idpLogoutUrl)
-        ->withoutCookie('access_token')
-        ->withoutCookie('refresh_token');
-}
-
     private function redirectByRole($role)
     {
         $role = strtoupper((string) $role);
@@ -370,4 +337,69 @@ class OnePortalController extends Controller
 
         return redirect('/');
     }
+
+
+public function logout(Request $request)
+{
+    $baseUrl = rtrim(config('services.idp.base_url'), '/');
+    $clientId = config('services.idp.client_id');
+
+    $accessToken = session('access_token') ?: $request->cookie('access_token');
+    $refreshToken = session('refresh_token') ?: $request->cookie('refresh_token');
+    $userId = session('oneportal_id') ?: session('idp_user_id');
+
+    Auth::logout();
+
+    $request->session()->forget('access_token');
+    $request->session()->forget('refresh_token');
+    $request->session()->flush();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    if ($baseUrl && $clientId) {
+        $logoutUrl = $baseUrl . '/logout?' . http_build_query([
+            'client_id' => $clientId,
+            'user_id' => $userId ?? '',
+        ]);
+
+        $response = redirect()->away($logoutUrl);
+    } else {
+        $response = redirect()->route('public.landing');
+    }
+
+    return $this->expireAuthCookies($response, $request);
+}
+
+public function idpLogout(Request $request)
+{
+    Auth::logout();
+
+    $request->session()->forget('access_token');
+    $request->session()->forget('refresh_token');
+    $request->session()->flush();
+    $request->session()->invalidate();
+    $request->session()->regenerateToken();
+
+    $response = redirect()->route('public.landing');
+
+    return $this->expireAuthCookies($response, $request);
+}
+
+protected function expireAuthCookies($response, Request $request)
+{
+    $cookieNames = [
+        'access_token',
+        'refresh_token',
+        'jwt_token',
+        config('session.cookie'),
+        'XSRF-TOKEN',
+    ];
+
+    foreach ($cookieNames as $cookieName) {
+        $response->withCookie(cookie()->forget($cookieName, '/'));
+        $response->withCookie(cookie()->forget($cookieName, '/', $request->getHost()));
+    }
+
+    return $response;
+}
 }

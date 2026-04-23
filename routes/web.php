@@ -84,6 +84,9 @@ Route::get('/logout/completed', function () {
         ->with('success', 'You have been logged out.');
 })->name('logout.completed');
 
+Route::get('/auth/idp/logout', [OnePortalController::class, 'idpLogout'])
+    ->name('idp.logout');
+
 // One Portal Entry Point
 Route::get('/sso/login', [App\Http\Controllers\SsoController::class, 'login'])
     ->name('sso.login');
