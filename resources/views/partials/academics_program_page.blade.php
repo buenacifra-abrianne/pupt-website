@@ -103,18 +103,18 @@
             <h2>{{ $cards['title'] ?? '' }}</h2>
         </div>
 
-        <div class="contents-cards reveal delay-100">
+<div class="contents-cards dp-program-cards reveal delay-100">
             @foreach($cardItems as $item)
                 @php
                     $itemTitle = $item['title'] ?? '';
                     $itemBody = $item['body'] ?? '';
                     $itemHref = trim((string) ($item['href'] ?? ''));
-                    $itemImage = \App\Support\AcademicsCmsContent::resolveImagePath($item['image'] ?? '', $cardImageFallback);
-                    $itemCta = trim((string) ($item['cta'] ?? '')) !== '' ? $item['cta'] : 'View Program';
+                    $itemBadge = trim((string) ($item['badge'] ?? ''));
+                    $itemDept = trim((string) ($item['dept'] ?? ''));
                 @endphp
                 @if($cmsPreview)
                     <article
-                        class="contents-card card_without_section"
+                        class="contents-card"
                         data-cms-card-index="{{ $loop->index }}"
                         data-cms-card-section="{{ $pageKey }}-cards"
                         data-cms-card-label="{{ $pageTitle }} Card"
@@ -123,22 +123,19 @@
                             <button type="button" class="cms-preview-card-action" data-cms-card-edit>Edit</button>
                         </div>
                 @else
-                    <a href="{{ $itemHref !== '' ? $itemHref : '#' }}" class="contents-card card_without_section" tabindex="0">
+                    <a href="{{ $itemHref !== '' ? $itemHref : '#' }}" class="contents-card" tabindex="0">
                 @endif
-                    <div class="contents-card-inner">
-                        <div class="contents-card-front">
-                            <img src="{{ $itemImage }}" alt="{{ $itemTitle }}" loading="lazy">
-                            <div class="contents-card-copy">
-                                <h3>{{ $itemTitle }}</h3>
-                            </div>
-                        </div>
-                        <div class="contents-card-back">
-                            <div class="contents-card-overlay-copy">
-                                <h3>{{ $itemTitle }}</h3>
-                                <p>{{ $itemBody }}</p>
-                            </div>
-                            <span class="contents-card-action">{{ $itemCta }}</span>
-                        </div>
+                    <div class="dp-diploma-card-body">
+                        @if($itemBadge !== '')
+                            <span class="dp-diploma-badge">{{ $itemBadge }}</span>
+                        @endif
+                        <h3 class="dp-diploma-title">{{ $itemTitle }}</h3>
+                        @if($itemBody !== '')
+                            <p class="dp-diploma-desc">{{ $itemBody }}</p>
+                        @endif
+                        @if($itemDept !== '')
+                            <span class="dp-diploma-dept">{{ $itemDept }}</span>
+                        @endif
                     </div>
                 @if($cmsPreview)
                     </article>
