@@ -1261,12 +1261,23 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 }
 
 .iapply-sections-wrap {
-  width: 100%;
-  max-width: 960px;
-  margin: 0 auto;
+  position: relative;
+  width: 100vw;
+  left: 50%;
+  right: 50%;
+  margin-left: -50vw;
+  margin-right: -50vw;
   padding: 32px var(--page-gutter) 48px;
   display: grid;
+  grid-template-columns: 3fr 2fr;
   gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .iapply-sections-wrap {
+    grid-template-columns: 1fr;
+  }
 }
 
 .iapply-section-card {
