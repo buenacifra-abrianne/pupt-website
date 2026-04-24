@@ -136,22 +136,8 @@
                     </div>
                 </section>
 
-                <section
-                    class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                    @if($cmsPreview)
-                        data-cms-section="contents"
-                        data-cms-section-label="About Contents"
-                    @endif
-                >
-                    @if($cmsPreview)
-                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="contents" aria-label="Edit About Contents">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                            </svg>
-                        </button>
-                    @endif
-
-                    <div data-cms-boundary class="cms-preview-boundary-full">
+                <section class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+                    <div>
                     <div class="contents-strip-head layout-inset">
                         <p class="section-tag layout-kicker">{{ $overview['contents_tag'] ?? 'Contents' }}</p>
                         <h2>{{ $overview['contents_title'] ?? 'All about the campus' }}</h2>
@@ -1189,6 +1175,21 @@
             .contents-strip.cms-preview-editable [data-about-contents-card] {
                 position: relative;
                 cursor: default;
+                isolation: isolate;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
             }
 
             .contents-strip.cms-preview-editable [data-about-contents-card]:hover,
@@ -1196,6 +1197,14 @@
                 transform: none !important;
                 filter: none !important;
                 box-shadow: 0 16px 34px rgba(77, 18, 18, 0.12) !important;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover::after,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
             .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-back,

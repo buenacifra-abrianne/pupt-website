@@ -74,14 +74,14 @@
                     <input type="hidden" id="{{ $researchHeroFieldId }}" name="research[page][hero_image]" value="{{ $pageEditor['hero_image'] ?? '' }}">
 
                     <div class="form-group">
-                        <label>Upload Header Image</label>
+                        <label>Upload Hero Image</label>
                         <div class="research-cms-image-dropzone-shell">
-                            <div class="research-cms-image-dropzone cms-image-dropzone-hero" data-research-dropzone-for="{{ $researchHeroInputId }}" role="button" tabindex="0" aria-label="Upload header image">
+                            <div class="research-cms-image-dropzone cms-image-dropzone-hero" data-research-dropzone-for="{{ $researchHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
                                 <span class="research-cms-image-dropzone-preview-column">
                                     <span class="research-cms-image-dropzone-media">
                                         <img
                                             src="{{ $researchHeroPreview }}"
-                                            alt="Research header image preview"
+                                            alt="Research hero image preview"
                                             class="research-cms-image-dropzone-preview"
                                             data-research-preview-for="{{ $researchHeroInputId }}"
                                             data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
@@ -90,14 +90,14 @@
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
-                                    <span class="research-cms-image-dropzone-label">Header Image</span>
+                                    <span class="research-cms-image-dropzone-label">Hero Image</span>
                                 </span>
                                 <span class="research-cms-image-dropzone-upload">
                                     <span class="research-cms-image-dropzone-icon">
                                         <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                     </span>
                                     <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                    <span class="research-cms-image-dropzone-upload-copy">Your header image preview updates instantly while you edit this section.</span>
+                                    <span class="research-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
                                     <span class="research-cms-image-dropzone-upload-button">Select image</span>
                                     <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $researchHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </span>
@@ -113,24 +113,9 @@
                         >
                     </div>
 
-                    <div class="research-cms-form-grid">
-                        <div class="form-group">
-                            <label>Header Section</label>
-                            <input type="text" name="research[page][eyebrow]" maxlength="120" value="{{ $pageEditor['eyebrow'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Title</label>
-                            <input type="text" name="research[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
-                        </div>
-                    </div>
-
                     <div class="form-group">
-                        <label>Description</label>
-                        @include('partials.rich_text_editor', [
-                            'name' => 'research[page][description]',
-                            'value' => $pageEditor['description'] ?? '',
-                            'placeholder' => 'Write the research and extension page description...',
-                        ])
+                        <label>Hero Title</label>
+                        <input type="text" name="research[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
                     </div>
 
                     <div class="research-cms-modal-footer">

@@ -301,11 +301,22 @@
         content: "";
         position: absolute;
         inset: 0;
-        z-index: 2;
-        border: 2px dashed rgba(225, 181, 63, 0.72);
+        z-index: 10;
+        border: 2px dashed rgba(242, 201, 76, 0.95);
         border-radius: 24px;
         box-sizing: border-box;
         pointer-events: none;
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+          0 0 0 4px rgba(242, 201, 76, 0.12);
+      }
+
+      .feedback-page.cms-preview-mode .feedback-item:hover::after,
+      .feedback-page.cms-preview-mode .feedback-item:focus-within::after {
+        border-color: rgba(255, 220, 92, 1);
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+          0 0 0 5px rgba(242, 201, 76, 0.2);
       }
 
       .feedback-page.cms-preview-mode .feedback-item > * {

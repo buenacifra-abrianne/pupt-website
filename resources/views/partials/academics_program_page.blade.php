@@ -96,15 +96,9 @@
     </div>
 </div>
 
-<section
-    class="contents-strip dp-programs-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-    @if($cmsPreview)
-        data-cms-section="{{ $pageKey }}-cards"
-        data-cms-section-label="{{ $pageTitle }} Cards"
-    @endif
->
+<section class="contents-strip dp-programs-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
     <div class="contents-strip-inner">
-        <div class="contents-strip-head reveal" @if($cmsPreview) data-cms-boundary @endif>
+        <div class="contents-strip-head reveal">
             <span class="section-tag">{{ $cards['tag'] ?? '' }}</span>
             <h2>{{ $cards['title'] ?? '' }}</h2>
         </div>
