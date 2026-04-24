@@ -52,7 +52,7 @@
                         <div class="carousel-stage">
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
-                                    <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
+                                    <img src="{{ \App\Support\NewsImage::url($pageSection['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
                                 </div>
                                 <div class="carousel-caption">
                                     <h2>{{ $pageSection['title'] ?? 'Research and Extension' }}</h2>
@@ -93,9 +93,9 @@
                             <h1>{{ $pageSection['title'] ?? 'Research and Extension' }}</h1>
                         </div>
 
-                        <p class="research-story-description">
-                            {{ $pageSection['description'] ?? '' }}
-                        </p>
+                        <div class="research-story-description">
+                            {!! \App\Support\RichText::sanitize($pageSection['description'] ?? '') !!}
+                        </div>
                     </div>
                 </div>
             </section>
@@ -105,7 +105,7 @@
             class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
             @if($cmsPreview)
                 data-cms-section="cards"
-                data-cms-section-label="Research Cards"
+                data-cms-section-label="Research Contents"
             @endif
         >
             <div data-cms-boundary class="cms-preview-boundary-edge">
@@ -114,14 +114,14 @@
                         <p class="section-tag">Contents</p>
                     </div>
 
-                    <nav class="students-cards" aria-label="Research and Extension services">
+                    <nav class="students-cards" aria-label="Research and Extension contents">
                         @if($cmsPreview)
-                            <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add services">
+                            <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add content">
                                 <div class="students-card-inner">
                                     <div class="students-card-front students-card-front-add">
                                         <div class="students-card-add-inner">
                                             <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                            <p class="students-card-add-label">Add Services</p>
+                                            <p class="students-card-add-label">Add Content</p>
                                         </div>
                                     </div>
                                 </div>
@@ -139,7 +139,7 @@
                                 <article
                                     class="students-card"
                                     data-cms-edit-trigger="cards"
-                                    data-cms-section-label="Research Cards"
+                                    data-cms-section-label="Research Contents"
                                     data-research-card-index="{{ $loop->index }}"
                                 >
                             @else
@@ -150,25 +150,25 @@
                             @endif
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit card" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'research card' }}">
+                                        <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit content" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'research content' }}">
                                             Edit
                                         </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete card" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research card' }}">
+                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete content" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research content' }}">
                                             Delete
                                         </button>
                                     </div>
                                 @endif
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ \App\Support\NewsImage::url($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research card' }}">
+                                        <img src="{{ \App\Support\NewsImage::url($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research content' }}">
                                         <div class="students-card-copy">
-                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Card' }}</h3>
+                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Content' }}</h3>
                                         </div>
                                     </div>
                                     <div class="students-card-back">
                                         <div class="students-card-overlay-copy">
-                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Card' }}</h3>
-                                            <p>{{ $card['description'] ?? '' }}</p>
+                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Content' }}</h3>
+                                            <div class="students-card-description">{!! \App\Support\RichText::sanitize($card['description'] ?? '') !!}</div>
                                         </div>
                                         <span class="students-card-action">{{ $cardLink !== '' ? 'Open link' : 'Update soon' }}</span>
                                     </div>
@@ -184,15 +184,15 @@
                                     <div class="students-card-front">
                                         <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Research placeholder">
                                         <div class="students-card-copy">
-                                            <h3>No cards yet</h3>
+                                            <h3>No content yet</h3>
                                         </div>
                                     </div>
                                     <div class="students-card-back">
                                         <div class="students-card-overlay-copy">
-                                            <h3>No cards yet</h3>
-                                            <p>Add cards from CMS to show research and extension links here.</p>
+                                            <h3>No content yet</h3>
+                                            <p>Add content from CMS to show research and extension links here.</p>
                                         </div>
-                                        <span class="students-card-action">Add card</span>
+                                        <span class="students-card-action">Add content</span>
                                     </div>
                                 </div>
                             </article>
@@ -253,6 +253,15 @@
 
             .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full {
                 width: calc(100% - (var(--cms-preview-outline-offset) * 2));
+            }
+
+            .hero-shell.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full {
+                width: 100%;
+                margin: 0;
+            }
+
+            .hero-shell.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full::after {
+                inset: var(--cms-preview-outline-offset);
             }
 
             .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge {
@@ -323,7 +332,7 @@
                 z-index: 12;
                 display: flex;
                 gap: 8px;
-                opacity: 0;
+                opacity: 1;
                 transform: none;
                 transition: none;
             }

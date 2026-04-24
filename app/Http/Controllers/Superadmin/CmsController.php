@@ -228,6 +228,8 @@ class CmsController extends Controller
             'research.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'research.page.title' => ['nullable', 'string', 'max:255'],
             'research.page.description' => ['nullable', 'string'],
+            'research.page.hero_image' => ['nullable', 'string', 'max:2048'],
+            'research.page.hero_image_file' => ['nullable', 'image', 'max:5120'],
             'research.cards' => ['nullable', 'array'],
             'research.cards.*.title' => ['nullable', 'string', 'max:255'],
             'research.cards.*.description' => ['nullable', 'string'],
@@ -582,6 +584,18 @@ class CmsController extends Controller
                 $sectionKey
             );
 
+            if (($sectionKey === '' || $sectionKey === 'page') && $request->exists('research.page.hero_image')) {
+                $researchInput['page']['hero_image'] = (string) ($request->input('research.page.hero_image') ?? '');
+            }
+
+            $researchHeroUpload = $request->file('research.page.hero_image_file');
+            if (($sectionKey === '' || $sectionKey === 'page') && $researchHeroUpload instanceof UploadedFile) {
+                $storedPath = ImageStorage::store($researchHeroUpload, 'research/page');
+                if ($storedPath !== false) {
+                    $researchInput['page']['hero_image'] = $storedPath;
+                }
+            }
+
             $researchCardUploads = $request->file('research.cards', []);
             if (is_array($researchCardUploads)) {
                 foreach ($researchCardUploads as $index => $cardUpload) {
@@ -772,7 +786,7 @@ class CmsController extends Controller
     {
         return match ($sectionKey) {
             'page' => 'Page Header',
-            'cards' => 'Cards',
+            'cards' => 'Contents',
             default => '',
         };
     }
@@ -979,9 +993,9 @@ class CmsController extends Controller
         }
 
         return match ($sectionKey) {
-            'page' => [
-                'page' => is_array($researchInput['page'] ?? null)
-                    ? array_intersect_key($researchInput['page'], array_flip(['eyebrow', 'title', 'description']))
+                'page' => [
+                    'page' => is_array($researchInput['page'] ?? null)
+                    ? array_intersect_key($researchInput['page'], array_flip(['eyebrow', 'title', 'description', 'hero_image']))
                     : [],
             ],
             'cards' => [

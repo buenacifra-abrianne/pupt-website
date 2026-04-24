@@ -9,6 +9,7 @@ class ResearchCmsContent
             'eyebrow' => 'Research & Extension',
             'title' => 'Research and Extension',
             'description' => 'Discover the campus initiatives, scholarly work, and community-centered extension programs that connect PUP Taguig with industry, partner institutions, and the wider public.',
+            'hero_image' => 'assets/static_img/pupillar.jpeg',
         ],
         'cards' => [
             [
@@ -107,6 +108,7 @@ class ResearchCmsContent
             'eyebrow' => self::pickString($source, $base, $defaults, 'eyebrow', 120),
             'title' => self::pickString($source, $base, $defaults, 'title'),
             'description' => self::pickString($source, $base, $defaults, 'description', 5000),
+            'hero_image' => self::pickOptionalString($source, $base, $defaults, 'hero_image', 2048),
         ];
     }
 
@@ -161,6 +163,19 @@ class ResearchCmsContent
         $value = $source[$key] ?? ($base[$key] ?? ($defaults[$key] ?? ''));
 
         return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
+    }
+
+    private static function pickOptionalString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
+    {
+        if (array_key_exists($key, $source)) {
+            return self::sanitizeOptionalString((string) $source[$key], $maxLen);
+        }
+
+        if (array_key_exists($key, $base)) {
+            return self::sanitizeOptionalString((string) $base[$key], $maxLen);
+        }
+
+        return self::sanitizeOptionalString((string) ($defaults[$key] ?? ''), $maxLen);
     }
 
     private static function sanitizeOptionalString(string $value, int $maxLen): string
