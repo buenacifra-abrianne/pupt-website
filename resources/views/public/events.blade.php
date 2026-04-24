@@ -403,7 +403,6 @@
                         <span class="ne-tag" id="modalTag"></span>
                         <p class="ne-modal-date" id="modalDate"></p>
                         <h3 class="ne-modal-title" id="modalTitle"></h3>
-                        <div class="ne-modal-summary ne-rich-copy" id="modalSummary"></div>
                         <p class="ne-modal-loc" id="modalLocation"></p>
                         <hr class="ne-modal-rule">
                         <p class="ne-modal-details-label" id="modalDetailsLabel">Details</p>
@@ -777,7 +776,6 @@
             const modalTag = document.getElementById('modalTag');
             const modalDate = document.getElementById('modalDate');
             const modalTitle = document.getElementById('modalTitle');
-            const modalSummary = document.getElementById('modalSummary');
             const modalLocation = document.getElementById('modalLocation');
             const modalDetailsLabel = document.getElementById('modalDetailsLabel');
             const modalText = document.getElementById('modalText');
@@ -892,11 +890,6 @@
 
                     return current;
                 };
-                const normalizeCopy = (value) => String(value || '')
-                    .replace(/\s+/g, ' ')
-                    .trim()
-                    .toLowerCase();
-
                 lastTrigger = trigger;
                 modalImg.src = trigger.dataset.image || '';
                 modalImg.alt = trigger.dataset.title || 'Event image';
@@ -905,15 +898,11 @@
                 modalTitle.textContent = trigger.dataset.title || '';
                 const summaryHtml = decodeHtmlEntities(trigger.dataset.summaryHtml || '');
                 const contentHtml = decodeHtmlEntities(trigger.dataset.contentHtml || '');
+                const detailsHtml = contentHtml.trim() !== '' ? contentHtml : summaryHtml;
 
-                modalSummary.innerHTML = summaryHtml;
                 modalLocation.textContent = trigger.dataset.location || '';
                 modalLocation.hidden = modalLocation.textContent.trim() === '';
-                modalText.innerHTML = contentHtml;
-
-                const summaryText = normalizeCopy(modalSummary.textContent);
-                const contentText = normalizeCopy(modalText.textContent);
-                modalSummary.hidden = summaryText === '' || (contentText !== '' && summaryText === contentText);
+                modalText.innerHTML = detailsHtml;
                 modalDetailsLabel.hidden = modalText.textContent.trim() === '';
 
                 lockedScrollY = window.scrollY || window.pageYOffset || 0;
