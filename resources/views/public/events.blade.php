@@ -137,8 +137,6 @@
                     class="ne-featured reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
                     aria-label="Featured event"
                     @if($cmsPreview)
-                        data-cms-section="cards"
-                        data-cms-section-label="Featured Event"
                         data-cms-featured-card-index="{{ $featuredCard['source_index'] ?? 0 }}"
                     @endif
                 >
@@ -184,14 +182,8 @@
                 </section>
             @endif
 
-            <section
-                class="ne-events-main reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                @if($cmsPreview)
-                    data-cms-section="cards"
-                    data-cms-section-label="Event Listings"
-                @endif
-            >
-                <div data-cms-boundary class="cms-preview-boundary-full">
+            <section class="ne-events-main reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+                <div>
                     @unless($cmsPreview)
                         <section class="ne-events-section">
                             <div class="ne-events-header">
@@ -571,13 +563,37 @@
             }
 
             .ne-card[data-cms-card-index] {
+                position: relative;
+                isolation: isolate;
                 transition: none;
+            }
+
+            .ne-card[data-cms-card-index]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
             }
 
             .ne-card[data-cms-card-index]:hover {
                 filter: none;
                 box-shadow: inherit;
                 transform: none;
+            }
+
+            .ne-card[data-cms-card-index]:hover::after,
+            .ne-card[data-cms-card-index]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
             .ne-expired-preview-section {

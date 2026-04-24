@@ -101,14 +101,8 @@
             </section>
         </section>
 
-        <section
-            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
-            @if($cmsPreview)
-                data-cms-section="cards"
-                data-cms-section-label="Research Contents"
-            @endif
-        >
-            <div data-cms-boundary class="cms-preview-boundary-edge">
+        <section class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}">
+            <div>
                 <div class="students-contents-inner">
                     <div class="students-contents-head">
                         <p class="section-tag">Contents</p>
@@ -322,7 +316,31 @@
             }
 
             .students-card[data-cms-edit-trigger] {
+                position: relative;
                 cursor: default;
+                isolation: isolate;
+            }
+
+            .students-card[data-cms-edit-trigger="cards"]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            .students-card[data-cms-edit-trigger="cards"]:hover::after,
+            .students-card[data-cms-edit-trigger="cards"]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
             .cms-preview-card-actions {

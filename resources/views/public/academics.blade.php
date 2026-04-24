@@ -78,22 +78,8 @@
             </nav>
         </section>
 
-        <section
-            class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-            @if($cmsPreview)
-                data-cms-section="contents"
-                data-cms-section-label="Academics Contents"
-            @endif
-        >
-            @if($cmsPreview)
-                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="contents" aria-label="Edit Academics Contents">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                    </svg>
-                </button>
-            @endif
-
-            <div class="contents-strip-head layout-inset" data-cms-boundary>
+        <section class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+            <div class="contents-strip-head layout-inset">
                 <p class="section-tag">{{ $contentsSection['tag'] ?? 'Contents' }}</p>
             </div>
 
@@ -162,22 +148,8 @@
             </div>
         </section>
 
-        <section
-            class="academic-features reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-            @if($cmsPreview)
-                data-cms-section="features"
-                data-cms-section-label="What We Offer"
-            @endif
-        >
-            @if($cmsPreview)
-                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="features" aria-label="Edit What We Offer">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                    </svg>
-                </button>
-            @endif
-
-            <div class="academic-features-header layout-inset" data-cms-boundary>
+        <section class="academic-features reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+            <div class="academic-features-header layout-inset">
                 <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['tag'] ?? ($featuresSection['eyebrow'] ?? 'What we offer') }}</p>
                 @if(trim((string) ($featuresSection['title'] ?? '')) !== '')
                     <h2 class="academic-features-heading">{{ $featuresSection['title'] }}</h2>
@@ -388,7 +360,37 @@
             }
 
             .contents-card[data-academics-contents-card],
-            .academic-feature-card[data-academics-feature-card],
+            .academic-feature-card[data-academics-feature-card] {
+                position: relative;
+                cursor: pointer;
+                isolation: isolate;
+            }
+
+            .contents-card[data-academics-contents-card]::after,
+            .academic-feature-card[data-academics-feature-card]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            .contents-card[data-academics-contents-card]:hover::after,
+            .contents-card[data-academics-contents-card]:focus-within::after,
+            .academic-feature-card[data-academics-feature-card]:hover::after,
+            .academic-feature-card[data-academics-feature-card]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
             .contents-card[data-academics-contents-card] *,
             .academic-feature-card[data-academics-feature-card] * {
                 transition: none !important;

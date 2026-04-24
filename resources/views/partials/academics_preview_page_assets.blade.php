@@ -86,6 +86,55 @@
         box-shadow: inherit !important;
     }
 
+    .contents-card[data-cms-card-index] {
+        position: relative;
+        isolation: isolate;
+        cursor: pointer;
+    }
+
+    .iapply-section-card.cms-preview-editable {
+        position: relative;
+        isolation: isolate;
+    }
+
+    .contents-card[data-cms-card-index]::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        box-sizing: border-box;
+        pointer-events: none;
+        border: 2px dashed rgba(242, 201, 76, 0.95);
+        border-radius: inherit;
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+            0 0 0 4px rgba(242, 201, 76, 0.12);
+    }
+
+    .iapply-section-card.cms-preview-editable::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        box-sizing: border-box;
+        pointer-events: none;
+        border: 2px dashed rgba(242, 201, 76, 0.95);
+        border-radius: inherit;
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+            0 0 0 4px rgba(242, 201, 76, 0.12);
+    }
+
+    .contents-card[data-cms-card-index]:hover::after,
+    .contents-card[data-cms-card-index]:focus-within::after,
+    .iapply-section-card.cms-preview-editable:hover::after,
+    .iapply-section-card.cms-preview-editable:focus-within::after {
+        border-color: rgba(255, 220, 92, 1);
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+            0 0 0 5px rgba(242, 201, 76, 0.2);
+    }
+
     .contents-card[data-cms-card-index]:hover .contents-card-back,
     .contents-card[data-cms-card-index]:focus-within .contents-card-back {
         opacity: 0 !important;

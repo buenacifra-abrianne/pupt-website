@@ -69,7 +69,12 @@ class CmsController extends Controller
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
-                'page', 'cards', 'organizations',
+                'page', 'cards_header', 'cards', 'organizations',
+                'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
+                'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
+                'graduate-programs-hero', 'graduate-programs-info', 'graduate-programs-cards', 'graduate-programs-contact',
+                'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
+                'university-calendar-hero', 'university-calendar-info', 'university-calendar-calendar',
             ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
@@ -254,6 +259,9 @@ class CmsController extends Controller
             'students.page.description' => ['nullable', 'string'],
             'students.page.hero_image' => ['nullable', 'string', 'max:2048'],
             'students.page.hero_image_file' => ['nullable', 'image', 'max:5120'],
+            'students.page.contents_tag' => ['nullable', 'string', 'max:120'],
+            'students.page.contents_title' => ['nullable', 'string', 'max:255'],
+            'students.page.contents_description' => ['nullable', 'string'],
             'students.cards' => ['nullable', 'array'],
             'students.cards.*.title' => ['nullable', 'string', 'max:255'],
             'students.cards.*.description' => ['nullable', 'string'],
@@ -1214,6 +1222,7 @@ class CmsController extends Controller
     {
         return match ($sectionKey) {
             'page' => 'Page Header',
+            'cards_header' => 'Cards Header',
             'cards' => 'Cards',
             'organizations' => 'Organizations',
             default => '',
@@ -1340,7 +1349,10 @@ class CmsController extends Controller
             ],
             'features' => [
                 'features' => [
+                    'tag' => (string) data_get($academicsInput, 'features.tag', ''),
                     'eyebrow' => (string) data_get($academicsInput, 'features.eyebrow', ''),
+                    'title' => (string) data_get($academicsInput, 'features.title', ''),
+                    'description' => (string) data_get($academicsInput, 'features.description', ''),
                     'items' => collect(data_get($academicsInput, 'features.items', []))
                         ->map(fn ($item) => is_array($item)
                             ? array_intersect_key($item, array_flip(['title', 'body']))
