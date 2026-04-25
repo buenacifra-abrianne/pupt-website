@@ -979,6 +979,21 @@
         if (typeof window.syncRichTextEditors === 'function') {
             window.syncRichTextEditors(form);
         }
+
+        ensureRichTextChangeMarker(form);
+    }
+
+    function ensureRichTextChangeMarker(form) {
+        if (!form || !form.querySelector('.js-rich-editor') || form.querySelector('[data-cms-rich-editor-version]')) {
+            return;
+        }
+
+        const marker = document.createElement('input');
+        marker.type = 'hidden';
+        marker.name = 'cms_rich_editor_version';
+        marker.value = '0';
+        marker.setAttribute('data-cms-rich-editor-version', '');
+        form.appendChild(marker);
     }
 
     function captureFormSnapshot(form) {
@@ -1007,6 +1022,8 @@
         return !!form.querySelector(
             '[data-home-quick-links-version], ' +
             '[data-home-feedback-questions-version], ' +
+            '[data-cms-rich-editor-version], ' +
+            '[data-about-intro-version], ' +
             '[data-about-contents-version], ' +
             '[data-about-history-version], ' +
             '[data-academics-contents-version], ' +

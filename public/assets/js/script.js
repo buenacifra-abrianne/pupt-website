@@ -829,8 +829,9 @@ document.addEventListener("DOMContentLoaded", () => {
     modal.setAttribute("aria-hidden", "true");
     document.body.classList.remove("modal-open");
     if (lastTrigger instanceof HTMLElement) {
-      lastTrigger.focus();
+      lastTrigger.blur();
     }
+    lastTrigger = null;
   }
 
   document.addEventListener("click", (event) => {

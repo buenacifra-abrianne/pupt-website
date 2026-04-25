@@ -3339,6 +3339,31 @@ body.pup-dark-mode .reveal.active {
   transform: translateY(0);
 }
 
+/* Stabilize home update cards and read-more triggers to prevent layout jumps on hover/click. */
+.news-mini-card,
+.announcement-mini-card,
+.news-contents-strip .contents-card,
+.updates-card-action,
+.announcement-read-more {
+  transform: none !important;
+}
+
+.news-mini-card:hover,
+.news-mini-card:focus-within,
+.news-mini-card.is-hovered,
+.announcement-mini-card:hover,
+.announcement-mini-card:focus-within,
+.announcement-mini-card.is-hovered,
+.news-contents-strip .contents-card:hover,
+.news-contents-strip .contents-card:focus-visible,
+.news-contents-strip .contents-card.active,
+.updates-card-action:hover,
+.updates-card-action:focus-visible,
+.announcement-read-more:hover,
+.announcement-read-more:focus-visible {
+  transform: none !important;
+}
+
 /* Final home updates overrides: keep news/announcements local and tighten announcement cards */
 .updates-card-action,
 .announcement-read-more {
@@ -3466,6 +3491,32 @@ body.modal-open .main-content > :not(.advisory-modal-overlay) {
 
 body.modal-open .advisory-modal-overlay {
   backdrop-filter: blur(14px);
+}
+
+body.modal-open .news-mini-card,
+body.modal-open .announcement-mini-card,
+body.modal-open .news-contents-strip .contents-card {
+  transform: none !important;
+}
+
+body.modal-open .news-mini-card-back,
+body.modal-open .announcement-mini-card-back,
+body.modal-open .news-mini-card-back .updates-card-overlay-copy,
+body.modal-open .announcement-mini-card-back .updates-card-overlay-copy,
+body.modal-open .news-mini-card-back .updates-card-action,
+body.modal-open .announcement-mini-card-back .updates-card-action {
+  opacity: 0 !important;
+  transform: translateY(18px) !important;
+  pointer-events: none !important;
+}
+
+body.modal-open .news-mini-card-copy,
+body.modal-open .announcement-mini-card-copy,
+body.modal-open .news-mini-card img,
+body.modal-open .announcement-mini-card img {
+  opacity: 1 !important;
+  transform: none !important;
+  filter: none !important;
 }
 
 @media (max-width: 768px) {

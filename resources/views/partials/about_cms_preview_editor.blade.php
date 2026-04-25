@@ -159,18 +159,8 @@
                     </div>
 
                     <div class="form-group" data-about-card-panel-meta>
-                        <label>Landing Hero Title</label>
+                        <label>Overview Hero Title</label>
                         <input type="text" name="about[overview][hero_title_default]" maxlength="255" value="{{ $overviewEditor['hero_title_default'] ?? '' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>History Hero Title</label>
-                        <input type="text" name="about[overview][hero_title_history]" maxlength="255" value="{{ $overviewEditor['hero_title_history'] ?? '' }}">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Vision Hero Title</label>
-                        <input type="text" name="about[overview][hero_title_vision]" maxlength="255" value="{{ $overviewEditor['hero_title_vision'] ?? '' }}">
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -185,10 +175,11 @@
                     $aboutStoryImageFieldId = $idPrefix.'-about-story-image-field';
                     $aboutStoryImagePreview = \App\Support\NewsImage::url($overviewEditor['story_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                 @endphp
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-about-intro-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="intro">
+                    <input type="hidden" name="about_intro_version" value="0" data-about-intro-version>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -248,7 +239,11 @@
 
                     <div class="form-group">
                         <label>Story Description</label>
-                        <textarea name="about[overview][story_description]" rows="10">{{ $overviewEditor['story_description'] ?? '' }}</textarea>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'about[overview][story_description]',
+                            'value' => $overviewEditor['story_description'] ?? '',
+                            'placeholder' => 'Write the campus story description...',
+                        ])
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -339,14 +334,14 @@
 
                                 <div class="form-group">
                                     <label>Description</label>
-                                    <div class="about-cms-textarea-field" data-about-char-limit="50">
+                                    <div class="about-cms-textarea-field" data-about-char-limit="100">
                                         <textarea
                                             name="about[sections][{{ $slug }}][summary]"
                                             rows="4"
-                                            maxlength="50"
+                                            maxlength="100"
                                             data-about-char-input
                                         >{{ $section['summary'] ?? '' }}</textarea>
-                                        <div class="about-cms-char-counter" data-about-char-counter aria-live="polite">0/50</div>
+                                        <div class="about-cms-char-counter" data-about-char-counter aria-live="polite">0/100</div>
                                     </div>
                                 </div>
                             </article>
@@ -1585,7 +1580,24 @@
 
         const ABOUT_PREVIEW_MIN_LOADING_MS = 1500;
         let aboutPreviewFitFrame = null;
+        const ABOUT_PREVIEW_STORAGE_KEY = '{{ $idPrefix }}-active-about-preview-page';
         let currentAboutPreviewRoute = 'overview';
+
+        function getStoredAboutPreviewRoute() {
+            try {
+                return window.localStorage.getItem(ABOUT_PREVIEW_STORAGE_KEY) || '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function storeAboutPreviewRoute(routeKey) {
+            try {
+                window.localStorage.setItem(ABOUT_PREVIEW_STORAGE_KEY, routeKey);
+            } catch (_) {
+                // Ignore storage access failures and keep the in-memory route only.
+            }
+        }
 
         function getAboutPreviewPayloads() {
             const el = document.querySelector('[data-about-preview-pages]');
@@ -1885,6 +1897,7 @@
             }
 
             currentAboutPreviewRoute = targetKey;
+            storeAboutPreviewRoute(targetKey);
             setAboutPreviewLoading(frame, true);
             const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
             if (typeof window.applyCmsPreviewFrameContent === 'function') {
@@ -1898,11 +1911,37 @@
             });
         }
 
+        function resolveAboutEditorRoute(sectionKey, providedRoute = '') {
+            const route = String(providedRoute || '').trim();
+            if (route !== '') {
+                return route;
+            }
+
+            if (sectionKey === 'hero' || sectionKey === 'intro' || sectionKey === 'contents') {
+                return 'overview';
+            }
+
+            if (
+                sectionKey === 'vision-mission-header'
+                || sectionKey === 'vision-mission-statements'
+                || sectionKey === 'strategic-goals'
+                || sectionKey === 'core-values'
+            ) {
+                return 'vision-and-mission';
+            }
+
+            return String(sectionKey || 'overview');
+        }
+
         function openAboutEditor(sectionKey, label, options = {}) {
             const modal = document.querySelector('[data-about-editor-modal]');
             if (!modal) {
                 return;
             }
+
+            const targetRoute = resolveAboutEditorRoute(sectionKey, options.route || '');
+            currentAboutPreviewRoute = targetRoute;
+            storeAboutPreviewRoute(targetRoute);
 
             const title = modal.querySelector('#{{ $idPrefix }}-modal-title');
             const description = modal.querySelector('[data-about-editor-description]');
@@ -1965,13 +2004,16 @@
             }
 
             if (data.type === 'cms-about-edit') {
-                openAboutEditor(data.section || '', data.label || 'Edit about section');
+                openAboutEditor(data.section || '', data.label || 'Edit about section', {
+                    route: data.route || '',
+                });
                 return;
             }
 
             if (data.type === 'cms-about-contents-card-edit') {
                 openAboutEditor('contents', data.label ? `Edit ${data.label}` : 'Edit about card', {
                     slug: data.slug || '',
+                    route: data.route || 'overview',
                 });
                 return;
             }
@@ -1984,6 +2026,7 @@
             if (data.type === 'cms-about-history-card-edit') {
                 openAboutEditor('history', data.label ? `Edit ${data.label}` : 'Edit history milestone', {
                     historyIndex: data.index || '',
+                    route: data.route || 'history',
                 });
                 return;
             }
@@ -2026,9 +2069,17 @@
         const contentsForm = document.querySelector('[data-about-contents-form]');
         const contentsVersionInput = document.querySelector('[data-about-contents-version]');
         const activeContentsSlugInput = document.querySelector('[data-about-active-contents-slug]');
+        const introForm = document.querySelector('[data-about-intro-form]');
+        const introVersionInput = document.querySelector('[data-about-intro-version]');
         const historyForm = document.querySelector('[data-about-history-form]');
         const historyVersionInput = document.querySelector('[data-about-history-version]');
         const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
+
+        const bumpIntroVersion = () => {
+            if (introVersionInput) {
+                introVersionInput.value = String(Date.now());
+            }
+        };
 
         const bumpContentsVersion = () => {
             if (contentsVersionInput) {
@@ -2066,6 +2117,39 @@
 
             contentsForm.addEventListener('input', markDirty);
             contentsForm.addEventListener('change', markDirty);
+        };
+
+        const bindAboutIntroDirtyTracking = () => {
+            if (!introForm || introForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            introForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                const target = event.target;
+                if (target instanceof HTMLElement && target.closest('.rich-editor-surface')) {
+                    bumpIntroVersion();
+                    return;
+                }
+
+                if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
+                    const type = (target.type || '').toLowerCase();
+                    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+                        return;
+                    }
+                }
+
+                bumpIntroVersion();
+            };
+
+            introForm.addEventListener('input', markDirty);
+            introForm.addEventListener('change', markDirty);
+            introForm.addEventListener('click', (event) => {
+                if (event.target.closest('.rich-editor-toolbar button')) {
+                    window.setTimeout(bumpIntroVersion, 0);
+                }
+            });
         };
 
         const bindAboutHistoryDirtyTracking = () => {
@@ -2472,6 +2556,15 @@
             }
 
             form.dataset.aboutRichTextSubmitBound = '1';
+            if (form.matches('[data-about-intro-form]')) {
+                form.addEventListener('submit', () => {
+                    if (typeof window.syncRichTextEditors === 'function') {
+                        window.syncRichTextEditors(form);
+                    }
+                    bumpIntroVersion();
+                }, true);
+            }
+
             if (form.matches('[data-about-history-form]')) {
                 form.addEventListener('submit', () => {
                     form.querySelectorAll('[data-about-history-date-group]').forEach(syncAboutHistoryDateGroup);
@@ -2559,7 +2652,8 @@
             loadAboutPreviewPage(currentAboutPreviewRoute || 'overview', { forceReload: true });
         };
 
-        loadAboutPreviewPage('overview');
+        const initialAboutPreviewRoute = getStoredAboutPreviewRoute();
+        loadAboutPreviewPage(initialAboutPreviewRoute || 'overview');
         scheduleFitAboutPreviews();
         initAboutImageDropzones(document);
         initAboutCharCounters(document);
@@ -2567,6 +2661,7 @@
         if (typeof window.initializeRichTextEditors === 'function') {
             window.initializeRichTextEditors(document);
         }
+        bindAboutIntroDirtyTracking();
         bindAboutContentsDirtyTracking();
         bindAboutHistoryDirtyTracking();
         setActiveHistoryEditor();

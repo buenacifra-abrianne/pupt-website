@@ -129,8 +129,14 @@
                                 <img src="{{ \App\Support\NewsImage::url($overview['story_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}">
                             </div>
 
-                            <div class="campus-story-description">
-                                <p>{!! nl2br(e($overview['story_description'] ?? '')) !!}</p>
+                            @php
+                                $storyDescription = (string) ($overview['story_description'] ?? '');
+                                $storyDescriptionHtml = trim($storyDescription) !== strip_tags($storyDescription)
+                                    ? \App\Support\RichText::sanitize($storyDescription)
+                                    : nl2br(e($storyDescription));
+                            @endphp
+                            <div class="campus-story-description rich-text-content">
+                                {!! $storyDescriptionHtml !!}
                             </div>
                         </div>
                     </div>
@@ -1393,10 +1399,16 @@
                 let previewHeightFrame = null;
 
                 const postSection = (section, label) => {
+                    const previewRoute = section === 'hero' || section === 'intro' || section === 'contents'
+                        ? 'overview'
+                        : (section === 'vision-mission-header' || section === 'vision-mission-statements' || section === 'strategic-goals' || section === 'core-values'
+                            ? 'vision-and-mission'
+                            : section);
                     window.parent?.postMessage({
                         type: 'cms-about-edit',
                         section: section,
                         label: label || section,
+                        route: previewRoute,
                     }, '*');
                 };
 
@@ -1520,6 +1532,7 @@
                             type: 'cms-about-history-card-edit',
                             index: card?.getAttribute('data-about-history-index') || '',
                             label: card?.getAttribute('data-about-history-label') || 'History milestone',
+                            route: 'history',
                         }, '*');
                         return;
                     }
@@ -1532,6 +1545,7 @@
                             type: 'cms-about-history-card-edit',
                             index: historyCard.getAttribute('data-about-history-index') || '',
                             label: historyCard.getAttribute('data-about-history-label') || 'History milestone',
+                            route: 'history',
                         }, '*');
                         return;
                     }
@@ -1558,6 +1572,7 @@
                             type: 'cms-about-contents-card-edit',
                             slug: card?.getAttribute('data-about-contents-slug') || '',
                             label: card?.getAttribute('data-about-contents-label') || 'About card',
+                            route: 'overview',
                         }, '*');
                         return;
                     }

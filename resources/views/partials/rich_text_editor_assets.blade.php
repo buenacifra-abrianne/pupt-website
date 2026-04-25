@@ -1240,13 +1240,13 @@ input[name="title"] {
         });
         surface.addEventListener('input', () => {
             saveSelection(root);
-            syncEditor(root);
+            syncEditorAndNotify(root);
             updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
         });
         surface.addEventListener('blur', () => {
-            syncEditor(root);
+            syncEditorAndNotify(root);
             updateFontSizeState(root);
             updateToolbarState(root);
             updateTextColorState(root);
