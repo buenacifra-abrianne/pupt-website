@@ -399,6 +399,22 @@ input[name="title"] {
         }
     }
 
+    function syncEditorAndNotify(root) {
+        const input = root.querySelector('.rich-editor-input');
+        const previousValue = input ? input.value : '';
+
+        syncEditor(root);
+
+        if (input && input.value !== previousValue) {
+            input.dispatchEvent(new Event('input', {
+                bubbles: true,
+            }));
+            input.dispatchEvent(new Event('change', {
+                bubbles: true,
+            }));
+        }
+    }
+
     function enforceCharacterLimit(surface, limit) {
         if (!surface || !Number.isFinite(limit) || limit <= 0) {
             return;
@@ -445,6 +461,80 @@ input[name="title"] {
         });
     }
 
+    function closestWithin(node, selector, boundary) {
+        let current = node && node.nodeType === Node.ELEMENT_NODE ? node : node?.parentElement;
+
+        while (current && current !== boundary) {
+            if (current.matches?.(selector)) {
+                return current;
+            }
+
+            current = current.parentElement;
+        }
+
+        return null;
+    }
+
+    function hasBlockChild(element) {
+        return Array.from(element.children || []).some((child) => {
+            const display = window.getComputedStyle(child).display;
+            return display === 'block'
+                || display === 'list-item'
+                || display === 'table'
+                || display === 'grid'
+                || display === 'flex';
+        });
+    }
+
+    function unwrapBlockquote(blockquote) {
+        const parent = blockquote.parentNode;
+        if (!parent) {
+            return;
+        }
+
+        if (!hasBlockChild(blockquote)) {
+            const paragraph = document.createElement('p');
+            paragraph.innerHTML = blockquote.innerHTML;
+            parent.replaceChild(paragraph, blockquote);
+            return;
+        }
+
+        while (blockquote.firstChild) {
+            parent.insertBefore(blockquote.firstChild, blockquote);
+        }
+
+        parent.removeChild(blockquote);
+    }
+
+    function toggleBlockquote(root, surface) {
+        restoreSelection(root.__richEditorSavedRange || null);
+
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0) {
+            surface.focus();
+            document.execCommand('formatBlock', false, '<blockquote>');
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const commonAncestor = range.commonAncestorContainer;
+        const container = commonAncestor.nodeType === Node.ELEMENT_NODE
+            ? commonAncestor
+            : commonAncestor.parentElement;
+
+        const existingBlockquote = closestWithin(container, 'blockquote', surface);
+        if (existingBlockquote) {
+            unwrapBlockquote(existingBlockquote);
+            return;
+        }
+
+        document.execCommand('formatBlock', false, '<blockquote>');
+
+        if (!surface.querySelector('blockquote')) {
+            document.execCommand('formatBlock', false, 'blockquote');
+        }
+    }
+
     function handleCommand(root, button) {
         const command = button.dataset.command;
         const value = button.dataset.value || null;
@@ -456,7 +546,11 @@ input[name="title"] {
 
         surface.focus();
         restoreSelection(root.__richEditorSavedRange || null);
-        document.execCommand(command, false, value);
+        if (command === 'formatBlock' && value === 'blockquote') {
+            toggleBlockquote(root, surface);
+        } else {
+            document.execCommand(command, false, value);
+        }
         saveSelection(root);
         syncEditor(root);
     }
@@ -968,6 +1062,15 @@ input[name="title"] {
             button.classList.toggle('is-active', isActive);
             button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
         });
+
+        root.querySelectorAll('.rich-editor-btn[data-command="formatBlock"][data-value="blockquote"]').forEach((button) => {
+            const range = getSelectionRangeInside(surface);
+            const node = range?.commonAncestorContainer || (document.activeElement === surface ? surface : null);
+            const isActive = !!node && !!closestWithin(node, 'blockquote', surface);
+
+            button.classList.toggle('is-active', isActive);
+            button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+        });
     }
     function normalizeStyledSpans(root) {
         const surface = root.querySelector('.rich-editor-surface');
@@ -1035,6 +1138,7 @@ input[name="title"] {
             if (!button.classList.contains('js-font-size-trigger') && !button.classList.contains('js-text-color-trigger')) {
                 button.addEventListener('click', () => {
                     handleCommand(root, button);
+                    syncEditorAndNotify(root);
                     updateToolbarState(root);
                     updateTextColorState(root);
                 });
@@ -1064,6 +1168,7 @@ input[name="title"] {
                 const size = option.dataset.size;
                 setFontSizeState(root, size);
                 applyFontSize(root, size);
+                syncEditorAndNotify(root);
                 closeFontSizePopover(root);
                 updateTextColorState(root);
             });
@@ -1101,6 +1206,7 @@ input[name="title"] {
                 }
 
                 applyTextColor(root, selectedColor, savedRange);
+                syncEditorAndNotify(root);
                 markSelectedSwatch(root, selectedColor);
                 updateColorTriggerAppearance(textColorTrigger, selectedColor);
                 closeColorPopover(root);

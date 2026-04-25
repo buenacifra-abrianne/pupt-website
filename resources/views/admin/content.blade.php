@@ -861,6 +861,7 @@
             '[data-home-quick-links-version], ' +
             '[data-home-feedback-questions-version], ' +
             '[data-about-contents-version], ' +
+            '[data-about-history-version], ' +
             '[data-academics-contents-version], ' +
             '[data-academics-features-version], ' +
             '[data-students-cards-version], ' +

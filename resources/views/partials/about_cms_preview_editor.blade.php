@@ -20,6 +20,21 @@
 
         return 'Save '.$sectionLabel;
     };
+    $historyMonthValue = static function (string $value): string {
+        $value = trim($value);
+        if ($value === '') {
+            return '';
+        }
+
+        if (preg_match('/([A-Za-z]+)\s+(\d{4})/', $value, $match)) {
+            $month = date_parse($match[1])['month'] ?? false;
+            if ($month !== false && $month >= 1 && $month <= 12) {
+                return sprintf('%04d-%02d', (int) $match[2], (int) $month);
+            }
+        }
+
+        return '';
+    };
 
     $aboutPreviewPages = [
         'overview' => view('public.about', [
@@ -344,17 +359,21 @@
                 </form>
             </section>
 
-            @php($historyEditor = $aboutSections['history'] ?? [])
+            @php
+                $historyEditor = $aboutSections['history'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="history" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-about-history-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="history">
+                    <input type="hidden" name="about_history_version" value="0" data-about-history-version>
+                    <input type="hidden" name="about_active_history_index" value="" data-about-active-history-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-form-grid">
+                    <div class="about-cms-form-grid" data-about-card-panel-meta>
                         <div class="form-group">
                             <label>Section Label</label>
                             <input type="text" name="about[sections][history][label]" maxlength="255" value="{{ $historyEditor['label'] ?? '' }}">
@@ -365,7 +384,7 @@
                         </div>
                     </div>
 
-                    <div class="about-cms-form-grid">
+                    <div class="about-cms-form-grid" data-about-card-panel-meta>
                         <div class="form-group">
                             <label>Timeline Kicker</label>
                             <input type="text" name="about[sections][history][page_kicker]" maxlength="255" value="{{ $historyEditor['page_kicker'] ?? '' }}">
@@ -377,17 +396,40 @@
                     </div>
 
                     <div class="about-cms-card-stack">
-                        @foreach($historyEditor['timeline'] ?? [] as $index => $milestone)
-                            <article class="about-cms-card-editor">
-                                <div class="about-cms-card-editor-head">
-                                    <h4>Milestone {{ $loop->iteration }}</h4>
+                        <?php foreach (($historyEditor['timeline'] ?? []) as $index => $milestone): ?>
+                            @php
+                                $periodText = (string) ($milestone['period'] ?? '');
+                                $periodParts = preg_split('/\s*(?:-|–|—|to)\s*/i', $periodText, 2) ?: [];
+                                $periodStartMonth = $historyMonthValue((string) ($periodParts[0] ?? $periodText));
+                                $periodEndMonth = $historyMonthValue((string) ($periodParts[1] ?? ''));
+                                $historyMilestoneNumber = ((int) $index) + 1;
+                            @endphp
+                            <article
+                                class="about-cms-card-editor"
+                                data-about-history-editor
+                                data-about-history-index="{{ $index }}"
+                            >
+                                <input type="hidden" name="about[sections][history][timeline][{{ $index }}][visible]" value="{{ $milestone['visible'] ?? '1' }}" data-about-history-visible>
+
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4>Milestone {{ $historyMilestoneNumber }}</h4>
                                     <span>{{ $milestone['period'] ?? '' }}</span>
                                 </div>
 
-                                <div class="about-cms-form-grid">
-                                    <div class="form-group">
-                                        <label>Period</label>
-                                        <input type="text" name="about[sections][history][timeline][{{ $index }}][period]" maxlength="255" value="{{ $milestone['period'] ?? '' }}">
+                                <div class="about-cms-form-grid about-cms-history-meta-grid">
+                                    <div class="form-group" data-about-history-date-group>
+                                        <label>Date <span>(Month Year)</span></label>
+                                        <input type="hidden" name="about[sections][history][timeline][{{ $index }}][period]" value="{{ $periodText }}" data-about-history-period>
+                                        <div class="about-cms-history-date-fields">
+                                            <label>
+                                                <span>Start</span>
+                                                <input type="month" value="{{ $periodStartMonth }}" data-about-history-date-start>
+                                            </label>
+                                            <label>
+                                                <span>End</span>
+                                                <input type="month" value="{{ $periodEndMonth }}" data-about-history-date-end>
+                                            </label>
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label>Title</label>
@@ -396,11 +438,19 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label>Body Paragraphs</label>
-                                    <textarea name="about[sections][history][timeline][{{ $index }}][body_text]" rows="8">{{ implode("\n\n", $milestone['body'] ?? []) }}</textarea>
+                                    <label>Description</label>
+                                    @php
+                                        $historyBodyEditorName = 'about[sections][history][timeline]['.$index.'][body_text]';
+                                        $historyBodyEditorValue = implode("\n\n", $milestone['body'] ?? []);
+                                    @endphp
+                                    @include('partials.rich_text_editor', [
+                                        'name' => $historyBodyEditorName,
+                                        'value' => $historyBodyEditorValue,
+                                        'placeholder' => 'Write the milestone description...',
+                                    ])
                                 </div>
                             </article>
-                        @endforeach
+                        <?php endforeach; ?>
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -409,7 +459,9 @@
                 </form>
             </section>
 
-            @php($visionEditor = $aboutSections['vision-and-mission'] ?? [])
+            @php
+                $visionEditor = $aboutSections['vision-and-mission'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="vision-mission-header" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -622,7 +674,9 @@
                 </form>
             </section>
 
-            @php($logoEditor = $aboutSections['logo-and-symbols'] ?? [])
+            @php
+                $logoEditor = $aboutSections['logo-and-symbols'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="logo-and-symbols" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -674,7 +728,9 @@
                 </form>
             </section>
 
-            @php($hymnEditor = $aboutSections['hymn'] ?? [])
+            @php
+                $hymnEditor = $aboutSections['hymn'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="hymn" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -726,7 +782,9 @@
                 </form>
             </section>
 
-            @php($mapsEditor = $aboutSections['maps'] ?? [])
+            @php
+                $mapsEditor = $aboutSections['maps'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="maps" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -789,7 +847,9 @@
                 </form>
             </section>
 
-            @php($officialsEditor = $aboutSections['campus-officials'] ?? [])
+            @php
+                $officialsEditor = $aboutSections['campus-officials'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="campus-officials" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -841,7 +901,9 @@
                 </form>
             </section>
 
-            @php($planEditor = $aboutSections['strategic-development-plan'] ?? [])
+            @php
+                $planEditor = $aboutSections['strategic-development-plan'] ?? [];
+            @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="strategic-development-plan" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -899,6 +961,8 @@
 <script type="application/json" data-about-preview-pages>
 {!! json_encode($aboutPreviewPages, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
 </script>
+
+@include('partials.rich_text_editor_assets')
 
 <style>
     .about-cms-workspace {
@@ -1039,7 +1103,8 @@
         width: min(1080px, calc(100vw - 32px));
         max-height: calc(100vh - 32px);
         margin: 0;
-        overflow: auto;
+        overflow-x: hidden;
+        overflow-y: auto;
         border-radius: 24px;
         background: #fffdfc;
         box-shadow: 0 28px 80px rgba(25, 16, 12, 0.28);
@@ -1066,12 +1131,78 @@
 
     .about-cms-modal-panels {
         padding: 22px 24px 24px;
+        max-width: 100%;
+        overflow-x: hidden;
     }
 
     .about-cms-form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
+    }
+
+    .about-cms-history-meta-grid {
+        grid-template-columns: minmax(0, 1fr) minmax(240px, 0.85fr);
+        align-items: start;
+        column-gap: 18px;
+        row-gap: 16px;
+    }
+
+    .about-cms-history-meta-grid .form-group {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .about-cms-history-meta-grid label {
+        min-height: 22px;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
+    .about-cms-history-meta-grid label span {
+        color: #a67a14;
+        font-size: 0.82em;
+        font-weight: 700;
+    }
+
+    .about-cms-history-meta-grid input {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .about-cms-history-date-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+        align-items: start;
+        min-width: 0;
+    }
+
+    .about-cms-history-date-fields label {
+        display: grid;
+        gap: 6px;
+        min-height: 0;
+        color: #8a0000;
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        text-transform: uppercase;
+    }
+
+    .about-cms-history-date-fields input[type="month"] {
+        min-height: 54px;
+        padding-right: 12px;
+        cursor: pointer;
+    }
+
+    .about-cms-history-meta-grid > .form-group:not([data-about-history-date-group]) {
+        padding-top: 0;
+    }
+
+    .about-cms-history-meta-grid > .form-group:not([data-about-history-date-group]) > input {
+        min-height: 54px;
     }
 
     .about-cms-card-stack {
@@ -1330,8 +1461,9 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-dialog {
-        width: min(760px, calc(100vw - 24px));
-        max-width: min(760px, calc(100vw - 24px));
+        width: min(960px, calc(100vw - 24px));
+        max-width: min(960px, calc(100vw - 24px));
+        overflow-x: hidden;
         border-radius: 30px;
         background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
         box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
@@ -1345,8 +1477,10 @@
     }
 
     .about-cms-editor-panel.is-card-focus form {
-        max-width: 680px;
+        width: 100%;
+        max-width: 880px;
         margin: 0 auto;
+        overflow-x: hidden;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-stack {
@@ -1360,6 +1494,8 @@
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active {
         padding: 22px;
+        max-width: 100%;
+        overflow-x: hidden;
         border: 1px solid rgba(127, 17, 19, 0.12);
         border-radius: 24px;
         background:
@@ -1371,6 +1507,21 @@
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .form-group + .form-group {
         margin-top: 14px;
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-history-meta-grid .form-group + .form-group {
+        margin-top: 0;
+    }
+
+    .about-cms-editor-panel.is-card-focus .rich-editor,
+    .about-cms-editor-panel.is-card-focus .rich-editor-toolbar,
+    .about-cms-editor-panel.is-card-focus .rich-editor-surface,
+    .about-cms-editor-panel.is-card-focus .rich-editor-footer {
+        max-width: 100%;
+    }
+
+    .about-cms-editor-panel.is-card-focus .rich-editor-toolbar {
+        overflow-x: hidden;
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-close {
@@ -1401,6 +1552,14 @@
         }
 
         .about-cms-form-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-cms-history-meta-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .about-cms-history-date-fields {
             grid-template-columns: 1fr;
         }
 
@@ -1754,7 +1913,9 @@
 
             modal.querySelectorAll('[data-about-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-about-editor-panel') === sectionKey;
-                const isCardFocus = sectionKey === 'contents' && String(options.slug || '').trim() !== '';
+                const isContentsCardFocus = sectionKey === 'contents' && String(options.slug || '').trim() !== '';
+                const isHistoryCardFocus = sectionKey === 'history' && String(options.historyIndex ?? '').trim() !== '';
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -1768,10 +1929,18 @@
                         description.textContent = 'Update this section and save to refresh the About page preview.';
                     }
 
-                    const focusScope = sectionKey === 'contents'
-                        ? (setActiveContentsEditor(options.slug || '') || panel)
-                        : panel;
-                    const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea, select');
+                    let focusScope = panel;
+                    if (sectionKey === 'contents') {
+                        focusScope = setActiveContentsEditor(options.slug || '') || panel;
+                    } else if (sectionKey === 'history') {
+                        focusScope = setActiveHistoryEditor(options.historyIndex ?? '') || panel;
+                    }
+
+                    if (typeof window.initializeRichTextEditors === 'function') {
+                        window.initializeRichTextEditors(panel);
+                    }
+
+                    const firstField = focusScope.querySelector('input:not([type="hidden"]), textarea:not([hidden]), select, .rich-editor-surface');
                     firstField?.focus();
                 }
             });
@@ -1809,6 +1978,13 @@
 
             if (data.type === 'cms-about-contents-card-delete') {
                 confirmDeleteContentsCard(data.slug || '', data.label || '');
+                return;
+            }
+
+            if (data.type === 'cms-about-history-card-edit') {
+                openAboutEditor('history', data.label ? `Edit ${data.label}` : 'Edit history milestone', {
+                    historyIndex: data.index || '',
+                });
                 return;
             }
 
@@ -1850,6 +2026,9 @@
         const contentsForm = document.querySelector('[data-about-contents-form]');
         const contentsVersionInput = document.querySelector('[data-about-contents-version]');
         const activeContentsSlugInput = document.querySelector('[data-about-active-contents-slug]');
+        const historyForm = document.querySelector('[data-about-history-form]');
+        const historyVersionInput = document.querySelector('[data-about-history-version]');
+        const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
 
         const bumpContentsVersion = () => {
             if (contentsVersionInput) {
@@ -1887,6 +2066,95 @@
 
             contentsForm.addEventListener('input', markDirty);
             contentsForm.addEventListener('change', markDirty);
+        };
+
+        const bindAboutHistoryDirtyTracking = () => {
+            if (!historyForm || historyForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            historyForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                const target = event.target;
+                if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
+                    const type = (target.type || '').toLowerCase();
+                    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+                        return;
+                    }
+                }
+
+                bumpHistoryVersion();
+            };
+
+            historyForm.addEventListener('input', markDirty);
+            historyForm.addEventListener('change', markDirty);
+            historyForm.addEventListener('click', (event) => {
+                if (event.target.closest('.rich-editor-toolbar button')) {
+                    window.setTimeout(bumpHistoryVersion, 0);
+                }
+            });
+        };
+
+        const formatHistoryMonth = (value) => {
+            const match = String(value || '').match(/^(\d{4})-(\d{2})$/);
+            if (!match) {
+                return '';
+            }
+
+            const year = Number(match[1]);
+            const monthIndex = Number(match[2]) - 1;
+            if (!Number.isFinite(year) || !Number.isFinite(monthIndex) || monthIndex < 0 || monthIndex > 11) {
+                return '';
+            }
+
+            return new Intl.DateTimeFormat('en', {
+                month: 'long',
+                year: 'numeric',
+                timeZone: 'UTC',
+            }).format(new Date(Date.UTC(year, monthIndex, 1)));
+        };
+
+        const syncAboutHistoryDateGroup = (group) => {
+            const periodInput = group.querySelector('[data-about-history-period]');
+            const startInput = group.querySelector('[data-about-history-date-start]');
+            const endInput = group.querySelector('[data-about-history-date-end]');
+
+            if (!periodInput || !startInput) {
+                return;
+            }
+
+            const startLabel = formatHistoryMonth(startInput.value);
+            const endLabel = formatHistoryMonth(endInput?.value || '');
+            const nextPeriod = startLabel && endLabel
+                ? `${startLabel} - ${endLabel}`
+                : (startLabel || endLabel);
+
+            if (nextPeriod !== '' && periodInput.value !== nextPeriod) {
+                periodInput.value = nextPeriod;
+                periodInput.dispatchEvent(new Event('input', {
+                    bubbles: true,
+                }));
+                periodInput.dispatchEvent(new Event('change', {
+                    bubbles: true,
+                }));
+                bumpHistoryVersion();
+            }
+        };
+
+        const initAboutHistoryDateFields = (scope = document) => {
+            scope.querySelectorAll('[data-about-history-date-group]').forEach((group) => {
+                if (group.dataset.aboutHistoryDatesBound === '1') {
+                    return;
+                }
+
+                group.dataset.aboutHistoryDatesBound = '1';
+                const sync = () => syncAboutHistoryDateGroup(group);
+                group.querySelectorAll('[data-about-history-date-start], [data-about-history-date-end]').forEach((input) => {
+                    input.addEventListener('input', sync);
+                    input.addEventListener('change', sync);
+                });
+            });
         };
 
         const setActiveContentsEditor = (slug = '') => {
@@ -1931,6 +2199,66 @@
             }
 
             contentsForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
+        const bumpHistoryVersion = () => {
+            if (historyVersionInput) {
+                historyVersionInput.value = String(Date.now());
+            }
+        };
+
+        const setActiveHistoryEditor = (index = '') => {
+            const editors = Array.from(document.querySelectorAll('[data-about-history-editor]'));
+
+            if (!editors.length) {
+                if (activeHistoryIndexInput) {
+                    activeHistoryIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            let targetEditor = null;
+
+            if (normalizedIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-history-index') === normalizedIndex) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors.find((editor) => editor.querySelector('[data-about-history-visible]')?.value !== '0') || editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.hidden = targetEditor ? !isActive : false;
+            });
+
+            if (activeHistoryIndexInput) {
+                activeHistoryIndexInput.value = targetEditor?.getAttribute('data-about-history-index') || '';
+            }
+
+            return targetEditor;
+        };
+
+        const submitHistoryForm = () => {
+            if (!historyForm) {
+                return;
+            }
+
+            if (typeof window.syncRichTextEditors === 'function') {
+                window.syncRichTextEditors(historyForm);
+            }
+
+            if (typeof historyForm.requestSubmit === 'function') {
+                historyForm.requestSubmit();
+                return;
+            }
+
+            historyForm.dispatchEvent(new Event('submit', {
                 bubbles: true,
                 cancelable: true,
             }));
@@ -2138,6 +2466,29 @@
             submitContentsForm();
         };
 
+        document.querySelectorAll('form.{{ $formClass }}').forEach((form) => {
+            if (form.dataset.aboutRichTextSubmitBound === '1') {
+                return;
+            }
+
+            form.dataset.aboutRichTextSubmitBound = '1';
+            if (form.matches('[data-about-history-form]')) {
+                form.addEventListener('submit', () => {
+                    form.querySelectorAll('[data-about-history-date-group]').forEach(syncAboutHistoryDateGroup);
+                    if (typeof window.syncRichTextEditors === 'function') {
+                        window.syncRichTextEditors(form);
+                    }
+                    bumpHistoryVersion();
+                }, true);
+            }
+
+            form.addEventListener('submit', () => {
+                if (typeof window.syncRichTextEditors === 'function') {
+                    window.syncRichTextEditors(form);
+                }
+            });
+        });
+
         const frame = document.querySelector('[data-about-preview-frame]');
         if (frame) {
             frame.addEventListener('load', () => {
@@ -2212,7 +2563,13 @@
         scheduleFitAboutPreviews();
         initAboutImageDropzones(document);
         initAboutCharCounters(document);
+        initAboutHistoryDateFields(document);
+        if (typeof window.initializeRichTextEditors === 'function') {
+            window.initializeRichTextEditors(document);
+        }
         bindAboutContentsDirtyTracking();
+        bindAboutHistoryDirtyTracking();
+        setActiveHistoryEditor();
         window.__aboutCmsPreviewEditorReady = true;
     })();
 </script>

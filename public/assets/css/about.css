@@ -2077,7 +2077,7 @@ body {
 
 .history-timeline-card {
   position: relative;
-  min-height: 100%;
+  min-height: auto;
   width: min(100%, 600px);
   padding: 26px 26px 42px;
   border: 1px solid rgba(127, 17, 19, 0.22);
@@ -2135,6 +2135,30 @@ body {
   font-size: 0.9rem;
   line-height: 1.72;
   max-width: none;
+}
+
+.history-timeline-copy {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+  color: var(--about-muted);
+  font-size: 0.9rem;
+  line-height: 1.72;
+}
+
+.history-timeline-copy > :first-child {
+  margin-top: 0;
+}
+
+.history-timeline-copy > :last-child {
+  margin-bottom: 0;
+}
+
+.history-timeline-copy p,
+.history-timeline-copy ul,
+.history-timeline-copy ol,
+.history-timeline-copy blockquote {
+  margin: 0;
 }
 
 .history-timeline-preview {
@@ -2206,6 +2230,7 @@ body {
 .history-timeline-toggle:hover,
 .history-timeline-toggle:focus-visible {
   outline: none;
+  transform: translateX(-50%);
 }
 
 .history-timeline-toggle svg {
@@ -3304,9 +3329,12 @@ pup-footer .footer { margin-top: 0; }
   }
 
   .contents-card:hover,
-  .section-link:hover,
-  .history-timeline-toggle:hover {
+  .section-link:hover {
     transform: none;
+  }
+
+  .history-timeline-toggle:hover {
+    transform: translateX(-50%);
   }
 }
 
@@ -5265,6 +5293,102 @@ body.pup-dark-mode .official-role { color: #c8a8a8; }
 }
 
 /* ============================================================
+   ABOUT DETAIL PAGE NORMALIZATION
+   Keep every About subsection on the same shell rhythm as overview.
+   ============================================================ */
+.about-shell > .about-sections {
+  width: 100vw;
+  max-width: none;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+  padding: 0 var(--about-page-gutter) clamp(28px, 3vw, 40px);
+  justify-self: stretch;
+  justify-items: stretch;
+  align-self: start;
+  gap: clamp(16px, 2vw, 24px);
+}
+
+.about-sections > .history-story,
+.about-sections > .about-section-card {
+  width: 100%;
+  max-width: none;
+  margin-left: 0;
+  margin-right: 0;
+  justify-self: stretch;
+}
+
+.about-sections > .history-story {
+  padding: 0;
+}
+
+.about-sections > .about-section-card {
+  padding: clamp(18px, 2.5vw, 28px);
+}
+
+.about-sections .history-story-inner,
+.about-sections .history-timeline-container,
+.about-sections .history-timeline-shell,
+.about-sections .about-detail-body {
+  width: 100%;
+  max-width: none;
+}
+
+.about-sections .history-timeline-container,
+.about-sections .about-section-card {
+  border-radius: 28px;
+}
+
+.about-sections .history-timeline-container {
+  padding: clamp(18px, 2.5vw, 28px);
+}
+
+.about-sections .history-timeline-shell {
+  gap: clamp(34px, 3.4vw, 48px);
+}
+
+.about-sections .history-timeline-head {
+  position: relative;
+  z-index: 2;
+}
+
+.about-sections .history-timeline-grid {
+  margin-top: 0;
+}
+
+@media (max-width: 768px) {
+  .about-shell > .about-sections {
+    padding: 0 var(--about-page-gutter) 24px;
+    gap: 16px;
+  }
+
+  .about-sections > .about-section-card,
+  .about-sections .history-timeline-container {
+    padding: 18px;
+    border-radius: 22px;
+  }
+
+  .about-sections .history-timeline-shell {
+    gap: 26px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about-shell > .about-sections {
+    padding-bottom: 20px;
+  }
+
+  .about-sections > .about-section-card,
+  .about-sections .history-timeline-container {
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .about-sections .history-timeline-shell {
+    gap: 22px;
+  }
+}
+
+/* ============================================================
    STRATEGIC DEVELOPMENT PLAN — sdp-* components
    ============================================================ */
 
@@ -5633,24 +5757,67 @@ body.pup-dark-mode .sdp-principle-row {
 }
 
 .dp-contact-logo-wrap {
+  position: relative;
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  overflow: hidden;
-  border: 3px solid rgba(255, 241, 231, 0.3);
-  box-shadow: 0 8px 24px rgba(18, 3, 4, 0.35);
-  background: rgba(255, 250, 244, 0.12);
+  overflow: visible;
+  border: 0;
+  box-shadow: none;
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
 }
 
+.dp-contact-logo-wrap::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 150px;
+  height: 150px;
+  border-radius: 999px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(243, 196, 90, 0.42) 0%, rgba(243, 196, 90, 0.2) 42%, rgba(243, 196, 90, 0) 74%);
+  filter: blur(10px);
+  opacity: 0.9;
+  animation: dp-contact-seal-glow 4.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
 .dp-contact-logo-img {
-  width: 80px;
-  height: 80px;
+  position: relative;
+  z-index: 1;
+  width: 104px;
+  height: 104px;
   object-fit: contain;
-  filter: brightness(0) invert(1);
+  display: block;
+  filter: drop-shadow(0 0 12px rgba(255, 224, 130, 0.38)) drop-shadow(0 14px 24px rgba(18, 3, 4, 0.32));
+  animation: dp-contact-crest-float 3.8s ease-in-out infinite;
+}
+
+@keyframes dp-contact-crest-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes dp-contact-seal-glow {
+  0%,
+  100% {
+    opacity: 0.72;
+    transform: translate(-50%, -50%) scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+  }
 }
 
 .dp-contact-branch-info {
@@ -5807,9 +5974,14 @@ body.pup-dark-mode .sdp-principle-row {
     height: 100px;
   }
 
+  .dp-contact-logo-wrap::before {
+    width: 128px;
+    height: 128px;
+  }
+
   .dp-contact-logo-img {
-    width: 66px;
-    height: 66px;
+    width: 88px;
+    height: 88px;
   }
 }
 
@@ -5864,13 +6036,21 @@ body.pup-dark-mode .sdp-principle-row {
   .dp-contact-heading { font-size: 1.2rem; }
 
   .dp-contact-logo-wrap { width: 84px; height: 84px; }
-  .dp-contact-logo-img { width: 56px; height: 56px; }
+  .dp-contact-logo-wrap::before { width: 112px; height: 112px; }
+  .dp-contact-logo-img { width: 76px; height: 76px; }
 
   .dp-contact-row { padding: 10px 12px; gap: 10px; }
   .dp-contact-icon { width: 32px; height: 32px; }
   .dp-contact-row-value { font-size: 0.88rem; }
 
   .dp-contact-cta { width: 100%; justify-content: center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dp-contact-logo-wrap::before,
+  .dp-contact-logo-img {
+    animation: none;
+  }
 }
 
 /* ── Dark mode ── */
@@ -5885,8 +6065,8 @@ body.pup-dark-mode .dp-contact-photo-panel {
 }
 
 body.pup-dark-mode .dp-contact-logo-wrap {
-  background: rgba(255, 255, 255, 0.06);
-  border-color: rgba(160, 40, 40, 0.22);
+  background: transparent;
+  border-color: transparent;
 }
 
 body.pup-dark-mode .dp-contact-branch-name { color: #f5e8e8; }

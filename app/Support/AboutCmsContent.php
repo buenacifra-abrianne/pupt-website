@@ -488,6 +488,7 @@ class AboutCmsContent
             $rawBody = $source['body'] ?? ($source['body_text'] ?? ($baseItem['body'] ?? []));
 
             $items[] = [
+                'visible' => self::pickFlag($source, $baseItem, $defaultItem + ['visible' => '1'], 'visible'),
                 'period' => self::pickString($source, $baseItem, $defaultItem, 'period'),
                 'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
                 'body' => self::normalizeParagraphs($rawBody, $baseItem['body'] ?? $defaultItem['body'], $defaultItem['body']),

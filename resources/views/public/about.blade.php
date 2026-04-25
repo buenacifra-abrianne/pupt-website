@@ -229,33 +229,55 @@
 
                                             <div class="history-timeline-grid">
                                                 @foreach($selectedSection['timeline'] ?? [] as $milestone)
+                                                    @continue((string) ($milestone['visible'] ?? '1') === '0')
                                                     @php
-                                                        $firstParagraph = (string) ($milestone['body'][0] ?? '');
-                                                        $remainingParagraphs = array_slice($milestone['body'] ?? [], 1);
-                                                        $hasExpandableTimelineCard = count($remainingParagraphs) > 0 || \Illuminate\Support\Str::length($firstParagraph) > 180;
+                                                        $timelineIndex = $loop->index;
+                                                        $timelineBody = implode('', array_map(static function ($paragraph) {
+                                                            $text = trim((string) $paragraph);
+
+                                                            if ($text === '') {
+                                                                return '';
+                                                            }
+
+                                                            return preg_match('/<[^>]+>/', $text)
+                                                                ? $text
+                                                                : '<p>'.e($text).'</p>';
+                                                        }, $milestone['body'] ?? []));
                                                     @endphp
-                                                    <article class="history-timeline-row reveal {{ $loop->odd ? 'is-left' : 'is-right' }} {{ $loop->iteration % 2 === 0 ? 'delay-200' : 'delay-100' }}">
+                                                    <article
+                                                        class="history-timeline-row reveal {{ $loop->odd ? 'is-left' : 'is-right' }} {{ $loop->iteration % 2 === 0 ? 'delay-200' : 'delay-100' }}"
+                                                        @if($cmsPreview)
+                                                            data-about-history-card
+                                                            data-about-history-index="{{ $timelineIndex }}"
+                                                            data-about-history-label="{{ $milestone['title'] ?? 'Milestone' }}"
+                                                        @endif
+                                                    >
                                                         <div class="history-timeline-marker" aria-hidden="true">
                                                             <span class="history-timeline-dot"></span>
                                                         </div>
 
                                                         <div class="history-timeline-card">
+                                                            @if($cmsPreview)
+                                                                <div class="cms-preview-card-actions" aria-label="Timeline actions">
+                                                                    <button type="button" class="cms-preview-card-action" data-about-history-edit>Edit</button>
+                                                                </div>
+                                                            @endif
                                                             <span class="history-timeline-period">{{ $milestone['period'] ?? '' }}</span>
                                                             <h5>{{ $milestone['title'] ?? '' }}</h5>
-                                                            @if($hasExpandableTimelineCard)
-                                                                <p class="history-timeline-preview">{{ $firstParagraph }}</p>
-                                                                <div class="history-timeline-more" aria-hidden="true">
-                                                                    @foreach($remainingParagraphs as $paragraph)
-                                                                        <p>{{ $paragraph }}</p>
-                                                                    @endforeach
+                                                            @if($cmsPreview)
+                                                                <div class="history-timeline-copy rich-text-content">
+                                                                    {!! \App\Support\RichText::sanitize($timelineBody) !!}
                                                                 </div>
+                                                            @else
+                                                                <div class="history-timeline-preview rich-text-content">
+                                                                    {!! \App\Support\RichText::sanitize($timelineBody) !!}
+                                                                </div>
+                                                                <div class="history-timeline-more" aria-hidden="true"></div>
                                                                 <button type="button" class="history-timeline-toggle" aria-expanded="false" aria-label="Read more about {{ $milestone['title'] ?? 'this milestone' }}">
                                                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                                                         <path d="m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"></path>
                                                                     </svg>
                                                                 </button>
-                                                            @else
-                                                                <p>{{ $firstParagraph }}</p>
                                                             @endif
                                                         </div>
                                                     </article>
@@ -875,7 +897,7 @@
 </section>{{-- /.about-shell.page-shell --}}
 
         {{-- ── Contact Information Card ── --}}
-            @unless($selectedSection)
+            @unless($selectedSection || $cmsPreview)
             <div class="dp-contact-wrap">
                 <div class="contact-info-card">
 
@@ -1227,6 +1249,37 @@
                 filter: none !important;
             }
 
+            [data-about-history-card] .history-timeline-card {
+                cursor: pointer;
+                isolation: isolate;
+            }
+
+            [data-about-history-card] .history-timeline-card::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            [data-about-history-card]:hover .history-timeline-card::after,
+            [data-about-history-card]:focus-within .history-timeline-card::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
+            .history-story > .cms-preview-chip {
+                display: none !important;
+            }
+
             .cms-preview-card-actions {
                 position: absolute;
                 top: 14px;
@@ -1244,7 +1297,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: none !important;
+                display: flex !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
@@ -1422,8 +1475,12 @@
                     const label = target.getAttribute('data-cms-section-label') || section;
                     const chip = target.querySelector('[data-cms-edit-trigger]');
 
+                    if (section === 'history') {
+                        return;
+                    }
+
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-edit]')) {
                             return;
                         }
 
@@ -1432,10 +1489,6 @@
                         }
 
                         if (event.target.closest('a[href]') && !event.target.closest('[data-cms-edit-trigger]')) {
-                            return;
-                        }
-
-                        if (event.target.closest('.history-timeline-toggle')) {
                             return;
                         }
 
@@ -1458,6 +1511,31 @@
                 });
 
                 document.addEventListener('click', (event) => {
+                    const historyEditTrigger = event.target.closest('[data-about-history-edit]');
+                    if (historyEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = historyEditTrigger.closest('[data-about-history-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-history-card-edit',
+                            index: card?.getAttribute('data-about-history-index') || '',
+                            label: card?.getAttribute('data-about-history-label') || 'History milestone',
+                        }, '*');
+                        return;
+                    }
+
+                    const historyCard = event.target.closest('[data-about-history-card]');
+                    if (historyCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-history-card-edit',
+                            index: historyCard.getAttribute('data-about-history-index') || '',
+                            label: historyCard.getAttribute('data-about-history-label') || 'History milestone',
+                        }, '*');
+                        return;
+                    }
+
                     const deleteCardTrigger = event.target.closest('[data-about-card-delete]');
                     if (deleteCardTrigger) {
                         event.preventDefault();

@@ -197,6 +197,21 @@
 
     @if($cmsPreview)
         <style>
+            html,
+            body {
+                height: auto !important;
+                min-height: 0 !important;
+            }
+
+            body {
+                display: block !important;
+            }
+
+            body > .main-content {
+                flex: none !important;
+                min-height: 0 !important;
+            }
+
             .reveal,
             .reveal.active {
                 opacity: 1 !important;
@@ -558,20 +573,7 @@
                     const childBottom = visibleElements.reduce((maxBottom, node) => {
                         return Math.max(maxBottom, getElementBottom(node));
                     }, 0);
-                    const html = document.documentElement;
-                    const body = document.body;
-                    const height = Math.max(
-                        scope.offsetHeight,
-                        scope.scrollHeight,
-                        scope.clientHeight,
-                        body?.offsetHeight || 0,
-                        body?.scrollHeight || 0,
-                        body?.clientHeight || 0,
-                        html?.offsetHeight || 0,
-                        html?.scrollHeight || 0,
-                        html?.clientHeight || 0,
-                        childBottom
-                    );
+                    const height = childBottom || scope.scrollHeight || scope.offsetHeight || 1;
 
                     window.parent?.postMessage({
                         type: 'cms-academics-preview-height',
