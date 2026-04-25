@@ -103,18 +103,18 @@
             <h2>{{ $cards['title'] ?? '' }}</h2>
         </div>
 
-        <div class="contents-cards reveal delay-100">
+<div class="contents-cards dp-program-cards reveal delay-100">
             @foreach($cardItems as $item)
                 @php
                     $itemTitle = $item['title'] ?? '';
                     $itemBody = $item['body'] ?? '';
                     $itemHref = trim((string) ($item['href'] ?? ''));
-                    $itemImage = \App\Support\AcademicsCmsContent::resolveImagePath($item['image'] ?? '', $cardImageFallback);
-                    $itemCta = trim((string) ($item['cta'] ?? '')) !== '' ? $item['cta'] : 'View Program';
+                    $itemBadge = trim((string) ($item['badge'] ?? ''));
+                    $itemDept = trim((string) ($item['dept'] ?? ''));
                 @endphp
                 @if($cmsPreview)
                     <article
-                        class="contents-card card_without_section"
+                        class="contents-card"
                         data-cms-card-index="{{ $loop->index }}"
                         data-cms-card-section="{{ $pageKey }}-cards"
                         data-cms-card-label="{{ $pageTitle }} Card"
@@ -123,22 +123,19 @@
                             <button type="button" class="cms-preview-card-action" data-cms-card-edit>Edit</button>
                         </div>
                 @else
-                    <a href="{{ $itemHref !== '' ? $itemHref : '#' }}" class="contents-card card_without_section" tabindex="0">
+                    <a href="{{ $itemHref !== '' ? $itemHref : '#' }}" class="contents-card" tabindex="0">
                 @endif
-                    <div class="contents-card-inner">
-                        <div class="contents-card-front">
-                            <img src="{{ $itemImage }}" alt="{{ $itemTitle }}" loading="lazy">
-                            <div class="contents-card-copy">
-                                <h3>{{ $itemTitle }}</h3>
-                            </div>
-                        </div>
-                        <div class="contents-card-back">
-                            <div class="contents-card-overlay-copy">
-                                <h3>{{ $itemTitle }}</h3>
-                                <p>{{ $itemBody }}</p>
-                            </div>
-                            <span class="contents-card-action">{{ $itemCta }}</span>
-                        </div>
+                    <div class="dp-diploma-card-body">
+                        @if($itemBadge !== '')
+                            <span class="dp-diploma-badge">{{ $itemBadge }}</span>
+                        @endif
+                        <h3 class="dp-diploma-title">{{ $itemTitle }}</h3>
+                        @if($itemBody !== '')
+                            <p class="dp-diploma-desc">{{ $itemBody }}</p>
+                        @endif
+                        @if($itemDept !== '')
+                            <span class="dp-diploma-dept">{{ $itemDept }}</span>
+                        @endif
                     </div>
                 @if($cmsPreview)
                     </article>
@@ -149,71 +146,3 @@
         </div>
     </div>
 </section>
-
-<div
-    class="dp-contact-wrap{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-    @if($cmsPreview)
-        data-cms-section="{{ $pageKey }}-contact"
-        data-cms-section-label="{{ $pageTitle }} Contact"
-    @endif
->
-    <div class="contact-info-card reveal" @if($cmsPreview) data-cms-boundary @endif>
-        <div class="dp-contact-photo-panel">
-            <div class="dp-contact-logo-wrap">
-                <img
-                    src="{{ asset('assets/static_img/logo.png') }}"
-                    alt="{{ $contact['campus_name'] ?? 'PUP Taguig Branch' }}"
-                    class="dp-contact-logo-img"
-                    onerror="this.style.display='none'"
-                >
-            </div>
-            <div class="dp-contact-branch-info">
-                <p class="dp-contact-branch-name">{{ $contact['campus_name'] ?? '' }}</p>
-                <p class="dp-contact-branch-sub">{{ $contact['campus_sub'] ?? '' }}</p>
-            </div>
-            <div class="dp-contact-divider"></div>
-            <p class="dp-contact-address">{{ $contact['address'] ?? '' }}</p>
-        </div>
-
-        <div class="dp-contact-details-panel">
-            <div class="dp-contact-intro">
-                <span class="section-tag">{{ $contact['tag'] ?? '' }}</span>
-                <h2 class="dp-contact-heading">{{ $contact['title'] ?? '' }}</h2>
-                <p class="dp-contact-subtext">{{ $contact['description'] ?? '' }}</p>
-            </div>
-
-            <div class="dp-contact-rows">
-                @foreach($contactRows as $row)
-                    @php
-                        $tone = strtolower(trim((string) ($row['tone'] ?? 'maroon'))) === 'gold' ? 'gold' : 'maroon';
-                    @endphp
-                    <div class="dp-contact-row dp-contact-row--{{ $tone }}">
-                        <div class="dp-contact-icon dp-contact-icon--{{ $tone }}">
-                            @if($tone === 'gold')
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2d1606" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <rect x="2" y="4" width="20" height="16" rx="2"/>
-                                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
-                                </svg>
-                            @else
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fffaf4" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                                    <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.64 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13 1 .37 1.98.71 2.93a2 2 0 0 1-.45 2.11L7.91 9a16 16 0 0 0 6 6l.96-.95a2 2 0 0 1 2.11-.45c.95.34 1.93.58 2.93.71A2 2 0 0 1 22 16.92z"/>
-                                </svg>
-                            @endif
-                        </div>
-                        <div>
-                            <span class="dp-contact-row-label">{{ $row['label'] ?? '' }}</span>
-                            <a href="{{ $row['href'] ?? '#' }}" class="dp-contact-row-value">{{ $row['value'] ?? '' }}</a>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-
-            <a href="{{ $contact['cta_href'] ?? '#' }}" class="apply-now-btn dp-contact-cta">
-                {{ $contact['cta_label'] ?? 'Send Us a Message' }}
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                    <path d="M5 12h14M12 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
-    </div>
-</div>

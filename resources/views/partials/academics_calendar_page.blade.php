@@ -18,31 +18,40 @@
 </div>
 
 <section
-    class="iapply-hero{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+    class="iapply-hero uc-hero-b{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
     @if($cmsPreview)
         data-cms-section="university-calendar-hero"
         data-cms-section-label="University Calendar Hero"
     @endif
 >
-    <div class="iapply-hero-content" @if($cmsPreview) data-cms-boundary @endif>
+    <div class="uc-hero-b-top" @if($cmsPreview) data-cms-boundary @endif>
         <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
+
         <h1>{{ $hero['title'] ?? '' }}</h1>
         <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>
-        <p>{{ $hero['body'] ?? '' }}</p>
+        <p class="uc-hero-b-desc">{{ $hero['body'] ?? '' }}</p>
+    </div>
 
-        <div class="iapply-hero-desc">
-            <p>{{ $hero['list_title'] ?? '' }}</p>
-            <ul>
-                @foreach(($hero['list_items'] ?? []) as $item)
-                    @if(trim((string) $item) !== '')
-                        <li>{{ $item }}</li>
-                    @endif
-                @endforeach
-            </ul>
+    <div class="uc-hero-b-grid">
+        <div class="uc-hero-b-cell">
+            <p class="uc-hero-b-cell-label">Academic Year</p>
+            <p class="uc-hero-b-cell-val">2025–2026</p>
         </div>
-
-        <div class="iapply-hero-visual dp-hero-photo-panel">
-            <img src="{{ $heroImage }}" alt="{{ $hero['title'] ?? 'University Calendar' }}" class="dp-hero-photo">
+        <div class="uc-hero-b-cell">
+            <p class="uc-hero-b-cell-label">Enrollment</p>
+            <p class="uc-hero-b-cell-val">Dates inside</p>
+        </div>
+        <div class="uc-hero-b-cell">
+            <p class="uc-hero-b-cell-label">Examinations</p>
+            <p class="uc-hero-b-cell-val">Midterm &amp; Final</p>
+        </div>
+        <div class="uc-hero-b-cell">
+            <p class="uc-hero-b-cell-label">Holidays</p>
+            <p class="uc-hero-b-cell-val">Regular &amp; Special</p>
+        </div>
+        <div class="uc-hero-b-cell">
+            <p class="uc-hero-b-cell-label">University Events</p>
+            <p class="uc-hero-b-cell-val">Activities &amp; More</p>
         </div>
     </div>
 </section>
