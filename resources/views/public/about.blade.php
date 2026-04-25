@@ -540,13 +540,11 @@
 
                                 <div class="about-detail-body">
                                     @if($selectedSlug === 'logo-and-symbols')
-                                        {{-- ── IDENTITY PAGE HEADER ── --}}
                                         <div class="ls-page-header reveal">
                                             <p class="section-tag">Campus Identity</p>
-                                            <h2 class="ls-page-title">The Official Seal &amp; Symbols</h2>
-                                            <p class="ls-page-subtitle">Every element of the PUP Taguig seal carries deliberate meaning — each mark a reflection of the university's heritage, values, and ambitions.</p>
+                                            <h2 class="ls-page-title">{{ $selectedSection['label'] ?? 'Logo and Symbols' }}</h2>
+                                            <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
                                         </div>
-                                        {{-- ── SEAL HERO ── --}}
                                         <div class="ls-seal-hero reveal delay-100">
                                             <div class="ls-seal-hero-glow" aria-hidden="true"></div>
                                             <div class="ls-seal-hero-inner">
@@ -560,30 +558,33 @@
                                                     >
                                                 </div>
                                                 <div class="ls-seal-hero-copy">
-                                                    <p class="ls-seal-eyebrow">Official Seal — PUP Taguig Campus</p>
-                                                    <h3 class="ls-seal-headline">Forged in Maroon &amp; Gold</h3>
-                                                    <p class="ls-seal-body">The seal of the Polytechnic University of the Philippines is not merely a logo — it is a compact declaration of the institution's covenant with the Filipino people: quality education, rooted in history, oriented toward the future.</p>
+                                                    <p class="ls-seal-eyebrow">Official Seal - PUP Taguig Campus</p>
+                                                    <h3 class="ls-seal-headline">{{ $selectedSection['label'] ?? 'The Official Seal and Symbols' }}</h3>
+                                                    <p class="ls-seal-body">{{ $selectedSection['lead'] ?? '' }}</p>
                                                     <div class="ls-color-chips">
-                                                        <span class="ls-chip ls-chip--maroon">
-                                                            <span class="ls-chip-dot"></span>
-                                                            Maroon — Courage &amp; Excellence
-                                                        </span>
-                                                        <span class="ls-chip ls-chip--gold">
-                                                            <span class="ls-chip-dot"></span>
-                                                            Gold — Wisdom &amp; Achievement
-                                                        </span>
+                                                        <span class="ls-chip ls-chip--maroon"><span class="ls-chip-dot"></span>Maroon - Courage &amp; Excellence</span>
+                                                        <span class="ls-chip ls-chip--gold"><span class="ls-chip-dot"></span>Gold - Wisdom &amp; Achievement</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        {{-- ── SYMBOLISM GRID ── --}}
                                         <div class="ls-block-header reveal">
                                             <span class="ls-block-kicker">Symbolism</span>
                                             <h3 class="ls-block-title">What each element represents</h3>
                                         </div>
                                         <div class="ls-meanings-grid">
                                             @foreach($selectedSection['identity_marks'] ?? [] as $identityMark)
-                                                <article class="ls-meaning-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}">
+                                                <article class="ls-meaning-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                    @if($cmsPreview)
+                                                        data-about-section-card
+                                                        data-about-section-card-section="logo-and-symbols"
+                                                        data-about-section-card-index="{{ $loop->index }}"
+                                                        data-about-section-card-label="{{ $identityMark['title'] ?? ('Identity Card ' . $loop->iteration) }}"
+                                                        data-about-section-card-route="logo-and-symbols"
+                                                    @endif>
+                                                    @if($cmsPreview)
+                                                        <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                                    @endif
                                                     <div class="ls-meaning-card-header">
                                                         <span class="ls-meaning-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
                                                         <h4 class="ls-meaning-title">{{ $identityMark['title'] ?? '' }}</h4>
@@ -593,7 +594,6 @@
                                                 </article>
                                             @endforeach
                                         </div>
-                                        {{-- ── QUICK REFERENCE ── --}}
                                         @if(!empty($selectedSection['symbol_points']))
                                         <div class="ls-block-header reveal">
                                             <span class="ls-block-kicker">Quick Reference</span>
@@ -601,51 +601,41 @@
                                         </div>
                                         <div class="ls-reference-card reveal delay-100">
                                             @foreach($selectedSection['symbol_points'] ?? [] as $index => $point)
-                                                <div class="ls-ref-row">
-                                                    <span class="ls-ref-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                                    <span class="ls-ref-text">{{ $point }}</span>
-                                                </div>
+                                                <div class="ls-ref-row"><span class="ls-ref-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span><span class="ls-ref-text">{{ $point }}</span></div>
                                             @endforeach
                                         </div>
                                         @endif
-                                        {{-- ── OFFICIAL COLORS ── --}}
                                         <div class="ls-block-header reveal">
                                             <span class="ls-block-kicker">Official Colors</span>
                                             <h3 class="ls-block-title">The palette of PUP</h3>
                                         </div>
                                         <div class="ls-colors-duo reveal delay-100">
-                                            <div class="ls-color-card ls-color-card--maroon">
-                                                <div class="ls-color-card-swatch" aria-hidden="true">
-                                                    <div class="ls-color-swatch-pattern"></div>
-                                                </div>
-                                                <div class="ls-color-card-body">
-                                                    <p class="ls-color-name">Maroon</p>
-                                                    <p class="ls-color-hex">#7f1113</p>
-                                                    <p class="ls-color-pantone">Pantone 202 C</p>
-                                                    <p class="ls-color-meaning">Represents the courage, discipline, and relentless pursuit of excellence that define PUP's identity.</p>
-                                                </div>
-                                            </div>
-                                            <div class="ls-color-card ls-color-card--gold">
-                                                <div class="ls-color-card-swatch" aria-hidden="true">
-                                                    <div class="ls-color-swatch-pattern"></div>
-                                                </div>
-                                                <div class="ls-color-card-body">
-                                                    <p class="ls-color-name">Gold</p>
-                                                    <p class="ls-color-hex">#d7aa43</p>
-                                                    <p class="ls-color-pantone">Pantone 124 C</p>
-                                                    <p class="ls-color-meaning">Symbolizes wisdom, achievement, and the lasting value of education as an investment for the nation.</p>
-                                                </div>
-                                            </div>
+                                            <div class="ls-color-card ls-color-card--maroon"><div class="ls-color-card-swatch" aria-hidden="true"><div class="ls-color-swatch-pattern"></div></div><div class="ls-color-card-body"><p class="ls-color-name">Maroon</p><p class="ls-color-hex">#7f1113</p><p class="ls-color-pantone">Pantone 202 C</p><p class="ls-color-meaning">Represents the courage, discipline, and relentless pursuit of excellence that define PUP's identity.</p></div></div>
+                                            <div class="ls-color-card ls-color-card--gold"><div class="ls-color-card-swatch" aria-hidden="true"><div class="ls-color-swatch-pattern"></div></div><div class="ls-color-card-body"><p class="ls-color-name">Gold</p><p class="ls-color-hex">#d7aa43</p><p class="ls-color-pantone">Pantone 124 C</p><p class="ls-color-meaning">Symbolizes wisdom, achievement, and the lasting value of education as an investment for the nation.</p></div></div>
                                         </div>
-
                                     @elseif($selectedSlug === 'hymn')
-                                        {{-- ── HYMN PAGE HEADER ── --}}
+                                        @php
+                                            $defaultHymnSection = \App\Support\AboutCmsContent::defaults()['sections']['hymn'] ?? [];
+                                            $rawHymnSections = $selectedSection['hymn_sections'] ?? [];
+                                            $hasActualLyrics = collect($rawHymnSections)->contains(static function ($hymnSection) {
+                                                $body = mb_strtolower(trim((string) ($hymnSection['body'] ?? '')));
+
+                                                return $body !== ''
+                                                    && (
+                                                        str_contains($body, 'sintang paaralan')
+                                                        || str_contains($body, 'paaralang dakila')
+                                                        || str_contains($body, "\n")
+                                                    );
+                                            });
+                                            $hymnSectionData = $hasActualLyrics
+                                                ? $selectedSection
+                                                : array_merge($selectedSection, $defaultHymnSection);
+                                        @endphp
                                         <div class="hymn-page-header reveal">
                                             <p class="section-tag">Official Hymn</p>
-                                            <h2 class="hymn-page-title">Imno ng PUP</h2>
-                                            <p class="hymn-page-attribution">Music &amp; Lyrics by S. Calabig, S. Roldan &amp; R. Amaranto</p>
+                                            <h2 class="hymn-page-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h2>
+                                            <p class="hymn-page-attribution">{{ $hymnSectionData['summary'] ?? '' }}</p>
                                         </div>
-                                        {{-- ── LYRICS HERO ── --}}
                                         <div class="hymn-hero reveal delay-100">
                                             <div class="hymn-hero-ornament" aria-hidden="true">
                                                 <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -658,72 +648,90 @@
                                                 </svg>
                                             </div>
                                             <div class="hymn-hero-copy">
-                                                <p class="hymn-title-tag">Sintang Paaralan</p>
-                                                <h3 class="hymn-tagline">A Song of Covenant with the Nation</h3>
-                                                <p class="hymn-hero-desc">Written as a pledge between the university and the Filipino people — a reminder that education, at its highest, is an act of love for country.</p>
-                                                <a href="https://youtu.be/Yib_s5UeGvc?si=CR3qUIEbH25lZxfw"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                class="hymn-listen-btn"
-                                                aria-label="Listen to the PUP Hymn on YouTube">
-                                                    <span class="hymn-listen-icon" aria-hidden="true">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M8 5.14v14l11-7-11-7z"/>
-                                                        </svg>
-                                                    </span>
+                                                <p class="hymn-title-tag">{{ $hymnSectionData['label'] ?? 'Hymn' }}</p>
+                                                <h3 class="hymn-tagline">{{ $hymnSectionData['summary'] ?? 'A Song of Covenant with the Nation' }}</h3>
+                                                <p class="hymn-hero-desc">{{ $hymnSectionData['lead'] ?? '' }}</p>
+                                                <a href="https://youtu.be/Yib_s5UeGvc?si=CR3qUIEbH25lZxfw" target="_blank" rel="noopener noreferrer" class="hymn-listen-btn" aria-label="Listen to the PUP Hymn on YouTube">
+                                                    <span class="hymn-listen-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5.14v14l11-7-11-7z"/></svg></span>
                                                     Listen to the Hymn
                                                 </a>
-                                                </div>
-                                                </div>
+                                            </div>
+                                        </div>
                                         <div class="hymn-lyrics-block reveal">
                                             <div class="hymn-lyrics-header">
                                                 <span class="ls-block-kicker">Full Lyrics</span>
-                                                <h3 class="ls-block-title">Imno ng PUP</h3>
+                                                <h3 class="ls-block-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h3>
                                             </div>
                                             <div class="hymn-lyrics-body">
-                                                <div class="hymn-stanza">
-                                                    <p class="hymn-stanza-label">Verse I</p>
-                                                    <p class="hymn-line">Sintang Paaralan</p>
-                                                    <p class="hymn-line">Tanglaw ka ng bayan</p>
-                                                    <p class="hymn-line">Pandayan ng isip ng kabataan</p>
-                                                    <p class="hymn-line">Kami ay dumating nang salat sa yaman</p>
-                                                    <p class="hymn-line">Hanap na dunong ay iyong alay</p>
-                                                </div>
-                                                <div class="hymn-stanza">
-                                                    <p class="hymn-stanza-label">Verse II</p>
-                                                    <p class="hymn-line">Ang layunin mong makatao</p>
-                                                    <p class="hymn-line">Dinarangal ang Pilipino</p>
-                                                    <p class="hymn-line">Ang iyong aral, diwa, adhikang taglay</p>
-                                                    <p class="hymn-line hymn-line--refrain">PUP, aming gabay</p>
-                                                </div>
-                                                <div class="hymn-stanza hymn-stanza--chorus">
-                                                    <p class="hymn-stanza-label">Chorus</p>
-                                                    <p class="hymn-line">Paaralang dakila</p>
-                                                    <p class="hymn-line">PUP, pinagpala</p>
-                                                    <p class="hymn-line">Gagamitin ang karunungan</p>
-                                                    <p class="hymn-line">Mula sa iyo, para sa bayan</p>
-                                                    <p class="hymn-line">Ang iyong aral, diwa, adhikang taglay</p>
-                                                    <p class="hymn-line hymn-line--refrain">PUP, aming gabay</p>
-                                                    <p class="hymn-line">Paaralang dakila</p>
-                                                    <p class="hymn-line hymn-line--end">PUP, pinagpala</p>
-                                                </div>
+                                                @foreach($hymnSectionData['hymn_sections'] ?? [] as $hymnSection)
+                                                    @php
+                                                        $hymnLines = preg_split('/\R+/', trim((string) ($hymnSection['body'] ?? ''))) ?: [];
+                                                        $hymnLines = array_values(array_filter(array_map(static fn ($line) => trim((string) $line), $hymnLines), static fn ($line) => $line !== ''));
+                                                        $isChorus = str_contains(mb_strtolower((string) ($hymnSection['title'] ?? '')), 'chorus');
+                                                    @endphp
+                                                    <div class="hymn-stanza{{ $isChorus ? ' hymn-stanza--chorus' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                        @if($cmsPreview)
+                                                            data-about-section-card
+                                                            data-about-section-card-section="hymn"
+                                                            data-about-section-card-index="{{ $loop->index }}"
+                                                            data-about-section-card-label="{{ $hymnSection['title'] ?? ('Hymn Card ' . $loop->iteration) }}"
+                                                            data-about-section-card-route="hymn"
+                                                        @endif>
+                                                        @if($cmsPreview)
+                                                            <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                                        @endif
+                                                        <p class="hymn-stanza-label">{{ $hymnSection['title'] ?? ('Section ' . $loop->iteration) }}</p>
+                                                        @foreach($hymnLines as $lineIndex => $hymnLine)
+                                                            @php
+                                                                $lineClass = 'hymn-line';
+                                                                if (trim($hymnLine) === 'PUP, aming gabay') {
+                                                                    $lineClass .= ' hymn-line--refrain';
+                                                                } elseif (
+                                                                    $isChorus
+                                                                    && $lineIndex === count($hymnLines) - 1
+                                                                    && trim($hymnLine) === 'PUP, pinagpala'
+                                                                ) {
+                                                                    $lineClass .= ' hymn-line--end';
+                                                                }
+                                                            @endphp
+                                                            <p class="{{ $lineClass }}">{{ $hymnLine }}</p>
+                                                        @endforeach
+                                                    </div>
+                                                @endforeach
                                             </div>
                                         </div>
+                                        @if(!empty($hymnSectionData['hymn_notes']))
+                                        <div class="hymn-lyrics-block reveal delay-100">
+                                            <div class="hymn-lyrics-header">
+                                                <span class="ls-block-kicker">Ceremonial Notes</span>
+                                                <h3 class="ls-block-title">Guidance and Context</h3>
+                                            </div>
+                                            <div class="hymn-lyrics-body">
+                                                @foreach($hymnSectionData['hymn_notes'] ?? [] as $note)
+                                                    <div class="hymn-stanza"><p class="hymn-line">{{ $note }}</p></div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        @endif
 
                                     @elseif($selectedSlug === 'maps')
 
+                                    @php
+                                        $mapUrl = $selectedSection['map_url'] ?? 'https://maps.app.goo.gl/RDAwxBvDzyGzUbVN7';
+                                    @endphp
                                     <div class="map-hero-header">
                                     <div>
                                         <p class="map-hero-eyebrow">Location</p>
-                                        <h2 class="map-hero-title">PUP Taguig Campus</h2>
-                                        <p class="map-hero-address">Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila</p>
+                                        <h2 class="map-hero-title">{{ $selectedSection['label'] ?? 'Maps' }}</h2>
+                                        <p class="map-hero-address">{{ $selectedSection['summary'] ?? '' }}</p>
                                         <div class="map-hero-chips">
                                         <span class="map-chip map-chip--gold">Lower Bicutan, Taguig</span>
-                                        <span class="map-chip map-chip--light">Mon–Fri · 7AM–6PM</span>
-                                        <span class="map-chip map-chip--light">★ 4.5 · Public University</span>
+                                        <span class="map-chip map-chip--light">Mon-Fri · 7AM-6PM</span>
+                                        <span class="map-chip map-chip--light">Public University</span>
                                         </div>
+                                        <p class="map-hero-address">{{ $selectedSection['lead'] ?? '' }}</p>
                                     </div>
-                                    <a href="https://maps.app.goo.gl/azsPnMfHwSTNv4xN7" target="_blank" rel="noopener noreferrer" class="map-hero-cta">
+                                    <a href="{{ $mapUrl }}" target="_blank" rel="noopener noreferrer" class="map-hero-cta">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                                         Get Directions
                                     </a>
@@ -757,14 +765,14 @@
 
                                         <div class="map-dir-footer">
                                         <div class="map-dir-text">
-                                            <strong>Open in Google Maps</strong> for real-time directions, live traffic, and transit options from your location.
+                                            <strong>Open in Google Maps</strong> {{ $selectedSection['visit_planning_text'] ?? 'for real-time directions, live traffic, and transit options from your location.' }}
                                         </div>
                                         <div class="map-dir-btns">
-                                            <a href="https://maps.app.goo.gl/azsPnMfHwSTNv4xN7" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--primary">
+                                            <a href="{{ $mapUrl }}" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--primary">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
                                             Open Maps
                                             </a>
-                                            <a href="https://maps.app.goo.gl/azsPnMfHwSTNv4xN7" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--gold">
+                                            <a href="{{ $mapUrl }}" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--gold">
                                             <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                                             Directions
                                             </a>
@@ -774,38 +782,37 @@
 
                                     <div class="map-sidebar">
 
-                                        <div class="map-transport-card">
+                                        <div class="map-transport-card reveal delay-100">
                                         <div class="map-info-kicker">How to Get Here</div>
                                         <div class="map-transport-list">
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 1c-4.418 0-8 .895-8 2v16l2-2h12l2 2V3c0-1.105-3.582-2-8-2zm0 2c3.314 0 6 .672 6 1.5S15.314 6 12 6 6 5.328 6 4.5 8.686 3 12 3zm-4 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm8 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg></div>
-                                            <div><div class="map-t-name">Jeepney</div><div class="map-t-sub">Bicutan–Taguig route</div></div>
-                                            <span class="map-t-badge">Nearest stop</span>
-                                            </div>
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
-                                            <div><div class="map-t-name">UV Express</div><div class="map-t-sub">From BGC / Alabang</div></div>
-                                            <span class="map-t-badge">Via SLEX</span>
-                                            </div>
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 22s8-5.33 8-12A8 8 0 0 0 4 10c0 6.67 8 12 8 12z"/><circle cx="12" cy="10" r="3"/></svg></div>
-                                            <div><div class="map-t-name">Grab / Taxi</div><div class="map-t-sub">Door-to-door service</div></div>
-                                            <span class="map-t-badge">Recommended</span>
-                                            </div>
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M16 4H8L3 9v6l5 5h8l5-5V9l-5-5zm-4 13a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg></div>
-                                            <div><div class="map-t-name">BGC Bus</div><div class="map-t-sub">Taguig route stops nearby</div></div>
-                                            <span class="map-t-badge">BGC Hub</span>
-                                            </div>
+                                            @foreach($selectedSection['map_cards'] ?? [] as $mapCard)
+                                                <article class="map-transport-row{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                    @if($cmsPreview)
+                                                        data-about-section-card
+                                                        data-about-section-card-section="maps"
+                                                        data-about-section-card-index="{{ $loop->index }}"
+                                                        data-about-section-card-label="{{ $mapCard['title'] ?? ('Map Card ' . $loop->iteration) }}"
+                                                        data-about-section-card-route="maps"
+                                                    @endif>
+                                                    @if($cmsPreview)
+                                                        <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                                    @endif
+                                                    <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.4" fill="#f4e7cf"/></svg></div>
+                                                    <div>
+                                                        <div class="map-t-name">{{ $mapCard['title'] ?? '' }}</div>
+                                                        <div class="map-t-sub">{{ $mapCard['body'] ?? '' }}</div>
+                                                    </div>
+                                                    <span class="map-t-badge">Stop {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                </article>
+                                            @endforeach
                                         </div>
                                         </div>
 
-                                        <div class="map-tips-card2">
+                                        <div class="map-tips-card2 reveal">
                                         <div class="map-tips-kicker">Visitor Tips</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Bring a valid ID — security requires gate registration for non-students.</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Parking is limited; public transport is highly recommended.</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Registrar and Admin offices open at 8:00 AM sharp on weekdays.</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Nearest landmark: Lower Bicutan Terminal / SM Bicutan.</div>
+                                        @foreach($selectedSection['visit_notes'] ?? [] as $visitNote)
+                                            <div class="map-tip-item"><span class="map-tip-bull"></span>{{ $visitNote }}</div>
+                                        @endforeach
                                         </div>
 
                                     </div>
@@ -822,97 +829,54 @@
                                     </script>
 
                                 @elseif($selectedSlug === 'campus-officials')
+                                <div class="ls-page-header reveal">
+                                    <p class="section-tag">Campus Leadership</p>
+                                    <h2 class="ls-page-title">{{ $selectedSection['label'] ?? 'Campus Officials' }}</h2>
+                                    <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
+                                </div>
+                                <p class="about-detail-caption reveal delay-100">{{ $selectedSection['lead'] ?? '' }}</p>
                                 <div class="officials-grid">
-
-                                <div class="official-card official-card--featured">
-                                    <div class="official-avatar">
-                                    <span class="official-initials-text">MBF</span>
-                                    </div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Campus Director</span>
-                                    <p class="official-name">Dr. Marissa B. Ferrer</p>
-                                    <p class="official-role">Campus Director</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">RVM</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Academic Programs</span>
-                                    <p class="official-name">Dr. Rhyan V. Molinar</p>
-                                    <p class="official-role">Head of Academic Programs</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">MLZ</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Administration</span>
-                                    <p class="official-name">Engr. Michael L. Zarco</p>
-                                    <p class="official-role">Administration Officer</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">BIC</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Student Services</span>
-                                    <p class="official-name">Asst. Prof. Bernadette I. Canlas</p>
-                                    <p class="official-role">Head of Student Services</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">MPG</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Registrar</span>
-                                    <p class="official-name">Mr. Mhel P. Garcia</p>
-                                    <p class="official-role">Campus Registrar / Head of Registration Office</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">LLM</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Guidance</span>
-                                    <p class="official-name">Assoc. Prof. Liwanag L. Maliksi</p>
-                                    <p class="official-role">Guidance and Counseling Office</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">GAD</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Accreditation</span>
-                                    <p class="official-name">Assoc. Prof. Gina A. Dela Cruz</p>
-                                    <p class="official-role">Accreditation Coordinator / Property Custodian</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">DSS</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Admission</span>
-                                    <p class="official-name">Dianne S. Segurora</p>
-                                    <p class="official-role">Head of Admission</p>
-                                    </div>
-                                </div>
+                                @foreach($selectedSection['official_groups'] ?? [] as $officialGroup)
+                                    @php
+                                        $officialInitials = collect(preg_split('/[\s\/,&-]+/', trim((string) ($officialGroup['title'] ?? ''))))
+                                            ->filter()
+                                            ->map(static fn ($segment) => strtoupper(substr($segment, 0, 1)))
+                                            ->take(3)
+                                            ->implode('');
+                                    @endphp
+                                    <article class="official-card{{ $loop->first ? ' official-card--featured' : '' }} reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                        @if($cmsPreview)
+                                            data-about-section-card
+                                            data-about-section-card-section="campus-officials"
+                                            data-about-section-card-index="{{ $loop->index }}"
+                                            data-about-section-card-label="{{ $officialGroup['title'] ?? ('Official Card ' . $loop->iteration) }}"
+                                            data-about-section-card-route="campus-officials"
+                                        @endif>
+                                        @if($cmsPreview)
+                                            <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                        @endif
+                                        <div class="official-avatar"><span class="official-initials-text">{{ $officialInitials !== '' ? $officialInitials : 'PUP' }}</span></div>
+                                        <div class="official-info">
+                                            <span class="official-office-badge">Office {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                            <p class="official-name">{{ $officialGroup['title'] ?? '' }}</p>
+                                            <p class="official-role">{{ $officialGroup['body'] ?? '' }}</p>
+                                        </div>
+                                    </article>
+                                @endforeach
 
                                 </div>
                                 <p class="about-detail-caption">{{ $selectedSection['officials_note'] ?? '' }}</p>
 
                                 @elseif($selectedSlug === 'strategic-development-plan')
-                                {{-- ── SDP PAGE HEADER ── --}}
                                 <div class="sdp-page-header reveal">
                                     <div class="sdp-page-header-inner">
                                         <div class="sdp-page-header-copy">
                                             <p class="sdp-page-header-eyebrow">Strategic Planning</p>
-                                            <h2 class="sdp-page-title">Strategic Development Plan</h2>
-                                            <p class="sdp-page-subtitle">A forward-looking framework that guides the campus toward academic excellence, community impact, and sustainable institutional growth.</p>
+                                            <h2 class="sdp-page-title">{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}</h2>
+                                            <p class="sdp-page-subtitle">{{ trim(implode(' ', array_filter([($selectedSection['summary'] ?? ''), ($selectedSection['lead'] ?? '')]))) }}</p>
                                         </div>
                                     </div>
                                 </div>
-                                    {{-- ── PRIORITIES GRID ── --}}
                                     <div class="sdp-block-header reveal">
                                         <span class="ls-block-kicker">Development Priorities</span>
                                         <h3 class="ls-block-title">Key focus areas driving the campus forward</h3>
@@ -920,7 +884,17 @@
                                     <div class="sdp-priorities-grid">
                                         @foreach($selectedSection['development_priorities'] ?? [] as $priority)
                                             @php($num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT))
-                                            <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}">
+                                            <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                @if($cmsPreview)
+                                                    data-about-section-card
+                                                    data-about-section-card-section="strategic-development-plan"
+                                                    data-about-section-card-index="{{ $loop->index }}"
+                                                    data-about-section-card-label="{{ $priority['title'] ?? ('Priority Card ' . $loop->iteration) }}"
+                                                    data-about-section-card-route="strategic-development-plan"
+                                                @endif>
+                                                @if($cmsPreview)
+                                                    <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                                @endif
                                                 <div class="sdp-priority-card-accent" aria-hidden="true"></div>
                                                 <div class="sdp-priority-header">
                                                     <span class="sdp-priority-index">{{ $num }}</span>
@@ -930,7 +904,6 @@
                                             </article>
                                         @endforeach
                                     </div>
-                                    {{-- ── PLANNING PRINCIPLES ── --}}
                                     @if(!empty($selectedSection['plan_principles']))
                                     <div class="sdp-block-header reveal">
                                         <span class="ls-block-kicker">Planning Guide</span>

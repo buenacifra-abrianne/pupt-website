@@ -167,23 +167,19 @@ class AboutCmsContent
                 'lead' => 'The campus hymn serves as a ceremonial expression of identity, unity, and commitment to the ideals of the University.',
                 'hymn_sections' => [
                     [
-                        'title' => 'What It Expresses',
-                        'body' => 'The hymn celebrates pride in learning, loyalty to the institution, and the call to use one\'s education in service of the nation.',
+                        'title' => 'Verse I',
+                        'body' => "Sintang Paaralan\nTanglaw ka ng bayan\nPandayan ng isip ng kabataan\nKami ay dumating nang salat sa yaman\nHanap na dunong ay iyong alay",
                     ],
                     [
-                        'title' => 'When It Is Performed',
-                        'body' => 'It is commonly sung during campus ceremonies, academic gatherings, recognition programs, and other official events.',
+                        'title' => 'Verse II',
+                        'body' => "Ang layunin mong makatao\nDinarangal ang Pilipino\nAng iyong aral, diwa, adhikang taglay\nPUP, aming gabay",
                     ],
                     [
-                        'title' => 'Shared Practice',
-                        'body' => 'Students, employees, alumni, and guests are encouraged to observe the hymn with respect and attention whenever it is rendered.',
+                        'title' => 'Chorus',
+                        'body' => "Paaralang dakila\nPUP, pinagpala\nGagamitin ang karunungan\nMula sa iyo, para sa bayan\nAng iyong aral, diwa, adhikang taglay\nPUP, aming gabay\nPaaralang dakila\nPUP, pinagpala",
                     ],
                 ],
-                'hymn_notes' => [
-                    'The hymn reinforces a sense of belonging across different generations of the PUP community.',
-                    'Its message is closely linked with discipline, honor, perseverance, and public service.',
-                    'Official event programs may provide the approved performance guide when needed.',
-                ],
+                'hymn_notes' => [],
             ],
             'maps' => [
                 'slug' => 'maps',
