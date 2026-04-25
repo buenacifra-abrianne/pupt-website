@@ -502,33 +502,62 @@ class AboutCmsContent
     {
         $sourceGroups = is_array($input) ? array_values($input) : [];
         $baseGroups = array_values($base);
+        $effectiveGroups = !empty($sourceGroups)
+            ? $sourceGroups
+            : (!empty($baseGroups) ? $baseGroups : $defaults);
+
         $groups = [];
 
-        foreach ($defaults as $index => $defaultGroup) {
-            $source = is_array($sourceGroups[$index] ?? null) ? $sourceGroups[$index] : [];
+        foreach ($effectiveGroups as $index => $groupCandidate) {
+            $source = is_array($sourceGroups[$index] ?? null)
+                ? $sourceGroups[$index]
+                : (is_array($groupCandidate) ? $groupCandidate : []);
+            $defaultGroup = is_array($defaults[$index] ?? null)
+                ? $defaults[$index]
+                : ['pillar' => 'Pillar '.($index + 1), 'title' => '', 'goals' => []];
             $baseGroup = is_array($baseGroups[$index] ?? null) ? $baseGroups[$index] : $defaultGroup;
+
             $sourceGoals = is_array($source['goals'] ?? null) ? array_values($source['goals']) : [];
-            $baseGoals = array_values($baseGroup['goals'] ?? []);
+            $baseGoals = array_values(is_array($baseGroup['goals'] ?? null) ? $baseGroup['goals'] : []);
+            $defaultGoals = array_values(is_array($defaultGroup['goals'] ?? null) ? $defaultGroup['goals'] : []);
+            $effectiveGoals = !empty($sourceGoals)
+                ? $sourceGoals
+                : (!empty($baseGoals) ? $baseGoals : $defaultGoals);
             $goals = [];
 
-            foreach (($defaultGroup['goals'] ?? []) as $goalIndex => $defaultGoal) {
-                $goalSource = is_array($sourceGoals[$goalIndex] ?? null) ? $sourceGoals[$goalIndex] : [];
+            foreach ($effectiveGoals as $goalIndex => $goalCandidate) {
+                $goalSource = is_array($sourceGoals[$goalIndex] ?? null)
+                    ? $sourceGoals[$goalIndex]
+                    : (is_array($goalCandidate) ? $goalCandidate : []);
+                $defaultGoal = is_array($defaultGoals[$goalIndex] ?? null)
+                    ? $defaultGoals[$goalIndex]
+                    : ['number' => (string) ($goalIndex + 1), 'text' => ''];
                 $goalBase = is_array($baseGoals[$goalIndex] ?? null) ? $baseGoals[$goalIndex] : $defaultGoal;
+                $goalNumber = trim(self::pickString($goalSource, $goalBase, $defaultGoal, 'number'));
 
                 $goals[] = [
-                    'number' => self::pickString($goalSource, $goalBase, $defaultGoal, 'number'),
+                    'number' => $goalNumber !== '' ? $goalNumber : (string) ($goalIndex + 1),
                     'text' => self::pickString($goalSource, $goalBase, $defaultGoal, 'text', 4000),
                 ];
             }
 
+            if (empty($goals)) {
+                $goals[] = [
+                    'number' => '1',
+                    'text' => '',
+                ];
+            }
+
+            $pillar = trim(self::pickString($source, $baseGroup, $defaultGroup, 'pillar'));
+
             $groups[] = [
-                'pillar' => self::pickString($source, $baseGroup, $defaultGroup, 'pillar'),
+                'pillar' => $pillar !== '' ? $pillar : 'Pillar '.($index + 1),
                 'title' => self::pickString($source, $baseGroup, $defaultGroup, 'title'),
                 'goals' => $goals,
             ];
         }
 
-        return $groups;
+        return empty($groups) ? $defaults : $groups;
     }
 
     private static function normalizeCoreValues(mixed $input, array $base, array $defaults): array

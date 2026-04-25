@@ -483,11 +483,11 @@
                 </form>
             </section>
 
-            <section class="about-cms-editor-panel" data-about-editor-panel="vision-mission-statements" hidden>
+            <section class="about-cms-editor-panel" data-about-editor-panel="vision-statement" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
-                    <input type="hidden" name="section_key" value="vision-mission-statements">
+                    <input type="hidden" name="section_key" value="vision-statement">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -497,47 +497,79 @@
                         <textarea name="about[sections][vision-and-mission][vision]" rows="4">{{ $visionEditor['vision'] ?? '' }}</textarea>
                     </div>
 
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Vision Statement') }}</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="about-cms-editor-panel" data-about-editor-panel="mission-statement" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="mission-statement">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
                     <div class="form-group">
                         <label>Mission Statement</label>
                         <textarea name="about[sections][vision-and-mission][mission]" rows="4">{{ $visionEditor['mission'] ?? '' }}</textarea>
                     </div>
 
                     <div class="about-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Vision and Mission Statements') }}</button>
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Mission Statement') }}</button>
                     </div>
                 </form>
             </section>
 
             <section class="about-cms-editor-panel" data-about-editor-panel="strategic-goals" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-about-strategic-goals-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="strategic-goals">
+                    <input type="hidden" name="about_strategic_goals_version" value="0" data-about-strategic-goals-version>
+                    <input type="hidden" name="about_active_strategic_goal_index" value="" data-about-active-strategic-goal-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-card-stack">
+                    <div class="about-cms-card-stack" data-about-strategic-goals-groups>
                         @foreach($visionEditor['strategic_goals'] ?? [] as $groupIndex => $goalGroup)
-                            <article class="about-cms-card-editor">
-                                <div class="about-cms-card-editor-head">
-                                    <h4>{{ $goalGroup['pillar'] ?? 'Pillar' }}</h4>
+                            <article class="about-cms-card-editor" data-about-strategic-goal-group data-about-strategic-goal-editor data-about-strategic-goal-index="{{ $groupIndex }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4 data-about-strategic-group-heading>{{ $goalGroup['pillar'] ?? 'Pillar' }}</h4>
                                     <span>{{ $goalGroup['title'] ?? '' }}</span>
                                 </div>
 
-                                <div class="form-group">
-                                    <label>Pillar Title</label>
-                                    <input type="text" name="about[sections][vision-and-mission][strategic_goals][{{ $groupIndex }}][title]" maxlength="255" value="{{ $goalGroup['title'] ?? '' }}">
+                                <div class="about-cms-form-grid about-cms-strategic-pillar-grid">
+                                    <div class="form-group">
+                                        <label>Pillar Label</label>
+                                        <input type="text" data-about-strategic-group-pillar maxlength="255" value="{{ $goalGroup['pillar'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Pillar Title</label>
+                                        <input type="text" data-about-strategic-group-title maxlength="255" value="{{ $goalGroup['title'] ?? '' }}">
+                                    </div>
                                 </div>
 
+                                <div class="about-cms-inline-actions">
+                                    <button type="button" class="btn btn-outline-secondary" data-about-add-sg>+ Add new SG</button>
+                                </div>
+
+                                <div class="about-cms-goal-stack" data-about-strategic-group-goals>
                                 @foreach($goalGroup['goals'] ?? [] as $goalIndex => $goal)
-                                    <div class="form-group">
-                                        <label>Goal {{ $goal['number'] ?? ($goalIndex + 1) }}</label>
-                                        <input type="text" name="about[sections][vision-and-mission][strategic_goals][{{ $groupIndex }}][goals][{{ $goalIndex }}][text]" maxlength="4000" value="{{ $goal['text'] ?? '' }}">
-                                        <input type="hidden" name="about[sections][vision-and-mission][strategic_goals][{{ $groupIndex }}][goals][{{ $goalIndex }}][number]" value="{{ $goal['number'] ?? ($goalIndex + 1) }}">
-                                        <input type="hidden" name="about[sections][vision-and-mission][strategic_goals][{{ $groupIndex }}][pillar]" value="{{ $goalGroup['pillar'] ?? '' }}">
+                                    <div class="form-group about-cms-goal-item" data-about-strategic-goal-item>
+                                        <label data-about-strategic-goal-label>Goal {{ $goal['number'] ?? ($goalIndex + 1) }}</label>
+                                        <div class="about-cms-goal-row">
+                                            <input type="text" data-about-strategic-goal-text maxlength="4000" value="{{ $goal['text'] ?? '' }}">
+                                            <input type="hidden" data-about-strategic-goal-number value="{{ $goal['number'] ?? ($goalIndex + 1) }}">
+                                            <button type="button" class="btn btn-outline-danger" data-about-delete-sg>Delete</button>
+                                        </div>
                                     </div>
                                 @endforeach
+                                </div>
+
                             </article>
                         @endforeach
                     </div>
@@ -553,6 +585,7 @@
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="core-values">
+                    <input type="hidden" name="about_core_values_version" value="0" data-about-core-values-version>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -1143,6 +1176,23 @@
         row-gap: 16px;
     }
 
+    .about-cms-strategic-pillar-grid {
+        align-items: start;
+    }
+
+    .about-cms-strategic-pillar-grid .form-group {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .about-cms-strategic-pillar-grid label {
+        min-height: 22px;
+        line-height: 1.2;
+        white-space: nowrap;
+    }
+
     .about-cms-history-meta-grid .form-group {
         display: grid;
         align-content: start;
@@ -1246,6 +1296,26 @@
     .about-cms-card-editor-head span {
         color: #8a7a73;
         font-size: 0.8rem;
+    }
+
+    .about-cms-inline-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 16px;
+    }
+
+    .about-cms-goal-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 18px;
+    }
+
+    .about-cms-goal-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
     }
 
     .about-cms-image-dropzone-shell {
@@ -1923,6 +1993,8 @@
 
             if (
                 sectionKey === 'vision-mission-header'
+                || sectionKey === 'vision-statement'
+                || sectionKey === 'mission-statement'
                 || sectionKey === 'vision-mission-statements'
                 || sectionKey === 'strategic-goals'
                 || sectionKey === 'core-values'
@@ -1954,7 +2026,8 @@
                 const isActive = panel.getAttribute('data-about-editor-panel') === sectionKey;
                 const isContentsCardFocus = sectionKey === 'contents' && String(options.slug || '').trim() !== '';
                 const isHistoryCardFocus = sectionKey === 'history' && String(options.historyIndex ?? '').trim() !== '';
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus;
+                const isStrategicGoalFocus = sectionKey === 'strategic-goals' && String(options.strategicGoalIndex ?? '').trim() !== '';
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -1973,6 +2046,8 @@
                         focusScope = setActiveContentsEditor(options.slug || '') || panel;
                     } else if (sectionKey === 'history') {
                         focusScope = setActiveHistoryEditor(options.historyIndex ?? '') || panel;
+                    } else if (sectionKey === 'strategic-goals') {
+                        focusScope = setActiveStrategicGoalEditor(options.strategicGoalIndex ?? '', isCardFocus) || panel;
                     }
 
                     if (typeof window.initializeRichTextEditors === 'function') {
@@ -2031,6 +2106,14 @@
                 return;
             }
 
+            if (data.type === 'cms-about-strategic-goal-edit') {
+                openAboutEditor('strategic-goals', data.label ? `Edit ${data.label}` : 'Edit strategic goal pillar', {
+                    strategicGoalIndex: data.index || '',
+                    route: data.route || 'vision-and-mission',
+                });
+                return;
+            }
+
             if (data.type === 'cms-about-preview-route') {
                 loadAboutPreviewPage(data.route || 'overview');
                 return;
@@ -2074,6 +2157,12 @@
         const historyForm = document.querySelector('[data-about-history-form]');
         const historyVersionInput = document.querySelector('[data-about-history-version]');
         const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
+        const strategicGoalsForm = document.querySelector('[data-about-strategic-goals-form]');
+        const strategicGoalsGroups = strategicGoalsForm?.querySelector('[data-about-strategic-goals-groups]') || null;
+        const strategicGoalsVersionInput = strategicGoalsForm?.querySelector('[data-about-strategic-goals-version]') || null;
+        const activeStrategicGoalIndexInput = strategicGoalsForm?.querySelector('[data-about-active-strategic-goal-index]') || null;
+        const coreValuesForm = document.querySelector('[data-about-editor-panel="core-values"] form');
+        const coreValuesVersionInput = coreValuesForm?.querySelector('[data-about-core-values-version]') || null;
 
         const bumpIntroVersion = () => {
             if (introVersionInput) {
@@ -2085,6 +2174,216 @@
             if (contentsVersionInput) {
                 contentsVersionInput.value = String(Date.now());
             }
+        };
+
+        const bumpStrategicGoalsVersion = () => {
+            if (strategicGoalsVersionInput) {
+                strategicGoalsVersionInput.value = String(Date.now());
+            }
+        };
+
+        const bumpCoreValuesVersion = () => {
+            if (coreValuesVersionInput) {
+                coreValuesVersionInput.value = String(Date.now());
+            }
+        };
+
+        const createStrategicGoalItem = (goal = {}) => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'form-group about-cms-goal-item';
+            wrapper.setAttribute('data-about-strategic-goal-item', '');
+            wrapper.innerHTML = `
+                <label data-about-strategic-goal-label>Goal</label>
+                <div class="about-cms-goal-row">
+                    <input type="text" data-about-strategic-goal-text maxlength="4000" value="">
+                    <input type="hidden" data-about-strategic-goal-number value="">
+                    <button type="button" class="btn btn-outline-danger" data-about-delete-sg>Delete</button>
+                </div>
+            `;
+            wrapper.querySelector('[data-about-strategic-goal-text]').value = String(goal.text || '');
+            wrapper.querySelector('[data-about-strategic-goal-number]').value = String(goal.number || '');
+            return wrapper;
+        };
+
+        const createStrategicGoalGroup = (group = {}) => {
+            const article = document.createElement('article');
+            article.className = 'about-cms-card-editor';
+            article.setAttribute('data-about-strategic-goal-group', '');
+            article.setAttribute('data-about-strategic-goal-editor', '');
+            article.setAttribute('data-about-strategic-goal-index', '');
+            article.innerHTML = `
+                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                    <h4 data-about-strategic-group-heading>Pillar</h4>
+                    <span></span>
+                </div>
+                <div class="about-cms-form-grid about-cms-strategic-pillar-grid">
+                    <div class="form-group">
+                        <label>Pillar Label</label>
+                        <input type="text" data-about-strategic-group-pillar maxlength="255" value="">
+                    </div>
+                    <div class="form-group">
+                        <label>Pillar Title</label>
+                        <input type="text" data-about-strategic-group-title maxlength="255" value="">
+                    </div>
+                </div>
+                <div class="about-cms-inline-actions">
+                    <button type="button" class="btn btn-outline-secondary" data-about-add-sg>+ Add new SG</button>
+                </div>
+                <div class="about-cms-goal-stack" data-about-strategic-group-goals></div>
+            `;
+
+            article.querySelector('[data-about-strategic-group-pillar]').value = String(group.pillar || '');
+            article.querySelector('[data-about-strategic-group-title]').value = String(group.title || '');
+
+            const goalsHost = article.querySelector('[data-about-strategic-group-goals]');
+            const goals = Array.isArray(group.goals) && group.goals.length ? group.goals : [{ number: '1', text: '' }];
+            goals.forEach((goal) => goalsHost.appendChild(createStrategicGoalItem(goal)));
+            return article;
+        };
+
+        const syncStrategicGoalsForm = () => {
+            if (!strategicGoalsGroups) {
+                return;
+            }
+
+            const groups = Array.from(strategicGoalsGroups.querySelectorAll('[data-about-strategic-goal-group]'));
+            groups.forEach((group, groupIndex) => {
+                group.setAttribute('data-about-strategic-goal-index', String(groupIndex));
+                const pillarInput = group.querySelector('[data-about-strategic-group-pillar]');
+                const titleInput = group.querySelector('[data-about-strategic-group-title]');
+                const heading = group.querySelector('[data-about-strategic-group-heading]');
+                const headingMeta = group.querySelector('.about-cms-card-editor-head span');
+                const pillarValue = String(pillarInput?.value || '').trim() || `Pillar ${groupIndex + 1}`;
+                const titleValue = String(titleInput?.value || '').trim();
+
+                if (pillarInput) {
+                    pillarInput.name = `about[sections][vision-and-mission][strategic_goals][${groupIndex}][pillar]`;
+                    if (String(pillarInput.value || '').trim() === '') {
+                        pillarInput.value = pillarValue;
+                    }
+                }
+
+                if (titleInput) {
+                    titleInput.name = `about[sections][vision-and-mission][strategic_goals][${groupIndex}][title]`;
+                }
+
+                if (heading) {
+                    heading.textContent = pillarValue;
+                }
+
+                if (headingMeta) {
+                    headingMeta.textContent = titleValue;
+                }
+
+                const goals = Array.from(group.querySelectorAll('[data-about-strategic-goal-item]'));
+                goals.forEach((goalItem, goalIndex) => {
+                    const goalText = goalItem.querySelector('[data-about-strategic-goal-text]');
+                    const goalNumber = goalItem.querySelector('[data-about-strategic-goal-number]');
+                    const goalLabel = goalItem.querySelector('[data-about-strategic-goal-label]');
+                    const numberValue = String(goalIndex + 1);
+
+                    if (goalText) {
+                        goalText.name = `about[sections][vision-and-mission][strategic_goals][${groupIndex}][goals][${goalIndex}][text]`;
+                    }
+
+                    if (goalNumber) {
+                        goalNumber.name = `about[sections][vision-and-mission][strategic_goals][${groupIndex}][goals][${goalIndex}][number]`;
+                        goalNumber.value = numberValue;
+                    }
+
+                    if (goalLabel) {
+                        goalLabel.textContent = `Goal ${numberValue}`;
+                    }
+                });
+            });
+        };
+
+        const setActiveStrategicGoalEditor = (index = '', collapse = false) => {
+            const editors = Array.from(document.querySelectorAll('[data-about-strategic-goal-editor]'));
+
+            if (!editors.length) {
+                if (activeStrategicGoalIndexInput) {
+                    activeStrategicGoalIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            let targetEditor = null;
+
+            if (normalizedIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-strategic-goal-index') === normalizedIndex) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.hidden = collapse && targetEditor ? !isActive : false;
+            });
+
+            if (activeStrategicGoalIndexInput) {
+                activeStrategicGoalIndexInput.value = targetEditor?.getAttribute('data-about-strategic-goal-index') || '';
+            }
+
+            return targetEditor;
+        };
+
+        const initStrategicGoalsEditor = () => {
+            if (!strategicGoalsForm || !strategicGoalsGroups || strategicGoalsForm.dataset.aboutStrategicGoalsBound === '1') {
+                return;
+            }
+
+            strategicGoalsForm.dataset.aboutStrategicGoalsBound = '1';
+            if (!strategicGoalsGroups.querySelector('[data-about-strategic-goal-group]')) {
+                strategicGoalsGroups.appendChild(createStrategicGoalGroup({ pillar: 'Pillar 1', title: '', goals: [{ number: '1', text: '' }] }));
+            }
+
+            strategicGoalsForm.addEventListener('click', (event) => {
+                const addGoal = event.target.closest('[data-about-add-sg]');
+                if (addGoal) {
+                    event.preventDefault();
+                    const group = addGoal.closest('[data-about-strategic-goal-group]');
+                    const host = group?.querySelector('[data-about-strategic-group-goals]');
+                    if (host) {
+                        host.appendChild(createStrategicGoalItem({}));
+                        bumpStrategicGoalsVersion();
+                        syncStrategicGoalsForm();
+                    }
+                    return;
+                }
+
+                const deleteGoal = event.target.closest('[data-about-delete-sg]');
+                if (deleteGoal) {
+                    event.preventDefault();
+                    const group = deleteGoal.closest('[data-about-strategic-goal-group]');
+                    const goalItems = group ? Array.from(group.querySelectorAll('[data-about-strategic-goal-item]')) : [];
+                    if (goalItems.length > 1) {
+                        deleteGoal.closest('[data-about-strategic-goal-item]')?.remove();
+                        bumpStrategicGoalsVersion();
+                        syncStrategicGoalsForm();
+                    }
+                    return;
+                }
+
+            });
+
+            strategicGoalsForm.addEventListener('input', (event) => {
+                if (event.target.closest('[data-about-strategic-goal-group]')) {
+                    bumpStrategicGoalsVersion();
+                    syncStrategicGoalsForm();
+                }
+            });
+
+            strategicGoalsForm.addEventListener('submit', () => {
+                syncStrategicGoalsForm();
+            }, true);
+
+            syncStrategicGoalsForm();
+            setActiveStrategicGoalEditor('', false);
         };
 
         const shouldTrackAboutContentsField = (target) => {
@@ -2178,6 +2477,25 @@
                     window.setTimeout(bumpHistoryVersion, 0);
                 }
             });
+        };
+
+        const bindCoreValuesDirtyTracking = () => {
+            if (!coreValuesForm || coreValuesForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            coreValuesForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                if (!shouldTrackAboutContentsField(event.target)) {
+                    return;
+                }
+
+                bumpCoreValuesVersion();
+            };
+
+            coreValuesForm.addEventListener('input', markDirty);
+            coreValuesForm.addEventListener('change', markDirty);
         };
 
         const formatHistoryMonth = (value) => {
@@ -2582,6 +2900,8 @@
             });
         });
 
+        initStrategicGoalsEditor();
+
         const frame = document.querySelector('[data-about-preview-frame]');
         if (frame) {
             frame.addEventListener('load', () => {
@@ -2664,6 +2984,7 @@
         bindAboutIntroDirtyTracking();
         bindAboutContentsDirtyTracking();
         bindAboutHistoryDirtyTracking();
+        bindCoreValuesDirtyTracking();
         setActiveHistoryEditor();
         window.__aboutCmsPreviewEditorReady = true;
     })();

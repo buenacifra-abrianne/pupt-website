@@ -868,15 +868,17 @@
 }
 .reveal {
   opacity: 0;
-  transform: translateY(38px);
-  transition: opacity .72s ease-out, transform .72s ease-out;
+  transform: translateY(40px);
+  transition: opacity 0.72s ease-out, transform 0.72s ease-out;
   will-change: opacity, transform;
 }
-.reveal.active            { opacity: 1; transform: translateY(0); }
-.reveal.delay-1           { transition-delay: .1s; }
-.reveal.delay-2           { transition-delay: .2s; }
-body.scroll-down .reveal:not(.active) { transform: translateY(38px); }
-body.scroll-up   .reveal:not(.active) { transform: translateY(-38px); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.reveal.delay-1,
+.reveal.delay-100 { transition-delay: 0.1s; }
+.reveal.delay-2,
+.reveal.delay-200 { transition-delay: 0.2s; }
+body.scroll-down .reveal:not(.active) { transform: translateY(40px); }
+body.scroll-up   .reveal:not(.active) { transform: translateY(-40px); }
 html.modal-open,
 body.modal-open  {
   overflow: hidden;

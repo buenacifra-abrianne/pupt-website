@@ -150,10 +150,34 @@ function initGlobalRevealTargets() {
     "main > section",
     "main > article",
     "main > div",
+    "main section",
+    "main article",
+    "main .page-shell > section",
+    "main .page-shell > article",
+    "main .page-shell > div",
     "main section .content-block",
     "main .page-section",
+    "main [class$='-shell'] > section",
+    "main [class$='-shell'] > article",
+    "main [class$='-shell'] > div",
+    "main [class*='-sections'] > section",
+    "main [class*='-sections'] > article",
+    "main [class*='-sections'] > div",
     "main .cards-container",
     "main .campus-story-block",
+    "main .about-intro",
+    "main .contents-strip",
+    "main .students-contents-strip",
+    "main .history-story",
+    "main .about-section-card",
+    "main .academic-features",
+    "main .students-orgs-section",
+    "main .feedback-hero",
+    "main .feedback-shell > section",
+    "main .ne-events-main",
+    "main .ne-events-main > section",
+    "main .ne-card-grid",
+    "main .ne-expired-preview-section",
     "main .history-story-inner > .history-timeline-container",
     "main .history-timeline-shell > .history-timeline-head",
     "main .history-timeline-grid > .history-timeline-row",
@@ -173,6 +197,7 @@ function initGlobalRevealTargets() {
   document.querySelectorAll(candidateSelector).forEach((el) => {
     if (!(el instanceof HTMLElement)) return;
     if (el.matches(excludedSelector) || el.closest(excludedSelector)) return;
+    if (el.hidden || el.closest("[hidden]")) return;
 
     const revealAncestor = el.parentElement?.closest(".reveal, [data-auto-reveal='true']");
     if (revealAncestor) return;
@@ -197,12 +222,28 @@ function syncRevealDirection() {
 function revealOnScroll() {
   const reveals = document.querySelectorAll(".reveal");
   const windowH = window.innerHeight;
-  const threshold = Math.max(80, Math.round(windowH * 0.12));
 
   reveals.forEach((el) => {
+    const shouldRepeat = el.dataset.revealRepeat === "true";
+    if (!shouldRepeat && el.classList.contains("active")) return;
+
+    const thresholdSetting = Number(el.dataset.revealThreshold || 0.12);
+    const threshold = Number.isFinite(thresholdSetting)
+      ? (thresholdSetting > 1
+          ? Math.max(0, Math.round(thresholdSetting))
+          : Math.max(80, Math.round(windowH * thresholdSetting)))
+      : Math.max(80, Math.round(windowH * 0.12));
     const rect = el.getBoundingClientRect();
     const isVisible = rect.top < windowH - threshold && rect.bottom > threshold;
-    el.classList.toggle("active", isVisible);
+
+    if (isVisible) {
+      el.classList.add("active");
+      return;
+    }
+
+    if (shouldRepeat) {
+      el.classList.remove("active");
+    }
   });
 }
 
@@ -297,6 +338,8 @@ function initHistoryTimelineToggles() {
 }
 
 function initVisionMissionToggles() {
+  if (document.body?.dataset.cmsPreview === "true") return;
+
   document.querySelectorAll(".about-vision-trigger").forEach((btn) => {
     btn.addEventListener("click", () => {
       const row = btn.closest(".about-vision-row");
@@ -584,7 +627,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // Reveal animations
   initGlobalRevealTargets();
   syncRevealDirection();
-  revealOnScroll();
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      revealOnScroll();
+    });
+  });
   window.addEventListener("scroll", () => {
     syncRevealDirection();
     revealOnScroll();

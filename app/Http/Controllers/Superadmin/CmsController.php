@@ -57,7 +57,7 @@ class CmsController extends Controller
             'tab_key' => ['required', Rule::in($allowedTabs)],
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
-                'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
+                'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
                 'page', 'cards_header', 'cards', 'organizations',
                 'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
                 'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
@@ -100,6 +100,17 @@ class CmsController extends Controller
             'about.sections.*.image_file' => ['nullable', 'image', 'max:5120'],
             'about.sections.*.page_kicker' => ['nullable', 'string', 'max:255'],
             'about.sections.*.page_title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.vision' => ['nullable', 'string'],
+            'about.sections.*.mission' => ['nullable', 'string'],
+            'about.sections.*.strategic_goals' => ['nullable', 'array'],
+            'about.sections.*.strategic_goals.*.pillar' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.strategic_goals.*.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.strategic_goals.*.goals' => ['nullable', 'array'],
+            'about.sections.*.strategic_goals.*.goals.*.number' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.strategic_goals.*.goals.*.text' => ['nullable', 'string'],
+            'about.sections.*.core_values' => ['nullable', 'array'],
+            'about.sections.*.core_values.*.letter' => ['nullable', 'string', 'max:10'],
+            'about.sections.*.core_values.*.title' => ['nullable', 'string', 'max:255'],
             'about.sections.*.timeline' => ['nullable', 'array'],
             'about.sections.*.timeline.*.visible' => ['nullable'],
             'about.sections.*.timeline.*.period' => ['nullable', 'string', 'max:255'],
@@ -770,6 +781,8 @@ class CmsController extends Controller
             'contents' => 'Contents',
             'history' => 'History',
             'vision-mission-header' => 'Vision and Mission Header',
+            'vision-statement' => 'Vision Statement',
+            'mission-statement' => 'Mission Statement',
             'vision-mission-statements' => 'Vision and Mission Statements',
             'strategic-goals' => 'Strategic Goals',
             'core-values' => 'Core Values',
@@ -871,6 +884,16 @@ class CmsController extends Controller
             'vision-mission-header' => [
                 'sections' => [
                     'vision-and-mission' => array_intersect_key($visionSection, array_flip(['page_kicker', 'page_title'])),
+                ],
+            ],
+            'vision-statement' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['vision'])),
+                ],
+            ],
+            'mission-statement' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['mission'])),
                 ],
             ],
             'vision-mission-statements' => [

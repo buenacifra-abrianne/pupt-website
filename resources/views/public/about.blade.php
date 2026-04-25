@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
-<body>
+<body @if(!empty($cmsPreview)) data-cms-preview="true" @endif>
     @php
         $cmsPreview = (bool) ($cmsPreview ?? false);
         $aboutCms = \App\Support\AboutCmsContent::fromInput($aboutCms ?? [], null);
@@ -295,47 +295,82 @@
                             </div>
                         </section>
                     @elseif($selectedSlug === 'vision-and-mission')
-                        <section class="history-story history-story--vision reveal">
+                        <section class="history-story history-story--vision">
                             <div class="history-story-inner">
-                                <div class="history-timeline-container history-timeline-container--vision reveal">
-                                    <div
-                                        class="history-page-header history-page-header--vision{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                        @if($cmsPreview)
-                                            data-cms-section="vision-mission-header"
-                                            data-cms-section-label="Vision and Mission Header"
-                                        @endif
-                                    >
-                                        @if($cmsPreview)
-                                            <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vision-mission-header" aria-label="Edit Vision and Mission Header">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                                </svg>
-                                            </button>
-                                        @endif
-
-                                        <div data-cms-boundary class="cms-preview-boundary-full">
-                                            <p class="history-page-kicker">{{ $selectedSection['page_kicker'] ?? 'Vision and Mission' }}</p>
-                                            <h2>{{ $selectedSection['page_title'] ?? '' }}</h2>
-                                        </div>
+                                <div class="history-page-header history-page-header--vision history-timeline-head reveal delay-100">
+                                    <div>
+                                        <p class="history-page-kicker">{{ $selectedSection['page_kicker'] ?? 'Vision and Mission' }}</p>
+                                        <h2>{{ $selectedSection['page_title'] ?? '' }}</h2>
                                     </div>
+                                </div>
 
+                                <div class="history-timeline-container history-timeline-container--vision reveal">
+                                    <div class="history-timeline-shell history-timeline-shell--vision">
                                     <div class="about-detail-body about-detail-body--vision">
-                                        <div
-                                            class="about-vision-content{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                            @if($cmsPreview)
-                                                data-cms-section="vision-mission-statements"
-                                                data-cms-section-label="Vision and Mission Statements"
-                                            @endif
-                                        >
-                                            @if($cmsPreview)
-                                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vision-mission-statements" aria-label="Edit Vision and Mission Statements">
-                                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                                    </svg>
-                                                </button>
-                                            @endif
+                                        @if($cmsPreview)
+                                            <div class="about-vision-content about-vision-content--cms reveal delay-200">
+                                                <div class="about-vision-row about-vision-row--vision is-open">
+                                                    <div>
+                                                        <div class="about-vision-trigger about-vision-trigger--vision about-vision-trigger--static" aria-hidden="true">
+                                                            <span class="about-vision-word">Vision</span>
+                                                            <span class="about-vision-arrow about-vision-arrow--right" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" focusable="false">
+                                                                    <path d="M4 12h14"></path>
+                                                                    <path d="m13 5 7 7-7 7"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </div>
+                                                        <div class="about-vision-panel" aria-hidden="false">
+                                                            <div
+                                                                class="cms-preview-editable"
+                                                                data-cms-section="vision-statement"
+                                                                data-cms-section-label="Vision Statement"
+                                                            >
+                                                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vision-statement" aria-label="Edit Vision Statement">
+                                                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                                                    </svg>
+                                                                </button>
+                                                                <div data-cms-boundary class="about-vision-card">
+                                                                    <p class="about-vision-statement">{{ $selectedSection['vision'] ?? '' }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                            <div data-cms-boundary class="cms-preview-boundary-edge">
+                                                <div class="about-vision-row about-vision-row--mission is-open">
+                                                    <div>
+                                                        <div class="about-vision-panel about-vision-panel--mission" aria-hidden="false">
+                                                            <div
+                                                                class="cms-preview-editable"
+                                                                data-cms-section="mission-statement"
+                                                                data-cms-section-label="Mission Statement"
+                                                            >
+                                                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="mission-statement" aria-label="Edit Mission Statement">
+                                                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                                                    </svg>
+                                                                </button>
+                                                                <div data-cms-boundary class="about-vision-card about-vision-card--mission">
+                                                                    <p class="about-vision-statement about-vision-statement--mission">{{ $selectedSection['mission'] ?? '' }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="about-vision-trigger about-vision-trigger--mission about-vision-trigger--static" aria-hidden="true">
+                                                            <span class="about-vision-arrow about-vision-arrow--left" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" focusable="false">
+                                                                    <path d="M20 12H6"></path>
+                                                                    <path d="m11 5-7 7 7 7"></path>
+                                                                </svg>
+                                                            </span>
+                                                            <span class="about-vision-word">Mission</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="about-vision-content reveal delay-200">
                                                 <div class="about-vision-row about-vision-row--vision">
                                                     <button type="button" class="about-vision-trigger about-vision-trigger--vision" aria-expanded="false" aria-controls="aboutVisionDescription">
                                                         <span class="about-vision-word">Vision</span>
@@ -370,38 +405,53 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
 
                                         <div class="about-vision-extension-grid">
-                                            <article
-                                                class="about-vision-feature about-vision-feature--goals reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                                @if($cmsPreview)
-                                                    data-cms-section="strategic-goals"
-                                                    data-cms-section-label="Strategic Goals"
-                                                @endif
-                                            >
-                                                @if($cmsPreview)
-                                                    <button type="button" class="cms-preview-chip" data-cms-edit-trigger="strategic-goals" aria-label="Edit Strategic Goals">
-                                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                                        </svg>
-                                                    </button>
-                                                @endif
-
-                                                <div data-cms-boundary class="cms-preview-boundary-edge">
+                                            <article class="about-vision-feature about-vision-feature--goals reveal" data-reveal-threshold="0.28">
+                                                <div>
                                                     <div class="about-vision-feature-head">
                                                         <span class="about-vision-feature-kicker">Strategic Goals</span>
                                                         <h3>Three priority pillars that guide how the University teaches, serves, and grows.</h3>
                                                     </div>
 
                                                     <div class="about-goals-grid">
+                                                        @php
+                                                            $strategicGoalNumber = 1;
+                                                        @endphp
                                                         @foreach($selectedSection['strategic_goals'] ?? [] as $goalGroup)
-                                                            @php($pillarRoman = ['I', 'II', 'III', 'IV', 'V'][$loop->index] ?? (string) $loop->iteration)
-                                                            <article class="about-goal-pillar">
+                                                            <article
+                                                                class="about-goal-pillar{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                                @if($cmsPreview)
+                                                                    data-about-strategic-goal-card
+                                                                    data-about-strategic-goal-index="{{ $loop->index }}"
+                                                                    data-about-strategic-goal-label="{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}"
+                                                                @endif
+                                                            >
+                                                                @if($cmsPreview)
+                                                                    <div class="cms-preview-card-actions">
+                                                                        <button type="button" class="cms-preview-card-action" data-about-strategic-goal-edit>Edit</button>
+                                                                    </div>
+                                                                @endif
                                                                 <div class="about-goal-pillar-head">
                                                                     <div class="about-goal-pillar-tag" aria-label="{{ $goalGroup['pillar'] ?? '' }}">
+                                                                        <span class="about-goal-pillar-icon-shell" aria-hidden="true">
+                                                                            @php
+                                                                                $pillarIconSet = [
+                                                                                    'assets/static_img/pillar_1_icon.svg',
+                                                                                    'assets/static_img/pillar_2_icon.svg',
+                                                                                    'assets/static_img/pillar_3_icon.svg',
+                                                                                ];
+                                                                                $pillarIcon = $pillarIconSet[$loop->index % count($pillarIconSet)] ?? $pillarIconSet[0];
+                                                                            @endphp
+                                                                            <img
+                                                                                src="{{ asset($pillarIcon) }}"
+                                                                                alt=""
+                                                                                class="about-goal-pillar-icon"
+                                                                            >
+                                                                        </span>
                                                                         <span class="about-goal-pillar-label-group">
-                                                                            <span class="about-goal-pillar-label">Pillar {{ $pillarRoman }}</span>
+                                                                            <span class="about-goal-pillar-label">{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}</span>
                                                                         </span>
                                                                     </div>
                                                                     <h4>{{ $goalGroup['title'] ?? '' }}</h4>
@@ -409,9 +459,12 @@
                                                                 <ul class="about-goal-list">
                                                                     @foreach($goalGroup['goals'] ?? [] as $goal)
                                                                         <li>
-                                                                            <span class="about-goal-code">SG-{{ $goal['number'] ?? $loop->iteration }}</span>
+                                                                            <span class="about-goal-code">SG-{{ $strategicGoalNumber }}</span>
                                                                             <span class="about-goal-text">{{ $goal['text'] ?? '' }}</span>
                                                                         </li>
+                                                                        @php
+                                                                            $strategicGoalNumber++;
+                                                                        @endphp
                                                                     @endforeach
                                                                 </ul>
                                                             </article>
@@ -421,10 +474,12 @@
                                             </article>
                                         </div>
                                     </div>
+                                    </div>
                                 </div>
 
                                 <article
                                     class="about-values-band reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                                    data-reveal-threshold="0.32"
                                     @if($cmsPreview)
                                         data-cms-section="core-values"
                                         data-cms-section-label="Core Values"
@@ -1048,6 +1103,10 @@
                 margin-right: 0 !important;
             }
 
+            .about-shell > .about-sections {
+                padding-top: clamp(10px, 1vw, 16px) !important;
+            }
+
             .about-breadcrumb {
                 padding-left: var(--about-page-gutter, 24px) !important;
                 padding-right: var(--about-page-gutter, 24px) !important;
@@ -1086,6 +1145,79 @@
                 --cms-preview-chip-top-offset: 24px;
                 width: 100% !important;
                 max-width: 100% !important;
+            }
+
+            .history-story--vision,
+            .history-story--vision .history-story-inner,
+            .history-story--vision .history-timeline-container,
+            .history-story--vision .history-timeline-shell,
+            .history-story--vision .about-detail-body--vision {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-right: 0 !important;
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+
+            .about-sections > .history-story.history-story--vision {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .history-story--vision .history-story-inner {
+                gap: 24px !important;
+            }
+
+            .history-story--vision .history-timeline-container {
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .history-story--vision .history-timeline-shell {
+                gap: 0 !important;
+            }
+
+            .history-story--vision .history-page-header--vision {
+                padding: 0 24px !important;
+            }
+
+            .history-story--vision .about-detail-body--vision {
+                margin-top: 0 !important;
+                padding: 0 24px !important;
+            }
+
+            .history-story--vision .about-vision-content--cms,
+            .history-story--vision .about-vision-extension-grid {
+                margin-bottom: 0 !important;
+            }
+
+            .about-values-band.cms-preview-editable {
+                width: calc(100% + 48px) !important;
+                max-width: calc(100% + 48px) !important;
+                margin-left: -24px !important;
+                margin-right: -24px !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            .about-values-band.cms-preview-editable > [data-cms-boundary] {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .about-values-band.cms-preview-editable .about-values-grid {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .about-values-band.cms-preview-editable .about-value-card:last-child {
+                border-right: none !important;
+            }
+
+            .history-story--vision .about-values-band.cms-preview-editable {
+                box-shadow: none !important;
             }
 
             .cms-preview-editable {
@@ -1260,6 +1392,34 @@
                 isolation: isolate;
             }
 
+            [data-about-strategic-goal-card] {
+                position: relative;
+                cursor: pointer;
+                isolation: isolate;
+            }
+
+            [data-about-strategic-goal-card]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            [data-about-strategic-goal-card]:hover::after,
+            [data-about-strategic-goal-card]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
             [data-about-history-card] .history-timeline-card::after {
                 content: "";
                 position: absolute;
@@ -1401,7 +1561,7 @@
                 const postSection = (section, label) => {
                     const previewRoute = section === 'hero' || section === 'intro' || section === 'contents'
                         ? 'overview'
-                        : (section === 'vision-mission-header' || section === 'vision-mission-statements' || section === 'strategic-goals' || section === 'core-values'
+                        : (section === 'vision-mission-header' || section === 'vision-statement' || section === 'mission-statement' || section === 'vision-mission-statements' || section === 'strategic-goals' || section === 'core-values'
                             ? 'vision-and-mission'
                             : section);
                     window.parent?.postMessage({
@@ -1492,7 +1652,7 @@
                     }
 
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-edit]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit]')) {
                             return;
                         }
 
@@ -1546,6 +1706,33 @@
                             index: historyCard.getAttribute('data-about-history-index') || '',
                             label: historyCard.getAttribute('data-about-history-label') || 'History milestone',
                             route: 'history',
+                        }, '*');
+                        return;
+                    }
+
+                    const strategicGoalEditTrigger = event.target.closest('[data-about-strategic-goal-edit]');
+                    if (strategicGoalEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const pillarCard = strategicGoalEditTrigger.closest('[data-about-strategic-goal-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-strategic-goal-edit',
+                            index: pillarCard?.getAttribute('data-about-strategic-goal-index') || '',
+                            label: pillarCard?.getAttribute('data-about-strategic-goal-label') || 'Strategic goal pillar',
+                            route: 'vision-and-mission',
+                        }, '*');
+                        return;
+                    }
+
+                    const strategicGoalCard = event.target.closest('[data-about-strategic-goal-card]');
+                    if (strategicGoalCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-strategic-goal-edit',
+                            index: strategicGoalCard.getAttribute('data-about-strategic-goal-index') || '',
+                            label: strategicGoalCard.getAttribute('data-about-strategic-goal-label') || 'Strategic goal pillar',
+                            route: 'vision-and-mission',
                         }, '*');
                         return;
                     }
