@@ -516,13 +516,13 @@
                     @else
 
                         <article
-                            class="about-section-card reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                            @if($cmsPreview)
+                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
                             @endif
                         >
-                            @if($cmsPreview)
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps')
                                 <button type="button" class="cms-preview-chip" data-cms-edit-trigger="{{ $selectedSlug }}" aria-label="Edit {{ $selectedSection['label'] }}">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
@@ -631,88 +631,67 @@
                                                 ? $selectedSection
                                                 : array_merge($selectedSection, $defaultHymnSection);
                                         @endphp
-                                        <div class="hymn-page-header reveal">
-                                            <p class="section-tag">Official Hymn</p>
-                                            <h2 class="hymn-page-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h2>
-                                            <p class="hymn-page-attribution">{{ $hymnSectionData['summary'] ?? '' }}</p>
-                                        </div>
-                                        <div class="hymn-hero reveal delay-100">
-                                            <div class="hymn-hero-ornament" aria-hidden="true">
-                                                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                    <circle cx="60" cy="60" r="58" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 6" opacity="0.4"/>
-                                                    <circle cx="60" cy="60" r="44" stroke="currentColor" stroke-width="0.5" opacity="0.25"/>
-                                                    <path d="M48 42 C48 36 56 32 60 32 C64 32 72 36 72 42 L72 54 C72 60 66 64 60 64 C54 64 48 60 48 54 Z" stroke="currentColor" stroke-width="1" fill="none" opacity="0.55"/>
-                                                    <path d="M52 64 L52 76 M68 64 L68 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-                                                    <path d="M44 76 L76 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-                                                    <circle cx="60" cy="48" r="3" fill="currentColor" opacity="0.5"/>
-                                                </svg>
+                                        <div class="hymn-layout">
+                                            <div class="hymn-page-header reveal">
+                                                <p class="section-tag">Official Hymn</p>
+                                                <h2 class="hymn-page-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h2>
+                                                <p class="hymn-page-attribution">{{ $hymnSectionData['summary'] ?? '' }}</p>
                                             </div>
-                                            <div class="hymn-hero-copy">
-                                                <p class="hymn-title-tag">{{ $hymnSectionData['label'] ?? 'Hymn' }}</p>
-                                                <h3 class="hymn-tagline">{{ $hymnSectionData['summary'] ?? 'A Song of Covenant with the Nation' }}</h3>
-                                                <p class="hymn-hero-desc">{{ $hymnSectionData['lead'] ?? '' }}</p>
-                                                <a href="https://youtu.be/Yib_s5UeGvc?si=CR3qUIEbH25lZxfw" target="_blank" rel="noopener noreferrer" class="hymn-listen-btn" aria-label="Listen to the PUP Hymn on YouTube">
-                                                    <span class="hymn-listen-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5.14v14l11-7-11-7z"/></svg></span>
-                                                    Listen to the Hymn
-                                                </a>
+                                            <div class="hymn-hero reveal delay-100">
+                                                <div class="hymn-hero-ornament" aria-hidden="true">
+                                                    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                        <circle cx="60" cy="60" r="58" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 6" opacity="0.4"/>
+                                                        <circle cx="60" cy="60" r="44" stroke="currentColor" stroke-width="0.5" opacity="0.25"/>
+                                                        <path d="M48 42 C48 36 56 32 60 32 C64 32 72 36 72 42 L72 54 C72 60 66 64 60 64 C54 64 48 60 48 54 Z" stroke="currentColor" stroke-width="1" fill="none" opacity="0.55"/>
+                                                        <path d="M52 64 L52 76 M68 64 L68 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+                                                        <path d="M44 76 L76 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+                                                        <circle cx="60" cy="48" r="3" fill="currentColor" opacity="0.5"/>
+                                                    </svg>
+                                                </div>
+                                                <div class="hymn-hero-copy">
+                                                    <p class="hymn-title-tag">{{ $hymnSectionData['label'] ?? 'Hymn' }}</p>
+                                                    <h3 class="hymn-tagline">{{ $hymnSectionData['summary'] ?? 'A Song of Covenant with the Nation' }}</h3>
+                                                    <p class="hymn-hero-desc">{{ $hymnSectionData['lead'] ?? '' }}</p>
+                                                    <a href="https://youtu.be/Yib_s5UeGvc?si=CR3qUIEbH25lZxfw" target="_blank" rel="noopener noreferrer" class="hymn-listen-btn" aria-label="Listen to the PUP Hymn on YouTube">
+                                                        <span class="hymn-listen-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5.14v14l11-7-11-7z"/></svg></span>
+                                                        Listen to the Hymn
+                                                    </a>
+                                                </div>
                                             </div>
-                                        </div>
-                                        <div class="hymn-lyrics-block reveal">
-                                            <div class="hymn-lyrics-header">
-                                                <span class="ls-block-kicker">Full Lyrics</span>
-                                                <h3 class="ls-block-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h3>
-                                            </div>
-                                            <div class="hymn-lyrics-body">
-                                                @foreach($hymnSectionData['hymn_sections'] ?? [] as $hymnSection)
-                                                    @php
-                                                        $hymnLines = preg_split('/\R+/', trim((string) ($hymnSection['body'] ?? ''))) ?: [];
-                                                        $hymnLines = array_values(array_filter(array_map(static fn ($line) => trim((string) $line), $hymnLines), static fn ($line) => $line !== ''));
-                                                        $isChorus = str_contains(mb_strtolower((string) ($hymnSection['title'] ?? '')), 'chorus');
-                                                    @endphp
-                                                    <div class="hymn-stanza{{ $isChorus ? ' hymn-stanza--chorus' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
-                                                        @if($cmsPreview)
-                                                            data-about-section-card
-                                                            data-about-section-card-section="hymn"
-                                                            data-about-section-card-index="{{ $loop->index }}"
-                                                            data-about-section-card-label="{{ $hymnSection['title'] ?? ('Hymn Card ' . $loop->iteration) }}"
-                                                            data-about-section-card-route="hymn"
-                                                        @endif>
-                                                        @if($cmsPreview)
-                                                            <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
-                                                        @endif
-                                                        <p class="hymn-stanza-label">{{ $hymnSection['title'] ?? ('Section ' . $loop->iteration) }}</p>
-                                                        @foreach($hymnLines as $lineIndex => $hymnLine)
-                                                            @php
-                                                                $lineClass = 'hymn-line';
-                                                                if (trim($hymnLine) === 'PUP, aming gabay') {
-                                                                    $lineClass .= ' hymn-line--refrain';
-                                                                } elseif (
-                                                                    $isChorus
-                                                                    && $lineIndex === count($hymnLines) - 1
-                                                                    && trim($hymnLine) === 'PUP, pinagpala'
-                                                                ) {
-                                                                    $lineClass .= ' hymn-line--end';
-                                                                }
-                                                            @endphp
-                                                            <p class="{{ $lineClass }}">{{ $hymnLine }}</p>
-                                                        @endforeach
-                                                    </div>
-                                                @endforeach
+                                            <div class="hymn-lyrics-block reveal">
+                                                <div class="hymn-lyrics-header">
+                                                    <span class="ls-block-kicker">Full Lyrics</span>
+                                                    <h3 class="ls-block-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h3>
+                                                </div>
+                                                <div class="hymn-lyrics-body">
+                                                    @foreach($hymnSectionData['hymn_sections'] ?? [] as $hymnSection)
+                                                        @php
+                                                            $hymnLines = preg_split('/\R+/', trim((string) ($hymnSection['body'] ?? ''))) ?: [];
+                                                            $hymnLines = array_values(array_filter(array_map(static fn ($line) => trim((string) $line), $hymnLines), static fn ($line) => $line !== ''));
+                                                            $isChorus = str_contains(mb_strtolower((string) ($hymnSection['title'] ?? '')), 'chorus');
+                                                        @endphp
+                                                        <div class="hymn-stanza{{ $isChorus ? ' hymn-stanza--chorus' : '' }}">
+                                                            <p class="hymn-stanza-label">{{ $hymnSection['title'] ?? ('Section ' . $loop->iteration) }}</p>
+                                                            @foreach($hymnLines as $lineIndex => $hymnLine)
+                                                                @php
+                                                                    $lineClass = 'hymn-line';
+                                                                    if (trim($hymnLine) === 'PUP, aming gabay') {
+                                                                        $lineClass .= ' hymn-line--refrain';
+                                                                    } elseif (
+                                                                        $isChorus
+                                                                        && $lineIndex === count($hymnLines) - 1
+                                                                        && trim($hymnLine) === 'PUP, pinagpala'
+                                                                    ) {
+                                                                        $lineClass .= ' hymn-line--end';
+                                                                    }
+                                                                @endphp
+                                                                <p class="{{ $lineClass }}">{{ $hymnLine }}</p>
+                                                            @endforeach
+                                                        </div>
+                                                    @endforeach
+                                                </div>
                                             </div>
                                         </div>
-                                        @if(!empty($hymnSectionData['hymn_notes']))
-                                        <div class="hymn-lyrics-block reveal delay-100">
-                                            <div class="hymn-lyrics-header">
-                                                <span class="ls-block-kicker">Ceremonial Notes</span>
-                                                <h3 class="ls-block-title">Guidance and Context</h3>
-                                            </div>
-                                            <div class="hymn-lyrics-body">
-                                                @foreach($hymnSectionData['hymn_notes'] ?? [] as $note)
-                                                    <div class="hymn-stanza"><p class="hymn-line">{{ $note }}</p></div>
-                                                @endforeach
-                                            </div>
-                                        </div>
-                                        @endif
 
                                     @elseif($selectedSlug === 'maps')
 
@@ -746,19 +725,11 @@
                                             <span class="map-dot"></span>
                                             PUP Taguig Campus
                                             </div>
-                                            <div class="map-iframe-tabs">
-                                            <button class="map-tab active" onclick="switchMapTab(this,'map')">Map</button>
-                                            <button class="map-tab" onclick="switchMapTab(this,'street')">Street View</button>
-                                            </div>
                                         </div>
                                         <div class="map-iframe-panel">
-                                            <iframe id="pane-map"
-                                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.5!2d121.0484!3d14.5184!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397cf49a0000001%3A0x0!2sPUP+Taguig+Campus!5e0!3m2!1sen!2sph!4v1700000000000"
-                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="PUP Taguig Map">
-                                            </iframe>
-                                            <iframe id="pane-street" class="map-pane-hidden"
-                                            src="https://www.google.com/maps/embed?pb=!4v1700000000000!6m8!1m7!1sCAoSLEFGMVFpcE5aM2hUX2tKTjBUNEZfSkZn!2m2!1d14.5184!2d121.0509!3f200!4f0!5f0.7820865974627469"
-                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="PUP Taguig Street View">
+                                            <iframe id="pane-street"
+                                            src="https://maps.google.com/maps?q=&layer=c&cbll=14.488971,121.0511899&cbp=12,164.16,0,86.36,0&z=18&output=svembed"
+                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="PUP Taguig Campus View">
                                             </iframe>
                                         </div>
                                         </div>
@@ -786,17 +757,7 @@
                                         <div class="map-info-kicker">How to Get Here</div>
                                         <div class="map-transport-list">
                                             @foreach($selectedSection['map_cards'] ?? [] as $mapCard)
-                                                <article class="map-transport-row{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
-                                                    @if($cmsPreview)
-                                                        data-about-section-card
-                                                        data-about-section-card-section="maps"
-                                                        data-about-section-card-index="{{ $loop->index }}"
-                                                        data-about-section-card-label="{{ $mapCard['title'] ?? ('Map Card ' . $loop->iteration) }}"
-                                                        data-about-section-card-route="maps"
-                                                    @endif>
-                                                    @if($cmsPreview)
-                                                        <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
-                                                    @endif
+                                                <article class="map-transport-row">
                                                     <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.4" fill="#f4e7cf"/></svg></div>
                                                     <div>
                                                         <div class="map-t-name">{{ $mapCard['title'] ?? '' }}</div>
@@ -818,33 +779,22 @@
                                     </div>
                                     </div>
 
-                                    <script>
-                                    function switchMapTab(btn, pane) {
-                                    document.querySelectorAll('.map-tab').forEach(b => b.classList.remove('active'));
-                                    btn.classList.add('active');
-                                    document.getElementById('pane-map').classList.add('map-pane-hidden');
-                                    document.getElementById('pane-street').classList.add('map-pane-hidden');
-                                    document.getElementById('pane-' + pane).classList.remove('map-pane-hidden');
-                                    }
-                                    </script>
-
                                 @elseif($selectedSlug === 'campus-officials')
                                 <div class="ls-page-header reveal">
                                     <p class="section-tag">Campus Leadership</p>
                                     <h2 class="ls-page-title">{{ $selectedSection['label'] ?? 'Campus Officials' }}</h2>
                                     <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
                                 </div>
-                                <p class="about-detail-caption reveal delay-100">{{ $selectedSection['lead'] ?? '' }}</p>
                                 <div class="officials-grid">
                                 @foreach($selectedSection['official_groups'] ?? [] as $officialGroup)
                                     @php
-                                        $officialInitials = collect(preg_split('/[\s\/,&-]+/', trim((string) ($officialGroup['title'] ?? ''))))
-                                            ->filter()
-                                            ->map(static fn ($segment) => strtoupper(substr($segment, 0, 1)))
-                                            ->take(3)
-                                            ->implode('');
+                                        $officialImage = trim((string) ($officialGroup['image'] ?? ''));
                                     @endphp
-                                    <article class="official-card{{ $loop->first ? ' official-card--featured' : '' }} reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                    <article class="official-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                        tabindex="0"
+                                        role="button"
+                                        aria-expanded="false"
+                                        aria-label="{{ $officialGroup['title'] ?? 'Campus official' }} profile card"
                                         @if($cmsPreview)
                                             data-about-section-card
                                             data-about-section-card-section="campus-officials"
@@ -855,17 +805,170 @@
                                         @if($cmsPreview)
                                             <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
                                         @endif
-                                        <div class="official-avatar"><span class="official-initials-text">{{ $officialInitials !== '' ? $officialInitials : 'PUP' }}</span></div>
-                                        <div class="official-info">
-                                            <span class="official-office-badge">Office {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                            <p class="official-name">{{ $officialGroup['title'] ?? '' }}</p>
-                                            <p class="official-role">{{ $officialGroup['body'] ?? '' }}</p>
+                                        <div class="official-card-inner">
+                                            <div class="official-face official-face--front">
+                                                <div class="official-portrait">
+                                                    @if($officialImage !== '')
+                                                        <img
+                                                            src="{{ \App\Support\NewsImage::url($officialImage, null) }}"
+                                                            alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                            class="official-portrait-img"
+                                                        >
+                                                    @else
+                                                        <img
+                                                            src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                            alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                            class="official-portrait-img official-portrait-img--placeholder"
+                                                        >
+                                                    @endif
+                                                    <div class="official-front-copy">
+                                                        <p class="official-front-name">{{ $officialGroup['title'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="official-face official-face--back">
+                                                <div class="official-back-layout">
+                                                    <div class="official-back-portrait">
+                                                        @if($officialImage !== '')
+                                                            <img
+                                                                src="{{ \App\Support\NewsImage::url($officialImage, null) }}"
+                                                                alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                                class="official-back-img"
+                                                            >
+                                                        @else
+                                                            <img
+                                                                src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                                alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                                class="official-back-img official-back-img--placeholder"
+                                                            >
+                                                        @endif
+                                                    </div>
+                                                    <div class="official-info">
+                                                        <p class="official-name">{{ $officialGroup['name'] ?? '' }}</p>
+                                                        <p class="official-role">{{ $officialGroup['title'] ?? '' }}</p>
+                                                        <p class="official-description">{{ $officialGroup['body'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </article>
                                 @endforeach
 
                                 </div>
                                 <p class="about-detail-caption">{{ $selectedSection['officials_note'] ?? '' }}</p>
+
+                                <script>
+                                (function () {
+                                    function initOfficialCards() {
+                                        document.querySelectorAll('.official-card').forEach(function (card) {
+                                            if (card.dataset.flipBound === '1') return;
+                                            card.dataset.flipBound = '1';
+                                            const cardInner = card.querySelector('.official-card-inner');
+                                            const frontFace = card.querySelector('.official-face--front');
+                                            const backFace = card.querySelector('.official-face--back');
+                                            if (!(cardInner instanceof HTMLElement)) return;
+                                            if (!(frontFace instanceof HTMLElement) || !(backFace instanceof HTMLElement)) return;
+
+                                            const syncExpandedState = function () {
+                                                card.setAttribute('aria-expanded', card.dataset.flipped === '1' ? 'true' : 'false');
+                                            };
+
+                                            const showFace = function (face) {
+                                                const showBack = face === 'back';
+                                                frontFace.style.display = showBack ? 'none' : 'flex';
+                                                backFace.style.display = showBack ? 'flex' : 'none';
+                                            };
+
+                                            const setFlipState = function (isFlipped) {
+                                                card.dataset.flipped = isFlipped ? '1' : '0';
+                                                cardInner.style.transform = 'rotateY(0deg)';
+                                                showFace(isFlipped ? 'back' : 'front');
+                                                syncExpandedState();
+                                            };
+
+                                            const playFlip = function (nextFlipped) {
+                                                if (card.dataset.flipAnimating === '1') return;
+
+                                                card.dataset.flipAnimating = '1';
+                                                cardInner.getAnimations().forEach(function (animation) {
+                                                    animation.cancel();
+                                                });
+
+                                                const finalizeFlip = function () {
+                                                    card.dataset.flipAnimating = '0';
+                                                    setFlipState(nextFlipped);
+                                                };
+
+                                                if (typeof cardInner.animate === 'function') {
+                                                    showFace(card.dataset.flipped === '1' ? 'back' : 'front');
+                                                    cardInner.style.transform = 'rotateY(0deg)';
+
+                                                    const firstHalf = cardInner.animate([
+                                                        { transform: 'rotateY(0deg) scale(1)', offset: 0 },
+                                                        { transform: nextFlipped ? 'rotateY(90deg) scale(1.02)' : 'rotateY(-90deg) scale(1.02)', offset: 1 }
+                                                    ], {
+                                                        duration: 320,
+                                                        easing: 'cubic-bezier(0.55, 0.08, 0.68, 0.53)',
+                                                        fill: 'forwards'
+                                                    });
+
+                                                    firstHalf.onfinish = function () {
+                                                        showFace(nextFlipped ? 'back' : 'front');
+                                                        cardInner.style.transform = nextFlipped ? 'rotateY(-90deg)' : 'rotateY(90deg)';
+
+                                                        const secondHalf = cardInner.animate([
+                                                            { transform: nextFlipped ? 'rotateY(-90deg) scale(1.02)' : 'rotateY(90deg) scale(1.02)', offset: 0 },
+                                                            { transform: 'rotateY(0deg) scale(1)', offset: 1 }
+                                                        ], {
+                                                            duration: 320,
+                                                            easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                                            fill: 'forwards'
+                                                        });
+
+                                                        secondHalf.onfinish = finalizeFlip;
+                                                        secondHalf.oncancel = function () {
+                                                            card.dataset.flipAnimating = '0';
+                                                        };
+                                                    };
+
+                                                    firstHalf.oncancel = function () {
+                                                        card.dataset.flipAnimating = '0';
+                                                    };
+                                                    return;
+                                                }
+
+                                                finalizeFlip();
+                                            };
+
+                                            card.addEventListener('click', function (event) {
+                                                if (event.target.closest('.cms-preview-card-actions')) return;
+                                                playFlip(card.dataset.flipped !== '1');
+                                            });
+
+                                            card.addEventListener('keydown', function (event) {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault();
+                                                    playFlip(card.dataset.flipped !== '1');
+                                                }
+                                                
+                                                if (event.key === 'Escape') {
+                                                    if (card.dataset.flipAnimating === '1') return;
+                                                    setFlipState(false);
+                                                }
+                                            });
+
+                                            card.dataset.flipAnimating = '0';
+                                            setFlipState(false);
+                                        });
+                                    }
+
+                                    if (document.readyState === 'loading') {
+                                        document.addEventListener('DOMContentLoaded', initOfficialCards, { once: true });
+                                    } else {
+                                        initOfficialCards();
+                                    }
+                                })();
+                                </script>
 
                                 @elseif($selectedSlug === 'strategic-development-plan')
                                 <div class="sdp-page-header reveal">
@@ -1415,6 +1518,32 @@
                     0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
+            .official-card.cms-preview-editable-card .official-card-inner::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+                background: none;
+                padding: 0;
+                -webkit-mask: none;
+                mask: none;
+            }
+
+            .official-card.cms-preview-editable-card:hover .official-card-inner::before,
+            .official-card.cms-preview-editable-card:focus-within .official-card-inner::before {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
             .history-story > .cms-preview-chip {
                 display: none !important;
             }
@@ -1625,7 +1754,7 @@
                     }
 
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit]')) {
                             return;
                         }
 
@@ -1708,6 +1837,43 @@
                             route: 'vision-and-mission',
                         }, '*');
                         return;
+                    }
+
+                    const sectionCardEditTrigger = event.target.closest('[data-about-section-card-edit]');
+                    if (sectionCardEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = sectionCardEditTrigger.closest('[data-about-section-card]');
+                        const route = card?.getAttribute('data-about-section-card-route') || '';
+                        const section = card?.getAttribute('data-about-section-card-section') || '';
+                        const index = card?.getAttribute('data-about-section-card-index') || '';
+                        const label = card?.getAttribute('data-about-section-card-label') || 'About card';
+
+                        if (section === 'campus-officials') {
+                            window.parent?.postMessage({
+                                type: 'cms-about-official-card-edit',
+                                index: index,
+                                label: label,
+                                route: route || 'campus-officials',
+                            }, '*');
+                            return;
+                        }
+                    }
+
+                    const sectionCard = event.target.closest('[data-about-section-card]');
+                    if (sectionCard) {
+                        const section = sectionCard.getAttribute('data-about-section-card-section') || '';
+                        if (section === 'campus-officials') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            window.parent?.postMessage({
+                                type: 'cms-about-official-card-edit',
+                                index: sectionCard.getAttribute('data-about-section-card-index') || '',
+                                label: sectionCard.getAttribute('data-about-section-card-label') || 'Campus official',
+                                route: sectionCard.getAttribute('data-about-section-card-route') || 'campus-officials',
+                            }, '*');
+                            return;
+                        }
                     }
 
                     const deleteCardTrigger = event.target.closest('[data-about-card-delete]');

@@ -179,7 +179,6 @@ class AboutCmsContent
                         'body' => "Paaralang dakila\nPUP, pinagpala\nGagamitin ang karunungan\nMula sa iyo, para sa bayan\nAng iyong aral, diwa, adhikang taglay\nPUP, aming gabay\nPaaralang dakila\nPUP, pinagpala",
                     ],
                 ],
-                'hymn_notes' => [],
             ],
             'maps' => [
                 'slug' => 'maps',
@@ -217,26 +216,32 @@ class AboutCmsContent
                 'lead' => 'Campus leadership is organized through academic, student, administrative, and service offices that support daily operations and long-term development.',
                 'official_groups' => [
                     [
+                        'name' => '',
                         'title' => 'Campus Director',
                         'body' => 'Provides overall direction, institutional coordination, and external linkages for the campus.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Academic Affairs',
                         'body' => 'Oversees instruction, faculty coordination, curriculum delivery, and academic standards.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Student Services',
                         'body' => 'Supports student welfare, guidance, discipline, co-curricular programs, and campus life.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Administration and Finance',
                         'body' => 'Handles facilities, records support, procurement, budgeting, and operational resources.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Research and Extension',
                         'body' => 'Leads research activity, partnerships, and outreach initiatives that connect campus work with communities.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Registrar and Frontline Offices',
                         'body' => 'Assists with academic records, enrolment-related requests, and student-facing transactions.',
                     ],
@@ -425,11 +430,6 @@ class AboutCmsContent
                     $base['hymn_sections'] ?? $defaults['hymn_sections'],
                     $defaults['hymn_sections']
                 ),
-                'hymn_notes' => self::normalizeTextList(
-                    $source['hymn_notes'] ?? ($source['hymn_notes_text'] ?? []),
-                    $base['hymn_notes'] ?? $defaults['hymn_notes'],
-                    $defaults['hymn_notes']
-                ),
             ]),
             'maps' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
@@ -448,7 +448,7 @@ class AboutCmsContent
             ]),
             'campus-officials' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
-                'official_groups' => self::normalizeTitleBodyCards(
+                'official_groups' => self::normalizeOfficialGroups(
                     $source['official_groups'] ?? [],
                     $base['official_groups'] ?? $defaults['official_groups'],
                     $defaults['official_groups']
@@ -588,6 +588,28 @@ class AboutCmsContent
             $items[] = [
                 'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
                 'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 6000),
+                'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
+            ];
+        }
+
+        return $items;
+    }
+
+    private static function normalizeOfficialGroups(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = array_values($base);
+        $items = [];
+
+        foreach ($defaults as $index => $defaultItem) {
+            $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $items[] = [
+                'name' => self::pickString($source, $baseItem, $defaultItem + ['name' => ''], 'name'),
+                'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
+                'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 6000),
+                'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
             ];
         }
 

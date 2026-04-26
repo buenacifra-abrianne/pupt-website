@@ -878,6 +878,7 @@
             '[data-about-intro-version], ' +
             '[data-about-contents-version], ' +
             '[data-about-history-version], ' +
+            '[data-about-officials-version], ' +
             '[data-about-strategic-goals-version], ' +
             '[data-about-core-values-version], ' +
             '[data-academics-contents-version], ' +

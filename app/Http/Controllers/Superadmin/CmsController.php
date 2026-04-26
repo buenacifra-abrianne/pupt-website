@@ -117,6 +117,12 @@ class CmsController extends Controller
             'about.sections.*.timeline.*.title' => ['nullable', 'string', 'max:255'],
             'about.sections.*.timeline.*.body' => ['nullable'],
             'about.sections.*.timeline.*.body_text' => ['nullable', 'string'],
+            'about.sections.*.official_groups' => ['nullable', 'array'],
+            'about.sections.*.official_groups.*.name' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.official_groups.*.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.official_groups.*.body' => ['nullable', 'string'],
+            'about.sections.*.official_groups.*.image' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.official_groups.*.image_file' => ['nullable', 'image', 'max:5120'],
             'about.overview.story_tag' => ['nullable', 'string', 'max:255'],
             'about.overview.story_title' => ['nullable', 'string', 'max:255'],
             'about.overview.story_description' => ['nullable', 'string'],
@@ -447,6 +453,24 @@ class CmsController extends Controller
                     $storedPath = ImageStorage::store($storyImageUpload, 'about/story');
                     if ($storedPath !== false) {
                         $aboutInput['overview']['story_image'] = $storedPath;
+                    }
+                }
+            }
+
+            if ($sectionKey === '' || $sectionKey === 'campus-officials') {
+                $officialUploads = data_get($request->file('about.sections', []), 'campus-officials.official_groups', []);
+
+                if (is_array($officialUploads)) {
+                    foreach ($officialUploads as $index => $officialUpload) {
+                        $upload = is_array($officialUpload) ? ($officialUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'about/officials');
+                        if ($storedPath !== false) {
+                            $aboutInput['sections']['campus-officials']['official_groups'][$index]['image'] = $storedPath;
+                        }
                     }
                 }
             }

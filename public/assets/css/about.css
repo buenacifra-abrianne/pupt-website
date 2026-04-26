@@ -4333,10 +4333,16 @@ body.pup-dark-mode .ls-color-card {
    HYMN — hymn-* components
    ============================================================ */
 
+.hymn-layout {
+  width: 100%;
+  display: grid;
+  gap: clamp(18px, 2.4vw, 28px);
+}
+
 .hymn-page-header {
   display: grid;
   gap: 8px;
-  margin-bottom: clamp(12px, 1.6vw, 20px);
+  margin-bottom: 0;
 }
 
 .hymn-page-title {
@@ -4364,7 +4370,6 @@ body.pup-dark-mode .ls-color-card {
   grid-template-columns: auto 1fr;
   gap: clamp(28px, 4vw, 56px);
   align-items: center;
-  margin-bottom: clamp(12px, 1.6vw, 20px);
   background: linear-gradient(145deg,
     rgba(127, 17, 19, 0.97) 0%,
     rgba(79, 9, 12, 0.99) 55%,
@@ -4453,9 +4458,10 @@ body.pup-dark-mode .ls-color-card {
 }
 
 .hymn-lyrics-block {
-  max-width: 860px;
-  margin-bottom: clamp(12px, 1.6vw, 20px);
+  width: 100%;
+  margin: 0;
   padding: clamp(24px, 3vw, 40px);
+  box-sizing: border-box;
   border-radius: 28px;
   background: linear-gradient(180deg,
     rgba(255, 255, 255, 0.98) 0%,
@@ -5125,200 +5131,296 @@ body.pup-dark-mode .map-dir-btn--gold:hover { color: #000000 !important; }
 
 .officials-grid {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 280px));
+  gap: clamp(18px, 2.4vw, 28px);
+  justify-content: center;
 }
 
 .official-card {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 16px;
-  align-items: center;
-  padding: 18px 20px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,239,232,0.94) 100%);
-  border: 1px solid rgba(127,17,19,0.12);
-  box-shadow: 0 10px 24px rgba(79,9,12,0.07);
   position: relative;
+  min-height: 360px;
+  perspective: 1000px;
+  -webkit-perspective: 1000px;
+  border-radius: 26px;
+  background: transparent;
+  border: none;
+  box-shadow: none;
+  overflow: visible;
+  cursor: pointer;
+  transition: transform 0.28s ease;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+}
+
+.official-card-inner {
+  position: relative;
+  width: 100%;
+  height: 360px;
+  transition: box-shadow 0.32s ease;
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transform: rotateY(0deg) translateZ(0);
   overflow: hidden;
-  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  border-radius: 26px;
+  background: linear-gradient(145deg, rgba(127,17,19,0.98) 0%, rgba(79,9,12,0.99) 100%);
+  box-shadow: 0 18px 36px rgba(79, 9, 12, 0.16);
+  will-change: transform;
 }
 
 .official-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 18px 34px rgba(79,9,12,0.13);
+  transform: translateY(-6px) scale(1.01);
 }
 
-.official-card--featured {
-  grid-template-columns: 96px 1fr;
-  padding: 28px 28px;
-  background: linear-gradient(135deg, rgba(127,17,19,0.96) 0%, rgba(79,9,12,0.99) 100%);
-  border-color: rgba(215,170,67,0.22);
-  box-shadow: 0 18px 36px rgba(79,9,12,0.2);
+.official-card:hover .official-card-inner,
+.official-card:focus-visible .official-card-inner {
+  box-shadow: 0 28px 48px rgba(79, 9, 12, 0.22);
 }
 
-.official-card--featured:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 24px 44px rgba(79,9,12,0.28);
+.official-card:focus-visible {
+  outline: 3px solid rgba(243, 196, 90, 0.45);
+  outline-offset: 4px;
 }
 
-.official-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
+.official-face {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, rgba(127,17,19,0.1) 0%, rgba(79,9,12,0.06) 100%);
-  border: 2px solid rgba(127,17,19,0.14);
-  flex-shrink: 0;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border-radius: 26px;
+  overflow: hidden;
+  transform-style: flat;
+  -webkit-transform-style: flat;
 }
 
-.official-card--featured .official-avatar {
-  width: 82px;
-  height: 82px;
-  background: linear-gradient(135deg, rgba(243,196,90,0.22) 0%, rgba(215,170,67,0.12) 100%);
-  border-color: rgba(215,170,67,0.38);
+.official-face--front {
+  background:
+    radial-gradient(circle at top right, rgba(243, 196, 90, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(127,17,19,0.98) 0%, rgba(79,9,12,0.99) 100%);
+  border: 1px solid rgba(215,170,67,0.18);
 }
 
-.official-initials-text {
-  font-size: 0.88rem;
+.official-face--back {
+  background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,239,232,0.94) 100%);
+  border: 1px solid rgba(127,17,19,0.12);
+}
+
+.official-portrait,
+.official-back-layout {
+  width: 100%;
+  height: 100%;
+}
+
+.official-portrait {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  border-radius: 26px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, rgba(127,17,19,0.98) 0%, rgba(79,9,12,0.99) 100%);
+  border: none;
+}
+
+.official-portrait-img {
+  width: 100%;
+  height: 100%;
+  max-height: none;
+  object-fit: cover;
+  display: block;
+  margin: 0;
+  filter: none;
+}
+
+.official-portrait-img--placeholder {
+  opacity: 1;
+  object-fit: contain;
+  padding: 28px;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 247, 0.96) 58%, rgba(245, 232, 220, 0.9) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.88),
+    0 0 34px rgba(255, 255, 255, 0.85),
+    0 0 64px rgba(255, 241, 228, 0.62);
+  filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.92));
+}
+
+.official-front-copy {
+  position: absolute;
+  inset: auto 0 0 0;
+  min-height: 78px;
+  padding: 18px 22px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #971518;
+}
+
+.official-front-name {
+  margin: 0;
+  color: #fffaf4;
+  font-size: 1.08rem;
   font-weight: 800;
-  color: var(--about-maroon);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  line-height: 1;
-}
-
-.official-card--featured .official-initials-text {
-  color: #f3c45a;
-  font-size: 1.35rem;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+  text-shadow: none;
+  max-width: 16ch;
 }
 
 .official-info {
   display: grid;
-  gap: 3px;
-  min-width: 0;
+  gap: 12px;
+  width: 100%;
+  align-content: center;
 }
 
-.official-office-badge {
-  display: inline-flex;
-  align-items: center;
-  width: fit-content;
-  padding: 2px 10px;
+.official-back-layout {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 18px;
+  text-align: center;
+}
+
+.official-back-portrait {
+  width: 136px;
+  height: 136px;
   border-radius: 999px;
-  background: rgba(127,17,19,0.08);
-  color: var(--about-maroon);
-  font-size: 0.66rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  margin-bottom: 2px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(145deg, rgba(127,17,19,0.08) 0%, rgba(79,9,12,0.04) 100%);
+  border: 1px solid rgba(127,17,19,0.1);
+  box-shadow: 0 10px 22px rgba(79,9,12,0.08);
 }
 
-.official-card--featured .official-office-badge {
-  background: rgba(243,196,90,0.18);
-  color: #f3c45a;
-  font-size: 0.72rem;
-  padding: 3px 12px;
-  margin-bottom: 6px;
+.official-back-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.official-back-img--placeholder {
+  object-fit: contain;
+  padding: 18px;
+  background:
+    radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 247, 0.96) 58%, rgba(245, 232, 220, 0.9) 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.9),
+    0 0 24px rgba(255, 255, 255, 0.82),
+    0 0 44px rgba(255, 241, 228, 0.58);
+  filter: drop-shadow(0 0 18px rgba(255, 255, 255, 0.88));
 }
 
 .official-name {
   margin: 0;
   color: var(--about-ink);
-  font-size: 0.96rem;
-  font-weight: 800;
-  line-height: 1.2;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.official-card--featured .official-name {
-  color: #fffaf4;
   font-size: 1.2rem;
+  font-weight: 800;
+  line-height: 1.22;
   white-space: normal;
+  overflow-wrap: anywhere;
 }
 
 .official-role {
   margin: 0;
   color: var(--about-muted);
-  font-size: 0.82rem;
-  line-height: 1.4;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.45;
+  white-space: normal;
+  overflow-wrap: anywhere;
 }
 
-.official-card--featured .official-role {
-  color: rgba(255,241,231,0.78);
-  font-size: 0.96rem;
+.official-description {
+  margin: 0;
+  color: var(--about-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
   white-space: normal;
 }
 
 /* ============================================================
    DARK MODE — campus officials
    ============================================================ */
-body.pup-dark-mode .official-card {
+body.pup-dark-mode .official-face--back {
   background: linear-gradient(180deg, rgba(18,4,5,0.98) 0%, rgba(12,2,3,0.99) 100%);
   border-color: rgba(160,40,40,0.14);
   box-shadow: 0 10px 24px rgba(0,0,0,0.4);
 }
 
-body.pup-dark-mode .official-card--featured {
+body.pup-dark-mode .official-face--front {
   background: linear-gradient(135deg, rgba(55,8,10,0.98) 0%, rgba(35,4,6,0.99) 100%);
   border-color: rgba(215,170,67,0.18);
 }
 
-body.pup-dark-mode .official-avatar {
-  background: rgba(160,40,40,0.12);
-  border-color: rgba(160,40,40,0.2);
-}
-
-body.pup-dark-mode .official-initials-text { color: #e08080; }
-
-body.pup-dark-mode .official-office-badge {
-  background: rgba(160,40,40,0.12);
-  color: #e08080;
+body.pup-dark-mode .official-front-copy {
+  background: linear-gradient(180deg, rgba(5, 1, 1, 0) 0%, rgba(5, 1, 1, 0.78) 58%, rgba(5, 1, 1, 0.94) 100%);
 }
 
 body.pup-dark-mode .official-name { color: #f5e8e8; }
 body.pup-dark-mode .official-role { color: #c8a8a8; }
+body.pup-dark-mode .official-description { color: #c8a8a8; }
 
 /* ============================================================
    RESPONSIVE — campus officials
    ============================================================ */
-@media (min-width: 768px) {
-  .officials-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .official-card--featured {
-    grid-column: 1 / -1;
-  }
-}
-
 @media (max-width: 480px) {
   .official-card {
-    grid-template-columns: 52px 1fr;
-    gap: 12px;
-    padding: 14px 16px;
+    min-height: 320px;
   }
 
-  .official-card--featured {
-    grid-template-columns: 64px 1fr;
-    padding: 18px 16px;
+  .official-card-inner,
+  .official-face,
+  .official-portrait,
+  .official-portrait-placeholder {
+    min-height: 320px;
   }
 
-  .official-avatar { width: 48px; height: 48px; }
-  .official-card--featured .official-avatar { width: 58px; height: 58px; }
-  .official-name { font-size: 0.88rem; }
+  .official-card-inner {
+    height: 320px;
+  }
+
+  .official-name { font-size: 0.96rem; }
   .official-role { font-size: 0.78rem; }
+  .official-description { font-size: 0.84rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .official-card:hover { transform: none; }
+  .official-card-inner {
+    transition: none;
+  }
+
+  .official-card:hover {
+    transform: none;
+  }
+
+  .official-card:hover .official-card-inner,
+  .official-card:focus-visible .official-card-inner {
+    box-shadow: 0 18px 36px rgba(79, 9, 12, 0.16);
+  }
+
+  .official-card.is-flipped .official-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .official-portrait::after {
+    transition: none;
+    transform: none;
+  }
 }
 
 .about-sections .hero-shell {

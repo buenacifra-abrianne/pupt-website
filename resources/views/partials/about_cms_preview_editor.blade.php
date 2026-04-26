@@ -593,7 +593,7 @@
                     <div class="about-cms-card-stack">
                         @foreach($visionEditor['core_values'] ?? [] as $index => $coreValue)
                             <article class="about-cms-card-editor">
-                                <div class="about-cms-form-grid">
+                                <div class="about-cms-form-grid about-cms-official-meta-grid">
                                     <div class="form-group">
                                         <label>Core Value Letter</label>
                                         <input type="text" name="about[sections][vision-and-mission][core_values][{{ $index }}][letter]" maxlength="10" value="{{ $coreValue['letter'] ?? '' }}">
@@ -757,170 +757,106 @@
             </section>
 
             @php
-                $hymnEditor = $aboutSections['hymn'] ?? [];
-            @endphp
-            <section class="about-cms-editor-panel" data-about-editor-panel="hymn" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
-                    @csrf
-                    <input type="hidden" name="tab_key" value="about">
-                    <input type="hidden" name="section_key" value="hymn">
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
-
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Label</label>
-                            <input type="text" name="about[sections][hymn][label]" maxlength="255" value="{{ $hymnEditor['label'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Section Summary</label>
-                            <textarea name="about[sections][hymn][summary]" rows="4">{{ $hymnEditor['summary'] ?? '' }}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Lead Paragraph</label>
-                        <textarea name="about[sections][hymn][lead]" rows="5">{{ $hymnEditor['lead'] ?? '' }}</textarea>
-                    </div>
-
-                    @foreach($hymnEditor['hymn_sections'] ?? [] as $index => $hymnSection)
-                        <article class="about-cms-card-editor">
-                            <div class="about-cms-form-grid">
-                                <div class="form-group">
-                                    <label>Hymn Card Title</label>
-                                    <input type="text" name="about[sections][hymn][hymn_sections][{{ $index }}][title]" maxlength="255" value="{{ $hymnSection['title'] ?? '' }}">
-                                </div>
-                                <div class="form-group">
-                                    <label>Hymn Card Body</label>
-                                    <textarea name="about[sections][hymn][hymn_sections][{{ $index }}][body]" rows="4">{{ $hymnSection['body'] ?? '' }}</textarea>
-                                </div>
-                            </div>
-                        </article>
-                    @endforeach
-
-                    <div class="form-group">
-                        <label>Hymn Notes</label>
-                        <textarea name="about[sections][hymn][hymn_notes_text]" rows="5">{{ implode("\n", $hymnEditor['hymn_notes'] ?? []) }}</textarea>
-                    </div>
-
-                    <div class="about-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Hymn') }}</button>
-                    </div>
-                </form>
-            </section>
-
-            @php
-                $mapsEditor = $aboutSections['maps'] ?? [];
-            @endphp
-            <section class="about-cms-editor-panel" data-about-editor-panel="maps" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
-                    @csrf
-                    <input type="hidden" name="tab_key" value="about">
-                    <input type="hidden" name="section_key" value="maps">
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
-
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Label</label>
-                            <input type="text" name="about[sections][maps][label]" maxlength="255" value="{{ $mapsEditor['label'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Section Summary</label>
-                            <textarea name="about[sections][maps][summary]" rows="4">{{ $mapsEditor['summary'] ?? '' }}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Map URL</label>
-                            <input type="text" name="about[sections][maps][map_url]" maxlength="2048" value="{{ $mapsEditor['map_url'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Lead Paragraph</label>
-                            <textarea name="about[sections][maps][lead]" rows="4">{{ $mapsEditor['lead'] ?? '' }}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Visit Planning Copy</label>
-                        <textarea name="about[sections][maps][visit_planning_text]" rows="4">{{ $mapsEditor['visit_planning_text'] ?? '' }}</textarea>
-                    </div>
-
-                    @foreach($mapsEditor['map_cards'] ?? [] as $index => $mapCard)
-                        <article class="about-cms-card-editor">
-                            <div class="about-cms-form-grid">
-                                <div class="form-group">
-                                    <label>Map Card Title</label>
-                                    <input type="text" name="about[sections][maps][map_cards][{{ $index }}][title]" maxlength="255" value="{{ $mapCard['title'] ?? '' }}">
-                                </div>
-                                <div class="form-group">
-                                    <label>Map Card Body</label>
-                                    <textarea name="about[sections][maps][map_cards][{{ $index }}][body]" rows="4">{{ $mapCard['body'] ?? '' }}</textarea>
-                                </div>
-                            </div>
-                        </article>
-                    @endforeach
-
-                    <div class="form-group">
-                        <label>Visitor Notes</label>
-                        <textarea name="about[sections][maps][visit_notes_text]" rows="5">{{ implode("\n", $mapsEditor['visit_notes'] ?? []) }}</textarea>
-                    </div>
-
-                    <div class="about-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Maps') }}</button>
-                    </div>
-                </form>
-            </section>
-
-            @php
                 $officialsEditor = $aboutSections['campus-officials'] ?? [];
             @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="campus-officials" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="campus-officials">
+                    <input type="hidden" name="about_officials_version" value="0" data-about-officials-version>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Label</label>
-                            <input type="text" name="about[sections][campus-officials][label]" maxlength="255" value="{{ $officialsEditor['label'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Section Summary</label>
-                            <textarea name="about[sections][campus-officials][summary]" rows="4">{{ $officialsEditor['summary'] ?? '' }}</textarea>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Lead Paragraph</label>
-                        <textarea name="about[sections][campus-officials][lead]" rows="5">{{ $officialsEditor['lead'] ?? '' }}</textarea>
-                    </div>
-
-                    @foreach($officialsEditor['official_groups'] ?? [] as $index => $officialGroup)
-                        <article class="about-cms-card-editor">
-                            <div class="about-cms-form-grid">
-                                <div class="form-group">
-                                    <label>Office Title</label>
-                                    <input type="text" name="about[sections][campus-officials][official_groups][{{ $index }}][title]" maxlength="255" value="{{ $officialGroup['title'] ?? '' }}">
+                    <div class="about-cms-card-stack">
+                        @foreach($officialsEditor['official_groups'] ?? [] as $index => $officialGroup)
+                            @php
+                                $officialImageInputId = $idPrefix.'-about-official-image-file-'.$index;
+                                $officialImageFieldId = $idPrefix.'-about-official-image-'.$index;
+                                $officialImageValue = (string) ($officialGroup['image'] ?? '');
+                                $officialImagePreview = \App\Support\NewsImage::url($officialImageValue !== '' ? $officialImageValue : null, 'assets/static_img/temporary_profile.png');
+                            @endphp
+                            <article class="about-cms-card-editor" data-about-official-editor data-about-official-index="{{ $index }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4>Official Card {{ $loop->iteration }}</h4>
+                                    <span>{{ $officialGroup['name'] ?? ($officialGroup['title'] ?? 'Campus official') }}</span>
                                 </div>
                                 <div class="form-group">
-                                    <label>Office Description</label>
-                                    <textarea name="about[sections][campus-officials][official_groups][{{ $index }}][body]" rows="4">{{ $officialGroup['body'] ?? '' }}</textarea>
+                                    <label>Upload Profile Image</label>
+                                    <div class="about-cms-image-dropzone-shell">
+                                        <input type="hidden" id="{{ $officialImageFieldId }}" name="about[sections][campus-officials][official_groups][{{ $index }}][image]" value="{{ $officialImageValue }}" data-about-image-field>
+                                        <input
+                                            type="file"
+                                            id="{{ $officialImageInputId }}"
+                                            name="about[sections][campus-officials][official_groups][{{ $index }}][image_file]"
+                                            class="about-cms-image-dropzone-input"
+                                            accept="image/*"
+                                            data-about-image-field-id="{{ $officialImageFieldId }}"
+                                        >
+                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $officialImageInputId }}" tabindex="0" role="button" aria-label="Upload official profile image">
+                                            <span class="about-cms-image-dropzone-preview-column">
+                                                <span class="about-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $officialImagePreview }}"
+                                                        alt="{{ $officialGroup['title'] ?? 'Campus official' }} preview"
+                                                        class="about-cms-image-dropzone-preview{{ $officialImageValue === '' ? ' about-cms-image-dropzone-preview--profile-placeholder' : '' }}"
+                                                        data-about-preview-for="{{ $officialImageInputId }}"
+                                                        data-about-default-src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                    >
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $officialImageInputId }}" aria-label="Delete image" title="Delete image" {{ $officialImageValue === '' ? 'hidden' : '' }}>
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload">
+                                                <span class="about-cms-image-dropzone-icon">
+                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                </span>
+                                                <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this official card.</span>
+                                                <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $officialImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-                        </article>
-                    @endforeach
-
-                    <div class="form-group">
-                        <label>Footer Note</label>
-                        <textarea name="about[sections][campus-officials][officials_note]" rows="4">{{ $officialsEditor['officials_note'] ?? '' }}</textarea>
+                                <div class="about-cms-official-fields">
+                                    <div class="form-group">
+                                        <label>Role</label>
+                                        <div class="about-cms-locked-field" aria-label="Role is locked">
+                                            <span class="about-cms-locked-field-icon" aria-hidden="true">
+                                                <i class="fas fa-lock"></i>
+                                            </span>
+                                            <input
+                                                type="text"
+                                                name="about[sections][campus-officials][official_groups][{{ $index }}][title]"
+                                                maxlength="255"
+                                                value="{{ $officialGroup['title'] ?? '' }}"
+                                                readonly
+                                                aria-readonly="true"
+                                            >
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Name</label>
+                                        <input type="text" name="about[sections][campus-officials][official_groups][{{ $index }}][name]" maxlength="255" value="{{ $officialGroup['name'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <div class="about-cms-textarea-field" data-about-char-limit="220">
+                                            <textarea
+                                                name="about[sections][campus-officials][official_groups][{{ $index }}][body]"
+                                                rows="4"
+                                                maxlength="220"
+                                                data-about-char-input
+                                            >{{ $officialGroup['body'] ?? '' }}</textarea>
+                                            <div class="about-cms-char-counter" data-about-char-counter aria-live="polite">0/220</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -1167,6 +1103,30 @@
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
+        align-items: start;
+    }
+
+    .about-cms-form-grid .form-group {
+        display: grid;
+        align-content: start;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .about-cms-form-grid .form-group > label {
+        min-height: 22px;
+        line-height: 1.2;
+    }
+
+    .about-cms-official-fields {
+        display: grid;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .about-cms-official-fields > .form-group > input,
+    .about-cms-official-fields .about-cms-locked-field {
+        min-height: 52px;
     }
 
     .about-cms-history-meta-grid {
@@ -1260,6 +1220,14 @@
         border: 1px solid #efe3dc;
         border-radius: 16px;
         background: #fff;
+    }
+
+    .about-cms-card-editor[data-about-official-editor] {
+        width: 100%;
+    }
+
+    .about-cms-card-editor[data-about-official-editor] {
+        width: min(100%, 620px);
     }
 
     .about-cms-card-editor[data-about-contents-editor] {
@@ -1362,6 +1330,18 @@
         border-radius: 18px;
         background: #f1e7dd;
         box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .about-cms-image-dropzone-preview--profile-placeholder {
+        object-fit: contain;
+        padding: 22px;
+        background:
+            radial-gradient(circle at center, rgba(255, 255, 255, 0.98) 0%, rgba(255, 250, 245, 0.96) 55%, rgba(247, 232, 220, 0.92) 100%);
+        box-shadow:
+            0 0 30px rgba(255, 255, 255, 0.85),
+            0 0 56px rgba(255, 244, 232, 0.65),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.88);
+        filter: drop-shadow(0 0 22px rgba(255, 255, 255, 0.95));
     }
 
     .about-cms-image-dropzone-label {
@@ -1511,6 +1491,42 @@
         color: #b91c1c;
     }
 
+    .about-cms-locked-field {
+        position: relative;
+        display: block;
+        width: 100%;
+    }
+
+    .about-cms-locked-field-icon {
+        position: absolute;
+        top: 50%;
+        left: 14px;
+        transform: translateY(-50%);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 18px;
+        height: 18px;
+        color: #8a7a73;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    .about-cms-locked-field input[readonly] {
+        display: block;
+        width: 100%;
+        min-height: 52px;
+        margin: 0;
+        padding: 0 14px 0 40px;
+        border-radius: 12px;
+        border: 1px solid #e6d7cf;
+        background: linear-gradient(180deg, #faf5f2 0%, #f5eeea 100%);
+        color: #6a5550;
+        line-height: 1.35;
+        box-sizing: border-box;
+        cursor: not-allowed;
+    }
+
     .about-cms-modal-footer {
         display: flex;
         justify-content: flex-end;
@@ -1534,6 +1550,11 @@
         box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
     }
 
+    .about-cms-modal.is-official-card-focus .about-cms-modal-dialog {
+        width: min(720px, calc(100vw - 24px));
+        max-width: min(720px, calc(100vw - 24px));
+    }
+
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
         padding: 18px;
         background:
@@ -1546,6 +1567,10 @@
         max-width: 880px;
         margin: 0 auto;
         overflow-x: hidden;
+    }
+
+    .about-cms-modal.is-official-card-focus .about-cms-editor-panel.is-card-focus form {
+        max-width: 640px;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-stack {
@@ -2021,18 +2046,21 @@
             modal.hidden = false;
             document.body.style.overflow = 'hidden';
             document.body.classList.add('cms-editor-modal-open');
+            modal.classList.remove('is-official-card-focus');
 
             modal.querySelectorAll('[data-about-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-about-editor-panel') === sectionKey;
                 const isContentsCardFocus = sectionKey === 'contents' && String(options.slug || '').trim() !== '';
                 const isHistoryCardFocus = sectionKey === 'history' && String(options.historyIndex ?? '').trim() !== '';
                 const isStrategicGoalFocus = sectionKey === 'strategic-goals' && String(options.strategicGoalIndex ?? '').trim() !== '';
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus;
+                const isOfficialCardFocus = sectionKey === 'campus-officials' && String(options.officialIndex ?? '').trim() !== '';
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isOfficialCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
                 if (isActive) {
                     modal.classList.toggle('is-card-focus', isCardFocus);
+                    modal.classList.toggle('is-official-card-focus', sectionKey === 'campus-officials' && isCardFocus);
                     if (title) {
                         title.textContent = label || 'Edit about section';
                     }
@@ -2048,6 +2076,8 @@
                         focusScope = setActiveHistoryEditor(options.historyIndex ?? '') || panel;
                     } else if (sectionKey === 'strategic-goals') {
                         focusScope = setActiveStrategicGoalEditor(options.strategicGoalIndex ?? '', isCardFocus) || panel;
+                    } else if (sectionKey === 'campus-officials') {
+                        focusScope = setActiveOfficialEditor(options.officialIndex ?? '', panel) || panel;
                     }
 
                     if (typeof window.initializeRichTextEditors === 'function') {
@@ -2068,6 +2098,7 @@
 
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
+            modal.classList.remove('is-official-card-focus');
             document.body.style.overflow = '';
             document.body.classList.remove('cms-editor-modal-open');
         }
@@ -2110,6 +2141,14 @@
                 openAboutEditor('strategic-goals', data.label ? `Edit ${data.label}` : 'Edit strategic goal pillar', {
                     strategicGoalIndex: data.index || '',
                     route: data.route || 'vision-and-mission',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-official-card-edit') {
+                openAboutEditor('campus-officials', data.label ? `Edit ${data.label}` : 'Edit campus official', {
+                    officialIndex: data.index || '',
+                    route: data.route || 'campus-officials',
                 });
                 return;
             }
@@ -2157,6 +2196,8 @@
         const historyForm = document.querySelector('[data-about-history-form]');
         const historyVersionInput = document.querySelector('[data-about-history-version]');
         const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
+        const officialsForm = document.querySelector('[data-about-editor-panel="campus-officials"] form');
+        const officialsVersionInput = officialsForm?.querySelector('[data-about-officials-version]') || null;
         const strategicGoalsForm = document.querySelector('[data-about-strategic-goals-form]');
         const strategicGoalsGroups = strategicGoalsForm?.querySelector('[data-about-strategic-goals-groups]') || null;
         const strategicGoalsVersionInput = strategicGoalsForm?.querySelector('[data-about-strategic-goals-version]') || null;
@@ -2185,6 +2226,12 @@
         const bumpCoreValuesVersion = () => {
             if (coreValuesVersionInput) {
                 coreValuesVersionInput.value = String(Date.now());
+            }
+        };
+
+        const bumpOfficialsVersion = () => {
+            if (officialsVersionInput) {
+                officialsVersionInput.value = String(Date.now());
             }
         };
 
@@ -2498,6 +2545,25 @@
             coreValuesForm.addEventListener('change', markDirty);
         };
 
+        const bindOfficialsDirtyTracking = () => {
+            if (!officialsForm || officialsForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            officialsForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                if (!shouldTrackAboutContentsField(event.target)) {
+                    return;
+                }
+
+                bumpOfficialsVersion();
+            };
+
+            officialsForm.addEventListener('input', markDirty);
+            officialsForm.addEventListener('change', markDirty);
+        };
+
         const formatHistoryMonth = (value) => {
             const match = String(value || '').match(/^(\d{4})-(\d{2})$/);
             if (!match) {
@@ -2646,6 +2712,34 @@
             return targetEditor;
         };
 
+        const setActiveOfficialEditor = (index = '', scope = document) => {
+            const editors = Array.from(scope.querySelectorAll('[data-about-official-editor]'));
+
+            if (!editors.length) {
+                return null;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            let targetEditor = null;
+
+            if (normalizedIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-official-index') === normalizedIndex) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.classList.toggle('is-disabled', targetEditor ? !isActive : false);
+                editor.hidden = targetEditor ? !isActive : false;
+            });
+
+            return targetEditor;
+        };
+
         const submitHistoryForm = () => {
             if (!historyForm) {
                 return;
@@ -2694,6 +2788,13 @@
                 input.dataset.aboutDropzoneBound = '1';
                 const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
                 const defaultSrc = previewEl?.dataset.aboutDefaultSrc || '';
+                const syncPreviewPlaceholderState = (isPlaceholder) => {
+                    if (!previewEl) {
+                        return;
+                    }
+
+                    previewEl.classList.toggle('about-cms-image-dropzone-preview--profile-placeholder', isPlaceholder);
+                };
 
                 const syncRemoveState = () => {
                     if (!removeButton) {
@@ -2716,6 +2817,7 @@
                         previewEl.src = URL.createObjectURL(file);
                     }
 
+                    syncPreviewPlaceholderState(false);
                     syncRemoveState();
                 };
 
@@ -2777,10 +2879,12 @@
                     if (previewEl && defaultSrc) {
                         previewEl.src = defaultSrc;
                     }
+                    syncPreviewPlaceholderState(true);
                     fileNameEl.textContent = emptyText;
                     syncRemoveState();
                 });
 
+                syncPreviewPlaceholderState((imageField?.value || '').trim() === '');
                 syncRemoveState();
             });
         };
@@ -2985,6 +3089,7 @@
         bindAboutContentsDirtyTracking();
         bindAboutHistoryDirtyTracking();
         bindCoreValuesDirtyTracking();
+        bindOfficialsDirtyTracking();
         setActiveHistoryEditor();
         window.__aboutCmsPreviewEditorReady = true;
     })();
