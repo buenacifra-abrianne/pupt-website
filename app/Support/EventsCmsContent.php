@@ -259,10 +259,10 @@ class EventsCmsContent
 
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if ($text === '') {
-            $text = trim($fallback);
+            $text = trim(HtmlEntities::decode($fallback));
         }
 
         if (function_exists('mb_substr')) {

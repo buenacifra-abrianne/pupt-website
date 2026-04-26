@@ -107,6 +107,7 @@ class CmsController extends Controller
             'about.sections' => ['nullable', 'array'],
             'about.sections.*.label' => ['nullable', 'string', 'max:255'],
             'about.sections.*.summary' => ['nullable', 'string'],
+            'about.sections.*.lead' => ['nullable', 'string'],
             'about.sections.*.visible_in_contents' => ['nullable'],
             'about.sections.*.image' => ['nullable', 'string', 'max:2048'],
             'about.sections.*.image_file' => ['nullable', 'image', 'max:5120'],
@@ -371,10 +372,10 @@ class CmsController extends Controller
         $content = (string) ($data['content'] ?? '');
 
             if ($tabKey === 'home') {
-                $baseHome = HomeCmsContent::fromStored($baseContent);
-                $baseHomeEncoded = HomeCmsContent::encode($baseHome);
-                $homeInput = $this->filterHomeInputBySection(
-                    is_array($data['home'] ?? null) ? $data['home'] : [],
+            $baseHome = HomeCmsContent::fromStored($baseContent);
+            $baseHomeEncoded = HomeCmsContent::encode($baseHome);
+            $homeInput = $this->filterHomeInputBySection(
+                is_array($request->input('home')) ? $request->input('home') : [],
                 $sectionKey
             );
 
@@ -415,7 +416,7 @@ class CmsController extends Controller
             $baseAbout = AboutCmsContent::fromStored($baseContent);
             $baseAboutEncoded = AboutCmsContent::encode($baseAbout);
             $aboutInput = $this->filterAboutInputBySection(
-                is_array($data['about'] ?? null) ? $data['about'] : [],
+                is_array($request->input('about')) ? $request->input('about') : [],
                 $sectionKey
             );
 
@@ -506,7 +507,7 @@ class CmsController extends Controller
             $baseAcademics = AcademicsCmsContent::fromStored($baseContent);
             $baseAcademicsEncoded = AcademicsCmsContent::encode($baseAcademics);
             $academicsInput = $this->filterAcademicsInputBySection(
-                is_array($data['academics'] ?? null) ? $data['academics'] : [],
+                is_array($request->input('academics')) ? $request->input('academics') : [],
                 $sectionKey
             );
 
@@ -593,7 +594,7 @@ class CmsController extends Controller
             $baseStudents = StudentsCmsContent::fromStored($baseContent);
             $baseStudentsEncoded = StudentsCmsContent::encode($baseStudents);
             $studentsInput = $this->filterStudentsInputBySection(
-                is_array($data['students'] ?? null) ? $data['students'] : [],
+                is_array($request->input('students')) ? $request->input('students') : [],
                 $sectionKey
             );
 
@@ -659,7 +660,7 @@ class CmsController extends Controller
             $baseResearch = ResearchCmsContent::fromStored($baseContent);
             $baseResearchEncoded = ResearchCmsContent::encode($baseResearch);
             $researchInput = $this->filterResearchInputBySection(
-                is_array($data['research'] ?? null) ? $data['research'] : [],
+                is_array($request->input('research')) ? $request->input('research') : [],
                 $sectionKey
             );
 
@@ -701,7 +702,7 @@ class CmsController extends Controller
             $baseEvents = EventsCmsContent::fromStored($baseContent);
             $baseEventsEncoded = EventsCmsContent::encode($baseEvents);
             $eventsInput = $this->filterEventsInputBySection(
-                is_array($data['events'] ?? null) ? $data['events'] : [],
+                is_array($request->input('events')) ? $request->input('events') : [],
                 $sectionKey
             );
 

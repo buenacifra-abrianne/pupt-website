@@ -658,10 +658,10 @@ class AcademicsCmsContent
 
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if ($text === '') {
-            $text = trim($fallback);
+            $text = trim(HtmlEntities::decode($fallback));
         }
 
         if (function_exists('mb_substr')) {
@@ -673,7 +673,7 @@ class AcademicsCmsContent
 
     private static function sanitizeOptionalString(string $value, int $maxLen): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);

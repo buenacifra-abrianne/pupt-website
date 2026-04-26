@@ -868,7 +868,7 @@
             @php
                 $planEditor = $aboutSections['strategic-development-plan'] ?? [];
             @endphp
-            <section class="about-cms-editor-panel" data-about-editor-panel="strategic-development-plan" hidden>
+            <section class="about-cms-editor-panel" data-about-editor-panel="strategic-development-plan-header" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
@@ -877,41 +877,89 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-form-grid">
+                    <article class="about-cms-card-editor">
+                        <div class="about-cms-card-editor-head">
+                            <h4>Plan Overview</h4>
+                            <span>Shared section content</span>
+                        </div>
                         <div class="form-group">
-                            <label>Section Label</label>
+                            <label>Title</label>
                             <input type="text" name="about[sections][strategic-development-plan][label]" maxlength="255" value="{{ $planEditor['label'] ?? '' }}">
                         </div>
                         <div class="form-group">
-                            <label>Section Summary</label>
-                            <textarea name="about[sections][strategic-development-plan][summary]" rows="4">{{ $planEditor['summary'] ?? '' }}</textarea>
+                            <label>Description</label>
+                            <input type="hidden" name="about[sections][strategic-development-plan][summary]" value="">
+                            @include('partials.rich_text_editor', [
+                                'name' => 'about[sections][strategic-development-plan][lead]',
+                                'value' => ($planEditor['lead'] ?? '') !== '' ? ($planEditor['lead'] ?? '') : ($planEditor['summary'] ?? ''),
+                                'placeholder' => 'Write the strategic development plan description...',
+                                'characterLimit' => 220,
+                            ])
                         </div>
-                    </div>
+                    </article>
 
-                    <div class="form-group">
-                        <label>Lead Paragraph</label>
-                        <textarea name="about[sections][strategic-development-plan][lead]" rows="5">{{ $planEditor['lead'] ?? '' }}</textarea>
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Strategic Development Plan Header') }}</button>
                     </div>
+                </form>
+            </section>
 
-                    @foreach($planEditor['development_priorities'] ?? [] as $index => $priority)
-                        <article class="about-cms-card-editor">
-                            <div class="about-cms-form-grid">
-                                <div class="form-group">
-                                    <label>Priority Title</label>
-                                    <input type="text" name="about[sections][strategic-development-plan][development_priorities][{{ $index }}][title]" maxlength="255" value="{{ $priority['title'] ?? '' }}">
+            <section class="about-cms-editor-panel" data-about-editor-panel="strategic-development-plan" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-about-plan-priorities-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="strategic-development-plan">
+                    <input type="hidden" name="about_plan_priorities_version" value="0" data-about-plan-priorities-version>
+                    <input type="hidden" name="about_active_plan_priority_index" value="" data-about-active-plan-priority-index>
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="about-cms-card-stack" data-about-plan-priorities-list>
+                        @foreach($planEditor['development_priorities'] ?? [] as $index => $priority)
+                            <article class="about-cms-card-editor about-cms-card-editor--plan-priority" data-about-plan-priority-editor data-about-plan-priority-index="{{ $index }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4 data-about-plan-priority-heading>{{ $priority['title'] ?? ('Priority Card ' . $loop->iteration) }}</h4>
+                                    <span data-about-plan-priority-meta>Priority {{ $loop->iteration }}</span>
                                 </div>
                                 <div class="form-group">
-                                    <label>Priority Body</label>
-                                    <textarea name="about[sections][strategic-development-plan][development_priorities][{{ $index }}][body]" rows="4">{{ $priority['body'] ?? '' }}</textarea>
+                                    <label>Title</label>
+                                    <input type="text" data-about-plan-priority-title maxlength="255" value="{{ $priority['title'] ?? '' }}">
                                 </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    @include('partials.rich_text_editor', [
+                                        'name' => 'about[sections][strategic-development-plan][development_priorities]['.$index.'][body]',
+                                        'value' => $priority['body'] ?? '',
+                                        'placeholder' => 'Write the priority description...',
+                                        'characterLimit' => 220,
+                                    ])
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-about-plan-priority-template>
+                        <article class="about-cms-card-editor about-cms-card-editor--plan-priority" data-about-plan-priority-editor data-about-plan-priority-index="">
+                            <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                <h4 data-about-plan-priority-heading>New Priority</h4>
+                                <span data-about-plan-priority-meta>Priority</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" data-about-plan-priority-title maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                @include('partials.rich_text_editor', [
+                                    'name' => '',
+                                    'value' => '',
+                                    'placeholder' => 'Write the priority description...',
+                                    'characterLimit' => 220,
+                                ])
                             </div>
                         </article>
-                    @endforeach
-
-                    <div class="form-group">
-                        <label>Planning Principles</label>
-                        <textarea name="about[sections][strategic-development-plan][plan_principles_text]" rows="5">{{ implode("\n", $planEditor['plan_principles'] ?? []) }}</textarea>
-                    </div>
+                    </template>
 
                     <div class="about-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">{{ $submitLabel('Strategic Development Plan') }}</button>
@@ -1220,6 +1268,7 @@
         border: 1px solid #efe3dc;
         border-radius: 16px;
         background: #fff;
+        box-sizing: border-box;
     }
 
     .about-cms-card-editor[data-about-official-editor] {
@@ -1228,6 +1277,11 @@
 
     .about-cms-card-editor[data-about-official-editor] {
         width: min(100%, 620px);
+    }
+
+    .about-cms-card-editor--plan-priority {
+        width: min(100%, 720px);
+        margin: 0 auto;
     }
 
     .about-cms-card-editor[data-about-contents-editor] {
@@ -1271,6 +1325,39 @@
         flex-wrap: wrap;
         gap: 10px;
         margin-top: 16px;
+    }
+
+    .about-cms-add-card-button {
+        display: grid;
+        place-items: center;
+        gap: 10px;
+        width: 100%;
+        min-height: 176px;
+        margin-top: 16px;
+        border: 2px dashed rgba(127, 17, 19, 0.22);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(255, 252, 249, 0.98) 0%, rgba(250, 243, 238, 0.96) 100%);
+        color: #7f1113;
+        cursor: pointer;
+        transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .about-cms-add-card-button:hover,
+    .about-cms-add-card-button:focus-visible {
+        border-color: rgba(127, 17, 19, 0.38);
+        transform: translateY(-2px);
+        box-shadow: 0 16px 28px rgba(79, 9, 12, 0.08);
+    }
+
+    .about-cms-add-card-button-plus {
+        font-size: 4rem;
+        line-height: 1;
+        font-weight: 300;
+    }
+
+    .about-cms-add-card-button-label {
+        font-size: 1.08rem;
+        font-weight: 800;
     }
 
     .about-cms-goal-stack {
@@ -1542,10 +1629,11 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-dialog {
-        width: min(960px, calc(100vw - 24px));
-        max-width: min(960px, calc(100vw - 24px));
-        overflow-x: hidden;
-        border-radius: 30px;
+        width: min(860px, calc(100vw - 24px));
+        max-width: min(860px, calc(100vw - 24px));
+        overflow-x: visible;
+        overflow-y: auto;
+        border-radius: 28px;
         background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
         box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
     }
@@ -1556,17 +1644,22 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
-        padding: 18px;
+        display: grid;
+        gap: 16px;
+        padding: 20px;
+        overflow: visible;
         background:
             radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
             linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
     }
 
     .about-cms-editor-panel.is-card-focus form {
+        display: grid;
+        gap: 16px;
         width: 100%;
-        max-width: 880px;
+        max-width: 700px;
         margin: 0 auto;
-        overflow-x: hidden;
+        overflow: visible;
     }
 
     .about-cms-modal.is-official-card-focus .about-cms-editor-panel.is-card-focus form {
@@ -1575,6 +1668,7 @@
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-stack {
         gap: 0;
+        overflow: visible;
     }
 
     .about-cms-editor-panel.is-card-focus [data-about-card-panel-meta],
@@ -1583,9 +1677,11 @@
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active {
-        padding: 22px;
+        padding: 20px;
         max-width: 100%;
-        overflow-x: hidden;
+        width: 100%;
+        margin: 0 auto;
+        overflow: visible;
         border: 1px solid rgba(127, 17, 19, 0.12);
         border-radius: 24px;
         background:
@@ -1597,6 +1693,13 @@
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .form-group + .form-group {
         margin-top: 14px;
+    }
+
+    .about-cms-modal.is-card-focus .about-cms-modal-footer {
+        width: 100%;
+        max-width: 700px;
+        margin: 0 auto;
+        padding-top: 6px;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-history-meta-grid .form-group + .form-group {
@@ -1611,17 +1714,25 @@
     }
 
     .about-cms-editor-panel.is-card-focus .rich-editor-toolbar {
-        overflow-x: hidden;
+        overflow: visible;
+        position: relative;
+        z-index: 6;
+    }
+
+    .about-cms-editor-panel.is-card-focus .rich-editor-color-wrap,
+    .about-cms-editor-panel.is-card-focus .rich-editor-fontsize-wrap {
+        z-index: 7;
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-close {
-        top: 14px;
-        right: 14px;
+        top: 12px;
+        right: 12px;
         width: 40px;
         height: 40px;
         border-radius: 12px;
         background: rgba(127, 17, 19, 0.08);
         font-size: 1.35rem;
+        z-index: 10;
     }
 
     @media (max-width: 768px) {
@@ -1675,12 +1786,15 @@
 
         const ABOUT_PREVIEW_MIN_LOADING_MS = 1500;
         let aboutPreviewFitFrame = null;
-        const ABOUT_PREVIEW_STORAGE_KEY = '{{ $idPrefix }}-active-about-preview-page';
+        const ABOUT_PREVIEW_STORAGE_KEY = `cms:about-preview-route:${window.location.pathname}`;
+        const ABOUT_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-about-preview-page';
         let currentAboutPreviewRoute = 'overview';
 
         function getStoredAboutPreviewRoute() {
             try {
-                return window.localStorage.getItem(ABOUT_PREVIEW_STORAGE_KEY) || '';
+                return window.localStorage.getItem(ABOUT_PREVIEW_STORAGE_KEY)
+                    || window.localStorage.getItem(ABOUT_PREVIEW_LEGACY_STORAGE_KEY)
+                    || '';
             } catch (_) {
                 return '';
             }
@@ -1688,7 +1802,9 @@
 
         function storeAboutPreviewRoute(routeKey) {
             try {
-                window.localStorage.setItem(ABOUT_PREVIEW_STORAGE_KEY, routeKey);
+                const storedRoute = String(routeKey || 'overview');
+                window.localStorage.setItem(ABOUT_PREVIEW_STORAGE_KEY, storedRoute);
+                window.localStorage.setItem(ABOUT_PREVIEW_LEGACY_STORAGE_KEY, storedRoute);
             } catch (_) {
                 // Ignore storage access failures and keep the in-memory route only.
             }
@@ -2027,6 +2143,10 @@
                 return 'vision-and-mission';
             }
 
+            if (sectionKey === 'strategic-development-plan-header') {
+                return 'strategic-development-plan';
+            }
+
             return String(sectionKey || 'overview');
         }
 
@@ -2053,8 +2173,9 @@
                 const isContentsCardFocus = sectionKey === 'contents' && String(options.slug || '').trim() !== '';
                 const isHistoryCardFocus = sectionKey === 'history' && String(options.historyIndex ?? '').trim() !== '';
                 const isStrategicGoalFocus = sectionKey === 'strategic-goals' && String(options.strategicGoalIndex ?? '').trim() !== '';
+                const isPlanPriorityFocus = sectionKey === 'strategic-development-plan' && String(options.planPriorityIndex ?? '').trim() !== '';
                 const isOfficialCardFocus = sectionKey === 'campus-officials' && String(options.officialIndex ?? '').trim() !== '';
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isOfficialCardFocus;
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -2076,6 +2197,8 @@
                         focusScope = setActiveHistoryEditor(options.historyIndex ?? '') || panel;
                     } else if (sectionKey === 'strategic-goals') {
                         focusScope = setActiveStrategicGoalEditor(options.strategicGoalIndex ?? '', isCardFocus) || panel;
+                    } else if (sectionKey === 'strategic-development-plan') {
+                        focusScope = setActivePlanPriorityEditor(options.planPriorityIndex ?? '', isCardFocus) || panel;
                     } else if (sectionKey === 'campus-officials') {
                         focusScope = setActiveOfficialEditor(options.officialIndex ?? '', panel) || panel;
                     }
@@ -2145,6 +2268,33 @@
                 return;
             }
 
+            if (data.type === 'cms-about-plan-priority-edit') {
+                openAboutEditor('strategic-development-plan', data.label ? `Edit ${data.label}` : 'Edit development priority', {
+                    planPriorityIndex: data.index || '',
+                    route: data.route || 'strategic-development-plan',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-plan-priority-add') {
+                initPlanPrioritiesEditor();
+                const editor = addPlanPriorityEditor({
+                    title: '',
+                    body: '',
+                }, true);
+                const nextIndex = editor?.getAttribute('data-about-plan-priority-index') || '';
+                openAboutEditor('strategic-development-plan', data.label || 'Add development priority', {
+                    planPriorityIndex: nextIndex,
+                    route: data.route || 'strategic-development-plan',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-plan-priority-delete') {
+                confirmDeletePlanPriority(data.index || '', data.label || '');
+                return;
+            }
+
             if (data.type === 'cms-about-official-card-edit') {
                 openAboutEditor('campus-officials', data.label ? `Edit ${data.label}` : 'Edit campus official', {
                     officialIndex: data.index || '',
@@ -2198,6 +2348,10 @@
         const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
         const officialsForm = document.querySelector('[data-about-editor-panel="campus-officials"] form');
         const officialsVersionInput = officialsForm?.querySelector('[data-about-officials-version]') || null;
+        const planPrioritiesForm = document.querySelector('[data-about-editor-panel="strategic-development-plan"] form[data-about-plan-priorities-form]');
+        const planPrioritiesList = planPrioritiesForm?.querySelector('[data-about-plan-priorities-list]') || null;
+        const planPrioritiesVersionInput = planPrioritiesForm?.querySelector('[data-about-plan-priorities-version]') || null;
+        const activePlanPriorityIndexInput = planPrioritiesForm?.querySelector('[data-about-active-plan-priority-index]') || null;
         const strategicGoalsForm = document.querySelector('[data-about-strategic-goals-form]');
         const strategicGoalsGroups = strategicGoalsForm?.querySelector('[data-about-strategic-goals-groups]') || null;
         const strategicGoalsVersionInput = strategicGoalsForm?.querySelector('[data-about-strategic-goals-version]') || null;
@@ -2233,6 +2387,200 @@
             if (officialsVersionInput) {
                 officialsVersionInput.value = String(Date.now());
             }
+        };
+
+        const bumpPlanPrioritiesVersion = () => {
+            if (planPrioritiesVersionInput) {
+                planPrioritiesVersionInput.value = String(Date.now());
+            }
+        };
+
+        const createPlanPriorityEditor = (priority = {}) => {
+            const template = document.querySelector('[data-about-plan-priority-template]');
+            if (!(template instanceof HTMLTemplateElement)) {
+                return null;
+            }
+
+            const article = template.content.firstElementChild?.cloneNode(true);
+            if (!(article instanceof HTMLElement)) {
+                return null;
+            }
+
+            article.querySelector('[data-about-plan-priority-title]').value = String(priority.title || '');
+            const richInput = article.querySelector('.rich-editor-input');
+            if (richInput instanceof HTMLTextAreaElement) {
+                richInput.value = String(priority.body || '');
+            }
+            return article;
+        };
+
+        const syncPlanPrioritiesForm = () => {
+            if (!planPrioritiesList) {
+                return;
+            }
+
+            const editors = Array.from(planPrioritiesList.querySelectorAll('[data-about-plan-priority-editor]'));
+            editors.forEach((editor, index) => {
+                editor.setAttribute('data-about-plan-priority-index', String(index));
+                const titleInput = editor.querySelector('[data-about-plan-priority-title]');
+                const bodyInput = editor.querySelector('.rich-editor-input');
+                const heading = editor.querySelector('[data-about-plan-priority-heading]');
+                const meta = editor.querySelector('[data-about-plan-priority-meta]');
+                const titleValue = String(titleInput?.value || '').trim();
+                const fallbackTitle = `Priority Card ${index + 1}`;
+
+                if (titleInput) {
+                    titleInput.name = `about[sections][strategic-development-plan][development_priorities][${index}][title]`;
+                }
+
+                if (bodyInput instanceof HTMLTextAreaElement) {
+                    bodyInput.name = `about[sections][strategic-development-plan][development_priorities][${index}][body]`;
+                }
+
+                if (heading) {
+                    heading.textContent = titleValue || fallbackTitle;
+                }
+
+                if (meta) {
+                    meta.textContent = `Priority ${index + 1}`;
+                }
+            });
+        };
+
+        const setActivePlanPriorityEditor = (index = '', collapse = false) => {
+            const editors = Array.from(document.querySelectorAll('[data-about-plan-priority-editor]'));
+
+            if (!editors.length) {
+                if (activePlanPriorityIndexInput) {
+                    activePlanPriorityIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            let targetEditor = null;
+
+            if (normalizedIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-plan-priority-index') === normalizedIndex) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.classList.toggle('is-disabled', targetEditor ? !isActive : false);
+                editor.hidden = collapse && targetEditor ? !isActive : false;
+            });
+
+            if (activePlanPriorityIndexInput) {
+                activePlanPriorityIndexInput.value = targetEditor?.getAttribute('data-about-plan-priority-index') || '';
+            }
+
+            return targetEditor;
+        };
+
+        const addPlanPriorityEditor = (priority = {}, focus = true) => {
+            if (!planPrioritiesList) {
+                return null;
+            }
+
+            const editor = createPlanPriorityEditor(priority);
+            if (!editor) {
+                return null;
+            }
+            planPrioritiesList.appendChild(editor);
+            if (typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(editor);
+            }
+            bumpPlanPrioritiesVersion();
+            syncPlanPrioritiesForm();
+
+            const nextIndex = editor.getAttribute('data-about-plan-priority-index') || String(planPrioritiesList.querySelectorAll('[data-about-plan-priority-editor]').length - 1);
+            if (focus) {
+                setActivePlanPriorityEditor(nextIndex, true);
+            }
+
+            return editor;
+        };
+
+        const deletePlanPriorityByIndex = (index) => {
+            if (!planPrioritiesList) {
+                return false;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            const editors = Array.from(planPrioritiesList.querySelectorAll('[data-about-plan-priority-editor]'));
+            const targetEditor = editors.find((editor) => editor.getAttribute('data-about-plan-priority-index') === normalizedIndex) || null;
+            if (!targetEditor) {
+                return false;
+            }
+
+            if (editors.length <= 1) {
+                const titleInput = targetEditor.querySelector('[data-about-plan-priority-title]');
+                const bodyInput = targetEditor.querySelector('.rich-editor-input');
+                const bodySurface = targetEditor.querySelector('.rich-editor-surface');
+                if (titleInput) {
+                    titleInput.value = '';
+                }
+                if (bodyInput instanceof HTMLTextAreaElement) {
+                    bodyInput.value = '';
+                }
+                if (bodySurface instanceof HTMLElement) {
+                    bodySurface.innerHTML = '';
+                }
+            } else {
+                targetEditor.remove();
+            }
+
+            bumpPlanPrioritiesVersion();
+            syncPlanPrioritiesForm();
+            setActivePlanPriorityEditor('', true);
+            return true;
+        };
+
+        const initPlanPrioritiesEditor = () => {
+            if (!planPrioritiesForm || !planPrioritiesList || planPrioritiesForm.dataset.aboutPlanPrioritiesBound === '1') {
+                return;
+            }
+
+            planPrioritiesForm.dataset.aboutPlanPrioritiesBound = '1';
+            if (!planPrioritiesList.querySelector('[data-about-plan-priority-editor]')) {
+                planPrioritiesList.appendChild(createPlanPriorityEditor({
+                    title: '',
+                    body: '',
+                }));
+            }
+
+            planPrioritiesForm.addEventListener('click', (event) => {
+                const addButton = event.target.closest('[data-about-plan-priority-add-editor]');
+                if (addButton) {
+                    event.preventDefault();
+                    const editor = addPlanPriorityEditor({
+                        title: '',
+                        body: '',
+                    }, true);
+                    editor?.querySelector('[data-about-plan-priority-title]')?.focus();
+                    return;
+                }
+
+            });
+
+            planPrioritiesForm.addEventListener('input', (event) => {
+                if (event.target.closest('[data-about-plan-priority-editor]')) {
+                    bumpPlanPrioritiesVersion();
+                    syncPlanPrioritiesForm();
+                }
+            });
+
+            planPrioritiesForm.addEventListener('submit', () => {
+                syncPlanPrioritiesForm();
+            }, true);
+
+            syncPlanPrioritiesForm();
+            setActivePlanPriorityEditor('', false);
         };
 
         const createStrategicGoalItem = (goal = {}) => {
@@ -2672,6 +3020,23 @@
             }));
         };
 
+        const submitPlanPrioritiesForm = () => {
+            if (!planPrioritiesForm) {
+                return;
+            }
+
+            syncPlanPrioritiesForm();
+            if (typeof planPrioritiesForm.requestSubmit === 'function') {
+                planPrioritiesForm.requestSubmit();
+                return;
+            }
+
+            planPrioritiesForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
         const bumpHistoryVersion = () => {
             if (historyVersionInput) {
                 historyVersionInput.value = String(Date.now());
@@ -2972,6 +3337,40 @@
             submitContentsForm();
         };
 
+        const confirmDeletePlanPriority = async (index, label, options = {}) => {
+            const normalizedIndex = String(index ?? '').trim();
+            if (normalizedIndex === '') {
+                return;
+            }
+
+            let confirmed = false;
+            const promptLabel = label || `Priority ${Number(normalizedIndex) + 1}`;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Priority Card',
+                    message: `Do you want to delete "${promptLabel}" from the Strategic Development Plan?`,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}" from the Strategic Development Plan?`);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const deleted = deletePlanPriorityByIndex(normalizedIndex);
+            if (!deleted) {
+                return;
+            }
+
+            if (options.submit !== false) {
+                submitPlanPrioritiesForm();
+            }
+        };
+
         document.querySelectorAll('form.{{ $formClass }}').forEach((form) => {
             if (form.dataset.aboutRichTextSubmitBound === '1') {
                 return;
@@ -3004,6 +3403,7 @@
             });
         });
 
+        initPlanPrioritiesEditor();
         initStrategicGoalsEditor();
 
         const frame = document.querySelector('[data-about-preview-frame]');

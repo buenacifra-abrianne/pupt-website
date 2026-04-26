@@ -137,24 +137,32 @@ class AboutCmsContent
                 'number' => '03',
                 'label' => 'Logo and Symbols',
                 'visible_in_contents' => '1',
-                'summary' => 'Understand the campus identity marks and what they communicate.',
+                'summary' => 'Learn the meaning behind the seal, colors, and symbolic elements of the University.',
                 'image' => self::DEFAULT_CARD_IMAGE,
-                'lead' => 'The campus identity reflects scholarship, public service, discipline, and institutional pride across official communications and ceremonies.',
+                'lead' => 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.',
                 'identity_marks' => [
                     [
-                        'title' => 'University Seal',
-                        'body' => 'The seal serves as the most formal visual mark of the institution and is used to represent authority, continuity, and academic heritage.',
+                        'title' => 'The Star',
+                        'body' => 'The star stands for the perfection of the human person as well as the search for truth.',
                     ],
                     [
-                        'title' => 'Campus Branding',
-                        'body' => 'Official campus materials use consistent colors, typography, and seal placement to preserve recognition and trust.',
+                        'title' => 'Five Concentric Circles',
+                        'body' => 'The five concentric circles depict infinite wisdom and, together with the five-pointed star, stand for quintessence.',
+                    ],
+                    [
+                        'title' => 'Laurel Arcs',
+                        'body' => 'The two arcs of laurel symbolize excellence and quality of education as demonstrated by the rich achievements of the University in over a century of its existence.',
+                    ],
+                    [
+                        'title' => 'University Colors',
+                        'body' => 'Golden yellow and dark maroon reflect the traditional colors of the University, while white symbolizes purity.',
                     ],
                 ],
                 'symbol_points' => [
-                    'Maroon signals strength, courage, and commitment to service.',
-                    'Gold highlights achievement, honor, and the pursuit of excellence.',
-                    'The official mark represents both academic rigor and the responsibility of serving the public.',
-                    'Campus symbols are used with respect in publications, ceremonies, and student activities.',
+                    'The five-pointed star and the five concentric circles both stand for quintessence, meaning the highest form of quality or the most perfect example of creation.',
+                    'The star is golden yellow because it is a star\'s natural color and because it is one of the traditional colors of the University.',
+                    'Dark maroon serves as the logo background and completes the traditional University color pairing with golden yellow.',
+                    'The five concentric circles are white because white symbolizes purity.',
                 ],
             ],
             'hymn' => [
@@ -457,7 +465,7 @@ class AboutCmsContent
             ]),
             'strategic-development-plan' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
-                'development_priorities' => self::normalizeTitleBodyCards(
+                'development_priorities' => self::normalizeDynamicTitleBodyCards(
                     $source['development_priorities'] ?? [],
                     $base['development_priorities'] ?? $defaults['development_priorities'],
                     $defaults['development_priorities']
@@ -581,15 +589,66 @@ class AboutCmsContent
         $baseItems = array_values($base);
         $items = [];
 
-        foreach ($defaults as $index => $defaultItem) {
+        $defaultCount = count($defaults);
+        $itemCount = max($defaultCount, count($sourceItems), count($baseItems));
+
+        for ($index = 0; $index < $itemCount; $index++) {
+            $defaultItem = is_array($defaults[$index] ?? null)
+                ? $defaults[$index]
+                : ['title' => '', 'body' => '', 'image' => ''];
             $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
-            $items[] = [
+            $item = [
                 'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
                 'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 6000),
                 'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
             ];
+
+            if (
+                $index >= $defaultCount
+                && trim((string) ($item['title'] ?? '')) === ''
+                && trim((string) ($item['body'] ?? '')) === ''
+                && trim((string) ($item['image'] ?? '')) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+
+    private static function normalizeDynamicTitleBodyCards(mixed $input, array $base, array $defaults): array
+    {
+        if (!is_array($input)) {
+            return self::normalizeTitleBodyCards($input, $base, $defaults);
+        }
+
+        $sourceItems = array_values($input);
+        $items = [];
+
+        foreach ($sourceItems as $index => $source) {
+            if (!is_array($source)) {
+                continue;
+            }
+
+            $item = [
+                'title' => self::sanitizeString((string) ($source['title'] ?? ''), 255, ''),
+                'body' => self::sanitizeString((string) ($source['body'] ?? ''), 6000, ''),
+                'image' => self::sanitizeString((string) ($source['image'] ?? ''), 2048, ''),
+            ];
+
+            if (
+                trim((string) ($item['title'] ?? '')) === ''
+                && trim((string) ($item['body'] ?? '')) === ''
+                && trim((string) ($item['image'] ?? '')) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $item;
         }
 
         return $items;
@@ -718,10 +777,10 @@ class AboutCmsContent
 
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if ($text === '') {
-            $text = trim($fallback);
+            $text = trim(HtmlEntities::decode($fallback));
         }
 
         if (function_exists('mb_substr')) {
@@ -733,7 +792,7 @@ class AboutCmsContent
 
     private static function sanitizeOptionalString(string $value, int $maxLen): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);

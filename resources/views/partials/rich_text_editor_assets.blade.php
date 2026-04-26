@@ -552,7 +552,7 @@ input[name="title"] {
             document.execCommand(command, false, value);
         }
         saveSelection(root);
-        syncEditor(root);
+        syncEditorAndNotify(root);
     }
 
     function getSelectionRangeInside(surface) {
@@ -710,7 +710,7 @@ input[name="title"] {
         applyInlineStyleToSelection(surface, { fontSize: size });
         saveSelection(root);
         normalizeStyledSpans(root);
-        syncEditor(root);
+        syncEditorAndNotify(root);
     }
 
     function applyTextColor(root, color, savedRange = null) {
@@ -736,7 +736,7 @@ input[name="title"] {
         }
 
         normalizeStyledSpans(root);
-        syncEditor(root);
+        syncEditorAndNotify(root);
     }
 
     function clearTextColor(root, savedRange = null) {

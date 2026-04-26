@@ -516,13 +516,13 @@
                     @else
 
                         <article
-                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' ? ' cms-preview-editable' : '' }}"
-                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps')
+                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan' ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
                             @endif
                         >
-                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps')
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan')
                                 <button type="button" class="cms-preview-chip" data-cms-edit-trigger="{{ $selectedSlug }}" aria-label="Edit {{ $selectedSection['label'] }}">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
@@ -540,79 +540,142 @@
 
                                 <div class="about-detail-body">
                                     @if($selectedSlug === 'logo-and-symbols')
-                                        <div class="ls-page-header reveal">
-                                            <p class="section-tag">Campus Identity</p>
-                                            <h2 class="ls-page-title">{{ $selectedSection['label'] ?? 'Logo and Symbols' }}</h2>
-                                            <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
-                                        </div>
-                                        <div class="ls-seal-hero reveal delay-100">
-                                            <div class="ls-seal-hero-glow" aria-hidden="true"></div>
-                                            <div class="ls-seal-hero-inner">
-                                                <div class="ls-seal-ring" aria-label="PUP Official Seal">
-                                                    <div class="ls-seal-ring-shimmer" aria-hidden="true"></div>
-                                                    <img
-                                                        src="{{ asset('assets/static_img/logo.png') }}"
-                                                        alt="PUP Taguig Official Seal"
-                                                        class="ls-seal-img"
-                                                        onerror="this.style.opacity='0'"
-                                                    >
+                                        @php
+                                            $logoMarks = $selectedSection['identity_marks'] ?? [];
+                                            $symbolPoints = $selectedSection['symbol_points'] ?? [];
+                                        @endphp
+
+                                        <section class="ls-symbols-shell">
+                                            <div class="ls-symbols-hero reveal">
+                                                <div class="ls-symbols-hero-copy">
+                                                    <p class="section-tag">Campus Identity</p>
+                                                    <h2 class="ls-symbols-title">{{ $selectedSection['label'] ?? 'Logo and Symbols' }}</h2>
+                                                    <p class="ls-symbols-summary">
+                                                        {{ $selectedSection['summary'] ?? 'Learn the meaning behind the seal, colors, and symbolic elements of the University.' }}
+                                                    </p>
+                                                    <p class="ls-symbols-lead">
+                                                        {{ $selectedSection['lead'] ?? 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.' }}
+                                                    </p>
+
+                                                    <div class="ls-symbols-pills" aria-label="Key logo elements">
+                                                        <span class="ls-symbols-pill">Five-pointed star</span>
+                                                        <span class="ls-symbols-pill">Five concentric circles</span>
+                                                        <span class="ls-symbols-pill">Laurel arcs</span>
+                                                        <span class="ls-symbols-pill">Maroon, gold, and white</span>
+                                                    </div>
                                                 </div>
-                                                <div class="ls-seal-hero-copy">
-                                                    <p class="ls-seal-eyebrow">Official Seal - PUP Taguig Campus</p>
-                                                    <h3 class="ls-seal-headline">{{ $selectedSection['label'] ?? 'The Official Seal and Symbols' }}</h3>
-                                                    <p class="ls-seal-body">{{ $selectedSection['lead'] ?? '' }}</p>
-                                                    <div class="ls-color-chips">
-                                                        <span class="ls-chip ls-chip--maroon"><span class="ls-chip-dot"></span>Maroon - Courage &amp; Excellence</span>
-                                                        <span class="ls-chip ls-chip--gold"><span class="ls-chip-dot"></span>Gold - Wisdom &amp; Achievement</span>
+
+                                                <div class="ls-symbols-visual" aria-label="PUP Official Seal">
+                                                    <div class="ls-symbols-orbit ls-symbols-orbit--one" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-orbit ls-symbols-orbit--two" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-seal-frame">
+                                                        <img
+                                                            src="{{ asset('assets/static_img/logo.png') }}"
+                                                            alt="PUP Taguig Official Seal"
+                                                            class="ls-symbols-seal"
+                                                            onerror="this.style.opacity='0'"
+                                                        >
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div class="ls-block-header reveal">
-                                            <span class="ls-block-kicker">Symbolism</span>
-                                            <h3 class="ls-block-title">What each element represents</h3>
-                                        </div>
-                                        <div class="ls-meanings-grid">
-                                            @foreach($selectedSection['identity_marks'] ?? [] as $identityMark)
-                                                <article class="ls-meaning-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
-                                                    @if($cmsPreview)
-                                                        data-about-section-card
-                                                        data-about-section-card-section="logo-and-symbols"
-                                                        data-about-section-card-index="{{ $loop->index }}"
-                                                        data-about-section-card-label="{{ $identityMark['title'] ?? ('Identity Card ' . $loop->iteration) }}"
-                                                        data-about-section-card-route="logo-and-symbols"
-                                                    @endif>
-                                                    @if($cmsPreview)
-                                                        <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
-                                                    @endif
-                                                    <div class="ls-meaning-card-header">
-                                                        <span class="ls-meaning-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                                        <h4 class="ls-meaning-title">{{ $identityMark['title'] ?? '' }}</h4>
+
+                                            <div class="ls-symbols-grid reveal delay-100">
+                                                @foreach($logoMarks as $identityMark)
+                                                    <article class="ls-symbol-card">
+                                                        <div class="ls-symbol-card-top">
+                                                            <span class="ls-symbol-card-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                            <h3 class="ls-symbol-card-title">{{ $identityMark['title'] ?? '' }}</h3>
+                                                        </div>
+                                                        <p class="ls-symbol-card-body">{{ $identityMark['body'] ?? '' }}</p>
+                                                    </article>
+                                                @endforeach
+                                            </div>
+
+                                            <div class="ls-symbols-panel reveal">
+                                                <div class="ls-symbols-panel-head">
+                                                    <span class="ls-symbols-kicker">Element Guide</span>
+                                                    <h3 class="ls-symbols-panel-title">The logo explained by symbol, color, and meaning</h3>
+                                                </div>
+
+                                                <div class="ls-symbols-table" role="table" aria-label="Logo and symbols meaning table">
+                                                    <div class="ls-symbols-table-head" role="rowgroup">
+                                                        <div role="row">
+                                                            <span role="columnheader">Element</span>
+                                                            <span role="columnheader">Meaning</span>
+                                                            <span role="columnheader">Color</span>
+                                                            <span role="columnheader">Why it matters</span>
+                                                        </div>
                                                     </div>
-                                                    <p class="ls-meaning-body">{{ $identityMark['body'] ?? '' }}</p>
-                                                    <div class="ls-meaning-card-accent" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-table-body" role="rowgroup">
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Star</span>
+                                                            <span role="cell">Perfection of the human person and the search for truth.</span>
+                                                            <span role="cell">Golden yellow</span>
+                                                            <span role="cell">Its natural star color also reflects one of the traditional University colors.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Five concentric circles</span>
+                                                            <span role="cell">Infinite wisdom and quintessence.</span>
+                                                            <span role="cell">White</span>
+                                                            <span role="cell">White symbolizes purity and reinforces the ideal of refined knowledge.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Star + circles</span>
+                                                            <span role="cell">Together they stand for quintessence, the highest form of quality and the most perfect example of creation.</span>
+                                                            <span role="cell">Gold and white</span>
+                                                            <span role="cell">The logo presents excellence not as one trait, but as a complete standard.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Two laurel arcs</span>
+                                                            <span role="cell">Excellence and quality of education.</span>
+                                                            <span role="cell">Seal accent</span>
+                                                            <span role="cell">They honor the University's rich achievements over more than a century.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Background color</span>
+                                                            <span role="cell">Dark maroon as a traditional University color.</span>
+                                                            <span role="cell">Dark maroon</span>
+                                                            <span role="cell">It anchors the seal in a strong institutional identity beside gold.</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if(!empty($symbolPoints))
+                                                <div class="ls-symbols-notes reveal delay-100">
+                                                    @foreach($symbolPoints as $index => $point)
+                                                        <div class="ls-symbols-note">
+                                                            <span class="ls-symbols-note-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                                            <p>{{ $point }}</p>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            <div class="ls-symbols-colors reveal">
+                                                <article class="ls-symbols-color-card ls-symbols-color-card--gold">
+                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-color-copy">
+                                                        <h3>Golden Yellow</h3>
+                                                        <p>Used for the star because it is a star's natural color and because it is a traditional University color.</p>
+                                                    </div>
                                                 </article>
-                                            @endforeach
-                                        </div>
-                                        @if(!empty($selectedSection['symbol_points']))
-                                        <div class="ls-block-header reveal">
-                                            <span class="ls-block-kicker">Quick Reference</span>
-                                            <h3 class="ls-block-title">Key facts at a glance</h3>
-                                        </div>
-                                        <div class="ls-reference-card reveal delay-100">
-                                            @foreach($selectedSection['symbol_points'] ?? [] as $index => $point)
-                                                <div class="ls-ref-row"><span class="ls-ref-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span><span class="ls-ref-text">{{ $point }}</span></div>
-                                            @endforeach
-                                        </div>
-                                        @endif
-                                        <div class="ls-block-header reveal">
-                                            <span class="ls-block-kicker">Official Colors</span>
-                                            <h3 class="ls-block-title">The palette of PUP</h3>
-                                        </div>
-                                        <div class="ls-colors-duo reveal delay-100">
-                                            <div class="ls-color-card ls-color-card--maroon"><div class="ls-color-card-swatch" aria-hidden="true"><div class="ls-color-swatch-pattern"></div></div><div class="ls-color-card-body"><p class="ls-color-name">Maroon</p><p class="ls-color-hex">#7f1113</p><p class="ls-color-pantone">Pantone 202 C</p><p class="ls-color-meaning">Represents the courage, discipline, and relentless pursuit of excellence that define PUP's identity.</p></div></div>
-                                            <div class="ls-color-card ls-color-card--gold"><div class="ls-color-card-swatch" aria-hidden="true"><div class="ls-color-swatch-pattern"></div></div><div class="ls-color-card-body"><p class="ls-color-name">Gold</p><p class="ls-color-hex">#d7aa43</p><p class="ls-color-pantone">Pantone 124 C</p><p class="ls-color-meaning">Symbolizes wisdom, achievement, and the lasting value of education as an investment for the nation.</p></div></div>
-                                        </div>
+                                                <article class="ls-symbols-color-card ls-symbols-color-card--maroon">
+                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-color-copy">
+                                                        <h3>Dark Maroon</h3>
+                                                        <p>Forms the traditional background pairing with gold and gives the seal its strong institutional character.</p>
+                                                    </div>
+                                                </article>
+                                                <article class="ls-symbols-color-card ls-symbols-color-card--white">
+                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-color-copy">
+                                                        <h3>White</h3>
+                                                        <p>Used for the five concentric circles to symbolize purity.</p>
+                                                    </div>
+                                                </article>
+                                            </div>
+                                        </section>
                                     @elseif($selectedSlug === 'hymn')
                                         @php
                                             $defaultHymnSection = \App\Support\AboutCmsContent::defaults()['sections']['hymn'] ?? [];
@@ -971,60 +1034,87 @@
                                 </script>
 
                                 @elseif($selectedSlug === 'strategic-development-plan')
-                                <div class="sdp-page-header reveal">
-                                    <div class="sdp-page-header-inner">
-                                        <div class="sdp-page-header-copy">
-                                            <p class="sdp-page-header-eyebrow">Strategic Planning</p>
-                                            <h2 class="sdp-page-title">{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}</h2>
-                                            <p class="sdp-page-subtitle">{{ trim(implode(' ', array_filter([($selectedSection['summary'] ?? ''), ($selectedSection['lead'] ?? '')]))) }}</p>
+                                <div
+                                    class="sdp-page-header reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                                    @if($cmsPreview)
+                                        data-cms-section="strategic-development-plan-header"
+                                        data-cms-section-label="{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}"
+                                    @endif
+                                >
+                                    @if($cmsPreview)
+                                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="strategic-development-plan-header" aria-label="Edit {{ $selectedSection['label'] ?? 'Strategic Development Plan' }}">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                            </svg>
+                                        </button>
+                                    @endif
+
+                                    <div @if($cmsPreview) data-cms-boundary class="cms-preview-boundary-edge" @endif>
+                                        @php
+                                            $sdpHeaderDescription = trim((string) (($selectedSection['lead'] ?? '') !== '' ? ($selectedSection['lead'] ?? '') : ($selectedSection['summary'] ?? '')));
+                                            $sdpHeaderDescriptionHtml = trim($sdpHeaderDescription) !== strip_tags($sdpHeaderDescription)
+                                                ? \App\Support\RichText::sanitize($sdpHeaderDescription)
+                                                : nl2br(e($sdpHeaderDescription));
+                                        @endphp
+                                        <div class="sdp-page-header-inner">
+                                            <div class="sdp-page-header-copy">
+                                                <p class="sdp-page-header-eyebrow">Strategic Planning</p>
+                                                <h2 class="sdp-page-title">{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}</h2>
+                                                <div class="sdp-page-subtitle rich-text-content">{!! $sdpHeaderDescriptionHtml !!}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                                     <div class="sdp-block-header reveal">
                                         <span class="ls-block-kicker">Development Priorities</span>
-                                        <h3 class="ls-block-title">Key focus areas driving the campus forward</h3>
+                                        <h3 class="ls-block-title">Highlighted focus areas driving the campus forward</h3>
                                     </div>
                                     <div class="sdp-priorities-grid">
+                                        @if($cmsPreview)
+                                            <article
+                                                class="sdp-priority-card sdp-priority-card--add reveal"
+                                                data-about-plan-priority-add
+                                                tabindex="0"
+                                                role="button"
+                                                aria-label="Add a new strategic development priority"
+                                            >
+                                                <div class="sdp-priority-add-inner">
+                                                    <span class="sdp-priority-add-plus" aria-hidden="true">+</span>
+                                                    <p class="sdp-priority-add-label">Add Priority</p>
+                                                </div>
+                                            </article>
+                                        @endif
                                         @foreach($selectedSection['development_priorities'] ?? [] as $priority)
-                                            @php($num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT))
+                                            @php
+                                                $num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT);
+                                                $priorityBody = (string) ($priority['body'] ?? '');
+                                                $priorityBodyHtml = trim($priorityBody) !== strip_tags($priorityBody)
+                                                    ? \App\Support\RichText::sanitize($priorityBody)
+                                                    : nl2br(e($priorityBody));
+                                            @endphp
                                             <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
                                                 @if($cmsPreview)
-                                                    data-about-section-card
-                                                    data-about-section-card-section="strategic-development-plan"
-                                                    data-about-section-card-index="{{ $loop->index }}"
-                                                    data-about-section-card-label="{{ $priority['title'] ?? ('Priority Card ' . $loop->iteration) }}"
-                                                    data-about-section-card-route="strategic-development-plan"
+                                                    data-about-plan-priority-card
+                                                    data-about-plan-priority-index="{{ $loop->index }}"
+                                                    data-about-plan-priority-label="{{ $priority['title'] ?? ('Priority Card ' . $loop->iteration) }}"
+                                                    data-about-plan-priority-route="strategic-development-plan"
                                                 @endif>
                                                 @if($cmsPreview)
-                                                    <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                                    <div class="cms-preview-card-actions" aria-label="Strategic development priority actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-plan-priority-edit>Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-plan-priority-delete>Delete</button>
+                                                    </div>
                                                 @endif
                                                 <div class="sdp-priority-card-accent" aria-hidden="true"></div>
                                                 <div class="sdp-priority-header">
                                                     <span class="sdp-priority-index">{{ $num }}</span>
                                                     <h4 class="sdp-priority-title">{{ $priority['title'] ?? '' }}</h4>
                                                 </div>
-                                                <p class="sdp-priority-body">{{ $priority['body'] ?? '' }}</p>
+                                                <div class="sdp-priority-body rich-text-content">{!! $priorityBodyHtml !!}</div>
                                             </article>
                                         @endforeach
                                     </div>
-                                    @if(!empty($selectedSection['plan_principles']))
-                                    <div class="sdp-block-header reveal">
-                                        <span class="ls-block-kicker">Planning Guide</span>
-                                        <h3 class="ls-block-title">Principles that shape our planning</h3>
-                                    </div>
-
-                                    <div class="sdp-principles-band reveal delay-100">
-                                        <div class="sdp-principles-inner">
-                                            @foreach($selectedSection['plan_principles'] ?? [] as $index => $principle)
-                                                <div class="sdp-principle-row">
-                                                    <span class="sdp-principle-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                                    <span class="sdp-principle-text">{{ $principle }}</span>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    @endif
-                                 @endif
+                                  @endif
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
@@ -1754,7 +1844,7 @@
                     }
 
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit], [data-about-plan-priority-card], [data-about-plan-priority-edit], [data-about-plan-priority-delete], [data-about-plan-priority-add]')) {
                             return;
                         }
 
@@ -1874,6 +1964,59 @@
                             }, '*');
                             return;
                         }
+                    }
+
+                    const addPlanPriorityTrigger = event.target.closest('[data-about-plan-priority-add]');
+                    if (addPlanPriorityTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-add',
+                            route: 'strategic-development-plan',
+                            label: 'Add development priority',
+                        }, '*');
+                        return;
+                    }
+
+                    const planPriorityEditTrigger = event.target.closest('[data-about-plan-priority-edit]');
+                    if (planPriorityEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = planPriorityEditTrigger.closest('[data-about-plan-priority-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-edit',
+                            index: card?.getAttribute('data-about-plan-priority-index') || '',
+                            label: card?.getAttribute('data-about-plan-priority-label') || 'Development priority',
+                            route: card?.getAttribute('data-about-plan-priority-route') || 'strategic-development-plan',
+                        }, '*');
+                        return;
+                    }
+
+                    const planPriorityDeleteTrigger = event.target.closest('[data-about-plan-priority-delete]');
+                    if (planPriorityDeleteTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = planPriorityDeleteTrigger.closest('[data-about-plan-priority-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-delete',
+                            index: card?.getAttribute('data-about-plan-priority-index') || '',
+                            label: card?.getAttribute('data-about-plan-priority-label') || 'Development priority',
+                            route: card?.getAttribute('data-about-plan-priority-route') || 'strategic-development-plan',
+                        }, '*');
+                        return;
+                    }
+
+                    const planPriorityCard = event.target.closest('[data-about-plan-priority-card]');
+                    if (planPriorityCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-edit',
+                            index: planPriorityCard.getAttribute('data-about-plan-priority-index') || '',
+                            label: planPriorityCard.getAttribute('data-about-plan-priority-label') || 'Development priority',
+                            route: planPriorityCard.getAttribute('data-about-plan-priority-route') || 'strategic-development-plan',
+                        }, '*');
+                        return;
                     }
 
                     const deleteCardTrigger = event.target.closest('[data-about-card-delete]');

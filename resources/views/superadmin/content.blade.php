@@ -879,6 +879,7 @@
             '[data-about-contents-version], ' +
             '[data-about-history-version], ' +
             '[data-about-officials-version], ' +
+            '[data-about-plan-priorities-version], ' +
             '[data-about-strategic-goals-version], ' +
             '[data-about-core-values-version], ' +
             '[data-academics-contents-version], ' +
@@ -893,6 +894,53 @@
         const formToken = form.querySelector('input[name="_token"]')?.value?.trim();
         const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')?.trim();
         return formToken || metaToken || CSRF || '';
+    }
+
+    function resolveAboutPreviewRoute(sectionKey) {
+        const normalizedSectionKey = String(sectionKey || '').trim().toLowerCase();
+
+        if (!normalizedSectionKey || normalizedSectionKey === 'hero' || normalizedSectionKey === 'intro' || normalizedSectionKey === 'contents') {
+            return 'overview';
+        }
+
+        if (
+            normalizedSectionKey === 'vision-mission-header'
+            || normalizedSectionKey === 'vision-statement'
+            || normalizedSectionKey === 'mission-statement'
+            || normalizedSectionKey === 'vision-mission-statements'
+            || normalizedSectionKey === 'strategic-goals'
+            || normalizedSectionKey === 'core-values'
+        ) {
+            return 'vision-and-mission';
+        }
+
+        if (normalizedSectionKey === 'strategic-development-plan-header') {
+            return 'strategic-development-plan';
+        }
+
+        return normalizedSectionKey;
+    }
+
+    function persistCmsPreviewContextBeforeReload(form) {
+        const tabKey = String(form.querySelector('input[name="tab_key"]')?.value || '').trim().toLowerCase();
+        const sectionKey = String(form.querySelector('input[name="section_key"]')?.value || '').trim();
+
+        if (!tabKey) {
+            return;
+        }
+
+        localStorage.setItem('activeSuperadminCmsTab', tabKey);
+
+        if (tabKey !== 'about') {
+            return;
+        }
+
+        const routeKey = resolveAboutPreviewRoute(sectionKey);
+        const aboutPreviewStorageKey = `cms:about-preview-route:${window.location.pathname}`;
+        const aboutPreviewLegacyStorageKey = 'about-editor-active-about-preview-page';
+
+        localStorage.setItem(aboutPreviewStorageKey, routeKey);
+        localStorage.setItem(aboutPreviewLegacyStorageKey, routeKey);
     }
 
     async function submitSave(form) {
@@ -935,6 +983,7 @@
             }
 
             if (!json.no_changes) {
+                persistCmsPreviewContextBeforeReload(form);
                 window.location.reload();
             }
         } catch (err) {
