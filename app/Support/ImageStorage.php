@@ -8,19 +8,15 @@ use Throwable;
 
 class ImageStorage
 {
+    private const DISK = 's3';
+
     public static function store(UploadedFile $file, string $directory = 'images'): string|false
     {
-        foreach (self::candidateDisks() as $disk) {
-            try {
-                $stored = $file->storePublicly($directory, ['disk' => $disk]);
-                if ($stored !== false) {
-                    return $stored;
-                }
-            } catch (Throwable) {
-            }
+        try {
+            return $file->storePublicly($directory, ['disk' => self::DISK]);
+        } catch (Throwable) {
+            return false;
         }
-
-        return false;
     }
 
     public static function put(string $path, string $contents): bool
@@ -31,16 +27,13 @@ class ImageStorage
             return false;
         }
 
-        foreach (self::candidateDisks() as $disk) {
-            try {
-                if (Storage::disk($disk)->put($normalized, $contents, ['visibility' => 'public'])) {
-                    return true;
-                }
-            } catch (Throwable) {
-            }
+        try {
+            return Storage::disk(self::DISK)->put($normalized, $contents, [
+                'visibility' => 'public',
+            ]);
+        } catch (Throwable) {
+            return false;
         }
-
-        return false;
     }
 
     public static function delete(?string $path): void
@@ -51,11 +44,9 @@ class ImageStorage
             return;
         }
 
-        foreach (self::candidateDisks() as $disk) {
-            try {
-                Storage::disk($disk)->delete($normalized);
-            } catch (Throwable) {
-            }
+        try {
+            Storage::disk(self::DISK)->delete($normalized);
+        } catch (Throwable) {
         }
     }
 
@@ -64,52 +55,24 @@ class ImageStorage
         $value = trim((string) $path);
 
         if ($value === '') {
-            if ($fallback === null || trim($fallback) === '') {
-                return null;
-            }
-
-            return asset(ltrim($fallback, '/'));
+            return $fallback ? asset(ltrim($fallback, '/')) : null;
         }
 
         if (self::isExternal($value)) {
             return $value;
         }
 
-        $normalized = ltrim($value, '/');
+        $normalized = self::normalizeStoredPath($value);
 
         if (str_starts_with($normalized, 'assets/')) {
             return asset($normalized);
         }
 
-        $legacyPublicPath = $normalized;
-        if (str_starts_with($legacyPublicPath, 'storage/')) {
-            return asset($legacyPublicPath);
+        try {
+            return Storage::disk(self::DISK)->url($normalized);
+        } catch (Throwable) {
+            return $fallback ? asset(ltrim($fallback, '/')) : null;
         }
-
-        $normalized = self::normalizeStoredPath($normalized);
-
-        $fallbackDisk = self::fallbackDisk();
-        if ($fallbackDisk !== '') {
-            try {
-                if (Storage::disk($fallbackDisk)->exists($normalized)) {
-                    return asset('storage/'.$normalized);
-                }
-            } catch (Throwable) {
-            }
-        }
-
-        foreach (self::candidateDisks() as $disk) {
-            if ($disk === $fallbackDisk) {
-                continue;
-            }
-
-            try {
-                return Storage::disk($disk)->url($normalized);
-            } catch (Throwable) {
-            }
-        }
-
-        return asset('storage/'.$normalized);
     }
 
     public static function normalizeStoredPath(?string $path): string
@@ -118,36 +81,6 @@ class ImageStorage
 
         if (str_starts_with($normalized, 'storage/')) {
             $normalized = substr($normalized, strlen('storage/'));
-        }
-
-        return $normalized;
-    }
-
-    private static function candidateDisks(): array
-    {
-        return array_values(array_unique(array_filter([
-            self::primaryDisk(),
-            self::fallbackDisk(),
-        ], static fn ($disk) => is_string($disk) && trim($disk) !== '')));
-    }
-
-    private static function primaryDisk(): string
-    {
-        return self::normalizeDiskName((string) config('filesystems.image_disk', 's3'));
-    }
-
-    private static function fallbackDisk(): string
-    {
-        return self::normalizeDiskName((string) config('filesystems.image_fallback_disk', 'public'));
-    }
-
-    private static function normalizeDiskName(string $disk): string
-    {
-        $normalized = trim($disk);
-
-        // Public-facing images should never use Laravel's private local disk.
-        if ($normalized === 'local') {
-            return 'public';
         }
 
         return $normalized;
