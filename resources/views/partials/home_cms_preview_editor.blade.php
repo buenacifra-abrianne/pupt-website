@@ -83,6 +83,8 @@
                                 $slideInputId = $idPrefix.'-home-slide-'.$idx;
                                 $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
                             @endphp
+                            <p>RAW IMAGE: {{ $slide['image'] ?? 'empty' }}</p>
+                            <p>PREVIEW URL: {{ $slidePreview }}</p>
                             <div class="carousel-manager-item">
                                 <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}" data-home-carousel-image-field>
                                 <input type="hidden" name="home[carousel][{{ $idx }}][title]" value="{{ $slide['title'] }}">
