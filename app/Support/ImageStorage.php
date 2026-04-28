@@ -38,7 +38,7 @@ class ImageStorage
 
     public static function delete(?string $path): void
     {
-        $normalized = self::normalizeStoredPath((string) $path);
+        $normalized = self::normalizeStoredPath($path);
 
         if ($normalized === '' || self::isExternal($normalized)) {
             return;
