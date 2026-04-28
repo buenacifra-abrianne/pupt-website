@@ -13,7 +13,7 @@ class ImageStorage
     public static function store(UploadedFile $file, string $directory = 'images'): string|false
     {
         try {
-            return $file->storePublicly($directory, ['disk' => self::DISK]);
+            return $file->store($directory, 's3');
         } catch (Throwable) {
             return false;
         }
@@ -28,9 +28,7 @@ class ImageStorage
         }
 
         try {
-            return Storage::disk(self::DISK)->put($normalized, $contents, [
-                'visibility' => 'public',
-            ]);
+            return Storage::disk('s3')->put($normalized, $contents);
         } catch (Throwable) {
             return false;
         }
@@ -45,7 +43,7 @@ class ImageStorage
         }
 
         try {
-            Storage::disk(self::DISK)->delete($normalized);
+            Storage::disk('s3')->delete($normalized);
         } catch (Throwable) {
         }
     }
@@ -69,7 +67,7 @@ class ImageStorage
         }
 
         try {
-            return Storage::disk(self::DISK)->url($normalized);
+            return Storage::disk('s3')->url($normalized);
         } catch (Throwable) {
             return $fallback ? asset(ltrim($fallback, '/')) : null;
         }
