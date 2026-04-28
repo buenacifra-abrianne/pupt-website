@@ -66,11 +66,7 @@ class ImageStorage
             return asset($normalized);
         }
 
-        try {
-            return Storage::disk('s3')->url($normalized);
-        } catch (Throwable) {
-            return $fallback ? asset(ltrim($fallback, '/')) : null;
-        }
+        return Storage::disk('s3')->url($normalized);
     }
 
     public static function normalizeStoredPath(?string $path): string
