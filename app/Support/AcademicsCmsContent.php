@@ -111,16 +111,16 @@ class AcademicsCmsContent
                     'tag' => 'Academic Offerings',
                     'title' => "Bachelor's Degree Programs",
                     'items' => [
-                        ['title' => 'BS Electronics Engineering', 'body' => 'BSECE — A rigorous program covering circuits, communications, and embedded systems. Graduates are equipped to sit for the ECE Licensure Examination.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsece', 'cta' => 'View Program'],
-                        ['title' => 'BS Mechanical Engineering', 'body' => 'BSME — Covers thermodynamics, fluid mechanics, and machine design. Prepares students for the Mechanical Engineering Licensure Exam.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsme', 'cta' => 'View Program'],
-                        ['title' => 'BS Accountancy', 'body' => 'BSA — A comprehensive program in financial reporting, auditing, and taxation. Aligned with the CPA Licensure Examination competencies.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsa', 'cta' => 'View Program'],
-                        ['title' => 'BS Business Administration', 'body' => 'BSBA — Offered with majors in Human Resource Development Management and Marketing Management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsba', 'cta' => 'View Program'],
-                        ['title' => 'BS Applied Mathematics', 'body' => 'BSAM — Develops strong analytical and problem-solving skills for careers in data science, finance, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsam', 'cta' => 'View Program'],
-                        ['title' => 'BS Information Technology', 'body' => 'BSIT — Covers software development, networking, and database systems. Prepares students for the IT Licensure Examination.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsit', 'cta' => 'View Program'],
-                        ['title' => 'BS Entrepreneurship', 'body' => 'BSENTREP — Equips students with the mindset and skills to launch and manage successful ventures in the Philippine and global market.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsentrep', 'cta' => 'View Program'],
-                        ['title' => 'Bachelor in Secondary Education', 'body' => 'BSED — Offered with majors in English and Mathematics. Aligned with the LET competency standards.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsed', 'cta' => 'View Program'],
-                        ['title' => 'BS Office Administration', 'body' => 'BSOA — Trains students in records management, office systems, and administrative operations for both public and private sectors.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsoa', 'cta' => 'View Program'],
-                        ['title' => 'BS Psychology', 'body' => 'BSPSY — Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bspsy', 'cta' => 'View Program'],
+                        ['title' => 'BS Electronics Engineering', 'badge' => 'BSECE', 'dept' => 'College of Engineering', 'body' => 'A rigorous program covering circuits, communications, and embedded systems. Graduates are equipped to sit for the ECE Licensure Examination.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsece', 'cta' => 'View Program'],
+                        ['title' => 'BS Mechanical Engineering', 'badge' => 'BSME', 'dept' => 'College of Engineering', 'body' => 'Covers thermodynamics, fluid mechanics, and machine design. Prepares students for the Mechanical Engineering Licensure Exam.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsme', 'cta' => 'View Program'],
+                        ['title' => 'BS Accountancy', 'badge' => 'BSA', 'dept' => 'College of Accountancy and Finance', 'body' => 'A comprehensive program in financial reporting, auditing, and taxation. Aligned with the CPA Licensure Examination competencies.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsa', 'cta' => 'View Program'],
+                        ['title' => 'BS Business Administration', 'badge' => 'BSBA', 'dept' => 'College of Business Administration', 'body' => 'Offered with majors in Human Resource Development Management and Marketing Management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsba', 'cta' => 'View Program'],
+                        ['title' => 'BS Applied Mathematics', 'badge' => 'BSAM', 'dept' => 'College of Science', 'body' => 'Develops strong analytical and problem-solving skills for careers in data science, finance, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsam', 'cta' => 'View Program'],
+                        ['title' => 'BS Information Technology', 'badge' => 'BSIT', 'dept' => 'College of Science', 'body' => 'Covers software development, networking, and database systems. Prepares students for the IT Licensure Examination.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsit', 'cta' => 'View Program'],
+                        ['title' => 'BS Entrepreneurship', 'badge' => 'BSENTREP', 'dept' => 'College of Business Administration', 'body' => 'Equips students with the mindset and skills to launch and manage successful ventures in the Philippine and global market.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsentrep', 'cta' => 'View Program'],
+                        ['title' => 'Bachelor in Secondary Education', 'badge' => 'BSED', 'dept' => 'College of Education', 'body' => 'Offered with majors in English and Mathematics. Aligned with the LET competency standards.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsed', 'cta' => 'View Program'],
+                        ['title' => 'BS Office Administration', 'badge' => 'BSOA', 'dept' => 'College of Office Administration and Business Education', 'body' => 'Trains students in records management, office systems, and administrative operations for both public and private sectors.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bsoa', 'cta' => 'View Program'],
+                        ['title' => 'BS Psychology', 'badge' => 'BSPSY', 'dept' => 'College of Social Sciences and Development', 'body' => 'Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bspsy', 'cta' => 'View Program'],
                     ],
                 ],
                 'contact' => [
@@ -165,8 +165,8 @@ class AcademicsCmsContent
                     'tag' => 'Academic Offerings',
                     'title' => 'Diploma Programs',
                     'items' => [
-                        ['title' => 'Diploma in Information Communication Technology', 'body' => 'DICT — A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#dict', 'cta' => 'View Program'],
-                        ['title' => 'Diploma in Office Management Technology', 'body' => 'DOMT — Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#domt', 'cta' => 'View Program'],
+                        ['title' => 'Diploma in Information Communication Technology', 'badge' => 'DICT', 'dept' => 'Dept. of Information & Communications Technology', 'body' => 'A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#dict', 'cta' => 'View Program'],
+                        ['title' => 'Diploma in Office Management Technology', 'badge' => 'DOMT', 'dept' => 'Dept. of Office Administration', 'body' => 'Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#domt', 'cta' => 'View Program'],
                     ],
                 ],
                 'contact' => [
@@ -212,7 +212,7 @@ class AcademicsCmsContent
                     'tag' => 'Academic Offerings',
                     'title' => 'Graduate Programs',
                     'items' => [
-                        ['title' => 'Master in Educational Management', 'body' => 'MEM — Delivered via the Open University System. Develops educational leaders with expertise in curriculum, policy, and institutional management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#mem', 'cta' => 'View Program'],
+                        ['title' => 'Master in Educational Management', 'badge' => 'MEM', 'dept' => 'Open University System', 'body' => 'Delivered via the Open University System. Develops educational leaders with expertise in curriculum, policy, and institutional management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#mem', 'cta' => 'View Program'],
                     ],
                 ],
                 'contact' => [
@@ -371,6 +371,40 @@ class AcademicsCmsContent
     public static function resolveImagePath(?string $path, string $fallbackPath): string
     {
         return (string) (ImageStorage::url($path, $fallbackPath) ?? asset(ltrim($fallbackPath, '/')));
+    }
+
+    public static function syncCalendarPdfReferences(array $calendar, string $nextPath, ?string $previousPath = null): array
+    {
+        $resolvedPath = trim($nextPath);
+
+        if ($resolvedPath === '') {
+            return $calendar;
+        }
+
+        $currentPdfPath = trim((string) ($calendar['pdf_url'] ?? ''));
+        $replaceablePaths = array_values(array_unique(array_filter([
+            trim((string) $previousPath),
+            $currentPdfPath,
+            'assets/static_img/university_calendar.pdf',
+        ], static fn ($value) => is_string($value) && trim($value) !== '')));
+
+        $calendar['pdf_url'] = $resolvedPath;
+        $actions = is_array($calendar['actions'] ?? null) ? array_values($calendar['actions']) : [];
+
+        foreach ($actions as $index => $action) {
+            if (!is_array($action)) {
+                continue;
+            }
+
+            $href = trim((string) ($action['href'] ?? ''));
+            if ($href === '' || in_array($href, $replaceablePaths, true)) {
+                $actions[$index]['href'] = $resolvedPath;
+            }
+        }
+
+        $calendar['actions'] = $actions;
+
+        return $calendar;
     }
 
     private static function normalize(array $source, array $base): array
@@ -624,10 +658,10 @@ class AcademicsCmsContent
 
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if ($text === '') {
-            $text = trim($fallback);
+            $text = trim(HtmlEntities::decode($fallback));
         }
 
         if (function_exists('mb_substr')) {
@@ -639,7 +673,7 @@ class AcademicsCmsContent
 
     private static function sanitizeOptionalString(string $value, int $maxLen): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);

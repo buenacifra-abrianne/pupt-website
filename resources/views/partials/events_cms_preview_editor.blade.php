@@ -136,10 +136,13 @@
                                         $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                     @endphp
                                     <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="{{ $index }}">
+                                        <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-events-image-field>
+                                        <textarea name="events[cards][{{ $index }}][summary]" hidden>{{ $card['summary'] ?? '' }}</textarea>
+
                                         <div class="events-cms-card-editor-head">
                                             <div>
                                                 <strong>{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Untitled event' }}</strong>
-                                                <p>{{ trim((string) ($card['event_date'] ?? '')) !== '' ? 'Scheduled for '.$card['event_date'] : 'Set the date to schedule this event.' }}</p>
+                                                <p>Active event details</p>
                                             </div>
                                             <button type="button" class="btn events-cms-delete-card" data-delete-events-card>
                                                 Delete Event
@@ -147,15 +150,14 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Upload Card Image</label>
-                                            <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-events-image-field>
+                                            <label>Event Image</label>
                                             <div class="events-cms-image-dropzone-shell">
-                                                <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                                <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload event image">
                                                     <span class="events-cms-image-dropzone-preview-column">
                                                         <span class="events-cms-image-dropzone-media">
                                                             <img
                                                                 src="{{ $cardPreview }}"
-                                                                alt="{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Event card preview' }}"
+                                                                alt="{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Event image preview' }}"
                                                                 class="events-cms-image-dropzone-preview"
                                                                 data-events-preview-for="{{ $cardInputId }}"
                                                                 data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
@@ -164,14 +166,13 @@
                                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                             </button>
                                                         </span>
-                                                        <span class="events-cms-image-dropzone-label">Event {{ $index + 1 }}</span>
                                                     </span>
                                                     <span class="events-cms-image-dropzone-upload">
                                                         <span class="events-cms-image-dropzone-icon">
                                                             <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                                         </span>
-                                                        <span class="events-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                        <span class="events-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                        <span class="events-cms-image-dropzone-upload-title">Upload event image</span>
+                                                        <span class="events-cms-image-dropzone-upload-copy">Preview supports saved local and S3 images.</span>
                                                         <span class="events-cms-image-dropzone-upload-button">Select image</span>
                                                         <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                     </span>
@@ -191,11 +192,6 @@
                                             <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
                                         </div>
 
-                                        <div class="form-group">
-                                            <label>Description</label>
-                                            <textarea name="events[cards][{{ $index }}][summary]" rows="4">{{ $card['summary'] ?? '' }}</textarea>
-                                        </div>
-
                                         <div class="events-cms-form-grid">
                                             <div class="form-group">
                                                 <label>Category</label>
@@ -206,25 +202,28 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Event Date</label>
-                                                <input type="date" name="events[cards][{{ $index }}][event_date]" value="{{ $card['event_date'] ?? '' }}">
-                                            </div>
-                                            <div class="form-group">
                                                 <label>Location</label>
                                                 <input type="text" name="events[cards][{{ $index }}][location]" maxlength="255" value="{{ $card['location'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Start Time</label>
-                                                <input type="time" name="events[cards][{{ $index }}][start_time]" value="{{ $card['start_time'] ?? '' }}">
+                                                <label>Event Date</label>
+                                                <input type="date" name="events[cards][{{ $index }}][event_date]" value="{{ $card['event_date'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>End Time</label>
-                                                <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
+                                                <label>Event Time</label>
+                                                <div class="events-cms-time-range-field">
+                                                    <input type="time" name="events[cards][{{ $index }}][start_time]" value="{{ $card['start_time'] ?? '' }}" aria-label="Start time">
+                                                    <span class="events-cms-time-range-separator" aria-hidden="true">to</span>
+                                                    <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}" aria-label="End time">
+                                                </div>
                                             </div>
                                         </div>
 
                                         <label class="events-cms-feature-check">
-                                            <input type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
+                                            <span class="events-cms-feature-switch">
+                                                <input class="events-cms-feature-toggle" type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
+                                                <span class="events-cms-feature-slider" aria-hidden="true"></span>
+                                            </span>
                                             <span class="events-cms-feature-copy">
                                                 <strong>Featured Event</strong>
                                                 <small>Pin this card to the highlighted event section.</small>
@@ -232,7 +231,7 @@
                                         </label>
 
                                         <div class="form-group">
-                                            <label>Modal Details</label>
+                                            <label>Event Details</label>
                                             @include('partials.rich_text_editor', [
                                                 'name' => 'events[cards]['.$index.'][content]',
                                                 'value' => $card['content'] ?? '',
@@ -265,10 +264,13 @@
                                         $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                     @endphp
                                     <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="{{ $index }}">
+                                        <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-events-image-field>
+                                        <textarea name="events[cards][{{ $index }}][summary]" hidden>{{ $card['summary'] ?? '' }}</textarea>
+
                                         <div class="events-cms-card-editor-head">
                                             <div>
                                                 <strong>{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Untitled event' }}</strong>
-                                                <p>{{ trim((string) ($card['event_date'] ?? '')) !== '' ? 'Expired on '.$card['event_date'] : 'No event date was set.' }}</p>
+                                                <p>Expired event details</p>
                                             </div>
                                             <button type="button" class="btn events-cms-delete-card" data-delete-events-card>
                                                 Delete Event
@@ -276,15 +278,14 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Upload Card Image</label>
-                                            <input type="hidden" name="events[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-events-image-field>
+                                            <label>Event Image</label>
                                             <div class="events-cms-image-dropzone-shell">
-                                                <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload card image">
+                                                <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload event image">
                                                     <span class="events-cms-image-dropzone-preview-column">
                                                         <span class="events-cms-image-dropzone-media">
                                                             <img
                                                                 src="{{ $cardPreview }}"
-                                                                alt="{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Event card preview' }}"
+                                                                alt="{{ trim((string) ($card['title'] ?? '')) !== '' ? $card['title'] : 'Event image preview' }}"
                                                                 class="events-cms-image-dropzone-preview"
                                                                 data-events-preview-for="{{ $cardInputId }}"
                                                                 data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
@@ -293,14 +294,13 @@
                                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                             </button>
                                                         </span>
-                                                        <span class="events-cms-image-dropzone-label">Event {{ $index + 1 }}</span>
                                                     </span>
                                                     <span class="events-cms-image-dropzone-upload">
                                                         <span class="events-cms-image-dropzone-icon">
                                                             <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                                         </span>
-                                                        <span class="events-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                        <span class="events-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                                        <span class="events-cms-image-dropzone-upload-title">Upload event image</span>
+                                                        <span class="events-cms-image-dropzone-upload-copy">Preview supports saved local and S3 images.</span>
                                                         <span class="events-cms-image-dropzone-upload-button">Select image</span>
                                                         <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                     </span>
@@ -320,11 +320,6 @@
                                             <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
                                         </div>
 
-                                        <div class="form-group">
-                                            <label>Card Summary</label>
-                                            <textarea name="events[cards][{{ $index }}][summary]" rows="4">{{ $card['summary'] ?? '' }}</textarea>
-                                        </div>
-
                                         <div class="events-cms-form-grid">
                                             <div class="form-group">
                                                 <label>Category</label>
@@ -335,25 +330,28 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Event Date</label>
-                                                <input type="date" name="events[cards][{{ $index }}][event_date]" value="{{ $card['event_date'] ?? '' }}">
-                                            </div>
-                                            <div class="form-group">
                                                 <label>Location</label>
                                                 <input type="text" name="events[cards][{{ $index }}][location]" maxlength="255" value="{{ $card['location'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Start Time</label>
-                                                <input type="time" name="events[cards][{{ $index }}][start_time]" value="{{ $card['start_time'] ?? '' }}">
+                                                <label>Event Date</label>
+                                                <input type="date" name="events[cards][{{ $index }}][event_date]" value="{{ $card['event_date'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>End Time</label>
-                                                <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}">
+                                                <label>Event Time</label>
+                                                <div class="events-cms-time-range-field">
+                                                    <input type="time" name="events[cards][{{ $index }}][start_time]" value="{{ $card['start_time'] ?? '' }}" aria-label="Start time">
+                                                    <span class="events-cms-time-range-separator" aria-hidden="true">to</span>
+                                                    <input type="time" name="events[cards][{{ $index }}][end_time]" value="{{ $card['end_time'] ?? '' }}" aria-label="End time">
+                                                </div>
                                             </div>
                                         </div>
 
                                         <label class="events-cms-feature-check">
-                                            <input type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
+                                            <span class="events-cms-feature-switch">
+                                                <input class="events-cms-feature-toggle" type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
+                                                <span class="events-cms-feature-slider" aria-hidden="true"></span>
+                                            </span>
                                             <span class="events-cms-feature-copy">
                                                 <strong>Featured Event</strong>
                                                 <small>Pin this card to the highlighted event section.</small>
@@ -361,7 +359,7 @@
                                         </label>
 
                                         <div class="form-group">
-                                            <label>Modal Details</label>
+                                            <label>Event Details</label>
                                             @include('partials.rich_text_editor', [
                                                 'name' => 'events[cards]['.$index.'][content]',
                                                 'value' => $card['content'] ?? '',
@@ -376,26 +374,25 @@
 
                     <template data-events-card-template>
                         <article class="events-cms-card-editor" data-events-card-editor data-events-card-index="__INDEX__" data-events-new-card="1">
+                            <input type="hidden" name="events[cards][__INDEX__][image]" value="" data-events-image-field>
+                            <textarea name="events[cards][__INDEX__][summary]" hidden></textarea>
+
                             <div class="events-cms-card-editor-head">
                                 <div>
                                     <strong>New event</strong>
-                                    <p>Set a future date to keep this under Active Events.</p>
+                                    <p>Add the core event details.</p>
                                 </div>
-                                <button type="button" class="btn events-cms-delete-card" data-delete-events-card>
-                                    Delete Event
-                                </button>
                             </div>
 
                             <div class="form-group">
-                                <label>Upload Card Image</label>
-                                <input type="hidden" name="events[cards][__INDEX__][image]" value="" data-events-image-field>
+                                <label>Event Image</label>
                                 <div class="events-cms-image-dropzone-shell">
-                                    <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $idPrefix }}-events-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload card image">
+                                    <div class="events-cms-image-dropzone" data-events-dropzone-for="{{ $idPrefix }}-events-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload event image">
                                         <span class="events-cms-image-dropzone-preview-column">
                                             <span class="events-cms-image-dropzone-media">
                                                 <img
                                                     src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                                    alt="Event card preview"
+                                                    alt="Event image preview"
                                                     class="events-cms-image-dropzone-preview"
                                                     data-events-preview-for="{{ $idPrefix }}-events-card-image-__INDEX__"
                                                     data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
@@ -404,14 +401,13 @@
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
-                                            <span class="events-cms-image-dropzone-label">Event __CARD_NUMBER__</span>
                                         </span>
                                         <span class="events-cms-image-dropzone-upload">
                                             <span class="events-cms-image-dropzone-icon">
                                                 <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                             </span>
-                                            <span class="events-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                            <span class="events-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                            <span class="events-cms-image-dropzone-upload-title">Upload event image</span>
+                                            <span class="events-cms-image-dropzone-upload-copy">Preview supports saved local and S3 images.</span>
                                             <span class="events-cms-image-dropzone-upload-button">Select image</span>
                                             <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $idPrefix }}-events-card-image-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                         </span>
@@ -424,19 +420,11 @@
                                     name="events[cards][__INDEX__][image_file]"
                                     accept="image/*"
                                 >
-                                <small class="events-cms-upload-hint">
-                                    Leave this empty to use the default `pupillar`.
-                                </small>
                             </div>
 
                             <div class="form-group">
                                 <label>Event Title</label>
                                 <input type="text" name="events[cards][__INDEX__][title]" maxlength="255" value="">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Card Summary</label>
-                                <textarea name="events[cards][__INDEX__][summary]" rows="4"></textarea>
                             </div>
 
                             <div class="events-cms-form-grid">
@@ -449,25 +437,28 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Event Date</label>
-                                    <input type="date" name="events[cards][__INDEX__][event_date]" value="">
-                                </div>
-                                <div class="form-group">
                                     <label>Location</label>
                                     <input type="text" name="events[cards][__INDEX__][location]" maxlength="255" value="">
                                 </div>
                                 <div class="form-group">
-                                    <label>Start Time</label>
-                                    <input type="time" name="events[cards][__INDEX__][start_time]" value="">
+                                    <label>Event Date</label>
+                                    <input type="date" name="events[cards][__INDEX__][event_date]" value="">
                                 </div>
                                 <div class="form-group">
-                                    <label>End Time</label>
-                                    <input type="time" name="events[cards][__INDEX__][end_time]" value="">
+                                    <label>Event Time</label>
+                                    <div class="events-cms-time-range-field">
+                                        <input type="time" name="events[cards][__INDEX__][start_time]" value="" aria-label="Start time">
+                                        <span class="events-cms-time-range-separator" aria-hidden="true">to</span>
+                                        <input type="time" name="events[cards][__INDEX__][end_time]" value="" aria-label="End time">
+                                    </div>
                                 </div>
                             </div>
 
                             <label class="events-cms-feature-check">
-                                <input type="checkbox" name="events[cards][__INDEX__][featured]" value="1">
+                                <span class="events-cms-feature-switch">
+                                    <input class="events-cms-feature-toggle" type="checkbox" name="events[cards][__INDEX__][featured]" value="1">
+                                    <span class="events-cms-feature-slider" aria-hidden="true"></span>
+                                </span>
                                 <span class="events-cms-feature-copy">
                                     <strong>Featured Event</strong>
                                     <small>Pin this card to the highlighted event section.</small>
@@ -475,7 +466,7 @@
                             </label>
 
                             <div class="form-group">
-                                <label>Modal Details</label>
+                                <label>Event Details</label>
                                 @include('partials.rich_text_editor', [
                                     'name' => 'events[cards][__INDEX__][content]',
                                     'value' => '',
@@ -666,7 +657,13 @@
     .events-cms-form-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
+        gap: 16px;
+        align-items: end;
+    }
+
+    .events-cms-form-grid .form-group {
+        min-width: 0;
+        margin: 0;
     }
 
     .events-cms-card-stack {
@@ -818,13 +815,96 @@
         border-radius: 16px;
         background: linear-gradient(135deg, rgba(127, 17, 19, 0.04) 0%, rgba(242, 201, 76, 0.08) 100%);
         color: #5c0000;
+        cursor: pointer;
+        user-select: none;
     }
 
-    .events-cms-feature-check input {
-        width: 20px;
-        height: 20px;
-        accent-color: #800000;
+    .events-cms-feature-switch {
+        position: relative;
+        display: block;
+        width: 4em;
+        height: 2em;
         flex-shrink: 0;
+    }
+
+    .events-cms-feature-toggle {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    .events-cms-feature-slider,
+    .events-cms-feature-slider::after,
+    .events-cms-feature-slider::before {
+        box-sizing: border-box;
+    }
+
+    .events-cms-feature-slider {
+        position: relative;
+        display: block;
+        width: 4em;
+        height: 2em;
+        padding: 2px;
+        border: 1px solid #e8eae9;
+        border-radius: 2em;
+        background: #fbfbfb;
+        outline: 0;
+        transition: all 0.4s ease;
+        cursor: pointer;
+        user-select: none;
+    }
+
+    .events-cms-feature-slider::after {
+        position: relative;
+        left: 0;
+        display: block;
+        content: "";
+        width: 50%;
+        height: 100%;
+        border-radius: 2em;
+        background: #fbfbfb;
+        transition:
+            left 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+            padding 0.3s ease,
+            margin 0.3s ease;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 4px 0 rgba(0, 0, 0, 0.08);
+    }
+
+    .events-cms-feature-toggle:focus-visible + .events-cms-feature-slider {
+        box-shadow: 0 0 0 3px rgba(127, 17, 19, 0.18);
+    }
+
+    .events-cms-feature-toggle:hover + .events-cms-feature-slider::after {
+        will-change: padding;
+    }
+
+    .events-cms-feature-toggle:active + .events-cms-feature-slider {
+        box-shadow: inset 0 0 0 2em #e8eae9;
+    }
+
+    .events-cms-feature-toggle:active + .events-cms-feature-slider::after {
+        padding-right: 0.8em;
+    }
+
+    .events-cms-feature-toggle:checked + .events-cms-feature-slider {
+        border-color: rgba(127, 17, 19, 0.18);
+        background: linear-gradient(135deg, #8f1117 0%, #b52127 100%);
+    }
+
+    .events-cms-feature-toggle:checked + .events-cms-feature-slider::after {
+        left: 50%;
+    }
+
+    .events-cms-feature-toggle:checked:active + .events-cms-feature-slider {
+        box-shadow: none;
+    }
+
+    .events-cms-feature-toggle:checked:active + .events-cms-feature-slider::after {
+        margin-left: -0.8em;
     }
 
     .events-cms-feature-copy {
@@ -871,7 +951,7 @@
     .events-cms-image-dropzone-preview-column {
         display: flex;
         min-width: 0;
-        min-height: 180px;
+        min-height: 220px;
     }
 
     .events-cms-image-dropzone-media {
@@ -885,7 +965,7 @@
         display: block;
         width: 100%;
         height: 100%;
-        min-height: 180px;
+        min-height: 220px;
         object-fit: cover;
         border-radius: 18px;
         background: #f1e7dd;
@@ -920,12 +1000,12 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 82px;
-        height: 82px;
+        width: 72px;
+        height: 72px;
         border-radius: 999px;
         background: rgba(73, 8, 13, 0.42);
         color: #f2f0ed;
-        font-size: 2rem;
+        font-size: 1.8rem;
     }
 
     .events-cms-image-dropzone-upload-title {
@@ -1020,6 +1100,22 @@
         margin-top: 18px;
     }
 
+    .events-cms-time-range-field {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+        gap: 10px;
+        align-items: center;
+        width: 100%;
+    }
+
+    .events-cms-time-range-separator {
+        color: #7f1113;
+        font-size: 0.88rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+    }
+
     .events-cms-modal.is-card-focus .events-cms-modal-header {
         display: none;
     }
@@ -1029,8 +1125,8 @@
     }
 
     .events-cms-modal.is-card-focus .events-cms-modal-dialog {
-        width: min(760px, calc(100vw - 24px));
-        max-width: min(760px, calc(100vw - 24px));
+        width: min(980px, calc(100vw - 24px));
+        max-width: min(980px, calc(100vw - 24px));
         border-radius: 30px;
         background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
         box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
@@ -1044,7 +1140,7 @@
     }
 
     .events-cms-editor-panel.is-card-focus form {
-        max-width: 680px;
+        max-width: 900px;
         margin: 0 auto;
     }
 
@@ -1441,6 +1537,7 @@
 
         function setActiveEventsCardEditor(targetIndex = null) {
             const cardsPanel = document.querySelector('[data-events-editor-panel="cards"]');
+            const stack = cardsPanel?.querySelector('[data-events-card-stack]');
             const editors = Array.from(cardsPanel?.querySelectorAll('[data-events-card-editor]') || []);
 
             if (!editors.length) {
@@ -1463,6 +1560,11 @@
                     activeEditor = editor;
                 }
             });
+
+            if (stack instanceof HTMLElement) {
+                const editorGroup = activeEditor?.closest('[data-events-card-group]')?.getAttribute('data-events-card-group') || '';
+                stack.dataset.eventsVisibleGroup = editorGroup !== '' ? editorGroup : 'active';
+            }
 
             refreshEventsCardGroups(cardsPanel);
 
@@ -1551,6 +1653,7 @@
 
             const hasSelection = Array.from(stack.querySelectorAll('[data-events-card-editor]'))
                 .some((editor) => editor.classList.contains('is-selected'));
+            const visibleGroup = String(stack.dataset.eventsVisibleGroup || '').trim().toLowerCase();
 
             ['active', 'expired'].forEach((groupKey) => {
                 const group = stack.querySelector(`[data-events-card-group="${groupKey}"]`);
@@ -1569,7 +1672,8 @@
                 }
 
                 if (group) {
-                    group.hidden = hasSelection ? visibleEditors.length === 0 : false;
+                    const hiddenForVisibleGroup = visibleGroup !== '' && visibleGroup !== 'all' && visibleGroup !== groupKey;
+                    group.hidden = hiddenForVisibleGroup || (hasSelection ? visibleEditors.length === 0 : false);
                 }
             });
         }
@@ -1601,6 +1705,13 @@
 
             const syncGroup = () => {
                 moveEventsCardEditorToGroup(editor);
+                const stack = editor.closest('[data-events-card-stack]');
+                if (editor.classList.contains('is-selected') && stack instanceof HTMLElement) {
+                    const editorGroup = editor.closest('[data-events-card-group]')?.getAttribute('data-events-card-group') || '';
+                    if (editorGroup !== '') {
+                        stack.dataset.eventsVisibleGroup = editorGroup;
+                    }
+                }
                 refreshEventsCardGroups(editor.closest('[data-events-cards-form]'));
             };
 
@@ -1765,10 +1876,7 @@
 
             modal.querySelectorAll('[data-events-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-events-editor-panel') === sectionKey;
-                const isCardFocus = sectionKey === 'cards'
-                    && options.cardIndex !== null
-                    && options.cardIndex !== undefined
-                    && options.cardIndex !== '';
+                const isCardFocus = sectionKey === 'cards';
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -1779,7 +1887,9 @@
                     }
 
                     if (description) {
-                        description.textContent = 'Update this section and save to refresh the events page preview.';
+                        description.textContent = sectionKey === 'cards'
+                            ? 'Add, edit, or delete event cards individually and save to refresh the events page preview.'
+                            : 'Update this section and save to refresh the events page preview.';
                     }
 
                     if (typeof window.initializeRichTextEditors === 'function') {
@@ -1789,6 +1899,14 @@
                     const activeCardEditor = sectionKey === 'cards'
                         ? setActiveEventsCardEditor(options.cardIndex ?? null)
                         : null;
+                    if (sectionKey === 'cards') {
+                        const stack = panel.querySelector('[data-events-card-stack]');
+                        if (stack instanceof HTMLElement && (!stack.dataset.eventsVisibleGroup || stack.dataset.eventsVisibleGroup === 'all')) {
+                            stack.dataset.eventsVisibleGroup = activeCardEditor
+                                ? (activeCardEditor.closest('[data-events-card-group]')?.getAttribute('data-events-card-group') || 'active')
+                                : 'active';
+                        }
+                    }
                     const focusScope = activeCardEditor || panel;
                     if (sectionKey === 'cards') {
                         refreshEventsCardGroups(panel);
@@ -1943,6 +2061,8 @@
                 return;
             }
 
+            form.dataset.eventsSkipValidation = '1';
+
             if (typeof form.requestSubmit === 'function') {
                 form.requestSubmit();
                 return;
@@ -1952,6 +2072,8 @@
                 bubbles: true,
                 cancelable: true,
             }));
+
+            delete form.dataset.eventsSkipValidation;
         }
 
         async function confirmEventsCardDelete(cardIndex) {
@@ -2063,6 +2185,10 @@
             }
 
             if (data.type === 'cms-events-edit') {
+                if ((data.section || '') === 'cards') {
+                    return;
+                }
+
                 openEventsEditor(data.section || 'page', data.label || 'Edit events section');
                 return;
             }
@@ -2122,8 +2248,91 @@
             }
         });
 
+        function showEventsValidationToast(message) {
+            if (typeof window.showToast === 'function') {
+                window.showToast(message, 'error', 'Required Fields');
+                return;
+            }
+
+            window.alert(message);
+        }
+
+        function getEventCardField(editor, fieldName) {
+            return editor?.querySelector(`[name*="[${fieldName}]"]`) || null;
+        }
+
+        function getEventCardFieldValue(editor, fieldName) {
+            const field = getEventCardField(editor, fieldName);
+            return String(field?.value || '').trim();
+        }
+
+        function validateEventsCardEditor(editor) {
+            if (!(editor instanceof HTMLElement)) {
+                return true;
+            }
+
+            const requiredFields = [
+                ['title', 'Event Title'],
+                ['category', 'Category'],
+                ['event_date', 'Event Date'],
+                ['location', 'Location'],
+                ['start_time', 'Start Time'],
+                ['end_time', 'End Time'],
+                ['content', 'Event Details'],
+            ];
+            const missing = requiredFields.filter(([fieldName]) => getEventCardFieldValue(editor, fieldName) === '');
+
+            if (missing.length === 0) {
+                return true;
+            }
+
+            const firstMissingField = getEventCardField(editor, missing[0][0]);
+            showEventsValidationToast('All fields are required. Please complete: ' + missing.map(([, label]) => label).join(', ') + '.');
+
+            if (firstMissingField) {
+                firstMissingField.focus();
+            } else {
+                editor.querySelector('.rich-editor-surface')?.focus();
+            }
+
+            return false;
+        }
+
+        function validateEventsCardsForm(form) {
+            if (!form?.matches?.('[data-events-cards-form]')) {
+                return true;
+            }
+
+            if (form.dataset.eventsSkipValidation === '1') {
+                delete form.dataset.eventsSkipValidation;
+                return true;
+            }
+
+            syncEditorsInScope(form);
+
+            const editors = Array.from(form.querySelectorAll('[data-events-card-editor]'));
+            const targetEditors = editors.filter((editor) => editor.classList.contains('is-selected'));
+            const editorsToValidate = targetEditors.length > 0
+                ? targetEditors
+                : editors.filter((editor) => editor.hasAttribute('data-events-new-card') && !editor.hidden);
+
+            if (editorsToValidate.length === 0) {
+                return true;
+            }
+
+            return editorsToValidate.every((editor) => validateEventsCardEditor(editor));
+        }
+
         document.querySelectorAll('.{{ $formClass }}').forEach((form) => {
-            form.addEventListener('submit', () => syncEditorsInScope(form));
+            form.addEventListener('submit', (event) => {
+                if (!validateEventsCardsForm(form)) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+
+                syncEditorsInScope(form);
+            });
         });
 
         document.querySelectorAll('[data-events-preview-frame]').forEach((frame) => {

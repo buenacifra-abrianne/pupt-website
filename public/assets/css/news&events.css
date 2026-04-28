@@ -745,7 +745,7 @@
 
 .ne-modal-card {
   position: relative;
-  width: min(720px, 94vw);
+  width: min(1120px, calc(100vw - 56px));
   max-height: min(88vh, calc(100dvh - 40px));
   background: linear-gradient(160deg, #fffcf8 0%, #f7efe8 100%);
   border-radius: 28px;
@@ -780,10 +780,10 @@
 }
 
 .ne-modal-body {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(360px, .9fr);
   max-height: inherit;
-  overflow-y: auto;
+  overflow: hidden;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
 }
@@ -791,8 +791,8 @@
 .ne-modal-img-wrap {
   overflow: hidden;
   background: #d9d9d9;
-  min-height: 240px;
-  max-height: 320px;
+  min-height: min(72vh, 620px);
+  height: auto;
 }
 .ne-modal-img-wrap img {
   width: 100%;
@@ -806,10 +806,13 @@
 }
 
 .ne-modal-content {
-  padding: 24px 26px 30px;
+  padding: 34px 34px 38px;
   display: flex;
   flex-direction: column;
   gap: 12px;
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
 }
 .ne-modal-date  { font-size: 0.84rem; color: var(--ne-muted); font-weight: 700; margin: 0; }
 .ne-modal-title {
@@ -865,15 +868,17 @@
 }
 .reveal {
   opacity: 0;
-  transform: translateY(38px);
-  transition: opacity .72s ease-out, transform .72s ease-out;
+  transform: translateY(40px);
+  transition: opacity 0.72s ease-out, transform 0.72s ease-out;
   will-change: opacity, transform;
 }
-.reveal.active            { opacity: 1; transform: translateY(0); }
-.reveal.delay-1           { transition-delay: .1s; }
-.reveal.delay-2           { transition-delay: .2s; }
-body.scroll-down .reveal:not(.active) { transform: translateY(38px); }
-body.scroll-up   .reveal:not(.active) { transform: translateY(-38px); }
+.reveal.active { opacity: 1; transform: translateY(0); }
+.reveal.delay-1,
+.reveal.delay-100 { transition-delay: 0.1s; }
+.reveal.delay-2,
+.reveal.delay-200 { transition-delay: 0.2s; }
+body.scroll-down .reveal:not(.active) { transform: translateY(40px); }
+body.scroll-up   .reveal:not(.active) { transform: translateY(-40px); }
 html.modal-open,
 body.modal-open  {
   overflow: hidden;
@@ -920,11 +925,14 @@ body.modal-open {
   .ne-events-divider { display: none; }
 
   .ne-modal-body {
+    display: flex;
+    flex-direction: column;
     max-height: 90vh;
+    overflow-y: auto;
   }
   .ne-modal-img-wrap  { min-height: 200px; height: 220px; }
   .ne-modal-title     { font-size: 1.15rem; padding-right: 44px; }
-  .ne-modal-content   { padding: 20px 20px 28px; }
+  .ne-modal-content   { max-height: none; overflow: visible; padding: 20px 20px 28px; }
 
   #featuredEventMount.ne-featured { grid-template-columns: 1fr; }
 

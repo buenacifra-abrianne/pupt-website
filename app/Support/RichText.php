@@ -32,7 +32,7 @@ class RichText
 
     public static function sanitize(?string $value): string
     {
-        $value = trim((string) $value);
+        $value = trim(HtmlEntities::decode((string) $value));
         if ($value === '') {
             return '';
         }

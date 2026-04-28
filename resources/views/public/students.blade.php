@@ -78,21 +78,17 @@
 
         <section
             class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
-            @if($cmsPreview)
-                data-cms-section="cards"
-                data-cms-section-label="Student Cards"
-            @endif
         >
-            <div data-cms-boundary class="cms-preview-boundary-full">
-                <div class="students-contents-inner">
-                    <div class="students-contents-head">
+            <div class="students-contents-head layout-inset">
                         <p class="section-tag">{{ trim((string) ($pageSection['contents_tag'] ?? '')) !== '' ? (string) $pageSection['contents_tag'] : 'Contents' }}</p>
                         <h2>{{ trim((string) ($pageSection['contents_title'] ?? '')) !== '' ? (string) $pageSection['contents_title'] : 'Student Services' }}</h2>
                         @if(trim((string) ($pageSection['contents_description'] ?? '')) !== '')
-                            <p class="students-contents-description">{{ $pageSection['contents_description'] }}</p>
+                            <div class="students-contents-description students-rich-copy">{!! \App\Support\RichText::sanitize($pageSection['contents_description']) !!}</div>
                         @endif
                     </div>
 
+            <div>
+                <div class="students-contents-inner">
                     <nav class="students-cards" aria-label="Student services">
                         @if($cmsPreview)
                             <article class="students-card students-card-add" data-students-add-card-trigger tabindex="0" role="button" aria-label="Add services">
@@ -188,22 +184,8 @@
                 <div class="students-orgs-blurred students-orgs-live">
 
                 @foreach($organizationSections as $sectionIndex => $organizationSection)
-                <div
-                    class="students-orgs-group{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                    @if($cmsPreview)
-                        data-cms-section="organizations"
-                        data-cms-section-label="{{ $organizationSection['title'] ?? 'Student Organizations' }}"
-                    @endif
-                >
-                    @if($cmsPreview)
-                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="organizations" aria-label="Edit {{ $organizationSection['title'] ?? 'Student Organizations' }}">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                            </svg>
-                        </button>
-                    @endif
-
-                    <div data-cms-boundary class="cms-preview-boundary-edge">
+                <div class="students-orgs-group">
+                    <div>
                         <p class="section-tag">{{ $organizationSection['title'] ?? 'Student Organizations' }}</p>
 
                         <div class="students-orgs-grid">
@@ -329,6 +311,11 @@
                 margin: 0;
             }
 
+            .hero-shell.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full {
+                width: 100%;
+                margin: 0;
+            }
+
             .cms-preview-editable > [data-cms-boundary]::after {
                 content: "";
                 position: absolute;
@@ -342,6 +329,10 @@
             }
 
             .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge::after {
+                inset: var(--cms-preview-outline-offset);
+            }
+
+            .hero-shell.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full::after {
                 inset: var(--cms-preview-outline-offset);
             }
 
@@ -377,7 +368,9 @@
             }
 
             .students-card[data-cms-edit-trigger] {
+                position: relative;
                 cursor: default;
+                isolation: isolate;
             }
 
             .students-contents-strip.cms-preview-editable {
@@ -456,6 +449,32 @@
             .students-org-card[data-cms-edit-trigger] {
                 position: relative;
                 cursor: default;
+                isolation: isolate;
+            }
+
+            .students-card[data-cms-edit-trigger="cards"]::after,
+            .students-org-card[data-cms-edit-trigger]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            .students-card[data-cms-edit-trigger="cards"]:hover::after,
+            .students-card[data-cms-edit-trigger="cards"]:focus-within::after,
+            .students-org-card[data-cms-edit-trigger]:hover::after,
+            .students-org-card[data-cms-edit-trigger]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
             .cms-preview-card-actions {

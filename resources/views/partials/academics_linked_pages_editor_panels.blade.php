@@ -807,7 +807,7 @@
 </section>
 
 <section class="academics-cms-editor-panel" data-academics-editor-panel="university-calendar-calendar" hidden>
-    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="tab_key" value="academics">
         <input type="hidden" name="section_key" value="university-calendar-calendar">
@@ -829,6 +829,17 @@
         <div class="form-group">
             <label>PDF URL or Path</label>
             <input type="text" name="academics[pages][university-calendar][calendar][pdf_url]" maxlength="2048" value="{{ $calendarSection['pdf_url'] ?? '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>Upload Calendar PDF</label>
+            @php
+                $calendarPdfPreview = \App\Support\DownloadableFile::url($calendarSection['pdf_url'] ?? null, 'assets/static_img/university_calendar.pdf');
+            @endphp
+            @if($calendarPdfPreview)
+                <p><a href="{{ $calendarPdfPreview }}" target="_blank" rel="noopener">View current calendar PDF</a></p>
+            @endif
+            <input type="file" name="academics[pages][university-calendar][calendar][pdf_file]" accept="application/pdf,.pdf">
         </div>
 
         <div class="form-group">

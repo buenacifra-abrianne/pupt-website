@@ -831,6 +831,21 @@
         if (typeof window.syncRichTextEditors === 'function') {
             window.syncRichTextEditors(form);
         }
+
+        ensureRichTextChangeMarker(form);
+    }
+
+    function ensureRichTextChangeMarker(form) {
+        if (!form || !form.querySelector('.js-rich-editor') || form.querySelector('[data-cms-rich-editor-version]')) {
+            return;
+        }
+
+        const marker = document.createElement('input');
+        marker.type = 'hidden';
+        marker.name = 'cms_rich_editor_version';
+        marker.value = '0';
+        marker.setAttribute('data-cms-rich-editor-version', '');
+        form.appendChild(marker);
     }
 
     function captureFormSnapshot(form) {
@@ -859,7 +874,14 @@
         return !!form.querySelector(
             '[data-home-quick-links-version], ' +
             '[data-home-feedback-questions-version], ' +
+            '[data-cms-rich-editor-version], ' +
+            '[data-about-intro-version], ' +
             '[data-about-contents-version], ' +
+            '[data-about-history-version], ' +
+            '[data-about-officials-version], ' +
+            '[data-about-plan-priorities-version], ' +
+            '[data-about-strategic-goals-version], ' +
+            '[data-about-core-values-version], ' +
             '[data-academics-contents-version], ' +
             '[data-academics-features-version], ' +
             '[data-students-cards-version], ' +
@@ -872,6 +894,53 @@
         const formToken = form.querySelector('input[name="_token"]')?.value?.trim();
         const metaToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')?.trim();
         return formToken || metaToken || CSRF || '';
+    }
+
+    function resolveAboutPreviewRoute(sectionKey) {
+        const normalizedSectionKey = String(sectionKey || '').trim().toLowerCase();
+
+        if (!normalizedSectionKey || normalizedSectionKey === 'hero' || normalizedSectionKey === 'intro' || normalizedSectionKey === 'contents') {
+            return 'overview';
+        }
+
+        if (
+            normalizedSectionKey === 'vision-mission-header'
+            || normalizedSectionKey === 'vision-statement'
+            || normalizedSectionKey === 'mission-statement'
+            || normalizedSectionKey === 'vision-mission-statements'
+            || normalizedSectionKey === 'strategic-goals'
+            || normalizedSectionKey === 'core-values'
+        ) {
+            return 'vision-and-mission';
+        }
+
+        if (normalizedSectionKey === 'strategic-development-plan-header') {
+            return 'strategic-development-plan';
+        }
+
+        return normalizedSectionKey;
+    }
+
+    function persistCmsPreviewContextBeforeReload(form) {
+        const tabKey = String(form.querySelector('input[name="tab_key"]')?.value || '').trim().toLowerCase();
+        const sectionKey = String(form.querySelector('input[name="section_key"]')?.value || '').trim();
+
+        if (!tabKey) {
+            return;
+        }
+
+        localStorage.setItem('activeSuperadminCmsTab', tabKey);
+
+        if (tabKey !== 'about') {
+            return;
+        }
+
+        const routeKey = resolveAboutPreviewRoute(sectionKey);
+        const aboutPreviewStorageKey = `cms:about-preview-route:${window.location.pathname}`;
+        const aboutPreviewLegacyStorageKey = 'about-editor-active-about-preview-page';
+
+        localStorage.setItem(aboutPreviewStorageKey, routeKey);
+        localStorage.setItem(aboutPreviewLegacyStorageKey, routeKey);
     }
 
     async function submitSave(form) {
@@ -914,6 +983,7 @@
             }
 
             if (!json.no_changes) {
+                persistCmsPreviewContextBeforeReload(form);
                 window.location.reload();
             }
         } catch (err) {

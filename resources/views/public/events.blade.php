@@ -122,7 +122,7 @@
                     </button>
                 @endif
 
-                <div data-cms-boundary class="cms-preview-boundary-full">
+                <div data-cms-boundary class="cms-preview-boundary-edge">
                     <p class="ne-page-kicker layout-kicker">{{ $pageSection['eyebrow'] ?? 'Campus Calendar' }}</p>
                     <h1 class="ne-page-title">{{ $pageSection['title'] ?? 'Events' }}</h1>
                     <div class="ne-page-copy ne-rich-copy">
@@ -137,8 +137,6 @@
                     class="ne-featured reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
                     aria-label="Featured event"
                     @if($cmsPreview)
-                        data-cms-section="cards"
-                        data-cms-section-label="Featured Event"
                         data-cms-featured-card-index="{{ $featuredCard['source_index'] ?? 0 }}"
                     @endif
                 >
@@ -184,14 +182,8 @@
                 </section>
             @endif
 
-            <section
-                class="ne-events-main reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                @if($cmsPreview)
-                    data-cms-section="cards"
-                    data-cms-section-label="Event Listings"
-                @endif
-            >
-                <div data-cms-boundary class="cms-preview-boundary-full">
+            <section class="ne-events-main reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+                <div>
                     @unless($cmsPreview)
                         <section class="ne-events-section">
                             <div class="ne-events-header">
@@ -333,6 +325,8 @@
                                         class="ne-card ne-card-expired"
                                         data-cms-card-index="{{ $card['source_index'] ?? 0 }}"
                                         data-ne-expired-card
+                                        tabindex="0"
+                                        aria-label="Select {{ $card['title'] ?? 'expired event' }}"
                                     >
                                         <button
                                             type="button"
@@ -401,7 +395,6 @@
                         <span class="ne-tag" id="modalTag"></span>
                         <p class="ne-modal-date" id="modalDate"></p>
                         <h3 class="ne-modal-title" id="modalTitle"></h3>
-                        <div class="ne-modal-summary ne-rich-copy" id="modalSummary"></div>
                         <p class="ne-modal-loc" id="modalLocation"></p>
                         <hr class="ne-modal-rule">
                         <p class="ne-modal-details-label" id="modalDetailsLabel">Details</p>
@@ -432,7 +425,18 @@
                 box-sizing: border-box !important;
             }
 
+            .ne-page-shell.page-shell {
+                padding-left: 0 !important;
+                padding-right: 0 !important;
+            }
+
+            .ne-page-intro.cms-preview-editable {
+                margin-left: 0 !important;
+                margin-right: 0 !important;
+            }
+
             .cms-preview-editable {
+                position: relative;
                 cursor: pointer;
                 isolation: isolate;
                 overflow: visible !important;
@@ -441,10 +445,27 @@
             .cms-preview-editable > [data-cms-boundary] {
                 position: relative;
                 display: block;
-                width: calc(100% - (var(--cms-preview-outline-offset) * 2));
+                width: auto;
+                max-width: none;
+                min-width: 0;
                 margin: var(--cms-preview-outline-offset);
                 box-sizing: border-box;
                 overflow: visible !important;
+            }
+
+            .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-full {
+                width: calc(100% - (var(--cms-preview-outline-offset) * 2));
+            }
+
+            .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge {
+                width: 100%;
+                margin: 0;
+            }
+
+            .ne-page-intro.cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge {
+                width: 100%;
+                margin: 0;
+                padding: 32px 34px;
             }
 
             .cms-preview-editable > [data-cms-boundary]::after {
@@ -457,6 +478,24 @@
                 border: 2px dashed rgba(242, 201, 76, 0.95);
                 border-radius: 24px;
                 box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+            }
+
+            .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge::after {
+                inset: var(--cms-preview-outline-offset);
+            }
+
+            .cms-preview-editable > * {
+                position: relative;
+                z-index: 1;
+            }
+
+            .ne-page-intro.cms-preview-editable .ne-page-copy {
+                max-width: none;
+                width: 100%;
+            }
+
+            .ne-page-intro.cms-preview-editable {
+                padding: 0;
             }
 
             .cms-preview-chip {
@@ -496,7 +535,7 @@
                 z-index: 12;
                 display: flex;
                 gap: 8px;
-                opacity: 0;
+                opacity: 1;
                 transform: none;
                 transition: none;
             }
@@ -509,7 +548,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: none !important;
+                display: inline-flex !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
@@ -524,7 +563,23 @@
             }
 
             .ne-card[data-cms-card-index] {
+                position: relative;
+                isolation: isolate;
                 transition: none;
+            }
+
+            .ne-card[data-cms-card-index]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
             }
 
             .ne-card[data-cms-card-index]:hover {
@@ -533,10 +588,12 @@
                 transform: none;
             }
 
-            .ne-card[data-cms-card-index]:hover .cms-preview-card-actions,
-            .ne-card[data-cms-card-index]:focus-within .cms-preview-card-actions {
-                opacity: 1;
-                transform: none;
+            .ne-card[data-cms-card-index]:hover::after,
+            .ne-card[data-cms-card-index]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
             .ne-expired-preview-section {
@@ -604,13 +661,18 @@
                 background: linear-gradient(165deg, #f2f2f2 0%, #dcdcdc 100%);
                 border-color: rgba(84, 84, 84, 0.16);
                 box-shadow: 0 12px 28px rgba(80, 80, 80, 0.12);
-                cursor: default;
+                cursor: pointer;
             }
 
             .ne-card-expired.is-selected {
-                outline: 3px solid rgba(88, 88, 88, 0.54);
+                outline: 3px solid rgba(127, 17, 19, 0.92);
                 outline-offset: 0;
-                box-shadow: 0 18px 32px rgba(70, 70, 70, 0.18);
+                box-shadow: 0 0 0 1px rgba(127, 17, 19, 0.28), 0 18px 32px rgba(70, 70, 70, 0.18);
+            }
+
+            .ne-card-expired:focus-visible {
+                outline: 3px solid rgba(127, 17, 19, 0.42);
+                outline-offset: 0;
             }
 
             .ne-expired-select-toggle {
@@ -730,7 +792,6 @@
             const modalTag = document.getElementById('modalTag');
             const modalDate = document.getElementById('modalDate');
             const modalTitle = document.getElementById('modalTitle');
-            const modalSummary = document.getElementById('modalSummary');
             const modalLocation = document.getElementById('modalLocation');
             const modalDetailsLabel = document.getElementById('modalDetailsLabel');
             const modalText = document.getElementById('modalText');
@@ -845,18 +906,19 @@
 
                     return current;
                 };
-
                 lastTrigger = trigger;
                 modalImg.src = trigger.dataset.image || '';
                 modalImg.alt = trigger.dataset.title || 'Event image';
                 modalTag.textContent = trigger.dataset.tag || '';
                 modalDate.textContent = trigger.dataset.date || '';
                 modalTitle.textContent = trigger.dataset.title || '';
-                modalSummary.innerHTML = decodeHtmlEntities(trigger.dataset.summaryHtml || '');
-                modalSummary.hidden = modalSummary.textContent.trim() === '';
+                const summaryHtml = decodeHtmlEntities(trigger.dataset.summaryHtml || '');
+                const contentHtml = decodeHtmlEntities(trigger.dataset.contentHtml || '');
+                const detailsHtml = contentHtml.trim() !== '' ? contentHtml : summaryHtml;
+
                 modalLocation.textContent = trigger.dataset.location || '';
                 modalLocation.hidden = modalLocation.textContent.trim() === '';
-                modalText.innerHTML = decodeHtmlEntities(trigger.dataset.contentHtml || '');
+                modalText.innerHTML = detailsHtml;
                 modalDetailsLabel.hidden = modalText.textContent.trim() === '';
 
                 lockedScrollY = window.scrollY || window.pageYOffset || 0;
@@ -975,6 +1037,10 @@
                 const label = target.getAttribute('data-cms-section-label') || section;
                 const chip = target.querySelector('[data-cms-edit-trigger]');
 
+                if (section === 'cards') {
+                    return;
+                }
+
                 const openSectionEditor = (event) => {
                     if (event.target.closest('[data-cms-card-index], [data-ne-modal-trigger], .ne-filter, [data-ne-expired-select], [data-ne-expired-remove-selected]')) {
                         return;
@@ -1055,6 +1121,7 @@
             getExpiredCards().forEach((card) => {
                 const cardIndex = String(card.getAttribute('data-cms-card-index') || '');
                 const selectToggle = card.querySelector('[data-ne-expired-select]');
+                const toggleBlockedSelector = 'a, button, input, select, textarea, label, [data-ne-modal-trigger], [data-cms-card-delete], [data-ne-expired-select], .cms-preview-card-actions';
 
                 const toggleSelection = () => {
                     if (cardIndex === '') {
@@ -1073,6 +1140,27 @@
                 selectToggle?.addEventListener('click', (event) => {
                     event.preventDefault();
                     event.stopPropagation();
+                    toggleSelection();
+                });
+
+                card.addEventListener('click', (event) => {
+                    if (event.target.closest(toggleBlockedSelector)) {
+                        return;
+                    }
+
+                    toggleSelection();
+                });
+
+                card.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    if (event.target.closest(toggleBlockedSelector) && event.target !== card) {
+                        return;
+                    }
+
+                    event.preventDefault();
                     toggleSelection();
                 });
 

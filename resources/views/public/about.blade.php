@@ -6,10 +6,9 @@
     <title>About - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/academics.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
-<body>
+<body @if(!empty($cmsPreview)) data-cms-preview="true" @endif>
     @php
         $cmsPreview = (bool) ($cmsPreview ?? false);
         $aboutCms = \App\Support\AboutCmsContent::fromInput($aboutCms ?? [], null);
@@ -130,29 +129,21 @@
                                 <img src="{{ \App\Support\NewsImage::url($overview['story_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}">
                             </div>
 
-                            <div class="campus-story-description">
-                                <p>{!! nl2br(e($overview['story_description'] ?? '')) !!}</p>
+                            @php
+                                $storyDescription = (string) ($overview['story_description'] ?? '');
+                                $storyDescriptionHtml = trim($storyDescription) !== strip_tags($storyDescription)
+                                    ? \App\Support\RichText::sanitize($storyDescription)
+                                    : nl2br(e($storyDescription));
+                            @endphp
+                            <div class="campus-story-description rich-text-content">
+                                {!! $storyDescriptionHtml !!}
                             </div>
                         </div>
                     </div>
                 </section>
 
-                <section
-                    class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                    @if($cmsPreview)
-                        data-cms-section="contents"
-                        data-cms-section-label="About Contents"
-                    @endif
-                >
-                    @if($cmsPreview)
-                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="contents" aria-label="Edit About Contents">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                            </svg>
-                        </button>
-                    @endif
-
-                    <div data-cms-boundary class="cms-preview-boundary-full">
+                <section class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+                    <div>
                     <div class="contents-strip-head layout-inset">
                         <p class="section-tag layout-kicker">{{ $overview['contents_tag'] ?? 'Contents' }}</p>
                         <h2>{{ $overview['contents_title'] ?? 'All about the campus' }}</h2>
@@ -244,33 +235,55 @@
 
                                             <div class="history-timeline-grid">
                                                 @foreach($selectedSection['timeline'] ?? [] as $milestone)
+                                                    @continue((string) ($milestone['visible'] ?? '1') === '0')
                                                     @php
-                                                        $firstParagraph = (string) ($milestone['body'][0] ?? '');
-                                                        $remainingParagraphs = array_slice($milestone['body'] ?? [], 1);
-                                                        $hasExpandableTimelineCard = count($remainingParagraphs) > 0 || \Illuminate\Support\Str::length($firstParagraph) > 180;
+                                                        $timelineIndex = $loop->index;
+                                                        $timelineBody = implode('', array_map(static function ($paragraph) {
+                                                            $text = trim((string) $paragraph);
+
+                                                            if ($text === '') {
+                                                                return '';
+                                                            }
+
+                                                            return preg_match('/<[^>]+>/', $text)
+                                                                ? $text
+                                                                : '<p>'.e($text).'</p>';
+                                                        }, $milestone['body'] ?? []));
                                                     @endphp
-                                                    <article class="history-timeline-row reveal {{ $loop->odd ? 'is-left' : 'is-right' }} {{ $loop->iteration % 2 === 0 ? 'delay-200' : 'delay-100' }}">
+                                                    <article
+                                                        class="history-timeline-row reveal {{ $loop->odd ? 'is-left' : 'is-right' }} {{ $loop->iteration % 2 === 0 ? 'delay-200' : 'delay-100' }}"
+                                                        @if($cmsPreview)
+                                                            data-about-history-card
+                                                            data-about-history-index="{{ $timelineIndex }}"
+                                                            data-about-history-label="{{ $milestone['title'] ?? 'Milestone' }}"
+                                                        @endif
+                                                    >
                                                         <div class="history-timeline-marker" aria-hidden="true">
                                                             <span class="history-timeline-dot"></span>
                                                         </div>
 
                                                         <div class="history-timeline-card">
+                                                            @if($cmsPreview)
+                                                                <div class="cms-preview-card-actions" aria-label="Timeline actions">
+                                                                    <button type="button" class="cms-preview-card-action" data-about-history-edit>Edit</button>
+                                                                </div>
+                                                            @endif
                                                             <span class="history-timeline-period">{{ $milestone['period'] ?? '' }}</span>
                                                             <h5>{{ $milestone['title'] ?? '' }}</h5>
-                                                            @if($hasExpandableTimelineCard)
-                                                                <p class="history-timeline-preview">{{ $firstParagraph }}</p>
-                                                                <div class="history-timeline-more" aria-hidden="true">
-                                                                    @foreach($remainingParagraphs as $paragraph)
-                                                                        <p>{{ $paragraph }}</p>
-                                                                    @endforeach
+                                                            @if($cmsPreview)
+                                                                <div class="history-timeline-copy rich-text-content">
+                                                                    {!! \App\Support\RichText::sanitize($timelineBody) !!}
                                                                 </div>
+                                                            @else
+                                                                <div class="history-timeline-preview rich-text-content">
+                                                                    {!! \App\Support\RichText::sanitize($timelineBody) !!}
+                                                                </div>
+                                                                <div class="history-timeline-more" aria-hidden="true"></div>
                                                                 <button type="button" class="history-timeline-toggle" aria-expanded="false" aria-label="Read more about {{ $milestone['title'] ?? 'this milestone' }}">
                                                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                                                         <path d="m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"></path>
                                                                     </svg>
                                                                 </button>
-                                                            @else
-                                                                <p>{{ $firstParagraph }}</p>
                                                             @endif
                                                         </div>
                                                     </article>
@@ -282,47 +295,82 @@
                             </div>
                         </section>
                     @elseif($selectedSlug === 'vision-and-mission')
-                        <section class="history-story history-story--vision reveal">
+                        <section class="history-story history-story--vision">
                             <div class="history-story-inner">
-                                <div class="history-timeline-container history-timeline-container--vision reveal">
-                                    <div
-                                        class="history-page-header history-page-header--vision{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                        @if($cmsPreview)
-                                            data-cms-section="vision-mission-header"
-                                            data-cms-section-label="Vision and Mission Header"
-                                        @endif
-                                    >
-                                        @if($cmsPreview)
-                                            <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vision-mission-header" aria-label="Edit Vision and Mission Header">
-                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                                </svg>
-                                            </button>
-                                        @endif
-
-                                        <div data-cms-boundary class="cms-preview-boundary-full">
-                                            <p class="history-page-kicker">{{ $selectedSection['page_kicker'] ?? 'Vision and Mission' }}</p>
-                                            <h2>{{ $selectedSection['page_title'] ?? '' }}</h2>
-                                        </div>
+                                <div class="history-page-header history-page-header--vision history-timeline-head reveal delay-100">
+                                    <div>
+                                        <p class="history-page-kicker">{{ $selectedSection['page_kicker'] ?? 'Vision and Mission' }}</p>
+                                        <h2>{{ $selectedSection['page_title'] ?? '' }}</h2>
                                     </div>
+                                </div>
 
+                                <div class="history-timeline-container history-timeline-container--vision reveal">
+                                    <div class="history-timeline-shell history-timeline-shell--vision">
                                     <div class="about-detail-body about-detail-body--vision">
-                                        <div
-                                            class="about-vision-content{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                            @if($cmsPreview)
-                                                data-cms-section="vision-mission-statements"
-                                                data-cms-section-label="Vision and Mission Statements"
-                                            @endif
-                                        >
-                                            @if($cmsPreview)
-                                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vision-mission-statements" aria-label="Edit Vision and Mission Statements">
-                                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                                    </svg>
-                                                </button>
-                                            @endif
+                                        @if($cmsPreview)
+                                            <div class="about-vision-content about-vision-content--cms reveal delay-200">
+                                                <div class="about-vision-row about-vision-row--vision is-open">
+                                                    <div>
+                                                        <div class="about-vision-trigger about-vision-trigger--vision about-vision-trigger--static" aria-hidden="true">
+                                                            <span class="about-vision-word">Vision</span>
+                                                            <span class="about-vision-arrow about-vision-arrow--right" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" focusable="false">
+                                                                    <path d="M4 12h14"></path>
+                                                                    <path d="m13 5 7 7-7 7"></path>
+                                                                </svg>
+                                                            </span>
+                                                        </div>
+                                                        <div class="about-vision-panel" aria-hidden="false">
+                                                            <div
+                                                                class="cms-preview-editable"
+                                                                data-cms-section="vision-statement"
+                                                                data-cms-section-label="Vision Statement"
+                                                            >
+                                                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vision-statement" aria-label="Edit Vision Statement">
+                                                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                                                    </svg>
+                                                                </button>
+                                                                <div data-cms-boundary class="about-vision-card">
+                                                                    <p class="about-vision-statement">{{ $selectedSection['vision'] ?? '' }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
 
-                                            <div data-cms-boundary class="cms-preview-boundary-edge">
+                                                <div class="about-vision-row about-vision-row--mission is-open">
+                                                    <div>
+                                                        <div class="about-vision-panel about-vision-panel--mission" aria-hidden="false">
+                                                            <div
+                                                                class="cms-preview-editable"
+                                                                data-cms-section="mission-statement"
+                                                                data-cms-section-label="Mission Statement"
+                                                            >
+                                                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="mission-statement" aria-label="Edit Mission Statement">
+                                                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                                                    </svg>
+                                                                </button>
+                                                                <div data-cms-boundary class="about-vision-card about-vision-card--mission">
+                                                                    <p class="about-vision-statement about-vision-statement--mission">{{ $selectedSection['mission'] ?? '' }}</p>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="about-vision-trigger about-vision-trigger--mission about-vision-trigger--static" aria-hidden="true">
+                                                            <span class="about-vision-arrow about-vision-arrow--left" aria-hidden="true">
+                                                                <svg viewBox="0 0 24 24" focusable="false">
+                                                                    <path d="M20 12H6"></path>
+                                                                    <path d="m11 5-7 7 7 7"></path>
+                                                                </svg>
+                                                            </span>
+                                                            <span class="about-vision-word">Mission</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="about-vision-content reveal delay-200">
                                                 <div class="about-vision-row about-vision-row--vision">
                                                     <button type="button" class="about-vision-trigger about-vision-trigger--vision" aria-expanded="false" aria-controls="aboutVisionDescription">
                                                         <span class="about-vision-word">Vision</span>
@@ -357,38 +405,53 @@
                                                     </button>
                                                 </div>
                                             </div>
-                                        </div>
+                                        @endif
 
                                         <div class="about-vision-extension-grid">
-                                            <article
-                                                class="about-vision-feature about-vision-feature--goals reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                                @if($cmsPreview)
-                                                    data-cms-section="strategic-goals"
-                                                    data-cms-section-label="Strategic Goals"
-                                                @endif
-                                            >
-                                                @if($cmsPreview)
-                                                    <button type="button" class="cms-preview-chip" data-cms-edit-trigger="strategic-goals" aria-label="Edit Strategic Goals">
-                                                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                                        </svg>
-                                                    </button>
-                                                @endif
-
-                                                <div data-cms-boundary class="cms-preview-boundary-edge">
+                                            <article class="about-vision-feature about-vision-feature--goals reveal" data-reveal-threshold="0.28">
+                                                <div>
                                                     <div class="about-vision-feature-head">
                                                         <span class="about-vision-feature-kicker">Strategic Goals</span>
                                                         <h3>Three priority pillars that guide how the University teaches, serves, and grows.</h3>
                                                     </div>
 
                                                     <div class="about-goals-grid">
+                                                        @php
+                                                            $strategicGoalNumber = 1;
+                                                        @endphp
                                                         @foreach($selectedSection['strategic_goals'] ?? [] as $goalGroup)
-                                                            @php($pillarRoman = ['I', 'II', 'III', 'IV', 'V'][$loop->index] ?? (string) $loop->iteration)
-                                                            <article class="about-goal-pillar">
+                                                            <article
+                                                                class="about-goal-pillar{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                                @if($cmsPreview)
+                                                                    data-about-strategic-goal-card
+                                                                    data-about-strategic-goal-index="{{ $loop->index }}"
+                                                                    data-about-strategic-goal-label="{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}"
+                                                                @endif
+                                                            >
+                                                                @if($cmsPreview)
+                                                                    <div class="cms-preview-card-actions">
+                                                                        <button type="button" class="cms-preview-card-action" data-about-strategic-goal-edit>Edit</button>
+                                                                    </div>
+                                                                @endif
                                                                 <div class="about-goal-pillar-head">
                                                                     <div class="about-goal-pillar-tag" aria-label="{{ $goalGroup['pillar'] ?? '' }}">
+                                                                        <span class="about-goal-pillar-icon-shell" aria-hidden="true">
+                                                                            @php
+                                                                                $pillarIconSet = [
+                                                                                    'assets/static_img/pillar_1_icon.svg',
+                                                                                    'assets/static_img/pillar_2_icon.svg',
+                                                                                    'assets/static_img/pillar_3_icon.svg',
+                                                                                ];
+                                                                                $pillarIcon = $pillarIconSet[$loop->index % count($pillarIconSet)] ?? $pillarIconSet[0];
+                                                                            @endphp
+                                                                            <img
+                                                                                src="{{ asset($pillarIcon) }}"
+                                                                                alt=""
+                                                                                class="about-goal-pillar-icon"
+                                                                            >
+                                                                        </span>
                                                                         <span class="about-goal-pillar-label-group">
-                                                                            <span class="about-goal-pillar-label">Pillar {{ $pillarRoman }}</span>
+                                                                            <span class="about-goal-pillar-label">{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}</span>
                                                                         </span>
                                                                     </div>
                                                                     <h4>{{ $goalGroup['title'] ?? '' }}</h4>
@@ -396,9 +459,12 @@
                                                                 <ul class="about-goal-list">
                                                                     @foreach($goalGroup['goals'] ?? [] as $goal)
                                                                         <li>
-                                                                            <span class="about-goal-code">SG-{{ $goal['number'] ?? $loop->iteration }}</span>
+                                                                            <span class="about-goal-code">SG-{{ $strategicGoalNumber }}</span>
                                                                             <span class="about-goal-text">{{ $goal['text'] ?? '' }}</span>
                                                                         </li>
+                                                                        @php
+                                                                            $strategicGoalNumber++;
+                                                                        @endphp
                                                                     @endforeach
                                                                 </ul>
                                                             </article>
@@ -408,10 +474,12 @@
                                             </article>
                                         </div>
                                     </div>
+                                    </div>
                                 </div>
 
                                 <article
                                     class="about-values-band reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                                    data-reveal-threshold="0.32"
                                     @if($cmsPreview)
                                         data-cms-section="core-values"
                                         data-cms-section-label="Core Values"
@@ -448,13 +516,13 @@
                     @else
 
                         <article
-                            class="about-section-card reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                            @if($cmsPreview)
+                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan' ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
                             @endif
                         >
-                            @if($cmsPreview)
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan')
                                 <button type="button" class="cms-preview-chip" data-cms-edit-trigger="{{ $selectedSlug }}" aria-label="Edit {{ $selectedSection['label'] }}">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
@@ -472,190 +540,240 @@
 
                                 <div class="about-detail-body">
                                     @if($selectedSlug === 'logo-and-symbols')
-                                        {{-- ── IDENTITY PAGE HEADER ── --}}
-                                        <div class="ls-page-header reveal">
-                                            <p class="section-tag">Campus Identity</p>
-                                            <h2 class="ls-page-title">The Official Seal &amp; Symbols</h2>
-                                            <p class="ls-page-subtitle">Every element of the PUP Taguig seal carries deliberate meaning — each mark a reflection of the university's heritage, values, and ambitions.</p>
-                                        </div>
-                                        {{-- ── SEAL HERO ── --}}
-                                        <div class="ls-seal-hero reveal delay-100">
-                                            <div class="ls-seal-hero-glow" aria-hidden="true"></div>
-                                            <div class="ls-seal-hero-inner">
-                                                <div class="ls-seal-ring" aria-label="PUP Official Seal">
-                                                    <div class="ls-seal-ring-shimmer" aria-hidden="true"></div>
-                                                    <img
-                                                        src="{{ asset('assets/static_img/logo.png') }}"
-                                                        alt="PUP Taguig Official Seal"
-                                                        class="ls-seal-img"
-                                                        onerror="this.style.opacity='0'"
-                                                    >
-                                                </div>
-                                                <div class="ls-seal-hero-copy">
-                                                    <p class="ls-seal-eyebrow">Official Seal — PUP Taguig Campus</p>
-                                                    <h3 class="ls-seal-headline">Forged in Maroon &amp; Gold</h3>
-                                                    <p class="ls-seal-body">The seal of the Polytechnic University of the Philippines is not merely a logo — it is a compact declaration of the institution's covenant with the Filipino people: quality education, rooted in history, oriented toward the future.</p>
-                                                    <div class="ls-color-chips">
-                                                        <span class="ls-chip ls-chip--maroon">
-                                                            <span class="ls-chip-dot"></span>
-                                                            Maroon — Courage &amp; Excellence
-                                                        </span>
-                                                        <span class="ls-chip ls-chip--gold">
-                                                            <span class="ls-chip-dot"></span>
-                                                            Gold — Wisdom &amp; Achievement
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        {{-- ── SYMBOLISM GRID ── --}}
-                                        <div class="ls-block-header reveal">
-                                            <span class="ls-block-kicker">Symbolism</span>
-                                            <h3 class="ls-block-title">What each element represents</h3>
-                                        </div>
-                                        <div class="ls-meanings-grid">
-                                            @foreach($selectedSection['identity_marks'] ?? [] as $identityMark)
-                                                <article class="ls-meaning-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}">
-                                                    <div class="ls-meaning-card-header">
-                                                        <span class="ls-meaning-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                                        <h4 class="ls-meaning-title">{{ $identityMark['title'] ?? '' }}</h4>
-                                                    </div>
-                                                    <p class="ls-meaning-body">{{ $identityMark['body'] ?? '' }}</p>
-                                                    <div class="ls-meaning-card-accent" aria-hidden="true"></div>
-                                                </article>
-                                            @endforeach
-                                        </div>
-                                        {{-- ── QUICK REFERENCE ── --}}
-                                        @if(!empty($selectedSection['symbol_points']))
-                                        <div class="ls-block-header reveal">
-                                            <span class="ls-block-kicker">Quick Reference</span>
-                                            <h3 class="ls-block-title">Key facts at a glance</h3>
-                                        </div>
-                                        <div class="ls-reference-card reveal delay-100">
-                                            @foreach($selectedSection['symbol_points'] ?? [] as $index => $point)
-                                                <div class="ls-ref-row">
-                                                    <span class="ls-ref-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                                    <span class="ls-ref-text">{{ $point }}</span>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                        @endif
-                                        {{-- ── OFFICIAL COLORS ── --}}
-                                        <div class="ls-block-header reveal">
-                                            <span class="ls-block-kicker">Official Colors</span>
-                                            <h3 class="ls-block-title">The palette of PUP</h3>
-                                        </div>
-                                        <div class="ls-colors-duo reveal delay-100">
-                                            <div class="ls-color-card ls-color-card--maroon">
-                                                <div class="ls-color-card-swatch" aria-hidden="true">
-                                                    <div class="ls-color-swatch-pattern"></div>
-                                                </div>
-                                                <div class="ls-color-card-body">
-                                                    <p class="ls-color-name">Maroon</p>
-                                                    <p class="ls-color-hex">#7f1113</p>
-                                                    <p class="ls-color-pantone">Pantone 202 C</p>
-                                                    <p class="ls-color-meaning">Represents the courage, discipline, and relentless pursuit of excellence that define PUP's identity.</p>
-                                                </div>
-                                            </div>
-                                            <div class="ls-color-card ls-color-card--gold">
-                                                <div class="ls-color-card-swatch" aria-hidden="true">
-                                                    <div class="ls-color-swatch-pattern"></div>
-                                                </div>
-                                                <div class="ls-color-card-body">
-                                                    <p class="ls-color-name">Gold</p>
-                                                    <p class="ls-color-hex">#d7aa43</p>
-                                                    <p class="ls-color-pantone">Pantone 124 C</p>
-                                                    <p class="ls-color-meaning">Symbolizes wisdom, achievement, and the lasting value of education as an investment for the nation.</p>
-                                                </div>
-                                            </div>
-                                        </div>
+                                        @php
+                                            $logoMarks = $selectedSection['identity_marks'] ?? [];
+                                            $symbolPoints = $selectedSection['symbol_points'] ?? [];
+                                        @endphp
 
+                                        <section class="ls-symbols-shell">
+                                            <div class="ls-symbols-hero reveal">
+                                                <div class="ls-symbols-hero-copy">
+                                                    <p class="section-tag">Campus Identity</p>
+                                                    <h2 class="ls-symbols-title">{{ $selectedSection['label'] ?? 'Logo and Symbols' }}</h2>
+                                                    <p class="ls-symbols-summary">
+                                                        {{ $selectedSection['summary'] ?? 'Learn the meaning behind the seal, colors, and symbolic elements of the University.' }}
+                                                    </p>
+                                                    <p class="ls-symbols-lead">
+                                                        {{ $selectedSection['lead'] ?? 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.' }}
+                                                    </p>
+
+                                                    <div class="ls-symbols-pills" aria-label="Key logo elements">
+                                                        <span class="ls-symbols-pill">Five-pointed star</span>
+                                                        <span class="ls-symbols-pill">Five concentric circles</span>
+                                                        <span class="ls-symbols-pill">Laurel arcs</span>
+                                                        <span class="ls-symbols-pill">Maroon, gold, and white</span>
+                                                    </div>
+                                                </div>
+
+                                                <div class="ls-symbols-visual" aria-label="PUP Official Seal">
+                                                    <div class="ls-symbols-orbit ls-symbols-orbit--one" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-orbit ls-symbols-orbit--two" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-seal-frame">
+                                                        <img
+                                                            src="{{ asset('assets/static_img/logo.png') }}"
+                                                            alt="PUP Taguig Official Seal"
+                                                            class="ls-symbols-seal"
+                                                            onerror="this.style.opacity='0'"
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="ls-symbols-grid reveal delay-100">
+                                                @foreach($logoMarks as $identityMark)
+                                                    <article class="ls-symbol-card">
+                                                        <div class="ls-symbol-card-top">
+                                                            <span class="ls-symbol-card-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                            <h3 class="ls-symbol-card-title">{{ $identityMark['title'] ?? '' }}</h3>
+                                                        </div>
+                                                        <p class="ls-symbol-card-body">{{ $identityMark['body'] ?? '' }}</p>
+                                                    </article>
+                                                @endforeach
+                                            </div>
+
+                                            <div class="ls-symbols-panel reveal">
+                                                <div class="ls-symbols-panel-head">
+                                                    <span class="ls-symbols-kicker">Element Guide</span>
+                                                    <h3 class="ls-symbols-panel-title">The logo explained by symbol, color, and meaning</h3>
+                                                </div>
+
+                                                <div class="ls-symbols-table" role="table" aria-label="Logo and symbols meaning table">
+                                                    <div class="ls-symbols-table-head" role="rowgroup">
+                                                        <div role="row">
+                                                            <span role="columnheader">Element</span>
+                                                            <span role="columnheader">Meaning</span>
+                                                            <span role="columnheader">Color</span>
+                                                            <span role="columnheader">Why it matters</span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="ls-symbols-table-body" role="rowgroup">
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Star</span>
+                                                            <span role="cell">Perfection of the human person and the search for truth.</span>
+                                                            <span role="cell">Golden yellow</span>
+                                                            <span role="cell">Its natural star color also reflects one of the traditional University colors.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Five concentric circles</span>
+                                                            <span role="cell">Infinite wisdom and quintessence.</span>
+                                                            <span role="cell">White</span>
+                                                            <span role="cell">White symbolizes purity and reinforces the ideal of refined knowledge.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Star + circles</span>
+                                                            <span role="cell">Together they stand for quintessence, the highest form of quality and the most perfect example of creation.</span>
+                                                            <span role="cell">Gold and white</span>
+                                                            <span role="cell">The logo presents excellence not as one trait, but as a complete standard.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Two laurel arcs</span>
+                                                            <span role="cell">Excellence and quality of education.</span>
+                                                            <span role="cell">Seal accent</span>
+                                                            <span role="cell">They honor the University's rich achievements over more than a century.</span>
+                                                        </div>
+                                                        <div class="ls-symbols-row" role="row">
+                                                            <span class="ls-symbols-cell-title" role="cell">Background color</span>
+                                                            <span role="cell">Dark maroon as a traditional University color.</span>
+                                                            <span role="cell">Dark maroon</span>
+                                                            <span role="cell">It anchors the seal in a strong institutional identity beside gold.</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            @if(!empty($symbolPoints))
+                                                <div class="ls-symbols-notes reveal delay-100">
+                                                    @foreach($symbolPoints as $index => $point)
+                                                        <div class="ls-symbols-note">
+                                                            <span class="ls-symbols-note-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
+                                                            <p>{{ $point }}</p>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            @endif
+
+                                            <div class="ls-symbols-colors reveal">
+                                                <article class="ls-symbols-color-card ls-symbols-color-card--gold">
+                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-color-copy">
+                                                        <h3>Golden Yellow</h3>
+                                                        <p>Used for the star because it is a star's natural color and because it is a traditional University color.</p>
+                                                    </div>
+                                                </article>
+                                                <article class="ls-symbols-color-card ls-symbols-color-card--maroon">
+                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-color-copy">
+                                                        <h3>Dark Maroon</h3>
+                                                        <p>Forms the traditional background pairing with gold and gives the seal its strong institutional character.</p>
+                                                    </div>
+                                                </article>
+                                                <article class="ls-symbols-color-card ls-symbols-color-card--white">
+                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                    <div class="ls-symbols-color-copy">
+                                                        <h3>White</h3>
+                                                        <p>Used for the five concentric circles to symbolize purity.</p>
+                                                    </div>
+                                                </article>
+                                            </div>
+                                        </section>
                                     @elseif($selectedSlug === 'hymn')
-                                        {{-- ── HYMN PAGE HEADER ── --}}
-                                        <div class="hymn-page-header reveal">
-                                            <p class="section-tag">Official Hymn</p>
-                                            <h2 class="hymn-page-title">Imno ng PUP</h2>
-                                            <p class="hymn-page-attribution">Music &amp; Lyrics by S. Calabig, S. Roldan &amp; R. Amaranto</p>
-                                        </div>
-                                        {{-- ── LYRICS HERO ── --}}
-                                        <div class="hymn-hero reveal delay-100">
-                                            <div class="hymn-hero-ornament" aria-hidden="true">
-                                                <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                                                    <circle cx="60" cy="60" r="58" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 6" opacity="0.4"/>
-                                                    <circle cx="60" cy="60" r="44" stroke="currentColor" stroke-width="0.5" opacity="0.25"/>
-                                                    <path d="M48 42 C48 36 56 32 60 32 C64 32 72 36 72 42 L72 54 C72 60 66 64 60 64 C54 64 48 60 48 54 Z" stroke="currentColor" stroke-width="1" fill="none" opacity="0.55"/>
-                                                    <path d="M52 64 L52 76 M68 64 L68 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-                                                    <path d="M44 76 L76 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
-                                                    <circle cx="60" cy="48" r="3" fill="currentColor" opacity="0.5"/>
-                                                </svg>
+                                        @php
+                                            $defaultHymnSection = \App\Support\AboutCmsContent::defaults()['sections']['hymn'] ?? [];
+                                            $rawHymnSections = $selectedSection['hymn_sections'] ?? [];
+                                            $hasActualLyrics = collect($rawHymnSections)->contains(static function ($hymnSection) {
+                                                $body = mb_strtolower(trim((string) ($hymnSection['body'] ?? '')));
+
+                                                return $body !== ''
+                                                    && (
+                                                        str_contains($body, 'sintang paaralan')
+                                                        || str_contains($body, 'paaralang dakila')
+                                                        || str_contains($body, "\n")
+                                                    );
+                                            });
+                                            $hymnSectionData = $hasActualLyrics
+                                                ? $selectedSection
+                                                : array_merge($selectedSection, $defaultHymnSection);
+                                        @endphp
+                                        <div class="hymn-layout">
+                                            <div class="hymn-page-header reveal">
+                                                <p class="section-tag">Official Hymn</p>
+                                                <h2 class="hymn-page-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h2>
+                                                <p class="hymn-page-attribution">{{ $hymnSectionData['summary'] ?? '' }}</p>
                                             </div>
-                                            <div class="hymn-hero-copy">
-                                                <p class="hymn-title-tag">Sintang Paaralan</p>
-                                                <h3 class="hymn-tagline">A Song of Covenant with the Nation</h3>
-                                                <p class="hymn-hero-desc">Written as a pledge between the university and the Filipino people — a reminder that education, at its highest, is an act of love for country.</p>
-                                                <a href="https://youtu.be/Yib_s5UeGvc?si=CR3qUIEbH25lZxfw"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                class="hymn-listen-btn"
-                                                aria-label="Listen to the PUP Hymn on YouTube">
-                                                    <span class="hymn-listen-icon" aria-hidden="true">
-                                                        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                                            <path d="M8 5.14v14l11-7-11-7z"/>
-                                                        </svg>
-                                                    </span>
-                                                    Listen to the Hymn
-                                                </a>
+                                            <div class="hymn-hero reveal delay-100">
+                                                <div class="hymn-hero-ornament" aria-hidden="true">
+                                                    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                                                        <circle cx="60" cy="60" r="58" stroke="currentColor" stroke-width="0.75" stroke-dasharray="4 6" opacity="0.4"/>
+                                                        <circle cx="60" cy="60" r="44" stroke="currentColor" stroke-width="0.5" opacity="0.25"/>
+                                                        <path d="M48 42 C48 36 56 32 60 32 C64 32 72 36 72 42 L72 54 C72 60 66 64 60 64 C54 64 48 60 48 54 Z" stroke="currentColor" stroke-width="1" fill="none" opacity="0.55"/>
+                                                        <path d="M52 64 L52 76 M68 64 L68 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+                                                        <path d="M44 76 L76 76" stroke="currentColor" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+                                                        <circle cx="60" cy="48" r="3" fill="currentColor" opacity="0.5"/>
+                                                    </svg>
                                                 </div>
+                                                <div class="hymn-hero-copy">
+                                                    <p class="hymn-title-tag">{{ $hymnSectionData['label'] ?? 'Hymn' }}</p>
+                                                    <h3 class="hymn-tagline">{{ $hymnSectionData['summary'] ?? 'A Song of Covenant with the Nation' }}</h3>
+                                                    <p class="hymn-hero-desc">{{ $hymnSectionData['lead'] ?? '' }}</p>
+                                                    <a href="https://youtu.be/Yib_s5UeGvc?si=CR3qUIEbH25lZxfw" target="_blank" rel="noopener noreferrer" class="hymn-listen-btn" aria-label="Listen to the PUP Hymn on YouTube">
+                                                        <span class="hymn-listen-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M8 5.14v14l11-7-11-7z"/></svg></span>
+                                                        Listen to the Hymn
+                                                    </a>
                                                 </div>
-                                        <div class="hymn-lyrics-block reveal">
-                                            <div class="hymn-lyrics-header">
-                                                <span class="ls-block-kicker">Full Lyrics</span>
-                                                <h3 class="ls-block-title">Imno ng PUP</h3>
                                             </div>
-                                            <div class="hymn-lyrics-body">
-                                                <div class="hymn-stanza">
-                                                    <p class="hymn-stanza-label">Verse I</p>
-                                                    <p class="hymn-line">Sintang Paaralan</p>
-                                                    <p class="hymn-line">Tanglaw ka ng bayan</p>
-                                                    <p class="hymn-line">Pandayan ng isip ng kabataan</p>
-                                                    <p class="hymn-line">Kami ay dumating nang salat sa yaman</p>
-                                                    <p class="hymn-line">Hanap na dunong ay iyong alay</p>
+                                            <div class="hymn-lyrics-block reveal">
+                                                <div class="hymn-lyrics-header">
+                                                    <span class="ls-block-kicker">Full Lyrics</span>
+                                                    <h3 class="ls-block-title">{{ $hymnSectionData['label'] ?? 'Hymn' }}</h3>
                                                 </div>
-                                                <div class="hymn-stanza">
-                                                    <p class="hymn-stanza-label">Verse II</p>
-                                                    <p class="hymn-line">Ang layunin mong makatao</p>
-                                                    <p class="hymn-line">Dinarangal ang Pilipino</p>
-                                                    <p class="hymn-line">Ang iyong aral, diwa, adhikang taglay</p>
-                                                    <p class="hymn-line hymn-line--refrain">PUP, aming gabay</p>
-                                                </div>
-                                                <div class="hymn-stanza hymn-stanza--chorus">
-                                                    <p class="hymn-stanza-label">Chorus</p>
-                                                    <p class="hymn-line">Paaralang dakila</p>
-                                                    <p class="hymn-line">PUP, pinagpala</p>
-                                                    <p class="hymn-line">Gagamitin ang karunungan</p>
-                                                    <p class="hymn-line">Mula sa iyo, para sa bayan</p>
-                                                    <p class="hymn-line">Ang iyong aral, diwa, adhikang taglay</p>
-                                                    <p class="hymn-line hymn-line--refrain">PUP, aming gabay</p>
-                                                    <p class="hymn-line">Paaralang dakila</p>
-                                                    <p class="hymn-line hymn-line--end">PUP, pinagpala</p>
+                                                <div class="hymn-lyrics-body">
+                                                    @foreach($hymnSectionData['hymn_sections'] ?? [] as $hymnSection)
+                                                        @php
+                                                            $hymnLines = preg_split('/\R+/', trim((string) ($hymnSection['body'] ?? ''))) ?: [];
+                                                            $hymnLines = array_values(array_filter(array_map(static fn ($line) => trim((string) $line), $hymnLines), static fn ($line) => $line !== ''));
+                                                            $isChorus = str_contains(mb_strtolower((string) ($hymnSection['title'] ?? '')), 'chorus');
+                                                        @endphp
+                                                        <div class="hymn-stanza{{ $isChorus ? ' hymn-stanza--chorus' : '' }}">
+                                                            <p class="hymn-stanza-label">{{ $hymnSection['title'] ?? ('Section ' . $loop->iteration) }}</p>
+                                                            @foreach($hymnLines as $lineIndex => $hymnLine)
+                                                                @php
+                                                                    $lineClass = 'hymn-line';
+                                                                    if (trim($hymnLine) === 'PUP, aming gabay') {
+                                                                        $lineClass .= ' hymn-line--refrain';
+                                                                    } elseif (
+                                                                        $isChorus
+                                                                        && $lineIndex === count($hymnLines) - 1
+                                                                        && trim($hymnLine) === 'PUP, pinagpala'
+                                                                    ) {
+                                                                        $lineClass .= ' hymn-line--end';
+                                                                    }
+                                                                @endphp
+                                                                <p class="{{ $lineClass }}">{{ $hymnLine }}</p>
+                                                            @endforeach
+                                                        </div>
+                                                    @endforeach
                                                 </div>
                                             </div>
                                         </div>
 
                                     @elseif($selectedSlug === 'maps')
 
+                                    @php
+                                        $mapUrl = $selectedSection['map_url'] ?? 'https://maps.app.goo.gl/RDAwxBvDzyGzUbVN7';
+                                    @endphp
                                     <div class="map-hero-header">
                                     <div>
                                         <p class="map-hero-eyebrow">Location</p>
-                                        <h2 class="map-hero-title">PUP Taguig Campus</h2>
-                                        <p class="map-hero-address">Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila</p>
+                                        <h2 class="map-hero-title">{{ $selectedSection['label'] ?? 'Maps' }}</h2>
+                                        <p class="map-hero-address">{{ $selectedSection['summary'] ?? '' }}</p>
                                         <div class="map-hero-chips">
                                         <span class="map-chip map-chip--gold">Lower Bicutan, Taguig</span>
-                                        <span class="map-chip map-chip--light">Mon–Fri · 7AM–6PM</span>
-                                        <span class="map-chip map-chip--light">★ 4.5 · Public University</span>
+                                        <span class="map-chip map-chip--light">Mon-Fri · 7AM-6PM</span>
+                                        <span class="map-chip map-chip--light">Public University</span>
                                         </div>
+                                        <p class="map-hero-address">{{ $selectedSection['lead'] ?? '' }}</p>
                                     </div>
-                                    <a href="https://maps.app.goo.gl/azsPnMfHwSTNv4xN7" target="_blank" rel="noopener noreferrer" class="map-hero-cta">
+                                    <a href="{{ $mapUrl }}" target="_blank" rel="noopener noreferrer" class="map-hero-cta">
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                                         Get Directions
                                     </a>
@@ -670,33 +788,25 @@
                                             <span class="map-dot"></span>
                                             PUP Taguig Campus
                                             </div>
-                                            <div class="map-iframe-tabs">
-                                            <button class="map-tab active" onclick="switchMapTab(this,'map')">Map</button>
-                                            <button class="map-tab" onclick="switchMapTab(this,'street')">Street View</button>
-                                            </div>
                                         </div>
                                         <div class="map-iframe-panel">
-                                            <iframe id="pane-map"
-                                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3862.5!2d121.0484!3d14.5184!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3397cf49a0000001%3A0x0!2sPUP+Taguig+Campus!5e0!3m2!1sen!2sph!4v1700000000000"
-                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="PUP Taguig Map">
-                                            </iframe>
-                                            <iframe id="pane-street" class="map-pane-hidden"
-                                            src="https://www.google.com/maps/embed?pb=!4v1700000000000!6m8!1m7!1sCAoSLEFGMVFpcE5aM2hUX2tKTjBUNEZfSkZn!2m2!1d14.5184!2d121.0509!3f200!4f0!5f0.7820865974627469"
-                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="PUP Taguig Street View">
+                                            <iframe id="pane-street"
+                                            src="https://maps.google.com/maps?q=&layer=c&cbll=14.488971,121.0511899&cbp=12,164.16,0,86.36,0&z=18&output=svembed"
+                                            allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="PUP Taguig Campus View">
                                             </iframe>
                                         </div>
                                         </div>
 
                                         <div class="map-dir-footer">
                                         <div class="map-dir-text">
-                                            <strong>Open in Google Maps</strong> for real-time directions, live traffic, and transit options from your location.
+                                            <strong>Open in Google Maps</strong> {{ $selectedSection['visit_planning_text'] ?? 'for real-time directions, live traffic, and transit options from your location.' }}
                                         </div>
                                         <div class="map-dir-btns">
-                                            <a href="https://maps.app.goo.gl/azsPnMfHwSTNv4xN7" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--primary">
+                                            <a href="{{ $mapUrl }}" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--primary">
                                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
                                             Open Maps
                                             </a>
-                                            <a href="https://maps.app.goo.gl/azsPnMfHwSTNv4xN7" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--gold">
+                                            <a href="{{ $mapUrl }}" target="_blank" rel="noopener noreferrer" class="map-dir-btn map-dir-btn--gold">
                                             <svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                                             Directions
                                             </a>
@@ -706,181 +816,305 @@
 
                                     <div class="map-sidebar">
 
-                                        <div class="map-transport-card">
+                                        <div class="map-transport-card reveal delay-100">
                                         <div class="map-info-kicker">How to Get Here</div>
                                         <div class="map-transport-list">
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 1c-4.418 0-8 .895-8 2v16l2-2h12l2 2V3c0-1.105-3.582-2-8-2zm0 2c3.314 0 6 .672 6 1.5S15.314 6 12 6 6 5.328 6 4.5 8.686 3 12 3zm-4 9a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3zm8 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3z"/></svg></div>
-                                            <div><div class="map-t-name">Jeepney</div><div class="map-t-sub">Bicutan–Taguig route</div></div>
-                                            <span class="map-t-badge">Nearest stop</span>
-                                            </div>
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg></div>
-                                            <div><div class="map-t-name">UV Express</div><div class="map-t-sub">From BGC / Alabang</div></div>
-                                            <span class="map-t-badge">Via SLEX</span>
-                                            </div>
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 22s8-5.33 8-12A8 8 0 0 0 4 10c0 6.67 8 12 8 12z"/><circle cx="12" cy="10" r="3"/></svg></div>
-                                            <div><div class="map-t-name">Grab / Taxi</div><div class="map-t-sub">Door-to-door service</div></div>
-                                            <span class="map-t-badge">Recommended</span>
-                                            </div>
-                                            <div class="map-transport-row">
-                                            <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M16 4H8L3 9v6l5 5h8l5-5V9l-5-5zm-4 13a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/></svg></div>
-                                            <div><div class="map-t-name">BGC Bus</div><div class="map-t-sub">Taguig route stops nearby</div></div>
-                                            <span class="map-t-badge">BGC Hub</span>
-                                            </div>
+                                            @foreach($selectedSection['map_cards'] ?? [] as $mapCard)
+                                                <article class="map-transport-row">
+                                                    <div class="map-t-icon"><svg viewBox="0 0 24 24" fill="#7f1113" width="14" height="14"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/><circle cx="12" cy="9" r="2.4" fill="#f4e7cf"/></svg></div>
+                                                    <div>
+                                                        <div class="map-t-name">{{ $mapCard['title'] ?? '' }}</div>
+                                                        <div class="map-t-sub">{{ $mapCard['body'] ?? '' }}</div>
+                                                    </div>
+                                                    <span class="map-t-badge">Stop {{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
+                                                </article>
+                                            @endforeach
                                         </div>
                                         </div>
 
-                                        <div class="map-tips-card2">
+                                        <div class="map-tips-card2 reveal">
                                         <div class="map-tips-kicker">Visitor Tips</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Bring a valid ID — security requires gate registration for non-students.</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Parking is limited; public transport is highly recommended.</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Registrar and Admin offices open at 8:00 AM sharp on weekdays.</div>
-                                        <div class="map-tip-item"><span class="map-tip-bull"></span>Nearest landmark: Lower Bicutan Terminal / SM Bicutan.</div>
+                                        @foreach($selectedSection['visit_notes'] ?? [] as $visitNote)
+                                            <div class="map-tip-item"><span class="map-tip-bull"></span>{{ $visitNote }}</div>
+                                        @endforeach
                                         </div>
 
                                     </div>
                                     </div>
-
-                                    <script>
-                                    function switchMapTab(btn, pane) {
-                                    document.querySelectorAll('.map-tab').forEach(b => b.classList.remove('active'));
-                                    btn.classList.add('active');
-                                    document.getElementById('pane-map').classList.add('map-pane-hidden');
-                                    document.getElementById('pane-street').classList.add('map-pane-hidden');
-                                    document.getElementById('pane-' + pane).classList.remove('map-pane-hidden');
-                                    }
-                                    </script>
 
                                 @elseif($selectedSlug === 'campus-officials')
+                                <div class="ls-page-header reveal">
+                                    <p class="section-tag">Campus Leadership</p>
+                                    <h2 class="ls-page-title">{{ $selectedSection['label'] ?? 'Campus Officials' }}</h2>
+                                    <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
+                                </div>
                                 <div class="officials-grid">
-
-                                <div class="official-card official-card--featured">
-                                    <div class="official-avatar">
-                                    <span class="official-initials-text">MBF</span>
-                                    </div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Campus Director</span>
-                                    <p class="official-name">Dr. Marissa B. Ferrer</p>
-                                    <p class="official-role">Campus Director</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">RVM</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Academic Programs</span>
-                                    <p class="official-name">Dr. Rhyan V. Molinar</p>
-                                    <p class="official-role">Head of Academic Programs</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">MLZ</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Administration</span>
-                                    <p class="official-name">Engr. Michael L. Zarco</p>
-                                    <p class="official-role">Administration Officer</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">BIC</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Student Services</span>
-                                    <p class="official-name">Asst. Prof. Bernadette I. Canlas</p>
-                                    <p class="official-role">Head of Student Services</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">MPG</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Registrar</span>
-                                    <p class="official-name">Mr. Mhel P. Garcia</p>
-                                    <p class="official-role">Campus Registrar / Head of Registration Office</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">LLM</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Guidance</span>
-                                    <p class="official-name">Assoc. Prof. Liwanag L. Maliksi</p>
-                                    <p class="official-role">Guidance and Counseling Office</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">GAD</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Accreditation</span>
-                                    <p class="official-name">Assoc. Prof. Gina A. Dela Cruz</p>
-                                    <p class="official-role">Accreditation Coordinator / Property Custodian</p>
-                                    </div>
-                                </div>
-
-                                <div class="official-card">
-                                    <div class="official-avatar"><span class="official-initials-text">DSS</span></div>
-                                    <div class="official-info">
-                                    <span class="official-office-badge">Admission</span>
-                                    <p class="official-name">Dianne S. Segurora</p>
-                                    <p class="official-role">Head of Admission</p>
-                                    </div>
-                                </div>
+                                @foreach($selectedSection['official_groups'] ?? [] as $officialGroup)
+                                    @php
+                                        $officialImage = trim((string) ($officialGroup['image'] ?? ''));
+                                    @endphp
+                                    <article class="official-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                        tabindex="0"
+                                        role="button"
+                                        aria-expanded="false"
+                                        aria-label="{{ $officialGroup['title'] ?? 'Campus official' }} profile card"
+                                        @if($cmsPreview)
+                                            data-about-section-card
+                                            data-about-section-card-section="campus-officials"
+                                            data-about-section-card-index="{{ $loop->index }}"
+                                            data-about-section-card-label="{{ $officialGroup['title'] ?? ('Official Card ' . $loop->iteration) }}"
+                                            data-about-section-card-route="campus-officials"
+                                        @endif>
+                                        @if($cmsPreview)
+                                            <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                        @endif
+                                        <div class="official-card-inner">
+                                            <div class="official-face official-face--front">
+                                                <div class="official-portrait">
+                                                    @if($officialImage !== '')
+                                                        <img
+                                                            src="{{ \App\Support\NewsImage::url($officialImage, null) }}"
+                                                            alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                            class="official-portrait-img"
+                                                        >
+                                                    @else
+                                                        <img
+                                                            src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                            alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                            class="official-portrait-img official-portrait-img--placeholder"
+                                                        >
+                                                    @endif
+                                                    <div class="official-front-copy">
+                                                        <p class="official-front-name">{{ $officialGroup['title'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="official-face official-face--back">
+                                                <div class="official-back-layout">
+                                                    <div class="official-back-portrait">
+                                                        @if($officialImage !== '')
+                                                            <img
+                                                                src="{{ \App\Support\NewsImage::url($officialImage, null) }}"
+                                                                alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                                class="official-back-img"
+                                                            >
+                                                        @else
+                                                            <img
+                                                                src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                                alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
+                                                                class="official-back-img official-back-img--placeholder"
+                                                            >
+                                                        @endif
+                                                    </div>
+                                                    <div class="official-info">
+                                                        <p class="official-name">{{ $officialGroup['name'] ?? '' }}</p>
+                                                        <p class="official-role">{{ $officialGroup['title'] ?? '' }}</p>
+                                                        <p class="official-description">{{ $officialGroup['body'] ?? '' }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </article>
+                                @endforeach
 
                                 </div>
                                 <p class="about-detail-caption">{{ $selectedSection['officials_note'] ?? '' }}</p>
 
+                                <script>
+                                (function () {
+                                    function initOfficialCards() {
+                                        document.querySelectorAll('.official-card').forEach(function (card) {
+                                            if (card.dataset.flipBound === '1') return;
+                                            card.dataset.flipBound = '1';
+                                            const cardInner = card.querySelector('.official-card-inner');
+                                            const frontFace = card.querySelector('.official-face--front');
+                                            const backFace = card.querySelector('.official-face--back');
+                                            if (!(cardInner instanceof HTMLElement)) return;
+                                            if (!(frontFace instanceof HTMLElement) || !(backFace instanceof HTMLElement)) return;
+
+                                            const syncExpandedState = function () {
+                                                card.setAttribute('aria-expanded', card.dataset.flipped === '1' ? 'true' : 'false');
+                                            };
+
+                                            const showFace = function (face) {
+                                                const showBack = face === 'back';
+                                                frontFace.style.display = showBack ? 'none' : 'flex';
+                                                backFace.style.display = showBack ? 'flex' : 'none';
+                                            };
+
+                                            const setFlipState = function (isFlipped) {
+                                                card.dataset.flipped = isFlipped ? '1' : '0';
+                                                cardInner.style.transform = 'rotateY(0deg)';
+                                                showFace(isFlipped ? 'back' : 'front');
+                                                syncExpandedState();
+                                            };
+
+                                            const playFlip = function (nextFlipped) {
+                                                if (card.dataset.flipAnimating === '1') return;
+
+                                                card.dataset.flipAnimating = '1';
+                                                cardInner.getAnimations().forEach(function (animation) {
+                                                    animation.cancel();
+                                                });
+
+                                                const finalizeFlip = function () {
+                                                    card.dataset.flipAnimating = '0';
+                                                    setFlipState(nextFlipped);
+                                                };
+
+                                                if (typeof cardInner.animate === 'function') {
+                                                    showFace(card.dataset.flipped === '1' ? 'back' : 'front');
+                                                    cardInner.style.transform = 'rotateY(0deg)';
+
+                                                    const firstHalf = cardInner.animate([
+                                                        { transform: 'rotateY(0deg) scale(1)', offset: 0 },
+                                                        { transform: nextFlipped ? 'rotateY(90deg) scale(1.02)' : 'rotateY(-90deg) scale(1.02)', offset: 1 }
+                                                    ], {
+                                                        duration: 320,
+                                                        easing: 'cubic-bezier(0.55, 0.08, 0.68, 0.53)',
+                                                        fill: 'forwards'
+                                                    });
+
+                                                    firstHalf.onfinish = function () {
+                                                        showFace(nextFlipped ? 'back' : 'front');
+                                                        cardInner.style.transform = nextFlipped ? 'rotateY(-90deg)' : 'rotateY(90deg)';
+
+                                                        const secondHalf = cardInner.animate([
+                                                            { transform: nextFlipped ? 'rotateY(-90deg) scale(1.02)' : 'rotateY(90deg) scale(1.02)', offset: 0 },
+                                                            { transform: 'rotateY(0deg) scale(1)', offset: 1 }
+                                                        ], {
+                                                            duration: 320,
+                                                            easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+                                                            fill: 'forwards'
+                                                        });
+
+                                                        secondHalf.onfinish = finalizeFlip;
+                                                        secondHalf.oncancel = function () {
+                                                            card.dataset.flipAnimating = '0';
+                                                        };
+                                                    };
+
+                                                    firstHalf.oncancel = function () {
+                                                        card.dataset.flipAnimating = '0';
+                                                    };
+                                                    return;
+                                                }
+
+                                                finalizeFlip();
+                                            };
+
+                                            card.addEventListener('click', function (event) {
+                                                if (event.target.closest('.cms-preview-card-actions')) return;
+                                                playFlip(card.dataset.flipped !== '1');
+                                            });
+
+                                            card.addEventListener('keydown', function (event) {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault();
+                                                    playFlip(card.dataset.flipped !== '1');
+                                                }
+                                                
+                                                if (event.key === 'Escape') {
+                                                    if (card.dataset.flipAnimating === '1') return;
+                                                    setFlipState(false);
+                                                }
+                                            });
+
+                                            card.dataset.flipAnimating = '0';
+                                            setFlipState(false);
+                                        });
+                                    }
+
+                                    if (document.readyState === 'loading') {
+                                        document.addEventListener('DOMContentLoaded', initOfficialCards, { once: true });
+                                    } else {
+                                        initOfficialCards();
+                                    }
+                                })();
+                                </script>
+
                                 @elseif($selectedSlug === 'strategic-development-plan')
-                                {{-- ── SDP PAGE HEADER ── --}}
-                                <div class="sdp-page-header reveal">
-                                    <div class="sdp-page-header-inner">
-                                        <div class="sdp-page-header-copy">
-                                            <p class="sdp-page-header-eyebrow">Strategic Planning</p>
-                                            <h2 class="sdp-page-title">Strategic Development Plan</h2>
-                                            <p class="sdp-page-subtitle">A forward-looking framework that guides the campus toward academic excellence, community impact, and sustainable institutional growth.</p>
+                                <div
+                                    class="sdp-page-header reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                                    @if($cmsPreview)
+                                        data-cms-section="strategic-development-plan-header"
+                                        data-cms-section-label="{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}"
+                                    @endif
+                                >
+                                    @if($cmsPreview)
+                                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="strategic-development-plan-header" aria-label="Edit {{ $selectedSection['label'] ?? 'Strategic Development Plan' }}">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                            </svg>
+                                        </button>
+                                    @endif
+
+                                    <div @if($cmsPreview) data-cms-boundary class="cms-preview-boundary-edge" @endif>
+                                        @php
+                                            $sdpHeaderDescription = trim((string) (($selectedSection['lead'] ?? '') !== '' ? ($selectedSection['lead'] ?? '') : ($selectedSection['summary'] ?? '')));
+                                            $sdpHeaderDescriptionHtml = trim($sdpHeaderDescription) !== strip_tags($sdpHeaderDescription)
+                                                ? \App\Support\RichText::sanitize($sdpHeaderDescription)
+                                                : nl2br(e($sdpHeaderDescription));
+                                        @endphp
+                                        <div class="sdp-page-header-inner">
+                                            <div class="sdp-page-header-copy">
+                                                <p class="sdp-page-header-eyebrow">Strategic Planning</p>
+                                                <h2 class="sdp-page-title">{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}</h2>
+                                                <div class="sdp-page-subtitle rich-text-content">{!! $sdpHeaderDescriptionHtml !!}</div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                    {{-- ── PRIORITIES GRID ── --}}
                                     <div class="sdp-block-header reveal">
                                         <span class="ls-block-kicker">Development Priorities</span>
-                                        <h3 class="ls-block-title">Key focus areas driving the campus forward</h3>
+                                        <h3 class="ls-block-title">Highlighted focus areas driving the campus forward</h3>
                                     </div>
                                     <div class="sdp-priorities-grid">
+                                        @if($cmsPreview)
+                                            <article
+                                                class="sdp-priority-card sdp-priority-card--add reveal"
+                                                data-about-plan-priority-add
+                                                tabindex="0"
+                                                role="button"
+                                                aria-label="Add a new strategic development priority"
+                                            >
+                                                <div class="sdp-priority-add-inner">
+                                                    <span class="sdp-priority-add-plus" aria-hidden="true">+</span>
+                                                    <p class="sdp-priority-add-label">Add Priority</p>
+                                                </div>
+                                            </article>
+                                        @endif
                                         @foreach($selectedSection['development_priorities'] ?? [] as $priority)
-                                            @php($num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT))
-                                            <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}">
+                                            @php
+                                                $num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT);
+                                                $priorityBody = (string) ($priority['body'] ?? '');
+                                                $priorityBodyHtml = trim($priorityBody) !== strip_tags($priorityBody)
+                                                    ? \App\Support\RichText::sanitize($priorityBody)
+                                                    : nl2br(e($priorityBody));
+                                            @endphp
+                                            <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                @if($cmsPreview)
+                                                    data-about-plan-priority-card
+                                                    data-about-plan-priority-index="{{ $loop->index }}"
+                                                    data-about-plan-priority-label="{{ $priority['title'] ?? ('Priority Card ' . $loop->iteration) }}"
+                                                    data-about-plan-priority-route="strategic-development-plan"
+                                                @endif>
+                                                @if($cmsPreview)
+                                                    <div class="cms-preview-card-actions" aria-label="Strategic development priority actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-plan-priority-edit>Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-plan-priority-delete>Delete</button>
+                                                    </div>
+                                                @endif
                                                 <div class="sdp-priority-card-accent" aria-hidden="true"></div>
                                                 <div class="sdp-priority-header">
                                                     <span class="sdp-priority-index">{{ $num }}</span>
                                                     <h4 class="sdp-priority-title">{{ $priority['title'] ?? '' }}</h4>
                                                 </div>
-                                                <p class="sdp-priority-body">{{ $priority['body'] ?? '' }}</p>
+                                                <div class="sdp-priority-body rich-text-content">{!! $priorityBodyHtml !!}</div>
                                             </article>
                                         @endforeach
                                     </div>
-                                    {{-- ── PLANNING PRINCIPLES ── --}}
-                                    @if(!empty($selectedSection['plan_principles']))
-                                    <div class="sdp-block-header reveal">
-                                        <span class="ls-block-kicker">Planning Guide</span>
-                                        <h3 class="ls-block-title">Principles that shape our planning</h3>
-                                    </div>
-
-                                    <div class="sdp-principles-band reveal delay-100">
-                                        <div class="sdp-principles-inner">
-                                            @foreach($selectedSection['plan_principles'] ?? [] as $index => $principle)
-                                                <div class="sdp-principle-row">
-                                                    <span class="sdp-principle-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                                    <span class="sdp-principle-text">{{ $principle }}</span>
-                                                </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    @endif
-                                 @endif
+                                  @endif
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
@@ -890,8 +1124,9 @@
 </section>{{-- /.about-shell.page-shell --}}
 
         {{-- ── Contact Information Card ── --}}
-        <div class="dp-contact-wrap">
-            <div class="contact-info-card reveal">
+            @unless($selectedSection || $cmsPreview)
+            <div class="dp-contact-wrap">
+                <div class="contact-info-card">
 
                 {{-- Brand / photo panel --}}
                 <div class="dp-contact-photo-panel">
@@ -968,6 +1203,7 @@
 
             </div>{{-- /.contact-info-card --}}
         </div>{{-- /.dp-contact-wrap --}}
+@endunless
 
     </main>
 
@@ -1033,6 +1269,10 @@
                 margin-right: 0 !important;
             }
 
+            .about-shell > .about-sections {
+                padding-top: clamp(10px, 1vw, 16px) !important;
+            }
+
             .about-breadcrumb {
                 padding-left: var(--about-page-gutter, 24px) !important;
                 padding-right: var(--about-page-gutter, 24px) !important;
@@ -1071,6 +1311,79 @@
                 --cms-preview-chip-top-offset: 24px;
                 width: 100% !important;
                 max-width: 100% !important;
+            }
+
+            .history-story--vision,
+            .history-story--vision .history-story-inner,
+            .history-story--vision .history-timeline-container,
+            .history-story--vision .history-timeline-shell,
+            .history-story--vision .about-detail-body--vision {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin-right: 0 !important;
+                margin-bottom: 0 !important;
+                padding-bottom: 0 !important;
+            }
+
+            .about-sections > .history-story.history-story--vision {
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .history-story--vision .history-story-inner {
+                gap: 24px !important;
+            }
+
+            .history-story--vision .history-timeline-container {
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+
+            .history-story--vision .history-timeline-shell {
+                gap: 0 !important;
+            }
+
+            .history-story--vision .history-page-header--vision {
+                padding: 0 24px !important;
+            }
+
+            .history-story--vision .about-detail-body--vision {
+                margin-top: 0 !important;
+                padding: 0 24px !important;
+            }
+
+            .history-story--vision .about-vision-content--cms,
+            .history-story--vision .about-vision-extension-grid {
+                margin-bottom: 0 !important;
+            }
+
+            .about-values-band.cms-preview-editable {
+                width: calc(100% + 48px) !important;
+                max-width: calc(100% + 48px) !important;
+                margin-left: -24px !important;
+                margin-right: -24px !important;
+                margin-top: 0 !important;
+                margin-bottom: 0 !important;
+                border-radius: 0 !important;
+            }
+
+            .about-values-band.cms-preview-editable > [data-cms-boundary] {
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 !important;
+            }
+
+            .about-values-band.cms-preview-editable .about-values-grid {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+
+            .about-values-band.cms-preview-editable .about-value-card:last-child {
+                border-right: none !important;
+            }
+
+            .history-story--vision .about-values-band.cms-preview-editable {
+                box-shadow: none !important;
             }
 
             .cms-preview-editable {
@@ -1188,6 +1501,21 @@
             .contents-strip.cms-preview-editable [data-about-contents-card] {
                 position: relative;
                 cursor: default;
+                isolation: isolate;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
             }
 
             .contents-strip.cms-preview-editable [data-about-contents-card]:hover,
@@ -1195,6 +1523,14 @@
                 transform: none !important;
                 filter: none !important;
                 box-shadow: 0 16px 34px rgba(77, 18, 18, 0.12) !important;
+            }
+
+            .contents-strip.cms-preview-editable [data-about-contents-card]:hover::after,
+            .contents-strip.cms-preview-editable [data-about-contents-card]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
             .contents-strip.cms-preview-editable [data-about-contents-card]:hover .contents-card-back,
@@ -1217,6 +1553,91 @@
                 filter: none !important;
             }
 
+            [data-about-history-card] .history-timeline-card {
+                cursor: pointer;
+                isolation: isolate;
+            }
+
+            [data-about-strategic-goal-card] {
+                position: relative;
+                cursor: pointer;
+                isolation: isolate;
+            }
+
+            [data-about-strategic-goal-card]::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            [data-about-strategic-goal-card]:hover::after,
+            [data-about-strategic-goal-card]:focus-within::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
+            [data-about-history-card] .history-timeline-card::after {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+            }
+
+            [data-about-history-card]:hover .history-timeline-card::after,
+            [data-about-history-card]:focus-within .history-timeline-card::after {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
+            .official-card.cms-preview-editable-card .official-card-inner::before {
+                content: "";
+                position: absolute;
+                inset: 0;
+                z-index: 10;
+                box-sizing: border-box;
+                pointer-events: none;
+                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border-radius: inherit;
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+                    0 0 0 4px rgba(242, 201, 76, 0.12);
+                background: none;
+                padding: 0;
+                -webkit-mask: none;
+                mask: none;
+            }
+
+            .official-card.cms-preview-editable-card:hover .official-card-inner::before,
+            .official-card.cms-preview-editable-card:focus-within .official-card-inner::before {
+                border-color: rgba(255, 220, 92, 1);
+                box-shadow:
+                    inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+                    0 0 0 5px rgba(242, 201, 76, 0.2);
+            }
+
+            .history-story > .cms-preview-chip {
+                display: none !important;
+            }
+
             .cms-preview-card-actions {
                 position: absolute;
                 top: 14px;
@@ -1234,7 +1655,7 @@
                 height: 36px;
                 background: rgba(127, 17, 19, 0.92);
                 color: #fffaf4;
-                display: none !important;
+                display: flex !important;
                 align-items: center;
                 justify-content: center;
                 box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
@@ -1330,10 +1751,16 @@
                 let previewHeightFrame = null;
 
                 const postSection = (section, label) => {
+                    const previewRoute = section === 'hero' || section === 'intro' || section === 'contents'
+                        ? 'overview'
+                        : (section === 'vision-mission-header' || section === 'vision-statement' || section === 'mission-statement' || section === 'vision-mission-statements' || section === 'strategic-goals' || section === 'core-values'
+                            ? 'vision-and-mission'
+                            : section);
                     window.parent?.postMessage({
                         type: 'cms-about-edit',
                         section: section,
                         label: label || section,
+                        route: previewRoute,
                     }, '*');
                 };
 
@@ -1412,8 +1839,12 @@
                     const label = target.getAttribute('data-cms-section-label') || section;
                     const chip = target.querySelector('[data-cms-edit-trigger]');
 
+                    if (section === 'history') {
+                        return;
+                    }
+
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit], [data-about-plan-priority-card], [data-about-plan-priority-edit], [data-about-plan-priority-delete], [data-about-plan-priority-add]')) {
                             return;
                         }
 
@@ -1422,10 +1853,6 @@
                         }
 
                         if (event.target.closest('a[href]') && !event.target.closest('[data-cms-edit-trigger]')) {
-                            return;
-                        }
-
-                        if (event.target.closest('.history-timeline-toggle')) {
                             return;
                         }
 
@@ -1448,6 +1875,150 @@
                 });
 
                 document.addEventListener('click', (event) => {
+                    const historyEditTrigger = event.target.closest('[data-about-history-edit]');
+                    if (historyEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = historyEditTrigger.closest('[data-about-history-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-history-card-edit',
+                            index: card?.getAttribute('data-about-history-index') || '',
+                            label: card?.getAttribute('data-about-history-label') || 'History milestone',
+                            route: 'history',
+                        }, '*');
+                        return;
+                    }
+
+                    const historyCard = event.target.closest('[data-about-history-card]');
+                    if (historyCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-history-card-edit',
+                            index: historyCard.getAttribute('data-about-history-index') || '',
+                            label: historyCard.getAttribute('data-about-history-label') || 'History milestone',
+                            route: 'history',
+                        }, '*');
+                        return;
+                    }
+
+                    const strategicGoalEditTrigger = event.target.closest('[data-about-strategic-goal-edit]');
+                    if (strategicGoalEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const pillarCard = strategicGoalEditTrigger.closest('[data-about-strategic-goal-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-strategic-goal-edit',
+                            index: pillarCard?.getAttribute('data-about-strategic-goal-index') || '',
+                            label: pillarCard?.getAttribute('data-about-strategic-goal-label') || 'Strategic goal pillar',
+                            route: 'vision-and-mission',
+                        }, '*');
+                        return;
+                    }
+
+                    const strategicGoalCard = event.target.closest('[data-about-strategic-goal-card]');
+                    if (strategicGoalCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-strategic-goal-edit',
+                            index: strategicGoalCard.getAttribute('data-about-strategic-goal-index') || '',
+                            label: strategicGoalCard.getAttribute('data-about-strategic-goal-label') || 'Strategic goal pillar',
+                            route: 'vision-and-mission',
+                        }, '*');
+                        return;
+                    }
+
+                    const sectionCardEditTrigger = event.target.closest('[data-about-section-card-edit]');
+                    if (sectionCardEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = sectionCardEditTrigger.closest('[data-about-section-card]');
+                        const route = card?.getAttribute('data-about-section-card-route') || '';
+                        const section = card?.getAttribute('data-about-section-card-section') || '';
+                        const index = card?.getAttribute('data-about-section-card-index') || '';
+                        const label = card?.getAttribute('data-about-section-card-label') || 'About card';
+
+                        if (section === 'campus-officials') {
+                            window.parent?.postMessage({
+                                type: 'cms-about-official-card-edit',
+                                index: index,
+                                label: label,
+                                route: route || 'campus-officials',
+                            }, '*');
+                            return;
+                        }
+                    }
+
+                    const sectionCard = event.target.closest('[data-about-section-card]');
+                    if (sectionCard) {
+                        const section = sectionCard.getAttribute('data-about-section-card-section') || '';
+                        if (section === 'campus-officials') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            window.parent?.postMessage({
+                                type: 'cms-about-official-card-edit',
+                                index: sectionCard.getAttribute('data-about-section-card-index') || '',
+                                label: sectionCard.getAttribute('data-about-section-card-label') || 'Campus official',
+                                route: sectionCard.getAttribute('data-about-section-card-route') || 'campus-officials',
+                            }, '*');
+                            return;
+                        }
+                    }
+
+                    const addPlanPriorityTrigger = event.target.closest('[data-about-plan-priority-add]');
+                    if (addPlanPriorityTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-add',
+                            route: 'strategic-development-plan',
+                            label: 'Add development priority',
+                        }, '*');
+                        return;
+                    }
+
+                    const planPriorityEditTrigger = event.target.closest('[data-about-plan-priority-edit]');
+                    if (planPriorityEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = planPriorityEditTrigger.closest('[data-about-plan-priority-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-edit',
+                            index: card?.getAttribute('data-about-plan-priority-index') || '',
+                            label: card?.getAttribute('data-about-plan-priority-label') || 'Development priority',
+                            route: card?.getAttribute('data-about-plan-priority-route') || 'strategic-development-plan',
+                        }, '*');
+                        return;
+                    }
+
+                    const planPriorityDeleteTrigger = event.target.closest('[data-about-plan-priority-delete]');
+                    if (planPriorityDeleteTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = planPriorityDeleteTrigger.closest('[data-about-plan-priority-card]');
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-delete',
+                            index: card?.getAttribute('data-about-plan-priority-index') || '',
+                            label: card?.getAttribute('data-about-plan-priority-label') || 'Development priority',
+                            route: card?.getAttribute('data-about-plan-priority-route') || 'strategic-development-plan',
+                        }, '*');
+                        return;
+                    }
+
+                    const planPriorityCard = event.target.closest('[data-about-plan-priority-card]');
+                    if (planPriorityCard) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-plan-priority-edit',
+                            index: planPriorityCard.getAttribute('data-about-plan-priority-index') || '',
+                            label: planPriorityCard.getAttribute('data-about-plan-priority-label') || 'Development priority',
+                            route: planPriorityCard.getAttribute('data-about-plan-priority-route') || 'strategic-development-plan',
+                        }, '*');
+                        return;
+                    }
+
                     const deleteCardTrigger = event.target.closest('[data-about-card-delete]');
                     if (deleteCardTrigger) {
                         event.preventDefault();
@@ -1470,6 +2041,7 @@
                             type: 'cms-about-contents-card-edit',
                             slug: card?.getAttribute('data-about-contents-slug') || '',
                             label: card?.getAttribute('data-about-contents-label') || 'About card',
+                            route: 'overview',
                         }, '*');
                         return;
                     }

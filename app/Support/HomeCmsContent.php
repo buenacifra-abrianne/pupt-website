@@ -478,7 +478,7 @@ class HomeCmsContent
 
     private static function sanitizeOptionalString(mixed $value, int $maxLen): string
     {
-        $text = trim((string) $value);
+        $text = trim(HtmlEntities::decode((string) $value));
 
         if ($text === '') {
             return '';
@@ -493,9 +493,9 @@ class HomeCmsContent
 
     private static function sanitizeString(mixed $value, int $maxLen, string $fallback): string
     {
-        $text = trim((string) $value);
+        $text = trim(HtmlEntities::decode((string) $value));
         if ($text === '') {
-            return $fallback;
+            return HtmlEntities::decode($fallback);
         }
 
         if (function_exists('mb_substr')) {

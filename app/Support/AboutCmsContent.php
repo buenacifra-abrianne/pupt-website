@@ -137,24 +137,32 @@ class AboutCmsContent
                 'number' => '03',
                 'label' => 'Logo and Symbols',
                 'visible_in_contents' => '1',
-                'summary' => 'Understand the campus identity marks and what they communicate.',
+                'summary' => 'Learn the meaning behind the seal, colors, and symbolic elements of the University.',
                 'image' => self::DEFAULT_CARD_IMAGE,
-                'lead' => 'The campus identity reflects scholarship, public service, discipline, and institutional pride across official communications and ceremonies.',
+                'lead' => 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.',
                 'identity_marks' => [
                     [
-                        'title' => 'University Seal',
-                        'body' => 'The seal serves as the most formal visual mark of the institution and is used to represent authority, continuity, and academic heritage.',
+                        'title' => 'The Star',
+                        'body' => 'The star stands for the perfection of the human person as well as the search for truth.',
                     ],
                     [
-                        'title' => 'Campus Branding',
-                        'body' => 'Official campus materials use consistent colors, typography, and seal placement to preserve recognition and trust.',
+                        'title' => 'Five Concentric Circles',
+                        'body' => 'The five concentric circles depict infinite wisdom and, together with the five-pointed star, stand for quintessence.',
+                    ],
+                    [
+                        'title' => 'Laurel Arcs',
+                        'body' => 'The two arcs of laurel symbolize excellence and quality of education as demonstrated by the rich achievements of the University in over a century of its existence.',
+                    ],
+                    [
+                        'title' => 'University Colors',
+                        'body' => 'Golden yellow and dark maroon reflect the traditional colors of the University, while white symbolizes purity.',
                     ],
                 ],
                 'symbol_points' => [
-                    'Maroon signals strength, courage, and commitment to service.',
-                    'Gold highlights achievement, honor, and the pursuit of excellence.',
-                    'The official mark represents both academic rigor and the responsibility of serving the public.',
-                    'Campus symbols are used with respect in publications, ceremonies, and student activities.',
+                    'The five-pointed star and the five concentric circles both stand for quintessence, meaning the highest form of quality or the most perfect example of creation.',
+                    'The star is golden yellow because it is a star\'s natural color and because it is one of the traditional colors of the University.',
+                    'Dark maroon serves as the logo background and completes the traditional University color pairing with golden yellow.',
+                    'The five concentric circles are white because white symbolizes purity.',
                 ],
             ],
             'hymn' => [
@@ -167,22 +175,17 @@ class AboutCmsContent
                 'lead' => 'The campus hymn serves as a ceremonial expression of identity, unity, and commitment to the ideals of the University.',
                 'hymn_sections' => [
                     [
-                        'title' => 'What It Expresses',
-                        'body' => 'The hymn celebrates pride in learning, loyalty to the institution, and the call to use one\'s education in service of the nation.',
+                        'title' => 'Verse I',
+                        'body' => "Sintang Paaralan\nTanglaw ka ng bayan\nPandayan ng isip ng kabataan\nKami ay dumating nang salat sa yaman\nHanap na dunong ay iyong alay",
                     ],
                     [
-                        'title' => 'When It Is Performed',
-                        'body' => 'It is commonly sung during campus ceremonies, academic gatherings, recognition programs, and other official events.',
+                        'title' => 'Verse II',
+                        'body' => "Ang layunin mong makatao\nDinarangal ang Pilipino\nAng iyong aral, diwa, adhikang taglay\nPUP, aming gabay",
                     ],
                     [
-                        'title' => 'Shared Practice',
-                        'body' => 'Students, employees, alumni, and guests are encouraged to observe the hymn with respect and attention whenever it is rendered.',
+                        'title' => 'Chorus',
+                        'body' => "Paaralang dakila\nPUP, pinagpala\nGagamitin ang karunungan\nMula sa iyo, para sa bayan\nAng iyong aral, diwa, adhikang taglay\nPUP, aming gabay\nPaaralang dakila\nPUP, pinagpala",
                     ],
-                ],
-                'hymn_notes' => [
-                    'The hymn reinforces a sense of belonging across different generations of the PUP community.',
-                    'Its message is closely linked with discipline, honor, perseverance, and public service.',
-                    'Official event programs may provide the approved performance guide when needed.',
                 ],
             ],
             'maps' => [
@@ -221,26 +224,32 @@ class AboutCmsContent
                 'lead' => 'Campus leadership is organized through academic, student, administrative, and service offices that support daily operations and long-term development.',
                 'official_groups' => [
                     [
+                        'name' => '',
                         'title' => 'Campus Director',
                         'body' => 'Provides overall direction, institutional coordination, and external linkages for the campus.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Academic Affairs',
                         'body' => 'Oversees instruction, faculty coordination, curriculum delivery, and academic standards.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Student Services',
                         'body' => 'Supports student welfare, guidance, discipline, co-curricular programs, and campus life.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Administration and Finance',
                         'body' => 'Handles facilities, records support, procurement, budgeting, and operational resources.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Research and Extension',
                         'body' => 'Leads research activity, partnerships, and outreach initiatives that connect campus work with communities.',
                     ],
                     [
+                        'name' => '',
                         'title' => 'Registrar and Frontline Offices',
                         'body' => 'Assists with academic records, enrolment-related requests, and student-facing transactions.',
                     ],
@@ -429,11 +438,6 @@ class AboutCmsContent
                     $base['hymn_sections'] ?? $defaults['hymn_sections'],
                     $defaults['hymn_sections']
                 ),
-                'hymn_notes' => self::normalizeTextList(
-                    $source['hymn_notes'] ?? ($source['hymn_notes_text'] ?? []),
-                    $base['hymn_notes'] ?? $defaults['hymn_notes'],
-                    $defaults['hymn_notes']
-                ),
             ]),
             'maps' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
@@ -452,7 +456,7 @@ class AboutCmsContent
             ]),
             'campus-officials' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
-                'official_groups' => self::normalizeTitleBodyCards(
+                'official_groups' => self::normalizeOfficialGroups(
                     $source['official_groups'] ?? [],
                     $base['official_groups'] ?? $defaults['official_groups'],
                     $defaults['official_groups']
@@ -461,7 +465,7 @@ class AboutCmsContent
             ]),
             'strategic-development-plan' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
-                'development_priorities' => self::normalizeTitleBodyCards(
+                'development_priorities' => self::normalizeDynamicTitleBodyCards(
                     $source['development_priorities'] ?? [],
                     $base['development_priorities'] ?? $defaults['development_priorities'],
                     $defaults['development_priorities']
@@ -488,6 +492,7 @@ class AboutCmsContent
             $rawBody = $source['body'] ?? ($source['body_text'] ?? ($baseItem['body'] ?? []));
 
             $items[] = [
+                'visible' => self::pickFlag($source, $baseItem, $defaultItem + ['visible' => '1'], 'visible'),
                 'period' => self::pickString($source, $baseItem, $defaultItem, 'period'),
                 'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
                 'body' => self::normalizeParagraphs($rawBody, $baseItem['body'] ?? $defaultItem['body'], $defaultItem['body']),
@@ -501,33 +506,62 @@ class AboutCmsContent
     {
         $sourceGroups = is_array($input) ? array_values($input) : [];
         $baseGroups = array_values($base);
+        $effectiveGroups = !empty($sourceGroups)
+            ? $sourceGroups
+            : (!empty($baseGroups) ? $baseGroups : $defaults);
+
         $groups = [];
 
-        foreach ($defaults as $index => $defaultGroup) {
-            $source = is_array($sourceGroups[$index] ?? null) ? $sourceGroups[$index] : [];
+        foreach ($effectiveGroups as $index => $groupCandidate) {
+            $source = is_array($sourceGroups[$index] ?? null)
+                ? $sourceGroups[$index]
+                : (is_array($groupCandidate) ? $groupCandidate : []);
+            $defaultGroup = is_array($defaults[$index] ?? null)
+                ? $defaults[$index]
+                : ['pillar' => 'Pillar '.($index + 1), 'title' => '', 'goals' => []];
             $baseGroup = is_array($baseGroups[$index] ?? null) ? $baseGroups[$index] : $defaultGroup;
+
             $sourceGoals = is_array($source['goals'] ?? null) ? array_values($source['goals']) : [];
-            $baseGoals = array_values($baseGroup['goals'] ?? []);
+            $baseGoals = array_values(is_array($baseGroup['goals'] ?? null) ? $baseGroup['goals'] : []);
+            $defaultGoals = array_values(is_array($defaultGroup['goals'] ?? null) ? $defaultGroup['goals'] : []);
+            $effectiveGoals = !empty($sourceGoals)
+                ? $sourceGoals
+                : (!empty($baseGoals) ? $baseGoals : $defaultGoals);
             $goals = [];
 
-            foreach (($defaultGroup['goals'] ?? []) as $goalIndex => $defaultGoal) {
-                $goalSource = is_array($sourceGoals[$goalIndex] ?? null) ? $sourceGoals[$goalIndex] : [];
+            foreach ($effectiveGoals as $goalIndex => $goalCandidate) {
+                $goalSource = is_array($sourceGoals[$goalIndex] ?? null)
+                    ? $sourceGoals[$goalIndex]
+                    : (is_array($goalCandidate) ? $goalCandidate : []);
+                $defaultGoal = is_array($defaultGoals[$goalIndex] ?? null)
+                    ? $defaultGoals[$goalIndex]
+                    : ['number' => (string) ($goalIndex + 1), 'text' => ''];
                 $goalBase = is_array($baseGoals[$goalIndex] ?? null) ? $baseGoals[$goalIndex] : $defaultGoal;
+                $goalNumber = trim(self::pickString($goalSource, $goalBase, $defaultGoal, 'number'));
 
                 $goals[] = [
-                    'number' => self::pickString($goalSource, $goalBase, $defaultGoal, 'number'),
+                    'number' => $goalNumber !== '' ? $goalNumber : (string) ($goalIndex + 1),
                     'text' => self::pickString($goalSource, $goalBase, $defaultGoal, 'text', 4000),
                 ];
             }
 
+            if (empty($goals)) {
+                $goals[] = [
+                    'number' => '1',
+                    'text' => '',
+                ];
+            }
+
+            $pillar = trim(self::pickString($source, $baseGroup, $defaultGroup, 'pillar'));
+
             $groups[] = [
-                'pillar' => self::pickString($source, $baseGroup, $defaultGroup, 'pillar'),
+                'pillar' => $pillar !== '' ? $pillar : 'Pillar '.($index + 1),
                 'title' => self::pickString($source, $baseGroup, $defaultGroup, 'title'),
                 'goals' => $goals,
             ];
         }
 
-        return $groups;
+        return empty($groups) ? $defaults : $groups;
     }
 
     private static function normalizeCoreValues(mixed $input, array $base, array $defaults): array
@@ -555,13 +589,86 @@ class AboutCmsContent
         $baseItems = array_values($base);
         $items = [];
 
+        $defaultCount = count($defaults);
+        $itemCount = max($defaultCount, count($sourceItems), count($baseItems));
+
+        for ($index = 0; $index < $itemCount; $index++) {
+            $defaultItem = is_array($defaults[$index] ?? null)
+                ? $defaults[$index]
+                : ['title' => '', 'body' => '', 'image' => ''];
+            $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $item = [
+                'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
+                'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 6000),
+                'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
+            ];
+
+            if (
+                $index >= $defaultCount
+                && trim((string) ($item['title'] ?? '')) === ''
+                && trim((string) ($item['body'] ?? '')) === ''
+                && trim((string) ($item['image'] ?? '')) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+
+    private static function normalizeDynamicTitleBodyCards(mixed $input, array $base, array $defaults): array
+    {
+        if (!is_array($input)) {
+            return self::normalizeTitleBodyCards($input, $base, $defaults);
+        }
+
+        $sourceItems = array_values($input);
+        $items = [];
+
+        foreach ($sourceItems as $index => $source) {
+            if (!is_array($source)) {
+                continue;
+            }
+
+            $item = [
+                'title' => self::sanitizeString((string) ($source['title'] ?? ''), 255, ''),
+                'body' => self::sanitizeString((string) ($source['body'] ?? ''), 6000, ''),
+                'image' => self::sanitizeString((string) ($source['image'] ?? ''), 2048, ''),
+            ];
+
+            if (
+                trim((string) ($item['title'] ?? '')) === ''
+                && trim((string) ($item['body'] ?? '')) === ''
+                && trim((string) ($item['image'] ?? '')) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        return $items;
+    }
+
+    private static function normalizeOfficialGroups(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = array_values($base);
+        $items = [];
+
         foreach ($defaults as $index => $defaultItem) {
             $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
             $items[] = [
+                'name' => self::pickString($source, $baseItem, $defaultItem + ['name' => ''], 'name'),
                 'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
                 'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 6000),
+                'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
             ];
         }
 
@@ -670,10 +777,10 @@ class AboutCmsContent
 
     private static function sanitizeString(string $value, int $maxLen, string $fallback): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if ($text === '') {
-            $text = trim($fallback);
+            $text = trim(HtmlEntities::decode($fallback));
         }
 
         if (function_exists('mb_substr')) {
@@ -685,7 +792,7 @@ class AboutCmsContent
 
     private static function sanitizeOptionalString(string $value, int $maxLen): string
     {
-        $text = trim($value);
+        $text = trim(HtmlEntities::decode($value));
 
         if (function_exists('mb_substr')) {
             return mb_substr($text, 0, $maxLen);

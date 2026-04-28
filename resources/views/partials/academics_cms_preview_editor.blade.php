@@ -1034,16 +1034,6 @@
         }
 
         function measureAcademicsPreviewHeight(frame) {
-            if (typeof window.measureCmsPreviewFrameHeight === 'function') {
-                const measuredHeight = window.measureCmsPreviewFrameHeight(frame, {
-                    scopeSelector: '.main-content',
-                });
-
-                if (measuredHeight > 0) {
-                    return measuredHeight;
-                }
-            }
-
             const doc = frame.contentDocument;
 
             if (!doc) {
@@ -1062,9 +1052,11 @@
 
             const contentBottom = visibleElements.reduce((maxBottom, element) => {
                 return Math.max(maxBottom, getAcademicsPreviewElementBottom(element));
-            }, scope.offsetHeight);
+            }, 0);
 
-            return Math.max(1, Math.ceil(contentBottom));
+            const fallbackHeight = Math.max(scope.scrollHeight || 0, scope.offsetHeight || 0);
+
+            return Math.max(1, Math.ceil(contentBottom || fallbackHeight));
         }
 
         function syncAcademicsPreviewHeight(frame, nextHeight) {

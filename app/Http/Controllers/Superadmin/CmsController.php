@@ -7,6 +7,7 @@ use App\Support\AcademicsCmsContent;
 use App\Support\AboutCmsContent;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\DownloadableFile;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use App\Support\ImageStorage;
@@ -56,8 +57,13 @@ class CmsController extends Controller
             'tab_key' => ['required', Rule::in($allowedTabs)],
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
-                'vision-mission-header', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
-                'page', 'cards', 'organizations',
+                'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
+                'page', 'cards_header', 'cards', 'organizations',
+                'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
+                'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
+                'graduate-programs-hero', 'graduate-programs-info', 'graduate-programs-cards', 'graduate-programs-contact',
+                'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
+                'university-calendar-hero', 'university-calendar-info', 'university-calendar-calendar',
             ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
@@ -65,8 +71,11 @@ class CmsController extends Controller
             'home_active_quick_link_index' => ['nullable'],
             'home_feedback_questions_version' => ['nullable'],
             'home_active_feedback_question_index' => ['nullable'],
+            'about_intro_version' => ['nullable'],
             'about_contents_version' => ['nullable'],
             'about_active_contents_slug' => ['nullable', 'string'],
+            'about_history_version' => ['nullable'],
+            'about_active_history_index' => ['nullable'],
             'academics_contents_version' => ['nullable'],
             'academics_active_contents_index' => ['nullable'],
             'academics_features_version' => ['nullable'],
@@ -86,9 +95,38 @@ class CmsController extends Controller
             'about.sections' => ['nullable', 'array'],
             'about.sections.*.label' => ['nullable', 'string', 'max:255'],
             'about.sections.*.summary' => ['nullable', 'string'],
+            'about.sections.*.lead' => ['nullable', 'string'],
             'about.sections.*.visible_in_contents' => ['nullable'],
             'about.sections.*.image' => ['nullable', 'string', 'max:2048'],
             'about.sections.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.sections.*.page_kicker' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.page_title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.vision' => ['nullable', 'string'],
+            'about.sections.*.mission' => ['nullable', 'string'],
+            'about.sections.*.strategic_goals' => ['nullable', 'array'],
+            'about.sections.*.strategic_goals.*.pillar' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.strategic_goals.*.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.strategic_goals.*.goals' => ['nullable', 'array'],
+            'about.sections.*.strategic_goals.*.goals.*.number' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.strategic_goals.*.goals.*.text' => ['nullable', 'string'],
+            'about.sections.*.core_values' => ['nullable', 'array'],
+            'about.sections.*.core_values.*.letter' => ['nullable', 'string', 'max:10'],
+            'about.sections.*.core_values.*.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.timeline' => ['nullable', 'array'],
+            'about.sections.*.timeline.*.visible' => ['nullable'],
+            'about.sections.*.timeline.*.period' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.timeline.*.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.timeline.*.body' => ['nullable'],
+            'about.sections.*.timeline.*.body_text' => ['nullable', 'string'],
+            'about.sections.*.official_groups' => ['nullable', 'array'],
+            'about.sections.*.official_groups.*.name' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.official_groups.*.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.official_groups.*.body' => ['nullable', 'string'],
+            'about.sections.*.official_groups.*.image' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.official_groups.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.overview.story_tag' => ['nullable', 'string', 'max:255'],
+            'about.overview.story_title' => ['nullable', 'string', 'max:255'],
+            'about.overview.story_description' => ['nullable', 'string'],
             'about.overview.story_image' => ['nullable', 'string', 'max:2048'],
             'about.overview.story_image_file' => ['nullable', 'image', 'max:5120'],
             'about.overview.hero_image_file' => ['nullable', 'image', 'max:5120'],
@@ -216,6 +254,7 @@ class CmsController extends Controller
             'academics.pages.*.calendar.tag' => ['nullable', 'string', 'max:120'],
             'academics.pages.*.calendar.title' => ['nullable', 'string', 'max:255'],
             'academics.pages.*.calendar.pdf_url' => ['nullable', 'string', 'max:2048'],
+            'academics.pages.*.calendar.pdf_file' => ['nullable', 'file', 'mimes:pdf', 'max:20480'],
             'academics.pages.*.calendar.note' => ['nullable', 'string'],
             'academics.pages.*.calendar.actions' => ['nullable', 'array'],
             'academics.pages.*.calendar.actions.*.label' => ['nullable', 'string', 'max:120'],
@@ -226,6 +265,8 @@ class CmsController extends Controller
             'research.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'research.page.title' => ['nullable', 'string', 'max:255'],
             'research.page.description' => ['nullable', 'string'],
+            'research.page.hero_image' => ['nullable', 'string', 'max:2048'],
+            'research.page.hero_image_file' => ['nullable', 'image', 'max:5120'],
             'research.cards' => ['nullable', 'array'],
             'research.cards.*.title' => ['nullable', 'string', 'max:255'],
             'research.cards.*.description' => ['nullable', 'string'],
@@ -238,6 +279,9 @@ class CmsController extends Controller
             'students.page.description' => ['nullable', 'string'],
             'students.page.hero_image' => ['nullable', 'string', 'max:2048'],
             'students.page.hero_image_file' => ['nullable', 'image', 'max:5120'],
+            'students.page.contents_tag' => ['nullable', 'string', 'max:120'],
+            'students.page.contents_title' => ['nullable', 'string', 'max:255'],
+            'students.page.contents_description' => ['nullable', 'string'],
             'students.cards' => ['nullable', 'array'],
             'students.cards.*.title' => ['nullable', 'string', 'max:255'],
             'students.cards.*.description' => ['nullable', 'string'],
@@ -309,7 +353,7 @@ class CmsController extends Controller
             $baseHome = HomeCmsContent::fromStored((string) ($existing->content ?? ''));
             $baseHomeEncoded = HomeCmsContent::encode($baseHome);
             $homeInput = $this->filterHomeInputBySection(
-                is_array($data['home'] ?? null) ? $data['home'] : [],
+                is_array($request->input('home')) ? $request->input('home') : [],
                 $sectionKey
             );
 
@@ -350,7 +394,7 @@ class CmsController extends Controller
             $baseAbout = AboutCmsContent::fromStored((string) ($existing->content ?? ''));
             $baseAboutEncoded = AboutCmsContent::encode($baseAbout);
             $aboutInput = $this->filterAboutInputBySection(
-                is_array($data['about'] ?? null) ? $data['about'] : [],
+                is_array($request->input('about')) ? $request->input('about') : [],
                 $sectionKey
             );
 
@@ -414,6 +458,24 @@ class CmsController extends Controller
                 }
             }
 
+            if ($sectionKey === '' || $sectionKey === 'campus-officials') {
+                $officialUploads = data_get($request->file('about.sections', []), 'campus-officials.official_groups', []);
+
+                if (is_array($officialUploads)) {
+                    foreach ($officialUploads as $index => $officialUpload) {
+                        $upload = is_array($officialUpload) ? ($officialUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'about/officials');
+                        if ($storedPath !== false) {
+                            $aboutInput['sections']['campus-officials']['official_groups'][$index]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
             $content = AboutCmsContent::encode(
                 AboutCmsContent::fromInput($aboutInput, $baseAboutEncoded)
             );
@@ -423,7 +485,7 @@ class CmsController extends Controller
             $baseAcademics = AcademicsCmsContent::fromStored((string) ($existing->content ?? ''));
             $baseAcademicsEncoded = AcademicsCmsContent::encode($baseAcademics);
             $academicsInput = $this->filterAcademicsInputBySection(
-                is_array($data['academics'] ?? null) ? $data['academics'] : [],
+                is_array($request->input('academics')) ? $request->input('academics') : [],
                 $sectionKey
             );
 
@@ -481,6 +543,24 @@ class CmsController extends Controller
                         }
                     }
                 }
+
+                $calendarPdfUpload = $request->file("academics.pages.$pageKey.calendar.pdf_file");
+                if (($sectionKey === '' || $sectionKey === $pageKey.'-calendar') && $calendarPdfUpload instanceof UploadedFile) {
+                    $storedPath = DownloadableFile::store($calendarPdfUpload, 'academics/'.$pageKey.'/calendar');
+                    if ($storedPath !== false) {
+                        $currentCalendar = data_get($academicsInput, "pages.$pageKey.calendar", []);
+                        $previousPdfPath = (string) data_get(
+                            $currentCalendar,
+                            'pdf_url',
+                            data_get($baseAcademics, "pages.$pageKey.calendar.pdf_url", '')
+                        );
+                        $academicsInput['pages'][$pageKey]['calendar'] = AcademicsCmsContent::syncCalendarPdfReferences(
+                            is_array($currentCalendar) ? $currentCalendar : [],
+                            $storedPath,
+                            $previousPdfPath
+                        );
+                    }
+                }
             }
 
             $content = AcademicsCmsContent::encode(
@@ -492,7 +572,7 @@ class CmsController extends Controller
             $baseStudents = StudentsCmsContent::fromStored((string) ($existing->content ?? ''));
             $baseStudentsEncoded = StudentsCmsContent::encode($baseStudents);
             $studentsInput = $this->filterStudentsInputBySection(
-                is_array($data['students'] ?? null) ? $data['students'] : [],
+                is_array($request->input('students')) ? $request->input('students') : [],
                 $sectionKey
             );
 
@@ -558,9 +638,21 @@ class CmsController extends Controller
             $baseResearch = ResearchCmsContent::fromStored((string) ($existing->content ?? ''));
             $baseResearchEncoded = ResearchCmsContent::encode($baseResearch);
             $researchInput = $this->filterResearchInputBySection(
-                is_array($data['research'] ?? null) ? $data['research'] : [],
+                is_array($request->input('research')) ? $request->input('research') : [],
                 $sectionKey
             );
+
+            if (($sectionKey === '' || $sectionKey === 'page') && $request->exists('research.page.hero_image')) {
+                $researchInput['page']['hero_image'] = (string) ($request->input('research.page.hero_image') ?? '');
+            }
+
+            $researchHeroUpload = $request->file('research.page.hero_image_file');
+            if (($sectionKey === '' || $sectionKey === 'page') && $researchHeroUpload instanceof UploadedFile) {
+                $storedPath = ImageStorage::store($researchHeroUpload, 'research/page');
+                if ($storedPath !== false) {
+                    $researchInput['page']['hero_image'] = $storedPath;
+                }
+            }
 
             $researchCardUploads = $request->file('research.cards', []);
             if (is_array($researchCardUploads)) {
@@ -588,7 +680,7 @@ class CmsController extends Controller
             $baseEvents = EventsCmsContent::fromStored((string) ($existing->content ?? ''));
             $baseEventsEncoded = EventsCmsContent::encode($baseEvents);
             $eventsInput = $this->filterEventsInputBySection(
-                is_array($data['events'] ?? null) ? $data['events'] : [],
+                is_array($request->input('events')) ? $request->input('events') : [],
                 $sectionKey
             );
 
@@ -714,6 +806,8 @@ class CmsController extends Controller
             'contents' => 'Contents',
             'history' => 'History',
             'vision-mission-header' => 'Vision and Mission Header',
+            'vision-statement' => 'Vision Statement',
+            'mission-statement' => 'Mission Statement',
             'vision-mission-statements' => 'Vision and Mission Statements',
             'strategic-goals' => 'Strategic Goals',
             'core-values' => 'Core Values',
@@ -742,6 +836,7 @@ class CmsController extends Controller
     {
         return match ($sectionKey) {
             'page' => 'Page Header',
+            'cards_header' => 'Cards Header',
             'cards' => 'Cards',
             'organizations' => 'Organizations',
             default => '',
@@ -752,7 +847,7 @@ class CmsController extends Controller
     {
         return match ($sectionKey) {
             'page' => 'Page Header',
-            'cards' => 'Cards',
+            'cards' => 'Contents',
             default => '',
         };
     }
@@ -816,6 +911,16 @@ class CmsController extends Controller
                     'vision-and-mission' => array_intersect_key($visionSection, array_flip(['page_kicker', 'page_title'])),
                 ],
             ],
+            'vision-statement' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['vision'])),
+                ],
+            ],
+            'mission-statement' => [
+                'sections' => [
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['mission'])),
+                ],
+            ],
             'vision-mission-statements' => [
                 'sections' => [
                     'vision-and-mission' => array_intersect_key($visionSection, array_flip(['vision', 'mission'])),
@@ -868,7 +973,10 @@ class CmsController extends Controller
             ],
             'features' => [
                 'features' => [
+                    'tag' => (string) data_get($academicsInput, 'features.tag', ''),
                     'eyebrow' => (string) data_get($academicsInput, 'features.eyebrow', ''),
+                    'title' => (string) data_get($academicsInput, 'features.title', ''),
+                    'description' => (string) data_get($academicsInput, 'features.description', ''),
                     'items' => collect(data_get($academicsInput, 'features.items', []))
                         ->map(fn ($item) => is_array($item)
                             ? array_intersect_key($item, array_flip(['title', 'body']))
@@ -918,10 +1026,12 @@ class CmsController extends Controller
                     ? array_intersect_key($studentsInput['page'], array_flip(['eyebrow', 'title', 'description', 'hero_image']))
                     : [],
             ],
-            'cards' => [
+            'cards_header' => [
                 'page' => is_array($studentsInput['page'] ?? null)
                     ? array_intersect_key($studentsInput['page'], array_flip(['contents_tag', 'contents_title', 'contents_description']))
                     : [],
+            ],
+            'cards' => [
                 'cards' => collect(data_get($studentsInput, 'cards', []))
                     ->map(fn ($item) => is_array($item)
                         ? array_intersect_key($item, array_flip(['title', 'description', 'link', 'image']))
@@ -957,9 +1067,9 @@ class CmsController extends Controller
         }
 
         return match ($sectionKey) {
-            'page' => [
-                'page' => is_array($researchInput['page'] ?? null)
-                    ? array_intersect_key($researchInput['page'], array_flip(['eyebrow', 'title', 'description']))
+                'page' => [
+                    'page' => is_array($researchInput['page'] ?? null)
+                    ? array_intersect_key($researchInput['page'], array_flip(['eyebrow', 'title', 'description', 'hero_image']))
                     : [],
             ],
             'cards' => [
