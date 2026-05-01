@@ -1434,6 +1434,291 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   margin-top: 2px;
 }
 
+/* PUP iApply redesigned admissions flow */
+.iapply-hero {
+  padding: 52px var(--page-gutter) 46px;
+  background:
+    linear-gradient(120deg, rgba(79, 9, 12, 0.94) 0%, rgba(127, 17, 19, 0.9) 52%, rgba(38, 13, 12, 0.96) 100%),
+    radial-gradient(circle at 84% 18%, rgba(215, 170, 67, 0.28), transparent 30%);
+  overflow: hidden;
+}
+
+.iapply-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 54px 54px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.iapply-hero-content {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 430px);
+  gap: clamp(18px, 3vw, 40px);
+  align-items: center;
+  max-width: 1400px;
+  padding-right: 0;
+  z-index: 1;
+}
+
+.iapply-hero-copy {
+  min-width: 0;
+}
+
+.iapply-hero h1 {
+  max-width: 780px;
+  margin-bottom: 12px;
+  font-size: clamp(2.4rem, 6vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.iapply-hero-sub {
+  max-width: 760px;
+  margin-bottom: 18px;
+  color: #f3c45a;
+  font-size: clamp(1rem, 2vw, 1.32rem);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.iapply-hero .iapply-hero-lede {
+  max-width: 760px;
+  margin: 0;
+  color: rgba(255, 250, 244, 0.86);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.iapply-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  margin-top: 28px;
+}
+
+.iapply-secondary-btn,
+.iapply-text-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.iapply-secondary-btn {
+  padding: 12px 20px;
+  border: 1px solid rgba(255, 250, 244, 0.34);
+  border-radius: 999px;
+  color: #fffaf4;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.iapply-secondary-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.iapply-hero-panel {
+  padding: 26px;
+  border: 1px solid rgba(255, 250, 244, 0.16);
+  border-radius: 8px;
+  background: rgba(255, 250, 244, 0.1);
+  box-shadow: 0 28px 54px rgba(18, 3, 4, 0.28);
+  backdrop-filter: blur(10px);
+}
+
+.iapply-hero-panel-head {
+  display: flex;
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.iapply-logo-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: #f3c45a;
+  color: #4f090c;
+  font-size: 1.7rem;
+  font-weight: 900;
+  box-shadow: none;
+}
+
+.iapply-hero-panel h3 {
+  margin: 0;
+  color: #fffaf4;
+  font-size: 1.2rem;
+  line-height: 1.25;
+}
+
+.iapply-hero-panel > p {
+  margin: 0 0 18px;
+  color: rgba(255, 250, 244, 0.82);
+  font-size: 0.94rem;
+  line-height: 1.75;
+}
+
+.iapply-hero-desc {
+  max-width: none;
+  margin-top: 0;
+  padding: 18px 18px 16px;
+  border-radius: 8px;
+  background: rgba(18, 3, 4, 0.18);
+}
+
+.iapply-hero-desc p {
+  color: #f3c45a;
+  letter-spacing: 0.08em;
+}
+
+.iapply-hero-desc li {
+  color: rgba(255, 250, 244, 0.86);
+}
+
+.iapply-schedule-strip {
+  padding: 28px var(--page-gutter);
+  background: #fffaf6;
+  box-shadow: 0 14px 34px rgba(79, 9, 12, 0.08);
+}
+
+.iapply-schedule-inner {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.iapply-schedule-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.iapply-schedule-box {
+  border-radius: 8px;
+  border-left: 4px solid var(--maroon);
+  background: #ffffff;
+  box-shadow: 0 8px 24px rgba(79, 9, 12, 0.08);
+}
+
+.iapply-sections-wrap {
+  padding: 24px var(--page-gutter) 42px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  background: linear-gradient(180deg, #f7eee8 0%, #fffaf6 100%);
+}
+
+.iapply-guide-section,
+.iapply-requirements-section {
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 42px rgba(79, 9, 12, 0.1);
+}
+
+.iapply-guide-section {
+  overflow: hidden;
+}
+
+.iapply-guide-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(280px, 0.7fr);
+  gap: 0;
+  align-items: stretch;
+}
+
+.iapply-guide-copy {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(24px, 4vw, 42px);
+}
+
+.iapply-guide-copy h2,
+.iapply-section-heading h2 {
+  margin: 0 0 14px;
+  color: var(--ink);
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1.12;
+}
+
+.iapply-guide-copy p,
+.iapply-requirements-section p,
+.iapply-requirements-section li {
+  color: var(--muted);
+  font-size: 0.96rem;
+  line-height: 1.75;
+}
+
+.iapply-text-link {
+  justify-content: flex-start;
+  width: fit-content;
+  margin-top: 12px;
+  color: var(--maroon);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.iapply-video-wrap {
+  height: 100%;
+  min-height: 360px;
+  margin: 0;
+  padding-top: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.iapply-requirements-section {
+  padding: clamp(24px, 4vw, 42px);
+  scroll-margin-top: 110px;
+}
+
+.iapply-section-heading {
+  max-width: 760px;
+  margin-bottom: 20px;
+}
+
+.iapply-notice {
+  margin: 0 0 24px;
+  border-radius: 8px;
+  border-left: 4px solid var(--gold);
+  background: #fff7e5;
+}
+
+.iapply-notice-title::before {
+  border-radius: 8px;
+  background: var(--gold);
+  color: #4f090c;
+}
+
+.iapply-checklist {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.iapply-checklist li {
+  min-height: 100%;
+  padding: 14px;
+  border: 1px solid rgba(127, 17, 19, 0.1);
+  border-radius: 8px;
+  background: #fffaf6;
+}
+
+.iapply-checklist li::before {
+  border-radius: 8px;
+  background: var(--maroon);
+}
+
 
 pup-footer .footer { margin-top: 0; }
 
@@ -3301,4 +3586,116 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
   .dp-diploma-card-body {
     padding: 22px 18px 20px;
   }
+}
+
+@media (max-width: 1100px) {
+  .iapply-hero-content {
+    padding-right: 0;
+  }
+
+  .iapply-schedule-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .iapply-hero {
+    padding: 34px var(--page-gutter);
+  }
+
+  .iapply-hero-content,
+  .iapply-guide-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .iapply-hero-panel {
+    padding: 22px;
+  }
+
+  .iapply-video-wrap {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 640px) {
+  .iapply-sections-wrap {
+    padding-top: 18px;
+    padding-bottom: 30px;
+    gap: 14px;
+  }
+
+  .iapply-hero h1 {
+    font-size: clamp(2rem, 13vw, 3.25rem);
+  }
+
+  .iapply-hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .iapply-secondary-btn,
+  .iapply-text-link {
+    width: 100%;
+  }
+
+  .iapply-schedule-grid,
+  .iapply-checklist {
+    grid-template-columns: 1fr;
+  }
+
+  .iapply-guide-copy,
+  .iapply-requirements-section {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 420px) {
+  .iapply-hero-panel-head {
+    align-items: flex-start;
+  }
+
+  .iapply-logo-icon {
+    width: 42px;
+    height: 42px;
+    font-size: 1.45rem;
+  }
+
+  .iapply-schedule-box,
+  .iapply-checklist li {
+    padding: 14px;
+  }
+}
+
+body.pup-dark-mode .iapply-hero-panel,
+body.pup-dark-mode .iapply-hero-desc {
+  border-color: rgba(255, 241, 231, 0.12);
+  background: rgba(255, 250, 244, 0.08);
+}
+
+body.pup-dark-mode .iapply-guide-section,
+body.pup-dark-mode .iapply-requirements-section {
+  background: linear-gradient(180deg, rgba(26, 10, 12, 0.98) 0%, rgba(18, 8, 10, 0.96) 100%);
+  border-color: rgba(200, 80, 80, 0.14);
+  box-shadow: var(--shadow);
+}
+
+body.pup-dark-mode .iapply-guide-copy h2,
+body.pup-dark-mode .iapply-section-heading h2 {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .iapply-guide-copy p,
+body.pup-dark-mode .iapply-requirements-section p,
+body.pup-dark-mode .iapply-requirements-section li {
+  color: #c8a8a8;
+}
+
+body.pup-dark-mode .iapply-text-link {
+  color: #e08080;
+}
+
+body.pup-dark-mode .iapply-checklist li {
+  background: rgba(255, 250, 244, 0.04);
+  border-color: rgba(200, 80, 80, 0.14);
 }

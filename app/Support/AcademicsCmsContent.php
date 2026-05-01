@@ -201,7 +201,7 @@ class AcademicsCmsContent
                     'visual_title' => 'Ready to Apply?',
                     'visual_body' => 'Enable applicants to register for University college admission evaluation and entrance exams online.',
                     'cta_label' => 'Apply Now ↗',
-                    'cta_href' => '#',
+                    'cta_href' => 'https://iapply.pup.edu.ph/signin',
                 ],
                 'schedule' => [
                     'tag' => 'Schedule & Key Dates',
