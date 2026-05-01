@@ -69,6 +69,10 @@
         font-weight: 700;
     }
 
+    .cms-preview-card-action-delete {
+        background: rgba(92, 0, 0, 0.96);
+    }
+
     .cms-preview-static-shell,
     .cms-preview-editable,
     .contents-card[data-cms-card-index],
@@ -252,6 +256,22 @@
             }, '*');
         };
 
+        const postCardAdd = (section, label) => {
+            window.parent?.postMessage({
+                type: 'cms-academics-add-card',
+                section,
+                label: label || section,
+            }, '*');
+        };
+
+        const postCardDelete = (section, cardIndex) => {
+            window.parent?.postMessage({
+                type: 'cms-academics-delete-card',
+                section,
+                cardIndex,
+            }, '*');
+        };
+
         document.querySelectorAll('[data-academics-preview-nav]').forEach((trigger) => {
             trigger.addEventListener('click', (event) => {
                 event.preventDefault();
@@ -298,6 +318,43 @@
                     card.getAttribute('data-cms-card-label') || 'Edit academics card',
                     card.getAttribute('data-cms-card-index') || ''
                 );
+            });
+        });
+
+        document.querySelectorAll('[data-cms-card-delete]').forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+
+                const card = button.closest('[data-cms-card-index]');
+                if (!card) {
+                    return;
+                }
+
+                postCardDelete(
+                    card.getAttribute('data-cms-card-section') || '',
+                    card.getAttribute('data-cms-card-index') || ''
+                );
+            });
+        });
+
+        document.querySelectorAll('[data-cms-add-program-card-trigger]').forEach((trigger) => {
+            const sendAddRequest = (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                postCardAdd(
+                    trigger.getAttribute('data-cms-card-section') || '',
+                    trigger.getAttribute('data-cms-card-label') || 'Add academics card'
+                );
+            };
+
+            trigger.addEventListener('click', sendAddRequest);
+            trigger.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                sendAddRequest(event);
             });
         });
 

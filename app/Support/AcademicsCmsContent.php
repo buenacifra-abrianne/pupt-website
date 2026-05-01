@@ -25,12 +25,6 @@ class AcademicsCmsContent
                     'route' => 'public.diploma-programs',
                 ],
                 [
-                    'label' => 'Graduate Programs',
-                    'summary' => "Advance your expertise with master's and doctoral programs that foster research, leadership, and innovation.",
-                    'image' => 'assets/static_img/pupillar.jpeg',
-                    'route' => 'public.graduate-programs',
-                ],
-                [
                     'label' => 'PUP iApply',
                     'summary' => "Easily access the university's online application portal to start your academic journey.",
                     'image' => 'assets/static_img/pupillar.jpeg',
@@ -53,28 +47,33 @@ class AcademicsCmsContent
             'description' => '',
             'items' => [
                 [
-                    'title' => 'QUALITY',
-                    'body' => '<p><strong>Academic Excellence</strong> Being one of the reputable universities in the country, we always make it to a point that the education given to our students meets the standards of quality and excellence.</p>',
+                    'tag' => 'QUALITY',
+                    'title' => 'Academic Excellence',
+                    'description' => '<p>Being one of the reputable universities in the country, we always make it to a point that the education given to our students meets the standards of quality and excellence.</p>',
                     'wide' => false,
                 ],
                 [
-                    'title' => 'RELEVANT',
-                    'body' => '<p><strong>Responsive Learning</strong> The University, through its various programs, equips its students with learning and skills that are significant and responsive, enabling students to be competitive and very resourceful.</p>',
+                    'tag' => 'RELEVANT',
+                    'title' => 'Responsive Learning',
+                    'description' => '<p>The University, through its various programs, equips its students with learning and skills that are significant and responsive, enabling students to be competitive and very resourceful.</p>',
                     'wide' => false,
                 ],
                 [
-                    'title' => 'FLEXIBLE',
-                    'body' => "<p><strong>Accessible Study Paths</strong> Programs that adapt to a student's living condition, especially for the working class. Our Open University and distance learning method goes beyond the physical restrictions of a campus.</p>",
+                    'tag' => 'FLEXIBLE',
+                    'title' => 'Accessible Study Paths',
+                    'description' => "<p>Programs that adapt to a student's living condition, especially for the working class. Our Open University and distance learning method goes beyond the physical restrictions of a campus.</p>",
                     'wide' => false,
                 ],
                 [
-                    'title' => 'ACCREDITED',
-                    'body' => '<p><strong>Recognized Standards</strong> Most of our academic courses are accredited by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).</p>',
+                    'tag' => 'ACCREDITED',
+                    'title' => 'Recognized Standards',
+                    'description' => '<p>Most of our academic courses are accredited by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).</p>',
                     'wide' => false,
                 ],
                 [
-                    'title' => 'AFFORDABLE',
-                    'body' => '<p><strong>Low-Cost Education</strong> Practicality without sacrificing quality in education. Having the lowest tuition and fees among universities in the Philippines, one can enroll for less than PHP 500 per semester in an undergraduate program.</p>',
+                    'tag' => 'AFFORDABLE',
+                    'title' => 'Low-Cost Education',
+                    'description' => '<p>Practicality without sacrificing quality in education. Having the lowest tuition and fees among universities in the Philippines, one can enroll for less than PHP 500 per semester in an undergraduate program.</p>',
                     'wide' => true,
                 ],
             ],
@@ -167,52 +166,6 @@ class AcademicsCmsContent
                     'items' => [
                         ['title' => 'Diploma in Information Communication Technology', 'badge' => 'DICT', 'dept' => 'Dept. of Information & Communications Technology', 'body' => 'A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#dict', 'cta' => 'View Program'],
                         ['title' => 'Diploma in Office Management Technology', 'badge' => 'DOMT', 'dept' => 'Dept. of Office Administration', 'body' => 'Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#domt', 'cta' => 'View Program'],
-                    ],
-                ],
-                'contact' => [
-                    'campus_name' => 'PUP Taguig',
-                    'campus_sub' => 'Branch Campus',
-                    'address' => 'Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila',
-                    'tag' => 'Get in Touch',
-                    'title' => 'Want more information?',
-                    'description' => 'Contact PUP Taguig Branch today and our admissions team will be happy to assist you.',
-                    'rows' => [
-                        ['label' => 'Telephone', 'value' => '(63 2) 837-5858', 'href' => 'tel:+6328375858', 'tone' => 'maroon'],
-                        ['label' => 'Telephone', 'value' => '(63 2) 837-5859', 'href' => 'tel:+6328375859', 'tone' => 'maroon'],
-                        ['label' => 'Email', 'value' => 'taguig@pup.edu.ph', 'href' => 'mailto:taguig@pup.edu.ph', 'tone' => 'gold'],
-                    ],
-                    'cta_label' => 'Send Us a Message',
-                    'cta_href' => 'mailto:taguig@pup.edu.ph',
-                ],
-            ],
-            'graduate-programs' => [
-                'hero' => [
-                    'tag' => 'PUP Taguig Branch',
-                    'title' => 'Graduate Programs',
-                    'subtitle' => 'Open University System - Academic Year 2024-2025',
-                    'body' => "Advance your career through PUP's Open University System, offering flexible graduate education for working professionals. Our programs are designed to deepen expertise, foster research, and develop leaders committed to public service.",
-                    'list_title' => 'Delivery Mode',
-                    'list_items' => [
-                        'Open University System (OUS)',
-                        'Flexible / Blended Learning',
-                        'Available to working professionals',
-                    ],
-                    'image' => 'assets/static_img/pupillar.jpeg',
-                ],
-                'info' => [
-                    'tag' => 'Quick Info',
-                    'title' => 'Program Admission at a Glance',
-                    'items' => [
-                        ['label' => 'Program Type', 'value' => 'CHED-Recognized Graduate Program', 'href' => ''],
-                        ['label' => 'Delivery', 'value' => 'Open University System (OUS)', 'href' => ''],
-                        ['label' => 'Location', 'value' => 'PUP Taguig Branch, Gen. Santos Ave., Taguig City', 'href' => ''],
-                    ],
-                ],
-                'cards' => [
-                    'tag' => 'Academic Offerings',
-                    'title' => 'Graduate Programs',
-                    'items' => [
-                        ['title' => 'Master in Educational Management', 'badge' => 'MEM', 'dept' => 'Open University System', 'body' => 'Delivered via the Open University System. Develops educational leaders with expertise in curriculum, policy, and institutional management.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#mem', 'cta' => 'View Program'],
                     ],
                 ],
                 'contact' => [
@@ -514,6 +467,10 @@ class AcademicsCmsContent
                 'route' => self::pickString($source, $baseItem, $defaultItem, 'route', 255),
             ];
 
+            if ($normalized['route'] === 'public.graduate-programs') {
+                continue;
+            }
+
             if (
                 trim($normalized['label']) === ''
                 && trim($normalized['summary']) === ''
@@ -547,12 +504,42 @@ class AcademicsCmsContent
 
             $defaultItem = is_array($defaultItems[$index] ?? null)
                 ? $defaultItems[$index]
-                : ['title' => '', 'body' => '', 'wide' => false];
+                : ['tag' => '', 'title' => '', 'description' => '', 'body' => '', 'wide' => false];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+            $sourceLegacyBody = self::splitLegacyFeatureBody($source['body'] ?? null);
+            $baseLegacyBody = self::splitLegacyFeatureBody($baseItem['body'] ?? null);
+            $defaultLegacyBody = self::splitLegacyFeatureBody($defaultItem['body'] ?? null);
+            $sourceUsesLegacyShape = !array_key_exists('tag', $source) && !array_key_exists('description', $source) && array_key_exists('body', $source);
+            $baseUsesLegacyShape = !array_key_exists('tag', $baseItem) && !array_key_exists('description', $baseItem) && array_key_exists('body', $baseItem);
 
             $normalized = [
-                'title' => self::pickString($source, $baseItem, $defaultItem, 'title'),
-                'body' => self::pickString($source, $baseItem, $defaultItem, 'body', 12000),
+                'tag' => self::pickString(
+                    ['tag' => $source['tag'] ?? ($sourceUsesLegacyShape ? ($source['title'] ?? '') : '')],
+                    ['tag' => $baseItem['tag'] ?? ($baseUsesLegacyShape ? ($baseItem['title'] ?? '') : '')],
+                    ['tag' => $defaultItem['tag'] ?? ($defaultItem['title'] ?? '')],
+                    'tag',
+                    120
+                ),
+                'title' => self::pickString(
+                    ['title' => $sourceUsesLegacyShape ? ($sourceLegacyBody['title'] ?? '') : ($source['title'] ?? '')],
+                    ['title' => $baseUsesLegacyShape ? ($baseLegacyBody['title'] ?? '') : ($baseItem['title'] ?? '')],
+                    ['title' => $defaultItem['title'] ?? ($defaultLegacyBody['title'] ?? '')],
+                    'title'
+                ),
+                'description' => self::pickString(
+                    ['description' => $source['description'] ?? ($sourceLegacyBody['description'] ?? '')],
+                    ['description' => $baseItem['description'] ?? ($baseLegacyBody['description'] ?? '')],
+                    ['description' => $defaultItem['description'] ?? ($defaultLegacyBody['description'] ?? '')],
+                    'description',
+                    12000
+                ),
+                'body' => self::pickString(
+                    ['body' => $source['description'] ?? ($sourceLegacyBody['description'] ?? ($source['body'] ?? ''))],
+                    ['body' => $baseItem['description'] ?? ($baseLegacyBody['description'] ?? ($baseItem['body'] ?? ''))],
+                    ['body' => $defaultItem['description'] ?? ($defaultLegacyBody['description'] ?? ($defaultItem['body'] ?? ''))],
+                    'body',
+                    12000
+                ),
                 'wide' => filter_var(
                     $source['wide'] ?? ($baseItem['wide'] ?? ($defaultItem['wide'] ?? false)),
                     FILTER_VALIDATE_BOOL,
@@ -561,7 +548,9 @@ class AcademicsCmsContent
             ];
 
             if (
-                trim($normalized['title']) === ''
+                trim($normalized['tag']) === ''
+                && trim($normalized['title']) === ''
+                && trim($normalized['description']) === ''
                 && trim($normalized['body']) === ''
             ) {
                 continue;
@@ -575,6 +564,42 @@ class AcademicsCmsContent
         }
 
         return $items;
+    }
+
+    /**
+     * Older feature cards stored the content tag in title and the card title as the
+     * first bold phrase inside body. Keep those cards readable after the schema split.
+     *
+     * @return array{title: string, description: string}
+     */
+    private static function splitLegacyFeatureBody(mixed $body): array
+    {
+        $body = trim((string) $body);
+        if ($body === '') {
+            return ['title' => '', 'description' => ''];
+        }
+
+        if (preg_match('/^\s*<p>\s*<(?:strong|b)[^>]*>(.*?)<\/(?:strong|b)>\s*(.*?)<\/p>\s*$/is', $body, $matches)) {
+            $title = trim(html_entity_decode(strip_tags($matches[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $rest = trim($matches[2]);
+
+            return [
+                'title' => $title,
+                'description' => $rest === '' ? '' : '<p>'.$rest.'</p>',
+            ];
+        }
+
+        if (preg_match('/^\s*<(?:strong|b)[^>]*>(.*?)<\/(?:strong|b)>\s*(.*)$/is', $body, $matches)) {
+            $title = trim(html_entity_decode(strip_tags($matches[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+            $rest = trim($matches[2]);
+
+            return [
+                'title' => $title,
+                'description' => $rest,
+            ];
+        }
+
+        return ['title' => '', 'description' => $body];
     }
 
     private static function normalizePages(array $source, array $base, array $defaults): array

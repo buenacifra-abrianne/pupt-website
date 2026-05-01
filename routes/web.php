@@ -45,7 +45,6 @@ use App\Http\Controllers\SsoController;
 use App\Http\Controllers\Auth\OnePortalController;
 use App\Http\Controllers\Public\DegreeProgramsController;
 use App\Http\Controllers\Public\DiplomaProgramsController;
-use App\Http\Controllers\Public\GraduateProgramsController;
 use App\Http\Controllers\Public\StudentCalendarController;
 use App\Http\Controllers\Public\UniversityCalendarController;
 
@@ -60,7 +59,6 @@ Route::get('/academics', [AcademicsController::class, 'index'])->name('public.ac
 Route::get('/academics/pup-iapply', [PupiapplyController::class, 'index'])->name('public.pup-iapply');
 Route::get('/academics/degree-programs',   [DegreeProgramsController::class, 'index'])->name('public.degree-programs');
 Route::get('/academics/diploma-programs',  [DiplomaProgramsController::class, 'index'])->name('public.diploma-programs');
-Route::get('/academics/graduate-programs', [GraduateProgramsController::class, 'index'])->name('public.graduate-programs');
 Route::get('/academics/university-calendar', [UniversityCalendarController::class, 'index'])->name('public.university-calendar');
 Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');

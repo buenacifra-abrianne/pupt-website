@@ -510,48 +510,44 @@
 
             .students-card-add {
                 cursor: pointer;
-                border-style: dashed;
-                border-width: 2px;
-                border-color: rgba(127, 17, 19, 0.22);
+                border: 2px dashed rgba(127, 17, 19, 0.2);
+                background: linear-gradient(160deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 243, 236, 0.9) 100%);
             }
 
             .students-card-front-add {
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                background:
-                    radial-gradient(circle at 50% 35%, rgba(215, 170, 67, 0.18) 0%, transparent 36%),
-                    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 239, 232, 0.94) 100%);
+                background: transparent;
             }
 
             .students-card-add-inner {
-                display: grid;
-                place-items: center;
-                gap: 12px;
+                display: flex;
+                min-height: 100%;
+                flex: 1;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+                padding: 36px 24px;
                 text-align: center;
                 color: var(--maroon);
             }
 
             .students-card-add-plus {
-                width: 62px;
-                height: 62px;
-                border-radius: 999px;
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                background: linear-gradient(135deg, rgba(127, 17, 19, 0.96) 0%, rgba(79, 9, 12, 0.99) 100%);
-                color: #fffaf4;
-                font-size: 1.9rem;
+                color: var(--maroon);
+                font-size: clamp(3rem, 6vw, 4.5rem);
+                font-weight: 500;
                 line-height: 1;
-                box-shadow: 0 16px 28px rgba(79, 9, 12, 0.2);
             }
 
             .students-card-add-label {
                 margin: 0;
-                font-size: 0.88rem;
-                font-weight: 800;
-                letter-spacing: 0.12em;
-                text-transform: uppercase;
+                color: var(--maroon);
+                font-family: "Poppins", sans-serif;
+                font-size: 1rem;
+                font-weight: 700;
+                letter-spacing: .04em;
             }
 
             @media (max-width: 768px) {

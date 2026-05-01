@@ -61,7 +61,6 @@ class CmsController extends Controller
                 'page', 'cards_header', 'cards', 'organizations',
                 'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
                 'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
-                'graduate-programs-hero', 'graduate-programs-info', 'graduate-programs-cards', 'graduate-programs-contact',
                 'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
                 'university-calendar-hero', 'university-calendar-info', 'university-calendar-calendar',
             ], AboutCmsContent::sectionSlugs()))],
@@ -181,7 +180,9 @@ class CmsController extends Controller
             'academics.features.description' => ['nullable', 'string'],
             'academics.features.eyebrow' => ['nullable', 'string', 'max:120'],
             'academics.features.items' => ['nullable', 'array'],
+            'academics.features.items.*.tag' => ['nullable', 'string', 'max:120'],
             'academics.features.items.*.title' => ['nullable', 'string', 'max:255'],
+            'academics.features.items.*.description' => ['nullable', 'string'],
             'academics.features.items.*.body' => ['nullable', 'string'],
             'academics.pages' => ['nullable', 'array'],
             'academics.pages.*.hero' => ['nullable', 'array'],
@@ -209,8 +210,10 @@ class CmsController extends Controller
             'academics.pages.*.cards.tag' => ['nullable', 'string', 'max:120'],
             'academics.pages.*.cards.title' => ['nullable', 'string', 'max:255'],
             'academics.pages.*.cards.items' => ['nullable', 'array'],
+            'academics.pages.*.cards.items.*.badge' => ['nullable', 'string', 'max:120'],
             'academics.pages.*.cards.items.*.title' => ['nullable', 'string', 'max:255'],
             'academics.pages.*.cards.items.*.body' => ['nullable', 'string'],
+            'academics.pages.*.cards.items.*.dept' => ['nullable', 'string', 'max:255'],
             'academics.pages.*.cards.items.*.image' => ['nullable', 'string', 'max:2048'],
             'academics.pages.*.cards.items.*.image_file' => ['nullable', 'image', 'max:5120'],
             'academics.pages.*.cards.items.*.href' => ['nullable', 'string', 'max:2048'],
@@ -516,7 +519,7 @@ class CmsController extends Controller
                 }
             }
 
-            foreach (['degree-programs', 'diploma-programs', 'graduate-programs', 'pup-iapply', 'university-calendar'] as $pageKey) {
+            foreach (['degree-programs', 'diploma-programs', 'pup-iapply', 'university-calendar'] as $pageKey) {
                 if (($sectionKey === '' || $sectionKey === $pageKey.'-hero') && $request->exists("academics.pages.$pageKey.hero.image")) {
                     $academicsInput['pages'][$pageKey]['hero']['image'] = (string) ($request->input("academics.pages.$pageKey.hero.image") ?? '');
                 }
@@ -979,14 +982,13 @@ class CmsController extends Controller
                     'description' => (string) data_get($academicsInput, 'features.description', ''),
                     'items' => collect(data_get($academicsInput, 'features.items', []))
                         ->map(fn ($item) => is_array($item)
-                            ? array_intersect_key($item, array_flip(['title', 'body']))
+                            ? array_intersect_key($item, array_flip(['tag', 'title', 'description', 'body']))
                             : [])
                         ->all(),
                 ],
             ],
             'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
             'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
-            'graduate-programs-hero', 'graduate-programs-info', 'graduate-programs-cards', 'graduate-programs-contact',
             'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
             'university-calendar-hero', 'university-calendar-info', 'university-calendar-calendar'
                 => $this->filterAcademicsPageSectionInput($academicsInput, $sectionKey),
@@ -997,7 +999,7 @@ class CmsController extends Controller
     private function filterAcademicsPageSectionInput(array $academicsInput, string $sectionKey): array
     {
         $matches = [];
-        if (!preg_match('/^(degree-programs|diploma-programs|graduate-programs|pup-iapply|university-calendar)\-(hero|info|cards|contact|schedule|guide|reminders|calendar)$/', $sectionKey, $matches)) {
+        if (!preg_match('/^(degree-programs|diploma-programs|pup-iapply|university-calendar)\-(hero|info|cards|contact|schedule|guide|reminders|calendar)$/', $sectionKey, $matches)) {
             return $academicsInput;
         }
 
