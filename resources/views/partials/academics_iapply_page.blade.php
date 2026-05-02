@@ -6,6 +6,12 @@
     $reminders = is_array($pageData['reminders'] ?? null) ? $pageData['reminders'] : [];
     $applyHref = trim((string) ($hero['cta_href'] ?? ''));
     $applyHref = $applyHref !== '' && $applyHref !== '#' ? $applyHref : 'https://iapply.pup.edu.ph/signin';
+    $guideVideoUrl = trim((string) ($guide['video_url'] ?? ''));
+    $guideWatchUrl = $guideVideoUrl;
+
+    if (preg_match('~youtube\.com/embed/([^?&/]+)~i', $guideVideoUrl, $matches)) {
+        $guideWatchUrl = 'https://www.youtube.com/watch?v='.$matches[1];
+    }
 @endphp
 
 <div class="academic-shell page-shell">
@@ -18,14 +24,8 @@
     </nav>
 </div>
 
-<section
-    class="iapply-hero reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-    @if($cmsPreview)
-        data-cms-section="pup-iapply-hero"
-        data-cms-section-label="PUP iApply Hero"
-    @endif
->
-    <div class="iapply-hero-content" @if($cmsPreview) data-cms-boundary @endif>
+<section class="iapply-hero reveal">
+    <div class="iapply-hero-content">
         <div class="iapply-hero-copy">
             <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
             <h1>{{ $hero['title'] ?? '' }}</h1>
@@ -62,22 +62,31 @@
 </section>
 
 <div class="iapply-sections-wrap">
-    <section
-        class="iapply-guide-section reveal delay-100{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-        @if($cmsPreview)
-            data-cms-section="pup-iapply-guide"
-            data-cms-section-label="PUP iApply Guide"
-        @endif
-    >
-        <div class="iapply-guide-grid" @if($cmsPreview) data-cms-boundary @endif>
+    <section class="iapply-guide-section reveal delay-100">
+        <div class="iapply-guide-grid">
             <div class="iapply-video-wrap">
-                <iframe
-                    src="{{ $guide['video_url'] ?? '' }}"
-                    title="{{ $guide['title'] ?? 'CAEPUP Step-by-step Application Guide' }}"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowfullscreen
-                    loading="lazy"
-                ></iframe>
+                @if($cmsPreview)
+                    <div class="iapply-video-preview">
+                        <span class="iapply-video-preview-icon">!</span>
+                        <div>
+                            <p class="iapply-video-preview-label">Video Preview</p>
+                            <h3>{{ $guide['title'] ?? 'CAEPUP Step-by-step Application Guide' }}</h3>
+                            <p>YouTube blocks this player inside the CMS iframe preview. The video embed remains active on the public page.</p>
+                            @if($guideWatchUrl !== '')
+                                <span>{{ $guideWatchUrl }}</span>
+                            @endif
+                        </div>
+                    </div>
+                @else
+                    <iframe
+                        src="{{ $guideVideoUrl }}"
+                        title="{{ $guide['title'] ?? 'CAEPUP Step-by-step Application Guide' }}"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        allowfullscreen
+                        loading="lazy"
+                    ></iframe>
+                @endif
             </div>
 
             <div class="iapply-guide-copy">
@@ -89,15 +98,8 @@
         </div>
     </section>
 
-    <section
-        id="iapply-requirements"
-        class="iapply-requirements-section reveal delay-200{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-        @if($cmsPreview)
-            data-cms-section="pup-iapply-reminders"
-            data-cms-section-label="PUP iApply Reminders"
-        @endif
-    >
-        <div @if($cmsPreview) data-cms-boundary @endif>
+    <section id="iapply-requirements" class="iapply-requirements-section reveal delay-200">
+        <div>
             <div class="iapply-section-heading">
                 <span class="section-tag">{{ $reminders['tag'] ?? '' }}</span>
                 <h2>{{ $reminders['title'] ?? '' }}</h2>

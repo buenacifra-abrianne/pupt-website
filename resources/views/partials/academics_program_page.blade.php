@@ -22,13 +22,13 @@
 </div>
 
 <section
-    class="iapply-hero{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+    class="iapply-hero dp-program-hero{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
     @if($cmsPreview)
         data-cms-section="{{ $pageKey }}-hero"
         data-cms-section-label="{{ $pageTitle }} Hero"
     @endif
 >
-    <div class="iapply-hero-content" @if($cmsPreview) data-cms-boundary @endif>
+    <div class="iapply-hero-content dp-program-hero-content">
         <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
         <h1>{{ $hero['title'] ?? '' }}</h1>
         <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>

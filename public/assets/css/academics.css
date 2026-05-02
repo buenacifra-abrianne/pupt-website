@@ -74,6 +74,14 @@ body {
   min-height: 0;
 }
 
+.main-content.academics-no-bottom-gap {
+  padding-bottom: 0 !important;
+}
+
+.main-content.academics-no-bottom-gap > :last-child {
+  margin-bottom: 0 !important;
+}
+
 .section-tag,
 .academic-features-eyebrow,
 .iapply-hero-tag,
@@ -307,7 +315,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 
 .iapply-hero-content {
   width: 100%;
-  max-width: 1200px;
+  max-width: none;
   position: relative;
   padding-right: 370px;
   box-sizing: border-box;
@@ -327,7 +335,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 
 .campus-story-card-content {
   width: 100%;
-  max-width: 1200px;
+  max-width: none;
   padding-right: 440px;
   position: relative;
   box-sizing: border-box;
@@ -1399,6 +1407,65 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   border: none;
 }
 
+.iapply-video-preview {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: clamp(20px, 4vw, 34px);
+  background:
+    linear-gradient(135deg, rgba(27, 23, 22, 0.96), rgba(79, 9, 12, 0.92)),
+    #1b1716;
+  color: #fffaf4;
+}
+
+.iapply-video-preview-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  border: 3px solid rgba(255, 250, 244, 0.72);
+  border-radius: 50%;
+  color: rgba(255, 250, 244, 0.82);
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.iapply-video-preview-label {
+  margin: 0 0 6px;
+  color: var(--gold-light);
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.iapply-video-preview h3 {
+  margin: 0 0 8px;
+  color: #fffaf4;
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  line-height: 1.2;
+}
+
+.iapply-video-preview p {
+  margin: 0;
+  color: rgba(255, 250, 244, 0.78);
+  font-size: 0.9rem;
+  line-height: 1.55;
+}
+
+.iapply-video-preview span:not(.iapply-video-preview-icon) {
+  display: block;
+  margin-top: 10px;
+  color: rgba(255, 250, 244, 0.9);
+  font-size: 0.82rem;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
 .iapply-checklist {
   margin: 10px 0 0;
   padding-left: 0;
@@ -1677,6 +1744,11 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
   box-shadow: none;
 }
 
+.iapply-guide-section .iapply-video-preview {
+  position: static;
+  min-height: 360px;
+}
+
 .iapply-requirements-section {
   padding: clamp(24px, 4vw, 42px);
   scroll-margin-top: 110px;
@@ -1740,6 +1812,55 @@ pup-footer .footer { margin-top: 0; }
   object-position: center;
   display: block;
   border-radius: 20px;
+}
+
+.dp-program-hero {
+  min-height: 0;
+  padding-top: 34px;
+  padding-bottom: 34px;
+}
+
+.dp-program-hero .dp-program-hero-content {
+  display: block;
+  max-width: none;
+  padding-right: 0;
+}
+
+.dp-program-hero .iapply-hero-tag,
+.dp-program-hero h1,
+.dp-program-hero .iapply-hero-sub {
+  max-width: 760px;
+}
+
+.dp-program-hero .iapply-hero-body {
+  max-width: 980px;
+}
+
+.dp-program-hero h1 {
+  font-size: clamp(2.3rem, 5vw, 4.2rem);
+}
+
+.academic-shell.page-shell,
+.contents-strip-head.layout-inset,
+.academic-features-header.layout-inset,
+.academic-features-inner.layout-inset,
+.academic-intro-text,
+.iapply-hero-content,
+.campus-story-card-content,
+.uc-hero-b-top,
+.contents-strip-inner,
+.iapply-schedule-inner,
+.iapply-guide-section,
+.iapply-requirements-section {
+  max-width: none;
+}
+
+.contents-strip-inner,
+.iapply-schedule-inner,
+.iapply-guide-section,
+.iapply-requirements-section {
+  margin-left: 0;
+  margin-right: 0;
 }
 
 .dp-programs-strip {
@@ -2004,6 +2125,66 @@ pup-footer .footer { margin-top: 0; }
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+
+.uc-calendar-official-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: clamp(24px, 4vw, 44px);
+  border: 1px solid rgba(127, 17, 19, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(127, 17, 19, 0.08), rgba(255, 193, 7, 0.16)),
+    #fffdf8;
+  box-shadow: 0 18px 42px rgba(79, 9, 12, 0.11);
+}
+
+.uc-calendar-official-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 20px;
+  align-items: center;
+  position: relative;
+}
+
+.uc-calendar-official-seal {
+  width: 82px;
+  height: 82px;
+  object-fit: contain;
+  filter: drop-shadow(0 12px 18px rgba(79, 9, 12, 0.18));
+}
+
+.uc-calendar-official-head p {
+  margin: 0 0 8px;
+  color: var(--maroon);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.uc-calendar-official-head h3 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.25rem, 2.6vw, 2rem);
+  line-height: 1.16;
+}
+
+.uc-calendar-source-row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: 14px 18px;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.74);
+  color: var(--ink);
+  font-size: 0.95rem;
+  font-weight: 800;
+  overflow-wrap: anywhere;
 }
 
 .uc-calendar-embed {
@@ -2440,6 +2621,11 @@ pup-footer .footer { margin-top: 0; }
     align-items: stretch;
   }
 
+  .uc-calendar-official-head {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
   .uc-calendar-actions .apply-now-btn,
   .uc-calendar-actions .uc-btn-outline {
     width: 100%;
@@ -2616,6 +2802,20 @@ pup-footer .footer { margin-top: 0; }
   .uc-calendar-embed {
     aspect-ratio: 3 / 4;
     border-radius: 12px;
+  }
+
+  .uc-calendar-official-card {
+    padding: 22px;
+    border-radius: 14px;
+  }
+
+  .uc-calendar-official-seal {
+    width: 68px;
+    height: 68px;
+  }
+
+  .uc-calendar-source-row {
+    font-size: 0.86rem;
   }
 
   .uc-calendar-iframe {
@@ -3616,6 +3816,10 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
     min-height: 0;
     aspect-ratio: 16 / 9;
   }
+
+  .iapply-guide-section .iapply-video-preview {
+    min-height: 0;
+  }
 }
 
 @media (max-width: 640px) {
@@ -3623,6 +3827,10 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
     padding-top: 18px;
     padding-bottom: 30px;
     gap: 14px;
+  }
+
+  .academics-no-bottom-gap > .iapply-sections-wrap:last-child {
+    padding-bottom: 14px;
   }
 
   .iapply-hero h1 {
@@ -3698,4 +3906,336 @@ body.pup-dark-mode .iapply-text-link {
 body.pup-dark-mode .iapply-checklist li {
   background: rgba(255, 250, 244, 0.04);
   border-color: rgba(200, 80, 80, 0.14);
+}
+
+.academics-no-bottom-gap > .contents-strip:last-child {
+  padding-bottom: 18px;
+}
+
+.academics-no-bottom-gap > .iapply-sections-wrap:last-child {
+  padding-bottom: 18px;
+}
+
+/* Academic pages: tablet and phone hardening */
+.main-content img,
+.main-content iframe,
+.main-content video {
+  max-width: 100%;
+}
+
+.academic-rich-copy,
+.academic-intro-rich-copy,
+.academic-feature-copy,
+.iapply-guide-copy,
+.iapply-requirements-section,
+.uc-calendar-official-card,
+.contents-card,
+.academic-feature-card,
+.cards_information {
+  overflow-wrap: anywhere;
+}
+
+.iapply-hero.cms-preview-editable > .iapply-hero-content[data-cms-boundary],
+.iapply-guide-section.cms-preview-editable > .iapply-guide-grid[data-cms-boundary] {
+  display: grid;
+}
+
+.iapply-hero.cms-preview-editable > .iapply-hero-content[data-cms-boundary] {
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 380px);
+}
+
+.iapply-guide-section.cms-preview-editable > .iapply-guide-grid[data-cms-boundary] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.iapply-hero.cms-preview-editable .iapply-hero-panel,
+.iapply-guide-section.cms-preview-editable .iapply-guide-copy {
+  min-width: 0;
+}
+
+@media (max-width: 1024px) {
+  .contents-strip,
+  .academic-features,
+  .iapply-sections-wrap,
+  .dp-contact-wrap {
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+  }
+
+  .iapply-hero-content {
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+  }
+
+  .dp-program-hero .dp-program-hero-content {
+    display: block;
+  }
+
+  .iapply-hero.cms-preview-editable > .iapply-hero-content[data-cms-boundary] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .iapply-hero-panel {
+    width: 100%;
+    max-width: none;
+  }
+
+  .iapply-guide-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .iapply-video-wrap {
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .dp-diploma-cards {
+    grid-auto-columns: minmax(270px, 32vw);
+  }
+
+  .dp-diploma-cards .contents-card {
+    width: auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .section-tag,
+  .academic-features-eyebrow,
+  .iapply-hero-tag,
+  .academic-intro-eyebrow {
+    gap: 8px;
+    max-width: 100%;
+    font-size: 0.68rem;
+    letter-spacing: 0.13em;
+    line-height: 1.35;
+  }
+
+  .section-tag::before,
+  .academic-features-eyebrow::before,
+  .iapply-hero-tag::before,
+  .academic-intro-eyebrow::before,
+  .academic-breadcrumb::before {
+    width: 22px;
+    flex: 0 0 auto;
+  }
+
+  .academic-breadcrumb {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    padding-left: var(--page-gutter);
+    padding-right: var(--page-gutter);
+    line-height: 1.5;
+  }
+
+  .contents-strip-inner,
+  .iapply-schedule-inner,
+  .academic-features-inner,
+  .academic-features-header,
+  .layout-inset {
+    max-width: 100%;
+  }
+
+  .contents-cards,
+  .academic-features:not(.cms-preview-editable) .academic-features-grid {
+    grid-auto-columns: minmax(230px, 82vw);
+    padding-bottom: 12px;
+    scroll-padding-inline: var(--page-gutter);
+  }
+
+  .dp-program-cards,
+  .dp-diploma-cards {
+    grid-auto-columns: minmax(240px, 82vw);
+  }
+
+  .dp-diploma-cards .contents-card {
+    width: auto;
+    height: 320px;
+  }
+
+  .iapply-hero {
+    width: 100%;
+  }
+
+  .iapply-hero-content {
+    gap: 22px;
+  }
+
+  .iapply-hero h1 {
+    max-width: 100%;
+  }
+
+  .dp-program-hero h1 {
+    font-size: clamp(1.9rem, 8vw, 3rem);
+  }
+
+  .dp-program-hero {
+    padding-top: 26px;
+    padding-bottom: 26px;
+  }
+
+  .dp-program-hero .iapply-hero-body {
+    max-width: 100%;
+  }
+
+  .iapply-hero .iapply-hero-lede,
+  .iapply-hero-body,
+  .iapply-hero-body p {
+    font-size: 0.94rem;
+    line-height: 1.7;
+  }
+
+  .iapply-hero-panel {
+    padding: 22px;
+  }
+
+  .iapply-guide-copy,
+  .iapply-requirements-section {
+    padding: 24px;
+  }
+
+  .iapply-video-wrap iframe {
+    position: static;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .uc-calendar-official-card {
+    gap: 18px;
+  }
+
+  .uc-calendar-official-head {
+    align-items: start;
+  }
+}
+
+@media (max-width: 560px) {
+  :root {
+    --page-gutter: 14px;
+  }
+
+  .contents-strip,
+  .academic-features {
+    padding-top: 18px;
+    padding-bottom: 22px;
+  }
+
+  .academics-no-bottom-gap > .contents-strip:last-child,
+  .academics-no-bottom-gap > .iapply-sections-wrap:last-child {
+    padding-bottom: 12px;
+  }
+
+  .contents-cards,
+  .academic-features:not(.cms-preview-editable) .academic-features-grid,
+  .dp-program-cards,
+  .dp-diploma-cards {
+    grid-auto-columns: minmax(0, calc(100vw - (var(--page-gutter) * 2)));
+    gap: 10px;
+  }
+
+  .contents-card,
+  .dp-diploma-cards .contents-card {
+    height: auto;
+    min-height: 260px;
+  }
+
+  .dp-diploma-card-body {
+    min-height: 260px;
+  }
+
+  .contents-card-front,
+  .contents-card-back {
+    border-radius: 18px;
+  }
+
+  .academic-intro-text {
+    padding-inline: var(--page-gutter);
+  }
+
+  .academic-intro-text-inner {
+    max-height: none;
+    overflow: hidden;
+  }
+
+  .academic-feature-card,
+  .cards_information {
+    min-height: 0;
+  }
+
+  .iapply-hero {
+    padding-top: 22px;
+    padding-bottom: 26px;
+  }
+
+  .iapply-hero-panel-head {
+    gap: 12px;
+  }
+
+  .iapply-hero-desc ul,
+  .iapply-notice ul {
+    padding-left: 18px;
+  }
+
+  .iapply-guide-copy,
+  .iapply-requirements-section,
+  .iapply-hero-panel,
+  .iapply-notice,
+  .iapply-checklist li {
+    padding: 18px;
+  }
+
+  .iapply-video-preview {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .iapply-video-preview-icon {
+    width: 46px;
+    height: 46px;
+    font-size: 1.5rem;
+  }
+
+  .iapply-checklist {
+    gap: 10px;
+  }
+
+  .uc-calendar-official-card {
+    padding: 20px;
+  }
+
+  .uc-calendar-source-row {
+    min-height: 0;
+    padding: 12px 14px;
+  }
+
+  .uc-calendar-actions .apply-now-btn {
+    white-space: normal;
+    text-align: center;
+  }
+}
+
+@media (max-width: 380px) {
+  :root {
+    --page-gutter: 12px;
+  }
+
+  .contents-card,
+  .dp-diploma-cards .contents-card,
+  .dp-diploma-card-body {
+    min-height: 240px;
+  }
+
+  .iapply-hero h1 {
+    font-size: clamp(1.7rem, 12vw, 2.45rem);
+  }
+
+  .iapply-hero-panel-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .uc-calendar-official-head {
+    gap: 12px;
+  }
 }

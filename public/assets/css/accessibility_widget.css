@@ -35,6 +35,26 @@
     z-index: 999 !important;
 }
 
+body.has-widget-dock .acc-container .acc-toggle-btn {
+    opacity: 0 !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    transform: translateY(10px) scale(0.92) !important;
+    transition:
+        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important,
+        opacity 0.22s ease !important,
+        visibility 0.22s ease !important;
+}
+
+body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
+    right: 24px !important;
+    bottom: 98px !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    transform: translateY(0) scale(1) !important;
+}
+
 .acc-container .acc-toggle-btn:hover,
 .acc-container .acc-header button:hover,
 .acc-container .acc-footer-reset:hover,
@@ -138,6 +158,11 @@
     .acc-container .acc-toggle-icon svg {
         width: 1.35rem !important;
         height: 1.35rem !important;
+    }
+
+    body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
+        right: 16px !important;
+        bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
     }
 }
 

@@ -1097,6 +1097,22 @@
                 return 0;
             }
 
+            if (currentAcademicsPreviewRoute === 'university-calendar') {
+                const calendarCard = doc.querySelector('.uc-calendar-official-card');
+                const calendarSection = calendarCard?.closest('.contents-strip');
+                const heroSection = doc.querySelector('.uc-hero-b');
+                const breadcrumbShell = doc.querySelector('.academic-shell');
+                const candidates = [breadcrumbShell, heroSection, calendarSection, calendarCard]
+                    .filter((element) => element instanceof HTMLElement && isAcademicsPreviewMeasuredElement(element));
+                const routeBottom = candidates.reduce((maxBottom, element) => {
+                    return Math.max(maxBottom, getAcademicsPreviewElementBottom(element));
+                }, 0);
+
+                if (routeBottom > 0) {
+                    return Math.max(1, Math.ceil(routeBottom));
+                }
+            }
+
             const visibleElements = Array.from(scope.children)
                 .filter((element) => isAcademicsPreviewMeasuredElement(element));
 
@@ -1861,7 +1877,8 @@
                     return;
                 }
 
-                syncAcademicsPreviewHeight(targetFrame, data.height);
+                const measuredHeight = measureAcademicsPreviewHeight(targetFrame);
+                syncAcademicsPreviewHeight(targetFrame, measuredHeight > 0 ? measuredHeight : data.height);
                 return;
             }
 
@@ -1923,6 +1940,8 @@
                 bindAcademicsPreviewDocument(frame);
                 queueAcademicsPreviewSettledSync(frame);
                 scheduleFitAllAcademicsPreviews();
+                window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 120);
+                window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 360);
             });
         });
 

@@ -358,21 +358,47 @@ function initVisionMissionToggles() {
 }
 
 // =======================
-// 4.1) Global AI button
+// 4.1) Global widget dock
 // =======================
 const BOTPRESS_SHAREABLE_URL = "https://cdn.botpress.cloud/webchat/v3.6/shareable.html?configUrl=https://files.bpcontent.cloud/2026/04/14/09/20260414093100-492RLU02.json";
 
-function initMessageButton() {
-  if (!document.body || !document.querySelector("pup-header") || document.querySelector(".message-button")) return;
+function initWidgetDock() {
+  if (!document.body || !document.querySelector("pup-header") || document.querySelector(".widget-dock")) return;
 
-  if (!document.getElementById("bp-widget-inline-styles")) {
+  if (!document.getElementById("widget-dock-inline-styles")) {
     const style = document.createElement("style");
-    style.id = "bp-widget-inline-styles";
+    style.id = "widget-dock-inline-styles";
     style.textContent = `
-      .message-button {
+      .widget-dock {
         position: fixed;
         right: 24px;
         bottom: 24px;
+        display: grid;
+        justify-items: end;
+        gap: 12px;
+        z-index: 1200;
+      }
+
+      .widget-dock-actions {
+        display: grid;
+        gap: 12px;
+        opacity: 0;
+        transform: translateY(18px) scale(0.94);
+        transform-origin: bottom right;
+        pointer-events: none;
+        transition:
+          opacity 0.28s ease,
+          transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+      }
+
+      .widget-dock.is-open .widget-dock-actions {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        pointer-events: auto;
+      }
+
+      .widget-dock-fab,
+      .widget-dock-action {
         width: 62px;
         height: 62px;
         border: 0;
@@ -384,13 +410,40 @@ function initMessageButton() {
         color: #fff;
         box-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
         cursor: pointer;
-        z-index: 1200;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        transition:
+          transform 0.22s ease,
+          box-shadow 0.22s ease,
+          opacity 0.22s ease;
       }
 
-      .message-button.is-open {
-        right: 100px;
-        bottom: 24px;
+      .widget-dock-fab {
+        position: relative;
+      }
+
+      .widget-dock-action {
+        opacity: 0;
+        transform: translateY(10px) scale(0.92);
+        transition:
+          transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.22s ease,
+          box-shadow 0.22s ease;
+      }
+
+      .widget-dock.is-open .widget-dock-action {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .widget-dock.is-open .widget-dock-action:nth-child(1) {
+        transition-delay: 0.02s;
+      }
+
+      .widget-dock.is-open .widget-dock-action:nth-child(2) {
+        transition-delay: 0.07s;
+      }
+
+      .widget-dock-action.is-active,
+      .widget-dock-fab.is-open {
         background: #8b0000;
         border: 3px solid #ffffff;
         box-shadow:
@@ -398,15 +451,28 @@ function initMessageButton() {
           0 14px 32px rgba(77, 9, 11, 0.35);
       }
 
-      .message-button:hover,
-      .message-button:focus-visible {
-        transform: translateY(-2px);
+      .widget-dock-fab:hover,
+      .widget-dock-fab:focus-visible,
+      .widget-dock-action:hover,
+      .widget-dock-action:focus-visible {
+        transform: translateY(-4px);
         box-shadow: 0 18px 36px rgba(77, 9, 11, 0.42);
+        outline: none;
       }
 
-      .message-button svg {
+      .widget-dock-fab svg,
+      .widget-dock-action svg {
         width: 28px;
         height: 28px;
+      }
+
+      .widget-dock-action[hidden] {
+        display: none;
+      }
+
+      body.nav-open .widget-dock {
+        opacity: 0;
+        pointer-events: none;
       }
 
       .chatbot-widget-shell {
@@ -453,17 +519,16 @@ function initMessageButton() {
       }
 
       @media (max-width: 640px) {
-        .message-button {
+        .widget-dock {
           right: 16px;
           bottom: 16px;
-          width: 58px;
-          height: 58px;
+          gap: 10px;
         }
 
-        .message-button.is-open {
-          right: 86px;
-          left: auto;
-          bottom: 16px;
+        .widget-dock-fab,
+        .widget-dock-action {
+          width: 58px;
+          height: 58px;
         }
 
         .chatbot-widget-shell {
@@ -494,12 +559,25 @@ function initMessageButton() {
     ></iframe>
   `;
 
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "message-button";
-  button.title = "Chat with AI Assistant";
-  button.setAttribute("aria-label", "Open AI Assistant");
-  button.setAttribute("aria-expanded", "false");
+  const dock = document.createElement("div");
+  dock.className = "widget-dock";
+  dock.innerHTML = `
+    <div class="widget-dock-actions" aria-label="Quick widgets">
+      <button type="button" class="widget-dock-action" data-widget-action="chat" title="Chat with AI Assistant" aria-label="Open AI Assistant" aria-expanded="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
+        </svg>
+      </button>
+    </div>
+    <button type="button" class="widget-dock-fab" title="Open widgets" aria-label="Open widgets" aria-expanded="false">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M5 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>
+      </svg>
+    </button>
+  `;
+
+  const launcher = dock.querySelector(".widget-dock-fab");
+  const chatAction = dock.querySelector('[data-widget-action="chat"]');
   const chatButtonIcon = `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
@@ -510,96 +588,63 @@ function initMessageButton() {
       <path fill="currentColor" d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"/>
     </svg>
   `.trim();
-  button.innerHTML = chatButtonIcon;
-
-  const setOpenState = (isOpen) => {
-    widget.classList.toggle("is-open", isOpen);
-    widget.setAttribute("aria-hidden", isOpen ? "false" : "true");
-    button.classList.toggle("is-open", isOpen);
-    button.setAttribute("aria-expanded", isOpen ? "true" : "false");
-    button.setAttribute("aria-label", isOpen ? "Close AI Assistant" : "Open AI Assistant");
-    button.title = isOpen ? "Close AI Assistant" : "Chat with AI Assistant";
-    button.innerHTML = isOpen ? closeButtonIcon : chatButtonIcon;
-  };
-
-  button.addEventListener("click", () => {
-    setOpenState(!widget.classList.contains("is-open"));
-  });
-
-  document.addEventListener("pointerdown", (event) => {
-    if (!widget.classList.contains("is-open")) return;
-    if (widget.contains(event.target) || button.contains(event.target)) return;
-    setOpenState(false);
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && widget.classList.contains("is-open")) {
-      setOpenState(false);
-    }
-  });
-
-  document.body.appendChild(widget);
-  document.body.appendChild(button);
-}
-
-// =======================
-// 4.2) Scroll navigation button
-// =======================
-function initScrollNavButtons() {
-  if (!document.body || document.querySelector(".scroll-nav-button")) return;
-
-  const button = document.createElement("button");
-  button.type = "button";
-  button.className = "scroll-nav-button";
-  button.innerHTML = `
+  const launcherIcon = `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path d="m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"></path>
+      <path fill="currentColor" d="M5 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>
     </svg>
   `.trim();
 
-  const iconPath = button.querySelector("path");
-
-  const syncButton = () => {
-    const scrollTop = window.scrollY || 0;
-    const viewportHeight = window.innerHeight || 0;
-    const documentHeight = Math.max(
-      document.body.scrollHeight,
-      document.documentElement.scrollHeight
-    );
-    const maxScroll = Math.max(0, documentHeight - viewportHeight);
-    const midpoint = maxScroll * 0.5;
-    const showButton = maxScroll > 420;
-    const direction = scrollTop >= midpoint ? "up" : "down";
-
-    button.classList.toggle("is-visible", showButton);
-    button.dataset.direction = direction;
-    button.setAttribute(
-      "aria-label",
-      direction === "up" ? "Scroll to top" : "Scroll to bottom"
-    );
-
-    if (iconPath) {
-      iconPath.setAttribute(
-        "d",
-        direction === "up"
-          ? "M12 5.2 4.6 12.6l1.4 1.4 5-5v9h2v-9l5 5 1.4-1.4L12 5.2Z"
-          : "m12 18.8 7.4-7.4-1.4-1.4-5 5v-9h-2v9l-5-5-1.4 1.4L12 18.8Z"
-      );
-    }
+  const setDockOpen = (isOpen) => {
+    dock.classList.toggle("is-open", isOpen);
+    launcher.classList.toggle("is-open", isOpen);
+    document.body.classList.toggle("widget-dock-open", isOpen);
+    launcher.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    launcher.setAttribute("aria-label", isOpen ? "Close widgets" : "Open widgets");
+    launcher.title = isOpen ? "Close widgets" : "Open widgets";
+    launcher.innerHTML = isOpen ? closeButtonIcon : launcherIcon;
   };
 
-  button.addEventListener("click", () => {
-    const direction = button.dataset.direction === "up" ? "up" : "down";
-    window.scrollTo({
-      top: direction === "up" ? 0 : document.documentElement.scrollHeight,
-      behavior: "smooth",
-    });
+  const setChatOpenState = (isOpen) => {
+    widget.classList.toggle("is-open", isOpen);
+    widget.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    chatAction.classList.toggle("is-active", isOpen);
+    chatAction.setAttribute("aria-expanded", isOpen ? "true" : "false");
+    chatAction.setAttribute("aria-label", isOpen ? "Close AI Assistant" : "Open AI Assistant");
+    chatAction.title = isOpen ? "Close AI Assistant" : "Chat with AI Assistant";
+    chatAction.innerHTML = isOpen ? closeButtonIcon : chatButtonIcon;
+  };
+
+  launcher.addEventListener("click", () => {
+    const nextState = !dock.classList.contains("is-open");
+    setDockOpen(nextState);
+    if (!nextState) setChatOpenState(false);
   });
 
-  window.addEventListener("scroll", syncButton, { passive: true });
-  window.addEventListener("resize", syncButton);
-  document.body.appendChild(button);
-  syncButton();
+  chatAction.addEventListener("click", () => {
+    if (!dock.classList.contains("is-open")) {
+      setDockOpen(true);
+    }
+    setChatOpenState(!widget.classList.contains("is-open"));
+  });
+
+  document.addEventListener("pointerdown", (event) => {
+    if (!dock.classList.contains("is-open") && !widget.classList.contains("is-open")) return;
+    const accessibilityToggle = document.querySelector(".acc-container .acc-toggle-btn");
+    if (widget.contains(event.target) || dock.contains(event.target) || accessibilityToggle?.contains(event.target)) return;
+    setChatOpenState(false);
+    setDockOpen(false);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setChatOpenState(false);
+      setDockOpen(false);
+    }
+  });
+
+  document.body.classList.add("has-widget-dock");
+  document.body.appendChild(widget);
+  document.body.appendChild(dock);
 }
 
 // =======================
@@ -643,8 +688,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initReadMore();
   initHistoryTimelineToggles();
   initVisionMissionToggles();
-  initMessageButton();
-  initScrollNavButtons();
+  initWidgetDock();
 });
 
 // =======================

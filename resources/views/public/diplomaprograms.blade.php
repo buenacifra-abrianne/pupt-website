@@ -27,7 +27,7 @@
     ></pup-header>
     @endunless
 
-    <main class="main-content">
+    <main class="main-content academics-no-bottom-gap">
         @include('partials.academics_program_page', [
             'programPageKey' => 'diploma-programs',
             'programPageTitle' => 'Diploma Programs',

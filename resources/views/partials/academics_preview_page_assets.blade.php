@@ -1,4 +1,26 @@
 <style>
+    html,
+    body {
+        height: auto !important;
+        min-height: 0 !important;
+    }
+
+    body {
+        display: block !important;
+    }
+
+    body > .main-content,
+    .main-content {
+        flex: none !important;
+        min-height: 0 !important;
+        height: auto !important;
+        padding-bottom: 0 !important;
+    }
+
+    .main-content > :last-child {
+        margin-bottom: 0 !important;
+    }
+
     .reveal,
     .reveal.active {
         opacity: 1 !important;

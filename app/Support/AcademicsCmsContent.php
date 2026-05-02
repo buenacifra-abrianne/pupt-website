@@ -255,7 +255,7 @@ class AcademicsCmsContent
                     'image' => 'assets/static_img/campus_photo.jpg',
                 ],
                 'info' => [
-                    'tag' => 'At a Glance',
+                    'tag' => '',
                     'title' => 'Academic Year 2024-2025',
                     'items' => [
                         ['label' => '1st Semester', 'value' => 'August - December 2024', 'href' => ''],
@@ -268,12 +268,10 @@ class AcademicsCmsContent
                 'calendar' => [
                     'tag' => 'Official Calendar',
                     'title' => 'University Academic Calendar',
-                    'pdf_url' => 'assets/static_img/university_calendar.pdf',
-                    'note' => 'If the embedded preview does not load on your browser or device, open the PDF directly in a new tab or download it below.',
+                    'pdf_url' => 'https://www.pup.edu.ph/about/calendar',
+                    'note' => 'If the embedded calendar does not load on your browser or device, open the official PUP calendar in a new tab below.',
                     'actions' => [
-                        ['label' => 'Open PDF in New Tab', 'href' => 'assets/static_img/university_calendar.pdf', 'style' => 'outline', 'download' => false],
-                        ['label' => 'Download Calendar', 'href' => 'assets/static_img/university_calendar.pdf', 'style' => 'primary', 'download' => true],
-                        ['label' => 'View on PUP Website', 'href' => 'https://www.pup.edu.ph', 'style' => 'outline', 'download' => false],
+                        ['label' => 'Open Official Calendar', 'href' => 'https://www.pup.edu.ph/about/calendar', 'style' => 'primary', 'download' => false],
                     ],
                 ],
             ],
