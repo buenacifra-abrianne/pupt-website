@@ -2973,6 +2973,10 @@
             });
         };
 
+        window.syncAboutHistoryDateFields = (scope = document) => {
+            scope.querySelectorAll('[data-about-history-date-group]').forEach(syncAboutHistoryDateGroup);
+        };
+
         const setActiveContentsEditor = (slug = '') => {
             const editors = Array.from(document.querySelectorAll('[data-about-contents-editor]'));
 
