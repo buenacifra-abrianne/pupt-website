@@ -102,6 +102,7 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
   <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($content) !!}</div>
 
   <div class="announcement-actions">
+    @if($statusClass !== 'pending')
     <button type="button" class="btn btn-sm btn-primary"
       onclick="editAnnouncementRequest(
         {{ $reqId }},
@@ -114,6 +115,7 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
       )">
       <i class="fas fa-edit"></i> Edit
     </button>
+    @endif
 
     {{-- Toggle button: ONLY show when request is APPROVED --}}
     @if($statusClass === 'approved' && !empty($db_status) && !empty($payload['announcement_id']))
@@ -125,11 +127,20 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
     </button>
     @endif
 
+    @if($statusClass !== 'pending')
     <button type="button" class="btn btn-sm btn-delete"
     data-delete-url="{{ route('staff.requests.delete', ['id' => $reqId]) }}"
     data-title="{{ e($title) }}"
     onclick="deleteApprovalRequestOnly(event, this)">
     <i class="fas fa-trash"></i>
+    </button>
+    @endif
+
+    <button type="button"
+      class="btn btn-sm btn-primary"
+      data-view-changes-url="{{ route('staff.requests.changes', ['id' => $reqId]) }}"
+      onclick="openRequestChangesModal(this)">
+      <i class="fas fa-code-compare"></i> View Changes
     </button>
 
     <button type="button" class="btn btn-sm btn-view-icon" title="View"

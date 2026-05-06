@@ -207,7 +207,7 @@
         @php
             $newsReqs = $myRequests->filter(fn($r) =>
                 in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
-                && strtolower((string)($r->status ?? '')) === 'rejected'
+                && in_array(strtolower((string)($r->status ?? '')), ['pending', 'rejected'], true)
             );
         @endphp
 
@@ -410,6 +410,25 @@
                       <i class="fas fa-external-link-alt"></i> Open Link
                   </a>
               </div>
+        </div>
+    </div>
+
+    <div id="requestChangesModal" class="modal">
+        <div class="modal-content" style="max-width:900px;">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="requestChangesTitle">Submitted Changes</h2>
+                    <div id="requestChangesMeta" style="margin-top:6px; color:#6b6b6b; font-size:13px;"></div>
+                </div>
+                <button class="close-modal" type="button" onclick="closeRequestChangesModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="requestChangesStatus" style="margin:8px 0 16px;"></div>
+            <div id="requestChangesBody" style="display:grid; gap:12px;">
+                <div style="padding:18px; border-radius:12px; background:#f7f7f7; color:#6b6b6b;">Loading submitted changes...</div>
+            </div>
         </div>
     </div>
 
@@ -964,6 +983,107 @@
         if (linkBtn) linkBtn.href = '#';
     }
 
+    function closeRequestChangesModal() {
+        document.getElementById('requestChangesModal').classList.remove('active');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function requestStatusBadge(request) {
+        const status = String(request?.status || '').toLowerCase();
+        const label = request?.status_label || 'Needs Revision';
+        const palette = {
+            pending: 'background:#fff7d6;color:#6b4e00;border-color:#f4d56b;',
+            approved: 'background:#e7f8ec;color:#146c2e;border-color:#9bd9ad;',
+            rejected: 'background:#ffecec;color:#8a1f1f;border-color:#f3b2b2;',
+        };
+        const revision = request?.needs_revision
+            ? '<span style="margin-left:8px; display:inline-flex; padding:5px 9px; border-radius:999px; background:#fff0d6; color:#7a3d00; font-weight:700; font-size:12px;">Needs Revision</span>'
+            : '';
+
+        return `<span style="display:inline-flex; padding:6px 10px; border:1px solid; border-radius:999px; font-weight:700; font-size:12px; ${palette[status] || 'background:#eef2f7;color:#334155;border-color:#cbd5e1;'}">${escapeHtml(label)}</span>${revision}`;
+    }
+
+    function requestFieldValueHtml(value, type) {
+        const raw = value?.raw || '';
+        if (type === 'image') {
+            if (!value?.url) return '<div style="color:#8f7d74; font-style:italic;">No image uploaded.</div>';
+            return `<figure style="margin:0;"><img src="${escapeHtml(value.url)}" alt="Submitted image" style="display:block; max-width:100%; max-height:260px; object-fit:contain; border-radius:10px; border:1px solid rgba(0,0,0,.08); background:#fff;"><figcaption style="margin-top:6px; font-size:12px; color:#8f7d74; word-break:break-all;">${escapeHtml(raw)}</figcaption></figure>`;
+        }
+
+        if (type === 'html') {
+            return raw ? `<div class="rich-text-content">${raw}</div>` : '<div style="color:#8f7d74; font-style:italic;">No content provided.</div>';
+        }
+
+        return raw ? `<div style="white-space:pre-wrap;">${escapeHtml(raw)}</div>` : '<div style="color:#8f7d74; font-style:italic;">No value provided.</div>';
+    }
+
+    function renderRequestChanges(payload) {
+        const request = payload.request || {};
+        const fields = Array.isArray(payload.fields) ? payload.fields : [];
+        const body = document.getElementById('requestChangesBody');
+
+        document.getElementById('requestChangesTitle').textContent = request.title || 'Submitted Changes';
+        document.getElementById('requestChangesMeta').textContent = `${request.type_label || 'Approval Request'} • Submitted ${request.submitted_at || '—'}`;
+        document.getElementById('requestChangesStatus').innerHTML = requestStatusBadge(request);
+
+        if (request.rejection_reason) {
+            document.getElementById('requestChangesStatus').innerHTML += `<div style="margin-top:10px; padding:10px; border-radius:10px; background:#ffecec; color:#8a1f1f;"><strong>Reason:</strong> ${escapeHtml(request.rejection_reason)}</div>`;
+        }
+
+        if (!fields.length) {
+            body.innerHTML = '<div style="padding:18px; border-radius:12px; background:#f7f7f7; color:#6b6b6b;">No submitted details found.</div>';
+            return;
+        }
+
+        body.innerHTML = fields.map((field) => {
+            const changedStyle = field.changed ? 'border-color:#f2b84b; background:#fffaf0;' : 'border-color:rgba(128,0,0,.08); background:#fbfbfb;';
+            const changedBadge = field.changed
+                ? '<span style="display:inline-flex; padding:4px 8px; border-radius:999px; background:#fff0d6; color:#7a3d00; font-weight:700; font-size:12px;">Changed</span>'
+                : '<span style="display:inline-flex; padding:4px 8px; border-radius:999px; background:#eef2f7; color:#475569; font-weight:700; font-size:12px;">Unchanged</span>';
+
+            return `<section style="border:1px solid; border-radius:14px; padding:14px; ${changedStyle}">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0; font-size:16px; color:#5c0000;">${escapeHtml(field.label)}</h3>${changedBadge}
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+                    <div style="border-radius:12px; background:#fff; border:1px solid rgba(0,0,0,.06); padding:12px;">
+                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:#8f7d74; font-weight:700; margin-bottom:8px;">Original</div>
+                        ${requestFieldValueHtml(field.original, field.type)}
+                    </div>
+                    <div style="border-radius:12px; background:#fff; border:1px solid rgba(0,0,0,.06); padding:12px;">
+                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:#8f7d74; font-weight:700; margin-bottom:8px;">Submitted</div>
+                        ${requestFieldValueHtml(field.updated, field.type)}
+                    </div>
+                </div>
+            </section>`;
+        }).join('');
+    }
+
+    async function openRequestChangesModal(button) {
+        const url = button?.dataset?.viewChangesUrl;
+        const modal = document.getElementById('requestChangesModal');
+        const body = document.getElementById('requestChangesBody');
+        if (!url) return;
+
+        modal.classList.add('active');
+        document.getElementById('requestChangesTitle').textContent = 'Submitted Changes';
+        document.getElementById('requestChangesMeta').textContent = '';
+        document.getElementById('requestChangesStatus').innerHTML = '';
+        body.innerHTML = '<div style="padding:18px; border-radius:12px; background:#f7f7f7; color:#6b6b6b;">Loading submitted changes...</div>';
+
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await res.json();
+            if (!res.ok || !json.ok) throw new Error(json.message || 'Unable to load submitted changes.');
+            renderRequestChanges(json);
+        } catch (err) {
+            body.innerHTML = `<div style="padding:18px; border-radius:12px; background:#ffecec; color:#8a1f1f;">${escapeHtml(err.message || 'Unable to load submitted changes.')}</div>`;
+        }
+    }
+
     function editNews(id, title, content, category, location, link, imagePath, imageUrl) {
     id = parseInt(id, 10);
     if (!id || id <= 0) {
@@ -1149,6 +1269,10 @@
 
         if (e.target.id === 'readMoreModal') {
             closeReadMoreModal();
+        }
+
+        if (e.target.id === 'requestChangesModal') {
+            closeRequestChangesModal();
         }
     });
 

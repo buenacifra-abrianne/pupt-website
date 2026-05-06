@@ -118,6 +118,9 @@ Route::prefix('staff')
         Route::delete('/requests/{id}', [StaffAnnouncementController::class, 'deleteRequestOnly'])
             ->name('requests.delete');
 
+        Route::get('/requests/{id}/changes', [StaffAnnouncementController::class, 'showRequestChanges'])
+            ->name('requests.changes');
+
         // Requests (Announcements)
         Route::post('/announcements/request-create', [StaffAnnouncementController::class, 'requestCreateAnnouncement'])
             ->name('announcements.requestCreate');

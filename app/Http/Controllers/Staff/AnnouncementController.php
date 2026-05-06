@@ -527,6 +527,200 @@ $pendingNewsIds = DB::table('approval_requests')
     return response()->json(['ok' => true]);
 }
 
+public function showRequestChanges($id)
+{
+    $req = ApprovalRequest::findOrFail($id);
+    $userEmail = strtolower(trim((string) (session('user_email') ?? '')));
+
+    if ($userEmail === '' || strtolower(trim((string) $req->requester_email)) !== $userEmail) {
+        return response()->json(['ok' => false, 'message' => 'Not allowed.'], 403);
+    }
+
+    $payload = json_decode($req->details ?? '{}', true) ?: [];
+    $type = strtoupper((string) $req->type);
+    $status = strtolower(trim((string) $req->status));
+
+    return response()->json([
+        'ok' => true,
+        'request' => [
+            'id' => (int) $req->id,
+            'type' => $type,
+            'type_label' => $this->approvalTypeLabel($type),
+            'status' => $status,
+            'status_label' => $this->approvalStatusLabel($status),
+            'needs_revision' => $status === 'rejected',
+            'title' => PlainText::normalize($payload['title'] ?? $req->title ?? 'Request'),
+            'submitted_at' => optional($req->created_at)->format('M d, Y h:i A'),
+            'updated_at' => optional($req->updated_at)->format('M d, Y h:i A'),
+            'rejection_reason' => (string) ($req->rejection_reason ?? ''),
+        ],
+        'fields' => $this->approvalChangeFields($type, $payload),
+    ]);
+}
+
+private function approvalChangeFields(string $type, array $payload): array
+{
+    $original = $this->approvalOriginalValues($type, $payload);
+    $updated = $this->approvalSubmittedValues($type, $payload, $original);
+    $fields = [];
+
+    foreach ($updated as $key => $field) {
+        $originalValue = $original[$key]['value'] ?? null;
+        $updatedValue = $field['value'] ?? null;
+        $fieldType = (string) ($field['type'] ?? 'text');
+
+        $fields[] = [
+            'key' => $key,
+            'label' => (string) ($field['label'] ?? $this->humanizeApprovalField($key)),
+            'type' => $fieldType,
+            'original' => $this->formatApprovalFieldValue($originalValue, $fieldType),
+            'updated' => $this->formatApprovalFieldValue($updatedValue, $fieldType),
+            'changed' => $this->approvalFieldChanged($originalValue, $updatedValue, $fieldType),
+        ];
+    }
+
+    return $fields;
+}
+
+private function approvalSubmittedValues(string $type, array $payload, array $original): array
+{
+    if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+        if (in_array($type, ['ANNOUNCEMENT_DELETE', 'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE'], true)) {
+            return array_merge($original, [
+                'requested_action' => ['label' => 'Requested Action', 'value' => $this->approvalTypeLabel($type), 'type' => 'text'],
+            ]);
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $payload['title'] ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Description', 'value' => RichText::sanitize($payload['content'] ?? ''), 'type' => 'html'],
+            'priority' => ['label' => 'Priority', 'value' => strtoupper((string) ($payload['priority'] ?? '')), 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $payload['link'] ?? '', 'type' => 'text'],
+        ];
+    }
+
+    if (str_starts_with($type, 'NEWS_')) {
+        if ($type === 'NEWS_DELETE') {
+            return array_merge($original, [
+                'requested_action' => ['label' => 'Requested Action', 'value' => $this->approvalTypeLabel($type), 'type' => 'text'],
+            ]);
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $payload['title'] ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Content', 'value' => RichText::sanitize($payload['content'] ?? ''), 'type' => 'html'],
+            'category' => ['label' => 'Category', 'value' => $payload['category'] ?? '', 'type' => 'text'],
+            'location' => ['label' => 'Venue / Location', 'value' => $payload['location'] ?? '', 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $payload['link'] ?? '', 'type' => 'text'],
+            'image_path' => ['label' => 'Uploaded Image', 'value' => $payload['image_path'] ?? '', 'type' => 'image'],
+        ];
+    }
+
+    return [
+        'details' => ['label' => 'Submitted Details', 'value' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 'type' => 'text'],
+    ];
+}
+
+private function approvalOriginalValues(string $type, array $payload): array
+{
+    if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+        $id = (int) ($payload['announcement_id'] ?? 0);
+        if ($id <= 0) {
+            return [];
+        }
+
+        $row = DB::table('announcements')->where('announcement_id', $id)->first();
+        if (!$row) {
+            return [];
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $row->title ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Description', 'value' => RichText::sanitize($row->content ?? ''), 'type' => 'html'],
+            'priority' => ['label' => 'Priority', 'value' => strtoupper((string) ($row->priority ?? '')), 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $row->link ?? '', 'type' => 'text'],
+        ];
+    }
+
+    if (str_starts_with($type, 'NEWS_')) {
+        $id = (int) ($payload['news_id'] ?? 0);
+        if ($id <= 0) {
+            return [];
+        }
+
+        $row = DB::table('news')->where('news_id', $id)->first();
+        if (!$row) {
+            return [];
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $row->title ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Content', 'value' => RichText::sanitize($row->content ?? ''), 'type' => 'html'],
+            'category' => ['label' => 'Category', 'value' => $row->category ?? '', 'type' => 'text'],
+            'location' => ['label' => 'Venue / Location', 'value' => $row->location ?? '', 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $row->link ?? '', 'type' => 'text'],
+            'image_path' => ['label' => 'Uploaded Image', 'value' => $row->image_path ?? '', 'type' => 'image'],
+        ];
+    }
+
+    return [];
+}
+
+private function approvalFieldChanged(mixed $original, mixed $updated, string $type): bool
+{
+    if ($type === 'html') {
+        return RichText::plainText((string) $original) !== RichText::plainText((string) $updated);
+    }
+
+    return trim((string) ($original ?? '')) !== trim((string) ($updated ?? ''));
+}
+
+private function formatApprovalFieldValue(mixed $value, string $type): array
+{
+    $raw = trim((string) ($value ?? ''));
+
+    if ($type === 'image') {
+        return [
+            'raw' => $raw,
+            'url' => NewsImage::url($raw),
+        ];
+    }
+
+    return [
+        'raw' => $raw,
+    ];
+}
+
+private function approvalTypeLabel(string $type): string
+{
+    return match ($type) {
+        'ANNOUNCEMENT_CREATE' => 'Create Announcement',
+        'ANNOUNCEMENT_UPDATE' => 'Edit Announcement',
+        'ANNOUNCEMENT_DELETE' => 'Delete Announcement',
+        'ANNOUNCEMENT_ENABLE' => 'Enable Announcement',
+        'ANNOUNCEMENT_DISABLE' => 'Disable Announcement',
+        'NEWS_CREATE' => 'Create Article / Event',
+        'NEWS_UPDATE' => 'Edit Article / Event',
+        'NEWS_DELETE' => 'Delete Article / Event',
+        default => 'Approval Request',
+    };
+}
+
+private function approvalStatusLabel(string $status): string
+{
+    return match ($status) {
+        'pending' => 'Pending Approval',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+        default => 'Needs Revision',
+    };
+}
+
+private function humanizeApprovalField(string $key): string
+{
+    return ucwords(str_replace(['_', '-'], ' ', $key));
+}
+
     private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole, ?int $targetUserId = null): void
     {
         DB::table('notifications')->insert([
