@@ -38,10 +38,7 @@ class CmsApprovalPreview
 
         return implode('', [
             self::renderSectionHeading($sectionLabel),
-            '<div style="display:grid; gap:14px;">',
-            self::renderValuePanel('Previous', $previous),
-            self::renderValuePanel('Requested Update', $requested),
-            '</div>',
+            self::renderValuePanel('Changed Content', self::diffChangedValue($requested, $previous)),
         ]);
     }
 
@@ -197,6 +194,10 @@ class CmsApprovalPreview
             return self::emptyState();
         }
 
+        if (self::isChangedScalar($value)) {
+            return self::renderChangedScalar($value);
+        }
+
         if (self::isAssoc($value)) {
             $parts = [];
             foreach ($value as $key => $item) {
@@ -222,6 +223,10 @@ class CmsApprovalPreview
 
     private static function renderNestedValueForKey(mixed $value, string $key): string
     {
+        if (is_array($value) && self::isChangedScalar($value)) {
+            return self::renderChangedScalar($value, $key);
+        }
+
         if (is_array($value)) {
             return self::renderValue($value);
         }
@@ -247,6 +252,88 @@ class CmsApprovalPreview
     private static function renderNestedValue(mixed $value, string $key = ''): string
     {
         return self::renderNestedValueForKey($value, $key);
+    }
+
+    private static function renderChangedScalar(array $value, string $key = ''): string
+    {
+        return '<div style="display:grid; gap:10px;">'
+            .'<div>'
+            .'<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700; margin-bottom:4px;">Previous</div>'
+            .self::renderNestedValue($value['previous'] ?? null, $key)
+            .'</div>'
+            .'<div>'
+            .'<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700; margin-bottom:4px;">Requested</div>'
+            .self::renderNestedValue($value['requested'] ?? null, $key)
+            .'</div>'
+            .'</div>';
+    }
+
+    private static function diffChangedValue(mixed $requested, mixed $previous): mixed
+    {
+        if (self::normalizeComparable($requested) === self::normalizeComparable($previous)) {
+            return [];
+        }
+
+        if (is_array($requested) && is_array($previous)) {
+            if (self::isAssoc($requested) || self::isAssoc($previous)) {
+                return self::diffChangedAssoc($requested, $previous);
+            }
+
+            return self::diffChangedList($requested, $previous);
+        }
+
+        return [
+            '__cms_changed_scalar' => true,
+            'previous' => $previous,
+            'requested' => $requested,
+        ];
+    }
+
+    private static function diffChangedAssoc(array $requested, array $previous): array
+    {
+        $out = [];
+        $keys = array_values(array_unique(array_merge(array_keys($requested), array_keys($previous))));
+
+        foreach ($keys as $key) {
+            $next = $requested[$key] ?? null;
+            $old = $previous[$key] ?? null;
+
+            if (self::normalizeComparable($next) === self::normalizeComparable($old)) {
+                continue;
+            }
+
+            $out[$key] = self::diffChangedValue($next, $old);
+        }
+
+        return $out;
+    }
+
+    private static function diffChangedList(array $requested, array $previous): array
+    {
+        $out = [];
+        $max = max(count($requested), count($previous));
+
+        for ($index = 0; $index < $max; $index++) {
+            $hasNext = array_key_exists($index, $requested);
+            $hasOld = array_key_exists($index, $previous);
+            $next = $hasNext ? $requested[$index] : null;
+            $old = $hasOld ? $previous[$index] : null;
+
+            if (self::normalizeComparable($next) === self::normalizeComparable($old)) {
+                continue;
+            }
+
+            $out['item_'.($index + 1)] = self::diffChangedValue($next, $old);
+        }
+
+        return $out;
+    }
+
+    private static function isChangedScalar(array $value): bool
+    {
+        return ($value['__cms_changed_scalar'] ?? false) === true
+            && array_key_exists('previous', $value)
+            && array_key_exists('requested', $value);
     }
 
     private static function renderScalar(string $text): string
