@@ -82,6 +82,45 @@ class AboutCmsContentTest extends TestCase
         $this->assertSame($saved, $repeat);
     }
 
+    public function test_clearing_official_name_and_body_changes_normalized_content(): void
+    {
+        $stored = AboutCmsContent::encode(AboutCmsContent::fromInput([
+            'sections' => [
+                'campus-officials' => [
+                    'official_groups' => [
+                        [
+                            'title' => 'Campus Director',
+                            'name' => 'Existing Official',
+                            'body' => 'Existing official description.',
+                            'image' => '',
+                        ],
+                    ],
+                ],
+            ],
+        ]));
+
+        $content = AboutCmsContent::encode(AboutCmsContent::fromInput([
+            'sections' => [
+                'campus-officials' => [
+                    'official_groups' => [
+                        [
+                            'title' => 'Campus Director',
+                            'name' => null,
+                            'body' => null,
+                            'image' => '',
+                        ],
+                    ],
+                ],
+            ],
+        ], $stored));
+
+        $official = AboutCmsContent::fromStored($content)['sections']['campus-officials']['official_groups'][0];
+
+        $this->assertNotSame($stored, $content);
+        $this->assertSame('', $official['name']);
+        $this->assertSame('', $official['body']);
+    }
+
     private function storedDefaults(): string
     {
         return AboutCmsContent::encode(AboutCmsContent::defaults());

@@ -753,7 +753,11 @@ class AboutCmsContent
 
     private static function pickString(array $source, array $base, array $defaults, string $key, int $maxLen = 255): string
     {
-        $value = $source[$key] ?? ($base[$key] ?? ($defaults[$key] ?? ''));
+        if (array_key_exists($key, $source)) {
+            return self::sanitizeOptionalString((string) $source[$key], $maxLen);
+        }
+
+        $value = $base[$key] ?? ($defaults[$key] ?? '');
 
         return self::sanitizeString((string) $value, $maxLen, (string) ($defaults[$key] ?? ''));
     }
