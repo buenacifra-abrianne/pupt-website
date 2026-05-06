@@ -127,10 +127,10 @@ class CmsApprovalPreview
 
         return match ($sectionKey) {
             'hero' => ['overview' => self::onlyKeys($overview, ['hero_image', 'hero_title_default', 'hero_title_history', 'hero_title_vision', 'section_header_image'])],
-            'intro' => ['overview' => self::onlyKeys($overview, ['story_tag', 'story_title', 'story_description'])],
+            'intro' => ['overview' => self::onlyKeys($overview, ['story_tag', 'story_title', 'story_description', 'story_image'])],
             'contents' => [
                 'overview' => self::onlyKeys($overview, ['contents_tag', 'contents_title']),
-                'sections' => array_map(static fn ($section) => self::onlyKeys(is_array($section) ? $section : [], ['label', 'summary', 'visible_in_contents']), $sections),
+                'sections' => array_map(static fn ($section) => self::onlyKeys(is_array($section) ? $section : [], ['label', 'summary', 'image', 'visible_in_contents']), $sections),
             ],
             'vision-mission-header' => ['sections' => ['vision-and-mission' => self::onlyKeys($vision, ['page_kicker', 'page_title'])]],
             'vision-statement' => ['sections' => ['vision-and-mission' => self::onlyKeys($vision, ['vision'])]],
@@ -202,7 +202,7 @@ class CmsApprovalPreview
             foreach ($value as $key => $item) {
                 $parts[] = '<div style="margin-top:10px;">'
                     .'<div style="font-size:12px; color:#8f7d74; font-weight:700; margin-bottom:6px;">'.e(self::humanizeKey((string) $key)).'</div>'
-                    .self::renderNestedValue($item)
+                    .self::renderNestedValue($item, (string) $key)
                     .'</div>';
             }
 
@@ -220,7 +220,7 @@ class CmsApprovalPreview
         return implode('', $items);
     }
 
-    private static function renderNestedValue(mixed $value): string
+    private static function renderNestedValueForKey(mixed $value, string $key): string
     {
         if (is_array($value)) {
             return self::renderValue($value);
@@ -232,10 +232,21 @@ class CmsApprovalPreview
 
         $text = trim((string) ($value ?? ''));
         if ($text === '') {
-            return self::emptyState();
+            return self::isImageKey($key)
+                ? self::emptyImageState()
+                : self::emptyState();
+        }
+
+        if (self::isImageKey($key)) {
+            return self::renderImageValue($text);
         }
 
         return self::renderScalar($text);
+    }
+
+    private static function renderNestedValue(mixed $value, string $key = ''): string
+    {
+        return self::renderNestedValueForKey($value, $key);
     }
 
     private static function renderScalar(string $text): string
@@ -250,6 +261,35 @@ class CmsApprovalPreview
     private static function emptyState(): string
     {
         return '<div style="color:#8f7d74; font-style:italic;">No content provided.</div>';
+    }
+
+    private static function emptyImageState(): string
+    {
+        return '<div style="border:1px dashed rgba(128,0,0,.22); border-radius:12px; padding:14px; color:#8f7d74; font-style:italic; background:#fff;">No image provided.</div>';
+    }
+
+    private static function renderImageValue(string $path): string
+    {
+        $url = ImageStorage::url($path);
+
+        if (!$url) {
+            return self::emptyImageState();
+        }
+
+        return '<figure style="margin:0;">'
+            .'<img src="'.e($url).'" alt="Requested image preview" style="display:block; max-width:100%; max-height:320px; object-fit:contain; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#fff;">'
+            .'<figcaption style="margin-top:6px; font-size:12px; color:#8f7d74; word-break:break-all;">'.e($path).'</figcaption>'
+            .'</figure>';
+    }
+
+    private static function isImageKey(string $key): bool
+    {
+        $normalized = strtolower(trim($key));
+
+        return $normalized === 'image'
+            || $normalized === 'image_path'
+            || str_ends_with($normalized, '_image')
+            || str_ends_with($normalized, '_image_path');
     }
 
     private static function normalizeComparable(mixed $value): string
