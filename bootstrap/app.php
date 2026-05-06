@@ -1,10 +1,14 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use App\Console\Commands\NormalizeHtmlEntityText;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 
 return Application::configure(basePath: dirname(__DIR__))
+    ->withCommands([
+        NormalizeHtmlEntityText::class,
+    ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
         api: __DIR__.'/../routes/api.php',
@@ -13,7 +17,12 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
+            \App\Http\Middleware\NormalizePlainTextEntities::class,
             \App\Http\Middleware\TrackPublicAnalytics::class,
+        ]);
+
+        $middleware->api(append: [
+            \App\Http\Middleware\NormalizePlainTextEntities::class,
         ]);
 
         $middleware->alias([

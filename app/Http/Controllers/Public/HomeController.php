@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Public;
 
 use App\Http\Controllers\Controller;
 use App\Support\HomeCmsContent;
+use App\Support\PlainText;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
@@ -35,7 +36,12 @@ class HomeController extends Controller
             ")
             ->orderByRaw("COALESCE(date_published, created_at) DESC")
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($announcement) {
+                $announcement->title = PlainText::normalize($announcement->title ?? '');
+
+                return $announcement;
+            });
 
         // News: APPROVED only
         $news = DB::table('news')
@@ -58,7 +64,14 @@ class HomeController extends Controller
             ->orderByDesc('date_published')
             ->orderByDesc('created_at')
             ->limit(10)
-            ->get();
+            ->get()
+            ->map(function ($item) {
+                $item->title = PlainText::normalize($item->title ?? '');
+                $item->category = PlainText::normalize($item->category ?? '');
+                $item->location = PlainText::normalize($item->location ?? '');
+
+                return $item;
+            });
 
         return view('public.home', compact('announcements', 'news', 'homeCms'));
     }

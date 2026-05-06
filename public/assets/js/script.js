@@ -870,10 +870,21 @@ document.addEventListener("DOMContentLoaded", () => {
     const source = (value || "").trim();
     if (!source) return "";
 
+    let decoded = source;
     const textarea = document.createElement("textarea");
-    textarea.innerHTML = source;
 
-    return textarea.value.trim();
+    for (let i = 0; i < 5; i += 1) {
+      textarea.innerHTML = decoded;
+      const next = textarea.value.trim();
+
+      if (next === decoded || !next.includes("&")) {
+        return next;
+      }
+
+      decoded = next;
+    }
+
+    return decoded;
   }
 
   function renderAdvisoryContent(rawContent, rawHtml = "") {
@@ -933,10 +944,10 @@ document.addEventListener("DOMContentLoaded", () => {
     lastTrigger = trigger;
 
     if (tag) {
-      tag.textContent = trigger.dataset.modalTag || "Announcement";
+      tag.textContent = decodeEscapedHtml(trigger.dataset.modalTag || "Announcement") || "Announcement";
     }
-    title.textContent = trigger.dataset.title || "";
-    date.textContent = trigger.dataset.date || "";
+    title.textContent = decodeEscapedHtml(trigger.dataset.title || "");
+    date.textContent = decodeEscapedHtml(trigger.dataset.date || "");
     renderAdvisoryContent(trigger.dataset.content || "", trigger.dataset.contentHtml || "");
 
     const rawLink = trigger.getAttribute('data-link');
@@ -1452,6 +1463,33 @@ async function fetchNewsEvents(mode) {
 
 function pad2(n){ return String(n).padStart(2,'0'); }
 
+function decodeTextEntities(value) {
+  let decoded = String(value ?? '').trim();
+  const textarea = document.createElement('textarea');
+
+  for (let i = 0; i < 5; i += 1) {
+    textarea.innerHTML = decoded;
+    const next = textarea.value.trim();
+
+    if (next === decoded || !next.includes('&')) {
+      return next;
+    }
+
+    decoded = next;
+  }
+
+  return decoded;
+}
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function formatEventDateChip(dateStr) {
   // expects YYYY-MM-DD
   if (!dateStr) return '';
@@ -1488,21 +1526,21 @@ function renderFeatured(ev) {
   }
 
   const img = ev.image_path ? fixImg(ev.image_path) : '../assets/static_img/pupillar.jpeg';
-  const title = ev.title || '';
-  const desc = ev.short_description || ev.full_description || '';
+  const title = decodeTextEntities(ev.title || '');
+  const desc = decodeTextEntities(ev.short_description || ev.full_description || '');
   const dateLine = formatFeaturedDateLine(ev);
   const full = (ev.full_description || '').trim();
 
   mount.innerHTML = `
     <div class="event-card">
       <div class="event-image">
-        <img src="${img}" alt="${title}">
+        <img src="${escapeHtml(img)}" alt="${escapeHtml(title)}">
       </div>
       <div class="event-content">
         <span class="event-span">FEATURED EVENT</span>
-        <h2>${title}</h2>
-        <h3>${dateLine}</h3>
-        <p>${desc}</p>
+        <h2>${escapeHtml(title)}</h2>
+        <h3>${escapeHtml(dateLine)}</h3>
+        <p>${escapeHtml(desc)}</p>
         <a href="#" class="event-button" data-full="${encodeURIComponent(full)}">Learn More</a>
       </div>
     </div>
@@ -1526,13 +1564,13 @@ function renderColumn(colEl, items, isOngoing) {
 
   items.forEach((ev, i) => {
     const chip = formatEventDateChip(ev.event_date);
-    const title = ev.title || '';
+    const title = decodeTextEntities(ev.title || '');
 
     const div = document.createElement('div');
     div.className = `event-item ${isOngoing ? 'ongoing-event ' : ''}reveal${i ? ` delay-${i*100}` : ''}`;
     div.innerHTML = `
-      <span class="event-date">${chip}</span>
-      <p class="event-title">${title}</p>
+      <span class="event-date">${escapeHtml(chip)}</span>
+      <p class="event-title">${escapeHtml(title)}</p>
     `;
     colEl.appendChild(div);
   });
@@ -1562,9 +1600,9 @@ function renderCardGrid(items) {
     const tag = categoryName(ev.category_id);
     const d = ev.event_date ? new Date(ev.event_date + "T00:00:00") : null;
     const dateText = d ? d.toLocaleDateString('en-US', { year:'numeric', month:'short', day:'numeric' }) : '';
-    const title = ev.title || '';
-    const loc = ev.location || '';
-    const shortDesc = (ev.short_description || '').trim();
+    const title = decodeTextEntities(ev.title || '');
+    const loc = decodeTextEntities(ev.location || '');
+    const shortDesc = decodeTextEntities(ev.short_description || '');
     const full = (ev.full_description || '').trim();
 
     const article = document.createElement('article');
@@ -1574,20 +1612,20 @@ function renderCardGrid(items) {
 
     article.innerHTML = `
       <div class="card-image">
-        <img src="${img}" alt="${title}">
+        <img src="${escapeHtml(img)}" alt="${escapeHtml(title)}">
       </div>
 
       <div class="card-content">
-        <span class="tag">${tag}</span>
+        <span class="tag">${escapeHtml(tag)}</span>
 
-        <p class="date">${dateText}</p>
-        <h3 class="title">${title}</h3>
-        <p class="description">${shortDesc}</p>
+        <p class="date">${escapeHtml(dateText)}</p>
+        <h3 class="title">${escapeHtml(title)}</h3>
+        <p class="description">${escapeHtml(shortDesc)}</p>
 
         <br>
         <hr class="hr">
         <div class="card-footer">
-          <span class="location">📍 ${loc}</span>
+          <span class="location">📍 ${escapeHtml(loc)}</span>
           <a href="#" class="read-more" data-full="${encodeURIComponent(full)}">Read More...</a>
         </div>
       </div>

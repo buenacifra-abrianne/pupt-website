@@ -120,7 +120,7 @@
 
                             <div class="announcement-header">
                                 <div class="title-row">
-                                    <h3 class="announcement-title">{{ e($row->title) }}</h3>
+                                    <h3 class="announcement-title">{{ e(\App\Support\PlainText::normalize($row->title ?? '')) }}</h3>
 
                                     <span class="priority-badge priority-{{ strtolower($row->priority) }}">
                                     {{ ucfirst(strtolower($row->priority)) }} Priority
@@ -147,7 +147,7 @@
                                 <button class="btn btn-sm btn-primary"
                                     onclick='editAnnouncement(
                                         {{ (int) $row->announcement_id }},
-                                        @json($row->title),
+                                        @json(\App\Support\PlainText::normalize($row->title ?? '')),
                                         @json($row->content),
                                         @json($row->link ?? ""),
                                         @json($row->priority),
@@ -172,7 +172,7 @@
                                 </button>
 
                                 <button class="btn btn-sm btn-view-icon" type="button" title="View"
-                                    onclick='openReadMoreModal(@json($row->title), @json($row->content), @json($row->link ?? null))'>
+                                    onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($row->title ?? "")), @json($row->content), @json($row->link ?? null))'>
                                     <i class="fas fa-eye"></i>
                                 </button>
 
@@ -223,13 +223,13 @@
                             data-news-id="{{ (int) $news->news_id }}"
                             data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location.' '.(($news->is_featured ?? false) ? ' featured' : '').' '.(($news->is_hidden_from_public ?? false) ? ' hidden' : ''))) }}">
 
-                            <label class="news-card-select" aria-label="Select {{ e($news->title) }}">
+                            <label class="news-card-select" aria-label="Select {{ e(\App\Support\PlainText::normalize($news->title ?? '')) }}">
                                 <input type="checkbox" class="news-select-checkbox" value="{{ (int) $news->news_id }}">
                                 <span></span>
                             </label>
 
                             <div class="news-image">
-                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($news->title ?? 'News image') }}">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
                             </div>
 
                             <div class="news-content">
@@ -242,7 +242,7 @@
                                         <span class="news-flag-badge news-flag-badge-hidden">Hidden</span>
                                     @endif
                                 </div>
-                                <h3 class="news-title">{{ e($news->title) }}</h3>
+                                <h3 class="news-title">{{ e(\App\Support\PlainText::normalize($news->title ?? '')) }}</h3>
 
                                 <div class="news-meta">
                                     <span><i class="fas fa-map-marker-alt"></i> {{ e($news->location) }}</span>
@@ -252,7 +252,7 @@
                                     <button type="button" class="btn btn-sm btn-primary"
                                         onclick='editNews(
                                             @json($news->news_id),
-                                            @json($news->title),
+                                            @json(\App\Support\PlainText::normalize($news->title ?? '')),
                                             @json($news->content),
                                             @json($news->category),
                                             @json($news->location),
@@ -270,7 +270,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json($news->title), @json($news->content), @json($news->link ?? null))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -1181,8 +1181,34 @@
         ;
     }
 
+    function decodeTextEntities(value) {
+        let decoded = String(value ?? '').trim();
+        const textarea = document.createElement('textarea');
+
+        for (let i = 0; i < 5; i += 1) {
+            textarea.innerHTML = decoded;
+            const next = textarea.value.trim();
+
+            if (next === decoded || !next.includes('&')) {
+                return next;
+            }
+
+            decoded = next;
+        }
+
+        return decoded;
+    }
+
+    function normalizePlainTextInputs(form) {
+        ['title', 'category', 'location'].forEach((name) => {
+            const input = form.querySelector(`[name="${name}"]`);
+            if (input) input.value = decodeTextEntities(input.value);
+        });
+    }
+
     document.getElementById('announcementForm').addEventListener('submit', function (e) {
         syncRichTextEditors(e.target);
+        normalizePlainTextInputs(e.target);
         const isEdit = !!document.getElementById('edit_announcement_id');
         if (isEdit && !announcementHasChanges(e.target)) {
             e.preventDefault();
@@ -1195,6 +1221,7 @@
 
   const form = e.target;
   syncRichTextEditors(form);
+  normalizePlainTextInputs(form);
   const url = form.action;
   const isEdit = !!document.getElementById('edit_news_id');
 

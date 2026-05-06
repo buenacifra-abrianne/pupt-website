@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Announcement;
+use App\Support\PlainText;
 use Illuminate\Http\JsonResponse;
 
 class AnnouncementApiController extends Controller
@@ -24,7 +25,7 @@ class AnnouncementApiController extends Controller
             ->map(function ($announcement) {
                 return [
                     'announcement_id' => $announcement->announcement_id,
-                    'title' => $announcement->title,
+                    'title' => PlainText::normalize($announcement->title),
                     'content' => $this->toPlainText($announcement->content),
                     'status' => $announcement->status,
                     'link' => $announcement->link,
@@ -66,7 +67,7 @@ class AnnouncementApiController extends Controller
             'message' => 'Announcement retrieved successfully.',
             'data' => [
                 'announcement_id' => $announcement->announcement_id,
-                'title' => $announcement->title,
+                'title' => PlainText::normalize($announcement->title),
                 'content' => $this->toPlainText($announcement->content),
                 'status' => $announcement->status,
                 'link' => $announcement->link,

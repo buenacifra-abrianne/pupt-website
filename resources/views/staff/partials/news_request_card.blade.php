@@ -11,10 +11,10 @@
     default => 'Request',
   };
 
-  $title = $payload['title'] ?? $row->title ?? 'Request';
+  $title = \App\Support\PlainText::normalize($payload['title'] ?? $row->title ?? 'Request');
   $content = $payload['content'] ?? '';
-  $category = $payload['category'] ?? '';
-  $location = $payload['location'] ?? '';
+  $category = \App\Support\PlainText::normalize($payload['category'] ?? '');
+  $location = \App\Support\PlainText::normalize($payload['location'] ?? '');
   $link = $payload['link'] ?? '';
   $imagePath = $payload['image_path'] ?? null;
   $imageUrl = \App\Support\NewsImage::url($imagePath);

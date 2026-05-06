@@ -16,7 +16,7 @@
     default => 'Request',
   };
 
-$requestTitle = $payload['title'] ?? $row->title ?? 'Request';
+$requestTitle = \App\Support\PlainText::normalize($payload['title'] ?? $row->title ?? 'Request');
 $requestContent = $payload['content'] ?? '';
 $requestPriority = strtoupper((string)($payload['priority'] ?? 'LOW'));
 $requestLink = $payload['link'] ?? '';
@@ -33,14 +33,15 @@ $targetAnnId = (int)($payload['announcement_id'] ?? 0);
 if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
   $live = \DB::table('announcements')->where('announcement_id', $targetAnnId)->first();
   if ($live) {
-    $title = (string)($live->title ?? $title);
+    $title = \App\Support\PlainText::normalize($live->title ?? $title);
     $content = (string)($live->content ?? $content);
     $priority = strtoupper((string)($live->priority ?? $priority));
     $link = (string)($live->link ?? $link);
   }
 }
 
-$editTitle = $requestTitle ?: $title;
+$title = \App\Support\PlainText::normalize($title);
+$editTitle = \App\Support\PlainText::normalize($requestTitle ?: $title);
 $editContent = $requestContent !== '' ? $requestContent : $content;
 $editPriority = $requestPriority ?: $priority;
 $editLink = $requestLink !== '' ? $requestLink : $link;
@@ -61,7 +62,7 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
   $targetId = $payload['announcement_id'] ?? null;
 
   $searchHay = strtolower(
-    ($title).' '.($content).' '.($priority).' '.($reqStatus).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
+    (\App\Support\PlainText::normalize($title)).' '.($content).' '.($priority).' '.($reqStatus).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
   );
 @endphp
 

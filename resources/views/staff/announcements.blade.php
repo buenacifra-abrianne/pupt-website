@@ -129,7 +129,7 @@
 
                             <div class="announcement-header">
                                 <div class="title-row">
-                                    <h3 class="announcement-title">{{ e($a->title) }}</h3>
+                                    <h3 class="announcement-title">{{ e(\App\Support\PlainText::normalize($a->title ?? '')) }}</h3>
 
                                     <span class="priority-badge priority-{{ strtolower($a->priority ?? 'low') }}">
                                         {{ ucfirst(strtolower($a->priority ?? 'low')) }} Priority
@@ -148,7 +148,7 @@
                                           0,
                                           {{ \Illuminate\Support\Js::from('ANNOUNCEMENT_UPDATE') }},
                                           {{ (int)$a->announcement_id }},
-                                          {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                                          {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($a->title ?? '')) }},
                                           {{ \Illuminate\Support\Js::from($a->content ?? '') }},
                                           {{ \Illuminate\Support\Js::from($a->link ?? '') }},
                                           {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
@@ -160,7 +160,7 @@
                                         type="button"
                                         onclick="requestToggleAnnouncement(
                                             {{ (int)$a->announcement_id }},
-                                            {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                                            {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($a->title ?? '')) }},
                                             {{ \Illuminate\Support\Js::from(strtoupper((string)($a->status ?? 'ENABLED'))) }}
                                         )">
                                     <i class="fas {{ ($a->status ?? '') === 'DISABLED' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
@@ -169,14 +169,14 @@
 
                                 <button class="btn btn-sm btn-delete"
                                         type="button"
-                                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from($a->title ?? '') }})">
+                                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($a->title ?? '')) }})">
                                     <i class="fas fa-trash"></i>
                                 </button>
 
                                 <button class="btn btn-sm btn-view-icon"
                                         type="button"
                                         title="View"
-                                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""), @json($a->link ?? ""))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($a->title ?? "")), @json($a->content ?? ""), @json($a->link ?? ""))'>
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -233,7 +233,7 @@
                     data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
                     <div class="news-image">
-                        <img src="{{ $displayImgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($n->title ?? 'News image') }}">
+                        <img src="{{ $displayImgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($n->title ?? 'News image')) }}">
                     </div>
 
                     <div class="news-content">
@@ -244,7 +244,7 @@
                             <span class="news-flag-badge news-flag-badge-featured">Live</span>
                         </div>
 
-                        <h3 class="news-title">{{ e($n->title) }}</h3>
+                        <h3 class="news-title">{{ e(\App\Support\PlainText::normalize($n->title ?? '')) }}</h3>
 
                         <div class="news-meta">
                             <span><i class="fas fa-map-marker-alt"></i> {{ e($n->location ?? 'No location') }}</span>
@@ -257,7 +257,7 @@
                                 type="button"
                                 onclick="editNews(
                                     {{ (int)$n->news_id }},
-                                    {{ \Illuminate\Support\Js::from($n->title ?? '') }},
+                                    {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($n->title ?? '')) }},
                                     {{ \Illuminate\Support\Js::from($n->content ?? '') }},
                                     {{ \Illuminate\Support\Js::from($n->category ?? '') }},
                                     {{ \Illuminate\Support\Js::from($n->location ?? '') }},
@@ -270,14 +270,14 @@
 
                             <button class="btn btn-sm btn-delete"
                                 type="button"
-                                onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from($n->title ?? '') }})">
+                                onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($n->title ?? '')) }})">
                                 <i class="fas fa-trash"></i>
                             </button>
 
                             <button class="btn btn-sm btn-view-icon"
                                 type="button"
                                 title="View"
-                                onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""), @json($n->link ?? ""))'>
+                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""))'>
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -596,8 +596,33 @@
     let announcementEditSnapshot = null;
     let newsEditSnapshot = null;
 
+    function decodeTextEntities(value) {
+        let decoded = String(value ?? '').trim();
+        const textarea = document.createElement('textarea');
+
+        for (let i = 0; i < 5; i += 1) {
+            textarea.innerHTML = decoded;
+            const next = textarea.value.trim();
+
+            if (next === decoded || !next.includes('&')) {
+                return next;
+            }
+
+            decoded = next;
+        }
+
+        return decoded;
+    }
+
     function normalizeText(value) {
-        return String(value ?? '').trim();
+        return decodeTextEntities(value);
+    }
+
+    function normalizePlainTextInputs(form) {
+        ['title', 'category', 'location'].forEach((name) => {
+            const input = form.querySelector(`[name="${name}"]`);
+            if (input) input.value = normalizeText(input.value);
+        });
     }
 
     function normalizeUpper(value) {
@@ -1151,6 +1176,7 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
     const form = e.target;
     syncRichTextEditors(form);
+    normalizePlainTextInputs(form);
     const url = form.action;
     const isEditMode = !!document.getElementById('edit_announcement_id') || !!document.getElementById('edit_request_id');
 
@@ -1178,6 +1204,7 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
 
   const form = e.target;
   syncRichTextEditors(form);
+  normalizePlainTextInputs(form);
   const url = form.action;
   const isEditMode = !!document.getElementById('edit_news_id') || !!document.getElementById('edit_news_request_id');
 

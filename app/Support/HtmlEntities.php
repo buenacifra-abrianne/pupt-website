@@ -10,6 +10,20 @@ class HtmlEntities
             return $value;
         }
 
-        return html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $decoded = $value;
+
+        for ($i = 0; $i < 5; $i++) {
+            $next = htmlspecialchars_decode($decoded, ENT_QUOTES | ENT_HTML5);
+            $next = html_entity_decode($next, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+            $next = preg_replace('/&amp;?(?![A-Za-z0-9#])/i', '&', $next) ?? $next;
+
+            if ($next === $decoded || !str_contains($next, '&')) {
+                return $next;
+            }
+
+            $decoded = $next;
+        }
+
+        return $decoded;
     }
 }

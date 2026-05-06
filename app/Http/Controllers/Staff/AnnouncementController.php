@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Support\NewsImage;
+use App\Support\PlainText;
 use App\Support\RichText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -76,7 +77,12 @@ class AnnouncementController extends Controller
             $q->whereNotIn('announcement_id', $pendingAnnIds);
         })
         ->orderByDesc('created_at')
-        ->get();
+        ->get()
+        ->map(function ($announcement) {
+            $announcement->title = PlainText::normalize($announcement->title ?? '');
+
+            return $announcement;
+        });
 
 // ✅ Get news_ids that currently have PENDING requests (hide from LIVE)
 $pendingNewsIds = DB::table('approval_requests')
@@ -125,7 +131,14 @@ $pendingNewsIds = DB::table('approval_requests')
         $q->whereNotIn('news_id', $pendingNewsIds);
     })
     ->orderByDesc('created_at')
-    ->get();
+    ->get()
+    ->map(function ($news) {
+        $news->title = PlainText::normalize($news->title ?? '');
+        $news->category = PlainText::normalize($news->category ?? '');
+        $news->location = PlainText::normalize($news->location ?? '');
+
+        return $news;
+    });
 
     return view('staff.announcements', compact(
     'myRequests', 'myAnnouncements', 'myNews', 'email', 'name'
@@ -156,9 +169,9 @@ $pendingNewsIds = DB::table('approval_requests')
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
             'ANNOUNCEMENT_CREATE',
-            $request->input('title'),
+            PlainText::normalize($request->input('title')),
             [
-                'title' => $request->input('title'),
+                'title' => PlainText::normalize($request->input('title')),
                 'content' => RichText::sanitize($request->input('content')),
                 'priority' => $request->input('priority'),
                 'link' => $request->input('link'),
@@ -180,10 +193,10 @@ $pendingNewsIds = DB::table('approval_requests')
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
             'ANNOUNCEMENT_UPDATE',
-            $request->input('title'),
+            PlainText::normalize($request->input('title')),
             [
                 'announcement_id' => (int)$request->announcement_id,
-                'title' => $request->input('title'),
+                'title' => PlainText::normalize($request->input('title')),
                 'content' => RichText::sanitize($request->input('content')),
                 'link' => $request->input('link'),
                 'priority' => $request->input('priority'),
@@ -199,7 +212,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Delete Announcement';
+        $title = PlainText::normalize($request->title ?: 'Delete Announcement');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -219,7 +232,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Enable Announcement';
+        $title = PlainText::normalize($request->title ?: 'Enable Announcement');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -239,7 +252,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Disable Announcement';
+        $title = PlainText::normalize($request->title ?: 'Disable Announcement');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -313,13 +326,13 @@ $pendingNewsIds = DB::table('approval_requests')
     return $this->createOrUpdateRequest(
         $requestId,
         'NEWS_CREATE',
-        $request->input('title'),
+        PlainText::normalize($request->input('title')),
         [
-            'title' => $request->input('title'),
+            'title' => PlainText::normalize($request->input('title')),
             'content' => RichText::sanitize($request->input('content')),
-            'category' => $request->input('category'),
+            'category' => PlainText::normalize($request->input('category')),
             'link' => $request->input('link'),
-            'location' => $request->input('location'),
+            'location' => PlainText::normalize($request->input('location')),
             'image_path' => $imagePath,
         ]
     );
@@ -369,18 +382,18 @@ $pendingNewsIds = DB::table('approval_requests')
 
     $payload = [
         'news_id' => (int) $request->input('news_id'),
-        'title' => $request->input('title'),
+        'title' => PlainText::normalize($request->input('title')),
         'content' => RichText::sanitize($request->input('content')),
-        'category' => $request->input('category'),
+        'category' => PlainText::normalize($request->input('category')),
         'link' => $request->input('link'),
-        'location' => $request->input('location'),
+        'location' => PlainText::normalize($request->input('location')),
         'image_path' => $imagePath,
     ];
 
     return $this->createOrUpdateRequest(
         $request->input('request_id') ? (int) $request->input('request_id') : null,
         'NEWS_UPDATE',
-        $request->input('title'),
+        PlainText::normalize($request->input('title')),
         $payload
     );
 }
@@ -393,7 +406,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Delete News';
+        $title = PlainText::normalize($request->title ?: 'Delete News');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
