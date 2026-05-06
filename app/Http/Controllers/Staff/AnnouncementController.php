@@ -16,14 +16,14 @@ class AnnouncementController extends Controller
 {
     public function index()
 {
-    $email  = (string) session('user_email');
-    $normalizedEmail = strtolower(trim($email));
+    $email  = strtolower(trim((string) session('user_email')));
+    $normalizedEmail = $email;
     $name   = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
     $userId = (int) (session('user_id') ?? 0);
 
     // Staff sees THEIR requests only (Announcements + News)
     $myRequests = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereIn('type', [
             'ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_DELETE',
             'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE',
@@ -34,7 +34,7 @@ class AnnouncementController extends Controller
 
     // ✅ Get announcement_ids that currently have PENDING requests (so we hide them from LIVE)
     $pendingAnnIds = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereRaw('LOWER(status) = ?', ['pending'])
         ->whereIn('type', ['ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
         ->get()
@@ -50,7 +50,7 @@ class AnnouncementController extends Controller
     // ✅ LIVE = approved announcements created by this admin,
     // minus those with pending changes
     $approvedAnnouncementIds = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereRaw('LOWER(status) = ?', ['approved'])
         ->whereIn('type', ['ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE'])
         ->get()
@@ -87,7 +87,7 @@ class AnnouncementController extends Controller
 
 // ✅ Get news_ids that currently have PENDING requests (hide from LIVE)
 $pendingNewsIds = DB::table('approval_requests')
-    ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+    ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
     ->whereRaw('LOWER(status) = ?', ['pending'])
     ->whereIn('type', ['NEWS_UPDATE','NEWS_DELETE'])
     ->get()
@@ -103,7 +103,7 @@ $pendingNewsIds = DB::table('approval_requests')
 // ✅ LIVE = approved news created by this admin,
 // minus those with pending changes
     $approvedNewsIds = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereRaw('LOWER(status) = ?', ['approved'])
         ->whereIn('type', ['NEWS_CREATE', 'NEWS_UPDATE'])
         ->get()
@@ -152,7 +152,7 @@ $pendingNewsIds = DB::table('approval_requests')
 
     public function requestCreateAnnouncement(Request $request)
     {
-        $email = (string) session('user_email');
+        $email = strtolower(trim((string) session('user_email')));
         $name  = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
 
         if (!$email) {
@@ -300,7 +300,7 @@ $pendingNewsIds = DB::table('approval_requests')
     if ($requestId && !$imagePath) {
         $old = DB::table('approval_requests')
             ->where('id', $requestId)
-            ->where('requester_email', (string) session('user_email'))
+            ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$email])
             ->first();
 
         if ($old) {
@@ -434,7 +434,7 @@ $pendingNewsIds = DB::table('approval_requests')
      */
     private function createOrUpdateRequest(?int $requestId, string $type, string $title, array $payload)
     {
-        $email = (string) session('user_email');
+        $email = strtolower(trim((string) session('user_email')));
         $name  = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
 
         if (!$email) {
@@ -459,7 +459,7 @@ $pendingNewsIds = DB::table('approval_requests')
 
     DB::table('approval_requests')
         ->where('id', $requestId)
-        ->where('requester_email', $email)
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$email])
         ->update($data);
 
     $this->pushApproverNotifications(
@@ -510,8 +510,8 @@ $pendingNewsIds = DB::table('approval_requests')
     $req = ApprovalRequest::findOrFail($id);
 
     // OPTIONAL but recommended: only allow deleting own requests
-    $userEmail = session('user_email') ?? null; // adjust if iba session key mo
-    if ($userEmail && strtolower($req->requester_email) !== strtolower($userEmail)) {
+    $userEmail = strtolower(trim((string) (session('user_email') ?? '')));
+    if ($userEmail !== '' && strtolower(trim((string) $req->requester_email)) !== $userEmail) {
         return response()->json(['message' => 'Not allowed.'], 403);
     }
 
