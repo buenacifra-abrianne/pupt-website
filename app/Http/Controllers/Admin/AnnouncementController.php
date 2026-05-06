@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Support\NewsImage;
+use App\Support\EventAnnouncementValidation;
 use App\Support\PlainText;
 use App\Support\RichText;
 use App\Support\AuditLog;
@@ -245,6 +246,8 @@ class AnnouncementController extends Controller
                 return response()->json(['ok' => false, 'error' => 'News not found.'], 404);
             }
         }
+
+        EventAnnouncementValidation::validate($request, $existing);
 
         $incomingTitle = PlainText::normalize($request->input('title'));
         $incomingContent = RichText::sanitize($request->input('content'));

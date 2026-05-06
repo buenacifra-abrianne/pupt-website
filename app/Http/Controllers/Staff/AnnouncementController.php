@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Support\NewsImage;
+use App\Support\EventAnnouncementValidation;
 use App\Support\PlainText;
 use App\Support\RichText;
 use Illuminate\Http\Request;
@@ -289,6 +290,8 @@ $pendingNewsIds = DB::table('approval_requests')
         throw ValidationException::withMessages(['image' => $message]);
     }
 
+    EventAnnouncementValidation::validate($request);
+
     $requestId = $request->input('request_id') ? (int) $request->input('request_id') : null;
     $removeImage = (string) $request->input('remove_image', '0') === '1';
 
@@ -359,6 +362,9 @@ $pendingNewsIds = DB::table('approval_requests')
     if ($message = NewsImage::validationError($request->file('image'))) {
         throw ValidationException::withMessages(['image' => $message]);
     }
+
+    $existing = DB::table('news')->where('news_id', (int) $request->input('news_id'))->first();
+    EventAnnouncementValidation::validate($request, $existing);
 
     $removeImage = (string) $request->input('remove_image', '0') === '1';
     $imagePath = $request->input('existing_image_path') ?: null;

@@ -1206,6 +1206,83 @@
         });
     }
 
+    function newsFieldText(form, name) {
+        const value = form.querySelector(`[name="${name}"]`)?.value || '';
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = value;
+        return (wrapper.textContent || wrapper.innerText || value).replace(/\u00a0/g, ' ').trim();
+    }
+
+    function clearNewsValidation(form) {
+        form.querySelectorAll('.news-field-error').forEach((el) => el.remove());
+        form.querySelectorAll('.news-field-invalid').forEach((el) => el.classList.remove('news-field-invalid'));
+    }
+
+    function showNewsFieldError(field, message) {
+        if (!field) return;
+        field.classList.add('news-field-invalid');
+        const group = field.closest('.form-group') || field.closest('.image-preview-wrap')?.parentElement || field.parentElement;
+        if (!group || group.querySelector('.news-field-error')) return;
+
+        const error = document.createElement('div');
+        error.className = 'news-field-error';
+        error.style.cssText = 'margin-top:6px;color:#b00020;font-size:13px;font-weight:600;';
+        error.textContent = message;
+        group.appendChild(error);
+    }
+
+    function newsHasImage(form) {
+        const fileInput = form.querySelector('input[name="image"]');
+        if (fileInput?.files?.length) return true;
+        if ((form.querySelector('[name="remove_image"]')?.value || '0') === '1') return false;
+        return (document.getElementById('existingImagePath')?.value || '').trim() !== '';
+    }
+
+    function validateNewsForm(form) {
+        clearNewsValidation(form);
+        const errors = [];
+        const category = (form.querySelector('[name="category"]')?.value || '').trim();
+
+        if ((form.querySelector('[name="title"]')?.value || '').trim() === '') {
+            errors.push([form.querySelector('[name="title"]'), 'Title is required.']);
+        }
+
+        if (newsFieldText(form, 'content') === '') {
+            errors.push([form.querySelector('[name="content"]')?.closest('.js-rich-editor') || form.querySelector('[name="content"]'), 'Description is required.']);
+        }
+
+        if (category === '') {
+            errors.push([form.querySelector('[name="category"]'), 'Category is required.']);
+        }
+
+        if (category.toLowerCase() === 'event') {
+            if ((form.querySelector('[name="location"]')?.value || '').trim() === '') {
+                errors.push([form.querySelector('[name="location"]'), 'Event venue is required.']);
+            }
+
+            if (!newsHasImage(form)) {
+                errors.push([document.getElementById('imagePreviewWrap') || form.querySelector('input[name="image"]'), 'Event image is required.']);
+            }
+        }
+
+        errors.forEach(([field, message]) => showNewsFieldError(field, message));
+        if (errors.length > 0) {
+            errors[0][0]?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+            showToast('Complete the required event details before saving.', 'warning', 'Missing Details');
+            return false;
+        }
+
+        return true;
+    }
+
+    function validationMessageFromResponse(json, fallback) {
+        if (json?.errors && typeof json.errors === 'object') {
+            const first = Object.values(json.errors).flat().find(Boolean);
+            if (first) return first;
+        }
+        return json?.error || json?.message || fallback;
+    }
+
     document.getElementById('announcementForm').addEventListener('submit', function (e) {
         syncRichTextEditors(e.target);
         normalizePlainTextInputs(e.target);
@@ -1224,6 +1301,10 @@
   normalizePlainTextInputs(form);
   const url = form.action;
   const isEdit = !!document.getElementById('edit_news_id');
+
+  if (!validateNewsForm(form)) {
+    return;
+  }
 
   if (isEdit && !newsHasChanges(form)) {
     showToast('No changes detected.', 'info', 'No Changes');
@@ -1247,7 +1328,7 @@
   try { json = JSON.parse(raw); } catch (_) {}
 
   if (!res.ok || !json || !json.ok) {
-    showToast((json && (json.error || json.message)) || raw.slice(0, 200), 'error');
+    showToast(validationMessageFromResponse(json, raw.slice(0, 200)), 'error');
     return;
   }
 
