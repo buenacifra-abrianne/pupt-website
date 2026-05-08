@@ -370,18 +370,26 @@ function initWidgetDock() {
     style.id = "widget-dock-inline-styles";
     style.textContent = `
       .widget-dock {
+        --widget-fab-size: 62px;
+        --widget-fab-gap: 12px;
+        --widget-expanded-gap: 16px;
+        --widget-fab-bg: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
+        --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
         position: fixed;
         right: 24px;
         bottom: 24px;
         display: grid;
         justify-items: end;
-        gap: 12px;
-        z-index: 1200;
+        gap: var(--widget-fab-gap);
+        isolation: isolate;
+        z-index: var(--widget-controls-z, 2147483600);
+        pointer-events: none;
       }
 
       .widget-dock-actions {
         display: grid;
-        gap: 12px;
+        gap: var(--widget-expanded-gap);
+        margin-bottom: calc(var(--widget-fab-size) + var(--widget-expanded-gap));
         opacity: 0;
         transform: translateY(18px) scale(0.94);
         transform-origin: bottom right;
@@ -394,22 +402,24 @@ function initWidgetDock() {
       .widget-dock.is-open .widget-dock-actions {
         opacity: 1;
         transform: translateY(0) scale(1);
-        pointer-events: auto;
       }
 
       .widget-dock-fab,
       .widget-dock-action {
-        width: 62px;
-        height: 62px;
+        width: var(--widget-fab-size);
+        height: var(--widget-fab-size);
+        min-width: var(--widget-fab-size);
+        min-height: var(--widget-fab-size);
         border: 0;
         border-radius: 999px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
+        background: var(--widget-fab-bg);
         color: #fff;
-        box-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
+        box-shadow: var(--widget-fab-shadow);
         cursor: pointer;
+        pointer-events: auto;
         transition:
           transform 0.22s ease,
           box-shadow 0.22s ease,
@@ -418,9 +428,12 @@ function initWidgetDock() {
 
       .widget-dock-fab {
         position: relative;
+        z-index: 3;
       }
 
       .widget-dock-action {
+        position: relative;
+        z-index: 2;
         opacity: 0;
         transform: translateY(10px) scale(0.92);
         transition:
@@ -489,7 +502,7 @@ function initWidgetDock() {
         background: transparent;
         box-shadow: none;
         isolation: isolate;
-        z-index: 1199;
+        z-index: var(--widget-panel-z, 2147483200);
         opacity: 0;
         transform: translateY(18px) scale(0.98);
         pointer-events: none;
@@ -520,15 +533,11 @@ function initWidgetDock() {
 
       @media (max-width: 640px) {
         .widget-dock {
+          --widget-fab-size: 58px;
+          --widget-fab-gap: 10px;
+          --widget-expanded-gap: 14px;
           right: 16px;
-          bottom: 16px;
-          gap: 10px;
-        }
-
-        .widget-dock-fab,
-        .widget-dock-action {
-          width: 58px;
-          height: 58px;
+          bottom: calc(16px + env(safe-area-inset-bottom, 0px));
         }
 
         .chatbot-widget-shell {
@@ -563,7 +572,7 @@ function initWidgetDock() {
   dock.className = "widget-dock";
   dock.innerHTML = `
     <div class="widget-dock-actions" aria-label="Quick widgets">
-      <button type="button" class="widget-dock-action" data-widget-action="chat" title="Chat with AI Assistant" aria-label="Open AI Assistant" aria-expanded="false">
+      <button type="button" class="widget-dock-action" data-widget-action="chat" title="Chat with AI Assistant" aria-label="Open AI Assistant" aria-expanded="false" tabindex="-1">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
         </svg>
@@ -598,6 +607,7 @@ function initWidgetDock() {
     dock.classList.toggle("is-open", isOpen);
     launcher.classList.toggle("is-open", isOpen);
     document.body.classList.toggle("widget-dock-open", isOpen);
+    chatAction.tabIndex = isOpen ? 0 : -1;
     launcher.setAttribute("aria-expanded", isOpen ? "true" : "false");
     launcher.setAttribute("aria-label", isOpen ? "Close widgets" : "Open widgets");
     launcher.title = isOpen ? "Close widgets" : "Open widgets";
@@ -612,6 +622,22 @@ function initWidgetDock() {
     chatAction.setAttribute("aria-label", isOpen ? "Close AI Assistant" : "Open AI Assistant");
     chatAction.title = isOpen ? "Close AI Assistant" : "Chat with AI Assistant";
     chatAction.innerHTML = isOpen ? closeButtonIcon : chatButtonIcon;
+  };
+
+  const syncAccessibilityToggle = () => {
+    const accessibilityToggle = document.querySelector(".acc-container .acc-toggle-btn");
+    const accessibilityPanel =
+      document.querySelector(".acc-container .acc-panel") ||
+      document.querySelector(".acc-container > .acc-menu") ||
+      Array.from(document.querySelectorAll(".acc-container [class*='panel'], .acc-container [class*='menu']"))
+        .find((element) => element !== accessibilityToggle && !element.classList.contains("acc-menu-close"));
+
+    if (accessibilityToggle) {
+      accessibilityToggle.setAttribute("aria-label", "Accessibility Options");
+      accessibilityToggle.title = "Accessibility Options";
+    }
+
+    accessibilityPanel?.classList.add("widget-dock-accessibility-panel");
   };
 
   launcher.addEventListener("click", () => {
@@ -629,8 +655,8 @@ function initWidgetDock() {
 
   document.addEventListener("pointerdown", (event) => {
     if (!dock.classList.contains("is-open") && !widget.classList.contains("is-open")) return;
-    const accessibilityToggle = document.querySelector(".acc-container .acc-toggle-btn");
-    if (widget.contains(event.target) || dock.contains(event.target) || accessibilityToggle?.contains(event.target)) return;
+    const accessibilityWidget = document.querySelector(".acc-container");
+    if (widget.contains(event.target) || dock.contains(event.target) || accessibilityWidget?.contains(event.target)) return;
     setChatOpenState(false);
     setDockOpen(false);
   });
@@ -645,6 +671,10 @@ function initWidgetDock() {
   document.body.classList.add("has-widget-dock");
   document.body.appendChild(widget);
   document.body.appendChild(dock);
+  syncAccessibilityToggle();
+
+  const accessibilityObserver = new MutationObserver(syncAccessibilityToggle);
+  accessibilityObserver.observe(document.body, { childList: true, subtree: true });
 }
 
 // =======================

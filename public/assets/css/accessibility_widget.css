@@ -2,6 +2,17 @@
     --acc-maroon: #800000;
     --acc-maroon-dark: #5c0000;
     --acc-maroon-soft: rgba(128, 0, 0, 0.14);
+    --widget-fab-size: 62px;
+    --widget-fab-gap: 12px;
+    --widget-edge-offset: 24px;
+    --widget-panel-gap: 24px;
+    --widget-fab-bg: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
+    --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
+    --widget-controls-z: 2147483600;
+    --widget-accessibility-fab-z: 2147483500;
+    --widget-panel-z: 2147483200;
+    --widget-panel-right-clearance: calc(var(--widget-edge-offset) + var(--widget-fab-size) + var(--widget-panel-gap));
+    --widget-panel-bottom-clearance: calc(var(--widget-edge-offset) + var(--widget-fab-size) + var(--widget-fab-gap) + var(--widget-fab-size) + var(--widget-fab-gap) + var(--widget-fab-size) + var(--widget-panel-gap));
 }
 
 .acc-container .acc-toggle-btn,
@@ -19,19 +30,19 @@
     position: fixed !important;
     right: 28px !important;
     bottom: 28px !important;
-    width: 60px !important;
-    height: 60px !important;
-    min-width: 60px !important;
-    min-height: 60px !important;
+    width: var(--widget-fab-size) !important;
+    height: var(--widget-fab-size) !important;
+    min-width: var(--widget-fab-size) !important;
+    min-height: var(--widget-fab-size) !important;
     border: none !important;
     border-radius: 50% !important;
     padding: 0 !important;
-    background: linear-gradient(135deg, var(--home-maroon, var(--acc-maroon)) 0%, var(--home-maroon-deep, var(--acc-maroon-dark)) 100%) !important;
+    background: var(--widget-fab-bg) !important;
     color: #fffaf4 !important;
     font-size: 1.65rem !important;
-    box-shadow: none !important;
+    box-shadow: var(--widget-fab-shadow) !important;
     cursor: pointer !important;
-    transition: transform 0.22s ease !important;
+    transition: opacity 0.22s ease, visibility 0.22s ease !important;
     z-index: 999 !important;
 }
 
@@ -39,20 +50,40 @@ body.has-widget-dock .acc-container .acc-toggle-btn {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    transform: translateY(10px) scale(0.92) !important;
-    transition:
-        transform 0.28s cubic-bezier(0.22, 1, 0.36, 1) !important,
-        opacity 0.22s ease !important,
-        visibility 0.22s ease !important;
+    transform: none !important;
 }
 
 body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
     right: 24px !important;
-    bottom: 98px !important;
+    bottom: calc(24px + var(--widget-fab-size) + var(--widget-fab-gap)) !important;
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    transform: translateY(0) scale(1) !important;
+    transform: none !important;
+    z-index: var(--widget-accessibility-fab-z) !important;
+}
+
+body.has-widget-dock .acc-container {
+    z-index: var(--widget-panel-z) !important;
+}
+
+body.has-widget-dock .acc-container > .acc-panel,
+body.has-widget-dock .acc-container > [class*="panel"],
+body.has-widget-dock .acc-container > .acc-menu,
+body.has-widget-dock .acc-container .widget-dock-accessibility-panel {
+    z-index: var(--widget-panel-z) !important;
+}
+
+body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
+body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
+body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
+body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
+    right: var(--widget-panel-right-clearance) !important;
+    bottom: var(--widget-edge-offset) !important;
+    max-width: min(380px, calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset))) !important;
+    max-height: min(640px, calc(100vh - var(--widget-edge-offset) - var(--widget-edge-offset))) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain !important;
 }
 
 .acc-container .acc-toggle-btn:hover,
@@ -66,8 +97,23 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
 }
 
 .acc-container .acc-toggle-btn:hover {
-    transform: translateY(-4px);
-    box-shadow: none !important;
+    background: var(--widget-fab-bg) !important;
+    transform: none !important;
+    box-shadow: var(--widget-fab-shadow) !important;
+}
+
+body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:hover {
+    background: var(--widget-fab-bg) !important;
+    transform: none !important;
+    box-shadow: var(--widget-fab-shadow) !important;
+}
+
+body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visible {
+    background: var(--widget-fab-bg) !important;
+    transform: none !important;
+    box-shadow:
+        0 0 0 3px var(--acc-maroon-soft),
+        var(--widget-fab-shadow) !important;
 }
 
 .acc-container .acc-toggle-icon,
@@ -129,6 +175,7 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
 }
 
 .acc-container .acc-btn:focus-visible,
+.acc-container .acc-toggle-btn:focus-visible,
 .acc-container .acc-footer-reset:focus-visible,
 .acc-container .acc-footer-lang-toggle:focus-visible,
 .acc-container .acc-lang-item:focus-visible,
@@ -144,13 +191,16 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
 }
 
 @media (max-width: 768px) {
+    :root {
+        --widget-fab-size: 58px;
+        --widget-fab-gap: 10px;
+        --widget-edge-offset: 16px;
+        --widget-panel-gap: 24px;
+    }
+
     .acc-container .acc-toggle-btn {
         right: 16px !important;
         bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
-        width: 52px !important;
-        height: 52px !important;
-        min-width: 52px !important;
-        min-height: 52px !important;
         font-size: 1.35rem !important;
     }
 
@@ -162,7 +212,17 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
 
     body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
         right: 16px !important;
-        bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important;
+        bottom: calc(16px + var(--widget-fab-size) + var(--widget-fab-gap) + env(safe-area-inset-bottom, 0px)) !important;
+    }
+
+    body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
+    body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
+    body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
+    body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
+        right: var(--widget-edge-offset) !important;
+        bottom: calc(var(--widget-panel-bottom-clearance) + env(safe-area-inset-bottom, 0px)) !important;
+        max-width: calc(100vw - (var(--widget-edge-offset) * 2)) !important;
+        max-height: max(180px, calc(100vh - var(--widget-panel-bottom-clearance) - var(--widget-edge-offset) - env(safe-area-inset-bottom, 0px))) !important;
     }
 }
 
