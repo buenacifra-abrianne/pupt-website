@@ -671,9 +671,10 @@ pup-header .header.header-scrolled {
 }
 
 pup-header .header-top {
-  max-width: 1400px;
+  width: min(100% - 2rem, 1700px);
+  max-width: none;
   margin: 0 auto;
-  padding: 14px var(--layout-page-gutter);
+  padding: 14px 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -759,7 +760,7 @@ pup-header .nav-menu {
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 28px;
+  gap: 52px;
   list-style: none;
   width: 100%;
   max-width: 1480px;
@@ -831,12 +832,24 @@ pup-header .nav-overlay {
   display: none;
 }
 
+@media (max-width: 1240px) {
+  pup-header .nav-menu {
+    gap: 28px;
+  }
+
+  pup-header .nav-menu a {
+    padding-inline: 28px;
+  }
+}
+
 @media (max-width: 900px) {
   :root {
     --layout-page-gutter: 12px;
   }
 
   pup-header .header-top {
+    width: 100%;
+    max-width: none;
     padding: 11px var(--layout-page-gutter) 9px;
     gap: 10px;
     align-items: center;
