@@ -321,6 +321,9 @@
         }
 
         const PREVIEW_FALLBACK_HTML = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+        const DARK_CLASS = 'pup-dark-mode';
+        const DARK_STORAGE_KEY = 'pup-dark-mode';
+        const PREVIEW_FRAME_SELECTOR = 'iframe[data-home-preview-frame], iframe[data-about-preview-frame], iframe[data-academics-preview-frame], iframe[data-students-preview-frame], iframe[data-research-preview-frame], iframe[data-events-preview-frame]';
 
         function normalizePreviewHtml(html) {
             if (typeof html !== 'string') {
@@ -354,10 +357,76 @@
             scheduleObjectUrlRevoke(oldUrl);
         }
 
+        function isCmsDarkModeEnabled() {
+            if (document.body?.classList.contains(DARK_CLASS)) {
+                return true;
+            }
+
+            try {
+                return window.localStorage?.getItem(DARK_STORAGE_KEY) === 'true';
+            } catch (_) {
+                return false;
+            }
+        }
+
+        function syncCmsPreviewFrameDarkMode(frame, enabled = isCmsDarkModeEnabled()) {
+            if (!(frame instanceof HTMLIFrameElement)) {
+                return false;
+            }
+
+            let doc = null;
+
+            try {
+                doc = frame.contentDocument || frame.contentWindow?.document || null;
+            } catch (_) {
+                return false;
+            }
+
+            if (!doc) {
+                return false;
+            }
+
+            doc.documentElement?.classList.toggle(DARK_CLASS, enabled);
+            doc.body?.classList.toggle(DARK_CLASS, enabled);
+
+            return !!doc.body;
+        }
+
+        function bindCmsPreviewFrameDarkMode(frame) {
+            if (!(frame instanceof HTMLIFrameElement)) {
+                return;
+            }
+
+            if (frame.__cmsPreviewDarkModeBound !== true) {
+                frame.addEventListener('load', () => {
+                    syncCmsPreviewFrameDarkMode(frame);
+                    window.setTimeout(() => syncCmsPreviewFrameDarkMode(frame), 0);
+                    window.setTimeout(() => syncCmsPreviewFrameDarkMode(frame), 120);
+                });
+
+                frame.__cmsPreviewDarkModeBound = true;
+            }
+
+            syncCmsPreviewFrameDarkMode(frame);
+        }
+
+        function getCmsPreviewFrames(root = document) {
+            return Array.from(root.querySelectorAll(PREVIEW_FRAME_SELECTOR));
+        }
+
+        function syncAllCmsPreviewFrameDarkModes(enabled = isCmsDarkModeEnabled()) {
+            getCmsPreviewFrames().forEach((frame) => {
+                bindCmsPreviewFrameDarkMode(frame);
+                syncCmsPreviewFrameDarkMode(frame, enabled);
+            });
+        }
+
         function applyCmsPreviewFrameContent(frame, html) {
             if (!(frame instanceof HTMLIFrameElement)) {
                 return false;
             }
+
+            bindCmsPreviewFrameDarkMode(frame);
 
             const markup = normalizePreviewHtml(html);
             frame.__cmsPreviewMarkup = markup;
@@ -391,6 +460,8 @@
 
         window.applyCmsPreviewFrameContent = applyCmsPreviewFrameContent;
         window.hasCmsPreviewFrameContent = hasCmsPreviewFrameContent;
+        window.syncCmsPreviewFrameDarkMode = syncCmsPreviewFrameDarkMode;
+        window.syncAllCmsPreviewFrameDarkModes = syncAllCmsPreviewFrameDarkModes;
 
         function getViewportHeight() {
             const visualHeight = Number(window.visualViewport?.height || 0);
@@ -579,13 +650,14 @@
         function initializeCmsCompatLayout() {
             syncCmsViewportHeight();
             moveManagedModalsToBody();
+            syncAllCmsPreviewFrameDarkModes();
         }
 
         window.measureCmsPreviewFrameHeight = measureCmsPreviewFrameHeight;
         window.bindCmsPreviewScrollBridge = bindCmsPreviewScrollBridge;
 
         window.addEventListener('beforeunload', () => {
-            document.querySelectorAll('iframe[data-home-preview-frame], iframe[data-about-preview-frame], iframe[data-academics-preview-frame], iframe[data-students-preview-frame], iframe[data-research-preview-frame], iframe[data-events-preview-frame]')
+            document.querySelectorAll(PREVIEW_FRAME_SELECTOR)
                 .forEach((frame) => clearFrameObjectUrl(frame));
         });
 
@@ -597,6 +669,14 @@
 
         window.addEventListener('load', initializeCmsCompatLayout);
         window.addEventListener('pageshow', initializeCmsCompatLayout);
+        document.addEventListener('cms-dark-mode-changed', (event) => {
+            syncAllCmsPreviewFrameDarkModes(!!event.detail?.enabled);
+        });
+        window.addEventListener('storage', (event) => {
+            if (event.key === DARK_STORAGE_KEY) {
+                syncAllCmsPreviewFrameDarkModes(event.newValue === 'true');
+            }
+        });
         window.addEventListener('resize', syncCmsViewportHeight);
         window.addEventListener('orientationchange', syncCmsViewportHeight);
         window.visualViewport?.addEventListener('resize', syncCmsViewportHeight);
