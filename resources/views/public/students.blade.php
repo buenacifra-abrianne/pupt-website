@@ -56,7 +56,7 @@
                         <div class="carousel-stage">
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
-                                    <img src="{{ \App\Support\NewsImage::url($pageSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                    <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($pageSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
                                 </div>
                                 <div class="carousel-caption">
                                     <h2>{{ strtoupper((string) ($pageSection['title'] ?? 'Students')) }}</h2>
@@ -140,7 +140,7 @@
 
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ \App\Support\NewsImage::url($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Student card' }}">
+                                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Student card' }}">
                                         <div class="students-card-copy">
                                             <h3>{{ $cardTitle !== '' ? $cardTitle : 'Student Card' }}</h3>
                                         </div>
@@ -217,7 +217,7 @@
                                     @endif
 
                                     <div class="students-org-img-wrap">
-                                        <img src="{{ \App\Support\NewsImage::url($orgImage !== '' ? $orgImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $orgAbbr !== '' ? $orgAbbr : $orgTitle }}">
+                                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($orgImage !== '' ? $orgImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $orgAbbr !== '' ? $orgAbbr : $orgTitle }}">
                                     </div>
                                     <div class="students-org-copy">
                                         <h3>{{ $orgTitle !== '' ? $orgTitle : 'Organization' }}</h3>
