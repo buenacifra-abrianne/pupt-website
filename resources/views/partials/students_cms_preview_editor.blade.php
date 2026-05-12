@@ -62,7 +62,7 @@
             @php
                 $studentsHeroInputId = $idPrefix.'-students-page-hero-image';
                 $studentsHeroFieldId = $idPrefix.'-students-page-hero-image-field';
-                $studentsHeroPreview = \App\Support\NewsImage::url($pageEditor['hero_image'] ?? null, 'assets/static_img/about_header_image.png');
+                $studentsHeroPreview = \App\Support\StudentsCmsContent::resolveImagePath($pageEditor['hero_image'] ?? null, 'assets/static_img/about_header_image.png');
             @endphp
             <section class="students-cms-editor-panel" data-students-editor-panel="page" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
@@ -185,7 +185,7 @@
                         @foreach($cardsEditor as $index => $card)
                             @php
                                 $cardInputId = $idPrefix.'-students-card-image-'.$index;
-                                $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $cardPreview = \App\Support\StudentsCmsContent::resolveImagePath($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
                                 <div class="students-cms-card-editor-head" data-students-card-editor-head>
@@ -368,7 +368,7 @@
                                 @php
                                     $orgInputId = $idPrefix.'-students-org-image-'.$sectionIndex.'-'.$orgIndex;
                                     $orgFieldId = $idPrefix.'-students-org-image-field-'.$sectionIndex.'-'.$orgIndex;
-                                    $orgPreview = \App\Support\NewsImage::url($organization['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                    $orgPreview = \App\Support\StudentsCmsContent::resolveImagePath($organization['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                 @endphp
                                 <article
                                     class="students-cms-card-editor"

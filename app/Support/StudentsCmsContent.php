@@ -196,6 +196,11 @@ class StudentsCmsContent
         );
     }
 
+    public static function resolveImagePath(?string $path, string $fallbackPath): string
+    {
+        return (string) (ImageStorage::url($path, $fallbackPath) ?? asset(ltrim($fallbackPath, '/')));
+    }
+
     private static function normalize(array $source, array $base): array
     {
         $defaults = self::defaults();
