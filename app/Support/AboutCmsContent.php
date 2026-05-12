@@ -4,25 +4,25 @@ namespace App\Support;
 
 class AboutCmsContent
 {
-    private const DEFAULT_CARD_IMAGE = 'assets/static_img/pupillar.jpeg';
+    private const DEFAULT_CARD_IMAGE = '/assets/static_img/pupillar.jpeg';
     private const LEGACY_CARD_IMAGES = [
-        'assets/static_img/logo.png',
-        'assets/static_img/about-pup.png',
+        '/assets/static_img/logo.png',
+        '/assets/static_img/about-pup.png',
     ];
 
     private const DEFAULTS = [
         'overview' => [
-            'hero_image' => 'assets/static_img/about_header_image.png',
+            'hero_image' => '/assets/static_img/about_header_image.png',
             'hero_title_default' => 'ABOUT THE CAMPUS',
             'hero_title_history' => 'CAMPUS HISTORY',
             'hero_title_vision' => 'VISION AND MISSION',
             'story_tag' => 'Campus Story',
             'story_title' => 'PUP Taguig Campus',
-            'story_image' => 'assets/static_img/about-pup.png',
+            'story_image' => '/assets/static_img/about-pup.png',
             'story_description' => "The Polytechnic University of the Philippines (PUP) is a government educational institution governed by Republic Act Number 8292 known as the Higher Education Modernization Act of 1997, and its Implementing Rules and Regulations contained in the Commission on Higher Education Memorandum Circular No. 4, series 1997. PUP is one of the country's highly competent educational institutions. The PUP Community is composed of the Board of Regents, University Officials, Administrative and Academic Personnel, Students, various Organizations, and the Alumni.\n\nGovernance of PUP is vested upon the Board of Regents, which exercises policy-making functions to carry out the mission and programs of the University by virtue of RA 8292 granted by the Commission on Higher Education. The University is administered by an appointed President by virtue of RA 8292 and is assisted by an Executive Vice President and the Vice Presidents for Academic Affairs, Student Services, Administration, Research, Extension and Development, and Finance.",
             'contents_tag' => 'Contents',
             'contents_title' => 'All about the campus',
-            'section_header_image' => 'assets/static_img/about_header_image.png',
+            'section_header_image' => '/assets/static_img/about_header_image.png',
         ],
         'sections' => [
             'history' => [
