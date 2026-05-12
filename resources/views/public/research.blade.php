@@ -52,7 +52,7 @@
                         <div class="carousel-stage">
                             <div class="carousel-slide active">
                                 <div class="carousel-split" aria-hidden="true">
-                                    <img src="{{ \App\Support\NewsImage::url($pageSection['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
+                                    <img src="{{ \App\Support\ResearchCmsContent::resolveImagePath($pageSection['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="" class="carousel-half carousel-half-left">
                                 </div>
                                 <div class="carousel-caption">
                                     <h2>{{ $pageSection['title'] ?? 'Research and Extension' }}</h2>
@@ -154,7 +154,7 @@
                                 @endif
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ \App\Support\NewsImage::url($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research content' }}">
+                                        <img src="{{ \App\Support\ResearchCmsContent::resolveImagePath($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research content' }}">
                                         <div class="students-card-copy">
                                             <h3>{{ $cardTitle !== '' ? $cardTitle : 'Content' }}</h3>
                                         </div>

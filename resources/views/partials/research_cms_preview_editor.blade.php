@@ -60,7 +60,7 @@
             @php
                 $researchHeroInputId = $idPrefix.'-research-page-hero-image';
                 $researchHeroFieldId = $idPrefix.'-research-page-hero-image-field';
-                $researchHeroPreview = \App\Support\NewsImage::url($pageEditor['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                $researchHeroPreview = \App\Support\ResearchCmsContent::resolveImagePath($pageEditor['hero_image'] ?? null, 'assets/static_img/pupillar.jpeg');
             @endphp
             <section class="research-cms-editor-panel" data-research-editor-panel="page" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
@@ -142,7 +142,7 @@
                         @foreach($cardsEditor as $index => $card)
                             @php
                                 $cardInputId = $idPrefix.'-research-card-image-'.$index;
-                                $cardPreview = \App\Support\NewsImage::url($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $cardPreview = \App\Support\ResearchCmsContent::resolveImagePath($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="{{ $index }}">
                                 <div class="research-cms-card-editor-head" data-research-card-editor-head>
