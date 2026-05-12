@@ -12,7 +12,7 @@ class StudentsCmsContent
             'contents_tag' => 'Contents',
             'contents_title' => 'Student Services',
             'contents_description' => '',
-            'hero_image' => 'assets/static_img/about_heser_image.png',
+            'hero_image' => 'assets/static_img/about_header_image.png',
         ],
         'cards' => [
             [
