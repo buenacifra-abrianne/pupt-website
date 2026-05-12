@@ -15,7 +15,6 @@
         'overview' => 'Overview',
         'degree-programs' => 'Degree Programs',
         'diploma-programs' => 'Diploma Programs',
-        'graduate-programs' => 'Graduate Programs',
         'pup-iapply' => 'PUP iApply',
         'university-calendar' => 'University Calendar',
     ];
@@ -318,8 +317,9 @@
                         </div>
 
                         @foreach(($featuresEditor['items'] ?? []) as $index => $item)
+                            <input type="hidden" name="academics[features][items][{{ $index }}][tag]" value="{{ $item['tag'] ?? ($item['title'] ?? '') }}">
                             <input type="hidden" name="academics[features][items][{{ $index }}][title]" value="{{ $item['title'] ?? '' }}">
-                            <input type="hidden" name="academics[features][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
+                            <input type="hidden" name="academics[features][items][{{ $index }}][description]" value="{{ $item['description'] ?? ($item['body'] ?? '') }}">
                             <input type="hidden" name="academics[features][items][{{ $index }}][wide]" value="{{ !empty($item['wide']) ? '1' : '0' }}">
                         @endforeach
 
@@ -354,17 +354,22 @@
                                     <input type="hidden" name="academics[features][items][{{ $index }}][wide]" value="{{ !empty($item['wide']) ? '1' : '0' }}">
 
                                     <div class="form-group">
-                                        <label>Card Tag</label>
+                                        <label>Content Tag</label>
+                                        <input type="text" name="academics[features][items][{{ $index }}][tag]" maxlength="120" value="{{ $item['tag'] ?? ($item['title'] ?? '') }}">
+                                    </div>
+
+                                    <div class="form-group">
+                                        <label>Title</label>
                                         <input type="text" name="academics[features][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
                                     </div>
 
                                     <div class="form-group">
-                                        <label>Card Description</label>
+                                        <label>Description</label>
                                         @include('partials.rich_text_editor', [
-                                            'name' => 'academics[features][items]['.$index.'][body]',
-                                            'value' => $item['body'] ?? '',
+                                            'name' => 'academics[features][items]['.$index.'][description]',
+                                            'value' => $item['description'] ?? ($item['body'] ?? ''),
                                             'placeholder' => 'Write the supporting copy for this offer card...',
-                                            'characterLimit' => 255,
+                                            'characterLimit' => 100,
                                             'counterMode' => 'limit',
                                         ])
                                     </div>
@@ -712,6 +717,7 @@
         color: #1b1714;
         font-size: 0.9rem;
         font-weight: 700;
+        cursor: pointer;
     }
 
     .academics-cms-image-dropzone-file {
@@ -723,7 +729,12 @@
     }
 
     .academics-cms-image-dropzone-input {
-        display: none;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+        overflow: hidden;
     }
 
     .academics-cms-image-dropzone-remove {
@@ -866,6 +877,23 @@
         margin-top: 14px;
     }
 
+    .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .academics-cms-form-grid {
+        column-gap: 16px;
+        row-gap: 10px;
+    }
+
+    .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .academics-cms-form-grid .form-group {
+        margin-bottom: 0;
+    }
+
+    .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .academics-cms-form-grid .form-group + .form-group {
+        margin-top: 0;
+    }
+
+    .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .academics-cms-form-grid + .form-group {
+        margin-top: 16px;
+    }
+
     .academics-cms-modal.is-card-focus .academics-cms-modal-close {
         top: 14px;
         right: 14px;
@@ -914,7 +942,29 @@
 
         const ACADEMICS_PREVIEW_MIN_LOADING_MS = 1500;
         let academicsPreviewFitFrame = null;
+        const ACADEMICS_PREVIEW_STORAGE_KEY = `cms:academics-preview-route:${window.location.pathname}`;
+        const ACADEMICS_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-academics-preview-page';
         let currentAcademicsPreviewRoute = 'overview';
+
+        function getStoredAcademicsPreviewRoute() {
+            try {
+                return window.localStorage.getItem(ACADEMICS_PREVIEW_STORAGE_KEY)
+                    || window.localStorage.getItem(ACADEMICS_PREVIEW_LEGACY_STORAGE_KEY)
+                    || '';
+            } catch (_) {
+                return '';
+            }
+        }
+
+        function storeAcademicsPreviewRoute(routeKey) {
+            try {
+                const storedRoute = String(routeKey || 'overview');
+                window.localStorage.setItem(ACADEMICS_PREVIEW_STORAGE_KEY, storedRoute);
+                window.localStorage.setItem(ACADEMICS_PREVIEW_LEGACY_STORAGE_KEY, storedRoute);
+            } catch (_) {
+                // Ignore storage failures and keep the route in memory for this session.
+            }
+        }
 
         function getAcademicsPreviewPayloads() {
             const el = document.querySelector('[data-academics-preview-pages]');
@@ -1045,6 +1095,22 @@
 
             if (!(scope instanceof HTMLElement)) {
                 return 0;
+            }
+
+            if (currentAcademicsPreviewRoute === 'university-calendar') {
+                const calendarCard = doc.querySelector('.uc-calendar-official-card');
+                const calendarSection = calendarCard?.closest('.contents-strip');
+                const heroSection = doc.querySelector('.uc-hero-b');
+                const breadcrumbShell = doc.querySelector('.academic-shell');
+                const candidates = [breadcrumbShell, heroSection, calendarSection, calendarCard]
+                    .filter((element) => element instanceof HTMLElement && isAcademicsPreviewMeasuredElement(element));
+                const routeBottom = candidates.reduce((maxBottom, element) => {
+                    return Math.max(maxBottom, getAcademicsPreviewElementBottom(element));
+                }, 0);
+
+                if (routeBottom > 0) {
+                    return Math.max(1, Math.ceil(routeBottom));
+                }
             }
 
             const visibleElements = Array.from(scope.children)
@@ -1216,12 +1282,14 @@
             }
 
             if (!shouldForceReload && currentAcademicsPreviewRoute === targetKey && (typeof window.hasCmsPreviewFrameContent === 'function' ? window.hasCmsPreviewFrameContent(frame) : !!frame.srcdoc)) {
+                storeAcademicsPreviewRoute(targetKey);
                 setAcademicsPreviewLoading(frame, true);
                 queueAcademicsPreviewSettledSync(frame);
                 return;
             }
 
             currentAcademicsPreviewRoute = targetKey;
+            storeAcademicsPreviewRoute(targetKey);
             syncAcademicsPreviewNav(targetKey);
             setAcademicsPreviewLoading(frame, true);
             const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
@@ -1329,6 +1397,7 @@
                     || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
+                const selectButton = label?.querySelector('.academics-cms-image-dropzone-upload-button') || null;
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
                     : (
@@ -1344,6 +1413,23 @@
                 input.dataset.academicsDropzoneBound = '1';
                 const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
                 const defaultSrc = previewEl?.dataset.academicsDefaultSrc || '';
+                selectButton?.setAttribute('role', 'button');
+                selectButton?.setAttribute('tabindex', '0');
+
+                const openFilePicker = () => {
+                    input.disabled = false;
+
+                    if (typeof input.showPicker === 'function') {
+                        try {
+                            input.showPicker();
+                            return;
+                        } catch (_) {
+                            // Fall through to click for browsers that restrict showPicker.
+                        }
+                    }
+
+                    input.click();
+                };
 
                 const syncRemoveState = () => {
                     if (!removeButton) {
@@ -1378,7 +1464,23 @@
                         return;
                     }
 
-                    input.click();
+                    openFilePicker();
+                });
+
+                selectButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openFilePicker();
+                });
+
+                selectButton?.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openFilePicker();
                 });
 
                 label.addEventListener('keydown', (event) => {
@@ -1387,7 +1489,7 @@
                     }
 
                     event.preventDefault();
-                    input.click();
+                    openFilePicker();
                 });
 
                 label.addEventListener('dragover', (event) => {
@@ -1527,6 +1629,108 @@
             return true;
         }
 
+        function nextAcademicsCardIndex(collection) {
+            const indexes = Array.from(collection?.stack?.querySelectorAll(collection.selector) ?? [])
+                .map((editor) => Number(editor.getAttribute(collection.indexAttribute) || '0'))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        }
+
+        function replaceAcademicsTemplateTokens(root, tokens) {
+            const elements = [root, ...Array.from(root.querySelectorAll('*'))];
+
+            elements.forEach((element) => {
+                for (const attribute of Array.from(element.attributes || [])) {
+                    let nextValue = attribute.value;
+
+                    Object.entries(tokens).forEach(([token, value]) => {
+                        nextValue = nextValue.replaceAll(token, value);
+                    });
+
+                    if (nextValue !== attribute.value) {
+                        element.setAttribute(attribute.name, nextValue);
+                    }
+                }
+
+                if (element.childNodes.length === 1 && element.firstChild?.nodeType === Node.TEXT_NODE) {
+                    let nextText = element.textContent || '';
+
+                    Object.entries(tokens).forEach(([token, value]) => {
+                        nextText = nextText.replaceAll(token, value);
+                    });
+
+                    if (nextText !== element.textContent) {
+                        element.textContent = nextText;
+                    }
+                }
+            });
+        }
+
+        function relabelAcademicsCardEditors(collection) {
+            Array.from(collection?.stack?.querySelectorAll(collection.selector) ?? []).forEach((editor, index) => {
+                const displayNumber = index + 1;
+                const headTitle = editor.querySelector('[data-academics-card-editor-head] h4');
+                const headSubtitle = editor.querySelector('[data-academics-card-editor-head] span');
+                const titleInput = editor.querySelector('input[name*="[title]"]');
+                const dropzoneTitle = editor.querySelector('.academics-cms-image-dropzone-label');
+                const formLabel = collection.form?.getAttribute('data-academics-page-label') || 'Program';
+
+                if (headTitle) {
+                    headTitle.textContent = `${formLabel} Card ${displayNumber}`;
+                }
+
+                if (headSubtitle) {
+                    headSubtitle.textContent = String(titleInput?.value || '').trim() || 'New card';
+                }
+
+                if (dropzoneTitle) {
+                    dropzoneTitle.textContent = `Card ${displayNumber}`;
+                }
+            });
+        }
+
+        function addAcademicsProgramCard(sectionKey) {
+            const collection = cardEditorCollections[sectionKey];
+            if (!collection) {
+                return null;
+            }
+
+            const template = collection.form.querySelector(`[data-academics-program-card-template="${sectionKey}"]`);
+            if (!template || !collection.stack) {
+                return null;
+            }
+
+            const index = nextAcademicsCardIndex(collection);
+            const dropzoneId = `{{ $idPrefix }}-${sectionKey}-${index}-image`;
+            const fragment = template.content.cloneNode(true);
+            const editor = fragment.querySelector(collection.selector);
+
+            if (!editor) {
+                return null;
+            }
+
+            replaceAcademicsTemplateTokens(editor, {
+                '__INDEX__': String(index),
+                '__DROPZONE_ID__': dropzoneId,
+            });
+
+            collection.stack.appendChild(fragment);
+            initAcademicsImageDropzones(collection.stack);
+
+            if (typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(collection.stack);
+            }
+
+            bumpEditorVersion(collection.versionInput);
+            relabelAcademicsCardEditors(collection);
+            setActiveEditor(collection.stack, collection.selector, collection.indexAttribute, collection.hiddenInput, index);
+            editor.scrollIntoView({ block: 'nearest' });
+            editor.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface')?.focus();
+
+            return editor;
+        }
+
         async function confirmDeleteAcademicsCard(type, targetIndex) {
             const collection = cardEditorCollections[type];
             if (!collection) {
@@ -1651,6 +1855,15 @@
                 return;
             }
 
+            if (data.type === 'cms-academics-add-card') {
+                const section = data.section || '';
+                openAcademicsEditor(section, data.label || 'Add academics card', {
+                    cardIndex: '__new__',
+                });
+                window.setTimeout(() => addAcademicsProgramCard(section), 0);
+                return;
+            }
+
             if (data.type === 'cms-academics-delete-card') {
                 confirmDeleteAcademicsCard(data.section || '', data.cardIndex);
                 return;
@@ -1664,7 +1877,8 @@
                     return;
                 }
 
-                syncAcademicsPreviewHeight(targetFrame, data.height);
+                const measuredHeight = measureAcademicsPreviewHeight(targetFrame);
+                syncAcademicsPreviewHeight(targetFrame, measuredHeight > 0 ? measuredHeight : data.height);
                 return;
             }
 
@@ -1699,6 +1913,12 @@
                     routeKey: previewButton.getAttribute('data-academics-preview-page') || 'overview',
                 });
             }
+
+            const addProgramCardButton = event.target.closest('[data-add-academics-program-card]');
+            if (addProgramCardButton) {
+                event.preventDefault();
+                addAcademicsProgramCard(addProgramCardButton.getAttribute('data-add-academics-program-card') || '');
+            }
         });
 
         document.addEventListener('keydown', (event) => {
@@ -1712,12 +1932,16 @@
         });
 
         document.querySelectorAll('[data-academics-preview-frame]').forEach((frame) => {
-            loadAcademicsPreview(frame);
+            loadAcademicsPreview(frame, {
+                routeKey: getStoredAcademicsPreviewRoute() || 'overview',
+            });
 
             frame.addEventListener('load', () => {
                 bindAcademicsPreviewDocument(frame);
                 queueAcademicsPreviewSettledSync(frame);
                 scheduleFitAllAcademicsPreviews();
+                window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 120);
+                window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 360);
             });
         });
 
@@ -1792,6 +2016,7 @@
         syncAcademicsPreviewNav(currentAcademicsPreviewRoute);
         Object.values(cardEditorCollections).forEach((collection) => {
             setActiveEditor(collection.stack, collection.selector, collection.indexAttribute, collection.hiddenInput);
+            relabelAcademicsCardEditors(collection);
             bindAcademicsDirtyTracking(
                 collection.form,
                 collection.versionInput,

@@ -3,7 +3,6 @@
     $programPageConfigs = [
         'degree-programs' => ['label' => 'Degree Programs', 'fallback' => 'assets/static_img/pupillar.jpeg'],
         'diploma-programs' => ['label' => 'Diploma Programs', 'fallback' => 'assets/static_img/pupillar.jpeg'],
-        'graduate-programs' => ['label' => 'Graduate Programs', 'fallback' => 'assets/static_img/pupillar.jpeg'],
     ];
 @endphp
 
@@ -13,12 +12,8 @@
         $pageFallback = $pageConfig['fallback'];
         $pageData = $pagesEditor[$pageKey] ?? [];
         $heroData = $pageData['hero'] ?? [];
-        $infoData = $pageData['info'] ?? [];
         $cardsData = $pageData['cards'] ?? [];
         $contactData = $pageData['contact'] ?? [];
-        $heroInputId = $idPrefix.'-'.$pageKey.'-hero-image';
-        $heroFieldId = $idPrefix.'-'.$pageKey.'-hero-image-field';
-        $heroPreview = \App\Support\NewsImage::url($heroData['image'] ?? null, $pageFallback);
         $cardsSectionKey = $pageKey.'-cards';
     @endphp
 
@@ -30,49 +25,6 @@
             @if($requestId > 0)
                 <input type="hidden" name="request_id" value="{{ $requestId }}">
             @endif
-
-            <input type="hidden" id="{{ $heroFieldId }}" name="academics[pages][{{ $pageKey }}][hero][image]" value="{{ $heroData['image'] ?? '' }}">
-
-            <div class="form-group">
-                <label>Upload Hero Image</label>
-                <div class="academics-cms-image-dropzone-shell">
-                    <div class="academics-cms-image-dropzone cms-image-dropzone-hero" data-academics-dropzone-for="{{ $heroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
-                        <span class="academics-cms-image-dropzone-preview-column">
-                            <span class="academics-cms-image-dropzone-media">
-                                <img
-                                    src="{{ $heroPreview }}"
-                                    alt="{{ $pageLabel }} hero preview"
-                                    class="academics-cms-image-dropzone-preview"
-                                    data-academics-preview-for="{{ $heroInputId }}"
-                                    data-academics-default-src="{{ asset($pageFallback) }}"
-                                >
-                                <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $heroInputId }}" aria-label="Delete image" title="Delete image">
-                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                </button>
-                            </span>
-                            <span class="academics-cms-image-dropzone-label">{{ $pageLabel }}</span>
-                        </span>
-                        <span class="academics-cms-image-dropzone-upload">
-                            <span class="academics-cms-image-dropzone-icon">
-                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
-                            </span>
-                            <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                            <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this section.</span>
-                            <span class="academics-cms-image-dropzone-upload-button">Select image</span>
-                            <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $heroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                        </span>
-                    </div>
-                </div>
-                <input
-                    id="{{ $heroInputId }}"
-                    class="academics-cms-image-dropzone-input"
-                    type="file"
-                    name="academics[pages][{{ $pageKey }}][hero][image_file]"
-                    accept="image/*"
-                    data-academics-image-field-id="{{ $heroFieldId }}"
-                >
-            </div>
-
             <div class="academics-cms-form-grid">
                 <div class="form-group">
                     <label>Section Tag</label>
@@ -91,83 +43,17 @@
 
             <div class="form-group">
                 <label>Hero Description</label>
-                <div class="academics-cms-textarea-field" data-academics-char-limit="500">
-                    <textarea name="academics[pages][{{ $pageKey }}][hero][body]" rows="4" maxlength="500" data-academics-char-input>{{ $heroData['body'] ?? '' }}</textarea>
-                    <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/500</div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label>List Title</label>
-                <input type="text" name="academics[pages][{{ $pageKey }}][hero][list_title]" maxlength="255" value="{{ $heroData['list_title'] ?? '' }}">
-            </div>
-
-            <div class="academics-cms-card-stack">
-                @foreach(($heroData['list_items'] ?? []) as $index => $item)
-                    <article class="academics-cms-card-editor">
-                        <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                            <h4>List Item {{ $loop->iteration }}</h4>
-                        </div>
-                        <div class="form-group">
-                            <label>Item Text</label>
-                            <input type="text" name="academics[pages][{{ $pageKey }}][hero][list_items][{{ $index }}]" maxlength="255" value="{{ $item }}">
-                        </div>
-                    </article>
-                @endforeach
+                @include('partials.rich_text_editor', [
+                    'name' => 'academics[pages]['.$pageKey.'][hero][body]',
+                    'value' => $heroData['body'] ?? '',
+                    'placeholder' => 'Write the hero description...',
+                    'characterLimit' => 500,
+                    'counterMode' => 'limit',
+                ])
             </div>
 
             <div class="academics-cms-modal-footer">
                 <button type="submit" class="btn btn-primary">{{ $submitLabel($pageLabel.' Hero') }}</button>
-            </div>
-        </form>
-    </section>
-
-    <section class="academics-cms-editor-panel" data-academics-editor-panel="{{ $pageKey }}-info" hidden>
-        <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
-            @csrf
-            <input type="hidden" name="tab_key" value="academics">
-            <input type="hidden" name="section_key" value="{{ $pageKey }}-info">
-            @if($requestId > 0)
-                <input type="hidden" name="request_id" value="{{ $requestId }}">
-            @endif
-
-            <div class="academics-cms-form-grid">
-                <div class="form-group">
-                    <label>Section Tag</label>
-                    <input type="text" name="academics[pages][{{ $pageKey }}][info][tag]" maxlength="120" value="{{ $infoData['tag'] ?? '' }}">
-                </div>
-                <div class="form-group">
-                    <label>Section Title</label>
-                    <input type="text" name="academics[pages][{{ $pageKey }}][info][title]" maxlength="255" value="{{ $infoData['title'] ?? '' }}">
-                </div>
-            </div>
-
-            <div class="academics-cms-card-stack">
-                @foreach(($infoData['items'] ?? []) as $index => $item)
-                    <article class="academics-cms-card-editor">
-                        <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                            <h4>Info Item {{ $loop->iteration }}</h4>
-                        </div>
-                        <div class="academics-cms-form-grid">
-                            <div class="form-group">
-                                <label>Label</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][info][items][{{ $index }}][label]" maxlength="120" value="{{ $item['label'] ?? '' }}">
-                            </div>
-                            <div class="form-group">
-                                <label>Value</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][info][items][{{ $index }}][value]" maxlength="2048" value="{{ $item['value'] ?? '' }}">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Optional Link</label>
-                            <input type="text" name="academics[pages][{{ $pageKey }}][info][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
-                        </div>
-                    </article>
-                @endforeach
-            </div>
-
-            <div class="academics-cms-modal-footer">
-                <button type="submit" class="btn btn-primary">{{ $submitLabel($pageLabel.' Info') }}</button>
             </div>
         </form>
     </section>
@@ -194,8 +80,10 @@
                 </div>
 
                 @foreach(($cardsData['items'] ?? []) as $index => $item)
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][badge]" value="{{ $item['badge'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][title]" value="{{ $item['title'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][dept]" value="{{ $item['dept'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][cta]" value="{{ $item['cta'] ?? '' }}">
@@ -208,7 +96,7 @@
         </div>
 
         <div data-academics-page-card-item-shell="{{ $cardsSectionKey }}">
-            <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-academics-card-form="{{ $cardsSectionKey }}">
+            <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-academics-card-form="{{ $cardsSectionKey }}" data-academics-program-card-form data-academics-page-key="{{ $pageKey }}" data-academics-page-label="{{ $pageLabel }}" data-academics-page-fallback="{{ asset($pageFallback) }}">
                 @csrf
                 <input type="hidden" name="tab_key" value="academics">
                 <input type="hidden" name="section_key" value="{{ $cardsSectionKey }}">
@@ -225,6 +113,7 @@
                         @php
                             $cardInputId = $idPrefix.'-'.$cardsSectionKey.'-'.$index.'-image';
                             $cardPreview = \App\Support\NewsImage::url($item['image'] ?? null, $pageFallback);
+                            $programCardBody = \Illuminate\Support\Str::limit(\App\Support\RichText::plainText($item['body'] ?? ''), 100, '');
                         @endphp
                         <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="{{ $index }}">
                             <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
@@ -267,32 +156,112 @@
                                 <input id="{{ $cardInputId }}" class="academics-cms-image-dropzone-input" type="file" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][image_file]" accept="image/*">
                             </div>
 
-                            <div class="form-group">
-                                <label>Card Title</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
-                            </div>
-
-                            <div class="form-group">
-                                <label>Card Description</label>
-                                <div class="academics-cms-textarea-field" data-academics-char-limit="255">
-                                    <textarea name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][body]" rows="5" maxlength="255" data-academics-char-input>{{ $item['body'] ?? '' }}</textarea>
-                                    <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/255</div>
-                                </div>
-                            </div>
-
                             <div class="academics-cms-form-grid">
+                                <div class="form-group">
+                                    <label>Acronym</label>
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][badge]" maxlength="120" value="{{ $item['badge'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Card Title</label>
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Department</label>
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][dept]" maxlength="255" value="{{ $item['dept'] ?? '' }}">
+                                </div>
                                 <div class="form-group">
                                     <label>Link</label>
                                     <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
                                 </div>
-                                <div class="form-group">
-                                    <label>CTA Label</label>
-                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][cta]" maxlength="120" value="{{ $item['cta'] ?? '' }}">
-                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Card Description</label>
+                                @include('partials.rich_text_editor', [
+                                    'name' => 'academics[pages]['.$pageKey.'][cards][items]['.$index.'][body]',
+                                    'value' => $programCardBody,
+                                    'placeholder' => 'Write the program description...',
+                                    'characterLimit' => 100,
+                                    'counterMode' => 'limit',
+                                ])
                             </div>
                         </article>
                     @endforeach
                 </div>
+
+                <template data-academics-program-card-template="{{ $cardsSectionKey }}">
+                    <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="__INDEX__">
+                        <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
+                            <h4>{{ $pageLabel }} Card</h4>
+                            <span>New card</span>
+                        </div>
+
+                        <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][image]" value="" data-academics-image-field>
+
+                        <div class="form-group">
+                            <label>Upload Card Image</label>
+                            <div class="academics-cms-image-dropzone-shell">
+                                <div class="academics-cms-image-dropzone" data-academics-dropzone-for="__DROPZONE_ID__" role="button" tabindex="0" aria-label="Upload card image">
+                                    <span class="academics-cms-image-dropzone-preview-column">
+                                        <span class="academics-cms-image-dropzone-media">
+                                            <img
+                                                src="{{ asset($pageFallback) }}"
+                                                alt="{{ $pageLabel }} card preview"
+                                                class="academics-cms-image-dropzone-preview"
+                                                data-academics-preview-for="__DROPZONE_ID__"
+                                                data-academics-default-src="{{ asset($pageFallback) }}"
+                                            >
+                                            <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="__DROPZONE_ID__" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="academics-cms-image-dropzone-label">Card</span>
+                                    </span>
+                                    <span class="academics-cms-image-dropzone-upload">
+                                        <span class="academics-cms-image-dropzone-icon">
+                                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                        </span>
+                                        <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
+                                        <span class="academics-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="__DROPZONE_ID__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <input id="__DROPZONE_ID__" class="academics-cms-image-dropzone-input" type="file" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][image_file]" accept="image/*">
+                        </div>
+
+                        <div class="academics-cms-form-grid">
+                            <div class="form-group">
+                                <label>Acronym</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][badge]" maxlength="120" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Card Title</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Department</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][dept]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Link</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][href]" maxlength="2048" value="#">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Card Description</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'academics[pages]['.$pageKey.'][cards][items][__INDEX__][body]',
+                                'value' => '',
+                                'placeholder' => 'Write the program description...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
+                            ])
+                        </div>
+                    </article>
+                </template>
 
                 <div class="academics-cms-modal-footer">
                     <button type="submit" class="btn btn-primary">{{ $submitLabel($pageLabel.' Card') }}</button>

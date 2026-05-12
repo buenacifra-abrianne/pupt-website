@@ -85,6 +85,8 @@
 
             return \App\Support\RichText::sanitize((string) ($card['content'] ?? ''));
         };
+
+        $plainText = static fn (mixed $value): string => \App\Support\PlainText::normalize((string) $value);
     @endphp
 
     @unless($cmsPreview)
@@ -124,7 +126,7 @@
 
                 <div data-cms-boundary class="cms-preview-boundary-edge">
                     <p class="ne-page-kicker layout-kicker">{{ $pageSection['eyebrow'] ?? 'Campus Calendar' }}</p>
-                    <h1 class="ne-page-title">{{ $pageSection['title'] ?? 'Events' }}</h1>
+                    <h1 class="ne-page-title">{{ $plainText($pageSection['title'] ?? 'Events') }}</h1>
                     <div class="ne-page-copy ne-rich-copy">
                         {!! \App\Support\RichText::sanitize($pageSection['description'] ?? '') !!}
                     </div>
@@ -155,12 +157,12 @@
 
                     <div data-cms-boundary class="cms-preview-boundary-full">
                         <div class="ne-featured-img">
-                            <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $featuredCard['title'] ?? 'Featured event' }}">
+                            <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $plainText($featuredCard['title'] ?? 'Featured event') }}">
                             <span class="ne-featured-badge">Featured Event</span>
                         </div>
                         <div class="ne-featured-body">
                             <span class="ne-tag">{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}</span>
-                            <h2 class="ne-featured-title">{{ $featuredCard['title'] ?? '' }}</h2>
+                            <h2 class="ne-featured-title">{{ $plainText($featuredCard['title'] ?? '') }}</h2>
                             <p class="ne-featured-meta">{{ $formatDateLine($featuredCard) }}</p>
                             <div class="ne-featured-desc ne-rich-copy">{!! $summaryHtmlFor($featuredCard) !!}</div>
                             <a
@@ -169,9 +171,9 @@
                                 data-ne-modal-trigger
                                 data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($featuredCard['category'] ?? 'events') }}"
                                 data-date="{{ $formatDateLine($featuredCard) }}"
-                                data-title="{{ $featuredCard['title'] ?? '' }}"
+                                data-title="{{ $plainText($featuredCard['title'] ?? '') }}"
                                 data-summary-html="{{ e($summaryHtmlFor($featuredCard)) }}"
-                                data-location="{{ $featuredCard['location'] ?? '' }}"
+                                data-location="{{ $plainText($featuredCard['location'] ?? '') }}"
                                 data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($featuredCard['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                 data-content-html="{{ e(\App\Support\RichText::sanitize($featuredCard['content'] ?? '')) }}"
                             >
@@ -196,7 +198,7 @@
                                     @forelse($ongoingCards as $card)
                                         <div class="ne-event-item ne-ongoing">
                                             <span class="ne-event-date">{{ $formatChipDate($card['event_date'] ?? null) }}</span>
-                                            <p class="ne-event-name">{{ $card['title'] ?? '' }}</p>
+                                            <p class="ne-event-name">{{ $plainText($card['title'] ?? '') }}</p>
                                         </div>
                                     @empty
                                         <div class="ne-event-item ne-ongoing">
@@ -213,7 +215,7 @@
                                     @forelse($upcomingCards as $card)
                                         <div class="ne-event-item">
                                             <span class="ne-event-date">{{ $formatChipDate($card['event_date'] ?? null) }}</span>
-                                            <p class="ne-event-name">{{ $card['title'] ?? '' }}</p>
+                                            <p class="ne-event-name">{{ $plainText($card['title'] ?? '') }}</p>
                                         </div>
                                     @empty
                                         <div class="ne-event-item">
@@ -258,34 +260,34 @@
                             >
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        <button type="button" class="cms-preview-card-action" data-cms-card-edit title="Edit card" aria-label="Edit {{ $card['title'] ?? 'event card' }}">
+                                        <button type="button" class="cms-preview-card-action" data-cms-card-edit title="Edit card" aria-label="Edit {{ $plainText($card['title'] ?? 'event card') }}">
                                             Edit
                                         </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Delete card" aria-label="Delete {{ $card['title'] ?? 'event card' }}">
+                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Delete card" aria-label="Delete {{ $plainText($card['title'] ?? 'event card') }}">
                                             Delete
                                         </button>
                                     </div>
                                 @endif
                                 <div class="ne-card-img">
-                                    <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $card['title'] ?? 'Event card' }}" loading="lazy">
+                                    <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $plainText($card['title'] ?? 'Event card') }}" loading="lazy">
                                     <span class="ne-card-tag">{{ \App\Support\EventsCmsContent::categoryLabel($card['category'] ?? 'events') }}</span>
                                 </div>
                                 <div class="ne-card-body">
                                     <p class="ne-card-date">{{ $formatDate($card['event_date'] ?? null, 'F d, Y') }}</p>
-                                    <h3 class="ne-card-title">{{ $card['title'] ?? '' }}</h3>
+                                    <h3 class="ne-card-title">{{ $plainText($card['title'] ?? '') }}</h3>
                                     <div class="ne-card-desc ne-rich-copy">{!! $summaryHtmlFor($card) !!}</div>
                                     <hr class="ne-card-rule">
                                     <div class="ne-card-foot">
-                                        <span class="ne-card-loc">{{ $card['location'] ?? 'Location to be announced' }}</span>
+                                        <span class="ne-card-loc">{{ $plainText($card['location'] ?? 'Location to be announced') }}</span>
                                         <a
                                             href="#"
                                             class="ne-read-more"
                                             data-ne-modal-trigger
                                             data-tag="{{ \App\Support\EventsCmsContent::categoryLabel($card['category'] ?? 'events') }}"
                                             data-date="{{ $formatDateLine($card) }}"
-                                            data-title="{{ $card['title'] ?? '' }}"
+                                            data-title="{{ $plainText($card['title'] ?? '') }}"
                                             data-summary-html="{{ e($summaryHtmlFor($card)) }}"
-                                            data-location="{{ $card['location'] ?? '' }}"
+                                            data-location="{{ $plainText($card['location'] ?? '') }}"
                                             data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                             data-content-html="{{ e(\App\Support\RichText::sanitize($card['content'] ?? '')) }}"
                                         >
@@ -326,44 +328,44 @@
                                         data-cms-card-index="{{ $card['source_index'] ?? 0 }}"
                                         data-ne-expired-card
                                         tabindex="0"
-                                        aria-label="Select {{ $card['title'] ?? 'expired event' }}"
+                                        aria-label="Select {{ $plainText($card['title'] ?? 'expired event') }}"
                                     >
                                         <button
                                             type="button"
                                             class="ne-expired-select-toggle"
                                             data-ne-expired-select
                                             aria-pressed="false"
-                                            aria-label="Select {{ $card['title'] ?? 'expired event' }}"
+                                            aria-label="Select {{ $plainText($card['title'] ?? 'expired event') }}"
                                         >
                                             Select
                                         </button>
 
                                         <div class="cms-preview-card-actions" aria-label="Expired card actions">
-                                            <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Remove card" aria-label="Remove {{ $card['title'] ?? 'expired event card' }}">
+                                            <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Remove card" aria-label="Remove {{ $plainText($card['title'] ?? 'expired event card') }}">
                                                 Remove
                                             </button>
                                         </div>
 
                                         <div class="ne-card-img">
-                                            <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $card['title'] ?? 'Expired event card' }}" loading="lazy">
+                                            <img src="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}" alt="{{ $plainText($card['title'] ?? 'Expired event card') }}" loading="lazy">
                                             <span class="ne-card-tag">Expired</span>
                                         </div>
                                         <div class="ne-card-body">
                                             <p class="ne-card-date">Expired on {{ $formatDate($card['event_date'] ?? null, 'F d, Y') }}</p>
-                                            <h3 class="ne-card-title">{{ $card['title'] ?? '' }}</h3>
+                                            <h3 class="ne-card-title">{{ $plainText($card['title'] ?? '') }}</h3>
                                             <div class="ne-card-desc ne-rich-copy">{!! $summaryHtmlFor($card) !!}</div>
                                             <hr class="ne-card-rule">
                                             <div class="ne-card-foot">
-                                                <span class="ne-card-loc">{{ $card['location'] ?? 'Location to be announced' }}</span>
+                                                <span class="ne-card-loc">{{ $plainText($card['location'] ?? 'Location to be announced') }}</span>
                                                 <a
                                                     href="#"
                                                     class="ne-read-more"
                                                     data-ne-modal-trigger
                                                     data-tag="Expired Event"
                                                     data-date="{{ $formatDateLine($card) }}"
-                                                    data-title="{{ $card['title'] ?? '' }}"
+                                                    data-title="{{ $plainText($card['title'] ?? '') }}"
                                                     data-summary-html="{{ e($summaryHtmlFor($card)) }}"
-                                                    data-location="{{ $card['location'] ?? '' }}"
+                                                    data-location="{{ $plainText($card['location'] ?? '') }}"
                                                     data-image="{{ \App\Support\EventsCmsContent::resolveImagePath($card['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                                     data-content-html="{{ e(\App\Support\RichText::sanitize($card['content'] ?? '')) }}"
                                                 >
@@ -894,8 +896,9 @@
 
                 const decodeHtmlEntities = (value) => {
                     let current = String(value || '');
-                    for (let index = 0; index < 2; index += 1) {
-                        const textarea = document.createElement('textarea');
+                    const textarea = document.createElement('textarea');
+
+                    for (let index = 0; index < 5; index += 1) {
                         textarea.innerHTML = current;
                         const decoded = textarea.value;
                         if (decoded === current) {
@@ -908,15 +911,15 @@
                 };
                 lastTrigger = trigger;
                 modalImg.src = trigger.dataset.image || '';
-                modalImg.alt = trigger.dataset.title || 'Event image';
-                modalTag.textContent = trigger.dataset.tag || '';
-                modalDate.textContent = trigger.dataset.date || '';
-                modalTitle.textContent = trigger.dataset.title || '';
+                modalImg.alt = decodeHtmlEntities(trigger.dataset.title || 'Event image');
+                modalTag.textContent = decodeHtmlEntities(trigger.dataset.tag || '');
+                modalDate.textContent = decodeHtmlEntities(trigger.dataset.date || '');
+                modalTitle.textContent = decodeHtmlEntities(trigger.dataset.title || '');
                 const summaryHtml = decodeHtmlEntities(trigger.dataset.summaryHtml || '');
                 const contentHtml = decodeHtmlEntities(trigger.dataset.contentHtml || '');
                 const detailsHtml = contentHtml.trim() !== '' ? contentHtml : summaryHtml;
 
-                modalLocation.textContent = trigger.dataset.location || '';
+                modalLocation.textContent = decodeHtmlEntities(trigger.dataset.location || '');
                 modalLocation.hidden = modalLocation.textContent.trim() === '';
                 modalText.innerHTML = detailsHtml;
                 modalDetailsLabel.hidden = modalText.textContent.trim() === '';

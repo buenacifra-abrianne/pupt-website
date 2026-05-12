@@ -177,9 +177,12 @@
                                     </div>
                                 @endif
                                 <div class="academic-feature-card-accent"></div>
-                                <h3 class="academic-feature-title">{{ $item['title'] ?? '' }}</h3>
+                                <p class="academic-feature-tag">{{ $item['tag'] ?? ($item['title'] ?? '') }}</p>
+                                @if(trim((string) ($item['title'] ?? '')) !== '')
+                                    <h3 class="academic-feature-title">{{ $item['title'] }}</h3>
+                                @endif
                                 <div class="academic-feature-copy academic-rich-copy">
-                                    {!! \App\Support\RichText::sanitize($item['body'] ?? '') !!}
+                                    {!! \App\Support\RichText::sanitize($item['description'] ?? ($item['body'] ?? '')) !!}
                                 </div>
                             </div>
                         @endforeach

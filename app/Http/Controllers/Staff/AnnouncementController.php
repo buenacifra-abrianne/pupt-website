@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Staff;
 
 use App\Http\Controllers\Controller;
 use App\Support\NewsImage;
+use App\Support\EventAnnouncementValidation;
+use App\Support\PlainText;
 use App\Support\RichText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -14,14 +16,14 @@ class AnnouncementController extends Controller
 {
     public function index()
 {
-    $email  = (string) session('user_email');
-    $normalizedEmail = strtolower(trim($email));
+    $email  = strtolower(trim((string) session('user_email')));
+    $normalizedEmail = $email;
     $name   = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
     $userId = (int) (session('user_id') ?? 0);
 
     // Staff sees THEIR requests only (Announcements + News)
     $myRequests = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereIn('type', [
             'ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_DELETE',
             'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE',
@@ -32,7 +34,7 @@ class AnnouncementController extends Controller
 
     // ✅ Get announcement_ids that currently have PENDING requests (so we hide them from LIVE)
     $pendingAnnIds = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereRaw('LOWER(status) = ?', ['pending'])
         ->whereIn('type', ['ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
         ->get()
@@ -48,7 +50,7 @@ class AnnouncementController extends Controller
     // ✅ LIVE = approved announcements created by this admin,
     // minus those with pending changes
     $approvedAnnouncementIds = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereRaw('LOWER(status) = ?', ['approved'])
         ->whereIn('type', ['ANNOUNCEMENT_CREATE', 'ANNOUNCEMENT_UPDATE', 'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE'])
         ->get()
@@ -76,11 +78,16 @@ class AnnouncementController extends Controller
             $q->whereNotIn('announcement_id', $pendingAnnIds);
         })
         ->orderByDesc('created_at')
-        ->get();
+        ->get()
+        ->map(function ($announcement) {
+            $announcement->title = PlainText::normalize($announcement->title ?? '');
+
+            return $announcement;
+        });
 
 // ✅ Get news_ids that currently have PENDING requests (hide from LIVE)
 $pendingNewsIds = DB::table('approval_requests')
-    ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+    ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
     ->whereRaw('LOWER(status) = ?', ['pending'])
     ->whereIn('type', ['NEWS_UPDATE','NEWS_DELETE'])
     ->get()
@@ -96,7 +103,7 @@ $pendingNewsIds = DB::table('approval_requests')
 // ✅ LIVE = approved news created by this admin,
 // minus those with pending changes
     $approvedNewsIds = DB::table('approval_requests')
-        ->whereRaw('LOWER(requester_email) = ?', [$normalizedEmail])
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$normalizedEmail])
         ->whereRaw('LOWER(status) = ?', ['approved'])
         ->whereIn('type', ['NEWS_CREATE', 'NEWS_UPDATE'])
         ->get()
@@ -125,7 +132,14 @@ $pendingNewsIds = DB::table('approval_requests')
         $q->whereNotIn('news_id', $pendingNewsIds);
     })
     ->orderByDesc('created_at')
-    ->get();
+    ->get()
+    ->map(function ($news) {
+        $news->title = PlainText::normalize($news->title ?? '');
+        $news->category = PlainText::normalize($news->category ?? '');
+        $news->location = PlainText::normalize($news->location ?? '');
+
+        return $news;
+    });
 
     return view('staff.announcements', compact(
     'myRequests', 'myAnnouncements', 'myNews', 'email', 'name'
@@ -138,7 +152,7 @@ $pendingNewsIds = DB::table('approval_requests')
 
     public function requestCreateAnnouncement(Request $request)
     {
-        $email = (string) session('user_email');
+        $email = strtolower(trim((string) session('user_email')));
         $name  = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
 
         if (!$email) {
@@ -156,9 +170,9 @@ $pendingNewsIds = DB::table('approval_requests')
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
             'ANNOUNCEMENT_CREATE',
-            $request->input('title'),
+            PlainText::normalize($request->input('title')),
             [
-                'title' => $request->input('title'),
+                'title' => PlainText::normalize($request->input('title')),
                 'content' => RichText::sanitize($request->input('content')),
                 'priority' => $request->input('priority'),
                 'link' => $request->input('link'),
@@ -180,10 +194,10 @@ $pendingNewsIds = DB::table('approval_requests')
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
             'ANNOUNCEMENT_UPDATE',
-            $request->input('title'),
+            PlainText::normalize($request->input('title')),
             [
                 'announcement_id' => (int)$request->announcement_id,
-                'title' => $request->input('title'),
+                'title' => PlainText::normalize($request->input('title')),
                 'content' => RichText::sanitize($request->input('content')),
                 'link' => $request->input('link'),
                 'priority' => $request->input('priority'),
@@ -199,7 +213,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Delete Announcement';
+        $title = PlainText::normalize($request->title ?: 'Delete Announcement');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -219,7 +233,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Enable Announcement';
+        $title = PlainText::normalize($request->title ?: 'Enable Announcement');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -239,7 +253,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Disable Announcement';
+        $title = PlainText::normalize($request->title ?: 'Disable Announcement');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -276,6 +290,8 @@ $pendingNewsIds = DB::table('approval_requests')
         throw ValidationException::withMessages(['image' => $message]);
     }
 
+    EventAnnouncementValidation::validate($request);
+
     $requestId = $request->input('request_id') ? (int) $request->input('request_id') : null;
     $removeImage = (string) $request->input('remove_image', '0') === '1';
 
@@ -284,7 +300,7 @@ $pendingNewsIds = DB::table('approval_requests')
     if ($requestId && !$imagePath) {
         $old = DB::table('approval_requests')
             ->where('id', $requestId)
-            ->where('requester_email', (string) session('user_email'))
+            ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$email])
             ->first();
 
         if ($old) {
@@ -313,13 +329,13 @@ $pendingNewsIds = DB::table('approval_requests')
     return $this->createOrUpdateRequest(
         $requestId,
         'NEWS_CREATE',
-        $request->input('title'),
+        PlainText::normalize($request->input('title')),
         [
-            'title' => $request->input('title'),
+            'title' => PlainText::normalize($request->input('title')),
             'content' => RichText::sanitize($request->input('content')),
-            'category' => $request->input('category'),
+            'category' => PlainText::normalize($request->input('category')),
             'link' => $request->input('link'),
-            'location' => $request->input('location'),
+            'location' => PlainText::normalize($request->input('location')),
             'image_path' => $imagePath,
         ]
     );
@@ -347,6 +363,9 @@ $pendingNewsIds = DB::table('approval_requests')
         throw ValidationException::withMessages(['image' => $message]);
     }
 
+    $existing = DB::table('news')->where('news_id', (int) $request->input('news_id'))->first();
+    EventAnnouncementValidation::validate($request, $existing);
+
     $removeImage = (string) $request->input('remove_image', '0') === '1';
     $imagePath = $request->input('existing_image_path') ?: null;
 
@@ -369,18 +388,18 @@ $pendingNewsIds = DB::table('approval_requests')
 
     $payload = [
         'news_id' => (int) $request->input('news_id'),
-        'title' => $request->input('title'),
+        'title' => PlainText::normalize($request->input('title')),
         'content' => RichText::sanitize($request->input('content')),
-        'category' => $request->input('category'),
+        'category' => PlainText::normalize($request->input('category')),
         'link' => $request->input('link'),
-        'location' => $request->input('location'),
+        'location' => PlainText::normalize($request->input('location')),
         'image_path' => $imagePath,
     ];
 
     return $this->createOrUpdateRequest(
         $request->input('request_id') ? (int) $request->input('request_id') : null,
         'NEWS_UPDATE',
-        $request->input('title'),
+        PlainText::normalize($request->input('title')),
         $payload
     );
 }
@@ -393,7 +412,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'title' => ['nullable','string','max:255'],
         ]);
 
-        $title = $request->title ?: 'Delete News';
+        $title = PlainText::normalize($request->title ?: 'Delete News');
 
         return $this->createOrUpdateRequest(
             $request->input('request_id') ? (int)$request->input('request_id') : null,
@@ -415,7 +434,7 @@ $pendingNewsIds = DB::table('approval_requests')
      */
     private function createOrUpdateRequest(?int $requestId, string $type, string $title, array $payload)
     {
-        $email = (string) session('user_email');
+        $email = strtolower(trim((string) session('user_email')));
         $name  = trim((string)session('user_first_name').' '.(string)session('user_last_name'));
 
         if (!$email) {
@@ -440,7 +459,7 @@ $pendingNewsIds = DB::table('approval_requests')
 
     DB::table('approval_requests')
         ->where('id', $requestId)
-        ->where('requester_email', $email)
+        ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$email])
         ->update($data);
 
     $this->pushApproverNotifications(
@@ -491,8 +510,8 @@ $pendingNewsIds = DB::table('approval_requests')
     $req = ApprovalRequest::findOrFail($id);
 
     // OPTIONAL but recommended: only allow deleting own requests
-    $userEmail = session('user_email') ?? null; // adjust if iba session key mo
-    if ($userEmail && strtolower($req->requester_email) !== strtolower($userEmail)) {
+    $userEmail = strtolower(trim((string) (session('user_email') ?? '')));
+    if ($userEmail !== '' && strtolower(trim((string) $req->requester_email)) !== $userEmail) {
         return response()->json(['message' => 'Not allowed.'], 403);
     }
 
@@ -506,6 +525,200 @@ $pendingNewsIds = DB::table('approval_requests')
     $req->delete();
 
     return response()->json(['ok' => true]);
+}
+
+public function showRequestChanges($id)
+{
+    $req = ApprovalRequest::findOrFail($id);
+    $userEmail = strtolower(trim((string) (session('user_email') ?? '')));
+
+    if ($userEmail === '' || strtolower(trim((string) $req->requester_email)) !== $userEmail) {
+        return response()->json(['ok' => false, 'message' => 'Not allowed.'], 403);
+    }
+
+    $payload = json_decode($req->details ?? '{}', true) ?: [];
+    $type = strtoupper((string) $req->type);
+    $status = strtolower(trim((string) $req->status));
+
+    return response()->json([
+        'ok' => true,
+        'request' => [
+            'id' => (int) $req->id,
+            'type' => $type,
+            'type_label' => $this->approvalTypeLabel($type),
+            'status' => $status,
+            'status_label' => $this->approvalStatusLabel($status),
+            'needs_revision' => $status === 'rejected',
+            'title' => PlainText::normalize($payload['title'] ?? $req->title ?? 'Request'),
+            'submitted_at' => optional($req->created_at)->format('M d, Y h:i A'),
+            'updated_at' => optional($req->updated_at)->format('M d, Y h:i A'),
+            'rejection_reason' => (string) ($req->rejection_reason ?? ''),
+        ],
+        'fields' => $this->approvalChangeFields($type, $payload),
+    ]);
+}
+
+private function approvalChangeFields(string $type, array $payload): array
+{
+    $original = $this->approvalOriginalValues($type, $payload);
+    $updated = $this->approvalSubmittedValues($type, $payload, $original);
+    $fields = [];
+
+    foreach ($updated as $key => $field) {
+        $originalValue = $original[$key]['value'] ?? null;
+        $updatedValue = $field['value'] ?? null;
+        $fieldType = (string) ($field['type'] ?? 'text');
+
+        $fields[] = [
+            'key' => $key,
+            'label' => (string) ($field['label'] ?? $this->humanizeApprovalField($key)),
+            'type' => $fieldType,
+            'original' => $this->formatApprovalFieldValue($originalValue, $fieldType),
+            'updated' => $this->formatApprovalFieldValue($updatedValue, $fieldType),
+            'changed' => $this->approvalFieldChanged($originalValue, $updatedValue, $fieldType),
+        ];
+    }
+
+    return $fields;
+}
+
+private function approvalSubmittedValues(string $type, array $payload, array $original): array
+{
+    if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+        if (in_array($type, ['ANNOUNCEMENT_DELETE', 'ANNOUNCEMENT_ENABLE', 'ANNOUNCEMENT_DISABLE'], true)) {
+            return array_merge($original, [
+                'requested_action' => ['label' => 'Requested Action', 'value' => $this->approvalTypeLabel($type), 'type' => 'text'],
+            ]);
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $payload['title'] ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Description', 'value' => RichText::sanitize($payload['content'] ?? ''), 'type' => 'html'],
+            'priority' => ['label' => 'Priority', 'value' => strtoupper((string) ($payload['priority'] ?? '')), 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $payload['link'] ?? '', 'type' => 'text'],
+        ];
+    }
+
+    if (str_starts_with($type, 'NEWS_')) {
+        if ($type === 'NEWS_DELETE') {
+            return array_merge($original, [
+                'requested_action' => ['label' => 'Requested Action', 'value' => $this->approvalTypeLabel($type), 'type' => 'text'],
+            ]);
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $payload['title'] ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Content', 'value' => RichText::sanitize($payload['content'] ?? ''), 'type' => 'html'],
+            'category' => ['label' => 'Category', 'value' => $payload['category'] ?? '', 'type' => 'text'],
+            'location' => ['label' => 'Venue / Location', 'value' => $payload['location'] ?? '', 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $payload['link'] ?? '', 'type' => 'text'],
+            'image_path' => ['label' => 'Uploaded Image', 'value' => $payload['image_path'] ?? '', 'type' => 'image'],
+        ];
+    }
+
+    return [
+        'details' => ['label' => 'Submitted Details', 'value' => json_encode($payload, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE), 'type' => 'text'],
+    ];
+}
+
+private function approvalOriginalValues(string $type, array $payload): array
+{
+    if (str_starts_with($type, 'ANNOUNCEMENT_')) {
+        $id = (int) ($payload['announcement_id'] ?? 0);
+        if ($id <= 0) {
+            return [];
+        }
+
+        $row = DB::table('announcements')->where('announcement_id', $id)->first();
+        if (!$row) {
+            return [];
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $row->title ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Description', 'value' => RichText::sanitize($row->content ?? ''), 'type' => 'html'],
+            'priority' => ['label' => 'Priority', 'value' => strtoupper((string) ($row->priority ?? '')), 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $row->link ?? '', 'type' => 'text'],
+        ];
+    }
+
+    if (str_starts_with($type, 'NEWS_')) {
+        $id = (int) ($payload['news_id'] ?? 0);
+        if ($id <= 0) {
+            return [];
+        }
+
+        $row = DB::table('news')->where('news_id', $id)->first();
+        if (!$row) {
+            return [];
+        }
+
+        return [
+            'title' => ['label' => 'Title', 'value' => $row->title ?? '', 'type' => 'text'],
+            'content' => ['label' => 'Content', 'value' => RichText::sanitize($row->content ?? ''), 'type' => 'html'],
+            'category' => ['label' => 'Category', 'value' => $row->category ?? '', 'type' => 'text'],
+            'location' => ['label' => 'Venue / Location', 'value' => $row->location ?? '', 'type' => 'text'],
+            'link' => ['label' => 'Link', 'value' => $row->link ?? '', 'type' => 'text'],
+            'image_path' => ['label' => 'Uploaded Image', 'value' => $row->image_path ?? '', 'type' => 'image'],
+        ];
+    }
+
+    return [];
+}
+
+private function approvalFieldChanged(mixed $original, mixed $updated, string $type): bool
+{
+    if ($type === 'html') {
+        return RichText::plainText((string) $original) !== RichText::plainText((string) $updated);
+    }
+
+    return trim((string) ($original ?? '')) !== trim((string) ($updated ?? ''));
+}
+
+private function formatApprovalFieldValue(mixed $value, string $type): array
+{
+    $raw = trim((string) ($value ?? ''));
+
+    if ($type === 'image') {
+        return [
+            'raw' => $raw,
+            'url' => NewsImage::url($raw),
+        ];
+    }
+
+    return [
+        'raw' => $raw,
+    ];
+}
+
+private function approvalTypeLabel(string $type): string
+{
+    return match ($type) {
+        'ANNOUNCEMENT_CREATE' => 'Create Announcement',
+        'ANNOUNCEMENT_UPDATE' => 'Edit Announcement',
+        'ANNOUNCEMENT_DELETE' => 'Delete Announcement',
+        'ANNOUNCEMENT_ENABLE' => 'Enable Announcement',
+        'ANNOUNCEMENT_DISABLE' => 'Disable Announcement',
+        'NEWS_CREATE' => 'Create Article / Event',
+        'NEWS_UPDATE' => 'Edit Article / Event',
+        'NEWS_DELETE' => 'Delete Article / Event',
+        default => 'Approval Request',
+    };
+}
+
+private function approvalStatusLabel(string $status): string
+{
+    return match ($status) {
+        'pending' => 'Pending Approval',
+        'approved' => 'Approved',
+        'rejected' => 'Rejected',
+        default => 'Needs Revision',
+    };
+}
+
+private function humanizeApprovalField(string $key): string
+{
+    return ucwords(str_replace(['_', '-'], ' ', $key));
 }
 
     private function pushSystemNotif(string $type, string $title, string $message, ?string $targetRole, ?int $targetUserId = null): void

@@ -967,7 +967,7 @@ margin-top: -0.5px;
 .floating-voice-btn.listening {
     background: #fff;
     color: #800000;
-    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12); 
+    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
 }
 
 /* CMS visual refresh */
@@ -1107,4 +1107,98 @@ body {
 .sidebar.collapsed::after {
     opacity: 0;
     pointer-events: none;
+}
+
+/* ───── DARK MODE  ───── */
+@media (prefers-color-scheme: dark) {
+
+    body {
+        background: #120606 !important;
+        color: #f0e6e6 !important;
+    }
+
+    .stat-card,
+    .card {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.12) !important;
+    }
+
+    .stat-card h4 {
+        color: #b89090 !important;
+    }
+
+    .stat-card .value {
+        color: #f7c5c5 !important;
+    }
+
+    .page-title {
+        color: #f7c5c5 !important;
+    }
+
+    .page-subtitle {
+        color: #b89090 !important;
+    }
+
+    .card-title {
+        color: #f7c5c5 !important;
+    }
+
+    .filter-field {
+        background: #2a1010 !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+    }
+
+    .filter-field input,
+    .filter-field select,
+    .filter-field input::placeholder,
+    .filter-field i {
+        background: transparent !important;
+        color: #e8d5d5 !important;
+    }
+
+    .filter-field select option {
+        background: #2a1010 !important;
+        color: #e8d5d5 !important;
+    }
+
+    .notification-item {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.1) !important;
+    }
+
+    .notification-item.unread {
+        background: #2a1010 !important;
+        border-left-color: #f0c85a !important;
+    }
+
+    .notification-title {
+        color: #f7c5c5 !important;
+    }
+
+    .notification-message {
+        color: #e0d0d0 !important;
+    }
+
+    .notification-time {
+        color: #b89090 !important;
+    }
+
+    .btn-outline {
+        background: #2a1010 !important;
+        color: #f7c5c5 !important;
+        border-color: rgba(240, 200, 90, 0.3) !important;
+    }
+
+    .page-btn,
+    .page-number {
+        background: #2a1010 !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+        color: #f0e6e6 !important;
+    }
+
+    .page-number.active {
+        background: #800000 !important;
+        color: #fff !important;
+        border-color: #800000 !important;
+    }
 }

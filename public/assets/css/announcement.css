@@ -589,7 +589,7 @@ body {
 }
 
 /* Remove default link underlines from action buttons */
-.announcement-actions a, 
+.announcement-actions a,
 .announcement-actions button,
 .btn {
     text-decoration: none !important;
@@ -1342,7 +1342,7 @@ body {
 .floating-voice-btn.listening {
     background: #fff;
     color: #800000;
-    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12); 
+    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
 }
 
 /* CMS visual refresh */
@@ -1682,5 +1682,231 @@ body {
     .news-bulk-actions .btn {
         flex: 1 1 100%;
         justify-content: center;
+    }
+}
+
+/* ───── DARK MODE  ───── */
+@media (prefers-color-scheme: dark) {
+
+    /* Text descriptions - announcement & news */
+    .announcement-description,
+    .announcement-description *,
+    .rich-text-content,
+    .rich-text-content * {
+        color: #e8d5d5 !important;
+    }
+
+    /* Read More / Loading Preview popup body */
+    .read-more-body,
+    .read-more-body *,
+    #readMoreContent,
+    #readMoreContent * {
+        color: #e8d5d5 !important;
+    }
+
+    /* Announcement cards */
+    .announcement-item {
+        background: #2a1010 !important;
+        border-left-color: #f0c85a !important;
+    }
+
+    .announcement-item.high-priority {
+        background: #2a1010 !important;
+    }
+
+    .announcement-title {
+        color: #f7c5c5 !important;
+    }
+
+    .announcement-meta,
+    .announcement-meta span,
+    .announcement-meta i {
+        color: #b89090 !important;
+    }
+
+    .announcement-card-create {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+    }
+
+    .announcement-card-create-text {
+        color: #b89090 !important;
+    }
+
+    /* Cards */
+    .card {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.12) !important;
+    }
+
+    .card-title,
+    .card-header h3 {
+        color: #f7c5c5 !important;
+    }
+
+    /* News cards - fix pink gradient background */
+    .news-card {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.12) !important;
+    }
+
+    .news-card-create {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+    }
+
+    .news-title {
+        color: #f7c5c5 !important;
+    }
+
+    .news-content,
+    .news-description,
+    .news-meta,
+    .news-meta span {
+        color: #e8d5d5 !important;
+    }
+
+    .news-category {
+        background: rgba(240, 200, 90, 0.15) !important;
+        color: #f0c85a !important;
+    }
+
+    .news-option-toggle {
+        background: rgba(240, 200, 90, 0.06) !important;
+        border-color: rgba(240, 200, 90, 0.12) !important;
+    }
+
+    .news-option-toggle small {
+        color: #b89090 !important;
+    }
+
+    /* Page header */
+    .page-title {
+        color: #f7c5c5 !important;
+    }
+
+    .page-subtitle {
+        color: #b89090 !important;
+    }
+
+    /* Search bars */
+    .tab-navigation .search-bar,
+    .search-bar.search-inline {
+        background: #2a1010 !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+    }
+
+    .search-bar input,
+    .search-bar input::placeholder,
+    .search-bar i {
+        color: #e8d5d5 !important;
+    }
+
+    /* Modals - fix pink gradient background */
+    .modal-content {
+        background: #2a1010 !important;
+        border-color: rgba(240, 200, 90, 0.15) !important;
+    }
+
+    .modal-title {
+        color: #f7c5c5 !important;
+    }
+
+    .close-modal {
+        color: #b89090 !important;
+    }
+
+    .close-modal:hover {
+        color: #f7c5c5 !important;
+    }
+
+    /* Form fields inside modals */
+    .form-group label {
+        color: #e8c9c9 !important;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        background: #3a1a1a !important;
+        color: #f0e6e6 !important;
+        border-color: rgba(240, 200, 90, 0.3) !important;
+    }
+
+    /* Image upload area */
+    .image-preview-wrap {
+        background: #2a1010 !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+    }
+
+    .image-empty-state {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+        color: #b89090 !important;
+    }
+
+    /* Approvals table */
+    .approvals-table-wrap {
+        background: #1e0a0a !important;
+        border-color: rgba(240, 200, 90, 0.12) !important;
+    }
+
+    .approvals-table tbody tr {
+        background: #1e0a0a !important;
+        border-bottom-color: rgba(240, 200, 90, 0.08) !important;
+    }
+
+    .approvals-table tbody tr:hover {
+        background: #2a1010 !important;
+    }
+
+    .approvals-table tbody td {
+        color: #f0e6e6 !important;
+        background: transparent !important;
+    }
+
+    .approvals-table tbody td[colspan] {
+        color: #b89090 !important;
+        background: #1e0a0a !important;
+    }
+
+    .status-badge.status-enabled {
+        background: rgba(40, 167, 69, 0.2) !important;
+        color: #a0e6b0 !important;
+    }
+
+    /* Pagination */
+    .page-btn,
+    .page-number {
+        background: #2a1010 !important;
+        border-color: rgba(240, 200, 90, 0.2) !important;
+        color: #f0e6e6 !important;
+    }
+
+    .page-number.active {
+        background: #800000 !important;
+        color: #fff !important;
+    }
+
+    /* Reject modal */
+    #rejectModal .modal-content {
+        background: #2a1010 !important;
+    }
+
+    #rejectModal .modal-title {
+        color: #f7c5c5 !important;
+    }
+
+    #rejectModal textarea {
+        background: #3a1a1a !important;
+        color: #f0e6e6 !important;
+        border-color: rgba(240, 200, 90, 0.3) !important;
+    }
+}
+
+@media (prefers-color-scheme: dark) {
+    .priority-medium {
+        background: #7a5a00 !important;
+        color: #f0c85a !important;
     }
 }

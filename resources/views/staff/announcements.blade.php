@@ -129,7 +129,7 @@
 
                             <div class="announcement-header">
                                 <div class="title-row">
-                                    <h3 class="announcement-title">{{ e($a->title) }}</h3>
+                                    <h3 class="announcement-title">{{ e(\App\Support\PlainText::normalize($a->title ?? '')) }}</h3>
 
                                     <span class="priority-badge priority-{{ strtolower($a->priority ?? 'low') }}">
                                         {{ ucfirst(strtolower($a->priority ?? 'low')) }} Priority
@@ -148,7 +148,7 @@
                                           0,
                                           {{ \Illuminate\Support\Js::from('ANNOUNCEMENT_UPDATE') }},
                                           {{ (int)$a->announcement_id }},
-                                          {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                                          {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($a->title ?? '')) }},
                                           {{ \Illuminate\Support\Js::from($a->content ?? '') }},
                                           {{ \Illuminate\Support\Js::from($a->link ?? '') }},
                                           {{ \Illuminate\Support\Js::from(strtoupper((string)($a->priority ?? 'LOW'))) }}
@@ -160,7 +160,7 @@
                                         type="button"
                                         onclick="requestToggleAnnouncement(
                                             {{ (int)$a->announcement_id }},
-                                            {{ \Illuminate\Support\Js::from($a->title ?? '') }},
+                                            {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($a->title ?? '')) }},
                                             {{ \Illuminate\Support\Js::from(strtoupper((string)($a->status ?? 'ENABLED'))) }}
                                         )">
                                     <i class="fas {{ ($a->status ?? '') === 'DISABLED' ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
@@ -169,14 +169,14 @@
 
                                 <button class="btn btn-sm btn-delete"
                                         type="button"
-                                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from($a->title ?? '') }})">
+                                        onclick="deleteAnnouncement({{ (int)$a->announcement_id }}, {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($a->title ?? '')) }})">
                                     <i class="fas fa-trash"></i>
                                 </button>
 
                                 <button class="btn btn-sm btn-view-icon"
                                         type="button"
                                         title="View"
-                                        onclick='openReadMoreModal(@json($a->title ?? ""), @json($a->content ?? ""), @json($a->link ?? ""))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($a->title ?? "")), @json($a->content ?? ""), @json($a->link ?? ""))'>
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -207,7 +207,7 @@
         @php
             $newsReqs = $myRequests->filter(fn($r) =>
                 in_array(strtoupper((string)$r->type), ['NEWS_CREATE','NEWS_UPDATE','NEWS_DELETE'])
-                && strtolower((string)($r->status ?? '')) === 'rejected'
+                && in_array(strtolower((string)($r->status ?? '')), ['pending', 'rejected'], true)
             );
         @endphp
 
@@ -233,7 +233,7 @@
                     data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
                     <div class="news-image">
-                        <img src="{{ $displayImgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e($n->title ?? 'News image') }}">
+                        <img src="{{ $displayImgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($n->title ?? 'News image')) }}">
                     </div>
 
                     <div class="news-content">
@@ -244,7 +244,7 @@
                             <span class="news-flag-badge news-flag-badge-featured">Live</span>
                         </div>
 
-                        <h3 class="news-title">{{ e($n->title) }}</h3>
+                        <h3 class="news-title">{{ e(\App\Support\PlainText::normalize($n->title ?? '')) }}</h3>
 
                         <div class="news-meta">
                             <span><i class="fas fa-map-marker-alt"></i> {{ e($n->location ?? 'No location') }}</span>
@@ -257,7 +257,7 @@
                                 type="button"
                                 onclick="editNews(
                                     {{ (int)$n->news_id }},
-                                    {{ \Illuminate\Support\Js::from($n->title ?? '') }},
+                                    {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($n->title ?? '')) }},
                                     {{ \Illuminate\Support\Js::from($n->content ?? '') }},
                                     {{ \Illuminate\Support\Js::from($n->category ?? '') }},
                                     {{ \Illuminate\Support\Js::from($n->location ?? '') }},
@@ -270,14 +270,14 @@
 
                             <button class="btn btn-sm btn-delete"
                                 type="button"
-                                onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from($n->title ?? '') }})">
+                                onclick="deleteNews({{ (int)$n->news_id }}, {{ \Illuminate\Support\Js::from(\App\Support\PlainText::normalize($n->title ?? '')) }})">
                                 <i class="fas fa-trash"></i>
                             </button>
 
                             <button class="btn btn-sm btn-view-icon"
                                 type="button"
                                 title="View"
-                                onclick='openReadMoreModal(@json($n->title ?? ""), @json($n->content ?? ""), @json($n->link ?? ""))'>
+                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""))'>
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -410,6 +410,25 @@
                       <i class="fas fa-external-link-alt"></i> Open Link
                   </a>
               </div>
+        </div>
+    </div>
+
+    <div id="requestChangesModal" class="modal">
+        <div class="modal-content" style="max-width:900px;">
+            <div class="modal-header">
+                <div>
+                    <h2 class="modal-title" id="requestChangesTitle">Submitted Changes</h2>
+                    <div id="requestChangesMeta" style="margin-top:6px; color:#6b6b6b; font-size:13px;"></div>
+                </div>
+                <button class="close-modal" type="button" onclick="closeRequestChangesModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <div id="requestChangesStatus" style="margin:8px 0 16px;"></div>
+            <div id="requestChangesBody" style="display:grid; gap:12px;">
+                <div style="padding:18px; border-radius:12px; background:#f7f7f7; color:#6b6b6b;">Loading submitted changes...</div>
+            </div>
         </div>
     </div>
 
@@ -596,8 +615,110 @@
     let announcementEditSnapshot = null;
     let newsEditSnapshot = null;
 
+    function decodeTextEntities(value) {
+        let decoded = String(value ?? '').trim();
+        const textarea = document.createElement('textarea');
+
+        for (let i = 0; i < 5; i += 1) {
+            textarea.innerHTML = decoded;
+            const next = textarea.value.trim();
+
+            if (next === decoded || !next.includes('&')) {
+                return next;
+            }
+
+            decoded = next;
+        }
+
+        return decoded;
+    }
+
     function normalizeText(value) {
-        return String(value ?? '').trim();
+        return decodeTextEntities(value);
+    }
+
+    function normalizePlainTextInputs(form) {
+        ['title', 'category', 'location'].forEach((name) => {
+            const input = form.querySelector(`[name="${name}"]`);
+            if (input) input.value = normalizeText(input.value);
+        });
+    }
+
+    function newsFieldText(form, name) {
+        const value = form.querySelector(`[name="${name}"]`)?.value || '';
+        const wrapper = document.createElement('div');
+        wrapper.innerHTML = value;
+        return (wrapper.textContent || wrapper.innerText || value).replace(/\u00a0/g, ' ').trim();
+    }
+
+    function clearNewsValidation(form) {
+        form.querySelectorAll('.news-field-error').forEach((el) => el.remove());
+        form.querySelectorAll('.news-field-invalid').forEach((el) => el.classList.remove('news-field-invalid'));
+    }
+
+    function showNewsFieldError(field, message) {
+        if (!field) return;
+        field.classList.add('news-field-invalid');
+        const group = field.closest('.form-group') || field.parentElement;
+        if (!group || group.querySelector('.news-field-error')) return;
+
+        const error = document.createElement('div');
+        error.className = 'news-field-error';
+        error.style.cssText = 'margin-top:6px;color:#b00020;font-size:13px;font-weight:600;';
+        error.textContent = message;
+        group.appendChild(error);
+    }
+
+    function newsHasImage(form) {
+        const fileInput = form.querySelector('input[name="image"]');
+        if (fileInput?.files?.length) return true;
+        if ((form.querySelector('[name="remove_image"]')?.value || '0') === '1') return false;
+        return (document.getElementById('news_existing_image_path')?.value || '').trim() !== '';
+    }
+
+    function validateNewsForm(form) {
+        clearNewsValidation(form);
+        const errors = [];
+        const category = (form.querySelector('[name="category"]')?.value || '').trim();
+
+        if ((form.querySelector('[name="title"]')?.value || '').trim() === '') {
+            errors.push([form.querySelector('[name="title"]'), 'Title is required.']);
+        }
+
+        if (newsFieldText(form, 'content') === '') {
+            errors.push([form.querySelector('[name="content"]')?.closest('.js-rich-editor') || form.querySelector('[name="content"]'), 'Description is required.']);
+        }
+
+        if (category === '') {
+            errors.push([form.querySelector('[name="category"]'), 'Category is required.']);
+        }
+
+        if (category.toLowerCase() === 'event') {
+            if ((form.querySelector('[name="location"]')?.value || '').trim() === '') {
+                errors.push([form.querySelector('[name="location"]'), 'Event venue is required.']);
+            }
+
+            if (!newsHasImage(form)) {
+                errors.push([document.getElementById('newsImagePreview') || form.querySelector('input[name="image"]'), 'Event image is required.']);
+            }
+        }
+
+        errors.forEach(([field, message]) => showNewsFieldError(field, message));
+        if (errors.length > 0) {
+            errors[0][0]?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+            showToast('Complete the required event details before submitting.', 'warning', 'Missing Details');
+            return false;
+        }
+
+        return true;
+    }
+
+    function validationMessageFromResponse(json, fallback) {
+        if (json?.errors && typeof json.errors === 'object') {
+            const first = Object.values(json.errors).flat().find(Boolean);
+            if (first) return first;
+        }
+        return json?.error || json?.message || fallback;
     }
 
     function normalizeUpper(value) {
@@ -862,6 +983,107 @@
         if (linkBtn) linkBtn.href = '#';
     }
 
+    function closeRequestChangesModal() {
+        document.getElementById('requestChangesModal').classList.remove('active');
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    function requestStatusBadge(request) {
+        const status = String(request?.status || '').toLowerCase();
+        const label = request?.status_label || 'Needs Revision';
+        const palette = {
+            pending: 'background:#fff7d6;color:#6b4e00;border-color:#f4d56b;',
+            approved: 'background:#e7f8ec;color:#146c2e;border-color:#9bd9ad;',
+            rejected: 'background:#ffecec;color:#8a1f1f;border-color:#f3b2b2;',
+        };
+        const revision = request?.needs_revision
+            ? '<span style="margin-left:8px; display:inline-flex; padding:5px 9px; border-radius:999px; background:#fff0d6; color:#7a3d00; font-weight:700; font-size:12px;">Needs Revision</span>'
+            : '';
+
+        return `<span style="display:inline-flex; padding:6px 10px; border:1px solid; border-radius:999px; font-weight:700; font-size:12px; ${palette[status] || 'background:#eef2f7;color:#334155;border-color:#cbd5e1;'}">${escapeHtml(label)}</span>${revision}`;
+    }
+
+    function requestFieldValueHtml(value, type) {
+        const raw = value?.raw || '';
+        if (type === 'image') {
+            if (!value?.url) return '<div style="color:#8f7d74; font-style:italic;">No image uploaded.</div>';
+            return `<figure style="margin:0;"><img src="${escapeHtml(value.url)}" alt="Submitted image" style="display:block; max-width:100%; max-height:260px; object-fit:contain; border-radius:10px; border:1px solid rgba(0,0,0,.08); background:#fff;"><figcaption style="margin-top:6px; font-size:12px; color:#8f7d74; word-break:break-all;">${escapeHtml(raw)}</figcaption></figure>`;
+        }
+
+        if (type === 'html') {
+            return raw ? `<div class="rich-text-content">${raw}</div>` : '<div style="color:#8f7d74; font-style:italic;">No content provided.</div>';
+        }
+
+        return raw ? `<div style="white-space:pre-wrap;">${escapeHtml(raw)}</div>` : '<div style="color:#8f7d74; font-style:italic;">No value provided.</div>';
+    }
+
+    function renderRequestChanges(payload) {
+        const request = payload.request || {};
+        const fields = Array.isArray(payload.fields) ? payload.fields : [];
+        const body = document.getElementById('requestChangesBody');
+
+        document.getElementById('requestChangesTitle').textContent = request.title || 'Submitted Changes';
+        document.getElementById('requestChangesMeta').textContent = `${request.type_label || 'Approval Request'} • Submitted ${request.submitted_at || '—'}`;
+        document.getElementById('requestChangesStatus').innerHTML = requestStatusBadge(request);
+
+        if (request.rejection_reason) {
+            document.getElementById('requestChangesStatus').innerHTML += `<div style="margin-top:10px; padding:10px; border-radius:10px; background:#ffecec; color:#8a1f1f;"><strong>Reason:</strong> ${escapeHtml(request.rejection_reason)}</div>`;
+        }
+
+        if (!fields.length) {
+            body.innerHTML = '<div style="padding:18px; border-radius:12px; background:#f7f7f7; color:#6b6b6b;">No submitted details found.</div>';
+            return;
+        }
+
+        body.innerHTML = fields.map((field) => {
+            const changedStyle = field.changed ? 'border-color:#f2b84b; background:#fffaf0;' : 'border-color:rgba(128,0,0,.08); background:#fbfbfb;';
+            const changedBadge = field.changed
+                ? '<span style="display:inline-flex; padding:4px 8px; border-radius:999px; background:#fff0d6; color:#7a3d00; font-weight:700; font-size:12px;">Changed</span>'
+                : '<span style="display:inline-flex; padding:4px 8px; border-radius:999px; background:#eef2f7; color:#475569; font-weight:700; font-size:12px;">Unchanged</span>';
+
+            return `<section style="border:1px solid; border-radius:14px; padding:14px; ${changedStyle}">
+                <div style="display:flex; justify-content:space-between; gap:10px; align-items:center; margin-bottom:12px;">
+                    <h3 style="margin:0; font-size:16px; color:#5c0000;">${escapeHtml(field.label)}</h3>${changedBadge}
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
+                    <div style="border-radius:12px; background:#fff; border:1px solid rgba(0,0,0,.06); padding:12px;">
+                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:#8f7d74; font-weight:700; margin-bottom:8px;">Original</div>
+                        ${requestFieldValueHtml(field.original, field.type)}
+                    </div>
+                    <div style="border-radius:12px; background:#fff; border:1px solid rgba(0,0,0,.06); padding:12px;">
+                        <div style="font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:#8f7d74; font-weight:700; margin-bottom:8px;">Submitted</div>
+                        ${requestFieldValueHtml(field.updated, field.type)}
+                    </div>
+                </div>
+            </section>`;
+        }).join('');
+    }
+
+    async function openRequestChangesModal(button) {
+        const url = button?.dataset?.viewChangesUrl;
+        const modal = document.getElementById('requestChangesModal');
+        const body = document.getElementById('requestChangesBody');
+        if (!url) return;
+
+        modal.classList.add('active');
+        document.getElementById('requestChangesTitle').textContent = 'Submitted Changes';
+        document.getElementById('requestChangesMeta').textContent = '';
+        document.getElementById('requestChangesStatus').innerHTML = '';
+        body.innerHTML = '<div style="padding:18px; border-radius:12px; background:#f7f7f7; color:#6b6b6b;">Loading submitted changes...</div>';
+
+        try {
+            const res = await fetch(url, { headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' } });
+            const json = await res.json();
+            if (!res.ok || !json.ok) throw new Error(json.message || 'Unable to load submitted changes.');
+            renderRequestChanges(json);
+        } catch (err) {
+            body.innerHTML = `<div style="padding:18px; border-radius:12px; background:#ffecec; color:#8a1f1f;">${escapeHtml(err.message || 'Unable to load submitted changes.')}</div>`;
+        }
+    }
+
     function editNews(id, title, content, category, location, link, imagePath, imageUrl) {
     id = parseInt(id, 10);
     if (!id || id <= 0) {
@@ -1048,6 +1270,10 @@
         if (e.target.id === 'readMoreModal') {
             closeReadMoreModal();
         }
+
+        if (e.target.id === 'requestChangesModal') {
+            closeRequestChangesModal();
+        }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1151,6 +1377,7 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
     const form = e.target;
     syncRichTextEditors(form);
+    normalizePlainTextInputs(form);
     const url = form.action;
     const isEditMode = !!document.getElementById('edit_announcement_id') || !!document.getElementById('edit_request_id');
 
@@ -1178,8 +1405,13 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
 
   const form = e.target;
   syncRichTextEditors(form);
+  normalizePlainTextInputs(form);
   const url = form.action;
   const isEditMode = !!document.getElementById('edit_news_id') || !!document.getElementById('edit_news_request_id');
+
+  if (!validateNewsForm(form)) {
+    return;
+  }
 
   if (isEditMode && hasNoNewsChanges(form)) {
     showToast('No changes detected.', 'warning', 'No Changes');
@@ -1204,7 +1436,7 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
     try { json = JSON.parse(raw); } catch (_) {}
 
     if (!res.ok || !json.ok) {
-      throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
+      throw new Error(validationMessageFromResponse(json, raw.slice(0, 200) || `HTTP ${res.status}`));
     }
 
     queueSuccessToast("Request submitted. Please wait for admin approval.");

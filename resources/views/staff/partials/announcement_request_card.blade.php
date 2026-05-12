@@ -16,7 +16,7 @@
     default => 'Request',
   };
 
-$requestTitle = $payload['title'] ?? $row->title ?? 'Request';
+$requestTitle = \App\Support\PlainText::normalize($payload['title'] ?? $row->title ?? 'Request');
 $requestContent = $payload['content'] ?? '';
 $requestPriority = strtoupper((string)($payload['priority'] ?? 'LOW'));
 $requestLink = $payload['link'] ?? '';
@@ -33,14 +33,15 @@ $targetAnnId = (int)($payload['announcement_id'] ?? 0);
 if ($targetAnnId > 0 && in_array($type, ['ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE','ANNOUNCEMENT_DELETE'], true)) {
   $live = \DB::table('announcements')->where('announcement_id', $targetAnnId)->first();
   if ($live) {
-    $title = (string)($live->title ?? $title);
+    $title = \App\Support\PlainText::normalize($live->title ?? $title);
     $content = (string)($live->content ?? $content);
     $priority = strtoupper((string)($live->priority ?? $priority));
     $link = (string)($live->link ?? $link);
   }
 }
 
-$editTitle = $requestTitle ?: $title;
+$title = \App\Support\PlainText::normalize($title);
+$editTitle = \App\Support\PlainText::normalize($requestTitle ?: $title);
 $editContent = $requestContent !== '' ? $requestContent : $content;
 $editPriority = $requestPriority ?: $priority;
 $editLink = $requestLink !== '' ? $requestLink : $link;
@@ -61,7 +62,7 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
   $targetId = $payload['announcement_id'] ?? null;
 
   $searchHay = strtolower(
-    ($title).' '.($content).' '.($priority).' '.($reqStatus).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
+    (\App\Support\PlainText::normalize($title)).' '.($content).' '.($priority).' '.($reqStatus).' '.($targetId ?? '').' '.(($row->rejection_reason ?? ''))
   );
 @endphp
 
@@ -101,6 +102,7 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
   <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($content) !!}</div>
 
   <div class="announcement-actions">
+    @if($statusClass !== 'pending')
     <button type="button" class="btn btn-sm btn-primary"
       onclick="editAnnouncementRequest(
         {{ $reqId }},
@@ -113,6 +115,7 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
       )">
       <i class="fas fa-edit"></i> Edit
     </button>
+    @endif
 
     {{-- Toggle button: ONLY show when request is APPROVED --}}
     @if($statusClass === 'approved' && !empty($db_status) && !empty($payload['announcement_id']))
@@ -124,11 +127,20 @@ $editLink = $requestLink !== '' ? $requestLink : $link;
     </button>
     @endif
 
+    @if($statusClass !== 'pending')
     <button type="button" class="btn btn-sm btn-delete"
     data-delete-url="{{ route('staff.requests.delete', ['id' => $reqId]) }}"
     data-title="{{ e($title) }}"
     onclick="deleteApprovalRequestOnly(event, this)">
     <i class="fas fa-trash"></i>
+    </button>
+    @endif
+
+    <button type="button"
+      class="btn btn-sm btn-primary"
+      data-view-changes-url="{{ route('staff.requests.changes', ['id' => $reqId]) }}"
+      onclick="openRequestChangesModal(this)">
+      <i class="fas fa-code-compare"></i> View Changes
     </button>
 
     <button type="button" class="btn btn-sm btn-view-icon" title="View"

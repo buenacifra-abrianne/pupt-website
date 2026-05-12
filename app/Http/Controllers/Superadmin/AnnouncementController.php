@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
 use App\Support\NewsImage;
+use App\Support\EventAnnouncementValidation;
+use App\Support\PlainText;
 use App\Support\RichText;
 use App\Support\AuditLog;
 use Illuminate\Http\Request;
@@ -50,7 +52,12 @@ class AnnouncementController extends Controller
             )
             ->orderByRaw("CASE WHEN a.status = 'ENABLED' THEN 0 ELSE 1 END")
             ->orderBy('a.created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($announcement) {
+                $announcement->title = PlainText::normalize($announcement->title ?? '');
+
+                return $announcement;
+            });
 
         $news_list = DB::table('news')
             ->when($hasNewsHiddenColumn, function ($query) {
@@ -60,7 +67,14 @@ class AnnouncementController extends Controller
                 $query->orderByDesc('is_featured');
             })
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($news) {
+                $news->title = PlainText::normalize($news->title ?? '');
+                $news->category = PlainText::normalize($news->category ?? '');
+                $news->location = PlainText::normalize($news->location ?? '');
+
+                return $news;
+            });
 
         return view('superadmin.announcements', compact(
             'announcements',
@@ -83,7 +97,7 @@ class AnnouncementController extends Controller
             'announcement_id' => 'nullable|integer',
         ]);
 
-        $title = trim((string) $request->input('title'));
+        $title = PlainText::normalize($request->input('title'));
         $content = RichText::sanitize($request->input('content'));
         $link = trim((string) $request->input('link'));
         $priority = strtoupper(trim((string) $request->input('priority')));
@@ -233,10 +247,12 @@ class AnnouncementController extends Controller
             }
         }
 
-        $incomingTitle = trim((string) $request->input('title'));
+        EventAnnouncementValidation::validate($request, $existing);
+
+        $incomingTitle = PlainText::normalize($request->input('title'));
         $incomingContent = RichText::sanitize($request->input('content'));
-        $incomingCategory = trim((string) $request->input('category'));
-        $incomingLocation = trim((string) $request->input('location'));
+        $incomingCategory = PlainText::normalize($request->input('category'));
+        $incomingLocation = PlainText::normalize($request->input('location'));
         $incomingLink = trim((string) $request->input('link'));
         $hasNewImage = $request->hasFile('image');
 

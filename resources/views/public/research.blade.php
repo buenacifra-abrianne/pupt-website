@@ -410,7 +410,7 @@
                 flex-direction: column;
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
+                gap: 14px;
                 text-align: center;
                 padding: 36px 24px;
             }

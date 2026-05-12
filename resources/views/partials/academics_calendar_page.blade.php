@@ -2,9 +2,8 @@
     $pageData = is_array($pageData ?? null) ? $pageData : [];
     $cmsPreview = (bool) ($cmsPreview ?? false);
     $hero = is_array($pageData['hero'] ?? null) ? $pageData['hero'] : [];
-    $info = is_array($pageData['info'] ?? null) ? $pageData['info'] : [];
     $calendar = is_array($pageData['calendar'] ?? null) ? $pageData['calendar'] : [];
-    $heroImage = \App\Support\AcademicsCmsContent::resolveImagePath($hero['image'] ?? '', 'assets/static_img/campus_photo.jpg');
+    $calendarUrl = 'https://www.pup.edu.ph/about/calendar';
 @endphp
 
 <div class="academic-shell page-shell">
@@ -31,65 +30,7 @@
         <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>
         <p class="uc-hero-b-desc">{{ $hero['body'] ?? '' }}</p>
     </div>
-
-    <div class="uc-hero-b-grid">
-        <div class="uc-hero-b-cell">
-            <p class="uc-hero-b-cell-label">Academic Year</p>
-            <p class="uc-hero-b-cell-val">2025–2026</p>
-        </div>
-        <div class="uc-hero-b-cell">
-            <p class="uc-hero-b-cell-label">Enrollment</p>
-            <p class="uc-hero-b-cell-val">Dates inside</p>
-        </div>
-        <div class="uc-hero-b-cell">
-            <p class="uc-hero-b-cell-label">Examinations</p>
-            <p class="uc-hero-b-cell-val">Midterm &amp; Final</p>
-        </div>
-        <div class="uc-hero-b-cell">
-            <p class="uc-hero-b-cell-label">Holidays</p>
-            <p class="uc-hero-b-cell-val">Regular &amp; Special</p>
-        </div>
-        <div class="uc-hero-b-cell">
-            <p class="uc-hero-b-cell-label">University Events</p>
-            <p class="uc-hero-b-cell-val">Activities &amp; More</p>
-        </div>
-    </div>
 </section>
-
-<div
-    class="iapply-schedule-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-    @if($cmsPreview)
-        data-cms-section="university-calendar-info"
-        data-cms-section-label="University Calendar Info"
-    @endif
->
-    <div class="iapply-schedule-inner" @if($cmsPreview) data-cms-boundary @endif>
-        <div class="iapply-schedule-head">
-            <span class="section-tag">{{ $info['tag'] ?? '' }}</span>
-            <h2>{{ $info['title'] ?? '' }}</h2>
-        </div>
-        <div class="iapply-schedule-grid">
-            @foreach(($info['items'] ?? []) as $item)
-                @php
-                    $href = trim((string) ($item['href'] ?? ''));
-                    $value = trim((string) ($item['value'] ?? ''));
-                @endphp
-                @if(trim((string) ($item['label'] ?? '')) !== '' || $value !== '')
-                    <div class="iapply-schedule-box">
-                        <span class="iapply-schedule-box-label">{{ $item['label'] ?? '' }}</span>
-                        <span class="iapply-schedule-box-value">
-                            @if($href !== '')
-                                <a href="{{ $href }}" @unless($cmsPreview) target="_blank" rel="noopener" @endunless>{{ $value !== '' ? $value : $href }}</a>
-                            @else
-                                {{ $value }}
-                            @endif
-                        </span>
-                    </div>
-                @endif
-            @endforeach
-        </div>
-    </div>
-</div>
 
 <section
     class="contents-strip dp-programs-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
@@ -105,30 +46,32 @@
         </div>
 
         <div class="uc-calendar-frame reveal delay-100">
-            <div class="uc-calendar-embed">
-                <iframe
-                    src="{{ \App\Support\DownloadableFile::url($calendar['pdf_url'] ?? null, 'assets/static_img/university_calendar.pdf') }}"
-                    title="{{ $calendar['title'] ?? 'PUP University Academic Calendar' }}"
-                    class="uc-calendar-iframe"
-                    loading="lazy"
-                ></iframe>
-            </div>
-            <p class="uc-calendar-note">{{ $calendar['note'] ?? '' }}</p>
-            <div class="uc-calendar-actions reveal delay-200">
-                @foreach(($calendar['actions'] ?? []) as $action)
-                    @php
-                        $style = strtolower(trim((string) ($action['style'] ?? 'primary'))) === 'outline' ? ' uc-btn-outline' : '';
-                        $href = \App\Support\DownloadableFile::url($action['href'] ?? null, 'assets/static_img/university_calendar.pdf');
-                    @endphp
-                    <a
-                        href="{{ $href }}"
-                        class="apply-now-btn{{ $style }}"
-                        @if(!empty($action['download'])) download @endif
-                        @unless($cmsPreview || !empty($action['download'])) target="_blank" rel="noopener" @endunless
+            <div class="uc-calendar-official-card">
+                <div class="uc-calendar-official-head">
+                    <img
+                        src="{{ asset('assets/static_img/logo.png') }}"
+                        alt="PUP Seal"
+                        class="uc-calendar-official-seal"
                     >
-                        {{ $action['label'] ?? '' }}
+                    <div>
+                        <p>Official Source</p>
+                        <h3>Polytechnic University of the Philippines Calendar</h3>
+                    </div>
+                </div>
+
+                <div class="uc-calendar-source-row">
+                    <span>www.pup.edu.ph/about/calendar</span>
+                </div>
+
+                <div class="uc-calendar-actions reveal delay-200">
+                    <a
+                        href="{{ $calendarUrl }}"
+                        class="apply-now-btn"
+                        @unless($cmsPreview) target="_blank" rel="noopener" @endunless
+                    >
+                        View Official Calendar
                     </a>
-                @endforeach
+                </div>
             </div>
         </div>
     </div>

@@ -1,0 +1,14 @@
+{
+  "name": "botpress-keepalive-lambda",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "AWS Lambda keep-alive ping for a Botpress chatbot.",
+  "main": "index.mjs",
+  "scripts": {
+    "test:syntax": "node --check index.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

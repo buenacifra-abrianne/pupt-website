@@ -11,10 +11,10 @@
     default => 'Request',
   };
 
-  $title = $payload['title'] ?? $row->title ?? 'Request';
+  $title = \App\Support\PlainText::normalize($payload['title'] ?? $row->title ?? 'Request');
   $content = $payload['content'] ?? '';
-  $category = $payload['category'] ?? '';
-  $location = $payload['location'] ?? '';
+  $category = \App\Support\PlainText::normalize($payload['category'] ?? '');
+  $location = \App\Support\PlainText::normalize($payload['location'] ?? '');
   $link = $payload['link'] ?? '';
   $imagePath = $payload['image_path'] ?? null;
   $imageUrl = \App\Support\NewsImage::url($imagePath);
@@ -40,7 +40,7 @@
       @endif
       <span class="news-flag-badge news-flag-badge-hidden">{{ $typeLabel }}</span>
       <span class="news-flag-badge {{ $reqStatus === 'rejected' ? 'news-flag-badge-hidden' : 'news-flag-badge-featured' }}">
-        {{ ucfirst($reqStatus) }}
+        {{ $reqStatus === 'pending' ? 'Pending Approval' : ucfirst($reqStatus) }}
       </span>
     </div>
 
@@ -53,6 +53,7 @@
     <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($content) !!}</div>
 
     <div class="news-actions">
+      @if($reqStatus !== 'pending')
       <button class="btn btn-sm btn-primary"
         type="button"
         onclick="editNewsRequest(
@@ -69,12 +70,22 @@
         )">
         <i class="fas fa-edit"></i>
       </button>
+      @endif
 
+      @if($reqStatus !== 'pending')
       <button type="button" class="btn btn-sm btn-delete"
         data-delete-url="{{ route('staff.requests.delete', ['id' => $reqId]) }}"
         data-title="{{ e($title) }}"
         onclick="deleteApprovalRequestOnly(event, this)">
         <i class="fas fa-trash"></i>
+      </button>
+      @endif
+
+      <button class="btn btn-sm btn-primary"
+        type="button"
+        data-view-changes-url="{{ route('staff.requests.changes', ['id' => $reqId]) }}"
+        onclick="openRequestChangesModal(this)">
+        <i class="fas fa-code-compare"></i> View Changes
       </button>
 
       <button class="btn btn-sm btn-view-icon"

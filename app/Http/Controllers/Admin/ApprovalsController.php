@@ -11,6 +11,7 @@ use App\Support\AuditLog;
 use App\Support\CmsApprovalPreview;
 use App\Support\CmsSections;
 use App\Support\NewsImage;
+use App\Support\PlainText;
 use App\Support\RichText;
 use App\Support\DownloadableFile;
 
@@ -101,7 +102,7 @@ $history = $this->attachDisplayFields($history);
 
     // ✅ Insert and get the new announcement_id
     $newAnnouncementId = DB::table('announcements')->insertGetId([
-        'title' => $payload['title'] ?? $row->title ?? 'Announcement',
+        'title' => PlainText::normalize($payload['title'] ?? $row->title ?? 'Announcement'),
         'content' => RichText::sanitize($payload['content'] ?? ''),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
         'link' => !empty($payload['link']) ? $payload['link'] : null,
@@ -114,7 +115,7 @@ $history = $this->attachDisplayFields($history);
     AuditLog::record(
         'CREATED',
         'ANNOUNCEMENT',
-        'Created announcement: '.($payload['title'] ?? $row->title ?? 'Announcement').' (approved request)',
+        'Created announcement: '.PlainText::normalize($payload['title'] ?? $row->title ?? 'Announcement').' (approved request)',
         (int) $newAnnouncementId,
         [
             'user_id' => $creatorId > 0 ? $creatorId : null,
@@ -140,10 +141,10 @@ $history = $this->attachDisplayFields($history);
 
     // ✅ Insert and get the new news_id
     $newNewsId = DB::table('news')->insertGetId([
-        'title' => $payload['title'] ?? $row->title ?? 'News',
+        'title' => PlainText::normalize($payload['title'] ?? $row->title ?? 'News'),
         'content' => RichText::sanitize($payload['content'] ?? ''),
-        'category' => $payload['category'] ?? 'Other',
-        'location' => $payload['location'] ?? null,
+        'category' => PlainText::normalize($payload['category'] ?? 'Other'),
+        'location' => PlainText::normalize($payload['location'] ?? ''),
         'link' => !empty($payload['link']) ? $payload['link'] : null,
         'image_path' => $payload['image_path'] ?? null,
         'date_published' => now(),
@@ -156,7 +157,7 @@ $history = $this->attachDisplayFields($history);
     AuditLog::record(
         'CREATED',
         'NEWS',
-        'Created news: '.($payload['title'] ?? $row->title ?? 'News').' (approved request)',
+        'Created news: '.PlainText::normalize($payload['title'] ?? $row->title ?? 'News').' (approved request)',
         (int) $newNewsId,
         [
             'user_id' => $creatorId > 0 ? $creatorId : null,
@@ -183,7 +184,7 @@ $history = $this->attachDisplayFields($history);
             $this->findAnnouncementOrFail($aid);
 
             $announcementUpdate = [
-                'title' => $payload['title'] ?? DB::raw('title'),
+                'title' => isset($payload['title']) ? PlainText::normalize($payload['title']) : DB::raw('title'),
                 'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
                 'priority' => isset($payload['priority']) ? strtoupper((string) $payload['priority']) : DB::raw('priority'),
                 'link' => array_key_exists('link', $payload)
@@ -231,10 +232,10 @@ $history = $this->attachDisplayFields($history);
             DB::table('news')
                 ->where('news_id', $nid)
                 ->update([
-                    'title' => $payload['title'] ?? DB::raw('title'),
+                    'title' => isset($payload['title']) ? PlainText::normalize($payload['title']) : DB::raw('title'),
                     'content' => isset($payload['content']) ? RichText::sanitize($payload['content']) : DB::raw('content'),
-                    'category' => $payload['category'] ?? DB::raw('category'),
-                    'location' => $payload['location'] ?? DB::raw('location'),
+                    'category' => isset($payload['category']) ? PlainText::normalize($payload['category']) : DB::raw('category'),
+                    'location' => isset($payload['location']) ? PlainText::normalize($payload['location']) : DB::raw('location'),
                     'link' => array_key_exists('link', $payload)
                         ? ($payload['link'] !== '' ? $payload['link'] : null)
                         : DB::raw('link'),
@@ -597,7 +598,7 @@ private function attachDisplayFields($paginator)
         $payload = json_decode($item->details ?? '{}', true) ?: [];
 
         // default: use request payload (create/update)
-        $displayTitle = $payload['title'] ?? $item->title ?? 'Request';
+        $displayTitle = PlainText::normalize($payload['title'] ?? $item->title ?? 'Request');
         $displayPriority = strtoupper((string)($payload['priority'] ?? ''));
         $displayContent = $payload['content']
             ?? $payload['description']
@@ -627,7 +628,7 @@ private function attachDisplayFields($paginator)
             if ($aid > 0) {
                 $a = DB::table('announcements')->where('announcement_id', $aid)->first();
                 if ($a) {
-                    $displayTitle = (string)($a->title ?? $displayTitle);
+                    $displayTitle = PlainText::normalize($a->title ?? $displayTitle);
                     $displayPriority = strtoupper((string)($a->priority ?? $displayPriority));
                     $displayContent = (string)($a->content ?? $displayContent);
                 }
@@ -640,7 +641,7 @@ private function attachDisplayFields($paginator)
             if ($nid > 0) {
                 $n = DB::table('news')->where('news_id', $nid)->first();
                 if ($n) {
-                    $displayTitle = (string)($n->title ?? $displayTitle);
+                    $displayTitle = PlainText::normalize($n->title ?? $displayTitle);
                     $displayPriority = strtoupper((string)($n->priority ?? $displayPriority));
                     $displayContent = (string)($n->content ?? $displayContent);
 
@@ -658,7 +659,7 @@ private function attachDisplayFields($paginator)
         }
 
         if (str_starts_with($type, 'DOWNLOADABLE_')) {
-            $displayTitle = $payload['title'] ?? $item->title ?? 'Downloadable';
+            $displayTitle = PlainText::normalize($payload['title'] ?? $item->title ?? 'Downloadable');
             $displayContent = $payload['description'] ?? '';
 
             if ($type === 'DOWNLOADABLE_DELETE') {
@@ -681,7 +682,7 @@ private function attachDisplayFields($paginator)
         }
 
         // attach to row for blade
-        $item->display_title = $displayTitle;
+        $item->display_title = PlainText::normalize($displayTitle);
         $item->display_priority = $displayPriority;
         $item->display_content = $displayContent;
 
@@ -690,8 +691,8 @@ private function attachDisplayFields($paginator)
         $item->display_image_url = NewsImage::url($imagePath);
 
         // news meta for modal
-        $item->display_category = $payload['category'] ?? null;
-        $item->display_location = $payload['location'] ?? null;
+        $item->display_category = isset($payload['category']) ? PlainText::normalize($payload['category']) : null;
+        $item->display_location = isset($payload['location']) ? PlainText::normalize($payload['location']) : null;
 
         return $item;
     });

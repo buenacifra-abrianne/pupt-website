@@ -1,0 +1,17 @@
+{
+  "name": "botpress-keepalive-every-5-minutes",
+  "scheduleExpression": "rate(5 minutes)",
+  "flexibleTimeWindow": {
+    "mode": "OFF"
+  },
+  "target": {
+    "service": "AWS Lambda",
+    "operation": "Invoke",
+    "functionName": "botpress-keepalive"
+  },
+  "retryPolicy": {
+    "maximumRetryAttempts": 0
+  },
+  "deadLetterQueue": "None",
+  "state": "ENABLED"
+}

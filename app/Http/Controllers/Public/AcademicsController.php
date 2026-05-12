@@ -25,11 +25,6 @@ class AcademicsController extends Controller
         return view('public.academics.diplomaprograms');
     }
 
-    public function graduatePrograms()
-    {
-        return view('public.academics.graduateprograms');
-    }
-
     public function pupIApply()
     {
         return view('public.academics.pupiapply');

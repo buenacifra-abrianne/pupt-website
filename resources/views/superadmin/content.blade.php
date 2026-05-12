@@ -210,7 +210,6 @@
                             ])->render(),
                             'degree-programs' => view('public.degreeprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
                             'diploma-programs' => view('public.diplomaprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
-                            'graduate-programs' => view('public.graduateprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
                             'pup-iapply' => view('public.pupiapply', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
                             'university-calendar' => view('public.universitycalendar', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
                         ];
@@ -848,8 +847,67 @@
         form.appendChild(marker);
     }
 
+    function normalizeCmsSnapshotString(value) {
+        return String(value ?? '').replace(/\r\n?/g, '\n').trim();
+    }
+
+    function normalizeCmsHistoryBody(value) {
+        return normalizeCmsSnapshotString(value).replace(/\n{3,}/g, '\n\n');
+    }
+
+    function deepEqualCmsSnapshot(left, right) {
+        return JSON.stringify(left) === JSON.stringify(right);
+    }
+
+    function getHistoryInputValue(scope, selector) {
+        return normalizeCmsSnapshotString(scope.querySelector(selector)?.value ?? '');
+    }
+
+    function getHistoryFormSnapshot(form) {
+        syncFormEditors(form);
+
+        if (typeof window.syncAboutHistoryDateFields === 'function') {
+            window.syncAboutHistoryDateFields(form);
+        }
+
+        const section = {
+            label: getHistoryInputValue(form, '[name="about[sections][history][label]"]'),
+            summary: getHistoryInputValue(form, '[name="about[sections][history][summary]"]'),
+            page_kicker: getHistoryInputValue(form, '[name="about[sections][history][page_kicker]"]'),
+            page_title: getHistoryInputValue(form, '[name="about[sections][history][page_title]"]'),
+        };
+
+        const timeline = Array.from(form.querySelectorAll('[data-about-history-editor]')).map((editor) => ({
+            visible: getHistoryInputValue(editor, '[data-about-history-visible]') || '1',
+            period: getHistoryInputValue(editor, '[data-about-history-period]'),
+            title: getHistoryInputValue(editor, 'input[name$="[title]"]'),
+            body: normalizeCmsHistoryBody(editor.querySelector('.rich-editor-input')?.value ?? ''),
+        }));
+
+        return { section, timeline };
+    }
+
+    function captureHistoryFormSnapshot(form) {
+        form.dataset.initialHistorySnapshot = JSON.stringify(getHistoryFormSnapshot(form));
+    }
+
+    function historyFormHasChanges(form) {
+        const initial = form.dataset.initialHistorySnapshot || '';
+
+        if (!initial) {
+            captureHistoryFormSnapshot(form);
+            return false;
+        }
+
+        return !deepEqualCmsSnapshot(getHistoryFormSnapshot(form), JSON.parse(initial));
+    }
+
     function captureFormSnapshot(form) {
         syncFormEditors(form);
+        if (form.matches('[data-about-history-form]')) {
+            captureHistoryFormSnapshot(form);
+        }
+
         getTrackableFields(form).forEach((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return;
@@ -860,6 +918,10 @@
     }
 
     function formHasChanges(form) {
+        if (form.matches('[data-about-history-form]')) {
+            return historyFormHasChanges(form);
+        }
+
         syncFormEditors(form);
         return getTrackableFields(form).some((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
@@ -931,16 +993,26 @@
 
         localStorage.setItem('activeSuperadminCmsTab', tabKey);
 
-        if (tabKey !== 'about') {
+        if (tabKey === 'about') {
+            const routeKey = resolveAboutPreviewRoute(sectionKey);
+            const aboutPreviewStorageKey = `cms:about-preview-route:${window.location.pathname}`;
+            const aboutPreviewLegacyStorageKey = 'about-editor-active-about-preview-page';
+
+            localStorage.setItem(aboutPreviewStorageKey, routeKey);
+            localStorage.setItem(aboutPreviewLegacyStorageKey, routeKey);
             return;
         }
 
-        const routeKey = resolveAboutPreviewRoute(sectionKey);
-        const aboutPreviewStorageKey = `cms:about-preview-route:${window.location.pathname}`;
-        const aboutPreviewLegacyStorageKey = 'about-editor-active-about-preview-page';
+        if (tabKey === 'academics') {
+            const normalizedSectionKey = sectionKey.toLowerCase();
+            const pageMatch = normalizedSectionKey.match(/^(degree-programs|diploma-programs|pup-iapply|university-calendar)(?:-|$)/);
+            const routeKey = pageMatch ? pageMatch[1] : 'overview';
+            const academicsPreviewStorageKey = `cms:academics-preview-route:${window.location.pathname}`;
+            const academicsPreviewLegacyStorageKey = 'academics-editor-active-academics-preview-page';
 
-        localStorage.setItem(aboutPreviewStorageKey, routeKey);
-        localStorage.setItem(aboutPreviewLegacyStorageKey, routeKey);
+            localStorage.setItem(academicsPreviewStorageKey, routeKey);
+            localStorage.setItem(academicsPreviewLegacyStorageKey, routeKey);
+        }
     }
 
     async function submitSave(form) {
@@ -983,6 +1055,7 @@
             }
 
             if (!json.no_changes) {
+                captureFormSnapshot(form);
                 persistCmsPreviewContextBeforeReload(form);
                 window.location.reload();
             }
@@ -1000,7 +1073,8 @@
     document.querySelectorAll('.cms-save-form').forEach((form) => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            if (!formHasChanges(form) && !hasServerTrackedCardVersion(form)) {
+            const allowServerTrackedVersion = !form.matches('[data-about-history-form]') && hasServerTrackedCardVersion(form);
+            if (!formHasChanges(form) && !allowServerTrackedVersion) {
                 if (typeof window.showToast === 'function') {
                     window.showToast('No changes detected.', 'info', 'No Changes');
                 } else {

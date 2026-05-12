@@ -154,7 +154,7 @@
                                             @json($item->display_category),
                                             @json($item->display_location)
                                             )'>
-                                        <i class="fas fa-eye"></i> View
+                                        <i class="fas fa-eye"></i> View Details
                                         </button>
                                     </td>
 
@@ -333,7 +333,7 @@
                                                 @json($item->display_category),
                                                 @json($item->display_location)
                                             )'>
-                                            <i class="fas fa-eye"></i> View
+                                            <i class="fas fa-eye"></i> View Details
                                         </button>
 
                                         @if($isRejected && !empty($item->rejection_reason))
@@ -412,16 +412,19 @@
         </div>
     </main>
 
-<div id="detailsModal" class="modal">
-  <div class="modal-content" style="max-width:720px;">
-    <div class="modal-header">
-      <h2 class="modal-title">Request Details</h2>
-      <button class="close-modal" type="button" onclick="closeDetails()">
+<div id="detailsModal" class="modal approval-details-modal" role="dialog" aria-modal="true" aria-labelledby="detailsModalTitle">
+  <div class="modal-content approval-details-content">
+    <div class="modal-header approval-details-header">
+      <div>
+        <div class="approval-details-eyebrow">Pending Approval Review</div>
+        <h2 class="modal-title" id="detailsModalTitle">Request Details</h2>
+      </div>
+      <button class="close-modal approval-details-close" type="button" onclick="closeDetails()" aria-label="Close request details">
         <i class="fas fa-times"></i>
       </button>
     </div>
 
-    <div style="padding: 10px 0;">
+    <div class="approval-details-body">
       <div style="margin-bottom:10px;">
   <div style="opacity:.7;font-size:13px;">Title</div>
 
@@ -444,7 +447,7 @@
        style="max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
 </div>
 
-      <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Content / Details</div>
+      <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Previous and Requested/New Values</div>
       <div id="dContent" style="white-space:pre-wrap; background:#f7f7f7; border-radius:12px; padding:12px;">
         —
       </div>
@@ -529,6 +532,215 @@
 
   .approvals-table .btn {
     text-decoration: none;
+  }
+
+  body.approval-modal-open {
+    overflow: hidden;
+  }
+
+  #detailsModal.approval-details-modal {
+    padding: 22px;
+    overflow: hidden;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #detailsModal .approval-details-content {
+    width: min(96vw, 1080px);
+    max-width: 1080px;
+    max-height: 85vh;
+    padding: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border-radius: 18px;
+    background: #fffdf9;
+  }
+
+  #detailsModal .approval-details-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex: 0 0 auto;
+    margin: 0;
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(128, 0, 0, 0.12);
+    background: linear-gradient(180deg, #fffdf9 0%, #fff7ee 100%);
+  }
+
+  #detailsModal .approval-details-eyebrow {
+    color: #8f7d74;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    margin-bottom: 5px;
+    text-transform: uppercase;
+  }
+
+  #detailsModal .approval-details-close {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(128, 0, 0, 0.08);
+    color: #800000;
+    font-size: 18px;
+    flex: 0 0 auto;
+  }
+
+  #detailsModal .approval-details-close:hover {
+    background: #800000;
+    color: #fff;
+  }
+
+  #detailsModal .approval-details-body {
+    flex: 1 1 auto;
+    overflow-y: auto;
+    padding: 22px 24px 24px;
+    min-height: 0;
+  }
+
+  #detailsModal .approval-details-body > div:first-child {
+    padding: 18px;
+    margin-bottom: 16px !important;
+    border: 1px solid rgba(128, 0, 0, 0.10);
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  #detailsModal .approval-details-body > div:first-child > div:first-child,
+  #detailsModal .approval-details-body > div:nth-child(4) {
+    color: #8f7d74 !important;
+    font-size: 12px !important;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: 8px !important;
+    text-transform: uppercase;
+  }
+
+  #detailsModal #dTitle {
+    color: #2d2d2d;
+    font-size: 22px !important;
+    line-height: 1.3;
+    overflow-wrap: anywhere;
+  }
+
+  #detailsModal #dMeta {
+    display: none;
+    margin: 0 0 16px 0 !important;
+    padding: 14px 16px;
+    border: 1px solid rgba(128, 0, 0, 0.08);
+    border-radius: 14px;
+    background: #fffaf4;
+  }
+
+  #detailsModal #dCategory,
+  #detailsModal #dLocation {
+    display: inline-flex;
+    align-items: center;
+    max-width: 100%;
+    color: #4a3832;
+    font-size: 14px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  #detailsModal #dImgWrap {
+    padding: 18px;
+    margin: 0 0 16px 0 !important;
+    border: 1px solid rgba(128, 0, 0, 0.10);
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  #detailsModal #dImgWrap > div:first-child {
+    color: #8f7d74 !important;
+    font-size: 12px !important;
+    font-weight: 800;
+    letter-spacing: .08em;
+    margin-bottom: 10px !important;
+    text-transform: uppercase;
+  }
+
+  #detailsModal #dImg {
+    display: block;
+    width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 12px !important;
+    background: #f8f6f2;
+  }
+
+  #detailsModal .approval-details-rendered,
+  #detailsModal #dContent {
+    min-height: 120px;
+    max-width: 100%;
+    padding: 18px !important;
+    border: 1px solid rgba(128, 0, 0, 0.10);
+    border-radius: 14px !important;
+    background: #fff !important;
+    color: #2d2d2d;
+    line-height: 1.65;
+    white-space: normal !important;
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  #detailsModal #dContent * {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  #detailsModal #dContent img {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+  #detailsModal #dContent .rich-text-content,
+  #detailsModal #dContent p,
+  #detailsModal #dContent li {
+    line-height: 1.65;
+  }
+
+  #detailsModal .approval-details-footer {
+    position: sticky;
+    bottom: 0;
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 18px;
+    padding-top: 16px;
+    background: linear-gradient(180deg, rgba(255, 253, 249, 0), #fffdf9 28%);
+  }
+
+  @media (max-width: 720px) {
+    #detailsModal.approval-details-modal {
+      padding: 12px;
+      align-items: stretch;
+    }
+
+    #detailsModal .approval-details-content {
+      width: 100%;
+      max-height: 88vh;
+      border-radius: 14px;
+    }
+
+    #detailsModal .approval-details-header {
+      padding: 16px;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    #detailsModal .approval-details-body {
+      padding: 16px;
+    }
+
+    #detailsModal #dTitle {
+      font-size: 18px !important;
+    }
   }
 
   #rejectModal .reject-btn-danger {
@@ -744,6 +956,7 @@ async function submitRejectReq() {
 
     function closeDetails() {
   document.getElementById('detailsModal').classList.remove('active');
+  document.body.classList.remove('approval-modal-open');
 }
 
 function prettyType(rawType) {
@@ -773,6 +986,7 @@ function prettyType(rawType) {
 function openDetails(type, title, priority, content, imageUrl, category, location) {
   const modal = document.getElementById('detailsModal');
   modal.classList.add('active');
+  document.body.classList.add('approval-modal-open');
 
   document.getElementById('dTitle').textContent = title || '—';
   document.getElementById('dContent').innerHTML = content || '—';
@@ -839,6 +1053,15 @@ window.addEventListener('click', function(e) {
 
   const rejectModal = document.getElementById('rejectModal');
   if (e.target === rejectModal) closeRejectModal();
+});
+
+window.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+
+  const modal = document.getElementById('detailsModal');
+  if (modal && modal.classList.contains('active')) {
+    closeDetails();
+  }
 });
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

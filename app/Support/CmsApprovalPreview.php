@@ -38,10 +38,7 @@ class CmsApprovalPreview
 
         return implode('', [
             self::renderSectionHeading($sectionLabel),
-            '<div style="display:grid; gap:14px;">',
-            self::renderValuePanel('Previous', $previous),
-            self::renderValuePanel('Requested Update', $requested),
-            '</div>',
+            self::renderValuePanel('Changed Content', self::diffChangedValue($requested, $previous)),
         ]);
     }
 
@@ -127,10 +124,10 @@ class CmsApprovalPreview
 
         return match ($sectionKey) {
             'hero' => ['overview' => self::onlyKeys($overview, ['hero_image', 'hero_title_default', 'hero_title_history', 'hero_title_vision', 'section_header_image'])],
-            'intro' => ['overview' => self::onlyKeys($overview, ['story_tag', 'story_title', 'story_description'])],
+            'intro' => ['overview' => self::onlyKeys($overview, ['story_tag', 'story_title', 'story_description', 'story_image'])],
             'contents' => [
                 'overview' => self::onlyKeys($overview, ['contents_tag', 'contents_title']),
-                'sections' => array_map(static fn ($section) => self::onlyKeys(is_array($section) ? $section : [], ['label', 'summary', 'visible_in_contents']), $sections),
+                'sections' => array_map(static fn ($section) => self::onlyKeys(is_array($section) ? $section : [], ['label', 'summary', 'image', 'visible_in_contents']), $sections),
             ],
             'vision-mission-header' => ['sections' => ['vision-and-mission' => self::onlyKeys($vision, ['page_kicker', 'page_title'])]],
             'vision-statement' => ['sections' => ['vision-and-mission' => self::onlyKeys($vision, ['vision'])]],
@@ -197,12 +194,16 @@ class CmsApprovalPreview
             return self::emptyState();
         }
 
+        if (self::isChangedScalar($value)) {
+            return self::renderChangedScalar($value);
+        }
+
         if (self::isAssoc($value)) {
             $parts = [];
             foreach ($value as $key => $item) {
                 $parts[] = '<div style="margin-top:10px;">'
                     .'<div style="font-size:12px; color:#8f7d74; font-weight:700; margin-bottom:6px;">'.e(self::humanizeKey((string) $key)).'</div>'
-                    .self::renderNestedValue($item)
+                    .self::renderNestedValue($item, (string) $key)
                     .'</div>';
             }
 
@@ -220,8 +221,12 @@ class CmsApprovalPreview
         return implode('', $items);
     }
 
-    private static function renderNestedValue(mixed $value): string
+    private static function renderNestedValueForKey(mixed $value, string $key): string
     {
+        if (is_array($value) && self::isChangedScalar($value)) {
+            return self::renderChangedScalar($value, $key);
+        }
+
         if (is_array($value)) {
             return self::renderValue($value);
         }
@@ -232,10 +237,103 @@ class CmsApprovalPreview
 
         $text = trim((string) ($value ?? ''));
         if ($text === '') {
-            return self::emptyState();
+            return self::isImageKey($key)
+                ? self::emptyImageState()
+                : self::emptyState();
+        }
+
+        if (self::isImageKey($key)) {
+            return self::renderImageValue($text);
         }
 
         return self::renderScalar($text);
+    }
+
+    private static function renderNestedValue(mixed $value, string $key = ''): string
+    {
+        return self::renderNestedValueForKey($value, $key);
+    }
+
+    private static function renderChangedScalar(array $value, string $key = ''): string
+    {
+        return '<div style="display:grid; gap:10px;">'
+            .'<div>'
+            .'<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700; margin-bottom:4px;">Previous</div>'
+            .self::renderNestedValue($value['previous'] ?? null, $key)
+            .'</div>'
+            .'<div>'
+            .'<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700; margin-bottom:4px;">Requested</div>'
+            .self::renderNestedValue($value['requested'] ?? null, $key)
+            .'</div>'
+            .'</div>';
+    }
+
+    private static function diffChangedValue(mixed $requested, mixed $previous): mixed
+    {
+        if (self::normalizeComparable($requested) === self::normalizeComparable($previous)) {
+            return [];
+        }
+
+        if (is_array($requested) && is_array($previous)) {
+            if (self::isAssoc($requested) || self::isAssoc($previous)) {
+                return self::diffChangedAssoc($requested, $previous);
+            }
+
+            return self::diffChangedList($requested, $previous);
+        }
+
+        return [
+            '__cms_changed_scalar' => true,
+            'previous' => $previous,
+            'requested' => $requested,
+        ];
+    }
+
+    private static function diffChangedAssoc(array $requested, array $previous): array
+    {
+        $out = [];
+        $keys = array_values(array_unique(array_merge(array_keys($requested), array_keys($previous))));
+
+        foreach ($keys as $key) {
+            $next = $requested[$key] ?? null;
+            $old = $previous[$key] ?? null;
+
+            if (self::normalizeComparable($next) === self::normalizeComparable($old)) {
+                continue;
+            }
+
+            $out[$key] = self::diffChangedValue($next, $old);
+        }
+
+        return $out;
+    }
+
+    private static function diffChangedList(array $requested, array $previous): array
+    {
+        $out = [];
+        $max = max(count($requested), count($previous));
+
+        for ($index = 0; $index < $max; $index++) {
+            $hasNext = array_key_exists($index, $requested);
+            $hasOld = array_key_exists($index, $previous);
+            $next = $hasNext ? $requested[$index] : null;
+            $old = $hasOld ? $previous[$index] : null;
+
+            if (self::normalizeComparable($next) === self::normalizeComparable($old)) {
+                continue;
+            }
+
+            $out['item_'.($index + 1)] = self::diffChangedValue($next, $old);
+        }
+
+        return $out;
+    }
+
+    private static function isChangedScalar(array $value): bool
+    {
+        return ($value['__cms_changed_scalar'] ?? false) === true
+            && array_key_exists('previous', $value)
+            && array_key_exists('requested', $value);
     }
 
     private static function renderScalar(string $text): string
@@ -250,6 +348,35 @@ class CmsApprovalPreview
     private static function emptyState(): string
     {
         return '<div style="color:#8f7d74; font-style:italic;">No content provided.</div>';
+    }
+
+    private static function emptyImageState(): string
+    {
+        return '<div style="border:1px dashed rgba(128,0,0,.22); border-radius:12px; padding:14px; color:#8f7d74; font-style:italic; background:#fff;">No image provided.</div>';
+    }
+
+    private static function renderImageValue(string $path): string
+    {
+        $url = ImageStorage::url($path);
+
+        if (!$url) {
+            return self::emptyImageState();
+        }
+
+        return '<figure style="margin:0;">'
+            .'<img src="'.e($url).'" alt="Requested image preview" style="display:block; max-width:100%; max-height:320px; object-fit:contain; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#fff;">'
+            .'<figcaption style="margin-top:6px; font-size:12px; color:#8f7d74; word-break:break-all;">'.e($path).'</figcaption>'
+            .'</figure>';
+    }
+
+    private static function isImageKey(string $key): bool
+    {
+        $normalized = strtolower(trim($key));
+
+        return $normalized === 'image'
+            || $normalized === 'image_path'
+            || str_ends_with($normalized, '_image')
+            || str_ends_with($normalized, '_image_path');
     }
 
     private static function normalizeComparable(mixed $value): string
