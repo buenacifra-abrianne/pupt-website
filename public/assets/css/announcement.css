@@ -884,6 +884,42 @@ body {
     white-space: nowrap;
 }
 
+.announcement-actions:has(.btn[data-view-changes-url]) {
+    flex-wrap: wrap;
+}
+
+.news-request-card .news-actions {
+    display: grid;
+    grid-template-columns: repeat(2, max-content);
+    align-items: center;
+}
+
+.announcement-actions .btn[data-view-changes-url],
+.news-actions .btn[data-view-changes-url] {
+    width: max-content;
+    min-width: max-content;
+    flex: 0 0 auto;
+    padding: 0 14px;
+    white-space: nowrap;
+    overflow: visible;
+    justify-content: center;
+}
+
+.announcement-actions .btn[data-view-changes-url] {
+    min-height: 48px;
+    height: 48px;
+}
+
+.news-actions .btn[data-view-changes-url] {
+    min-height: 40px;
+    height: 40px;
+    justify-self: start;
+}
+
+.announcement-actions .btn[data-view-changes-url] + .btn-view-icon {
+    margin-left: 0;
+}
+
 .announcement-actions .btn-view-icon i,
 .news-actions .btn-view-icon i {
     font-size: 15px;
