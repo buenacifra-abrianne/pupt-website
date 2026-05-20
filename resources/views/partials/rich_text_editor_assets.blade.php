@@ -339,97 +339,95 @@ input[name="title"] {
     vertical-align: baseline;
 }
 
-@media (prefers-color-scheme: dark) {
 
-    /* Rich editor container */
-    .rich-editor {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.3) !important;
-    }
+/* Rich editor container */
+body.pup-dark-mode .rich-editor {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+}
 
-    /* Toolbar */
-    .rich-editor-toolbar {
-        background: #1e0a0a !important;
-        border-bottom-color: rgba(240, 200, 90, 0.15) !important;
-    }
+/* Toolbar */
+body.pup-dark-mode .rich-editor-toolbar {
+    background: #1e0a0a !important;
+    border-bottom-color: rgba(240, 200, 90, 0.15) !important;
+}
 
-    .rich-editor-separator {
-        background: rgba(240, 200, 90, 0.2) !important;
-    }
+body.pup-dark-mode .rich-editor-separator {
+    background: rgba(240, 200, 90, 0.2) !important;
+}
 
-    /* Toolbar buttons */
-    .rich-editor-btn {
-        color: #e8d5d5 !important;
-    }
+/* Toolbar buttons */
+body.pup-dark-mode .rich-editor-btn {
+    color: #e8d5d5 !important;
+}
 
-    .rich-editor-btn:hover {
-        background: #3a1a1a !important;
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .rich-editor-btn:hover {
+    background: #3a1a1a !important;
+    color: #f7c5c5 !important;
+}
 
-    .rich-editor-btn.is-active {
-        background: #800000 !important;
-        color: #fff !important;
-    }
+body.pup-dark-mode .rich-editor-btn.is-active {
+    background: #800000 !important;
+    color: #fff !important;
+}
 
-    /* Font size popover */
-    .rich-editor-fontsize-popover,
-    .rich-editor-color-popover {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-    }
+/* Font size popover */
+body.pup-dark-mode .rich-editor-fontsize-popover,
+body.pup-dark-mode .rich-editor-color-popover {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+}
 
-    .rich-editor-fontsize-title,
-    .rich-editor-color-section-title {
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .rich-editor-fontsize-title,
+body.pup-dark-mode .rich-editor-color-section-title {
+    color: #b89090 !important;
+}
 
-    .rich-editor-fontsize-option {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-        color: #e8d5d5 !important;
-    }
+body.pup-dark-mode .rich-editor-fontsize-option {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+    color: #e8d5d5 !important;
+}
 
-    .rich-editor-fontsize-option:hover,
-    .rich-editor-fontsize-option.is-active {
-        background: #3a1a1a !important;
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .rich-editor-fontsize-option:hover,
+body.pup-dark-mode .rich-editor-fontsize-option.is-active {
+    background: #3a1a1a !important;
+    color: #f7c5c5 !important;
+}
 
-    /* Typing area */
-    .rich-editor-surface {
-        background: #2a1010 !important;
-        color: #f0e6e6 !important;
-    }
+/* Typing area */
+body.pup-dark-mode .rich-editor-surface {
+    background: #2a1010 !important;
+    color: #f0e6e6 !important;
+}
 
-    .rich-editor-surface:empty::before {
-        color: #7a5a5a !important;
-    }
+body.pup-dark-mode .rich-editor-surface:empty::before {
+    color: #7a5a5a !important;
+}
 
-    .rich-editor-surface blockquote {
-        border-left-color: rgba(240, 200, 90, 0.3) !important;
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .rich-editor-surface blockquote {
+    border-left-color: rgba(240, 200, 90, 0.3) !important;
+    color: #b89090 !important;
+}
 
-    /* Footer (character count) */
-    .rich-editor-footer {
-        background: #1e0a0a !important;
-        border-top-color: rgba(240, 200, 90, 0.15) !important;
-    }
+/* Footer (character count) */
+body.pup-dark-mode .rich-editor-footer {
+    background: #1e0a0a !important;
+    border-top-color: rgba(240, 200, 90, 0.15) !important;
+}
 
-    .rich-editor-count {
-        color: #7a5a5a !important;
-    }
+body.pup-dark-mode .rich-editor-count {
+    color: #7a5a5a !important;
+}
 
-    .rich-editor-count.is-limit {
-        color: #e05555 !important;
-    }
+body.pup-dark-mode .rich-editor-count.is-limit {
+    color: #e05555 !important;
+}
 
-    /* Priority medium badge fix */
-    .priority-medium {
-        background: #7a5a00 !important;
-        color: #f0c85a !important;
-    }
+/* Priority medium badge fix */
+body.pup-dark-mode .priority-medium {
+    background: #7a5a00 !important;
+    color: #f0c85a !important;
 }
 </style>
 

@@ -1109,96 +1109,94 @@ body {
     pointer-events: none;
 }
 
-/* ───── DARK MODE  ───── */
-@media (prefers-color-scheme: dark) {
+/* DARK MODE */
 
-    body {
-        background: #120606 !important;
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode {
+    background: #120606 !important;
+    color: #f0e6e6 !important;
+}
 
-    .stat-card,
-    .card {
-        background: #1e0a0a !important;
-        border-color: rgba(240, 200, 90, 0.12) !important;
-    }
+body.pup-dark-mode .stat-card,
+body.pup-dark-mode .card {
+    background: #1e0a0a !important;
+    border-color: rgba(240, 200, 90, 0.12) !important;
+}
 
-    .stat-card h4 {
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .stat-card h4 {
+    color: #b89090 !important;
+}
 
-    .stat-card .value {
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .stat-card .value {
+    color: #f7c5c5 !important;
+}
 
-    .page-title {
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .page-title {
+    color: #f7c5c5 !important;
+}
 
-    .page-subtitle {
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .page-subtitle {
+    color: #b89090 !important;
+}
 
-    .card-title {
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .card-title {
+    color: #f7c5c5 !important;
+}
 
-    .filter-field {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-    }
+body.pup-dark-mode .filter-field {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+}
 
-    .filter-field input,
-    .filter-field select,
-    .filter-field input::placeholder,
-    .filter-field i {
-        background: transparent !important;
-        color: #e8d5d5 !important;
-    }
+body.pup-dark-mode .filter-field input,
+body.pup-dark-mode .filter-field select,
+body.pup-dark-mode .filter-field input::placeholder,
+body.pup-dark-mode .filter-field i {
+    background: transparent !important;
+    color: #e8d5d5 !important;
+}
 
-    .filter-field select option {
-        background: #2a1010 !important;
-        color: #e8d5d5 !important;
-    }
+body.pup-dark-mode .filter-field select option {
+    background: #2a1010 !important;
+    color: #e8d5d5 !important;
+}
 
-    .notification-item {
-        background: #1e0a0a !important;
-        border-color: rgba(240, 200, 90, 0.1) !important;
-    }
+body.pup-dark-mode .notification-item {
+    background: #1e0a0a !important;
+    border-color: rgba(240, 200, 90, 0.1) !important;
+}
 
-    .notification-item.unread {
-        background: #2a1010 !important;
-        border-left-color: #f0c85a !important;
-    }
+body.pup-dark-mode .notification-item.unread {
+    background: #2a1010 !important;
+    border-left-color: #f0c85a !important;
+}
 
-    .notification-title {
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .notification-title {
+    color: #f7c5c5 !important;
+}
 
-    .notification-message {
-        color: #e0d0d0 !important;
-    }
+body.pup-dark-mode .notification-message {
+    color: #e0d0d0 !important;
+}
 
-    .notification-time {
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .notification-time {
+    color: #b89090 !important;
+}
 
-    .btn-outline {
-        background: #2a1010 !important;
-        color: #f7c5c5 !important;
-        border-color: rgba(240, 200, 90, 0.3) !important;
-    }
+body.pup-dark-mode .btn-outline {
+    background: #2a1010 !important;
+    color: #f7c5c5 !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+}
 
-    .page-btn,
-    .page-number {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode .page-btn,
+body.pup-dark-mode .page-number {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+    color: #f0e6e6 !important;
+}
 
-    .page-number.active {
-        background: #800000 !important;
-        color: #fff !important;
-        border-color: #800000 !important;
-    }
+body.pup-dark-mode .page-number.active {
+    background: #800000 !important;
+    color: #fff !important;
+    border-color: #800000 !important;
 }

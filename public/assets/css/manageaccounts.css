@@ -1972,128 +1972,126 @@ tbody td {
     }
 }
 
-/* ───── DARK MODE  ───── */
-@media (prefers-color-scheme: dark) {
+/* DARK MODE */
 
-    .page-title,
-    .page-subtitle,
-    .card-title,
-    .stat-val,
-    .stat-lbl,
-    .uname,
-    .uemail,
-    .page-info,
-    .vf .vfv,
-    .vf .vfl,
-    .role-help-text,
-    .fg label,
-    tbody td,
-    .pbtn {
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode .page-title,
+body.pup-dark-mode .page-subtitle,
+body.pup-dark-mode .card-title,
+body.pup-dark-mode .stat-val,
+body.pup-dark-mode .stat-lbl,
+body.pup-dark-mode .uname,
+body.pup-dark-mode .uemail,
+body.pup-dark-mode .page-info,
+body.pup-dark-mode .vf .vfv,
+body.pup-dark-mode .vf .vfl,
+body.pup-dark-mode .role-help-text,
+body.pup-dark-mode .fg label,
+body.pup-dark-mode tbody td,
+body.pup-dark-mode .pbtn {
+    color: #f0e6e6 !important;
+}
 
-    .mbox,
-    .mhead,
-    .mbody,
-    .mfoot {
-        background: #2a1010 !important;
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode .mbox,
+body.pup-dark-mode .mhead,
+body.pup-dark-mode .mbody,
+body.pup-dark-mode .mfoot {
+    background: #2a1010 !important;
+    color: #f0e6e6 !important;
+}
 
-    .mhead h2 {
-        color: #f7c5c5 !important;
-    }
+body.pup-dark-mode .mhead h2 {
+    color: #f7c5c5 !important;
+}
 
-    .fg label {
-        color: #e8c9c9 !important;
-    }
+body.pup-dark-mode .fg label {
+    color: #e8c9c9 !important;
+}
 
-    .fg input,
-    .fg select,
-    .fg textarea {
-        background: #3a1a1a !important;
-        color: #f0e6e6 !important;
-        border-color: rgba(240, 200, 90, 0.3) !important;
-    }
+body.pup-dark-mode .fg input,
+body.pup-dark-mode .fg select,
+body.pup-dark-mode .fg textarea {
+    background: #3a1a1a !important;
+    color: #f0e6e6 !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+}
 
-    .fg input::placeholder,
-    .fg textarea::placeholder {
-        color: #a88888 !important;
-    }
+body.pup-dark-mode .fg input::placeholder,
+body.pup-dark-mode .fg textarea::placeholder {
+    color: #a88888 !important;
+}
 
-    .fg input[readonly] {
-        background: #2f1515 !important;
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .fg input[readonly] {
+    background: #2f1515 !important;
+    color: #b89090 !important;
+}
 
-    .searchable-dropdown {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-    }
+body.pup-dark-mode .searchable-dropdown {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+}
 
-    .searchable-option .opt-name {
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode .searchable-option .opt-name {
+    color: #f0e6e6 !important;
+}
 
-    .searchable-option .opt-meta {
-        color: #b89090 !important;
-    }
+body.pup-dark-mode .searchable-option .opt-meta {
+    color: #b89090 !important;
+}
 
-    .searchable-option:hover {
-        background: rgba(240, 200, 90, 0.12) !important;
-    }
+body.pup-dark-mode .searchable-option:hover {
+    background: rgba(240, 200, 90, 0.12) !important;
+}
 
-    .role-chips-wrap {
-        background: #2f1515 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-    }
+body.pup-dark-mode .role-chips-wrap {
+    background: #2f1515 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+}
 
-    .filter-field {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-    }
+body.pup-dark-mode .filter-field {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+}
 
-    .filter-field input,
-    .filter-field select,
-    .voice-input-row input,
-    .searchable-select input[type="text"] {
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode .filter-field input,
+body.pup-dark-mode .filter-field select,
+body.pup-dark-mode .voice-input-row input,
+body.pup-dark-mode .searchable-select input[type="text"] {
+    color: #f0e6e6 !important;
+}
 
-    .filter-field input::placeholder,
-    .voice-input-row input::placeholder {
-        color: #a88888 !important;
-    }
+body.pup-dark-mode .filter-field input::placeholder,
+body.pup-dark-mode .voice-input-row input::placeholder {
+    color: #a88888 !important;
+}
 
-    .table-wrap {
-        background: #1e0a0a !important;
-    }
+body.pup-dark-mode .table-wrap {
+    background: #1e0a0a !important;
+}
 
-    tbody tr {
-        border-bottom-color: rgba(240, 200, 90, 0.08) !important;
-    }
+body.pup-dark-mode tbody tr {
+    border-bottom-color: rgba(240, 200, 90, 0.08) !important;
+}
 
-    tbody tr:hover {
-        background: rgba(240, 200, 90, 0.06) !important;
-    }
+body.pup-dark-mode tbody tr:hover {
+    background: rgba(240, 200, 90, 0.06) !important;
+}
 
-    .stat-card {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.15) !important;
-    }
+body.pup-dark-mode .stat-card {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.15) !important;
+}
 
-    .card {
-        background: #1e0a0a !important;
-        border-color: rgba(240, 200, 90, 0.12) !important;
-    }
+body.pup-dark-mode .card {
+    background: #1e0a0a !important;
+    border-color: rgba(240, 200, 90, 0.12) !important;
+}
 
-    .pbtn {
-        background: #2a1010 !important;
-        border-color: rgba(240, 200, 90, 0.2) !important;
-        color: #f0e6e6 !important;
-    }
+body.pup-dark-mode .pbtn {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.2) !important;
+    color: #f0e6e6 !important;
+}
 
-    .vhead {
-        background: linear-gradient(135deg, rgba(139, 0, 0, 0.3), rgba(240, 200, 90, 0.15)) !important;
-    }
+body.pup-dark-mode .vhead {
+    background: linear-gradient(135deg, rgba(139, 0, 0, 0.3), rgba(240, 200, 90, 0.15)) !important;
 }
