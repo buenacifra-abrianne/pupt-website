@@ -52,6 +52,10 @@ Route::get('/', function () {
     return view('public.index'); // <-- ito yung index blade mo
 })->name('public.landing');
 
+Route::get('/home/callback', function () {
+    return view('public.home_callback');
+})->name('public.home.callback');
+
 Route::get('/home', [HomeController::class, 'index'])->name('public.home');
 Route::get('/about', [AboutController::class, 'index'])->name('public.about');
 Route::get('/about/{section}', [AboutController::class, 'show'])->name('public.about.section');
