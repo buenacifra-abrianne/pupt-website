@@ -8,12 +8,12 @@ use Throwable;
 
 class ImageStorage
 {
-    private const DISK = 's3';
+    private const DEFAULT_DISK = 's3';
 
     public static function store(UploadedFile $file, string $directory = 'images'): string|false
     {
         try {
-            return $file->store($directory, 's3');
+            return $file->store($directory, self::disk());
         } catch (Throwable) {
             return false;
         }
@@ -28,7 +28,7 @@ class ImageStorage
         }
 
         try {
-            return Storage::disk('s3')->put($normalized, $contents);
+            return Storage::disk(self::disk())->put($normalized, $contents);
         } catch (Throwable) {
             return false;
         }
@@ -43,7 +43,7 @@ class ImageStorage
         }
 
         try {
-            Storage::disk('s3')->delete($normalized);
+            Storage::disk(self::disk())->delete($normalized);
         } catch (Throwable) {
         }
     }
@@ -66,7 +66,11 @@ class ImageStorage
             return asset($normalized);
         }
 
-        return Storage::disk('s3')->url($normalized);
+        try {
+            return Storage::disk(self::disk())->url($normalized);
+        } catch (Throwable) {
+            return asset('storage/' . $normalized);
+        }
     }
 
     public static function normalizeStoredPath(?string $path): string
@@ -83,5 +87,12 @@ class ImageStorage
     private static function isExternal(string $path): bool
     {
         return preg_match('/^(https?:)?\/\//i', $path) === 1 || str_starts_with($path, 'data:');
+    }
+
+    private static function disk(): string
+    {
+        $disk = config('filesystems.image_disk', self::DEFAULT_DISK);
+
+        return is_string($disk) && $disk !== '' ? $disk : self::DEFAULT_DISK;
     }
 }

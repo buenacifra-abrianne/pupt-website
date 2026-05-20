@@ -350,23 +350,70 @@ class AnnouncementController extends Controller
 
         $row = DB::table('announcements')->where('announcement_id', $id)->first();
 
-        DB::table('announcements')
-            ->where('announcement_id', $id)
-            ->delete();
+        if (!$row) {
+            return response()->json(['ok' => false, 'error' => 'Announcement not found.'], 404);
+        }
+
+        $this->deleteAnnouncementRecord($id);
 
         $this->notifySystem(
             'Announcement Deleted',
-            'Announcement '.($row->title ?? "#{$id}").' was deleted.',
+            'Announcement '.$row->title.' was deleted.',
             'DANGER'
         );
         $this->logActivity(
             'DELETED',
             'ANNOUNCEMENT',
             $id,
-            'Deleted announcement: '.($row->title ?? "#{$id}")
+            'Deleted announcement: '.$row->title
         );
 
         return response()->json(['ok' => true]);
+    }
+
+    public function bulkAnnouncements(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'gt:0'],
+        ]);
+
+        $ids = collect($request->input('ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return response()->json(['ok' => false, 'error' => 'No announcements selected.'], 422);
+        }
+
+        $items = DB::table('announcements')
+            ->whereIn('announcement_id', $ids->all())
+            ->get();
+
+        foreach ($items as $item) {
+            $this->deleteAnnouncementRecord((int) $item->announcement_id);
+            $this->logActivity(
+                'DELETED',
+                'ANNOUNCEMENT',
+                (int) $item->announcement_id,
+                'Deleted announcement: '.$item->title
+            );
+        }
+
+        $count = $items->count();
+
+        $this->notifySystem(
+            'Announcements Deleted',
+            $count.' announcement(s) were deleted.',
+            'DANGER'
+        );
+
+        return response()->json([
+            'ok' => true,
+            'message' => $count.' announcement(s) deleted.',
+        ]);
     }
 
     public function deleteNews(Request $request)
@@ -486,6 +533,11 @@ class AnnouncementController extends Controller
         }
 
         DB::table('news')->where('news_id', $id)->delete();
+    }
+
+    private function deleteAnnouncementRecord(int $id): void
+    {
+        DB::table('announcements')->where('announcement_id', $id)->delete();
     }
 
     public function toggle(Request $request)

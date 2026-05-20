@@ -129,6 +129,9 @@ Route::prefix('staff')
         Route::post('/announcements/request-delete', [StaffAnnouncementController::class, 'requestDeleteAnnouncement'])
             ->name('announcements.requestDelete');
 
+        Route::post('/announcements/request-bulk-delete', [StaffAnnouncementController::class, 'requestBulkDeleteAnnouncements'])
+            ->name('announcements.requestBulkDelete');
+
         // Requests (Announcement Toggle)
         Route::post('/announcements/request-enable',  [StaffAnnouncementController::class, 'requestEnableAnnouncement'])
             ->name('announcements.requestEnable');
@@ -189,6 +192,9 @@ Route::prefix('admin')
 
         Route::post('/announcements/delete', [AdminAnnouncementController::class, 'delete'])
             ->name('announcements.delete');
+
+        Route::post('/announcements/bulk-delete', [AdminAnnouncementController::class, 'bulkAnnouncements'])
+            ->name('announcements.bulk');
 
         Route::post('/announcements/toggle', [AdminAnnouncementController::class, 'toggle'])
             ->name('announcements.toggle');
@@ -269,6 +275,9 @@ Route::prefix('superadmin')->group(function () {
 
         Route::post('/announcements/delete', [AnnouncementController::class, 'delete'])
             ->name('superadmin.announcements.delete');
+
+        Route::post('/announcements/bulk-delete', [AnnouncementController::class, 'bulkAnnouncements'])
+            ->name('superadmin.announcements.bulk');
 
         Route::post('/announcements/toggle', [AnnouncementController::class, 'toggle'])
             ->name('superadmin.announcements.toggle');

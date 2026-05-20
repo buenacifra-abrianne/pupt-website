@@ -102,6 +102,18 @@
                     <h3 class="card-title">Manage Announcements</h3>
                 </div>
 
+                <div class="news-bulk-toolbar">
+                    <label class="news-bulk-count" for="bulkAnnouncementSelection">
+                        <input type="checkbox" id="bulkAnnouncementSelection" hidden>
+                        <span id="announcementSelectionCount">0 selected</span>
+                    </label>
+                    <div class="news-bulk-actions">
+                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" disabled>
+                            <i class="fas fa-trash"></i> Delete Selected
+                        </button>
+                    </div>
+                </div>
+
                 <div id="announcementsList" class="announcement-grid">
                     <button type="button" class="announcement-item announcement-card-create" data-static-card="1" onclick="openAnnouncementModal(true)">
                         <span class="announcement-card-create-icon">+</span>
@@ -116,7 +128,13 @@
                         @endphp
 
                         <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($row->priority) }}-priority"
+                            data-announcement-id="{{ (int) $row->announcement_id }}"
                             data-search="{{ e(strtolower($row->title.' '.$row->content.' '.($row->link ?? '').' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
+
+                            <label class="news-card-select announcement-card-select" aria-label="Select {{ e(\App\Support\PlainText::normalize($row->title ?? '')) }}">
+                                <input type="checkbox" class="announcement-select-checkbox" value="{{ (int) $row->announcement_id }}">
+                                <span></span>
+                            </label>
 
                             <div class="announcement-header">
                                 <div class="title-row">
@@ -890,6 +908,64 @@
         }
     }
 
+    function getSelectedAnnouncementIds() {
+        return Array.from(document.querySelectorAll('.announcement-select-checkbox:checked'))
+            .map((checkbox) => Number.parseInt(checkbox.value, 10))
+            .filter((id) => Number.isInteger(id) && id > 0);
+    }
+
+    function syncAnnouncementSelectionUi() {
+        const selectedIds = getSelectedAnnouncementIds();
+        const countEl = document.getElementById('announcementSelectionCount');
+        const bulkDeleteBtn = document.getElementById('bulkDeleteAnnouncementsBtn');
+
+        if (countEl) {
+            countEl.textContent = `${selectedIds.length} selected`;
+        }
+
+        if (bulkDeleteBtn) {
+            bulkDeleteBtn.disabled = selectedIds.length === 0;
+        }
+    }
+
+    async function submitBulkAnnouncementDelete() {
+        const selectedIds = getSelectedAnnouncementIds();
+
+        if (!selectedIds.length) {
+            showToast('Select at least one announcement first.', 'info', 'Announcements');
+            return;
+        }
+
+        if (!(await askConfirm('Delete the selected announcements?', 'Delete Selected', 'Delete', 'danger'))) {
+            return;
+        }
+
+        const formData = new FormData();
+        selectedIds.forEach((id) => formData.append('ids[]', String(id)));
+
+        const response = await fetch("{{ route('admin.announcements.bulk') }}", {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': token,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            body: formData,
+        });
+
+        const raw = await response.text();
+        let json = null;
+        try { json = JSON.parse(raw); } catch (_) {}
+
+        if (!response.ok || !json || !json.ok) {
+            showToast((json && (json.error || json.message)) || raw.slice(0, 200), 'error');
+            return;
+        }
+
+        queueReloadToast(json.message || 'Selected announcements deleted.', 'success', 'Announcements');
+        window.location.reload();
+    }
+
     function getSelectedNewsIds() {
         return Array.from(document.querySelectorAll('.news-select-checkbox:checked'))
             .map((checkbox) => Number.parseInt(checkbox.value, 10))
@@ -1113,6 +1189,26 @@
             checkbox.addEventListener('change', syncNewsSelectionUi);
         });
 
+        document.querySelectorAll('.announcement-select-checkbox').forEach((checkbox) => {
+            checkbox.addEventListener('change', syncAnnouncementSelectionUi);
+        });
+
+        document.querySelectorAll('#announcementsList .announcement-item[data-announcement-id]').forEach((card) => {
+            card.addEventListener('click', (event) => {
+                if (event.target.closest('.announcement-actions, .announcement-card-select')) {
+                    return;
+                }
+
+                const checkbox = card.querySelector('.announcement-select-checkbox');
+                if (!checkbox) {
+                    return;
+                }
+
+                checkbox.checked = !checkbox.checked;
+                syncAnnouncementSelectionUi();
+            });
+        });
+
         document.querySelectorAll('#news .news-card[data-news-id]').forEach((card) => {
             card.addEventListener('click', (event) => {
                 if (event.target.closest('.news-actions, .news-card-select')) {
@@ -1132,6 +1228,8 @@
         document.getElementById('bulkDeleteNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('delete'));
         document.getElementById('bulkHideNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('hide'));
         document.getElementById('bulkShowNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('show'));
+        document.getElementById('bulkDeleteAnnouncementsBtn')?.addEventListener('click', submitBulkAnnouncementDelete);
+        syncAnnouncementSelectionUi();
         syncNewsSelectionUi();
     });
 

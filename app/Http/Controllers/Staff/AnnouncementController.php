@@ -225,6 +225,81 @@ $pendingNewsIds = DB::table('approval_requests')
         );
     }
 
+    public function requestBulkDeleteAnnouncements(Request $request)
+    {
+        $request->validate([
+            'ids' => ['required', 'array', 'min:1'],
+            'ids.*' => ['integer', 'gt:0'],
+        ]);
+
+        $ids = collect($request->input('ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values();
+
+        if ($ids->isEmpty()) {
+            return response()->json(['ok' => false, 'error' => 'No announcements selected.'], 422);
+        }
+
+        $email = strtolower(trim((string) session('user_email')));
+        $name = trim((string) session('user_first_name').' '.(string) session('user_last_name'));
+
+        if (!$email) {
+            return response()->json(['ok' => false, 'error' => 'Missing session email. Please re-login.'], 422);
+        }
+
+        $existingPendingIds = DB::table('approval_requests')
+            ->where('type', 'ANNOUNCEMENT_DELETE')
+            ->whereRaw('LOWER(TRIM(requester_email)) = ?', [$email])
+            ->whereRaw('LOWER(TRIM(status)) = ?', ['pending'])
+            ->get()
+            ->map(function ($request) {
+                $details = json_decode($request->details ?? '{}', true) ?: [];
+                return (int) ($details['announcement_id'] ?? 0);
+            })
+            ->filter(fn ($id) => $id > 0)
+            ->all();
+
+        $targetIds = $ids->diff($existingPendingIds)->values();
+
+        if ($targetIds->isEmpty()) {
+            return response()->json([
+                'ok' => true,
+                'message' => 'Delete request(s) already pending for the selected announcement(s).',
+            ]);
+        }
+
+        $announcements = DB::table('announcements')
+            ->whereIn('announcement_id', $targetIds->all())
+            ->get(['announcement_id', 'title']);
+
+        foreach ($announcements as $announcement) {
+            DB::table('approval_requests')->insert([
+                'type' => 'ANNOUNCEMENT_DELETE',
+                'title' => PlainText::normalize($announcement->title ?? 'Delete Announcement'),
+                'details' => json_encode([
+                    'announcement_id' => (int) $announcement->announcement_id,
+                ], JSON_UNESCAPED_UNICODE),
+                'status' => 'pending',
+                'requester_name' => $name ?: 'Staff',
+                'requester_email' => $email,
+                'reviewed_by' => null,
+                'reviewed_at' => null,
+                'rejection_reason' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        $count = $announcements->count();
+
+        return response()->json([
+            'ok' => true,
+            'message' => $count.' delete request(s) submitted. Please wait for admin approval.',
+        ]);
+    }
+
     public function requestEnableAnnouncement(Request $request)
     {
         $request->validate([
