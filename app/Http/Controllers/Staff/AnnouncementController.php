@@ -369,6 +369,7 @@ $pendingNewsIds = DB::table('approval_requests')
 
     $requestId = $request->input('request_id') ? (int) $request->input('request_id') : null;
     $removeImage = (string) $request->input('remove_image', '0') === '1';
+    $email = strtolower(trim((string) session('user_email')));
 
     $imagePath = $request->input('existing_image_path') ?: null;
 

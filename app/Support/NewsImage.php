@@ -14,11 +14,19 @@ class NewsImage
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
     {
-        try {
-            return $file->store($directory, self::disk());
-        } catch (Throwable) {
+        $storedPath = self::storeOnDisk($file, $directory, self::disk());
+
+        if ($storedPath !== false) {
+            return $storedPath;
+        }
+
+        $fallbackDisk = self::fallbackDisk();
+
+        if ($fallbackDisk === self::disk()) {
             return false;
         }
+
+        return self::storeOnDisk($file, $directory, $fallbackDisk);
     }
 
     public static function delete(?string $path): void
@@ -26,9 +34,11 @@ class NewsImage
         $normalized = ImageStorage::normalizeStoredPath($path);
 
         if ($normalized !== '' && !self::isExternal($normalized)) {
-            try {
-                Storage::disk(self::disk())->delete($normalized);
-            } catch (Throwable) {
+            foreach (array_unique([self::disk(), self::fallbackDisk()]) as $disk) {
+                try {
+                    Storage::disk($disk)->delete($normalized);
+                } catch (Throwable) {
+                }
             }
         }
     }
@@ -99,5 +109,23 @@ class NewsImage
         $disk = config('filesystems.image_disk', self::DEFAULT_DISK);
 
         return is_string($disk) && $disk !== '' ? $disk : self::DEFAULT_DISK;
+    }
+
+    private static function fallbackDisk(): string
+    {
+        $disk = config('filesystems.image_fallback_disk', 'public');
+
+        return is_string($disk) && $disk !== '' ? $disk : 'public';
+    }
+
+    private static function storeOnDisk(UploadedFile $file, string $directory, string $disk): string|false
+    {
+        try {
+            $storedPath = $file->store($directory, $disk);
+
+            return is_string($storedPath) && $storedPath !== '' ? $storedPath : false;
+        } catch (Throwable) {
+            return false;
+        }
     }
 }
