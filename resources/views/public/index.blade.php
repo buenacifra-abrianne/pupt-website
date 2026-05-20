@@ -116,7 +116,7 @@
                 <span class="text">Student</span>
             </a> -->
 
-            <a href="{{ route('public.home') }}" class="portal-button">
+            <a href="{{ route('public.home.callback') }}" class="portal-button">
                 <span class="icon">
                     <!-- home -->
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
