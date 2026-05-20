@@ -3,7 +3,6 @@
 namespace App\Support;
 
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 
 class NewsImage
 {
@@ -12,23 +11,17 @@ class NewsImage
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
     {
-        return $file->store($directory, 's3');
+        return ImageStorage::store($file, $directory);
     }
 
     public static function delete(?string $path): void
     {
-        if ($path) {
-            Storage::disk('s3')->delete($path);
-        }
+        ImageStorage::delete($path);
     }
 
     public static function url(?string $path, ?string $fallback = null): ?string
     {
-        if (!$path) {
-            return $fallback;
-        }
-
-        return Storage::disk('s3')->url($path);
+        return ImageStorage::url($path, $fallback);
     }
 
     public static function validationError(?UploadedFile $file): ?string
@@ -63,4 +56,5 @@ class NewsImage
 
         return 'Unsupported image file type: '.$detectedType.'.';
     }
+
 }

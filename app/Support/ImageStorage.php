@@ -13,7 +13,9 @@ class ImageStorage
     public static function store(UploadedFile $file, string $directory = 'images'): string|false
     {
         try {
-            return $file->store($directory, 's3');
+            $storedPath = $file->store($directory, self::DISK);
+
+            return is_string($storedPath) && $storedPath !== '' ? $storedPath : false;
         } catch (Throwable) {
             return false;
         }
@@ -28,7 +30,7 @@ class ImageStorage
         }
 
         try {
-            return Storage::disk('s3')->put($normalized, $contents);
+            return Storage::disk(self::DISK)->put($normalized, $contents);
         } catch (Throwable) {
             return false;
         }
@@ -43,7 +45,7 @@ class ImageStorage
         }
 
         try {
-            Storage::disk('s3')->delete($normalized);
+            Storage::disk(self::DISK)->delete($normalized);
         } catch (Throwable) {
         }
     }
@@ -66,7 +68,11 @@ class ImageStorage
             return asset($normalized);
         }
 
-        return Storage::disk('s3')->url($normalized);
+        try {
+            return Storage::disk(self::DISK)->url($normalized);
+        } catch (Throwable) {
+            return $fallback ? asset(ltrim($fallback, '/')) : null;
+        }
     }
 
     public static function normalizeStoredPath(?string $path): string
@@ -84,4 +90,5 @@ class ImageStorage
     {
         return preg_match('/^(https?:)?\/\//i', $path) === 1 || str_starts_with($path, 'data:');
     }
+
 }
