@@ -102,7 +102,7 @@
                     : (string) ($overviewEditor['section_header_image'] ?? '');
                 $aboutHeroInputId = $idPrefix.'-about-hero-image';
                 $aboutHeroFieldId = $idPrefix.'-about-hero-image-field';
-                $aboutHeroPreview = \App\Support\NewsImage::url($aboutCombinedHeaderImage !== '' ? $aboutCombinedHeaderImage : null, 'assets/static_img/about_header_image.png');
+                $aboutHeroPreview = \App\Support\AboutCmsContent::resolveImagePath($aboutCombinedHeaderImage !== '' ? $aboutCombinedHeaderImage : null, 'assets/static_img/about_header_image.png');
                 $aboutSectionHeaderFieldId = $idPrefix.'-about-section-header-image-field';
             @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="hero" hidden>
@@ -173,7 +173,7 @@
                 @php
                     $aboutStoryImageInputId = $idPrefix.'-about-story-image';
                     $aboutStoryImageFieldId = $idPrefix.'-about-story-image-field';
-                    $aboutStoryImagePreview = \App\Support\NewsImage::url($overviewEditor['story_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                    $aboutStoryImagePreview = \App\Support\AboutCmsContent::resolveImagePath($overviewEditor['story_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                 @endphp
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-about-intro-form>
                     @csrf
@@ -269,7 +269,7 @@
                     <div class="about-cms-card-stack">
                         @foreach($aboutSections as $slug => $section)
                             @php
-                                $sectionImagePreview = \App\Support\NewsImage::url($section['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $sectionImagePreview = \App\Support\AboutCmsContent::resolveImagePath($section['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                 $sectionImageInputId = $idPrefix.'-about-card-image-'.$slug;
                             @endphp
                             <article class="about-cms-card-editor" data-about-contents-editor data-about-contents-slug="{{ $slug }}">
@@ -775,7 +775,7 @@
                                 $officialImageInputId = $idPrefix.'-about-official-image-file-'.$index;
                                 $officialImageFieldId = $idPrefix.'-about-official-image-'.$index;
                                 $officialImageValue = (string) ($officialGroup['image'] ?? '');
-                                $officialImagePreview = \App\Support\NewsImage::url($officialImageValue !== '' ? $officialImageValue : null, 'assets/static_img/temporary_profile.png');
+                                $officialImagePreview = \App\Support\AboutCmsContent::resolveImagePath($officialImageValue !== '' ? $officialImageValue : null, 'assets/static_img/temporary_profile.png');
                             @endphp
                             <article class="about-cms-card-editor" data-about-official-editor data-about-official-index="{{ $index }}">
                                 <div class="about-cms-card-editor-head" data-about-card-editor-head>
