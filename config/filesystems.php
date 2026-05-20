@@ -13,19 +13,25 @@ return [
     |
     */
 
-    'default' => 's3',
+    'default' => env('FILESYSTEM_DISK', 'local'),
 
     /*
     |--------------------------------------------------------------------------
     | Image Filesystem Disk
     |--------------------------------------------------------------------------
     |
-    | Public-facing CMS images are stored on the configured image disk.
-    | In production this should use AWS S3.
+    | Public-facing CMS images should prefer cloud storage so uploads resolve
+    | from S3 in every role, while still allowing a local fallback for older
+    | assets when needed.
     |
     */
 
-    'image_disk' => 's3',
+    'image_disk' => env(
+        'FILESYSTEM_IMAGE_DISK',
+        env('APP_ENV', 'production') === 'local' ? 'public' : 's3'
+    ),
+
+    'image_fallback_disk' => env('FILESYSTEM_IMAGE_FALLBACK_DISK', 'public'),
 
     /*
     |--------------------------------------------------------------------------
@@ -68,7 +74,6 @@ return [
             'url' => env('AWS_URL'),
             'endpoint' => env('AWS_ENDPOINT'),
             'use_path_style_endpoint' => env('AWS_USE_PATH_STYLE_ENDPOINT', false),
-            'visibility' => 'public',
             'throw' => false,
             'report' => false,
         ],
