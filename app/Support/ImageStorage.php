@@ -18,13 +18,7 @@ class ImageStorage
 
             return is_string($storedPath) && $storedPath !== '' ? $storedPath : false;
         } catch (Throwable $e) {
-            Log::error('ImageStorage store failed', [
-                'message' => $e->getMessage(),
-                'directory' => $directory,
-                'disk' => self::DISK,
-            ]);
-
-            return false;
+            dd($e->getMessage());
         }
     }
 
