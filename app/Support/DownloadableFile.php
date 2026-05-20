@@ -8,13 +8,15 @@ use Throwable;
 
 class DownloadableFile
 {
-    private const DEFAULT_DISK = 's3';
+    private const DISK = 's3';
     private const MAX_BYTES = 20 * 1024 * 1024;
 
     public static function store(UploadedFile $file, string $directory = 'downloadables'): string|false
     {
         try {
-            return $file->store($directory, self::disk());
+            $storedPath = $file->store($directory, self::DISK);
+
+            return is_string($storedPath) && $storedPath !== '' ? $storedPath : false;
         } catch (Throwable) {
             return false;
         }
@@ -28,10 +30,10 @@ class DownloadableFile
             return;
         }
 
-        $normalized = ltrim($value, '/');
+        $normalized = self::normalizeStoredPath($value);
 
         try {
-            Storage::disk(self::disk())->delete($normalized);
+            Storage::disk(self::DISK)->delete($normalized);
         } catch (Throwable) {
         }
     }
@@ -52,16 +54,16 @@ class DownloadableFile
             return $value;
         }
 
-        $normalized = ltrim($value, '/');
+        $normalized = self::normalizeStoredPath($value);
 
-        if (str_starts_with($normalized, 'assets/') || str_starts_with($normalized, 'storage/')) {
+        if (str_starts_with($normalized, 'assets/')) {
             return asset($normalized);
         }
 
         try {
-            return Storage::disk(self::disk())->url($normalized);
+            return Storage::disk(self::DISK)->url($normalized);
         } catch (Throwable) {
-            return asset('storage/' . $normalized);
+            return $fallback ? asset(ltrim($fallback, '/')) : null;
         }
     }
 
@@ -87,10 +89,14 @@ class DownloadableFile
         return preg_match('/^(https?:)?\/\//i', $path) === 1 || str_starts_with($path, 'data:');
     }
 
-    private static function disk(): string
+    private static function normalizeStoredPath(?string $path): string
     {
-        $disk = config('filesystems.default', self::DEFAULT_DISK);
+        $normalized = ltrim(trim((string) $path), '/');
 
-        return is_string($disk) && $disk !== '' ? $disk : self::DEFAULT_DISK;
+        if (str_starts_with($normalized, 'storage/')) {
+            $normalized = substr($normalized, strlen('storage/'));
+        }
+
+        return $normalized;
     }
 }

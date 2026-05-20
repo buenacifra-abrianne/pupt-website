@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'default' => env('FILESYSTEM_DISK', 'local'),
+    'default' => 's3',
 
     /*
     |--------------------------------------------------------------------------
@@ -25,9 +25,7 @@ return [
     |
     */
 
-    'image_disk' => env('FILESYSTEM_IMAGE_DISK', 's3'),
-
-    'image_fallback_disk' => env('FILESYSTEM_IMAGE_FALLBACK_DISK', 'public'),
+    'image_disk' => 's3',
 
     /*
     |--------------------------------------------------------------------------

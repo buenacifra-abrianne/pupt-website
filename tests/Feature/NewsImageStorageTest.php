@@ -9,19 +9,31 @@ use Tests\TestCase;
 
 class NewsImageStorageTest extends TestCase
 {
-    public function test_news_image_upload_falls_back_to_public_disk_when_primary_disk_fails(): void
+    public function test_news_image_upload_stores_on_s3_only(): void
     {
         config([
-            'filesystems.image_disk' => 'missing-news-disk',
-            'filesystems.image_fallback_disk' => 'public',
+            'filesystems.image_disk' => 'public',
         ]);
 
+        Storage::fake('s3');
         Storage::fake('public');
 
         $path = NewsImage::store(UploadedFile::fake()->create('result.png', 100, 'image/png'), 'news');
 
         $this->assertIsString($path);
         $this->assertStringStartsWith('news/', $path);
-        Storage::disk('public')->assertExists($path);
+        Storage::disk('s3')->assertExists($path);
+        Storage::disk('public')->assertMissing($path);
+    }
+
+    public function test_news_image_url_uses_s3_disk(): void
+    {
+        config([
+            'filesystems.disks.s3.url' => 'https://cdn.example.test',
+        ]);
+
+        $path = 'news/result.png';
+
+        $this->assertSame('https://cdn.example.test/'.$path, NewsImage::url($path));
     }
 }
