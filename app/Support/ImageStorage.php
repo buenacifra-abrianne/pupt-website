@@ -5,6 +5,7 @@ namespace App\Support;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
+use Illuminate\Support\Facades\Log;
 
 class ImageStorage
 {
@@ -16,7 +17,13 @@ class ImageStorage
             $storedPath = $file->store($directory, self::DISK);
 
             return is_string($storedPath) && $storedPath !== '' ? $storedPath : false;
-        } catch (Throwable) {
+        } catch (Throwable $e) {
+            Log::error('ImageStorage store failed', [
+                'message' => $e->getMessage(),
+                'directory' => $directory,
+                'disk' => self::DISK,
+            ]);
+
             return false;
         }
     }
