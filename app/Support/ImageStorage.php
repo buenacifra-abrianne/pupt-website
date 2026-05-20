@@ -5,7 +5,6 @@ namespace App\Support;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
-use Illuminate\Support\Facades\Log;
 
 class ImageStorage
 {
@@ -14,16 +13,8 @@ class ImageStorage
     public static function store(UploadedFile $file, string $directory = 'images'): string|false
     {
         try {
-            $storedPath = $file->store($directory, self::DISK);
-
-            return is_string($storedPath) && $storedPath !== '' ? $storedPath : false;
-        } catch (Throwable $e) {
-            Log::error('ImageStorage store failed', [
-                'message' => $e->getMessage(),
-                'directory' => $directory,
-                'disk' => self::DISK,
-            ]);
-
+            return $file->store($directory, 's3');
+        } catch (Throwable) {
             return false;
         }
     }
@@ -37,7 +28,7 @@ class ImageStorage
         }
 
         try {
-            return Storage::disk(self::DISK)->put($normalized, $contents);
+            return Storage::disk('s3')->put($normalized, $contents);
         } catch (Throwable) {
             return false;
         }
@@ -52,7 +43,7 @@ class ImageStorage
         }
 
         try {
-            Storage::disk(self::DISK)->delete($normalized);
+            Storage::disk('s3')->delete($normalized);
         } catch (Throwable) {
         }
     }
@@ -75,11 +66,7 @@ class ImageStorage
             return asset($normalized);
         }
 
-        try {
-            return Storage::disk(self::DISK)->url($normalized);
-        } catch (Throwable) {
-            return $fallback ? asset(ltrim($fallback, '/')) : null;
-        }
+        return Storage::disk('s3')->url($normalized);
     }
 
     public static function normalizeStoredPath(?string $path): string
@@ -97,5 +84,4 @@ class ImageStorage
     {
         return preg_match('/^(https?:)?\/\//i', $path) === 1 || str_starts_with($path, 'data:');
     }
-
 }
