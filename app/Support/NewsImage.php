@@ -75,7 +75,19 @@ class NewsImage
             return asset($normalized);
         }
 
-        return Storage::disk(self::disk())->url($normalized);
+        $disk = self::disk();
+        $fallbackDisk = self::fallbackDisk();
+
+        if ($fallbackDisk !== $disk) {
+            try {
+                if (Storage::disk($fallbackDisk)->exists($normalized)) {
+                    return Storage::disk($fallbackDisk)->url($normalized);
+                }
+            } catch (Throwable) {
+            }
+        }
+
+        return Storage::disk($disk)->url($normalized);
     }
 
     public static function validationError(?UploadedFile $file): ?string
