@@ -240,7 +240,9 @@ $history = $this->attachDisplayFields($history);
                         ? ($payload['link'] !== '' ? $payload['link'] : null)
                         : DB::raw('link'),
                     'priority' => isset($payload['priority']) ? strtoupper($payload['priority']) : DB::raw('priority'),
-                    // image_path update if you later support image requests
+                    'image_path' => array_key_exists('image_path', $payload)
+                        ? ($payload['image_path'] !== '' ? $payload['image_path'] : null)
+                        : DB::raw('image_path'),
                 ]);
         }
         elseif ($type === 'NEWS_DELETE') {

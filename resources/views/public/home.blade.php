@@ -157,7 +157,7 @@
                 <article class="news-mini-card contents-card card_with_section">
                   <div class="news-mini-card-inner contents-card-inner">
                     <div class="news-mini-card-front contents-card-front">
-                      <img src="{{ $storyImage }}" alt="{{ e($n->title) }}">
+                      <img src="{{ $storyImage }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="{{ e($n->title) }}">
                       <div class="news-mini-card-copy contents-card-copy">
                         <time class="news-mini-card-number contents-card-number">{{ $storyDate }}</time>
                         <h4>{{ e($n->title) }}</h4>
@@ -180,6 +180,7 @@
                       data-content-html="{{ e(\App\Support\RichText::sanitize($n->content)) }}"
                       data-content="{{ e(\App\Support\RichText::plainText($n->content)) }}"
                       data-link="{{ e($n->link ?? '') }}"
+                      data-image="{{ e($storyImage) }}"
                     >
                       Read More
                     </button>
@@ -300,6 +301,10 @@
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
       <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">
         <button class="advisory-modal-close" type="button" aria-label="Close details">&times;</button>
+
+        <div class="advisory-modal-media" id="advisoryModalMedia" hidden>
+          <img src="" alt="" id="advisoryModalImage" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+        </div>
 
         <div class="advisory-modal-copy">
           <span class="advisory-modal-tag" id="advisoryModalTag">Announcement</span>

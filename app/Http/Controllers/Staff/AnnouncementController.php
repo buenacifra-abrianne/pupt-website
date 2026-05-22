@@ -578,7 +578,22 @@ $pendingNewsIds = DB::table('approval_requests')
     );
 }
 
-        return response()->json(['ok' => true]);
+        $response = ['ok' => true];
+
+        if (str_starts_with($type, 'NEWS_')) {
+            $response['news'] = [
+                'news_id' => (int) ($payload['news_id'] ?? 0),
+                'title' => PlainText::normalize($payload['title'] ?? ''),
+                'content' => (string) ($payload['content'] ?? ''),
+                'category' => PlainText::normalize($payload['category'] ?? ''),
+                'location' => PlainText::normalize($payload['location'] ?? ''),
+                'link' => (string) ($payload['link'] ?? ''),
+                'image_path' => (string) ($payload['image_path'] ?? ''),
+                'image_url' => NewsImage::url($payload['image_path'] ?? null),
+            ];
+        }
+
+        return response()->json($response);
     }
 
     public function deleteRequestOnly($id)

@@ -251,7 +251,7 @@
                     data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
                     <div class="news-image">
-                        <img src="{{ $displayImgUrl }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($n->title ?? 'News image')) }}">
+                        <img src="{{ $displayImgUrl }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($n->title ?? 'News image')) }}">
                     </div>
 
                     <div class="news-content">
@@ -295,7 +295,7 @@
                             <button class="btn btn-sm btn-view-icon"
                                 type="button"
                                 title="View"
-                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""))'>
+                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""), @json($displayImgUrl))'>
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -411,23 +411,28 @@
 
     <div id="readMoreModal" class="modal">
         <div class="modal-content read-more-modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="readMoreTitle">Read More</h2>
-                <button class="close-modal" type="button" onclick="closeReadMoreModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+            <button class="close-modal read-more-close" type="button" onclick="closeReadMoreModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="read-more-media" id="readMoreMedia" hidden>
+                <img id="readMoreImage" src="" alt="" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;">
             </div>
-            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+            <div class="read-more-details">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="readMoreTitle">Read More</h2>
+                </div>
+                <div class="read-more-body rich-text-content" id="readMoreContent"></div>
 
-              <div id="readMoreLinkWrap" style="display:none; margin-top: 18px;">
-                  <a id="readMoreLinkBtn"
-                    href="#"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="btn btn-sm btn-primary">
-                      <i class="fas fa-external-link-alt"></i> Open Link
-                  </a>
-              </div>
+                <div id="readMoreLinkWrap" style="display:none; margin-top: 18px;">
+                    <a id="readMoreLinkBtn"
+                        href="#"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="btn btn-sm btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Open Link
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1031,9 +1036,27 @@
       return rawHtml;
     }
 
-    function openReadMoreModal(title, content, link = '') {
+    function openReadMoreModal(title, content, link = '', imageUrl = '') {
+      const modal = document.getElementById('readMoreModal');
+      const media = document.getElementById('readMoreMedia');
+      const image = document.getElementById('readMoreImage');
+
       document.getElementById('readMoreTitle').textContent = title || 'Read More';
       document.getElementById('readMoreContent').innerHTML = normalizeReadMoreHtml(content) || '<p>No content available.</p>';
+
+      const hasImage = String(imageUrl || '').trim() !== '';
+      modal.classList.toggle('read-more-with-image', hasImage);
+      if (media && image) {
+        if (hasImage) {
+          image.src = imageUrl;
+          image.alt = title || 'News image';
+          media.hidden = false;
+        } else {
+          image.removeAttribute('src');
+          image.alt = '';
+          media.hidden = true;
+        }
+      }
 
       const linkWrap = document.getElementById('readMoreLinkWrap');
       const linkBtn = document.getElementById('readMoreLinkBtn');
@@ -1046,11 +1069,19 @@
           linkWrap.style.display = 'none';
       }
 
-      document.getElementById('readMoreModal').classList.add('active');
+      modal.classList.add('active');
   }
 
     function closeReadMoreModal() {
-        document.getElementById('readMoreModal').classList.remove('active');
+        const modal = document.getElementById('readMoreModal');
+        const media = document.getElementById('readMoreMedia');
+        const image = document.getElementById('readMoreImage');
+        modal.classList.remove('active', 'read-more-with-image');
+        if (media) media.hidden = true;
+        if (image) {
+            image.removeAttribute('src');
+            image.alt = '';
+        }
 
         const linkWrap = document.getElementById('readMoreLinkWrap');
         const linkBtn = document.getElementById('readMoreLinkBtn');
@@ -1503,6 +1534,8 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
   e.preventDefault();
 
   const form = e.target;
+  const submitBtn = document.getElementById('newsSubmitBtn') || form.querySelector('button[type="submit"]');
+  const originalSubmitHtml = submitBtn?.innerHTML || '';
   syncRichTextEditors(form);
   normalizePlainTextInputs(form);
   const url = form.action;
@@ -1519,6 +1552,11 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
 
   try {
     const fd = new FormData(form);
+
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+    }
 
     const res = await fetch(url, {
       method: 'POST',
@@ -1538,12 +1576,19 @@ document.getElementById('newsForm').addEventListener('submit', async function (e
       throw new Error(validationMessageFromResponse(json, raw.slice(0, 200) || `HTTP ${res.status}`));
     }
 
+    console.debug('[News] request image URL:', json?.news?.image_url || null);
+
     queueSuccessToast("Request submitted. Please wait for admin approval.");
     closeNewsModal();
     window.location.reload();
   } catch (err) {
     console.error(err);
     showToast("Submit failed: " + err.message, 'error');
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalSubmitHtml;
+    }
   }
 });
 

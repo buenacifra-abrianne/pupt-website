@@ -926,7 +926,72 @@ body {
 }
 
 .read-more-modal-content {
+    position: relative;
     max-width: 760px;
+}
+
+.read-more-modal-content .modal-header {
+    padding-right: 44px;
+}
+
+.modal.read-more-with-image .read-more-modal-content,
+.modal.active.read-more-with-image .read-more-modal-content {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1fr);
+    gap: 0;
+    width: min(1180px, 94vw);
+    max-width: 1180px;
+    height: min(760px, 88vh);
+    padding: 0;
+    overflow: hidden;
+    border-radius: 12px;
+    background: #fff;
+}
+
+.read-more-media {
+    min-height: 0;
+    background: #080808;
+}
+
+.read-more-media[hidden] {
+    display: none;
+}
+
+.read-more-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #080808;
+}
+
+.read-more-details {
+    min-width: 0;
+}
+
+.modal.read-more-with-image .read-more-details {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 34px 38px 38px;
+}
+
+.modal.read-more-with-image .modal-header {
+    padding-right: 44px;
+}
+
+.read-more-close {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    z-index: 2;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .read-more-body {
@@ -946,6 +1011,25 @@ body {
 .read-more-body ol {
     padding-left: 1.4rem;
     margin: 0.45rem 0 0.8rem;
+}
+
+@media (max-width: 860px) {
+    .modal.read-more-with-image .read-more-modal-content,
+    .modal.active.read-more-with-image .read-more-modal-content {
+        grid-template-columns: 1fr;
+        height: min(88vh, 760px);
+        overflow-y: auto;
+    }
+
+    .modal.read-more-with-image .read-more-media {
+        min-height: 260px;
+        max-height: 42vh;
+    }
+
+    .modal.read-more-with-image .read-more-details {
+        overflow: visible;
+        padding: 24px;
+    }
 }
 
 .announcement-read-more {

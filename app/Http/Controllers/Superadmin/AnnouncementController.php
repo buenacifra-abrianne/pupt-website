@@ -331,6 +331,7 @@ class AnnouncementController extends Controller
         if ($newsId > 0) {
             DB::table('news')->where('news_id', $newsId)->update($data);
             $this->logActivity('UPDATED', 'NEWS', $newsId, 'Updated news: '.$incomingTitle);
+            $savedNewsId = $newsId;
         } else {
             $data['created_at'] = now();
             $data['priority'] = 'MEDIUM';
@@ -339,12 +340,36 @@ class AnnouncementController extends Controller
 
             $newId = DB::table('news')->insertGetId($data, 'news_id');
             $this->logActivity('CREATED', 'NEWS', (int) $newId, 'Created news: '.$incomingTitle);
+            $savedNewsId = (int) $newId;
         }
+
+        $savedNews = DB::table('news')->where('news_id', $savedNewsId)->first();
 
         return response()->json([
             'ok' => true,
             'message' => $newsId > 0 ? 'News updated successfully.' : 'News created successfully.',
+            'news' => $this->formatNewsPayload($savedNews),
         ]);
+    }
+
+    private function formatNewsPayload(?object $news): ?array
+    {
+        if (!$news) {
+            return null;
+        }
+
+        return [
+            'news_id' => (int) $news->news_id,
+            'title' => PlainText::normalize($news->title ?? ''),
+            'content' => (string) ($news->content ?? ''),
+            'category' => PlainText::normalize($news->category ?? ''),
+            'location' => PlainText::normalize($news->location ?? ''),
+            'link' => (string) ($news->link ?? ''),
+            'image_path' => (string) ($news->image_path ?? ''),
+            'image_url' => NewsImage::url($news->image_path),
+            'is_featured' => (bool) ($news->is_featured ?? false),
+            'is_hidden_from_public' => (bool) ($news->is_hidden_from_public ?? false),
+        ];
     }
 
     public function delete(Request $request)

@@ -30,7 +30,7 @@
      data-search="{{ e($searchHay) }}">
 
   <div class="news-image">
-    <img src="{{ $displayImageUrl }}" alt="news image" style="width:100%; height:150px; object-fit:cover;">
+    <img src="{{ $displayImageUrl }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" alt="news image" style="width:100%; height:150px; object-fit:cover;">
   </div>
 
   <div class="news-content">
@@ -91,7 +91,7 @@
       <button class="btn btn-sm btn-view-icon"
         type="button"
         title="View"
-        onclick='openReadMoreModal(@json($title), @json($content))'>
+        onclick='openReadMoreModal(@json($title), @json($content), @json($link), @json($displayImageUrl))'>
         <i class="fas fa-eye"></i>
       </button>
     </div>

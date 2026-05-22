@@ -7,6 +7,18 @@ let carouselAutoplay = null;
 const carouselDurationMs = 900;
 const carouselIntervalMs = 5000;
 
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("img[data-fallback-src]").forEach((img) => {
+    img.addEventListener("error", () => {
+      const fallback = img.getAttribute("data-fallback-src");
+      if (!fallback || img.src === fallback) return;
+
+      img.src = fallback;
+      img.closest(".news-mini-card, .contents-card, .advisory-modal-media")?.classList.add("has-fallback-image");
+    }, { once: true });
+  });
+});
+
 function changeSlide(n) {
   showSlide(currentSlide + n, n >= 0 ? 1 : -1);
 }
@@ -863,12 +875,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const modal = document.getElementById("advisoryDetailsModal");
   if (!modal) return;
 
+  const card = modal.querySelector(".advisory-modal-card");
   const closeBtn = modal.querySelector(".advisory-modal-close");
   const tag = document.getElementById("advisoryModalTag");
   const title = document.getElementById("advisoryModalTitle");
   const date = document.getElementById("advisoryModalDate");
   const text = document.getElementById("advisoryModalText");
   const link = document.getElementById("advisoryModalLink");
+  const media = document.getElementById("advisoryModalMedia");
+  const image = document.getElementById("advisoryModalImage");
   let lastTrigger = null;
 
   function appendLinkedText(container, rawText) {
@@ -959,6 +974,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function closeModal() {
     modal.classList.remove("show");
     modal.setAttribute("aria-hidden", "true");
+    card?.classList.remove("has-media");
+    if (image && media) {
+      image.removeAttribute("src");
+      image.alt = "";
+      media.setAttribute("hidden", "true");
+    }
     document.body.classList.remove("modal-open");
     if (lastTrigger instanceof HTMLElement) {
       lastTrigger.blur();
@@ -979,6 +1000,19 @@ document.addEventListener("DOMContentLoaded", () => {
     title.textContent = decodeEscapedHtml(trigger.dataset.title || "");
     date.textContent = decodeEscapedHtml(trigger.dataset.date || "");
     renderAdvisoryContent(trigger.dataset.content || "", trigger.dataset.contentHtml || "");
+
+    const rawImage = (trigger.getAttribute("data-image") || "").trim();
+    if (rawImage && image && media) {
+      image.src = rawImage;
+      image.alt = decodeEscapedHtml(trigger.dataset.title || "News image");
+      media.removeAttribute("hidden");
+      card?.classList.add("has-media");
+    } else if (image && media) {
+      image.removeAttribute("src");
+      image.alt = "";
+      media.setAttribute("hidden", "true");
+      card?.classList.remove("has-media");
+    }
 
     const rawLink = trigger.getAttribute('data-link');
 

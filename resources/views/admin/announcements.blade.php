@@ -247,7 +247,7 @@
                             </label>
 
                             <div class="news-image">
-                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
                             </div>
 
                             <div class="news-content">
@@ -275,6 +275,7 @@
                                             @json($news->category),
                                             @json($news->location),
                                             @json($news->link ?? ""),
+                                            @json($news->image_path ?? ""),
                                             @json(\App\Support\NewsImage::url($news->image_path) ?? ""),
                                             @json((bool) ($news->is_featured ?? false)),
                                             @json((bool) ($news->is_hidden_from_public ?? false))
@@ -288,7 +289,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -304,17 +305,22 @@
 
     <div id="readMoreModal" class="modal">
         <div class="modal-content read-more-modal-content">
-            <div class="modal-header">
-                <h2 class="modal-title" id="readMoreTitle">Read More</h2>
-                <button class="close-modal" type="button" onclick="closeReadMoreModal()">
-                    <i class="fas fa-times"></i>
-                </button>
+            <button class="close-modal read-more-close" type="button" onclick="closeReadMoreModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="read-more-media" id="readMoreMedia" hidden>
+                <img id="readMoreImage" src="" alt="" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;">
             </div>
-            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
-            <div id="readMoreLinkWrap" style="display:none; margin-top:18px;">
-                <a id="readMoreLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
-                    <i class="fas fa-external-link-alt"></i> Open Link
-                </a>
+            <div class="read-more-details">
+                <div class="modal-header">
+                    <h2 class="modal-title" id="readMoreTitle">Read More</h2>
+                </div>
+                <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+                <div id="readMoreLinkWrap" style="display:none; margin-top:18px;">
+                    <a id="readMoreLink" href="#" target="_blank" rel="noopener noreferrer" class="btn btn-primary">
+                        <i class="fas fa-external-link-alt"></i> Open Link
+                    </a>
+                </div>
             </div>
         </div>
     </div>
@@ -775,15 +781,31 @@
         return rawHtml;
     }
 
-    function openReadMoreModal(title, content, link = null) {
+    function openReadMoreModal(title, content, link = null, imageUrl = null) {
         const modal = document.getElementById('readMoreModal');
         const titleEl = document.getElementById('readMoreTitle');
         const contentEl = document.getElementById('readMoreContent');
         const linkWrap = document.getElementById('readMoreLinkWrap');
         const linkEl = document.getElementById('readMoreLink');
+        const media = document.getElementById('readMoreMedia');
+        const image = document.getElementById('readMoreImage');
 
         titleEl.textContent = title || 'Read More';
         contentEl.innerHTML = normalizeReadMoreHtml(content) || '<p>No content available.</p>';
+
+        const hasImage = String(imageUrl || '').trim() !== '';
+        modal.classList.toggle('read-more-with-image', hasImage);
+        if (media && image) {
+            if (hasImage) {
+                image.src = imageUrl;
+                image.alt = title || 'News image';
+                media.hidden = false;
+            } else {
+                image.removeAttribute('src');
+                image.alt = '';
+                media.hidden = true;
+            }
+        }
 
         if (link) {
             linkEl.href = link;
@@ -797,7 +819,15 @@
     }
 
     function closeReadMoreModal() {
-        document.getElementById('readMoreModal').classList.remove('active');
+        const modal = document.getElementById('readMoreModal');
+        const media = document.getElementById('readMoreMedia');
+        const image = document.getElementById('readMoreImage');
+        modal.classList.remove('active', 'read-more-with-image');
+        if (media) media.hidden = true;
+        if (image) {
+            image.removeAttribute('src');
+            image.alt = '';
+        }
     }
 
     function setSelectValue(select, value) {
@@ -830,7 +860,7 @@
         select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-        function editNews(id, title, content, category, location, link, imagePath, isFeatured = false, isHidden = false) {
+        function editNews(id, title, content, category, location, link, imagePath, imageUrl = '', isFeatured = false, isHidden = false) {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -872,8 +902,8 @@
 
         resetNewsImageUI('edit');
 
-        if (imagePath) {
-            showNewsImagePreview(imagePath, 'edit', true);
+        if (imageUrl || imagePath) {
+            showNewsImagePreview(imageUrl || imagePath, 'edit', true, imagePath);
         } else {
             setNewsImageButtonLabel('Add New Image');
         }
@@ -1395,6 +1425,8 @@
   e.preventDefault();
 
   const form = e.target;
+  const submitBtn = form.querySelector('button[type="submit"]');
+  const originalSubmitHtml = submitBtn?.innerHTML || '';
   syncRichTextEditors(form);
   normalizePlainTextInputs(form);
   const url = form.action;
@@ -1411,33 +1443,51 @@
 
   const fd = new FormData(form);
 
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'X-CSRF-TOKEN': token,
-      'X-Requested-With': 'XMLHttpRequest',
-      'Accept': 'application/json'
-    },
-    body: fd
-  });
-
-  const raw = await res.text();
-  let json = null;
-  try { json = JSON.parse(raw); } catch (_) {}
-
-  if (!res.ok || !json || !json.ok) {
-    showToast(validationMessageFromResponse(json, raw.slice(0, 200)), 'error');
-    return;
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
   }
 
-  if (json.no_changes) {
-    showToast(json.message || 'No changes detected.', 'info', 'No Changes');
-    return;
-  }
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': token,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json'
+      },
+      body: fd
+    });
 
-  closeNewsModal();
-  queueReloadToast(isEdit ? 'News updated successfully.' : 'News created successfully.', 'success', 'News');
-  window.location.reload();
+    const raw = await res.text();
+    let json = null;
+    try { json = JSON.parse(raw); } catch (_) {}
+
+    if (!res.ok || !json || !json.ok) {
+      showToast(validationMessageFromResponse(json, raw.slice(0, 200)), 'error');
+      return;
+    }
+
+    console.debug('[News] saved image URL:', json?.news?.image_url || null);
+
+    if (json.no_changes) {
+      showToast(json.message || 'No changes detected.', 'info', 'No Changes');
+      return;
+    }
+
+    if (json?.news?.image_url) {
+      showNewsImagePreview(json.news.image_url, isEdit ? 'edit' : 'new', true, json.news.image_path || '');
+    }
+
+    closeNewsModal();
+    queueReloadToast(json.message || (isEdit ? 'News updated successfully.' : 'News created successfully.'), 'success', 'News');
+    window.location.reload();
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = originalSubmitHtml;
+    }
+  }
 });
 
     function setNewsImageButtonLabel(text) {
@@ -1476,7 +1526,7 @@
         setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
     }
 
-    function showNewsImagePreview(src, mode = 'new', isExisting = false) {
+    function showNewsImagePreview(src, mode = 'new', isExisting = false, storedPath = '') {
         const previewImg = document.getElementById('imagePreview');
         const emptyState = document.getElementById('imageEmptyState');
         const removeBtn = document.getElementById('removeImageBtn');
@@ -1502,7 +1552,7 @@
         if (removeFlag) removeFlag.value = '0';
 
         if (existingImagePath) {
-            existingImagePath.value = isExisting && hasImage ? src : '';
+            existingImagePath.value = isExisting && hasImage ? (storedPath || src) : '';
         }
 
         setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
@@ -1511,6 +1561,7 @@
     function handleNewsImageSelection(file, mode = 'new') {
         if (!file || !file.type.startsWith('image/')) {
             resetNewsImageUI(mode);
+            showToast('Please choose a valid image file.', 'warning', 'Invalid Image');
             return;
         }
 
