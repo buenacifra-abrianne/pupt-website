@@ -65,6 +65,8 @@ Route::get('/academics/degree-programs',   [DegreeProgramsController::class, 'in
 Route::get('/academics/diploma-programs',  [DiplomaProgramsController::class, 'index'])->name('public.diploma-programs');
 Route::get('/academics/university-calendar', [UniversityCalendarController::class, 'index'])->name('public.university-calendar');
 Route::get('/students', [StudentsController::class, 'index'])->name('public.students');
+Route::get('/students/admissions', [StudentsController::class, 'admissions'])->name('public.students.admissions');
+Route::get('/students/downloadable-forms', [StudentsController::class, 'downloadableForms'])->name('public.students.downloadable-forms');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');

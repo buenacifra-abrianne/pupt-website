@@ -69,7 +69,7 @@ class CmsController extends Controller
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
-                'page', 'cards_header', 'cards', 'organizations',
+                'page', 'cards_header', 'cards', 'organizations', 'admissions_page', 'downloadable_forms_page',
                 'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
                 'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
                 'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
@@ -311,6 +311,34 @@ class CmsController extends Controller
             'students.organization_sections.*.items.*.link' => ['nullable', 'string', 'max:2048'],
             'students.organization_sections.*.items.*.image' => ['nullable', 'string', 'max:2048'],
             'students.organization_sections.*.items.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'students.pages' => ['nullable', 'array'],
+            'students.pages.*.hero' => ['nullable', 'array'],
+            'students.pages.*.hero.tag' => ['nullable', 'string', 'max:120'],
+            'students.pages.*.hero.title' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.hero.subtitle' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.hero.body' => ['nullable', 'string'],
+            'students.pages.*.hero.image' => ['nullable', 'string', 'max:2048'],
+            'students.pages.*.hero.image_file' => ['nullable', 'image', 'max:5120'],
+            'students.pages.*.instructions' => ['nullable', 'array'],
+            'students.pages.*.instructions.tag' => ['nullable', 'string', 'max:120'],
+            'students.pages.*.instructions.title' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.instructions.body' => ['nullable', 'string'],
+            'students.pages.*.links' => ['nullable', 'array'],
+            'students.pages.*.links.tag' => ['nullable', 'string', 'max:120'],
+            'students.pages.*.links.title' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.links.description' => ['nullable', 'string'],
+            'students.pages.*.links.items' => ['nullable', 'array'],
+            'students.pages.*.links.items.*.label' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.links.items.*.href' => ['nullable', 'string', 'max:2048'],
+            'students.pages.*.links.items.*.description' => ['nullable', 'string'],
+            'students.pages.*.qr_codes' => ['nullable', 'array'],
+            'students.pages.*.qr_codes.tag' => ['nullable', 'string', 'max:120'],
+            'students.pages.*.qr_codes.title' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.qr_codes.items' => ['nullable', 'array'],
+            'students.pages.*.qr_codes.items.*.label' => ['nullable', 'string', 'max:255'],
+            'students.pages.*.qr_codes.items.*.description' => ['nullable', 'string'],
+            'students.pages.*.qr_codes.items.*.image' => ['nullable', 'string', 'max:2048'],
+            'students.pages.*.qr_codes.items.*.image_file' => ['nullable', 'image', 'max:5120'],
             'events.page' => ['nullable', 'array'],
             'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'events.page.title' => ['nullable', 'string', 'max:255'],
@@ -650,12 +678,45 @@ class CmsController extends Controller
                 }
             }
 
+            foreach (['admissions', 'downloadable-forms'] as $pageKey) {
+                $pageSectionKey = str_replace('-', '_', $pageKey).'_page';
+
+                if (($sectionKey === '' || $sectionKey === $pageSectionKey) && $request->exists("students.pages.$pageKey.hero.image")) {
+                    $studentsInput['pages'][$pageKey]['hero']['image'] = (string) ($request->input("students.pages.$pageKey.hero.image") ?? '');
+                }
+
+                $pageHeroUpload = $request->file("students.pages.$pageKey.hero.image_file");
+                if (($sectionKey === '' || $sectionKey === $pageSectionKey) && $pageHeroUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($pageHeroUpload, 'students/'.$pageKey.'/hero');
+                    if ($storedPath !== false) {
+                        $studentsInput['pages'][$pageKey]['hero']['image'] = $storedPath;
+                    }
+                }
+
+                $qrUploads = $request->file("students.pages.$pageKey.qr_codes.items", []);
+                if (($sectionKey === '' || $sectionKey === $pageSectionKey) && is_array($qrUploads)) {
+                    foreach ($qrUploads as $index => $itemUpload) {
+                        $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'students/'.$pageKey.'/qr-codes');
+                        if ($storedPath !== false) {
+                            $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
             $content = StudentsCmsContent::encode(
                 $sectionKey === 'cards'
                     ? StudentsCmsContent::fromCardsInput($studentsInput, $baseStudentsEncoded)
                     : ($sectionKey === 'organizations'
                         ? StudentsCmsContent::fromOrganizationsInput($studentsInput['organization_sections'] ?? [], $baseStudentsEncoded)
-                        : StudentsCmsContent::fromInput($studentsInput, $baseStudentsEncoded))
+                        : (in_array($sectionKey, ['admissions_page', 'downloadable_forms_page'], true)
+                            ? StudentsCmsContent::fromPageInput(str_replace('_', '-', str_replace('_page', '', $sectionKey)), data_get($studentsInput, 'pages.'.str_replace('_', '-', str_replace('_page', '', $sectionKey)), []), $baseStudentsEncoded)
+                            : StudentsCmsContent::fromInput($studentsInput, $baseStudentsEncoded)))
             );
             $title = $baseTitle;
             $baseContent = $baseStudentsEncoded;
@@ -1177,6 +1238,8 @@ class CmsController extends Controller
             'page' => $content['page'] ?? [],
             'cards' => $content['cards'] ?? [],
             'organizations' => $content['organization_sections'] ?? [],
+            'admissions_page' => data_get($content, 'pages.admissions', []),
+            'downloadable_forms_page' => data_get($content, 'pages.downloadable-forms', []),
         ];
     }
 
@@ -1280,6 +1343,8 @@ class CmsController extends Controller
             'cards_header' => 'Cards Header',
             'cards' => 'Cards',
             'organizations' => 'Organizations',
+            'admissions_page' => 'Admissions Page',
+            'downloadable_forms_page' => 'Downloadable Forms Page',
             default => '',
         };
     }
@@ -1495,6 +1560,15 @@ class CmsController extends Controller
                         ];
                     })
                     ->all(),
+            ],
+            'admissions_page', 'downloadable_forms_page' => [
+                'pages' => [
+                    str_replace('_', '-', str_replace('_page', '', $sectionKey)) => data_get(
+                        $studentsInput,
+                        'pages.'.str_replace('_', '-', str_replace('_page', '', $sectionKey)),
+                        []
+                    ),
+                ],
             ],
             default => $studentsInput,
         };

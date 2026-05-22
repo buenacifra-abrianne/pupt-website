@@ -12,6 +12,30 @@ class StudentsController extends Controller
 {
     public function index(Request $request)
     {
+        return view('public.students', [
+            'studentsCms' => $this->loadStudentsCms(),
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
+    public function admissions(Request $request)
+    {
+        return view('public.student_admissions', [
+            'studentsCms' => $this->loadStudentsCms(),
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
+    public function downloadableForms(Request $request)
+    {
+        return view('public.student_downloadable_forms', [
+            'studentsCms' => $this->loadStudentsCms(),
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
+    private function loadStudentsCms(): array
+    {
         $studentsCms = StudentsCmsContent::defaults();
 
         if (Schema::hasTable('cms_contents')) {
@@ -24,9 +48,6 @@ class StudentsController extends Controller
             }
         }
 
-        return view('public.students', [
-            'studentsCms' => $studentsCms,
-            'cmsPreview' => $request->boolean('cms_preview'),
-        ]);
+        return $studentsCms;
     }
 }

@@ -16,6 +16,19 @@
         $cards = collect($studentsCms['cards'] ?? [])
             ->filter(fn ($card) => is_array($card))
             ->values();
+        $defaultCards = collect(\App\Support\StudentsCmsContent::defaults()['cards'] ?? [])
+            ->filter(fn ($card) => is_array($card))
+            ->values();
+        $requiredStudentCards = $defaultCards
+            ->filter(fn ($card) => in_array(strtolower(trim((string) ($card['title'] ?? ''))), ['admissions', 'downloadable forms'], true));
+        $existingCardTitles = $cards
+            ->map(fn ($card) => strtolower(trim((string) ($card['title'] ?? ''))))
+            ->all();
+        $cards = $cards
+            ->concat($requiredStudentCards
+                ->reject(fn ($card) => in_array(strtolower(trim((string) ($card['title'] ?? ''))), $existingCardTitles, true))
+                ->map(fn ($card) => array_merge($card, ['_required_card' => true])))
+            ->values();
         $organizationSections = collect($studentsCms['organization_sections'] ?? [])
             ->filter(fn ($section) => is_array($section))
             ->values();
@@ -109,6 +122,9 @@
                                 $cardTitle = trim((string) ($card['title'] ?? ''));
                                 $cardDescription = trim((string) ($card['description'] ?? ''));
                                 $cardImage = trim((string) ($card['image'] ?? 'assets/static_img/pupillar.jpeg'));
+                                $cardTitleKey = strtolower($cardTitle);
+                                $isExternalCardLink = preg_match('/^https?:\/\//i', $cardLink) === 1;
+                                $isRequiredDisplayCard = (bool) ($card['_required_card'] ?? false);
                             @endphp
 
                             @if($cmsPreview)
@@ -121,7 +137,7 @@
                             @else
                                 <a
                                     href="{{ $cardLink !== '' ? $cardLink : '#' }}"
-                                    @if($cardLink !== '' && $cardLink !== '#')
+                                    @if($isExternalCardLink)
                                         target="_blank" rel="noopener noreferrer"
                                     @endif
                                     class="students-card"
@@ -129,12 +145,25 @@
                             @endif
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        <button type="button" class="cms-preview-card-action" data-students-card-edit title="Edit card" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'student card' }}">
-                                            Edit
-                                        </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-students-card-delete title="Delete card" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'student card' }}">
-                                            Delete
-                                        </button>
+                                        @unless($isRequiredDisplayCard)
+                                            <button type="button" class="cms-preview-card-action" data-students-card-edit title="Edit card" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'student card' }}">
+                                                Edit
+                                            </button>
+                                        @endunless
+                                        @unless($isRequiredDisplayCard || in_array($cardTitleKey, ['admissions', 'downloadable forms'], true))
+                                            <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-students-card-delete title="Delete card" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'student card' }}">
+                                                Delete
+                                            </button>
+                                        @endunless
+                                        @if($cardTitleKey === 'admissions')
+                                            <button type="button" class="cms-preview-card-action" data-cms-edit-trigger="admissions_page" data-cms-section-label="Admissions Page" title="Edit admissions page" aria-label="Edit admissions page">
+                                                Page
+                                            </button>
+                                        @elseif($cardTitleKey === 'downloadable forms')
+                                            <button type="button" class="cms-preview-card-action" data-cms-edit-trigger="downloadable_forms_page" data-cms-section-label="Downloadable Forms Page" title="Edit downloadable forms page" aria-label="Edit downloadable forms page">
+                                                Page
+                                            </button>
+                                        @endif
                                     </div>
                                 @endif
 

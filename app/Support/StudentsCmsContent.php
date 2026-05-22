@@ -16,6 +16,12 @@ class StudentsCmsContent
         ],
         'cards' => [
             [
+                'title' => 'Admissions',
+                'description' => 'Find application instructions, QR code references, and links for PUP iApply.',
+                'link' => '/students/admissions',
+                'image' => 'assets/static_img/pupillar.jpeg',
+            ],
+            [
                 'title' => 'Student Handbook',
                 'description' => 'Guidelines, policies, and procedures that govern student life at PUP Taguig Campus.',
                 'link' => 'https://drive.google.com/file/d/0B1BuDAuN0r8SX1BWX2NSN3FURzg/view?resourcekey=0-oi8lUy9PCFysh0FDyL5ipw',
@@ -36,8 +42,73 @@ class StudentsCmsContent
             [
                 'title' => 'Downloadable Forms',
                 'description' => 'Access and download official forms needed for various student transactions and requests.',
-                'link' => '#',
+                'link' => '/students/downloadable-forms',
                 'image' => 'assets/static_img/pupillar.jpeg',
+            ],
+        ],
+        'pages' => [
+            'admissions' => [
+                'hero' => [
+                    'tag' => 'Admissions',
+                    'title' => 'Admissions',
+                    'subtitle' => 'Apply to PUP Taguig',
+                    'body' => 'Follow the admissions instructions, scan official QR code references, and open the application links prepared by the campus.',
+                    'image' => 'assets/static_img/about_header_image.png',
+                ],
+                'instructions' => [
+                    'tag' => 'How to Apply',
+                    'title' => 'Application Guide',
+                    'body' => '<p>Write the admissions process here. You can add reminders, step-by-step instructions, and requirements for applicants.</p>',
+                ],
+                'links' => [
+                    'tag' => 'Application Links',
+                    'title' => 'Open the official application portals',
+                    'description' => '',
+                    'items' => [
+                        [
+                            'label' => 'PUP iApply',
+                            'href' => 'https://iapply.pup.edu.ph/signin',
+                            'description' => 'Open the official PUP iApply portal.',
+                        ],
+                    ],
+                ],
+                'qr_codes' => [
+                    'tag' => 'QR Codes',
+                    'title' => 'Scan for quick access',
+                    'items' => [
+                        [
+                            'label' => 'Admissions QR Code',
+                            'description' => 'Upload a QR code image and update this caption.',
+                            'image' => '',
+                        ],
+                    ],
+                ],
+            ],
+            'downloadable-forms' => [
+                'hero' => [
+                    'tag' => 'Student Forms',
+                    'title' => 'Downloadable Forms',
+                    'subtitle' => 'Student Requests and Transactions',
+                    'body' => 'Find official links for student forms such as transferring, shifting, and other campus requests.',
+                    'image' => 'assets/static_img/about_header_image.png',
+                ],
+                'links' => [
+                    'tag' => 'Forms Directory',
+                    'title' => 'Available Forms',
+                    'description' => 'Add as many downloadable form links as students need.',
+                    'items' => [
+                        [
+                            'label' => 'Transferring Form',
+                            'href' => '#',
+                            'description' => 'Link to the official transferring form.',
+                        ],
+                        [
+                            'label' => 'Shifting Form',
+                            'href' => '#',
+                            'description' => 'Link to the official shifting form.',
+                        ],
+                    ],
+                ],
             ],
         ],
         'organization_sections' => [
@@ -173,6 +244,7 @@ class StudentsCmsContent
         return self::normalize([
             'page' => is_array($pageInput) ? $pageInput : ($base['page'] ?? self::defaults()['page']),
             'cards' => is_array($normalizedCardsInput) ? $normalizedCardsInput : [],
+            'pages' => $base['pages'] ?? self::defaults()['pages'],
             'organization_sections' => $base['organization_sections'] ?? self::defaults()['organization_sections'],
         ], $base);
     }
@@ -184,7 +256,22 @@ class StudentsCmsContent
         return self::normalize([
             'page' => $base['page'] ?? self::defaults()['page'],
             'cards' => $base['cards'] ?? self::defaults()['cards'],
+            'pages' => $base['pages'] ?? self::defaults()['pages'],
             'organization_sections' => is_array($sectionsInput) ? $sectionsInput : [],
+        ], $base);
+    }
+
+    public static function fromPageInput(string $pageKey, mixed $pageInput, ?string $fallbackStored = null): array
+    {
+        $base = self::fromStored($fallbackStored);
+
+        return self::normalize([
+            'page' => $base['page'] ?? self::defaults()['page'],
+            'cards' => $base['cards'] ?? self::defaults()['cards'],
+            'pages' => [
+                $pageKey => is_array($pageInput) ? $pageInput : [],
+            ],
+            'organization_sections' => $base['organization_sections'] ?? self::defaults()['organization_sections'],
         ], $base);
     }
 
@@ -213,6 +300,9 @@ class StudentsCmsContent
         $organizationSectionsSource = array_key_exists('organization_sections', $source)
             ? ($source['organization_sections'] ?? [])
             : ($base['organization_sections'] ?? $defaults['organization_sections']);
+        $pagesSource = array_key_exists('pages', $source)
+            ? ($source['pages'] ?? [])
+            : ($base['pages'] ?? $defaults['pages']);
 
         return [
             'page' => self::normalizePage(
@@ -224,6 +314,11 @@ class StudentsCmsContent
                 $cardsSource,
                 is_array($base['cards'] ?? null) ? $base['cards'] : $defaults['cards'],
                 $defaults['cards']
+            ),
+            'pages' => self::normalizePages(
+                $pagesSource,
+                is_array($base['pages'] ?? null) ? $base['pages'] : $defaults['pages'],
+                $defaults['pages']
             ),
             'organization_sections' => self::normalizeOrganizationSections(
                 $organizationSectionsSource,
@@ -289,7 +384,193 @@ class StudentsCmsContent
             }
         }
 
+        foreach ($cards as $index => $card) {
+            $title = strtolower(trim((string) ($card['title'] ?? '')));
+            $link = trim((string) ($card['link'] ?? ''));
+
+            if ($title === 'admissions' && ($link === '' || $link === '#')) {
+                $cards[$index]['link'] = '/students/admissions';
+            }
+
+            if ($title === 'downloadable forms' && ($link === '' || $link === '#')) {
+                $cards[$index]['link'] = '/students/downloadable-forms';
+            }
+        }
+
         return $cards;
+    }
+
+    private static function normalizePages(mixed $input, array $base, array $defaults): array
+    {
+        $source = is_array($input) ? $input : [];
+
+        return [
+            'admissions' => self::normalizeAdmissionsPage(
+                is_array($source['admissions'] ?? null) ? $source['admissions'] : [],
+                is_array($base['admissions'] ?? null) ? $base['admissions'] : $defaults['admissions'],
+                $defaults['admissions']
+            ),
+            'downloadable-forms' => self::normalizeDownloadableFormsPage(
+                is_array($source['downloadable-forms'] ?? null) ? $source['downloadable-forms'] : [],
+                is_array($base['downloadable-forms'] ?? null) ? $base['downloadable-forms'] : $defaults['downloadable-forms'],
+                $defaults['downloadable-forms']
+            ),
+        ];
+    }
+
+    private static function normalizeAdmissionsPage(array $source, array $base, array $defaults): array
+    {
+        return [
+            'hero' => self::normalizeHero($source['hero'] ?? [], $base['hero'] ?? [], $defaults['hero']),
+            'instructions' => [
+                'tag' => self::pickString(
+                    is_array($source['instructions'] ?? null) ? $source['instructions'] : [],
+                    is_array($base['instructions'] ?? null) ? $base['instructions'] : [],
+                    $defaults['instructions'],
+                    'tag',
+                    120
+                ),
+                'title' => self::pickString(
+                    is_array($source['instructions'] ?? null) ? $source['instructions'] : [],
+                    is_array($base['instructions'] ?? null) ? $base['instructions'] : [],
+                    $defaults['instructions'],
+                    'title'
+                ),
+                'body' => self::pickString(
+                    is_array($source['instructions'] ?? null) ? $source['instructions'] : [],
+                    is_array($base['instructions'] ?? null) ? $base['instructions'] : [],
+                    $defaults['instructions'],
+                    'body',
+                    20000
+                ),
+            ],
+            'links' => self::normalizeLinkSection($source['links'] ?? [], $base['links'] ?? [], $defaults['links']),
+            'qr_codes' => [
+                'tag' => self::pickString(
+                    is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
+                    is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : [],
+                    $defaults['qr_codes'],
+                    'tag',
+                    120
+                ),
+                'title' => self::pickString(
+                    is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
+                    is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : [],
+                    $defaults['qr_codes'],
+                    'title'
+                ),
+                'items' => self::normalizeQrItems(
+                    data_get($source, 'qr_codes.items', []),
+                    data_get($base, 'qr_codes.items', []),
+                    data_get($defaults, 'qr_codes.items', [])
+                ),
+            ],
+        ];
+    }
+
+    private static function normalizeDownloadableFormsPage(array $source, array $base, array $defaults): array
+    {
+        return [
+            'hero' => self::normalizeHero($source['hero'] ?? [], $base['hero'] ?? [], $defaults['hero']),
+            'links' => self::normalizeLinkSection($source['links'] ?? [], $base['links'] ?? [], $defaults['links']),
+        ];
+    }
+
+    private static function normalizeHero(mixed $source, mixed $base, array $defaults): array
+    {
+        $source = is_array($source) ? $source : [];
+        $base = is_array($base) ? $base : [];
+
+        return [
+            'tag' => self::pickString($source, $base, $defaults, 'tag', 120),
+            'title' => self::pickString($source, $base, $defaults, 'title'),
+            'subtitle' => self::pickString($source, $base, $defaults, 'subtitle'),
+            'body' => self::pickString($source, $base, $defaults, 'body', 5000),
+            'image' => self::pickOptionalString($source, $base, $defaults, 'image', 2048),
+        ];
+    }
+
+    private static function normalizeLinkSection(mixed $source, mixed $base, array $defaults): array
+    {
+        $source = is_array($source) ? $source : [];
+        $base = is_array($base) ? $base : [];
+
+        return [
+            'tag' => self::pickString($source, $base, $defaults, 'tag', 120),
+            'title' => self::pickString($source, $base, $defaults, 'title'),
+            'description' => self::pickString($source, $base, $defaults, 'description', 5000),
+            'items' => self::normalizeLinkItems($source['items'] ?? [], $base['items'] ?? [], $defaults['items'] ?? []),
+        ];
+    }
+
+    private static function normalizeLinkItems(mixed $input, mixed $base, mixed $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = is_array($base) ? array_values($base) : [];
+        $defaultItems = is_array($defaults) ? array_values($defaults) : [];
+        $items = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null) ? $defaultItems[$index] : ['label' => '', 'href' => '', 'description' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+            $normalized = [
+                'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
+                'href' => self::sanitizeString((string) ($item['href'] ?? ($baseItem['href'] ?? '')), 2048, ''),
+                'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
+            ];
+
+            if ($normalized['label'] === '' && $normalized['href'] === '' && $normalized['description'] === '') {
+                continue;
+            }
+
+            $items[] = $normalized;
+
+            if (count($items) >= 50) {
+                break;
+            }
+        }
+
+        return $items;
+    }
+
+    private static function normalizeQrItems(mixed $input, mixed $base, mixed $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = is_array($base) ? array_values($base) : [];
+        $defaultItems = is_array($defaults) ? array_values($defaults) : [];
+        $items = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null) ? $defaultItems[$index] : ['label' => '', 'description' => '', 'image' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+            $normalized = [
+                'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
+                'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
+                'image' => array_key_exists('image', $item)
+                    ? self::sanitizeOptionalString((string) $item['image'], 2048)
+                    : self::sanitizeOptionalString((string) ($baseItem['image'] ?? ''), 2048),
+            ];
+
+            if ($normalized['label'] === '' && $normalized['description'] === '' && $normalized['image'] === '') {
+                continue;
+            }
+
+            $items[] = $normalized;
+
+            if (count($items) >= 24) {
+                break;
+            }
+        }
+
+        return $items;
     }
 
     private static function normalizeOrganizationSections(mixed $input, array $base, array $defaults): array

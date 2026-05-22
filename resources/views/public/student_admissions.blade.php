@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admissions - Polytechnic University of the Philippines</title>
+    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/students.css') }}?v={{ filemtime(public_path('assets/css/students.css')) }}">
+    <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
+</head>
+<body>
+    @php
+        $cmsPreview = (bool) ($cmsPreview ?? false);
+        $studentsCms = \App\Support\StudentsCmsContent::fromInput($studentsCms ?? [], null);
+        $pageData = $studentsCms['pages']['admissions'] ?? [];
+    @endphp
+
+    @unless($cmsPreview)
+        <pup-header
+            data-home="{{ route('public.home') }}"
+            data-about="{{ route('public.about') }}"
+            data-academics="{{ route('public.academics') }}"
+            data-students="{{ route('public.students') }}"
+            data-news-events="{{ route('public.events') }}"
+            data-research="{{ route('public.research') }}"
+            data-assets="{{ asset('assets') }}"
+        ></pup-header>
+    @endunless
+
+    <main class="main-content students-review-page">
+        @include('partials.student_linked_page', [
+            'pageKey' => 'admissions',
+            'pageData' => $pageData,
+            'cmsPreview' => $cmsPreview,
+        ])
+    </main>
+
+    @unless($cmsPreview)
+        <pup-footer></pup-footer>
+        <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
+        <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
+    @endunless
+</body>
+</html>

@@ -3,6 +3,18 @@
     $studentsEditorData = \App\Support\StudentsCmsContent::fromInput($studentsEditorData ?? [], null);
     $pageEditor = $studentsEditorData['page'] ?? $studentsDefaults['page'];
     $cardsEditor = $studentsEditorData['cards'] ?? $studentsDefaults['cards'];
+    $requiredCardsEditor = collect($studentsDefaults['cards'] ?? [])
+        ->filter(fn ($card) => is_array($card) && in_array(strtolower(trim((string) ($card['title'] ?? ''))), ['admissions', 'downloadable forms'], true));
+    $existingCardsEditorTitles = collect($cardsEditor)
+        ->filter(fn ($card) => is_array($card))
+        ->map(fn ($card) => strtolower(trim((string) ($card['title'] ?? ''))))
+        ->all();
+    $cardsEditor = collect($cardsEditor)
+        ->filter(fn ($card) => is_array($card))
+        ->concat($requiredCardsEditor->reject(fn ($card) => in_array(strtolower(trim((string) ($card['title'] ?? ''))), $existingCardsEditorTitles, true)))
+        ->values()
+        ->all();
+    $pagesEditor = $studentsEditorData['pages'] ?? ($studentsDefaults['pages'] ?? []);
     $organizationSectionsEditor = $studentsEditorData['organization_sections'] ?? ($studentsDefaults['organization_sections'] ?? []);
     $formClass = $studentsEditorFormClass ?? 'cms-save-form';
     $submitRoute = $studentsEditorSubmitRoute;
@@ -186,6 +198,8 @@
                             @php
                                 $cardInputId = $idPrefix.'-students-card-image-'.$index;
                                 $cardPreview = \App\Support\StudentsCmsContent::resolveImagePath($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $cardTitleKey = strtolower(trim((string) ($card['title'] ?? '')));
+                                $isProtectedStudentCard = in_array($cardTitleKey, ['admissions', 'downloadable forms'], true);
                             @endphp
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
                                 <div class="students-cms-card-editor-head" data-students-card-editor-head>
@@ -193,9 +207,11 @@
                                         <h4>Service Card {{ $loop->iteration }}</h4>
                                         <span>{{ $card['title'] ?? '' }}</span>
                                     </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-remove-students-card>
-                                        Delete Service
-                                    </button>
+                                    @unless($isProtectedStudentCard)
+                                        <button type="button" class="btn students-cms-delete-card" data-remove-students-card>
+                                            Delete Service
+                                        </button>
+                                    @endunless
                                 </div>
 
                                 <input type="hidden" name="students[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-students-image-field>
@@ -347,6 +363,359 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
                             {{ $submitLabel('Cards') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            @php
+                $admissionsPage = is_array($pagesEditor['admissions'] ?? null) ? $pagesEditor['admissions'] : ($studentsDefaults['pages']['admissions'] ?? []);
+                $admissionsHero = is_array($admissionsPage['hero'] ?? null) ? $admissionsPage['hero'] : [];
+                $admissionsInstructions = is_array($admissionsPage['instructions'] ?? null) ? $admissionsPage['instructions'] : [];
+                $admissionsLinks = is_array($admissionsPage['links'] ?? null) ? $admissionsPage['links'] : [];
+                $admissionsQrCodes = is_array($admissionsPage['qr_codes'] ?? null) ? $admissionsPage['qr_codes'] : [];
+                $admissionsHeroInputId = $idPrefix.'-students-admissions-hero-image';
+                $admissionsHeroFieldId = $idPrefix.'-students-admissions-hero-image-field';
+                $admissionsHeroPreview = \App\Support\StudentsCmsContent::resolveImagePath($admissionsHero['image'] ?? null, 'assets/static_img/about_header_image.png');
+            @endphp
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_page" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_page">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <input type="hidden" id="{{ $admissionsHeroFieldId }}" name="students[pages][admissions][hero][image]" value="{{ $admissionsHero['image'] ?? '' }}">
+
+                    <div class="students-cms-section-divider">
+                        <span>1</span>
+                        <div>
+                            <h4>Hero Section</h4>
+                            <p>This is the top banner shown first on the admissions public page.</p>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Upload Hero Image</label>
+                        <div class="students-cms-image-dropzone-shell">
+                            <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $admissionsHeroInputId }}" role="button" tabindex="0" aria-label="Upload admissions hero image">
+                                <span class="students-cms-image-dropzone-preview-column">
+                                    <span class="students-cms-image-dropzone-media">
+                                        <img src="{{ $admissionsHeroPreview }}" alt="Admissions hero image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $admissionsHeroInputId }}" data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}">
+                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $admissionsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-label">Hero Image</span>
+                                </span>
+                                <span class="students-cms-image-dropzone-upload">
+                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="students-cms-image-dropzone-upload-copy">Use this image at the top of the admissions page.</span>
+                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $admissionsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                        <input id="{{ $admissionsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $admissionsHeroFieldId }}">
+                    </div>
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Hero Tag</label>
+                            <input type="text" name="students[pages][admissions][hero][tag]" maxlength="120" value="{{ $admissionsHero['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Title</label>
+                            <input type="text" name="students[pages][admissions][hero][title]" maxlength="255" value="{{ $admissionsHero['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hero Subtitle</label>
+                        <input type="text" name="students[pages][admissions][hero][subtitle]" maxlength="255" value="{{ $admissionsHero['subtitle'] ?? '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hero Body</label>
+                        <textarea name="students[pages][admissions][hero][body]" rows="3">{{ $admissionsHero['body'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="students-cms-section-divider">
+                        <span>2</span>
+                        <div>
+                            <h4>How to Apply</h4>
+                            <p>This text appears under the admissions intro before QR codes and links.</p>
+                        </div>
+                    </div>
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Instructions Tag</label>
+                            <input type="text" name="students[pages][admissions][instructions][tag]" maxlength="120" value="{{ $admissionsInstructions['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Instructions Title</label>
+                            <input type="text" name="students[pages][admissions][instructions][title]" maxlength="255" value="{{ $admissionsInstructions['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>How to Apply Text</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'students[pages][admissions][instructions][body]',
+                            'value' => $admissionsInstructions['body'] ?? '',
+                            'placeholder' => 'Write the admissions steps and requirements...',
+                            'characterLimit' => 10000,
+                            'counterMode' => 'limit',
+                        ])
+                    </div>
+
+                    <div class="students-cms-section-divider">
+                        <span>3</span>
+                        <div>
+                            <h4>QR Codes</h4>
+                            <p>These QR cards appear before the application links on the public admissions page.</p>
+                        </div>
+                    </div>
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>QR Section Tag</label>
+                            <input type="text" name="students[pages][admissions][qr_codes][tag]" maxlength="120" value="{{ $admissionsQrCodes['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>QR Section Title</label>
+                            <input type="text" name="students[pages][admissions][qr_codes][title]" maxlength="255" value="{{ $admissionsQrCodes['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="students-cms-repeatable" data-students-repeatable="admissions-qr">
+                        <div class="students-cms-repeatable-head">
+                            <h4>QR Codes</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-qr">Add QR Code</button>
+                        </div>
+                        <div data-students-repeatable-list="admissions-qr">
+                            @foreach(($admissionsQrCodes['items'] ?? []) as $index => $item)
+                                @php
+                                    $qrInputId = $idPrefix.'-students-admissions-qr-'.$index;
+                                    $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
+                                    $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                @endphp
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
+                                    <div class="form-group">
+                                        <label>Upload QR Code Image</label>
+                                        <div class="students-cms-image-dropzone-shell">
+                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
+                                                <span class="students-cms-image-dropzone-preview-column">
+                                                    <span class="students-cms-image-dropzone-media">
+                                                        <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-label">QR Code</span>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload">
+                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                    <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for applicants.</span>
+                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}">
+                                    </div>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Label</label>
+                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" value="{{ $item['description'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="students-cms-section-divider">
+                        <span>4</span>
+                        <div>
+                            <h4>Application Links</h4>
+                            <p>These links appear last on the public admissions page.</p>
+                        </div>
+                    </div>
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Links Tag</label>
+                            <input type="text" name="students[pages][admissions][links][tag]" maxlength="120" value="{{ $admissionsLinks['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Links Title</label>
+                            <input type="text" name="students[pages][admissions][links][title]" maxlength="255" value="{{ $admissionsLinks['title'] ?? '' }}">
+                        </div>
+                    </div>
+                    <input type="hidden" name="students[pages][admissions][links][description]" value="{{ $admissionsLinks['description'] ?? '' }}">
+
+                    <div class="students-cms-repeatable" data-students-repeatable="admissions-links">
+                        <div class="students-cms-repeatable-head">
+                            <h4>Editable Links</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-links">Add Link</button>
+                        </div>
+                        <div data-students-repeatable-list="admissions-links">
+                            @foreach(($admissionsLinks['items'] ?? []) as $index => $item)
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Label</label>
+                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>URL</label>
+                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2">{{ $item['description'] ?? '' }}</textarea>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Admissions Page') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            @php
+                $formsPage = is_array($pagesEditor['downloadable-forms'] ?? null) ? $pagesEditor['downloadable-forms'] : ($studentsDefaults['pages']['downloadable-forms'] ?? []);
+                $formsHero = is_array($formsPage['hero'] ?? null) ? $formsPage['hero'] : [];
+                $formsLinks = is_array($formsPage['links'] ?? null) ? $formsPage['links'] : [];
+                $formsHeroInputId = $idPrefix.'-students-forms-hero-image';
+                $formsHeroFieldId = $idPrefix.'-students-forms-hero-image-field';
+                $formsHeroPreview = \App\Support\StudentsCmsContent::resolveImagePath($formsHero['image'] ?? null, 'assets/static_img/about_header_image.png');
+            @endphp
+            <section class="students-cms-editor-panel" data-students-editor-panel="downloadable_forms_page" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="downloadable_forms_page">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <input type="hidden" id="{{ $formsHeroFieldId }}" name="students[pages][downloadable-forms][hero][image]" value="{{ $formsHero['image'] ?? '' }}">
+
+                    <div class="form-group">
+                        <label>Upload Hero Image</label>
+                        <div class="students-cms-image-dropzone-shell">
+                            <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $formsHeroInputId }}" role="button" tabindex="0" aria-label="Upload downloadable forms hero image">
+                                <span class="students-cms-image-dropzone-preview-column">
+                                    <span class="students-cms-image-dropzone-media">
+                                        <img src="{{ $formsHeroPreview }}" alt="Downloadable forms hero image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $formsHeroInputId }}" data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}">
+                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $formsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-label">Hero Image</span>
+                                </span>
+                                <span class="students-cms-image-dropzone-upload">
+                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="students-cms-image-dropzone-upload-copy">Use this image at the top of the downloadable forms page.</span>
+                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $formsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                        <input id="{{ $formsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][downloadable-forms][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $formsHeroFieldId }}">
+                    </div>
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Hero Tag</label>
+                            <input type="text" name="students[pages][downloadable-forms][hero][tag]" maxlength="120" value="{{ $formsHero['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Title</label>
+                            <input type="text" name="students[pages][downloadable-forms][hero][title]" maxlength="255" value="{{ $formsHero['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hero Subtitle</label>
+                        <input type="text" name="students[pages][downloadable-forms][hero][subtitle]" maxlength="255" value="{{ $formsHero['subtitle'] ?? '' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hero Body</label>
+                        <textarea name="students[pages][downloadable-forms][hero][body]" rows="3">{{ $formsHero['body'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Links Tag</label>
+                            <input type="text" name="students[pages][downloadable-forms][links][tag]" maxlength="120" value="{{ $formsLinks['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Links Title</label>
+                            <input type="text" name="students[pages][downloadable-forms][links][title]" maxlength="255" value="{{ $formsLinks['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Links Description</label>
+                        <textarea name="students[pages][downloadable-forms][links][description]" rows="2">{{ $formsLinks['description'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="students-cms-repeatable" data-students-repeatable="forms-links">
+                        <div class="students-cms-repeatable-head">
+                            <h4>Downloadable Form Links</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="forms-links">Add Form Link</button>
+                        </div>
+                        <div data-students-repeatable-list="forms-links">
+                            @foreach(($formsLinks['items'] ?? []) as $index => $item)
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Form Name</label>
+                                            <input type="text" name="students[pages][downloadable-forms][links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>URL</label>
+                                            <input type="text" name="students[pages][downloadable-forms][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <textarea name="students[pages][downloadable-forms][links][items][{{ $index }}][description]" rows="2">{{ $item['description'] ?? '' }}</textarea>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Downloadable Forms Page') }}
                         </button>
                     </div>
                 </form>
@@ -655,6 +1024,82 @@
     .students-cms-card-editor-head span {
         color: #8a7a73;
         font-size: 0.8rem;
+    }
+
+    .students-cms-section-divider {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin: 24px 0 16px;
+        padding: 14px 16px;
+        border-top: 1px solid rgba(127, 17, 19, 0.14);
+        border-bottom: 1px solid rgba(127, 17, 19, 0.08);
+        background: linear-gradient(90deg, rgba(127, 17, 19, 0.07), rgba(255, 250, 246, 0.78));
+        border-radius: 16px;
+    }
+
+    .students-cms-section-divider:first-of-type {
+        margin-top: 0;
+    }
+
+    .students-cms-section-divider span {
+        flex: 0 0 auto;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        background: #7f1113;
+        color: #fffaf4;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.78rem;
+        font-weight: 800;
+    }
+
+    .students-cms-section-divider h4 {
+        margin: 0;
+        color: #5c0000;
+        font-size: 0.98rem;
+    }
+
+    .students-cms-section-divider p {
+        margin: 4px 0 0;
+        color: #7b6b63;
+        font-size: 0.84rem;
+        line-height: 1.5;
+    }
+
+    .students-cms-repeatable {
+        display: grid;
+        gap: 14px;
+        margin: 18px 0;
+    }
+
+    .students-cms-repeatable-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .students-cms-repeatable-head h4 {
+        margin: 0;
+        color: #5c0000;
+        font-size: 1rem;
+    }
+
+    .students-cms-repeatable [data-students-repeatable-list] {
+        display: grid;
+        gap: 14px;
+    }
+
+    .students-cms-repeatable-item {
+        display: grid;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid rgba(127, 17, 19, 0.08);
+        border-radius: 16px;
+        background: rgba(255, 255, 255, 0.74);
     }
 
     .students-cms-delete-card {
@@ -1051,7 +1496,11 @@
                     ? 'Manage the public cards shown in the student contents strip.'
                     : (sectionKey === 'cards_header'
                         ? 'Update the heading, title, and supporting copy above the student cards.'
-                        : 'Update the student page hero and introduction content.');
+                        : (sectionKey === 'admissions_page'
+                            ? 'Update admissions instructions, QR codes, and application links.'
+                            : (sectionKey === 'downloadable_forms_page'
+                                ? 'Update the downloadable forms page and manage form links.'
+                                : 'Update the student page hero and introduction content.')));
             }
 
             modal.hidden = false;
@@ -1303,6 +1752,17 @@
                     const card = deleteCardTrigger.closest('[data-students-card-index]');
                     const cardIndex = card?.getAttribute('data-students-card-index') ?? null;
                     void confirmDeleteCard(cardIndex);
+                    return;
+                }
+
+                const linkedPageTrigger = event.target.closest('[data-cms-edit-trigger="admissions_page"], [data-cms-edit-trigger="downloadable_forms_page"]');
+                if (linkedPageTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openEditor(
+                        linkedPageTrigger.getAttribute('data-cms-edit-trigger') || '',
+                        linkedPageTrigger.getAttribute('data-cms-section-label') || 'Edit student page'
+                    );
                     return;
                 }
 
@@ -1808,6 +2268,103 @@
             focusCardEditor(index);
         };
 
+        const nextRepeatableIndex = (list) => {
+            const indexes = Array.from(list?.querySelectorAll('[name]') ?? [])
+                .map((field) => {
+                    const match = String(field.name || '').match(/\[items\]\[(\d+)\]/);
+                    return match ? Number(match[1]) : -1;
+                })
+                .filter((value) => Number.isFinite(value) && value >= 0);
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        };
+
+        const repeatableTemplates = {
+            'admissions-links': (index) => `
+                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Label</label>
+                            <input type="text" name="students[pages][admissions][links][items][${index}][label]" maxlength="255" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="text" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2"></textarea>
+                    </div>
+                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
+                </div>
+            `,
+            'forms-links': (index) => `
+                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Form Name</label>
+                            <input type="text" name="students[pages][downloadable-forms][links][items][${index}][label]" maxlength="255" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <input type="text" name="students[pages][downloadable-forms][links][items][${index}][href]" maxlength="2048" value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea name="students[pages][downloadable-forms][links][items][${index}][description]" rows="2"></textarea>
+                    </div>
+                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
+                </div>
+            `,
+            'admissions-qr': (index) => {
+                const inputId = `{{ $idPrefix }}-students-admissions-qr-${index}`;
+                const fieldId = `{{ $idPrefix }}-students-admissions-qr-field-${index}`;
+
+                return `
+                    <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                        <input type="hidden" id="${fieldId}" name="students[pages][admissions][qr_codes][items][${index}][image]" value="" data-students-image-field>
+                        <div class="form-group">
+                            <label>Upload QR Code Image</label>
+                            <div class="students-cms-image-dropzone-shell">
+                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${inputId}" role="button" tabindex="0" aria-label="Upload QR code image">
+                                    <span class="students-cms-image-dropzone-preview-column">
+                                        <span class="students-cms-image-dropzone-media">
+                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-label">QR Code</span>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-upload">
+                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for applicants.</span>
+                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${inputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}">
+                        </div>
+                        <div class="students-cms-form-grid">
+                            <div class="form-group">
+                                <label>Label</label>
+                                <input type="text" name="students[pages][admissions][qr_codes][items][${index}][label]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" name="students[pages][admissions][qr_codes][items][${index}][description]" value="">
+                            </div>
+                        </div>
+                        <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
+                    </div>
+                `;
+            },
+        };
+
         modal.addEventListener('click', (event) => {
             const addTrigger = event.target.closest('[data-add-students-card]');
             if (addTrigger) {
@@ -1826,6 +2383,31 @@
 
                 const cardIndex = editor.getAttribute('data-students-card-index');
                 void confirmDeleteCard(cardIndex === null ? null : Number(cardIndex));
+            }
+
+            const addRepeatableTrigger = event.target.closest('[data-students-add-repeatable]');
+            if (addRepeatableTrigger) {
+                event.preventDefault();
+                const key = addRepeatableTrigger.getAttribute('data-students-add-repeatable') || '';
+                const list = modal.querySelector(`[data-students-repeatable-list="${key}"]`);
+                const template = repeatableTemplates[key];
+
+                if (!list || typeof template !== 'function') {
+                    return;
+                }
+
+                const index = nextRepeatableIndex(list);
+                list.insertAdjacentHTML('beforeend', template(index));
+                initStudentsImageDropzones(list);
+                const latest = list.lastElementChild;
+                latest?.querySelector('input:not([type="hidden"]), textarea')?.focus();
+                return;
+            }
+
+            const removeRepeatableTrigger = event.target.closest('[data-students-remove-repeatable]');
+            if (removeRepeatableTrigger) {
+                event.preventDefault();
+                removeRepeatableTrigger.closest('[data-students-repeatable-item]')?.remove();
             }
         });
 
