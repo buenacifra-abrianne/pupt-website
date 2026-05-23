@@ -849,6 +849,19 @@
                                     <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
                                 </div>
                                 <div class="officials-grid">
+                                @if($cmsPreview)
+                                    <button
+                                        type="button"
+                                        class="official-card official-card--add reveal"
+                                        data-about-official-card-add
+                                        aria-label="Add campus official"
+                                    >
+                                        <span class="official-card-add-inner">
+                                            <span class="official-card-add-plus" aria-hidden="true">+</span>
+                                            <span class="official-card-add-label">Add Card</span>
+                                        </span>
+                                    </button>
+                                @endif
                                 @foreach($selectedSection['official_groups'] ?? [] as $officialGroup)
                                     @php
                                         $officialImage = trim((string) ($officialGroup['image'] ?? ''));
@@ -866,7 +879,10 @@
                                             data-about-section-card-route="campus-officials"
                                         @endif>
                                         @if($cmsPreview)
-                                            <div class="cms-preview-card-actions"><button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button></div>
+                                            <div class="cms-preview-card-actions" aria-label="Campus official actions">
+                                                <button type="button" class="cms-preview-card-action" data-about-section-card-edit>Edit</button>
+                                                <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-section-card-delete>Delete</button>
+                                            </div>
                                         @endif
                                         <div class="official-card-inner">
                                             <div class="official-face official-face--front">
@@ -923,7 +939,7 @@
                                 <script>
                                 (function () {
                                     function initOfficialCards() {
-                                        document.querySelectorAll('.official-card').forEach(function (card) {
+                                        document.querySelectorAll('.official-card:not(.official-card--add)').forEach(function (card) {
                                             if (card.dataset.flipBound === '1') return;
                                             card.dataset.flipBound = '1';
                                             const cardInner = card.querySelector('.official-card-inner');
@@ -1634,6 +1650,65 @@
                     0 0 0 5px rgba(242, 201, 76, 0.2);
             }
 
+            .official-card--add {
+                display: block;
+                min-height: 100%;
+                padding: 0;
+                border: 0;
+                cursor: pointer;
+                background: transparent;
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .official-card--add:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+
+            .official-card--add .official-card-add-inner {
+                display: flex;
+                min-height: 360px;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                gap: 14px;
+                text-align: center;
+                padding: 36px 24px;
+                width: 100%;
+                border-radius: 26px;
+                border: 2px dashed rgba(127, 17, 19, 0.2);
+                background: linear-gradient(160deg, rgba(255,255,255,.96) 0%, rgba(250,243,236,.9) 100%);
+                color: #7f1113;
+                box-shadow: none;
+                transition: none;
+            }
+
+            .official-card--add:hover .official-card-add-inner,
+            .official-card--add:focus-visible .official-card-add-inner {
+                border-color: rgba(127, 17, 19, 0.2);
+                box-shadow: none;
+            }
+
+            .official-card-add-plus {
+                font-size: clamp(3rem, 6vw, 4.5rem);
+                line-height: 1;
+                font-weight: 500;
+            }
+
+            .official-card-add-label {
+                margin: 0;
+                font-family: "Poppins", sans-serif;
+                font-size: 1rem;
+                font-weight: 700;
+                letter-spacing: .04em;
+            }
+
+            .official-card--add:focus-visible {
+                outline: 3px solid rgba(242,201,76,.95);
+                outline-offset: 3px;
+            }
+
             .history-story > .cms-preview-chip {
                 display: none !important;
             }
@@ -1844,7 +1919,7 @@
                     }
 
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-strategic-goal-card], [data-about-strategic-goal-edit], [data-about-plan-priority-card], [data-about-plan-priority-edit], [data-about-plan-priority-delete], [data-about-plan-priority-add]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-section-card-delete], [data-about-strategic-goal-card], [data-about-strategic-goal-edit], [data-about-plan-priority-card], [data-about-plan-priority-edit], [data-about-plan-priority-delete], [data-about-plan-priority-add], [data-about-official-card-add]')) {
                             return;
                         }
 
@@ -1950,6 +2025,27 @@
                         }
                     }
 
+                    const sectionCardDeleteTrigger = event.target.closest('[data-about-section-card-delete]');
+                    if (sectionCardDeleteTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        const card = sectionCardDeleteTrigger.closest('[data-about-section-card]');
+                        const route = card?.getAttribute('data-about-section-card-route') || '';
+                        const section = card?.getAttribute('data-about-section-card-section') || '';
+                        const index = card?.getAttribute('data-about-section-card-index') || '';
+                        const label = card?.getAttribute('data-about-section-card-label') || 'Campus official';
+
+                        if (section === 'campus-officials') {
+                            window.parent?.postMessage({
+                                type: 'cms-about-official-card-delete',
+                                index: index,
+                                label: label,
+                                route: route || 'campus-officials',
+                            }, '*');
+                            return;
+                        }
+                    }
+
                     const sectionCard = event.target.closest('[data-about-section-card]');
                     if (sectionCard) {
                         const section = sectionCard.getAttribute('data-about-section-card-section') || '';
@@ -1964,6 +2060,18 @@
                             }, '*');
                             return;
                         }
+                    }
+
+                    const addOfficialCardTrigger = event.target.closest('[data-about-official-card-add]');
+                    if (addOfficialCardTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-official-card-add',
+                            route: 'campus-officials',
+                            label: 'Add campus official',
+                        }, '*');
+                        return;
                     }
 
                     const addPlanPriorityTrigger = event.target.closest('[data-about-plan-priority-add]');
