@@ -323,6 +323,9 @@ class PUPFooter extends HTMLElement {
     const year = new Date().getFullYear();
     const assets = this.dataset.assets || "/assets";
     const logoUrl = `${assets}/static_img/logo.png`;
+    const republicSealUrl = `${assets}/static_img/govph-seal-mono-footer.png`;
+    const dpoDpsSealUrl = `${assets}/static_img/DPO_DPS_seal.png`;
+    const npcCorSealDriveUrl = "https://drive.google.com/file/d/1Ef-hJnBux5Bn9Z3L4xUNeOETT-11f_7l/view?usp=drive_link";
 
     this.innerHTML = `
 <style>
@@ -540,6 +543,93 @@ class PUPFooter extends HTMLElement {
     background: rgba(20, 4, 6, 0.18);
   }
 
+  .footer-govph-band {
+    margin-top: 16px;
+    padding: 24px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.16);
+    background: linear-gradient(180deg, rgba(35, 6, 8, 0.58) 0%, rgba(20, 4, 6, 0.36) 100%);
+    border-radius: 20px;
+  }
+
+  .footer-govph-grid {
+    display: grid;
+    grid-template-columns: 1.15fr 0.8fr 1fr 1fr;
+    gap: 18px;
+    align-items: start;
+  }
+
+  .footer-govph-block {
+    min-width: 0;
+  }
+
+  .footer-govph-brand {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: 12px;
+    align-items: center;
+  }
+
+  .footer-govph-brand img {
+    width: 160px;
+    height: 160px;
+    object-fit: contain;
+    filter:
+      drop-shadow(0 0 10px rgba(255, 230, 170, 0.26))
+      drop-shadow(0 8px 14px rgba(10, 2, 2, 0.28));
+  }
+
+  .footer-govph-title {
+    margin: 0 0 10px;
+    color: #fff6ea;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .footer-govph-copy {
+    margin: 0;
+    color: rgba(255, 238, 221, 0.9);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  .footer-govph-seal-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .footer-govph-seal-link img {
+    width: 132px;
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+    filter:
+      drop-shadow(0 0 10px rgba(255, 230, 170, 0.26))
+      drop-shadow(0 10px 16px rgba(10, 2, 2, 0.32));
+  }
+
+  .footer-govph-list {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: grid;
+    gap: 7px;
+  }
+
+  .footer-govph-list a {
+    color: rgba(255, 244, 233, 0.94);
+    font-size: 13px;
+    line-height: 1.5;
+    transition: color 0.18s ease, transform 0.18s ease;
+  }
+
+  .footer-govph-list a:hover {
+    color: #f6d16a;
+    transform: translateX(2px);
+  }
+
   .footer-legal .footer-copy {
     font-weight: 600;
     color: #ffffff;
@@ -678,6 +768,46 @@ class PUPFooter extends HTMLElement {
       line-height: 1.25;
     }
 
+    .footer-govph-band {
+      margin-top: 12px;
+      padding: 14px 10px;
+      border-radius: 14px;
+    }
+
+    .footer-govph-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    .footer-govph-brand {
+      grid-template-columns: 112px minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .footer-govph-brand img {
+      width: 112px;
+      height: 112px;
+    }
+
+    .footer-govph-title {
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .footer-govph-copy,
+    .footer-govph-list a {
+      font-size: 11px;
+      line-height: 1.4;
+    }
+
+    .footer-govph-seal-link {
+      justify-content: flex-start;
+    }
+
+    .footer-govph-seal-link img {
+      width: 96px;
+    }
+
     .footer-legal .footer-copy,
     .footer-legal .footer-legal-links {
       width: 100%;
@@ -736,7 +866,11 @@ class PUPFooter extends HTMLElement {
           </a>
           <a class="footer-service-link" href="/students/downloadable-forms">
             <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
-            <span>Downloadables</span>
+            <span>Downloadables for Students</span>
+          </a>
+          <a class="footer-service-link" href="/students/downloadable-forms-university-personnel">
+            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
+            <span>Downloadables for University Personnel</span>
           </a>
         </div>
       </div>
@@ -781,6 +915,47 @@ class PUPFooter extends HTMLElement {
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.4 8.3v13H2.2v-13h4.2ZM4.3 2A2.4 2.4 0 1 1 4.2 6.8 2.4 2.4 0 0 1 4.3 2Zm17.5 11.2v8H17.6v-7.4c0-1.9-.7-3.2-2.4-3.2-1.3 0-2 .9-2.4 1.7-.1.3-.2.8-.2 1.3v7.6H8.4s.1-12.3 0-13h4.2v1.8c.6-.9 1.7-2.2 4.1-2.2 3 0 5.1 2 5.1 6.2Z"/></svg>
           </a>
         </div>
+      </div>
+    </div>
+    <div class="footer-govph-band" aria-label="Government footer links and references">
+      <div class="footer-govph-grid">
+        <section class="footer-govph-block">
+          <div class="footer-govph-brand">
+            <img src="${republicSealUrl}" alt="Republic of the Philippines">
+            <div>
+              <h3 class="footer-govph-title">Republic of the Philippines</h3>
+              <p class="footer-govph-copy">All content is in the public domain unless otherwise stated.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="footer-govph-block">
+          <a class="footer-govph-seal-link" href="${npcCorSealDriveUrl}" target="_blank" rel="noopener noreferrer" aria-label="NPC COR Seal">
+            <img src="${dpoDpsSealUrl}" alt="NPC COR Seal">
+          </a>
+        </section>
+
+        <section class="footer-govph-block">
+          <h3 class="footer-govph-title">About GOVPH</h3>
+          <p class="footer-govph-copy">Learn more about the Philippine government, its structure, how government works and the people behind it.</p>
+          <ul class="footer-govph-list">
+            <li><a href="http://www.gov.ph/" target="_blank" rel="noopener noreferrer">Official Gazette</a></li>
+            <li><a href="http://data.gov.ph/" target="_blank" rel="noopener noreferrer">Open Data Portal</a></li>
+          </ul>
+        </section>
+
+        <section class="footer-govph-block">
+          <h3 class="footer-govph-title">Government Links</h3>
+          <ul class="footer-govph-list">
+            <li><a href="http://president.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the President</a></li>
+            <li><a href="http://ovp.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the Vice President</a></li>
+            <li><a href="http://www.senate.gov.ph/" target="_blank" rel="noopener noreferrer">Senate of the Philippines</a></li>
+            <li><a href="http://www.congress.gov.ph/" target="_blank" rel="noopener noreferrer">House of Representatives</a></li>
+            <li><a href="http://sc.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Supreme Court</a></li>
+            <li><a href="http://ca.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Court of Appeals</a></li>
+            <li><a href="http://sb.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Sandiganbayan</a></li>
+          </ul>
+        </section>
       </div>
     </div>
   </div>

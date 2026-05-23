@@ -545,135 +545,255 @@
                                             $symbolPoints = $selectedSection['symbol_points'] ?? [];
                                         @endphp
 
-                                        <section class="ls-symbols-shell">
-                                            <div class="ls-symbols-hero reveal">
-                                                <div class="ls-symbols-hero-copy">
-                                                    <p class="section-tag">Campus Identity</p>
-                                                    <h2 class="ls-symbols-title">{{ $selectedSection['label'] ?? 'Logo and Symbols' }}</h2>
-                                                    <p class="ls-symbols-summary">
-                                                        {{ $selectedSection['summary'] ?? 'Learn the meaning behind the seal, colors, and symbolic elements of the University.' }}
-                                                    </p>
-                                                    <p class="ls-symbols-lead">
-                                                        {{ $selectedSection['lead'] ?? 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.' }}
-                                                    </p>
+                                        @php
+                                            $pupHighlights = array_values(array_filter(array_map(static function ($mark) {
+                                                return trim((string) ($mark['title'] ?? ''));
+                                            }, $logoMarks)));
+                                            if (empty($pupHighlights)) {
+                                                $pupHighlights = [
+                                                    'Five-pointed star',
+                                                    'Five concentric circles',
+                                                    'Two laurel arcs',
+                                                ];
+                                            }
 
-                                                    <div class="ls-symbols-pills" aria-label="Key logo elements">
-                                                        <span class="ls-symbols-pill">Five-pointed star</span>
-                                                        <span class="ls-symbols-pill">Five concentric circles</span>
-                                                        <span class="ls-symbols-pill">Laurel arcs</span>
-                                                        <span class="ls-symbols-pill">Maroon, gold, and white</span>
-                                                    </div>
-                                                </div>
+                                            $sealCards = [
+                                                [
+                                                    'id' => 'pup',
+                                                    'label' => 'PUP Taguig Seal',
+                                                    'tag' => 'University Seal',
+                                                    'image' => asset('assets/static_img/logo.png'),
+                                                    'description' => $selectedSection['lead'] ?? 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.',
+                                                    'highlights' => $pupHighlights,
+                                                    'details' => array_values(array_filter(array_map(static function ($mark) {
+                                                        $title = trim((string) ($mark['title'] ?? ''));
+                                                        $body = trim((string) ($mark['body'] ?? ''));
+                                                        if ($title === '' && $body === '') {
+                                                            return null;
+                                                        }
+                                                        return [
+                                                            'title' => $title,
+                                                            'body' => $body,
+                                                        ];
+                                                    }, $logoMarks))),
+                                                    'notes' => array_values(array_filter(array_map(static function ($point) {
+                                                        return trim((string) $point);
+                                                    }, $symbolPoints))),
+                                                ],
+                                                [
+                                                    'id' => 'dpo',
+                                                    'label' => 'DPO / DPS',
+                                                    'tag' => 'Compliance Seal',
+                                                    'image' => asset('assets/static_img/DPO_DPS_seal.png'),
+                                                    'description' => 'Recognizes compliance with privacy and data protection standards, reflecting the campus commitment to responsible data governance.',
+                                                    'highlights' => [
+                                                        'Data privacy and protection recognition',
+                                                        'Reinforces compliance-oriented operations',
+                                                        'Promotes trust in handling personal information',
+                                                    ],
+                                                ],
+                                                [
+                                                    'id' => 'foi',
+                                                    'label' => 'Freedom of Information',
+                                                    'tag' => 'Governance Seal',
+                                                    'image' => asset('assets/static_img/freedom_of_information.png'),
+                                                    'description' => 'Represents the institution commitment to transparency by supporting public access to government-held information.',
+                                                    'highlights' => [
+                                                        'Supports open access to public information',
+                                                        'Strengthens transparency initiatives',
+                                                        'Encourages accountable public service',
+                                                    ],
+                                                ],
+                                                [
+                                                    'id' => 'wuri',
+                                                    'label' => 'WURI',
+                                                    'tag' => 'Recognition Seal',
+                                                    'image' => asset('assets/static_img/WURI.png'),
+                                                    'description' => 'Highlights recognition in innovation-focused university rankings and affirms the campus pursuit of impactful, future-ready education.',
+                                                    'highlights' => [
+                                                        'Innovation-centered recognition',
+                                                        'Affirms global relevance and impact',
+                                                        'Supports a forward-looking academic direction',
+                                                    ],
+                                                ],
+                                                [
+                                                    'id' => 'transparency',
+                                                    'label' => 'Transparency Seal',
+                                                    'tag' => 'Good Governance',
+                                                    'image' => asset('assets/static_img/transparency_seal.png'),
+                                                    'description' => 'Reflects commitment to open governance, accountability, and clear public reporting of institutional processes.',
+                                                    'highlights' => [
+                                                        'Promotes accountable governance',
+                                                        'Improves public trust and credibility',
+                                                        'Supports clear and open communication',
+                                                    ],
+                                                ],
+                                                [
+                                                    'id' => 'bagong-pilipinas',
+                                                    'label' => 'Bagong Pilipinas',
+                                                    'tag' => 'National Campaign',
+                                                    'image' => asset('assets/static_img/bagong_pilipinas_logo.png'),
+                                                    'description' => 'Represents alignment with national transformation and shared aspirations for a progressive and inclusive Philippines.',
+                                                    'highlights' => [
+                                                        'Supports national transformation goals',
+                                                        'Encourages unity and shared progress',
+                                                        'Links campus values with national direction',
+                                                    ],
+                                                ],
+                                            ];
+                                        @endphp
 
-                                                <div class="ls-symbols-visual" aria-label="PUP Official Seal">
-                                                    <div class="ls-symbols-orbit ls-symbols-orbit--one" aria-hidden="true"></div>
-                                                    <div class="ls-symbols-orbit ls-symbols-orbit--two" aria-hidden="true"></div>
-                                                    <div class="ls-symbols-seal-frame">
-                                                        <img
-                                                            src="{{ asset('assets/static_img/logo.png') }}"
-                                                            alt="PUP Taguig Official Seal"
-                                                            class="ls-symbols-seal"
-                                                            onerror="this.style.opacity='0'"
-                                                        >
-                                                    </div>
-                                                </div>
+                                        <section class="ls-gallery-shell reveal" data-ls-gallery>
+                                            <div class="ls-gallery-head">
+                                                <p class="section-tag">Campus Identity</p>
+                                                <h2 class="ls-gallery-title">{{ $selectedSection['label'] ?? 'Logo and Symbols' }}</h2>
+                                                <p class="ls-gallery-summary">
+                                                    {{ $selectedSection['summary'] ?? 'View each campus seal and logo. Click any item to show its meaning and purpose.' }}
+                                                </p>
                                             </div>
 
-                                            <div class="ls-symbols-grid reveal delay-100">
-                                                @foreach($logoMarks as $identityMark)
-                                                    <article class="ls-symbol-card">
-                                                        <div class="ls-symbol-card-top">
-                                                            <span class="ls-symbol-card-index">{{ str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT) }}</span>
-                                                            <h3 class="ls-symbol-card-title">{{ $identityMark['title'] ?? '' }}</h3>
-                                                        </div>
-                                                        <p class="ls-symbol-card-body">{{ $identityMark['body'] ?? '' }}</p>
-                                                    </article>
+                                            <div class="ls-gallery-grid" role="tablist" aria-label="Logos and seals">
+                                                @foreach($sealCards as $seal)
+                                                    <button
+                                                        type="button"
+                                                        class="ls-gallery-card"
+                                                        data-ls-seal-trigger
+                                                        data-seal-id="{{ $seal['id'] }}"
+                                                        aria-controls="ls-seal-panel-{{ $seal['id'] }}"
+                                                        aria-expanded="false"
+                                                    >
+                                                        <span class="ls-gallery-media">
+                                                            <img src="{{ $seal['image'] }}" alt="{{ $seal['label'] }}">
+                                                        </span>
+                                                        <span class="ls-gallery-label">{{ $seal['label'] }}</span>
+                                                        <span class="ls-gallery-tag">{{ $seal['tag'] }}</span>
+                                                    </button>
                                                 @endforeach
                                             </div>
 
-                                            <div class="ls-symbols-panel reveal">
-                                                <div class="ls-symbols-panel-head">
-                                                    <span class="ls-symbols-kicker">Element Guide</span>
-                                                    <h3 class="ls-symbols-panel-title">The logo explained by symbol, color, and meaning</h3>
+                                            <div class="ls-gallery-panel-shell">
+                                                <div class="ls-gallery-empty" data-ls-seal-empty>
+                                                    Select a logo or seal above to view its details.
                                                 </div>
 
-                                                <div class="ls-symbols-table" role="table" aria-label="Logo and symbols meaning table">
-                                                    <div class="ls-symbols-table-head" role="rowgroup">
-                                                        <div role="row">
-                                                            <span role="columnheader">Element</span>
-                                                            <span role="columnheader">Meaning</span>
-                                                            <span role="columnheader">Color</span>
-                                                            <span role="columnheader">Why it matters</span>
+                                                @foreach($sealCards as $seal)
+                                                    <article
+                                                        id="ls-seal-panel-{{ $seal['id'] }}"
+                                                        class="ls-gallery-panel"
+                                                        data-ls-seal-panel="{{ $seal['id'] }}"
+                                                        hidden
+                                                    >
+                                                        <div class="ls-gallery-panel-head">
+                                                            <span class="ls-gallery-panel-tag">{{ $seal['tag'] }}</span>
+                                                            <h3 class="ls-gallery-panel-title">{{ $seal['label'] }}</h3>
                                                         </div>
-                                                    </div>
-                                                    <div class="ls-symbols-table-body" role="rowgroup">
-                                                        <div class="ls-symbols-row" role="row">
-                                                            <span class="ls-symbols-cell-title" role="cell">Star</span>
-                                                            <span role="cell">Perfection of the human person and the search for truth.</span>
-                                                            <span role="cell">Golden yellow</span>
-                                                            <span role="cell">Its natural star color also reflects one of the traditional University colors.</span>
-                                                        </div>
-                                                        <div class="ls-symbols-row" role="row">
-                                                            <span class="ls-symbols-cell-title" role="cell">Five concentric circles</span>
-                                                            <span role="cell">Infinite wisdom and quintessence.</span>
-                                                            <span role="cell">White</span>
-                                                            <span role="cell">White symbolizes purity and reinforces the ideal of refined knowledge.</span>
-                                                        </div>
-                                                        <div class="ls-symbols-row" role="row">
-                                                            <span class="ls-symbols-cell-title" role="cell">Star + circles</span>
-                                                            <span role="cell">Together they stand for quintessence, the highest form of quality and the most perfect example of creation.</span>
-                                                            <span role="cell">Gold and white</span>
-                                                            <span role="cell">The logo presents excellence not as one trait, but as a complete standard.</span>
-                                                        </div>
-                                                        <div class="ls-symbols-row" role="row">
-                                                            <span class="ls-symbols-cell-title" role="cell">Two laurel arcs</span>
-                                                            <span role="cell">Excellence and quality of education.</span>
-                                                            <span role="cell">Seal accent</span>
-                                                            <span role="cell">They honor the University's rich achievements over more than a century.</span>
-                                                        </div>
-                                                        <div class="ls-symbols-row" role="row">
-                                                            <span class="ls-symbols-cell-title" role="cell">Background color</span>
-                                                            <span role="cell">Dark maroon as a traditional University color.</span>
-                                                            <span role="cell">Dark maroon</span>
-                                                            <span role="cell">It anchors the seal in a strong institutional identity beside gold.</span>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
+                                                        <p class="ls-gallery-panel-body">{{ $seal['description'] }}</p>
+                                                        @if(!empty($seal['highlights']))
+                                                            <ul class="ls-gallery-panel-list">
+                                                                @foreach($seal['highlights'] as $highlight)
+                                                                    <li>{{ $highlight }}</li>
+                                                                @endforeach
+                                                            </ul>
+                                                        @endif
+                                                        @if(!empty($seal['details']))
+                                                            <div class="ls-gallery-detail-grid">
+                                                                @foreach($seal['details'] as $detail)
+                                                                    <article class="ls-gallery-detail-card">
+                                                                        @if(!empty($detail['title']))
+                                                                            <h4>{{ $detail['title'] }}</h4>
+                                                                        @endif
+                                                                        @if(!empty($detail['body']))
+                                                                            <p>{{ $detail['body'] }}</p>
+                                                                        @endif
+                                                                    </article>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                        @if(!empty($seal['notes']))
+                                                            <div class="ls-gallery-notes">
+                                                                @foreach($seal['notes'] as $point)
+                                                                    <div class="ls-gallery-note-item">{{ $point }}</div>
+                                                                @endforeach
+                                                            </div>
+                                                        @endif
+                                                        @if(($seal['id'] ?? '') === 'pup')
+                                                            <div class="ls-gallery-pup-extra">
+                                                                <div class="ls-symbols-panel">
+                                                                    <div class="ls-symbols-panel-head">
+                                                                        <span class="ls-symbols-kicker">Element Guide</span>
+                                                                        <h3 class="ls-symbols-panel-title">The logo explained by symbol, color, and meaning</h3>
+                                                                    </div>
+                                                                    <div class="ls-symbols-table" role="table" aria-label="Logo and symbols meaning table">
+                                                                        <div class="ls-symbols-table-head" role="rowgroup">
+                                                                            <div role="row">
+                                                                                <span role="columnheader">Element</span>
+                                                                                <span role="columnheader">Meaning</span>
+                                                                                <span role="columnheader">Color</span>
+                                                                                <span role="columnheader">Why it matters</span>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="ls-symbols-table-body" role="rowgroup">
+                                                                            <div class="ls-symbols-row" role="row">
+                                                                                <span class="ls-symbols-cell-title" role="cell">Star</span>
+                                                                                <span role="cell">Perfection of the human person and the search for truth.</span>
+                                                                                <span role="cell">Golden yellow</span>
+                                                                                <span role="cell">Its natural star color also reflects one of the traditional University colors.</span>
+                                                                            </div>
+                                                                            <div class="ls-symbols-row" role="row">
+                                                                                <span class="ls-symbols-cell-title" role="cell">Five concentric circles</span>
+                                                                                <span role="cell">Infinite wisdom and quintessence.</span>
+                                                                                <span role="cell">White</span>
+                                                                                <span role="cell">White symbolizes purity and reinforces the ideal of refined knowledge.</span>
+                                                                            </div>
+                                                                            <div class="ls-symbols-row" role="row">
+                                                                                <span class="ls-symbols-cell-title" role="cell">Star + circles</span>
+                                                                                <span role="cell">Together they stand for quintessence, the highest form of quality and the most perfect example of creation.</span>
+                                                                                <span role="cell">Gold and white</span>
+                                                                                <span role="cell">The logo presents excellence not as one trait, but as a complete standard.</span>
+                                                                            </div>
+                                                                            <div class="ls-symbols-row" role="row">
+                                                                                <span class="ls-symbols-cell-title" role="cell">Two laurel arcs</span>
+                                                                                <span role="cell">Excellence and quality of education.</span>
+                                                                                <span role="cell">Seal accent</span>
+                                                                                <span role="cell">They honor the University's rich achievements over more than a century.</span>
+                                                                            </div>
+                                                                            <div class="ls-symbols-row" role="row">
+                                                                                <span class="ls-symbols-cell-title" role="cell">Background color</span>
+                                                                                <span role="cell">Dark maroon as a traditional University color.</span>
+                                                                                <span role="cell">Dark maroon</span>
+                                                                                <span role="cell">It anchors the seal in a strong institutional identity beside gold.</span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
 
-                                            @if(!empty($symbolPoints))
-                                                <div class="ls-symbols-notes reveal delay-100">
-                                                    @foreach($symbolPoints as $index => $point)
-                                                        <div class="ls-symbols-note">
-                                                            <span class="ls-symbols-note-num">{{ str_pad((string) ($index + 1), 2, '0', STR_PAD_LEFT) }}</span>
-                                                            <p>{{ $point }}</p>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            @endif
-
-                                            <div class="ls-symbols-colors reveal">
-                                                <article class="ls-symbols-color-card ls-symbols-color-card--gold">
-                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
-                                                    <div class="ls-symbols-color-copy">
-                                                        <h3>Golden Yellow</h3>
-                                                        <p>Used for the star because it is a star's natural color and because it is a traditional University color.</p>
-                                                    </div>
-                                                </article>
-                                                <article class="ls-symbols-color-card ls-symbols-color-card--maroon">
-                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
-                                                    <div class="ls-symbols-color-copy">
-                                                        <h3>Dark Maroon</h3>
-                                                        <p>Forms the traditional background pairing with gold and gives the seal its strong institutional character.</p>
-                                                    </div>
-                                                </article>
-                                                <article class="ls-symbols-color-card ls-symbols-color-card--white">
-                                                    <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
-                                                    <div class="ls-symbols-color-copy">
-                                                        <h3>White</h3>
-                                                        <p>Used for the five concentric circles to symbolize purity.</p>
-                                                    </div>
-                                                </article>
+                                                                <div class="ls-symbols-colors">
+                                                                    <article class="ls-symbols-color-card ls-symbols-color-card--gold">
+                                                                        <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                                        <div class="ls-symbols-color-copy">
+                                                                            <h3>Golden Yellow</h3>
+                                                                            <p>Used for the star because it is a star's natural color and because it is a traditional University color.</p>
+                                                                        </div>
+                                                                    </article>
+                                                                    <article class="ls-symbols-color-card ls-symbols-color-card--maroon">
+                                                                        <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                                        <div class="ls-symbols-color-copy">
+                                                                            <h3>Dark Maroon</h3>
+                                                                            <p>Forms the traditional background pairing with gold and gives the seal its strong institutional character.</p>
+                                                                        </div>
+                                                                    </article>
+                                                                    <article class="ls-symbols-color-card ls-symbols-color-card--white">
+                                                                        <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
+                                                                        <div class="ls-symbols-color-copy">
+                                                                            <h3>White</h3>
+                                                                            <p>Used for the five concentric circles to symbolize purity.</p>
+                                                                        </div>
+                                                                    </article>
+                                                                </div>
+                                                            </div>
+                                                        @endif
+                                                    </article>
+                                                @endforeach
                                             </div>
                                         </section>
                                     @elseif($selectedSlug === 'hymn')
@@ -1226,6 +1346,52 @@
     @unless($cmsPreview)
         <pup-footer></pup-footer>
     @endunless
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const galleries = document.querySelectorAll('[data-ls-gallery]');
+            if (!galleries.length) {
+                return;
+            }
+
+            galleries.forEach((gallery) => {
+                const triggers = Array.from(gallery.querySelectorAll('[data-ls-seal-trigger]'));
+                const panels = Array.from(gallery.querySelectorAll('[data-ls-seal-panel]'));
+                const emptyState = gallery.querySelector('[data-ls-seal-empty]');
+
+                const showPanel = (sealId) => {
+                    let hasActive = false;
+
+                    triggers.forEach((trigger) => {
+                        const isActive = trigger.getAttribute('data-seal-id') === sealId;
+                        trigger.classList.toggle('is-active', isActive);
+                        trigger.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+                    });
+
+                    panels.forEach((panel) => {
+                        const isActive = panel.getAttribute('data-ls-seal-panel') === sealId;
+                        panel.hidden = !isActive;
+                        panel.classList.toggle('is-active', isActive);
+                        hasActive = hasActive || isActive;
+                    });
+
+                    if (emptyState) {
+                        emptyState.hidden = hasActive;
+                    }
+                };
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener('click', () => {
+                        const sealId = trigger.getAttribute('data-seal-id') || '';
+                        if (!sealId) {
+                            return;
+                        }
+                        showPanel(sealId);
+                    });
+                });
+            });
+        });
+    </script>
 
     @if($cmsPreview)
         <style>

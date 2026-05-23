@@ -110,6 +110,27 @@ class StudentsCmsContent
                     ],
                 ],
             ],
+            'downloadable-forms-personnel' => [
+                'hero' => [
+                    'tag' => 'University Personnel Forms',
+                    'title' => 'Downloadable Forms',
+                    'subtitle' => 'University Personnel Requests and Transactions',
+                    'body' => 'Find official links for university personnel forms needed for campus-related requests and transactions.',
+                    'image' => 'assets/static_img/about_header_image.png',
+                ],
+                'links' => [
+                    'tag' => 'Forms Directory',
+                    'title' => 'Available Forms for University Personnel',
+                    'description' => 'Add official downloadable form links intended for university personnel.',
+                    'items' => [
+                        [
+                            'label' => 'Personnel Request Form',
+                            'href' => '#',
+                            'description' => 'Link to the official personnel request form.',
+                        ],
+                    ],
+                ],
+            ],
         ],
         'organization_sections' => [
             [
@@ -414,6 +435,11 @@ class StudentsCmsContent
                 is_array($source['downloadable-forms'] ?? null) ? $source['downloadable-forms'] : [],
                 is_array($base['downloadable-forms'] ?? null) ? $base['downloadable-forms'] : $defaults['downloadable-forms'],
                 $defaults['downloadable-forms']
+            ),
+            'downloadable-forms-personnel' => self::normalizeDownloadableFormsPage(
+                is_array($source['downloadable-forms-personnel'] ?? null) ? $source['downloadable-forms-personnel'] : [],
+                is_array($base['downloadable-forms-personnel'] ?? null) ? $base['downloadable-forms-personnel'] : $defaults['downloadable-forms-personnel'],
+                $defaults['downloadable-forms-personnel']
             ),
         ];
     }
