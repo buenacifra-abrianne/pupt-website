@@ -10,6 +10,9 @@
     @php
         $pageLabel = $pageConfig['label'];
         $pageFallback = $pageConfig['fallback'];
+        $programsOfferedFieldLabel = $pageKey === 'diploma-programs'
+            ? 'Diploma Programs Offered'
+            : 'Undergraduate Programs Offered';
         $pageData = $pagesEditor[$pageKey] ?? [];
         $heroData = $pageData['hero'] ?? [];
         $cardsData = $pageData['cards'] ?? [];
@@ -77,6 +80,10 @@
                         <label>Section Title</label>
                         <input type="text" name="academics[pages][{{ $pageKey }}][cards][title]" maxlength="255" value="{{ $cardsData['title'] ?? '' }}">
                     </div>
+                    <div class="form-group">
+                        <label>Higher Education Accreditation PDF URL</label>
+                        <input type="text" name="academics[pages][{{ $pageKey }}][cards][higher_education_pdf_url]" maxlength="2048" value="{{ $cardsData['higher_education_pdf_url'] ?? '' }}">
+                    </div>
                 </div>
 
                 @foreach(($cardsData['items'] ?? []) as $index => $item)
@@ -84,6 +91,8 @@
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][title]" value="{{ $item['title'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][dept]" value="{{ $item['dept'] ?? '' }}">
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_levels]" value="{{ $item['accreditation_levels'] ?? '' }}">
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity]" value="{{ $item['accreditation_validity'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][cta]" value="{{ $item['cta'] ?? '' }}">
@@ -104,6 +113,7 @@
                 <input type="hidden" name="{{ str_replace('-', '_', $cardsSectionKey) }}_active_index" value="" data-academics-card-active-index>
                 <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][tag]" value="{{ $cardsData['tag'] ?? '' }}">
                 <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][title]" value="{{ $cardsData['title'] ?? '' }}">
+                <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][higher_education_pdf_url]" value="{{ $cardsData['higher_education_pdf_url'] ?? '' }}">
                 @if($requestId > 0)
                     <input type="hidden" name="request_id" value="{{ $requestId }}">
                 @endif
@@ -113,7 +123,9 @@
                         @php
                             $cardInputId = $idPrefix.'-'.$cardsSectionKey.'-'.$index.'-image';
                             $cardPreview = \App\Support\NewsImage::url($item['image'] ?? null, $pageFallback);
-                            $programCardBody = \Illuminate\Support\Str::limit(\App\Support\RichText::plainText($item['body'] ?? ''), 100, '');
+                            $programCardBody = $item['body'] ?? '';
+                            $accreditationOptions = ['I', 'II', 'III', 'IV'];
+                            $currentAccreditationLevel = trim((string) ($item['accreditation_levels'] ?? ''));
                         @endphp
                         <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="{{ $index }}">
                             <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
@@ -162,12 +174,28 @@
                                     <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][badge]" maxlength="120" value="{{ $item['badge'] ?? '' }}">
                                 </div>
                                 <div class="form-group">
-                                    <label>Card Title</label>
+                                    <label>{{ $programsOfferedFieldLabel }}</label>
                                     <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Department</label>
                                     <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][dept]" maxlength="255" value="{{ $item['dept'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Program Accreditation Status (Roman Numeral)</label>
+                                    <select name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_levels]">
+                                        <option value="">Select accreditation level</option>
+                                        @foreach($accreditationOptions as $option)
+                                            <option value="{{ $option }}" @selected($currentAccreditationLevel === $option)>{{ $option }}</option>
+                                        @endforeach
+                                        @if($currentAccreditationLevel !== '' && !in_array($currentAccreditationLevel, $accreditationOptions, true))
+                                            <option value="{{ $currentAccreditationLevel }}" selected>{{ $currentAccreditationLevel }}</option>
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>Validity of Accreditation (start date - end date)</label>
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity]" maxlength="255" value="{{ $item['accreditation_validity'] ?? '' }}">
                                 </div>
                                 <div class="form-group">
                                     <label>Link</label>
@@ -181,7 +209,7 @@
                                     'name' => 'academics[pages]['.$pageKey.'][cards][items]['.$index.'][body]',
                                     'value' => $programCardBody,
                                     'placeholder' => 'Write the program description...',
-                                    'characterLimit' => 100,
+                                    'characterLimit' => 1500,
                                     'counterMode' => 'limit',
                                 ])
                             </div>
@@ -237,12 +265,26 @@
                                 <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][badge]" maxlength="120" value="">
                             </div>
                             <div class="form-group">
-                                <label>Card Title</label>
+                                <label>{{ $programsOfferedFieldLabel }}</label>
                                 <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][title]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
                                 <label>Department</label>
                                 <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][dept]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Program Accreditation Status (Roman Numeral)</label>
+                                <select name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_levels]">
+                                    <option value="" selected>Select accreditation level</option>
+                                    <option value="I">I</option>
+                                    <option value="II">II</option>
+                                    <option value="III">III</option>
+                                    <option value="IV">IV</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Validity of Accreditation (start date - end date)</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_validity]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
                                 <label>Link</label>
@@ -256,7 +298,7 @@
                                 'name' => 'academics[pages]['.$pageKey.'][cards][items][__INDEX__][body]',
                                 'value' => '',
                                 'placeholder' => 'Write the program description...',
-                                'characterLimit' => 100,
+                                'characterLimit' => 1500,
                                 'counterMode' => 'limit',
                             ])
                         </div>
