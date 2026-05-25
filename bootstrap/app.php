@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use App\Console\Commands\ScanLinksCommand;
+use App\Console\Commands\SyncUrlCommand;
+use App\Console\Commands\SyncBotpressCommand;
 use App\Console\Commands\NormalizeHtmlEntityText;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -8,6 +11,9 @@ use Illuminate\Foundation\Configuration\Middleware;
 return Application::configure(basePath: dirname(__DIR__))
     ->withCommands([
         NormalizeHtmlEntityText::class,
+        ScanLinksCommand::class,
+        SyncBotpressCommand::class,
+        SyncUrlCommand::class,
     ])
     ->withRouting(
         web: __DIR__.'/../routes/web.php',

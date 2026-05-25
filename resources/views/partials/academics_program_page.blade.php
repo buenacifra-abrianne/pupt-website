@@ -6,9 +6,41 @@
     $hero = is_array($pageData['hero'] ?? null) ? $pageData['hero'] : [];
     $cards = is_array($pageData['cards'] ?? null) ? $pageData['cards'] : [];
     $contact = is_array($pageData['contact'] ?? null) ? $pageData['contact'] : [];
-    $cardImageFallback = 'assets/static_img/pupillar.jpeg';
+    $programsOfferedLabel = $pageKey === 'diploma-programs' ? 'Diploma Programs Offered' : 'Undergraduate Programs Offered';
     $cardItems = array_values(is_array($cards['items'] ?? null) ? $cards['items'] : []);
     $contactRows = array_values(is_array($contact['rows'] ?? null) ? $contact['rows'] : []);
+    $modalId = 'dp-program-modal-'.\Illuminate\Support\Str::slug($pageKey);
+
+    $accreditationRank = static function (mixed $rawLevel): int {
+        $normalized = strtoupper(trim((string) $rawLevel));
+        if ($normalized === '') {
+            return 0;
+        }
+
+        foreach (['IV' => 4, 'III' => 3, 'II' => 2, 'I' => 1] as $roman => $score) {
+            if (preg_match('/\b'.preg_quote($roman, '/').'\b/', $normalized)) {
+                return $score;
+            }
+        }
+
+        return 0;
+    };
+
+    if (!$cmsPreview) {
+        usort($cardItems, static function (array $left, array $right) use ($accreditationRank): int {
+            $leftRank = $accreditationRank($left['accreditation_levels'] ?? '');
+            $rightRank = $accreditationRank($right['accreditation_levels'] ?? '');
+
+            if ($leftRank !== $rightRank) {
+                return $rightRank <=> $leftRank;
+            }
+
+            $leftTitle = trim((string) ($left['title'] ?? ''));
+            $rightTitle = trim((string) ($right['title'] ?? ''));
+
+            return strcasecmp($leftTitle, $rightTitle);
+        });
+    }
 @endphp
 
 <div class="academic-shell page-shell">
@@ -47,7 +79,7 @@
             <h2>{{ $cards['title'] ?? '' }}</h2>
         </div>
 
-<div class="contents-cards dp-program-cards reveal delay-100">
+        <div class="contents-cards dp-program-cards reveal delay-100">
             @if($cmsPreview)
                 <article class="contents-card contents-card-add dp-program-card-add" data-cms-add-program-card-trigger data-cms-card-section="{{ $pageKey }}-cards" data-cms-card-label="{{ $pageTitle }} Card" tabindex="0" role="button" aria-label="Add {{ $pageTitle }} card">
                     <div class="dp-program-card-add-inner">
@@ -59,10 +91,12 @@
             @foreach($cardItems as $item)
                 @php
                     $itemTitle = $item['title'] ?? '';
-                    $itemBody = \Illuminate\Support\Str::limit(\App\Support\RichText::plainText($item['body'] ?? ''), 100, '');
-                    $itemHref = trim((string) ($item['href'] ?? ''));
+                    $itemBodyPreview = \Illuminate\Support\Str::limit(\App\Support\RichText::plainText($item['body'] ?? ''), 120, '...');
+                    $itemBodyHtml = \App\Support\RichText::sanitize($item['body'] ?? '');
                     $itemBadge = trim((string) ($item['badge'] ?? ''));
                     $itemDept = trim((string) ($item['dept'] ?? ''));
+                    $itemAccreditationLevels = trim((string) ($item['accreditation_levels'] ?? ''));
+                    $itemAccreditationValidity = trim((string) ($item['accreditation_validity'] ?? ''));
                 @endphp
                 @if($cmsPreview)
                     <article
@@ -76,16 +110,36 @@
                             <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-cms-card-delete title="Delete card" aria-label="Delete {{ $itemTitle !== '' ? $itemTitle : 'program card' }}">Delete</button>
                         </div>
                 @else
-                    <a href="{{ $itemHref !== '' ? $itemHref : '#' }}" class="contents-card" tabindex="0">
+                    <article
+                        class="contents-card dp-program-card-trigger"
+                        tabindex="0"
+                        role="button"
+                        aria-haspopup="dialog"
+                        aria-controls="{{ $modalId }}"
+                        aria-label="View details for {{ $itemTitle !== '' ? $itemTitle : 'this program' }}"
+                        data-program-modal-trigger="{{ $modalId }}"
+                        data-program-title="{{ $itemTitle }}"
+                        data-program-badge="{{ $itemBadge }}"
+                        data-program-accreditation="{{ $itemAccreditationLevels }}"
+                        data-program-accreditation-validity="{{ $itemAccreditationValidity }}"
+                    >
                 @endif
                     <div class="dp-diploma-card-body">
                         @if($itemBadge !== '')
                             <span class="dp-diploma-badge">{{ $itemBadge }}</span>
                         @endif
                         <h3 class="dp-diploma-title">{{ $itemTitle }}</h3>
-                        @if($itemBody !== '')
-                            <p class="dp-diploma-desc">{{ $itemBody }}</p>
+                        @if($itemBodyPreview !== '')
+                            <p class="dp-diploma-desc">{{ $itemBodyPreview }}</p>
                         @endif
+                        @if($itemAccreditationLevels !== '')
+                            <span class="dp-diploma-accreditation">Accreditation: {{ $itemAccreditationLevels }}</span>
+                        @endif
+                        @unless($cmsPreview)
+                            <div class="dp-program-modal-payload" hidden data-program-modal-body>
+                                {!! $itemBodyHtml !!}
+                            </div>
+                        @endunless
                         @if($itemDept !== '')
                             <span class="dp-diploma-dept">{{ $itemDept }}</span>
                         @endif
@@ -93,9 +147,169 @@
                 @if($cmsPreview)
                     </article>
                 @else
-                    </a>
+                    </article>
                 @endif
             @endforeach
+        </div>
+    </div>
+</section>
+
+@unless($cmsPreview)
+    <div class="dp-program-modal" id="{{ $modalId }}" hidden>
+        <div class="dp-program-modal-backdrop" data-program-modal-close></div>
+        <div class="dp-program-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="{{ $modalId }}-dialog-title">
+            <button type="button" class="dp-program-modal-close" data-program-modal-close aria-label="Close program details">
+                <span aria-hidden="true">&times;</span>
+            </button>
+
+            <div class="dp-program-modal-copy">
+                <div class="dp-program-modal-head">
+                    <h3 id="{{ $modalId }}-dialog-title" class="dp-program-modal-heading">Program Details</h3>
+                    <p class="dp-program-modal-subhead">Academic profile and accreditation snapshot</p>
+                </div>
+
+                <div class="dp-program-modal-fields-grid">
+                    <div class="dp-program-modal-field">
+                        <p class="dp-program-modal-field-label">{{ $programsOfferedLabel }}</p>
+                        <p class="dp-program-modal-field-value" data-program-modal-name></p>
+                    </div>
+
+                    <div class="dp-program-modal-field">
+                        <p class="dp-program-modal-field-label">Program Abbreviation</p>
+                        <p class="dp-program-modal-field-value" data-program-modal-badge></p>
+                    </div>
+
+                    <div class="dp-program-modal-field">
+                        <p class="dp-program-modal-field-label">Program Accreditation Status (Roman Numeral)</p>
+                        <p class="dp-program-modal-field-value" data-program-modal-accreditation></p>
+                    </div>
+
+                    <div class="dp-program-modal-field">
+                        <p class="dp-program-modal-field-label">Validity of Accreditation (start date - end date)</p>
+                        <p class="dp-program-modal-field-value" data-program-modal-accreditation-validity></p>
+                    </div>
+
+                    <div class="dp-program-modal-field dp-program-modal-field--span-2">
+                        <p class="dp-program-modal-field-label">Description</p>
+                        <div class="dp-program-modal-body academic-rich-copy" data-program-modal-body-target></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modal = document.getElementById(@json($modalId));
+            if (!modal) {
+                return;
+            }
+
+            const closeButtons = modal.querySelectorAll('[data-program-modal-close]');
+            const nameEl = modal.querySelector('[data-program-modal-name]');
+            const badgeEl = modal.querySelector('[data-program-modal-badge]');
+            const accreditationEl = modal.querySelector('[data-program-modal-accreditation]');
+            const accreditationValidityEl = modal.querySelector('[data-program-modal-accreditation-validity]');
+            const bodyEl = modal.querySelector('[data-program-modal-body-target]');
+            let lastTrigger = null;
+
+            const setFieldValue = (element, value) => {
+                if (!element) {
+                    return;
+                }
+
+                const text = value !== '' ? value : 'Not specified';
+                element.textContent = text;
+                element.classList.toggle('is-empty', text === 'Not specified');
+            };
+
+            const closeModal = () => {
+                if (modal.hidden) {
+                    return;
+                }
+
+                modal.hidden = true;
+                document.body.classList.remove('dp-modal-open');
+                if (lastTrigger instanceof HTMLElement) {
+                    lastTrigger.focus();
+                }
+            };
+
+            const openModal = (trigger) => {
+                lastTrigger = trigger;
+                const payload = trigger.querySelector('[data-program-modal-body]');
+                const title = (trigger.dataset.programTitle || '').trim();
+                const badge = (trigger.dataset.programBadge || '').trim();
+                const accreditation = (trigger.dataset.programAccreditation || '').trim();
+                const accreditationValidity = (trigger.dataset.programAccreditationValidity || '').trim();
+
+                setFieldValue(nameEl, title);
+                setFieldValue(badgeEl, badge);
+                setFieldValue(accreditationEl, accreditation);
+                setFieldValue(accreditationValidityEl, accreditationValidity);
+
+                if (bodyEl) {
+                    const html = payload ? payload.innerHTML.trim() : '';
+                    bodyEl.innerHTML = html !== '' ? html : '<p>No additional program details available.</p>';
+                }
+
+                modal.hidden = false;
+                document.body.classList.add('dp-modal-open');
+                modal.querySelector('.dp-program-modal-close')?.focus();
+            };
+
+            document.querySelectorAll(`[data-program-modal-trigger="{{ $modalId }}"]`).forEach((trigger) => {
+                trigger.addEventListener('click', () => openModal(trigger));
+                trigger.addEventListener('keydown', (event) => {
+                    if (event.key !== 'Enter' && event.key !== ' ') {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    openModal(trigger);
+                });
+            });
+
+            closeButtons.forEach((button) => {
+                button.addEventListener('click', closeModal);
+            });
+
+            modal.addEventListener('click', (event) => {
+                if (!event.target.closest('.dp-program-modal-dialog')) {
+                    closeModal();
+                }
+            });
+
+            document.addEventListener('keydown', (event) => {
+                if (event.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        });
+    </script>
+@endunless
+
+<section class="dp-accreditation-footer-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+    <div class="dp-accreditation-footer-inner">
+        <h3>Looking for official accreditation records?</h3>
+        <p>Access the Higher Education accreditation PDF for full details and validity periods.</p>
+        <div class="dp-accreditation-glow-actions">
+            <a
+                href="https://drive.google.com/file/d/1zegfm_kj7-9TJHnrHeXqWWGTwIOesZso/view"
+                class="dp-accreditation-glow-btn dp-accreditation-glow-btn-alt"
+                target="_blank"
+                rel="noopener"
+            >
+                ADVANCE EDUCATION
+            </a>
+            <a
+                href="https://drive.google.com/file/d/1I1fTVNwsYkeWfzz8bMqIVRI5vLI5EMob/view"
+                class="dp-accreditation-glow-btn"
+                target="_blank"
+                rel="noopener"
+            >
+                HIGHER EDUCATION
+            </a>
         </div>
     </div>
 </section>

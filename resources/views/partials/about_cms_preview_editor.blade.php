@@ -765,11 +765,12 @@
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="campus-officials">
                     <input type="hidden" name="about_officials_version" value="0" data-about-officials-version>
+                    <input type="hidden" name="about_active_official_index" value="" data-about-active-official-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-card-stack">
+                    <div class="about-cms-card-stack" data-about-officials-list>
                         @foreach($officialsEditor['official_groups'] ?? [] as $index => $officialGroup)
                             @php
                                 $officialImageInputId = $idPrefix.'-about-official-image-file-'.$index;
@@ -779,8 +780,8 @@
                             @endphp
                             <article class="about-cms-card-editor" data-about-official-editor data-about-official-index="{{ $index }}">
                                 <div class="about-cms-card-editor-head" data-about-card-editor-head>
-                                    <h4>Official Card {{ $loop->iteration }}</h4>
-                                    <span>{{ $officialGroup['name'] ?? ($officialGroup['title'] ?? 'Campus official') }}</span>
+                                    <h4 data-about-official-heading>Official Card {{ $loop->iteration }}</h4>
+                                    <span data-about-official-meta>{{ $officialGroup['name'] ?? ($officialGroup['title'] ?? 'Campus official') }}</span>
                                 </div>
                                 <div class="form-group">
                                     <label>Upload Profile Image</label>
@@ -822,25 +823,31 @@
                                     </div>
                                 </div>
                                 <div class="about-cms-official-fields">
-                                    <div class="form-group">
-                                        <label>Role</label>
-                                        <div class="about-cms-locked-field" aria-label="Role is locked">
-                                            <span class="about-cms-locked-field-icon" aria-hidden="true">
-                                                <i class="fas fa-lock"></i>
-                                            </span>
+                                    <div class="about-cms-official-meta-row">
+                                        <div class="about-cms-official-meta-col">
+                                            <label>Role</label>
                                             <input
                                                 type="text"
                                                 name="about[sections][campus-officials][official_groups][{{ $index }}][title]"
                                                 maxlength="255"
                                                 value="{{ $officialGroup['title'] ?? '' }}"
-                                                readonly
-                                                aria-readonly="true"
                                             >
                                         </div>
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Name</label>
-                                        <input type="text" name="about[sections][campus-officials][official_groups][{{ $index }}][name]" maxlength="255" value="{{ $officialGroup['name'] ?? '' }}">
+                                        <div class="about-cms-official-meta-col">
+                                            <label>Name</label>
+                                            <input type="text" name="about[sections][campus-officials][official_groups][{{ $index }}][name]" maxlength="255" value="{{ $officialGroup['name'] ?? '' }}">
+                                        </div>
+                                        <div class="about-cms-official-meta-col">
+                                            <label>Order</label>
+                                            <input
+                                                type="number"
+                                                name="about[sections][campus-officials][official_groups][{{ $index }}][order]"
+                                                min="1"
+                                                step="1"
+                                                value="{{ $officialGroup['order'] ?? ($loop->iteration) }}"
+                                                data-about-official-order
+                                            >
+                                        </div>
                                     </div>
                                     <div class="form-group">
                                         <label>Description</label>
@@ -858,6 +865,94 @@
                             </article>
                         @endforeach
                     </div>
+
+                    <template data-about-official-template>
+                        <article class="about-cms-card-editor" data-about-official-editor data-about-official-index="__INDEX__">
+                            <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                <h4 data-about-official-heading>Official Card __NUMBER__</h4>
+                                <span data-about-official-meta>Campus official</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Upload Profile Image</label>
+                                <div class="about-cms-image-dropzone-shell">
+                                    <input type="hidden" id="{{ $idPrefix }}-about-official-image-__INDEX__" name="about[sections][campus-officials][official_groups][__INDEX__][image]" value="" data-about-image-field>
+                                    <input
+                                        type="file"
+                                        id="{{ $idPrefix }}-about-official-image-file-__INDEX__"
+                                        name="about[sections][campus-officials][official_groups][__INDEX__][image_file]"
+                                        class="about-cms-image-dropzone-input"
+                                        accept="image/*"
+                                        data-about-image-field-id="{{ $idPrefix }}-about-official-image-__INDEX__"
+                                    >
+                                    <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $idPrefix }}-about-official-image-file-__INDEX__" tabindex="0" role="button" aria-label="Upload official profile image">
+                                        <span class="about-cms-image-dropzone-preview-column">
+                                            <span class="about-cms-image-dropzone-media">
+                                                <img
+                                                    src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                    alt="Campus official preview"
+                                                    class="about-cms-image-dropzone-preview about-cms-image-dropzone-preview--profile-placeholder"
+                                                    data-about-preview-for="{{ $idPrefix }}-about-official-image-file-__INDEX__"
+                                                    data-about-default-src="{{ asset('assets/static_img/temporary_profile.png') }}"
+                                                >
+                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-official-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                        </span>
+                                        <span class="about-cms-image-dropzone-upload">
+                                            <span class="about-cms-image-dropzone-icon">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this official card.</span>
+                                            <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $idPrefix }}-about-official-image-file-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="about-cms-official-fields">
+                                <div class="about-cms-official-meta-row">
+                                    <div class="about-cms-official-meta-col">
+                                        <label>Role</label>
+                                        <input
+                                            type="text"
+                                            name="about[sections][campus-officials][official_groups][__INDEX__][title]"
+                                            maxlength="255"
+                                            value=""
+                                        >
+                                    </div>
+                                    <div class="about-cms-official-meta-col">
+                                        <label>Name</label>
+                                        <input type="text" name="about[sections][campus-officials][official_groups][__INDEX__][name]" maxlength="255" value="">
+                                    </div>
+                                    <div class="about-cms-official-meta-col">
+                                        <label>Order</label>
+                                        <input
+                                            type="number"
+                                            name="about[sections][campus-officials][official_groups][__INDEX__][order]"
+                                            min="1"
+                                            step="1"
+                                            value="__NUMBER__"
+                                            data-about-official-order
+                                        >
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <div class="about-cms-textarea-field" data-about-char-limit="220">
+                                        <textarea
+                                            name="about[sections][campus-officials][official_groups][__INDEX__][body]"
+                                            rows="4"
+                                            maxlength="220"
+                                            data-about-char-input
+                                        ></textarea>
+                                        <div class="about-cms-char-counter" data-about-char-counter aria-live="polite">0/220</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </article>
+                    </template>
 
                     <div class="about-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">{{ $submitLabel('Campus Officials') }}</button>
@@ -1175,6 +1270,95 @@
     .about-cms-official-fields > .form-group > input,
     .about-cms-official-fields .about-cms-locked-field {
         min-height: 52px;
+    }
+
+    .about-cms-official-meta-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 160px;
+        gap: 16px;
+        align-items: start;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+    }
+
+    .about-cms-official-meta-col {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin: 0;
+        padding: 0;
+        min-width: 0;
+    }
+
+    .about-cms-official-meta-col > label {
+        display: block;
+        height: 22px;
+        margin: 0;
+        line-height: 1.2;
+        color: #8a0000;
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+    }
+
+    .about-cms-official-meta-col > input {
+        display: block;
+        width: 100%;
+        height: 52px;
+        min-height: 52px;
+        margin: 0;
+        box-sizing: border-box;
+        padding-top: 0;
+        padding-bottom: 0;
+        padding-left: 14px;
+        padding-right: 14px;
+        border: 1px solid #d8cbc4;
+        border-radius: 8px;
+        background: #fffdfc;
+        color: #2f2320;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .about-cms-official-meta-col + .about-cms-official-meta-col {
+        margin-top: 0;
+    }
+
+    .about-cms-official-meta-col > input:hover,
+    .about-cms-official-fields .about-cms-textarea-field textarea:hover {
+        border-color: #c9b6ad;
+    }
+
+    .about-cms-official-meta-col > input:focus,
+    .about-cms-official-fields .about-cms-textarea-field textarea:focus {
+        outline: none;
+        border-color: #8a0000;
+        box-shadow:
+            inset 0 1px 0 rgba(255, 255, 255, 0.6),
+            0 0 0 3px rgba(138, 0, 0, 0.12);
+    }
+
+    .about-cms-official-fields > .form-group > label {
+        color: #8a0000;
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+    }
+
+    .about-cms-official-fields .about-cms-textarea-field textarea {
+        display: block;
+        width: 100%;
+        min-height: 112px;
+        margin: 0;
+        padding: 12px 14px;
+        border: 1px solid #d8cbc4;
+        border-radius: 8px;
+        background: #fffdfc;
+        color: #2f2320;
+        line-height: 1.55;
+        resize: vertical;
+        box-sizing: border-box;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
     }
 
     .about-cms-history-meta-grid {
@@ -1760,6 +1944,11 @@
             grid-template-columns: 1fr;
         }
 
+        .about-cms-official-meta-row {
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+
         .about-cms-history-date-fields {
             grid-template-columns: 1fr;
         }
@@ -2295,6 +2484,27 @@
                 return;
             }
 
+            if (data.type === 'cms-about-official-card-add') {
+                const editor = addOfficialEditor({
+                    title: '',
+                    name: '',
+                    body: '',
+                    image: '',
+                    order: '',
+                }, true);
+                const nextIndex = editor?.getAttribute('data-about-official-index') || '';
+                openAboutEditor('campus-officials', data.label || 'Add campus official', {
+                    officialIndex: nextIndex,
+                    route: data.route || 'campus-officials',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-official-card-delete') {
+                confirmDeleteOfficialCard(data.index || '', data.label || '');
+                return;
+            }
+
             if (data.type === 'cms-about-official-card-edit') {
                 openAboutEditor('campus-officials', data.label ? `Edit ${data.label}` : 'Edit campus official', {
                     officialIndex: data.index || '',
@@ -2347,7 +2557,10 @@
         const historyVersionInput = document.querySelector('[data-about-history-version]');
         const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
         const officialsForm = document.querySelector('[data-about-editor-panel="campus-officials"] form');
+        const officialsList = officialsForm?.querySelector('[data-about-officials-list]') || null;
         const officialsVersionInput = officialsForm?.querySelector('[data-about-officials-version]') || null;
+        const activeOfficialIndexInput = officialsForm?.querySelector('[data-about-active-official-index]') || null;
+        const officialsTemplate = officialsForm?.querySelector('[data-about-official-template]') || null;
         const planPrioritiesForm = document.querySelector('[data-about-editor-panel="strategic-development-plan"] form[data-about-plan-priorities-form]');
         const planPrioritiesList = planPrioritiesForm?.querySelector('[data-about-plan-priorities-list]') || null;
         const planPrioritiesVersionInput = planPrioritiesForm?.querySelector('[data-about-plan-priorities-version]') || null;
@@ -2912,6 +3125,59 @@
             officialsForm.addEventListener('change', markDirty);
         };
 
+        const initOfficialsEditor = () => {
+            if (!officialsForm || !officialsList || officialsForm.dataset.aboutOfficialsBound === '1') {
+                return;
+            }
+
+            officialsForm.dataset.aboutOfficialsBound = '1';
+
+            if (!officialsList.querySelector('[data-about-official-editor]')) {
+                addOfficialEditor({
+                    title: '',
+                    name: '',
+                    body: '',
+                    image: '',
+                    order: '',
+                }, false);
+            } else {
+                relabelOfficialEditors();
+                setActiveOfficialEditor('', officialsForm);
+            }
+
+            officialsForm.addEventListener('click', (event) => {
+                const addButton = event.target.closest('[data-about-official-add-editor]');
+                if (addButton) {
+                    event.preventDefault();
+                    addOfficialEditor({
+                        title: '',
+                        name: '',
+                        body: '',
+                        image: '',
+                        order: '',
+                    }, true);
+                    return;
+                }
+
+                const editorHead = event.target.closest('[data-about-card-editor-head]');
+                if (editorHead) {
+                    const editor = editorHead.closest('[data-about-official-editor]');
+                    const officialIndex = editor?.getAttribute('data-about-official-index') || '';
+                    setActiveOfficialEditor(officialIndex, officialsForm);
+                }
+            });
+
+            officialsForm.addEventListener('input', (event) => {
+                const editor = event.target.closest('[data-about-official-editor]');
+                if (!editor) {
+                    return;
+                }
+
+                const editorIndex = Array.from(officialsList.querySelectorAll('[data-about-official-editor]')).indexOf(editor);
+                syncOfficialCardMeta(editor, editorIndex >= 0 ? editorIndex : null);
+            });
+        };
+
         const formatHistoryMonth = (value) => {
             const match = String(value || '').match(/^(\d{4})-(\d{2})$/);
             if (!match) {
@@ -3041,6 +3307,22 @@
             }));
         };
 
+        const submitOfficialsForm = () => {
+            if (!officialsForm) {
+                return;
+            }
+
+            if (typeof officialsForm.requestSubmit === 'function') {
+                officialsForm.requestSubmit();
+                return;
+            }
+
+            officialsForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
         const bumpHistoryVersion = () => {
             if (historyVersionInput) {
                 historyVersionInput.value = String(Date.now());
@@ -3081,10 +3363,140 @@
             return targetEditor;
         };
 
+        const syncOfficialCardMeta = (editor, displayIndex = null) => {
+            if (!editor) {
+                return;
+            }
+
+            const heading = editor.querySelector('[data-about-official-heading]');
+            const meta = editor.querySelector('[data-about-official-meta]');
+            const titleInput = editor.querySelector('input[name*="[title]"]');
+            const nameInput = editor.querySelector('input[name*="[name]"]');
+            const titleValue = String(titleInput?.value || '').trim();
+            const nameValue = String(nameInput?.value || '').trim();
+            const fallbackMeta = 'Campus official';
+
+            if (heading && Number.isFinite(displayIndex)) {
+                heading.textContent = `Official Card ${Number(displayIndex) + 1}`;
+            }
+
+            if (meta) {
+                meta.textContent = nameValue || titleValue || fallbackMeta;
+            }
+        };
+
+        const relabelOfficialEditors = () => {
+            const editors = Array.from(officialsList?.querySelectorAll('[data-about-official-editor]') || []);
+            editors.forEach((editor, index) => {
+                syncOfficialCardMeta(editor, index);
+            });
+        };
+
+        const nextOfficialIndex = () => {
+            const indexes = Array.from(officialsList?.querySelectorAll('[data-about-official-editor]') || [])
+                .map((editor) => Number(editor.getAttribute('data-about-official-index')))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        };
+
+        const createOfficialEditor = (official = {}, index = 0, displayNumber = 1) => {
+            if (!(officialsTemplate instanceof HTMLTemplateElement)) {
+                return null;
+            }
+
+            const markup = officialsTemplate.innerHTML
+                .replaceAll('__INDEX__', String(index))
+                .replaceAll('__NUMBER__', String(displayNumber));
+
+            const shell = document.createElement('div');
+            shell.innerHTML = markup.trim();
+            const editor = shell.firstElementChild;
+            if (!(editor instanceof HTMLElement)) {
+                return null;
+            }
+
+            const titleInput = editor.querySelector('input[name*="[title]"]');
+            const nameInput = editor.querySelector('input[name*="[name]"]');
+            const bodyInput = editor.querySelector('textarea[name*="[body]"]');
+            const imageInput = editor.querySelector('input[data-about-image-field]');
+            const orderInput = editor.querySelector('input[data-about-official-order]');
+
+            if (titleInput instanceof HTMLInputElement) {
+                titleInput.value = String(official.title || '');
+            }
+            if (nameInput instanceof HTMLInputElement) {
+                nameInput.value = String(official.name || '');
+            }
+            if (bodyInput instanceof HTMLTextAreaElement) {
+                bodyInput.value = String(official.body || '');
+            }
+            if (imageInput instanceof HTMLInputElement) {
+                imageInput.value = String(official.image || '');
+            }
+            if (orderInput instanceof HTMLInputElement) {
+                orderInput.value = String(official.order || displayNumber);
+            }
+
+            return editor;
+        };
+
+        const addOfficialEditor = (official = {}, focus = true) => {
+            if (!officialsList) {
+                return null;
+            }
+
+            const index = nextOfficialIndex();
+            const displayNumber = officialsList.querySelectorAll('[data-about-official-editor]').length + 1;
+            const editor = createOfficialEditor(official, index, displayNumber);
+            if (!editor) {
+                return null;
+            }
+
+            officialsList.appendChild(editor);
+            initAboutImageDropzones(editor);
+            initAboutCharCounters(editor);
+            relabelOfficialEditors();
+            bumpOfficialsVersion();
+            const activeEditor = setActiveOfficialEditor(index, officialsForm || document);
+
+            if (focus) {
+                const firstField = activeEditor?.querySelector('input:not([type="hidden"]), textarea, .rich-editor-surface');
+                firstField?.focus();
+            }
+
+            return activeEditor || editor;
+        };
+
+        const deleteOfficialByIndex = (index) => {
+            if (!officialsList) {
+                return false;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            if (normalizedIndex === '') {
+                return false;
+            }
+
+            const targetEditor = officialsList.querySelector(`[data-about-official-editor][data-about-official-index="${normalizedIndex}"]`);
+            if (!targetEditor) {
+                return false;
+            }
+
+            targetEditor.remove();
+            relabelOfficialEditors();
+            setActiveOfficialEditor('', officialsForm || document);
+            bumpOfficialsVersion();
+            return true;
+        };
+
         const setActiveOfficialEditor = (index = '', scope = document) => {
             const editors = Array.from(scope.querySelectorAll('[data-about-official-editor]'));
 
             if (!editors.length) {
+                if (activeOfficialIndexInput) {
+                    activeOfficialIndexInput.value = '';
+                }
                 return null;
             }
 
@@ -3105,6 +3517,10 @@
                 editor.classList.toggle('is-disabled', targetEditor ? !isActive : false);
                 editor.hidden = targetEditor ? !isActive : false;
             });
+
+            if (activeOfficialIndexInput) {
+                activeOfficialIndexInput.value = targetEditor?.getAttribute('data-about-official-index') || '';
+            }
 
             return targetEditor;
         };
@@ -3375,6 +3791,40 @@
             }
         };
 
+        const confirmDeleteOfficialCard = async (index, label, options = {}) => {
+            const normalizedIndex = String(index ?? '').trim();
+            if (normalizedIndex === '') {
+                return;
+            }
+
+            let confirmed = false;
+            const promptLabel = label || `Official ${Number(normalizedIndex) + 1}`;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Official Card',
+                    message: `Do you want to delete "${promptLabel}" from Campus Officials?`,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}" from Campus Officials?`);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const deleted = deleteOfficialByIndex(normalizedIndex);
+            if (!deleted) {
+                return;
+            }
+
+            if (options.submit !== false) {
+                submitOfficialsForm();
+            }
+        };
+
         document.querySelectorAll('form.{{ $formClass }}').forEach((form) => {
             if (form.dataset.aboutRichTextSubmitBound === '1') {
                 return;
@@ -3407,6 +3857,7 @@
             });
         });
 
+        initOfficialsEditor();
         initPlanPrioritiesEditor();
         initStrategicGoalsEditor();
 

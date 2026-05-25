@@ -34,6 +34,14 @@ class StudentsController extends Controller
         ]);
     }
 
+    public function downloadableFormsPersonnel(Request $request)
+    {
+        return view('public.student_downloadable_forms_personnel', [
+            'studentsCms' => $this->loadStudentsCms(),
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
     private function loadStudentsCms(): array
     {
         $studentsCms = StudentsCmsContent::defaults();
