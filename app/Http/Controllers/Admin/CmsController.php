@@ -56,7 +56,7 @@ class CmsController extends Controller
         $data = $request->validate([
             'tab_key' => ['required', Rule::in($allowedTabs)],
             'section_key' => ['nullable', Rule::in(array_merge([
-                'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
+                'description', 'carousel', 'updates', 'campus_tour_video', 'campus_tour_facilities', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
                 'page', 'cards_header', 'cards', 'organizations',
                 'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links',
@@ -142,6 +142,13 @@ class CmsController extends Controller
             'home.updates.tag' => ['nullable', 'string', 'max:80'],
             'home.updates.title' => ['nullable', 'string', 'max:255'],
             'home.updates.description' => ['nullable', 'string'],
+            'home.campus_tour' => ['nullable', 'array'],
+            'home.campus_tour.avp_video' => ['nullable', 'string', 'max:2048'],
+            'home.campus_tour.avp_video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'],
+            'home.campus_tour.facilities' => ['nullable', 'array', 'max:24'],
+            'home.campus_tour.facilities.*.name' => ['nullable', 'string', 'max:255'],
+            'home.campus_tour.facilities.*.image' => ['nullable', 'string', 'max:2048'],
+            'home.campus_tour.facilities.*.image_file' => ['nullable', 'image', 'max:5120'],
             'home.quick_links' => ['nullable', 'array'],
             'home.quick_links.tag' => ['nullable', 'string', 'max:80'],
             'home.quick_links.title' => ['nullable', 'string', 'max:255'],
@@ -416,6 +423,33 @@ class CmsController extends Controller
                         $storedPath = ImageStorage::store($upload, 'home/carousel');
                         if ($storedPath !== false) {
                             $homeInput['carousel'][$index]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
+            if ($sectionKey === '' || $sectionKey === 'campus_tour_video') {
+                $campusTourVideoUpload = $request->file('home.campus_tour.avp_video_file');
+                if ($campusTourVideoUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($campusTourVideoUpload, 'home/campus-tour/video');
+                    if ($storedPath !== false) {
+                        $homeInput['campus_tour']['avp_video'] = $storedPath;
+                    }
+                }
+            }
+
+            if ($sectionKey === '' || $sectionKey === 'campus_tour_facilities') {
+                $facilityUploads = $request->file('home.campus_tour.facilities', []);
+                if (is_array($facilityUploads)) {
+                    foreach ($facilityUploads as $index => $facilityUpload) {
+                        $upload = is_array($facilityUpload) ? ($facilityUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'home/campus-tour/facilities');
+                        if ($storedPath !== false) {
+                            $homeInput['campus_tour']['facilities'][$index]['image'] = $storedPath;
                         }
                     }
                 }
@@ -844,6 +878,8 @@ class CmsController extends Controller
             'description' => 'Description',
             'carousel' => 'Hero Carousel',
             'updates' => 'Campus Updates',
+            'campus_tour_video' => 'Campus Tour AVP',
+            'campus_tour_facilities' => 'Campus Tour Facilities',
             'quick_links' => 'Explore Section',
             'feedback' => 'Feedback Banner',
             default => '',
@@ -860,6 +896,8 @@ class CmsController extends Controller
             'description' => ['campus_title', 'campus_description', 'campus_image'],
             'carousel' => ['hero', 'carousel', 'carousel_slides'],
             'updates' => ['updates'],
+            'campus_tour_video' => ['campus_tour'],
+            'campus_tour_facilities' => ['campus_tour'],
             'quick_links' => ['quick_links'],
             'feedback' => ['feedback'],
             default => array_keys($homeInput),

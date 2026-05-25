@@ -19,6 +19,7 @@
     $slides = $homeCms['carousel_slides'] ?? [];
     $hero = $homeCms['hero'] ?? $defaults['hero'];
     $updatesSection = $homeCms['updates'] ?? $defaults['updates'];
+    $campusTourSection = $homeCms['campus_tour'] ?? ($defaults['campus_tour'] ?? []);
     $quickLinksSection = $homeCms['quick_links'] ?? $defaults['quick_links'];
     $feedbackSection = $homeCms['feedback'] ?? $defaults['feedback'];
 
@@ -30,6 +31,10 @@
     $newsFeed = $news->take(5)->values();
     $announcementFeed = collect($announcements ?? [])->values();
     $quickLinks = $quickLinksSection['items'] ?? $defaults['quick_links']['items'] ?? [];
+    $campusTourVideo = \App\Support\ImageStorage::url((string) ($campusTourSection['avp_video'] ?? ''), null);
+    $campusFacilities = collect($campusTourSection['facilities'] ?? [])
+        ->filter(fn ($item) => is_array($item) && trim((string) ($item['image'] ?? '')) !== '')
+        ->values();
   @endphp
 
   @unless($cmsPreview)
@@ -245,6 +250,70 @@
       </div>
     </section>
 
+    <section class="campus-tour reveal">
+      <div class="section-heading layout-inset campus-tour-heading reveal">
+        <h2>{{ e($campusTourSection['title'] ?? 'Campus Tour') }}</h2>
+      </div>
+
+      <div class="campus-tour-grid layout-inset">
+        <article class="campus-tour-card campus-tour-avp-card{{ $cmsPreview ? ' campus-tour-preview-card' : '' }}">
+          @if($cmsPreview)
+            <div class="cms-preview-card-actions" aria-label="Campus tour AVP actions">
+              <button type="button" class="cms-preview-card-action" data-home-campus-tour-video-edit>Edit</button>
+            </div>
+          @endif
+
+          <div class="campus-tour-card-head">
+            <h3>University AVP</h3>
+          </div>
+
+          @if($campusTourVideo)
+            <video class="campus-tour-video" controls playsinline preload="metadata">
+              <source src="{{ $campusTourVideo }}">
+              Your browser does not support the video tag.
+            </video>
+          @else
+            <div class="campus-tour-empty">No AVP video uploaded yet.</div>
+          @endif
+        </article>
+
+        <article class="campus-tour-card campus-tour-facilities-card{{ $cmsPreview ? ' campus-tour-preview-card' : '' }}">
+          @if($cmsPreview)
+            <div class="cms-preview-card-actions" aria-label="Campus tour facilities actions">
+              <button type="button" class="cms-preview-card-action" data-home-campus-tour-facilities-edit>Edit</button>
+            </div>
+          @endif
+
+          <div class="campus-tour-card-head">
+            <h3>Campus Facilities</h3>
+          </div>
+
+          @if($campusFacilities->isNotEmpty())
+            <div class="campus-tour-facilities-carousel" data-campus-tour-carousel>
+              <div class="campus-tour-facilities-track">
+                @foreach($campusFacilities as $facility)
+                  @php
+                    $facilityImage = \App\Support\HomeCmsContent::resolveImagePath((string) ($facility['image'] ?? ''), 'assets/static_img/pupillar.jpeg');
+                    $facilityName = trim((string) ($facility['name'] ?? ''));
+                  @endphp
+                  <figure class="campus-tour-facility-slide{{ $loop->first ? ' is-active' : '' }}" data-campus-tour-slide>
+                    <img src="{{ $facilityImage }}" alt="{{ $facilityName !== '' ? e($facilityName) : 'Campus facility '.$loop->iteration }}">
+                  </figure>
+                @endforeach
+              </div>
+
+              @if($campusFacilities->count() > 1)
+                <button type="button" class="campus-tour-arrow campus-tour-arrow-prev" data-campus-tour-prev aria-label="Previous facility">&#10094;</button>
+                <button type="button" class="campus-tour-arrow campus-tour-arrow-next" data-campus-tour-next aria-label="Next facility">&#10095;</button>
+              @endif
+            </div>
+          @else
+            <div class="campus-tour-empty">No facility images uploaded yet.</div>
+          @endif
+        </article>
+      </div>
+    </section>
+
     <section class="quick-links reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
       <div class="section-heading layout-inset reveal">
         <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
@@ -359,6 +428,33 @@
 
   <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
   <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      document.querySelectorAll('[data-campus-tour-carousel]').forEach((carousel) => {
+        const slides = Array.from(carousel.querySelectorAll('[data-campus-tour-slide]'));
+        const prev = carousel.querySelector('[data-campus-tour-prev]');
+        const next = carousel.querySelector('[data-campus-tour-next]');
+        if (!slides.length) {
+          return;
+        }
+
+        let current = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
+        if (current < 0) {
+          current = 0;
+        }
+
+        const show = (index) => {
+          current = (index + slides.length) % slides.length;
+          slides.forEach((slide, slideIndex) => {
+            slide.classList.toggle('is-active', slideIndex === current);
+          });
+        };
+
+        prev?.addEventListener('click', () => show(current - 1));
+        next?.addEventListener('click', () => show(current + 1));
+      });
+    });
+  </script>
 
   @if($cmsPreview)
     <style>
@@ -395,6 +491,7 @@
       }
 
       .hero-shell,
+      .campus-tour,
       .quick-links,
       .updates-section,
       .feedback-banner {
@@ -408,6 +505,17 @@
         right: auto !important;
         margin-left: 0 !important;
         margin-right: 0 !important;
+      }
+
+      /* In CMS iframe preview there is no reliable in-frame scroll,
+         so reveal blocks can remain invisible but still clickable. */
+      .reveal,
+      .reveal.active,
+      body.scroll-down .reveal:not(.active),
+      body.scroll-up .reveal:not(.active) {
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
       }
 
       .updates-shared-shell {
@@ -488,6 +596,25 @@
           0 0 0 4px rgba(242, 201, 76, 0.12);
         transition: none !important;
         animation: none !important;
+      }
+
+      .campus-tour-preview-card {
+        position: relative;
+        cursor: default;
+      }
+
+      .campus-tour-preview-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        box-sizing: border-box;
+        pointer-events: none;
+        border: 2px dashed rgba(242, 201, 76, 0.95);
+        border-radius: inherit;
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+          0 0 0 4px rgba(242, 201, 76, 0.12);
       }
 
       .quick-link-card[data-home-quick-link-card]:hover,
@@ -588,6 +715,7 @@
 
       @media (max-width: 768px) {
         .hero-shell,
+        .campus-tour,
         .quick-links,
         .updates-section,
         .feedback-banner {
@@ -778,6 +906,28 @@
             event.stopPropagation();
             postCard();
           });
+        });
+
+        const campusTourVideoEdit = document.querySelector('[data-home-campus-tour-video-edit]');
+        campusTourVideoEdit?.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.parent?.postMessage({
+            type: 'cms-home-edit',
+            section: 'campus_tour_video',
+            label: 'Edit Campus Tour AVP',
+          }, '*');
+        });
+
+        const campusTourFacilitiesEdit = document.querySelector('[data-home-campus-tour-facilities-edit]');
+        campusTourFacilitiesEdit?.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          window.parent?.postMessage({
+            type: 'cms-home-edit',
+            section: 'campus_tour_facilities',
+            label: 'Edit Campus Tour Facilities',
+          }, '*');
         });
 
         if (typeof ResizeObserver !== 'undefined') {

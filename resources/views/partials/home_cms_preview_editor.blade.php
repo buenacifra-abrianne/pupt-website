@@ -3,6 +3,8 @@
     $homeEditorData = \App\Support\HomeCmsContent::fromInput($homeEditorData ?? [], null);
     $heroEditor = $homeEditorData['hero'] ?? $homeDefaults['hero'];
     $updatesEditor = $homeEditorData['updates'] ?? $homeDefaults['updates'];
+    $campusTourEditor = $homeEditorData['campus_tour'] ?? $homeDefaults['campus_tour'];
+    $campusTourFacilitiesEditor = array_values(is_array($campusTourEditor['facilities'] ?? null) ? $campusTourEditor['facilities'] : []);
     $quickLinksEditor = $homeEditorData['quick_links'] ?? $homeDefaults['quick_links'];
     $feedbackEditor = $homeEditorData['feedback'] ?? $homeDefaults['feedback'];
     $feedbackQuestionsEditor = $feedbackEditor['questions'] ?? ($homeDefaults['feedback']['questions'] ?? []);
@@ -13,6 +15,11 @@
     $requestId = (int) ($homeEditorRequestId ?? 0);
     $status = strtolower((string) ($homeEditorStatus ?? ''));
     $idPrefix = trim((string) ($homeEditorIdPrefix ?? 'home-editor'));
+    $campusTourVideoId = $idPrefix.'-home-campus-tour-video';
+    $campusTourVideoPath = (string) ($campusTourEditor['avp_video'] ?? '');
+    $campusTourVideoUrl = $campusTourVideoPath !== ''
+        ? \App\Support\ImageStorage::url($campusTourVideoPath, null)
+        : null;
     $submitLabel = static function (string $sectionLabel) use ($submitMode, $status): string {
         if ($submitMode === 'request') {
             return $status === 'pending'
@@ -35,7 +42,7 @@
     <div class="home-cms-preview-shell">
         <div class="home-cms-preview-head">
             <div class="home-cms-preview-nav" aria-label="Home preview pages">
-                <button type="button" class="home-cms-preview-nav-btn is-active" data-home-preview-page="overview">Sections Overview</button>
+                <button type="button" class="home-cms-preview-nav-btn is-active" data-home-preview-page="overview">Overview</button>
                 <button type="button" class="home-cms-preview-nav-btn" data-home-preview-page="feedback_form">Feedback Form</button>
             </div>
         </div>
@@ -122,7 +129,9 @@
                     </div>
 
                     <div class="home-cms-form-grid home-cms-carousel-meta-grid" data-home-card-panel-meta>
-                        @php($crestHeadingValue = str_replace(["\r", "\n"], ' ', (string) ($heroEditor['crest_heading'] ?? '')))
+                        @php
+                            $crestHeadingValue = str_replace(["\r", "\n"], ' ', (string) ($heroEditor['crest_heading'] ?? ''));
+                        @endphp
                         <div class="form-group">
                             <label>Crest Heading</label>
                             <input type="text" name="home[hero][crest_heading]" maxlength="255" value="{{ $crestHeadingValue }}">
@@ -182,112 +191,192 @@
                 </form>
             </section>
 
-            <section class="home-cms-editor-panel" data-home-editor-panel="quick_links" hidden>
-                <div data-home-quick-links-section-shell>
-                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" name="tab_key" value="home">
-                        <input type="hidden" name="section_key" value="quick_links">
-                        @if($requestId > 0)
-                            <input type="hidden" name="request_id" value="{{ $requestId }}">
-                        @endif
+            <section class="home-cms-editor-panel" data-home-editor-panel="campus_tour_video" hidden>
+                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="home">
+                    <input type="hidden" name="section_key" value="campus_tour_video">
+                    <input type="hidden" name="home[campus_tour][avp_video]" value="{{ $campusTourEditor['avp_video'] ?? '' }}" data-home-campus-tour-video-field>
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
-                        <div class="home-cms-form-grid" data-home-card-panel-meta>
-                            <div class="form-group">
-                                <label>Section Tag</label>
-                                <input type="text" name="home[quick_links][tag]" maxlength="80" value="{{ $quickLinksEditor['tag'] ?? '' }}">
-                            </div>
-                            <div class="form-group">
-                                <label>Section Title</label>
-                                <input type="text" name="home[quick_links][title]" maxlength="255" value="{{ $quickLinksEditor['title'] ?? '' }}">
-                            </div>
-                        </div>
+                    <div class="home-cms-campus-tour-video-shell">
+                        <label class="home-dropzone home-campus-tour-video-dropzone" for="{{ $campusTourVideoId }}">
+                            <span class="dropzone-label">University AVP Video</span>
+                            <span class="dropzone-file-name" data-home-campus-tour-video-name data-empty-text="Upload MP4, WebM, or MOV video">Upload MP4, WebM, or MOV video</span>
+                            <span class="home-cms-campus-tour-video-preview-wrap">
+                                <video
+                                    class="home-cms-campus-tour-video-preview"
+                                    data-home-campus-tour-video-preview
+                                    controls
+                                    playsinline
+                                    preload="metadata"
+                                    @if($campusTourVideoUrl) src="{{ $campusTourVideoUrl }}" @endif
+                                    @if(!$campusTourVideoUrl) hidden @endif
+                                ></video>
+                                <span class="home-cms-campus-tour-video-empty" data-home-campus-tour-video-empty @if($campusTourVideoUrl) hidden @endif>No AVP video uploaded yet.</span>
+                                <button
+                                    type="button"
+                                    class="home-cms-carousel-remove"
+                                    data-home-campus-tour-video-clear
+                                    aria-label="Delete AVP video"
+                                    title="Delete video"
+                                    @if(!$campusTourVideoUrl) hidden @endif
+                                >
+                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                        </label>
+                        <input
+                            id="{{ $campusTourVideoId }}"
+                            class="home-dropzone-input"
+                            type="file"
+                            name="home[campus_tour][avp_video_file]"
+                            accept="video/mp4,video/webm,video/quicktime"
+                            data-home-campus-tour-video-input
+                        >
+                    </div>
 
-                        <div class="form-group">
-                            <label>Description</label>
-                            @include('partials.rich_text_editor', [
-                                'name' => 'home[quick_links][description]',
-                                'value' => $quickLinksEditor['description'] ?? '',
-                                'placeholder' => 'Write the description for the Explore section...',
-                                'characterLimit' => 100,
-                                'counterMode' => 'limit',
-                            ])
-                        </div>
-
-                        @foreach(($quickLinksEditor['items'] ?? []) as $index => $item)
-                            <input type="hidden" name="home[quick_links][items][{{ $index }}][label]" value="{{ $item['label'] ?? '' }}">
-                            <input type="hidden" name="home[quick_links][items][{{ $index }}][title]" value="{{ $item['title'] ?? '' }}">
-                            <input type="hidden" name="home[quick_links][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
-                            <input type="hidden" name="home[quick_links][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
-                        @endforeach
-
-                        <div class="home-cms-modal-footer">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                                {{ $submitLabel('Explore Section') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <div data-home-quick-links-card-shell>
-                    <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-home-quick-links-form>
-                        @csrf
-                        <input type="hidden" name="tab_key" value="home">
-                        <input type="hidden" name="section_key" value="quick_links">
-                        <input type="hidden" name="home_quick_links_version" value="0" data-home-quick-links-version>
-                        <input type="hidden" name="home_active_quick_link_index" value="" data-home-active-quick-link-index>
-                        <input type="hidden" name="home[quick_links][tag]" value="{{ $quickLinksEditor['tag'] ?? '' }}">
-                        <input type="hidden" name="home[quick_links][title]" value="{{ $quickLinksEditor['title'] ?? '' }}">
-                        <input type="hidden" name="home[quick_links][description]" value="{{ $quickLinksEditor['description'] ?? '' }}">
-                        @if($requestId > 0)
-                            <input type="hidden" name="request_id" value="{{ $requestId }}">
-                        @endif
-
-                        <div class="home-cms-card-stack" data-home-quick-link-stack>
-                            @foreach(($quickLinksEditor['items'] ?? []) as $index => $item)
-                                <article class="home-cms-card-editor" data-home-quick-link-editor data-home-quick-link-index="{{ $index }}">
-                                    <div class="home-cms-card-editor-head" data-home-card-editor-head>
-                                        <h4>Explore Card {{ $loop->iteration }}</h4>
-                                        <span>{{ $item['href'] ?? '' }}</span>
-                                    </div>
-
-                                    <input type="hidden" name="home[quick_links][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
-
-                                    <div class="home-cms-form-grid">
-                                        <div class="form-group">
-                                            <label>Card Label</label>
-                                            <input type="text" name="home[quick_links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Card Title</label>
-                                            <input type="text" name="home[quick_links][items][{{ $index }}][title]" maxlength="255" value="{{ $item['title'] ?? '' }}">
-                                        </div>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Card Description</label>
-                                        @include('partials.rich_text_editor', [
-                                            'name' => 'home[quick_links][items]['.$index.'][body]',
-                                            'value' => $item['body'] ?? '',
-                                            'placeholder' => 'Write the card description shown in the Explore section...',
-                                            'characterLimit' => 75,
-                                            'counterMode' => 'limit',
-                                        ])
-                                    </div>
-                                </article>
-                            @endforeach
-                        </div>
-
-                        <div class="home-cms-modal-footer">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                                {{ $submitLabel('Explore Card') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="home-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Campus Tour AVP') }}
+                        </button>
+                    </div>
+                </form>
             </section>
+
+            <section class="home-cms-editor-panel" data-home-editor-panel="campus_tour_facilities" hidden>
+                <form class="{{ $formClass }} home-section-form" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="home">
+                    <input type="hidden" name="section_key" value="campus_tour_facilities">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="home-cms-section-toolbar">
+                        <div>
+                            <h4 class="home-cms-section-toolbar-title">Facility Cards</h4>
+                            <p class="home-cms-section-toolbar-copy">Add, edit, or delete cards. Update each card name and image.</p>
+                        </div>
+                        <button type="button" class="home-cms-inline-btn" data-home-campus-tour-facility-add>Add Facility Card</button>
+                    </div>
+
+                    <div class="campus-tour-manager-grid" data-home-campus-tour-facility-stack>
+                        @foreach($campusTourFacilitiesEditor as $index => $facility)
+                            @php
+                                $facilityInputId = $idPrefix.'-home-campus-tour-facility-'.$index;
+                                $facilityImage = (string) ($facility['image'] ?? '');
+                                $facilityName = (string) ($facility['name'] ?? '');
+                                $facilityPreview = \App\Support\HomeCmsContent::resolveImagePath($facilityImage, 'assets/static_img/pupillar.jpeg');
+                            @endphp
+                            <article class="campus-tour-manager-item" data-home-campus-tour-facility-card data-home-campus-tour-facility-index="{{ $index }}">
+                                <div class="campus-tour-manager-item-head">
+                                    <h4 data-home-campus-tour-facility-title>Facility Card {{ $loop->iteration }}</h4>
+                                    <button type="button" class="home-cms-inline-btn danger" data-home-campus-tour-facility-delete>Delete</button>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Card Name</label>
+                                    <input type="text" name="home[campus_tour][facilities][{{ $index }}][name]" maxlength="255" value="{{ $facilityName }}" placeholder="Enter facility name">
+                                </div>
+
+                                <input type="hidden" name="home[campus_tour][facilities][{{ $index }}][image]" value="{{ $facilityImage }}" data-home-campus-tour-facility-image-field>
+
+                                <label class="home-dropzone campus-tour-dropzone" for="{{ $facilityInputId }}" data-home-campus-tour-facility-dropzone-for="{{ $facilityInputId }}">
+                                    <span class="home-cms-carousel-media">
+                                        <img
+                                            src="{{ $facilityPreview }}"
+                                            alt="Facility {{ $index + 1 }} preview"
+                                            class="slide-preview"
+                                            data-home-campus-tour-facility-preview-for="{{ $facilityInputId }}"
+                                            data-home-campus-tour-facility-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        >
+                                        <button
+                                            type="button"
+                                            class="home-cms-carousel-remove"
+                                            data-home-campus-tour-facility-clear-for="{{ $facilityInputId }}"
+                                            aria-label="Delete facility image {{ $index + 1 }}"
+                                            title="Delete image"
+                                        >
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="dropzone-label">Facility {{ $index + 1 }}</span>
+                                    <span class="dropzone-file-name" data-home-campus-tour-facility-file-name-for="{{ $facilityInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </label>
+                                <input
+                                    id="{{ $facilityInputId }}"
+                                    class="home-dropzone-input"
+                                    type="file"
+                                    name="home[campus_tour][facilities][{{ $index }}][image_file]"
+                                    accept="image/*"
+                                    data-home-campus-tour-facility-input
+                                >
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-home-campus-tour-facility-template>
+                        <article class="campus-tour-manager-item" data-home-campus-tour-facility-card data-home-campus-tour-facility-index="__INDEX__">
+                            <div class="campus-tour-manager-item-head">
+                                <h4 data-home-campus-tour-facility-title>Facility Card __NUMBER__</h4>
+                                <button type="button" class="home-cms-inline-btn danger" data-home-campus-tour-facility-delete>Delete</button>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Card Name</label>
+                                <input type="text" name="home[campus_tour][facilities][__INDEX__][name]" maxlength="255" value="" placeholder="Enter facility name">
+                            </div>
+
+                            <input type="hidden" name="home[campus_tour][facilities][__INDEX__][image]" value="" data-home-campus-tour-facility-image-field>
+
+                            <label class="home-dropzone campus-tour-dropzone" for="__INPUT_ID__" data-home-campus-tour-facility-dropzone-for="__INPUT_ID__">
+                                <span class="home-cms-carousel-media">
+                                    <img
+                                        src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                        alt="Facility __NUMBER__ preview"
+                                        class="slide-preview"
+                                        data-home-campus-tour-facility-preview-for="__INPUT_ID__"
+                                        data-home-campus-tour-facility-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                    >
+                                    <button
+                                        type="button"
+                                        class="home-cms-carousel-remove"
+                                        data-home-campus-tour-facility-clear-for="__INPUT_ID__"
+                                        aria-label="Delete facility image __NUMBER__"
+                                        title="Delete image"
+                                        hidden
+                                    >
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                    </button>
+                                </span>
+                                <span class="dropzone-label">Facility __NUMBER__</span>
+                                <span class="dropzone-file-name" data-home-campus-tour-facility-file-name-for="__INPUT_ID__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                            </label>
+                            <input
+                                id="__INPUT_ID__"
+                                class="home-dropzone-input"
+                                type="file"
+                                name="home[campus_tour][facilities][__INDEX__][image_file]"
+                                accept="image/*"
+                                data-home-campus-tour-facility-input
+                            >
+                        </article>
+                    </template>
+
+                    <div class="home-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Campus Tour Facilities') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            
 
             <section class="home-cms-editor-panel" data-home-editor-panel="feedback" hidden>
                 <div data-home-feedback-section-shell>
@@ -665,6 +754,13 @@
         gap: 14px;
     }
 
+    .campus-tour-manager-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 14px;
+        align-items: start;
+    }
+
     .carousel-manager-item {
         min-width: 0;
         padding: 12px;
@@ -674,9 +770,90 @@
         box-shadow: 0 10px 24px rgba(92, 12, 6, 0.04);
     }
 
+    .campus-tour-manager-item {
+        min-width: 0;
+        padding: 12px;
+        border: 1px solid #efe3dc;
+        border-radius: 18px;
+        background: #fff;
+        box-shadow: 0 10px 24px rgba(92, 12, 6, 0.04);
+    }
+
+    .campus-tour-manager-item-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .campus-tour-manager-item-head h4 {
+        margin: 0;
+        color: #5c0000;
+        font-size: 0.95rem;
+    }
+
+    .home-cms-inline-btn {
+        border: 1px solid #d4af37;
+        background: #fff8e7;
+        color: #5c0000;
+        border-radius: 999px;
+        padding: 7px 12px;
+        font: inherit;
+        font-size: 0.78rem;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .home-cms-inline-btn.danger {
+        border-color: rgba(127, 17, 19, 0.3);
+        background: rgba(127, 17, 19, 0.08);
+        color: #7f1113;
+    }
+
     .slide-dropzone {
         min-height: 100%;
         text-align: center;
+    }
+
+    .campus-tour-dropzone {
+        min-height: 0;
+        text-align: center;
+    }
+
+    .home-cms-campus-tour-video-shell {
+        display: block;
+    }
+
+    .home-campus-tour-video-dropzone {
+        text-align: center;
+    }
+
+    .home-cms-campus-tour-video-preview-wrap {
+        position: relative;
+        display: block;
+        margin-top: 10px;
+        border-radius: 14px;
+        overflow: hidden;
+        background: #f1e7dd;
+        min-height: 220px;
+    }
+
+    .home-cms-campus-tour-video-preview {
+        width: 100%;
+        height: 320px;
+        display: block;
+        object-fit: cover;
+        background: #120304;
+    }
+
+    .home-cms-campus-tour-video-empty {
+        min-height: 220px;
+        display: grid;
+        place-items: center;
+        color: #6f625c;
+        font-weight: 600;
+        padding: 18px;
     }
 
     .home-cms-carousel-media {
@@ -860,6 +1037,10 @@
             grid-template-columns: 1fr;
         }
 
+        .campus-tour-manager-grid {
+            grid-template-columns: 1fr;
+        }
+
         .home-cms-modal-dialog {
             width: min(100vw - 20px, 1080px);
             max-height: calc(100vh - 20px);
@@ -995,6 +1176,223 @@
 
                 syncRemoveState();
             });
+        }
+
+        function initHomeCampusTourFacilityDropzones(scope = document) {
+            scope.querySelectorAll('[data-home-campus-tour-facility-input]').forEach((input) => {
+                if (input.dataset.homeCampusTourFacilityBound === '1') {
+                    return;
+                }
+
+                const dropzone = scope.querySelector(`[data-home-campus-tour-facility-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-campus-tour-facility-dropzone-for="${input.id}"]`);
+                const fileNameEl = scope.querySelector(`[data-home-campus-tour-facility-file-name-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-campus-tour-facility-file-name-for="${input.id}"]`);
+                const previewEl = scope.querySelector(`[data-home-campus-tour-facility-preview-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-campus-tour-facility-preview-for="${input.id}"]`);
+                const removeButton = scope.querySelector(`[data-home-campus-tour-facility-clear-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-campus-tour-facility-clear-for="${input.id}"]`);
+                const imageField = input.closest('.campus-tour-manager-item')?.querySelector('[data-home-campus-tour-facility-image-field]') || null;
+
+                if (!dropzone || !fileNameEl || !previewEl) {
+                    return;
+                }
+
+                input.dataset.homeCampusTourFacilityBound = '1';
+                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
+                const defaultSrc = previewEl.dataset.homeCampusTourFacilityDefaultSrc || '';
+
+                const syncRemoveState = () => {
+                    if (!removeButton) {
+                        return;
+                    }
+
+                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
+                    removeButton.hidden = !hasImage;
+                };
+
+                const applyFile = (file) => {
+                    if (!file) {
+                        syncRemoveState();
+                        return;
+                    }
+
+                    fileNameEl.textContent = `Selected: ${file.name}`;
+                    previewEl.src = URL.createObjectURL(file);
+                    syncRemoveState();
+                };
+
+                input.addEventListener('change', () => {
+                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                });
+
+                dropzone.addEventListener('dragover', (event) => {
+                    event.preventDefault();
+                    dropzone.classList.add('dragover');
+                });
+
+                dropzone.addEventListener('dragleave', () => {
+                    dropzone.classList.remove('dragover');
+                });
+
+                dropzone.addEventListener('drop', (event) => {
+                    event.preventDefault();
+                    dropzone.classList.remove('dragover');
+
+                    const file = event.dataTransfer?.files?.[0] ?? null;
+                    if (!file) {
+                        return;
+                    }
+
+                    const transfer = new DataTransfer();
+                    transfer.items.add(file);
+                    input.files = transfer.files;
+                    applyFile(file);
+                });
+
+                removeButton?.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    input.value = '';
+                    if (imageField) {
+                        imageField.value = '';
+                    }
+                    if (defaultSrc) {
+                        previewEl.src = defaultSrc;
+                    }
+                    fileNameEl.textContent = emptyText;
+                    syncRemoveState();
+                });
+
+                syncRemoveState();
+            });
+        }
+
+        function initHomeCampusTourVideoInput(scope = document) {
+            const input = scope.querySelector('[data-home-campus-tour-video-input]')
+                || document.querySelector('[data-home-campus-tour-video-input]');
+            const preview = scope.querySelector('[data-home-campus-tour-video-preview]')
+                || document.querySelector('[data-home-campus-tour-video-preview]');
+            const clearButton = scope.querySelector('[data-home-campus-tour-video-clear]')
+                || document.querySelector('[data-home-campus-tour-video-clear]');
+            const fileName = scope.querySelector('[data-home-campus-tour-video-name]')
+                || document.querySelector('[data-home-campus-tour-video-name]');
+            const empty = scope.querySelector('[data-home-campus-tour-video-empty]')
+                || document.querySelector('[data-home-campus-tour-video-empty]');
+            const field = scope.querySelector('[data-home-campus-tour-video-field]')
+                || document.querySelector('[data-home-campus-tour-video-field]');
+
+            if (!input || !preview || !fileName || input.dataset.homeCampusTourVideoBound === '1') {
+                return;
+            }
+
+            input.dataset.homeCampusTourVideoBound = '1';
+            const emptyText = fileName.dataset.emptyText || 'Upload MP4, WebM, or MOV video';
+
+            const updateState = () => {
+                const hasStored = Boolean((field?.value || '').trim() !== '');
+                const hasSelected = Boolean(input.files && input.files[0]);
+                const hasMedia = hasStored || hasSelected;
+                clearButton && (clearButton.hidden = !hasMedia);
+                if (!hasMedia) {
+                    preview.hidden = true;
+                    if (empty) {
+                        empty.hidden = false;
+                    }
+                }
+            };
+
+            input.addEventListener('change', () => {
+                const file = input.files && input.files[0] ? input.files[0] : null;
+                if (!file) {
+                    updateState();
+                    return;
+                }
+
+                fileName.textContent = `Selected: ${file.name}`;
+                preview.src = URL.createObjectURL(file);
+                preview.hidden = false;
+                if (empty) {
+                    empty.hidden = true;
+                }
+                updateState();
+            });
+
+            clearButton?.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                input.value = '';
+                preview.removeAttribute('src');
+                preview.load();
+                if (field) {
+                    field.value = '';
+                }
+                fileName.textContent = emptyText;
+                updateState();
+            });
+
+            updateState();
+        }
+
+        const homeEditorIdPrefix = @json($idPrefix);
+        const campusTourFacilitiesForm = document.querySelector('[data-home-editor-panel="campus_tour_facilities"] form');
+        const campusTourFacilityStack = campusTourFacilitiesForm?.querySelector('[data-home-campus-tour-facility-stack]');
+        const campusTourFacilityTemplate = campusTourFacilitiesForm?.querySelector('[data-home-campus-tour-facility-template]');
+
+        function getCampusTourFacilityCards() {
+            return Array.from(campusTourFacilityStack?.querySelectorAll('[data-home-campus-tour-facility-card]') ?? []);
+        }
+
+        function relabelCampusTourFacilityCards() {
+            const cards = getCampusTourFacilityCards();
+            cards.forEach((card, index) => {
+                const title = card.querySelector('[data-home-campus-tour-facility-title]');
+                if (title) {
+                    title.textContent = `Facility Card ${String(index + 1).padStart(2, '0')}`;
+                }
+            });
+        }
+
+        function nextCampusTourFacilityIndex() {
+            const indexes = getCampusTourFacilityCards()
+                .map((card) => Number(card.getAttribute('data-home-campus-tour-facility-index') || '0'))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        }
+
+        function addCampusTourFacilityCard() {
+            if (!campusTourFacilityStack || !campusTourFacilityTemplate) {
+                return;
+            }
+
+            const nextIndex = nextCampusTourFacilityIndex();
+            const nextNumber = getCampusTourFacilityCards().length + 1;
+            const inputId = `${homeEditorIdPrefix}-home-campus-tour-facility-${nextIndex}`;
+            const markup = campusTourFacilityTemplate.innerHTML
+                .replaceAll('__INDEX__', String(nextIndex))
+                .replaceAll('__NUMBER__', String(nextNumber))
+                .replaceAll('__INPUT_ID__', inputId);
+
+            campusTourFacilityStack.insertAdjacentHTML('beforeend', markup);
+            const appendedCard = campusTourFacilityStack.lastElementChild;
+            if (appendedCard) {
+                initHomeCampusTourFacilityDropzones(appendedCard);
+                const firstField = appendedCard.querySelector('input[type="text"]');
+                firstField?.focus();
+            }
+
+            relabelCampusTourFacilityCards();
+        }
+
+        function deleteCampusTourFacilityCard(trigger) {
+            const card = trigger?.closest('[data-home-campus-tour-facility-card]');
+            if (!card) {
+                return;
+            }
+
+            card.remove();
+            relabelCampusTourFacilityCards();
         }
 
         function readCssNumber(element, variableName, fallback) {
@@ -1727,6 +2125,20 @@
         });
 
         document.addEventListener('click', (event) => {
+            const addFacilityButton = event.target.closest('[data-home-campus-tour-facility-add]');
+            if (addFacilityButton) {
+                event.preventDefault();
+                addCampusTourFacilityCard();
+                return;
+            }
+
+            const deleteFacilityButton = event.target.closest('[data-home-campus-tour-facility-delete]');
+            if (deleteFacilityButton) {
+                event.preventDefault();
+                deleteCampusTourFacilityCard(deleteFacilityButton);
+                return;
+            }
+
             if (event.target.closest('[data-close-home-editor]')) {
                 event.preventDefault();
                 closeHomeEditor();
@@ -1745,6 +2157,9 @@
         });
 
         initHomeCarouselDropzones(document);
+        initHomeCampusTourFacilityDropzones(document);
+        initHomeCampusTourVideoInput(document);
+        relabelCampusTourFacilityCards();
 
         currentHomePreviewRoute = normalizeHomePreviewRoute(currentHomePreviewRoute);
         persistHomePreviewRoute(currentHomePreviewRoute);

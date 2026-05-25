@@ -18,6 +18,11 @@ class HomeCmsContent
             'title' => 'Campus Updates',
             'description' => 'Check out the latest events, news and updates of our Sintang Paaralan!',
         ],
+        'campus_tour' => [
+            'title' => 'Campus Tour',
+            'avp_video' => '',
+            'facilities' => [],
+        ],
         'quick_links' => [
             'tag' => 'Explore',
             'title' => 'Navigate the campus experience.',
@@ -191,6 +196,10 @@ class HomeCmsContent
             ),
             'updates' => self::normalizeUpdates(
                 $source['updates'] ?? ($base['updates'] ?? [])
+            ),
+            'campus_tour' => self::normalizeCampusTour(
+                $source['campus_tour'] ?? [],
+                is_array($base['campus_tour'] ?? null) ? $base['campus_tour'] : $defaults['campus_tour']
             ),
             'quick_links' => self::normalizeQuickLinks(
                 $source['quick_links'] ?? ($base['quick_links'] ?? [])
@@ -374,6 +383,58 @@ class HomeCmsContent
             ),
             'items' => $items,
         ];
+    }
+
+    private static function normalizeCampusTour(mixed $input, array $base): array
+    {
+        $defaults = self::defaults()['campus_tour'];
+        $source = is_array($input) ? $input : [];
+
+        return [
+            'title' => self::sanitizeString(
+                $source['title'] ?? ($base['title'] ?? $defaults['title']),
+                255,
+                $defaults['title']
+            ),
+            'avp_video' => array_key_exists('avp_video', $source)
+                ? self::sanitizeOptionalString((string) $source['avp_video'], 2048)
+                : self::sanitizeOptionalString((string) ($base['avp_video'] ?? $defaults['avp_video'] ?? ''), 2048),
+            'facilities' => self::normalizeCampusTourFacilities(
+                array_key_exists('facilities', $source) ? $source['facilities'] : ($base['facilities'] ?? [])
+            ),
+        ];
+    }
+
+    private static function normalizeCampusTourFacilities(mixed $input): array
+    {
+        $items = is_array($input) ? array_values($input) : [];
+        $normalized = [];
+
+        foreach ($items as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $name = self::sanitizeOptionalString((string) ($item['name'] ?? ''), 255);
+            $image = array_key_exists('image', $item)
+                ? self::sanitizeOptionalString((string) $item['image'], 2048)
+                : '';
+
+            if ($name === '' && $image === '') {
+                continue;
+            }
+
+            $normalized[] = [
+                'name' => $name,
+                'image' => $image,
+            ];
+
+            if (count($normalized) >= 24) {
+                break;
+            }
+        }
+
+        return $normalized;
     }
 
     private static function normalizeFeedback(mixed $input, array $base): array
