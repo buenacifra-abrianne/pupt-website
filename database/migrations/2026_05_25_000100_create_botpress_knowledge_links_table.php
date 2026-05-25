@@ -14,7 +14,7 @@ return new class extends Migration
 
         Schema::create('botpress_knowledge_links', function (Blueprint $table) {
             $table->id();
-            $table->string('url', 2048)->unique();
+            $table->string('url', 512)->unique();
             $table->string('content_hash', 64)->nullable();
             $table->enum('sync_status', ['pending', 'synced', 'failed', 'skipped', 'inactive'])->default('pending');
             $table->timestamp('last_synced_at')->nullable();

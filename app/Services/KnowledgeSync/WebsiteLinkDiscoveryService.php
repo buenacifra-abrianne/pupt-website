@@ -72,6 +72,10 @@ class WebsiteLinkDiscoveryService
         $unique = array_values(array_unique($allDiscovered));
 
         return array_values(array_filter($unique, function (string $url) use ($baseHost) {
+            if (!$this->isKnowledgeCandidateUrl($url)) {
+                return false;
+            }
+
             $host = strtolower((string) parse_url($url, PHP_URL_HOST));
             $isInternal = $host !== '' && $host === $baseHost;
 
@@ -103,9 +107,15 @@ class WebsiteLinkDiscoveryService
                 continue;
             }
 
+            $primaryKey = $this->primaryKeyForTable($table);
+            if (!in_array($primaryKey, $selectable, true) && Schema::hasColumn($table, $primaryKey)) {
+                $selectable[] = $primaryKey;
+            }
+
             DB::table($table)
                 ->select($selectable)
-                ->chunk(100, function ($rows) use (&$urls): void {
+                ->orderBy($primaryKey)
+                ->chunkById(100, function ($rows) use (&$urls): void {
                     foreach ($rows as $row) {
                         foreach ((array) $row as $value) {
                             if (is_string($value) && trim($value) !== '') {
@@ -113,7 +123,7 @@ class WebsiteLinkDiscoveryService
                             }
                         }
                     }
-                });
+                }, $primaryKey);
         }
 
         foreach ($this->discoverPublicRouteUrls($baseUrl) as $routeUrl) {
@@ -345,5 +355,38 @@ class WebsiteLinkDiscoveryService
         }
 
         return false;
+    }
+
+    private function primaryKeyForTable(string $table): string
+    {
+        return match ($table) {
+            'announcements' => 'announcement_id',
+            'news' => 'news_id',
+            'downloadables' => 'downloadable_id',
+            default => 'id',
+        };
+    }
+
+    private function isKnowledgeCandidateUrl(string $url): bool
+    {
+        $path = strtolower((string) parse_url($url, PHP_URL_PATH));
+        $extension = pathinfo($path, PATHINFO_EXTENSION);
+
+        if ($extension === '') {
+            return true;
+        }
+
+        if (in_array($extension, ['pdf', 'docx', 'html', 'htm', 'txt'], true)) {
+            return true;
+        }
+
+        $nonKnowledgeExtensions = [
+            'css', 'js', 'mjs', 'map', 'xml', 'json',
+            'png', 'jpg', 'jpeg', 'gif', 'webp', 'svg', 'ico',
+            'woff', 'woff2', 'ttf', 'otf', 'eot',
+            'mp4', 'webm', 'mp3', 'wav', 'zip', 'rar',
+        ];
+
+        return !in_array($extension, $nonKnowledgeExtensions, true);
     }
 }
