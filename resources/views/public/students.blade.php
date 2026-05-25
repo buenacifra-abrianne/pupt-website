@@ -28,6 +28,20 @@
             ->concat($requiredStudentCards
                 ->reject(fn ($card) => in_array(strtolower(trim((string) ($card['title'] ?? ''))), $existingCardTitles, true))
                 ->map(fn ($card) => array_merge($card, ['_required_card' => true])))
+            ->values()
+            ->map(fn ($card, $index) => array_merge($card, ['_editor_index' => $index]))
+            ->values();
+        $cardsForDisplay = $cards
+            ->sortBy(function ($card) {
+                $title = strtolower(trim((string) ($card['title'] ?? '')));
+                $priority = match ($title) {
+                    'admissions' => 0,
+                    'downloadable forms' => 1,
+                    default => 2,
+                };
+
+                return sprintf('%d-%04d', $priority, (int) ($card['_editor_index'] ?? 0));
+            })
             ->values();
         $organizationSections = collect($studentsCms['organization_sections'] ?? [])
             ->filter(fn ($section) => is_array($section))
@@ -116,7 +130,7 @@
                             </article>
                         @endif
 
-                        @forelse($cards as $card)
+                        @forelse($cardsForDisplay as $card)
                             @php
                                 $cardLink = trim((string) ($card['link'] ?? ''));
                                 $cardTitle = trim((string) ($card['title'] ?? ''));
@@ -125,6 +139,7 @@
                                 $cardTitleKey = strtolower($cardTitle);
                                 $isExternalCardLink = preg_match('/^https?:\/\//i', $cardLink) === 1;
                                 $isRequiredDisplayCard = (bool) ($card['_required_card'] ?? false);
+                                $editorIndex = (int) ($card['_editor_index'] ?? $loop->index);
                             @endphp
 
                             @if($cmsPreview)
@@ -132,7 +147,7 @@
                                     class="students-card"
                                     data-cms-edit-trigger="cards"
                                     data-cms-section-label="Student Cards"
-                                    data-students-card-index="{{ $loop->index }}"
+                                    data-students-card-index="{{ $editorIndex }}"
                                 >
                             @else
                                 <a

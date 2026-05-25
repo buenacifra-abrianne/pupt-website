@@ -389,24 +389,16 @@
                 $admissionsHeroFieldId = $idPrefix.'-students-admissions-hero-image-field';
                 $admissionsHeroPreview = \App\Support\StudentsCmsContent::resolveImagePath($admissionsHero['image'] ?? null, 'assets/static_img/about_header_image.png');
             @endphp
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_page" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_hero" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_page">
+                    <input type="hidden" name="section_key" value="admissions_hero">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
                     <input type="hidden" id="{{ $admissionsHeroFieldId }}" name="students[pages][admissions][hero][image]" value="{{ $admissionsHero['image'] ?? '' }}">
-
-                    <div class="students-cms-section-divider">
-                        <span>1</span>
-                        <div>
-                            <h4>Hero Section</h4>
-                            <p>This is the top banner shown first on the admissions public page.</p>
-                        </div>
-                    </div>
 
                     <div class="form-group">
                         <label>Upload Hero Image</label>
@@ -433,34 +425,28 @@
                         <input id="{{ $admissionsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $admissionsHeroFieldId }}">
                     </div>
 
-                    <div class="students-cms-form-grid">
-                        <div class="form-group">
-                            <label>Hero Tag</label>
-                            <input type="text" name="students[pages][admissions][hero][tag]" maxlength="120" value="{{ $admissionsHero['tag'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Hero Title</label>
-                            <input type="text" name="students[pages][admissions][hero][title]" maxlength="255" value="{{ $admissionsHero['title'] ?? '' }}">
-                        </div>
-                    </div>
-
                     <div class="form-group">
-                        <label>Hero Subtitle</label>
-                        <input type="text" name="students[pages][admissions][hero][subtitle]" maxlength="255" value="{{ $admissionsHero['subtitle'] ?? '' }}">
+                        <label>Hero Title</label>
+                        <input type="text" name="students[pages][admissions][hero][title]" maxlength="255" value="{{ $admissionsHero['title'] ?? '' }}">
                     </div>
 
-                    <div class="form-group">
-                        <label>Hero Body</label>
-                        <textarea name="students[pages][admissions][hero][body]" rows="3">{{ $admissionsHero['body'] ?? '' }}</textarea>
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Admissions Header') }}
+                        </button>
                     </div>
+                </form>
+            </section>
 
-                    <div class="students-cms-section-divider">
-                        <span>2</span>
-                        <div>
-                            <h4>How to Apply</h4>
-                            <p>This text appears under the admissions intro before QR codes and links.</p>
-                        </div>
-                    </div>
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_instructions">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-form-grid">
                         <div class="form-group">
@@ -484,13 +470,23 @@
                         ])
                     </div>
 
-                    <div class="students-cms-section-divider">
-                        <span>3</span>
-                        <div>
-                            <h4>QR Codes</h4>
-                            <p>These QR cards appear before the application links on the public admissions page.</p>
-                        </div>
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Admissions Instructions') }}
+                        </button>
                     </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_qr_codes">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-form-grid">
                         <div class="form-group">
@@ -557,13 +553,23 @@
                         </div>
                     </div>
 
-                    <div class="students-cms-section-divider">
-                        <span>4</span>
-                        <div>
-                            <h4>Application Links</h4>
-                            <p>These links appear last on the public admissions page.</p>
-                        </div>
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Admissions QR Codes') }}
+                        </button>
                     </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_links" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_links">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-form-grid">
                         <div class="form-group">
@@ -575,7 +581,10 @@
                             <input type="text" name="students[pages][admissions][links][title]" maxlength="255" value="{{ $admissionsLinks['title'] ?? '' }}">
                         </div>
                     </div>
-                    <input type="hidden" name="students[pages][admissions][links][description]" value="{{ $admissionsLinks['description'] ?? '' }}">
+                    <div class="form-group">
+                        <label>Links Description</label>
+                        <textarea name="students[pages][admissions][links][description]" rows="2">{{ $admissionsLinks['description'] ?? '' }}</textarea>
+                    </div>
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-links">
                         <div class="students-cms-repeatable-head">
@@ -608,7 +617,7 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Admissions Page') }}
+                            {{ $submitLabel('Admissions Links') }}
                         </button>
                     </div>
                 </form>
@@ -621,12 +630,16 @@
                 $formsHeroInputId = $idPrefix.'-students-forms-hero-image';
                 $formsHeroFieldId = $idPrefix.'-students-forms-hero-image-field';
                 $formsHeroPreview = \App\Support\StudentsCmsContent::resolveImagePath($formsHero['image'] ?? null, 'assets/static_img/about_header_image.png');
+                $formsHeroTitleValue = trim((string) ($formsHero['title'] ?? ''));
+                if ($formsHeroTitleValue === '' || strcasecmp($formsHeroTitleValue, 'Downloadable Forms') === 0) {
+                    $formsHeroTitleValue = 'Downloadables';
+                }
             @endphp
-            <section class="students-cms-editor-panel" data-students-editor-panel="downloadable_forms_page" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="downloadable_forms_hero" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="downloadable_forms_page">
+                    <input type="hidden" name="section_key" value="downloadable_forms_hero">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -658,26 +671,28 @@
                         <input id="{{ $formsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][downloadable-forms][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $formsHeroFieldId }}">
                     </div>
 
-                    <div class="students-cms-form-grid">
-                        <div class="form-group">
-                            <label>Hero Tag</label>
-                            <input type="text" name="students[pages][downloadable-forms][hero][tag]" maxlength="120" value="{{ $formsHero['tag'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Hero Title</label>
-                            <input type="text" name="students[pages][downloadable-forms][hero][title]" maxlength="255" value="{{ $formsHero['title'] ?? '' }}">
-                        </div>
+                    <div class="form-group">
+                        <label>Hero Title</label>
+                        <input type="text" name="students[pages][downloadable-forms][hero][title]" maxlength="255" value="{{ $formsHeroTitleValue }}">
                     </div>
 
-                    <div class="form-group">
-                        <label>Hero Subtitle</label>
-                        <input type="text" name="students[pages][downloadable-forms][hero][subtitle]" maxlength="255" value="{{ $formsHero['subtitle'] ?? '' }}">
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Downloadables Header') }}
+                        </button>
                     </div>
+                </form>
+            </section>
 
-                    <div class="form-group">
-                        <label>Hero Body</label>
-                        <textarea name="students[pages][downloadable-forms][hero][body]" rows="3">{{ $formsHero['body'] ?? '' }}</textarea>
-                    </div>
+            <section class="students-cms-editor-panel" data-students-editor-panel="downloadable_forms_links" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="downloadable_forms_links">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-form-grid">
                         <div class="form-group">
@@ -726,7 +741,7 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Downloadable Forms Page') }}
+                            {{ $submitLabel('Downloadables Links') }}
                         </button>
                     </div>
                 </form>
@@ -1572,15 +1587,17 @@
             }
 
             if (modalDescription) {
-                modalDescription.textContent = sectionKey === 'cards'
-                    ? 'Manage the public cards shown in the student contents strip.'
-                    : (sectionKey === 'cards_header'
-                        ? 'Update the heading, title, and supporting copy above the student cards.'
-                        : (sectionKey === 'admissions_page'
-                            ? 'Update admissions instructions, QR codes, and application links.'
-                            : (sectionKey === 'downloadable_forms_page'
-                                ? 'Update the downloadable forms page and manage form links.'
-                                : 'Update the student page hero and introduction content.')));
+                const sectionDescriptions = {
+                    cards: 'Manage the public cards shown in the student contents strip.',
+                    cards_header: 'Update the heading, title, and supporting copy above the student cards.',
+                    admissions_hero: 'Update the admissions subpage header and intro copy.',
+                    admissions_instructions: 'Update the admissions application instructions section.',
+                    admissions_qr_codes: 'Manage the admissions QR codes section.',
+                    admissions_links: 'Manage the admissions links section.',
+                    downloadable_forms_hero: 'Update the downloadables subpage header and intro copy.',
+                    downloadable_forms_links: 'Manage the downloadables links section.',
+                };
+                modalDescription.textContent = sectionDescriptions[sectionKey] || 'Update the selected student section.';
             }
 
             modal.hidden = false;
@@ -1832,17 +1849,6 @@
                     const card = deleteCardTrigger.closest('[data-students-card-index]');
                     const cardIndex = card?.getAttribute('data-students-card-index') ?? null;
                     void confirmDeleteCard(cardIndex);
-                    return;
-                }
-
-                const linkedPageTrigger = event.target.closest('[data-cms-edit-trigger="admissions_page"], [data-cms-edit-trigger="downloadable_forms_page"]');
-                if (linkedPageTrigger) {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openEditor(
-                        linkedPageTrigger.getAttribute('data-cms-edit-trigger') || '',
-                        linkedPageTrigger.getAttribute('data-cms-section-label') || 'Edit student page'
-                    );
                     return;
                 }
 

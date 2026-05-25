@@ -69,7 +69,9 @@ class CmsController extends Controller
             'section_key' => ['nullable', Rule::in(array_merge([
                 'description', 'carousel', 'updates', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
-                'page', 'cards_header', 'cards', 'organizations', 'admissions_page', 'downloadable_forms_page',
+                'page', 'cards_header', 'cards', 'organizations',
+                'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links',
+                'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links',
                 'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
                 'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
                 'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
@@ -682,14 +684,15 @@ class CmsController extends Controller
             }
 
             foreach (['admissions', 'downloadable-forms'] as $pageKey) {
-                $pageSectionKey = str_replace('-', '_', $pageKey).'_page';
+                $pageSectionKeys = $this->studentsSectionKeysForPage($pageKey);
+                $isActivePageSection = $sectionKey === '' || in_array($sectionKey, $pageSectionKeys, true);
 
-                if (($sectionKey === '' || $sectionKey === $pageSectionKey) && $request->exists("students.pages.$pageKey.hero.image")) {
+                if ($isActivePageSection && $request->exists("students.pages.$pageKey.hero.image")) {
                     $studentsInput['pages'][$pageKey]['hero']['image'] = (string) ($request->input("students.pages.$pageKey.hero.image") ?? '');
                 }
 
                 $pageHeroUpload = $request->file("students.pages.$pageKey.hero.image_file");
-                if (($sectionKey === '' || $sectionKey === $pageSectionKey) && $pageHeroUpload instanceof UploadedFile) {
+                if ($isActivePageSection && $pageHeroUpload instanceof UploadedFile) {
                     $storedPath = ImageStorage::store($pageHeroUpload, 'students/'.$pageKey.'/hero');
                     if ($storedPath !== false) {
                         $studentsInput['pages'][$pageKey]['hero']['image'] = $storedPath;
@@ -697,7 +700,7 @@ class CmsController extends Controller
                 }
 
                 $qrUploads = $request->file("students.pages.$pageKey.qr_codes.items", []);
-                if (($sectionKey === '' || $sectionKey === $pageSectionKey) && is_array($qrUploads)) {
+                if ($isActivePageSection && is_array($qrUploads)) {
                     foreach ($qrUploads as $index => $itemUpload) {
                         $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
                         if (!$upload instanceof UploadedFile) {
@@ -717,8 +720,8 @@ class CmsController extends Controller
                     ? StudentsCmsContent::fromCardsInput($studentsInput, $baseStudentsEncoded)
                     : ($sectionKey === 'organizations'
                         ? StudentsCmsContent::fromOrganizationsInput($studentsInput['organization_sections'] ?? [], $baseStudentsEncoded)
-                        : (in_array($sectionKey, ['admissions_page', 'downloadable_forms_page'], true)
-                            ? StudentsCmsContent::fromPageInput(str_replace('_', '-', str_replace('_page', '', $sectionKey)), data_get($studentsInput, 'pages.'.str_replace('_', '-', str_replace('_page', '', $sectionKey)), []), $baseStudentsEncoded)
+                        : (($studentsPageKey = $this->studentsPageKeyForSection($sectionKey)) !== null
+                            ? StudentsCmsContent::fromPageInput($studentsPageKey, data_get($studentsInput, 'pages.'.$studentsPageKey, []), $baseStudentsEncoded)
                             : StudentsCmsContent::fromInput($studentsInput, $baseStudentsEncoded)))
             );
             $title = $baseTitle;
@@ -1242,7 +1245,13 @@ class CmsController extends Controller
             'cards' => $content['cards'] ?? [],
             'organizations' => $content['organization_sections'] ?? [],
             'admissions_page' => data_get($content, 'pages.admissions', []),
+            'admissions_hero' => data_get($content, 'pages.admissions.hero', []),
+            'admissions_instructions' => data_get($content, 'pages.admissions.instructions', []),
+            'admissions_qr_codes' => data_get($content, 'pages.admissions.qr_codes', []),
+            'admissions_links' => data_get($content, 'pages.admissions.links', []),
             'downloadable_forms_page' => data_get($content, 'pages.downloadable-forms', []),
+            'downloadable_forms_hero' => data_get($content, 'pages.downloadable-forms.hero', []),
+            'downloadable_forms_links' => data_get($content, 'pages.downloadable-forms.links', []),
         ];
     }
 
@@ -1347,7 +1356,13 @@ class CmsController extends Controller
             'cards' => 'Cards',
             'organizations' => 'Organizations',
             'admissions_page' => 'Admissions Page',
+            'admissions_hero' => 'Admissions Header',
+            'admissions_instructions' => 'Admissions Instructions',
+            'admissions_qr_codes' => 'Admissions QR Codes',
+            'admissions_links' => 'Admissions Links',
             'downloadable_forms_page' => 'Downloadable Forms Page',
+            'downloadable_forms_hero' => 'Downloadables Header',
+            'downloadable_forms_links' => 'Downloadables Links',
             default => '',
         };
     }
@@ -1564,16 +1579,61 @@ class CmsController extends Controller
                     })
                     ->all(),
             ],
-            'admissions_page', 'downloadable_forms_page' => [
+            'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links',
+            'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'
+                => $this->filterStudentsPageSectionInput($studentsInput, $sectionKey),
+            default => $studentsInput,
+        };
+    }
+
+    private function filterStudentsPageSectionInput(array $studentsInput, string $sectionKey): array
+    {
+        $pageKey = $this->studentsPageKeyForSection($sectionKey);
+
+        if ($pageKey === null) {
+            return $studentsInput;
+        }
+
+        $subSection = match ($sectionKey) {
+            'admissions_hero', 'downloadable_forms_hero' => 'hero',
+            'admissions_instructions' => 'instructions',
+            'admissions_qr_codes' => 'qr_codes',
+            'admissions_links', 'downloadable_forms_links' => 'links',
+            default => null,
+        };
+
+        if ($subSection === null) {
+            return [
                 'pages' => [
-                    str_replace('_', '-', str_replace('_page', '', $sectionKey)) => data_get(
-                        $studentsInput,
-                        'pages.'.str_replace('_', '-', str_replace('_page', '', $sectionKey)),
-                        []
-                    ),
+                    $pageKey => data_get($studentsInput, 'pages.'.$pageKey, []),
+                ],
+            ];
+        }
+
+        return [
+            'pages' => [
+                $pageKey => [
+                    $subSection => data_get($studentsInput, 'pages.'.$pageKey.'.'.$subSection, []),
                 ],
             ],
-            default => $studentsInput,
+        ];
+    }
+
+    private function studentsPageKeyForSection(string $sectionKey): ?string
+    {
+        return match ($sectionKey) {
+            'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links' => 'admissions',
+            'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links' => 'downloadable-forms',
+            default => null,
+        };
+    }
+
+    private function studentsSectionKeysForPage(string $pageKey): array
+    {
+        return match ($pageKey) {
+            'admissions' => ['admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links'],
+            'downloadable-forms' => ['downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'],
+            default => [str_replace('-', '_', $pageKey).'_page'],
         };
     }
 

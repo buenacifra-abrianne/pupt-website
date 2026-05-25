@@ -338,7 +338,8 @@ body {
 
 .student-qr-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(220px, 250px));
+  justify-content: start;
   gap: 16px;
 }
 
@@ -369,6 +370,12 @@ body {
   font-size: 2rem;
   font-weight: 800;
   letter-spacing: 0;
+}
+
+@media (max-width: 575.98px) {
+  .student-qr-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .student-qr-card h3 {
