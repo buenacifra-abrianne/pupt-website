@@ -844,6 +844,13 @@ class CmsController extends Controller
                 ], 422);
             }
 
+            if ($this->requestExceededUploadLimit($request)) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Upload failed because the file exceeds the server upload limit (currently '.$this->readIniLimit('upload_max_filesize').').',
+                ], 422);
+            }
+
             return response()->json([
                 'ok' => true,
                 'no_changes' => true,
@@ -1426,6 +1433,48 @@ class CmsController extends Controller
     private function requestHasUploadedFiles(Request $request): bool
     {
         return $this->hasUploadedFiles($request->allFiles());
+    }
+
+    private function requestExceededUploadLimit(Request $request): bool
+    {
+        $contentLength = (int) ($request->server('CONTENT_LENGTH') ?? 0);
+        if ($contentLength <= 0) {
+            return false;
+        }
+
+        $uploadMax = $this->iniSizeToBytes($this->readIniLimit('upload_max_filesize'));
+        $postMax = $this->iniSizeToBytes($this->readIniLimit('post_max_size'));
+        $hardLimit = min($uploadMax > 0 ? $uploadMax : PHP_INT_MAX, $postMax > 0 ? $postMax : PHP_INT_MAX);
+
+        return $hardLimit > 0 && $contentLength > $hardLimit && !$this->requestHasUploadedFiles($request);
+    }
+
+    private function readIniLimit(string $key): string
+    {
+        $value = trim((string) ini_get($key));
+        return $value !== '' ? $value : 'unknown';
+    }
+
+    private function iniSizeToBytes(string $size): int
+    {
+        $value = trim($size);
+        if ($value === '') {
+            return 0;
+        }
+
+        if (!preg_match('/^(\d+(?:\.\d+)?)\s*([KMG]?)$/i', $value, $matches)) {
+            return (int) $value;
+        }
+
+        $number = (float) $matches[1];
+        $unit = strtoupper($matches[2] ?? '');
+
+        return match ($unit) {
+            'G' => (int) round($number * 1024 * 1024 * 1024),
+            'M' => (int) round($number * 1024 * 1024),
+            'K' => (int) round($number * 1024),
+            default => (int) round($number),
+        };
     }
 
     private function hasUploadedFiles(array $files): bool

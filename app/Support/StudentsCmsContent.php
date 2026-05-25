@@ -488,6 +488,11 @@ class StudentsCmsContent
 
     private static function normalizeAdmissionsPage(array $source, array $base, array $defaults): array
     {
+        $baseLinks = is_array($base['links'] ?? null) ? $base['links'] : $defaults['links'];
+        $baseQrCodes = is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : $defaults['qr_codes'];
+        $hasLinksInput = array_key_exists('links', $source);
+        $hasQrCodesInput = array_key_exists('qr_codes', $source);
+
         return [
             'hero' => self::normalizeHero($source['hero'] ?? [], $base['hero'] ?? [], $defaults['hero']),
             'instructions' => [
@@ -512,35 +517,43 @@ class StudentsCmsContent
                     20000
                 ),
             ],
-            'links' => self::normalizeLinkSection($source['links'] ?? [], $base['links'] ?? [], $defaults['links']),
-            'qr_codes' => [
-                'tag' => self::pickString(
-                    is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
-                    is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : [],
-                    $defaults['qr_codes'],
-                    'tag',
-                    120
-                ),
-                'title' => self::pickString(
-                    is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
-                    is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : [],
-                    $defaults['qr_codes'],
-                    'title'
-                ),
-                'items' => self::normalizeQrItems(
-                    data_get($source, 'qr_codes.items', []),
-                    data_get($base, 'qr_codes.items', []),
-                    data_get($defaults, 'qr_codes.items', [])
-                ),
-            ],
+            'links' => $hasLinksInput
+                ? self::normalizeLinkSection($source['links'] ?? [], $baseLinks, $defaults['links'])
+                : $baseLinks,
+            'qr_codes' => $hasQrCodesInput
+                ? [
+                    'tag' => self::pickString(
+                        is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
+                        $baseQrCodes,
+                        $defaults['qr_codes'],
+                        'tag',
+                        120
+                    ),
+                    'title' => self::pickString(
+                        is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
+                        $baseQrCodes,
+                        $defaults['qr_codes'],
+                        'title'
+                    ),
+                    'items' => self::normalizeQrItems(
+                        data_get($source, 'qr_codes.items', []),
+                        data_get($baseQrCodes, 'items', []),
+                        data_get($defaults, 'qr_codes.items', [])
+                    ),
+                ]
+                : $baseQrCodes,
         ];
     }
 
     private static function normalizeDownloadableFormsPage(array $source, array $base, array $defaults): array
     {
+        $baseLinks = is_array($base['links'] ?? null) ? $base['links'] : $defaults['links'];
+
         return [
             'hero' => self::normalizeHero($source['hero'] ?? [], $base['hero'] ?? [], $defaults['hero']),
-            'links' => self::normalizeLinkSection($source['links'] ?? [], $base['links'] ?? [], $defaults['links']),
+            'links' => array_key_exists('links', $source)
+                ? self::normalizeLinkSection($source['links'] ?? [], $baseLinks, $defaults['links'])
+                : $baseLinks,
         ];
     }
 
