@@ -155,15 +155,6 @@
                                                 Delete
                                             </button>
                                         @endunless
-                                        @if($cardTitleKey === 'admissions')
-                                            <button type="button" class="cms-preview-card-action" data-cms-edit-trigger="admissions_page" data-cms-section-label="Admissions Page" title="Edit admissions page" aria-label="Edit admissions page">
-                                                Page
-                                            </button>
-                                        @elseif($cardTitleKey === 'downloadable forms')
-                                            <button type="button" class="cms-preview-card-action" data-cms-edit-trigger="downloadable_forms_page" data-cms-section-label="Downloadable Forms Page" title="Edit downloadable forms page" aria-label="Edit downloadable forms page">
-                                                Page
-                                            </button>
-                                        @endif
                                     </div>
                                 @endif
 

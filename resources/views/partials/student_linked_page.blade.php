@@ -7,6 +7,9 @@
     $instructions = is_array($pageData['instructions'] ?? null) ? $pageData['instructions'] : [];
     $qrCodes = is_array($pageData['qr_codes'] ?? null) ? $pageData['qr_codes'] : [];
     $heroImage = \App\Support\StudentsCmsContent::resolveImagePath($hero['image'] ?? null, 'assets/static_img/about_header_image.png');
+    $linkedEditorSectionKey = $pageKey === 'admissions'
+        ? 'admissions_page'
+        : ($pageKey === 'downloadable-forms' ? 'downloadable_forms_page' : '');
 @endphp
 
 <section class="student-page-hero">
@@ -31,7 +34,13 @@
     </nav>
 </div>
 
-<div class="student-page-body reveal{{ $cmsPreview ? ' active' : '' }}">
+<div
+    class="student-page-body reveal{{ $cmsPreview ? ' active' : '' }}"
+    @if($cmsPreview && $linkedEditorSectionKey !== '')
+        data-cms-section="{{ $linkedEditorSectionKey }}"
+        data-cms-section-label="{{ $pageKey === 'admissions' ? 'Admissions Page' : 'Downloadable Forms Page' }}"
+    @endif
+>
     <section class="student-page-intro">
         <p class="section-tag">{{ $hero['tag'] ?? '' }}</p>
         <h2>{{ $hero['subtitle'] ?? ($hero['title'] ?? '') }}</h2>

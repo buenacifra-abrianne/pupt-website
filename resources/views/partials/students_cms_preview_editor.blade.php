@@ -22,6 +22,11 @@
     $requestId = (int) ($studentsEditorRequestId ?? 0);
     $status = strtolower((string) ($studentsEditorStatus ?? ''));
     $idPrefix = trim((string) ($studentsEditorIdPrefix ?? 'students-editor'));
+    $studentsPreviewNav = [
+        'overview' => 'Overview',
+        'admissions' => 'Admissions',
+        'downloadable-forms' => 'Downloadable Forms',
+    ];
     $submitLabel = static function (string $sectionLabel) use ($submitMode, $status): string {
         if ($submitMode === 'request') {
             return $status === 'pending'
@@ -35,12 +40,18 @@
 
 <div class="students-cms-workspace">
     <div class="students-cms-preview-shell">
-        <div class="students-cms-preview-head">
-            <div>
-                <span class="students-cms-eyebrow">Students CMS</span>
-                <h3>Live website preview</h3>
-                <p>Click the highlighted sections inside the preview to edit the page or manage student cards.</p>
-            </div>
+        <div class="students-cms-preview-nav" role="tablist" aria-label="Students preview sections">
+            @foreach($studentsPreviewNav as $routeKey => $routeLabel)
+                <button
+                    type="button"
+                    class="students-cms-preview-nav-btn{{ $routeKey === 'overview' ? ' is-active' : '' }}"
+                    data-students-preview-page="{{ $routeKey }}"
+                    role="tab"
+                    aria-selected="{{ $routeKey === 'overview' ? 'true' : 'false' }}"
+                >
+                    {{ $routeLabel }}
+                </button>
+            @endforeach
         </div>
 
         <div class="students-cms-preview-frame-shell">
@@ -830,8 +841,8 @@
     </div>
 </div>
 
-<script type="application/json" data-students-preview-json>
-{!! json_encode($studentsPreviewHtml, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+<script type="application/json" data-students-preview-pages>
+{!! json_encode(($studentsPreviewPages ?? ['overview' => ($studentsPreviewHtml ?? '')]), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
 </script>
 
 @include('partials.rich_text_editor_assets')
@@ -856,8 +867,35 @@
         box-shadow: none;
     }
 
-    .students-cms-preview-head {
-        display: none;
+    .students-cms-preview-nav {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-content: flex-start;
+        margin-bottom: 18px;
+    }
+
+    .students-cms-preview-nav-btn {
+        border: 1px solid #d7c5bd;
+        background: #fff8f5;
+        color: #5c0000;
+        border-radius: 999px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font: inherit;
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    .students-cms-preview-nav-btn:hover,
+    .students-cms-preview-nav-btn:focus-visible {
+        outline: none;
+    }
+
+    .students-cms-preview-nav-btn.is-active {
+        background: #800000;
+        border-color: #800000;
+        color: #fff;
     }
 
     .students-cms-preview-frame-shell {
@@ -1411,8 +1449,9 @@
         }
 
         const STUDENTS_PREVIEW_MIN_LOADING_MS = 1500;
-        const previewScript = document.querySelector('[data-students-preview-json]');
-        const previewHtml = previewScript ? JSON.parse(previewScript.textContent || '""') : '';
+        const STUDENTS_PREVIEW_STORAGE_KEY = `cms:students-preview-route:${window.location.pathname}`;
+        const STUDENTS_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-students-preview-page';
+        let currentStudentsPreviewRoute = 'overview';
         const modal = document.querySelector('[data-students-editor-modal]');
         const modalTitle = modal?.querySelector('#{{ $idPrefix }}-modal-title');
         const modalDescription = modal?.querySelector('[data-students-editor-description]');
@@ -1422,6 +1461,47 @@
         if (!modal || !frames.length) {
             return;
         }
+
+        const getStudentsPreviewPayloads = () => {
+            const previewScript = document.querySelector('[data-students-preview-pages]');
+            if (!previewScript) {
+                return {};
+            }
+
+            try {
+                return JSON.parse(previewScript.textContent || '{}');
+            } catch (_) {
+                return {};
+            }
+        };
+
+        const getStoredStudentsPreviewRoute = () => {
+            try {
+                return window.localStorage.getItem(STUDENTS_PREVIEW_STORAGE_KEY)
+                    || window.localStorage.getItem(STUDENTS_PREVIEW_LEGACY_STORAGE_KEY)
+                    || '';
+            } catch (_) {
+                return '';
+            }
+        };
+
+        const storeStudentsPreviewRoute = (routeKey) => {
+            try {
+                const storedRoute = String(routeKey || 'overview');
+                window.localStorage.setItem(STUDENTS_PREVIEW_STORAGE_KEY, storedRoute);
+                window.localStorage.setItem(STUDENTS_PREVIEW_LEGACY_STORAGE_KEY, storedRoute);
+            } catch (_) {
+                // Ignore storage failures and keep the route in memory for this session.
+            }
+        };
+
+        const syncStudentsPreviewNav = (routeKey) => {
+            document.querySelectorAll('[data-students-preview-page]').forEach((button) => {
+                const isActive = (button.getAttribute('data-students-preview-page') || '') === routeKey;
+                button.classList.toggle('is-active', isActive);
+                button.setAttribute('aria-selected', isActive ? 'true' : 'false');
+            });
+        };
 
         const syncEditorsInScope = (scope) => {
             if (typeof window.syncRichTextEditors === 'function') {
@@ -1827,8 +1907,31 @@
             schedule();
         };
 
-        const loadFrame = (frame) => {
+        const loadFrame = (frame, options = {}) => {
+            const payloads = getStudentsPreviewPayloads();
+            const targetKey = options.routeKey && payloads[options.routeKey]
+                ? options.routeKey
+                : currentStudentsPreviewRoute;
+            const shouldForceReload = options.forceReload === true;
+
+            if (!frame) {
+                return;
+            }
+
+            if (!shouldForceReload && currentStudentsPreviewRoute === targetKey && (typeof window.hasCmsPreviewFrameContent === 'function' ? window.hasCmsPreviewFrameContent(frame) : !!frame.srcdoc)) {
+                storeStudentsPreviewRoute(targetKey);
+                syncStudentsPreviewNav(targetKey);
+                setStudentsPreviewLoading(frame, true);
+                queueStudentsPreviewSettledSync(frame);
+                return;
+            }
+
+            currentStudentsPreviewRoute = targetKey;
+            storeStudentsPreviewRoute(targetKey);
+            syncStudentsPreviewNav(targetKey);
             setStudentsPreviewLoading(frame, true);
+            const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+
             if (typeof window.applyCmsPreviewFrameContent === 'function') {
                 window.applyCmsPreviewFrameContent(frame, typeof previewHtml === 'string' ? previewHtml : '');
             } else {
@@ -1842,7 +1945,22 @@
                 queueStudentsPreviewSettledSync(frame);
             });
 
-            loadFrame(frame);
+            loadFrame(frame, {
+                routeKey: getStoredStudentsPreviewRoute() || 'overview',
+            });
+        });
+
+        document.querySelectorAll('[data-students-preview-page]').forEach((button) => {
+            button.addEventListener('click', (event) => {
+                event.preventDefault();
+                const routeKey = button.getAttribute('data-students-preview-page') || 'overview';
+                const frame = document.querySelector('[data-students-preview-frame]');
+                if (!frame) {
+                    return;
+                }
+
+                loadFrame(frame, { routeKey });
+            });
         });
 
         document.querySelectorAll('[data-close-students-editor]').forEach((trigger) => {
@@ -2436,7 +2554,10 @@
 
             frames.forEach((frame) => {
                 if (panel && panel.contains(frame)) {
-                    loadFrame(frame);
+                    loadFrame(frame, {
+                        routeKey: currentStudentsPreviewRoute,
+                        forceReload: true,
+                    });
                     window.setTimeout(() => scheduleStudentsPreviewSync(frame), 40);
                     window.setTimeout(() => scheduleStudentsPreviewSync(frame), 180);
                     window.setTimeout(() => scheduleStudentsPreviewSync(frame), 320);
@@ -2492,7 +2613,10 @@
                 ? Array.from(scope.querySelectorAll('[data-students-preview-frame]'))
                 : frames;
 
-            scopedFrames.forEach((frame) => loadFrame(frame));
+            scopedFrames.forEach((frame) => loadFrame(frame, {
+                routeKey: currentStudentsPreviewRoute,
+                forceReload: true,
+            }));
         };
 
         relabelCards();
@@ -2502,6 +2626,7 @@
         initStudentsImageDropzones(modal);
         initStudentsCharCounters(modal);
         bindStudentsCardsDirtyTracking();
+        syncStudentsPreviewNav(currentStudentsPreviewRoute);
         scheduleFitAllStudentsPreviews();
         window.__studentsCmsPreviewEditorReady = true;
     })();

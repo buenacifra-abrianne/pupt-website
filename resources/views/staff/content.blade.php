@@ -272,14 +272,24 @@
                         ])
                     @elseif($tabKey === 'students')
                         @php
-                            $studentsPreviewHtml = view('public.students', [
-                                'studentsCms' => $studentsLive,
-                                'cmsPreview' => true,
-                            ])->render();
+                            $studentsPreviewPages = [
+                                'overview' => view('public.students', [
+                                    'studentsCms' => $studentsLive,
+                                    'cmsPreview' => true,
+                                ])->render(),
+                                'admissions' => view('public.student_admissions', [
+                                    'studentsCms' => $studentsLive,
+                                    'cmsPreview' => true,
+                                ])->render(),
+                                'downloadable-forms' => view('public.student_downloadable_forms', [
+                                    'studentsCms' => $studentsLive,
+                                    'cmsPreview' => true,
+                                ])->render(),
+                            ];
                         @endphp
 
                         @include('partials.students_cms_preview_editor', [
-                            'studentsPreviewHtml' => $studentsPreviewHtml,
+                            'studentsPreviewPages' => $studentsPreviewPages,
                             'studentsEditorData' => $studentsPrefill,
                             'studentsEditorFormClass' => 'cms-edit-form',
                             'studentsEditorSubmitRoute' => route('staff.content.requestEdit'),
