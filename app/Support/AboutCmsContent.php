@@ -140,6 +140,133 @@ class AboutCmsContent
                 'summary' => 'Learn the meaning behind the seal, colors, and symbolic elements of the University.',
                 'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.',
+                'seals' => [
+                    [
+                        'id' => 'pup',
+                        'label' => 'PUP Taguig Seal',
+                        'tag' => 'University Seal',
+                        'image' => '/assets/static_img/logo.png',
+                        'highlights' => [
+                            'Five-pointed star',
+                            'Five concentric circles',
+                            'Two laurel arcs',
+                        ],
+                        'information' => [
+                            'title' => 'Informations about the Seal',
+                            'description' => 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.',
+                        ],
+                        'reports' => [
+                            'title' => 'Reports and Records',
+                            'description' => 'The seal anchors the institutional identity of the University and is used across official records and publications.',
+                        ],
+                        'links' => [
+                            [
+                                'label' => 'University Website',
+                                'url' => 'https://www.pup.edu.ph/',
+                            ],
+                        ],
+                    ],
+                    [
+                        'id' => 'dpo',
+                        'label' => 'DPO / DPS',
+                        'tag' => 'Compliance Seal',
+                        'image' => '/assets/static_img/DPO_DPS_seal.png',
+                        'highlights' => [
+                            'Data privacy and protection recognition',
+                            'Reinforces compliance-oriented operations',
+                            'Promotes trust in handling personal information',
+                        ],
+                        'information' => [
+                            'title' => 'Informations about the Seal',
+                            'description' => 'Recognizes compliance with privacy and data protection standards, reflecting the campus commitment to responsible data governance.',
+                        ],
+                        'reports' => [
+                            'title' => 'Reports and Records',
+                            'description' => 'Used in compliance-related communication and documentation to show data privacy alignment.',
+                        ],
+                        'links' => [],
+                    ],
+                    [
+                        'id' => 'foi',
+                        'label' => 'Freedom of Information',
+                        'tag' => 'Governance Seal',
+                        'image' => '/assets/static_img/freedom_of_information.png',
+                        'highlights' => [
+                            'Supports open access to public information',
+                            'Strengthens transparency initiatives',
+                            'Encourages accountable public service',
+                        ],
+                        'information' => [
+                            'title' => 'Informations about the Seal',
+                            'description' => 'Represents the institution commitment to transparency by supporting public access to government-held information.',
+                        ],
+                        'reports' => [
+                            'title' => 'Reports and Records',
+                            'description' => 'Applied across transparency materials and public information pages for governance communication.',
+                        ],
+                        'links' => [],
+                    ],
+                    [
+                        'id' => 'wuri',
+                        'label' => 'WURI',
+                        'tag' => 'Recognition Seal',
+                        'image' => '/assets/static_img/WURI.png',
+                        'highlights' => [
+                            'Innovation-centered recognition',
+                            'Affirms global relevance and impact',
+                            'Supports a forward-looking academic direction',
+                        ],
+                        'information' => [
+                            'title' => 'Informations about the Seal',
+                            'description' => 'Highlights recognition in innovation-focused university rankings and affirms the campus pursuit of impactful, future-ready education.',
+                        ],
+                        'reports' => [
+                            'title' => 'Reports and Records',
+                            'description' => 'Referenced in recognition announcements and institutional performance highlights.',
+                        ],
+                        'links' => [],
+                    ],
+                    [
+                        'id' => 'transparency',
+                        'label' => 'Transparency Seal',
+                        'tag' => 'Good Governance',
+                        'image' => '/assets/static_img/transparency_seal.png',
+                        'highlights' => [
+                            'Promotes accountable governance',
+                            'Improves public trust and credibility',
+                            'Supports clear and open communication',
+                        ],
+                        'information' => [
+                            'title' => 'Informations about the Seal',
+                            'description' => 'Reflects commitment to open governance, accountability, and clear public reporting of institutional processes.',
+                        ],
+                        'reports' => [
+                            'title' => 'Reports and Records',
+                            'description' => 'Connected to public reporting, transparency portals, and governance disclosures.',
+                        ],
+                        'links' => [],
+                    ],
+                    [
+                        'id' => 'bagong-pilipinas',
+                        'label' => 'Bagong Pilipinas',
+                        'tag' => 'National Campaign',
+                        'image' => '/assets/static_img/bagong_pilipinas_logo.png',
+                        'highlights' => [
+                            'Supports national transformation goals',
+                            'Encourages unity and shared progress',
+                            'Links campus values with national direction',
+                        ],
+                        'information' => [
+                            'title' => 'Informations about the Seal',
+                            'description' => 'Represents alignment with national transformation and shared aspirations for a progressive and inclusive Philippines.',
+                        ],
+                        'reports' => [
+                            'title' => 'Reports and Records',
+                            'description' => 'Used in campaign-aligned communication and institutional partnership activities.',
+                        ],
+                        'links' => [],
+                    ],
+                ],
                 'identity_marks' => [
                     [
                         'title' => 'The Star',
@@ -429,19 +556,60 @@ class AboutCmsContent
                     $defaults['core_values']
                 ),
             ]),
-            'logo-and-symbols' => array_merge($section, [
-                'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
-                'identity_marks' => self::normalizeTitleBodyCards(
+            'logo-and-symbols' => (function () use ($section, $source, $base, $defaults): array {
+                $lead = self::pickString($source, $base, $defaults, 'lead', 4000);
+                $identityMarks = self::normalizeTitleBodyCards(
                     $source['identity_marks'] ?? [],
                     $base['identity_marks'] ?? $defaults['identity_marks'],
                     $defaults['identity_marks']
-                ),
-                'symbol_points' => self::normalizeTextList(
+                );
+                $symbolPoints = self::normalizeTextList(
                     $source['symbol_points'] ?? ($source['symbol_points_text'] ?? []),
                     $base['symbol_points'] ?? $defaults['symbol_points'],
                     $defaults['symbol_points']
-                ),
-            ]),
+                );
+                $seals = self::normalizeSeals(
+                    $source['seals'] ?? [],
+                    $base['seals'] ?? ($defaults['seals'] ?? []),
+                    $defaults['seals'] ?? []
+                );
+
+                $sourceHasSeals = is_array($source['seals'] ?? null) && !empty(array_filter(
+                    $source['seals'],
+                    static fn ($item) => is_array($item)
+                ));
+                $hasLegacySource = array_key_exists('identity_marks', $source)
+                    || array_key_exists('symbol_points', $source)
+                    || array_key_exists('symbol_points_text', $source)
+                    || array_key_exists('lead', $source);
+
+                if (!$sourceHasSeals && $hasLegacySource && !empty($seals)) {
+                    $firstSeal = $seals[0];
+                    if ($lead !== '') {
+                        $firstSeal['information']['description'] = $lead;
+                    }
+
+                    if (!empty($identityMarks)) {
+                        $firstSeal['highlights'] = array_values(array_filter(array_map(
+                            static fn ($item) => trim((string) ($item['title'] ?? '')),
+                            $identityMarks
+                        )));
+                    }
+
+                    if (!empty($symbolPoints)) {
+                        $firstSeal['reports']['description'] = implode('<br>', $symbolPoints);
+                    }
+
+                    $seals[0] = $firstSeal;
+                }
+
+                return array_merge($section, [
+                    'lead' => $lead,
+                    'seals' => $seals,
+                    'identity_marks' => $identityMarks,
+                    'symbol_points' => $symbolPoints,
+                ]);
+            })(),
             'hymn' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
                 'hymn_sections' => self::normalizeTitleBodyCards(
@@ -592,6 +760,176 @@ class AboutCmsContent
         }
 
         return $items;
+    }
+
+    private static function normalizeSeals(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = array_values($base);
+        $defaultItems = array_values($defaults);
+        $effectiveItems = !empty($sourceItems)
+            ? $sourceItems
+            : (!empty($baseItems) ? $baseItems : $defaultItems);
+
+        $items = [];
+        $usedIds = [];
+
+        foreach ($effectiveItems as $index => $itemCandidate) {
+            $source = is_array($sourceItems[$index] ?? null)
+                ? $sourceItems[$index]
+                : (is_array($itemCandidate) ? $itemCandidate : []);
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : [
+                    'id' => 'seal-'.($index + 1),
+                    'label' => '',
+                    'tag' => '',
+                    'image' => '',
+                    'highlights' => [],
+                    'information' => ['title' => 'Informations about the Seal', 'description' => ''],
+                    'reports' => ['title' => 'Reports and Records', 'description' => ''],
+                    'links' => [],
+                ];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $label = self::pickString($source, $baseItem, $defaultItem, 'label');
+            $idSeed = self::pickString($source, $baseItem, $defaultItem, 'id', 120);
+            if (trim($idSeed) === '') {
+                $idSeed = $label !== '' ? $label : 'seal-'.($index + 1);
+            }
+            $sealId = self::normalizeSealId($idSeed, $index + 1);
+            while (in_array($sealId, $usedIds, true)) {
+                $sealId = self::normalizeSealId($sealId.'-'.($index + 1), $index + 1);
+            }
+            $usedIds[] = $sealId;
+
+            $informationSource = is_array($source['information'] ?? null) ? $source['information'] : [];
+            $informationBase = is_array($baseItem['information'] ?? null) ? $baseItem['information'] : [];
+            $informationDefaults = is_array($defaultItem['information'] ?? null)
+                ? $defaultItem['information']
+                : ['title' => 'Informations about the Seal', 'description' => ''];
+
+            $reportsSource = is_array($source['reports'] ?? null) ? $source['reports'] : [];
+            $reportsBase = is_array($baseItem['reports'] ?? null) ? $baseItem['reports'] : [];
+            $reportsDefaults = is_array($defaultItem['reports'] ?? null)
+                ? $defaultItem['reports']
+                : ['title' => 'Reports and Records', 'description' => ''];
+
+            $item = [
+                'id' => $sealId,
+                'label' => $label,
+                'tag' => self::pickString($source, $baseItem, $defaultItem + ['tag' => ''], 'tag', 120),
+                'image' => self::pickOptionalString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
+                'highlights' => self::normalizeTextList(
+                    $source['highlights'] ?? ($source['highlights_text'] ?? []),
+                    $baseItem['highlights'] ?? ($defaultItem['highlights'] ?? []),
+                    $defaultItem['highlights'] ?? []
+                ),
+                'information' => [
+                    'title' => self::pickString(
+                        $informationSource,
+                        $informationBase,
+                        $informationDefaults + ['title' => 'Informations about the Seal'],
+                        'title'
+                    ),
+                    'description' => self::pickString(
+                        $informationSource,
+                        $informationBase,
+                        $informationDefaults + ['description' => ''],
+                        'description',
+                        12000
+                    ),
+                ],
+                'reports' => [
+                    'title' => self::pickString(
+                        $reportsSource,
+                        $reportsBase,
+                        $reportsDefaults + ['title' => 'Reports and Records'],
+                        'title'
+                    ),
+                    'description' => self::pickString(
+                        $reportsSource,
+                        $reportsBase,
+                        $reportsDefaults + ['description' => ''],
+                        'description',
+                        12000
+                    ),
+                ],
+                'links' => self::normalizeSealLinks(
+                    $source['links'] ?? [],
+                    $baseItem['links'] ?? [],
+                    $defaultItem['links'] ?? []
+                ),
+            ];
+
+            if (
+                trim((string) $item['label']) === ''
+                && trim((string) $item['tag']) === ''
+                && trim((string) $item['image']) === ''
+                && trim((string) ($item['information']['description'] ?? '')) === ''
+                && trim((string) ($item['reports']['description'] ?? '')) === ''
+                && empty($item['highlights'])
+                && empty($item['links'])
+            ) {
+                continue;
+            }
+
+            $items[] = $item;
+        }
+
+        if (empty($items)) {
+            return self::normalizeSeals($defaultItems, $defaultItems, $defaultItems);
+        }
+
+        return $items;
+    }
+
+    private static function normalizeSealLinks(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = array_values($base);
+        $defaultItems = array_values($defaults);
+        $effectiveItems = !empty($sourceItems)
+            ? $sourceItems
+            : (!empty($baseItems) ? $baseItems : $defaultItems);
+
+        $items = [];
+
+        foreach ($effectiveItems as $index => $itemCandidate) {
+            $source = is_array($sourceItems[$index] ?? null)
+                ? $sourceItems[$index]
+                : (is_array($itemCandidate) ? $itemCandidate : []);
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['label' => '', 'url' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $label = self::pickString($source, $baseItem, $defaultItem + ['label' => ''], 'label');
+            $url = self::pickOptionalString($source, $baseItem, $defaultItem + ['url' => ''], 'url', 2048);
+            if (trim($label) === '' && trim($url) === '') {
+                continue;
+            }
+
+            $items[] = [
+                'label' => $label,
+                'url' => $url,
+            ];
+        }
+
+        return $items;
+    }
+
+    private static function normalizeSealId(string $value, int $fallbackNumber): string
+    {
+        $normalized = strtolower(trim($value));
+        $normalized = preg_replace('/[^a-z0-9]+/i', '-', $normalized) ?? '';
+        $normalized = trim($normalized, '-');
+
+        if ($normalized === '') {
+            $normalized = 'seal-'.$fallbackNumber;
+        }
+
+        return self::sanitizeString($normalized, 80, 'seal-'.$fallbackNumber);
     }
 
     private static function normalizeTitleBodyCards(mixed $input, array $base, array $defaults): array

@@ -7324,3 +7324,129 @@ body.pup-dark-mode .dp-contact-cta:hover {
   color: #ffffff !important;
   background: linear-gradient(135deg, #6b0c0f 0%, #4a0709 100%);
 }
+
+/* Logo and Symbols inline details refresh */
+.ls-gallery-card--add {
+  border: 2px dashed rgba(127, 17, 19, 0.32);
+  background: linear-gradient(150deg, #fffaf6 0%, #fdeee5 50%, #fff8ef 100%);
+  color: #7f1113;
+}
+
+.ls-gallery-add-plus {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 17, 19, 0.3);
+  background: linear-gradient(180deg, #fff 0%, #ffeede 100%);
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.ls-gallery-panel-shell {
+  margin-top: 18px;
+  border-radius: 18px;
+  border: 1px solid #ecd5c7;
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 222, 188, 0.45), transparent 38%),
+    linear-gradient(180deg, #fffdfa 0%, #fff6ef 100%);
+  padding: 18px;
+  box-shadow: 0 18px 32px rgba(87, 17, 12, 0.08);
+}
+
+.ls-gallery-empty {
+  color: #7f4942;
+  font-size: 0.96rem;
+  text-align: center;
+  padding: 26px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px dashed #e4c8ba;
+}
+
+.ls-gallery-panel {
+  display: none;
+}
+
+.ls-gallery-panel.is-active {
+  display: block;
+}
+
+.ls-gallery-panel-head {
+  display: grid;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.ls-gallery-block-title {
+  margin: 18px 0 10px;
+  color: #5c0000;
+  font-size: 0.92rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.ls-gallery-two-col {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 8px;
+}
+
+.ls-gallery-container-card {
+  border: 1px solid #e8d2c2;
+  border-radius: 15px;
+  padding: 15px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 247, 239, 0.9) 100%);
+}
+
+.ls-gallery-container-card h4 {
+  margin: 0 0 8px;
+  color: #650a0d;
+  font-size: 1rem;
+}
+
+.ls-gallery-links ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.ls-gallery-links li {
+  margin: 0;
+}
+
+.ls-gallery-links a,
+.ls-gallery-links span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid rgba(127, 17, 19, 0.24);
+  background: linear-gradient(145deg, #7f1113 0%, #541113 100%);
+  color: #fff8ef;
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ls-gallery-links a:hover,
+.ls-gallery-links a:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(92, 8, 11, 0.2);
+}
+
+@media (max-width: 900px) {
+  .ls-gallery-two-col {
+    grid-template-columns: 1fr;
+  }
+}

@@ -541,106 +541,7 @@
                                 <div class="about-detail-body">
                                     @if($selectedSlug === 'logo-and-symbols')
                                         @php
-                                            $logoMarks = $selectedSection['identity_marks'] ?? [];
-                                            $symbolPoints = $selectedSection['symbol_points'] ?? [];
-                                        @endphp
-
-                                        @php
-                                            $pupHighlights = array_values(array_filter(array_map(static function ($mark) {
-                                                return trim((string) ($mark['title'] ?? ''));
-                                            }, $logoMarks)));
-                                            if (empty($pupHighlights)) {
-                                                $pupHighlights = [
-                                                    'Five-pointed star',
-                                                    'Five concentric circles',
-                                                    'Two laurel arcs',
-                                                ];
-                                            }
-
-                                            $sealCards = [
-                                                [
-                                                    'id' => 'pup',
-                                                    'label' => 'PUP Taguig Seal',
-                                                    'tag' => 'University Seal',
-                                                    'image' => asset('assets/static_img/logo.png'),
-                                                    'description' => $selectedSection['lead'] ?? 'Each element of the University logo represents a core ideal: truth, wisdom, excellence, purity, and the highest form of quality embodied in education.',
-                                                    'highlights' => $pupHighlights,
-                                                    'details' => array_values(array_filter(array_map(static function ($mark) {
-                                                        $title = trim((string) ($mark['title'] ?? ''));
-                                                        $body = trim((string) ($mark['body'] ?? ''));
-                                                        if ($title === '' && $body === '') {
-                                                            return null;
-                                                        }
-                                                        return [
-                                                            'title' => $title,
-                                                            'body' => $body,
-                                                        ];
-                                                    }, $logoMarks))),
-                                                    'notes' => array_values(array_filter(array_map(static function ($point) {
-                                                        return trim((string) $point);
-                                                    }, $symbolPoints))),
-                                                ],
-                                                [
-                                                    'id' => 'dpo',
-                                                    'label' => 'DPO / DPS',
-                                                    'tag' => 'Compliance Seal',
-                                                    'image' => asset('assets/static_img/DPO_DPS_seal.png'),
-                                                    'description' => 'Recognizes compliance with privacy and data protection standards, reflecting the campus commitment to responsible data governance.',
-                                                    'highlights' => [
-                                                        'Data privacy and protection recognition',
-                                                        'Reinforces compliance-oriented operations',
-                                                        'Promotes trust in handling personal information',
-                                                    ],
-                                                ],
-                                                [
-                                                    'id' => 'foi',
-                                                    'label' => 'Freedom of Information',
-                                                    'tag' => 'Governance Seal',
-                                                    'image' => asset('assets/static_img/freedom_of_information.png'),
-                                                    'description' => 'Represents the institution commitment to transparency by supporting public access to government-held information.',
-                                                    'highlights' => [
-                                                        'Supports open access to public information',
-                                                        'Strengthens transparency initiatives',
-                                                        'Encourages accountable public service',
-                                                    ],
-                                                ],
-                                                [
-                                                    'id' => 'wuri',
-                                                    'label' => 'WURI',
-                                                    'tag' => 'Recognition Seal',
-                                                    'image' => asset('assets/static_img/WURI.png'),
-                                                    'description' => 'Highlights recognition in innovation-focused university rankings and affirms the campus pursuit of impactful, future-ready education.',
-                                                    'highlights' => [
-                                                        'Innovation-centered recognition',
-                                                        'Affirms global relevance and impact',
-                                                        'Supports a forward-looking academic direction',
-                                                    ],
-                                                ],
-                                                [
-                                                    'id' => 'transparency',
-                                                    'label' => 'Transparency Seal',
-                                                    'tag' => 'Good Governance',
-                                                    'image' => asset('assets/static_img/transparency_seal.png'),
-                                                    'description' => 'Reflects commitment to open governance, accountability, and clear public reporting of institutional processes.',
-                                                    'highlights' => [
-                                                        'Promotes accountable governance',
-                                                        'Improves public trust and credibility',
-                                                        'Supports clear and open communication',
-                                                    ],
-                                                ],
-                                                [
-                                                    'id' => 'bagong-pilipinas',
-                                                    'label' => 'Bagong Pilipinas',
-                                                    'tag' => 'National Campaign',
-                                                    'image' => asset('assets/static_img/bagong_pilipinas_logo.png'),
-                                                    'description' => 'Represents alignment with national transformation and shared aspirations for a progressive and inclusive Philippines.',
-                                                    'highlights' => [
-                                                        'Supports national transformation goals',
-                                                        'Encourages unity and shared progress',
-                                                        'Links campus values with national direction',
-                                                    ],
-                                                ],
-                                            ];
+                                            $sealCards = array_values($selectedSection['seals'] ?? []);
                                         @endphp
 
                                         <section class="ls-gallery-shell reveal" data-ls-gallery>
@@ -653,143 +554,155 @@
                                             </div>
 
                                             <div class="ls-gallery-grid" role="tablist" aria-label="Logos and seals">
-                                                @foreach($sealCards as $seal)
+                                                @if($cmsPreview)
                                                     <button
                                                         type="button"
-                                                        class="ls-gallery-card"
-                                                        data-ls-seal-trigger
-                                                        data-seal-id="{{ $seal['id'] }}"
-                                                        aria-controls="ls-seal-panel-{{ $seal['id'] }}"
-                                                        aria-expanded="false"
+                                                        class="ls-gallery-card ls-gallery-card--add"
+                                                        data-about-seal-card-add
+                                                        aria-label="Add seal"
                                                     >
+                                                        <span class="ls-gallery-add-plus" aria-hidden="true">+</span>
+                                                        <span class="ls-gallery-label">Add Seal</span>
+                                                        <span class="ls-gallery-tag">CMS Action</span>
+                                                    </button>
+                                                @endif
+                                                @foreach($sealCards as $seal)
+                                                    @php
+                                                        $sealId = trim((string) ($seal['id'] ?? ''));
+                                                        if ($sealId === '') {
+                                                            $sealId = 'seal-'.$loop->iteration;
+                                                        }
+                                                        $sealLabel = trim((string) ($seal['label'] ?? ''));
+                                                        $sealTag = trim((string) ($seal['tag'] ?? ''));
+                                                        $sealImage = \App\Support\AboutCmsContent::resolveImagePath($seal['image'] ?? null, 'assets/static_img/logo.png');
+                                                        $sealHighlights = array_values(array_filter(array_map(static fn ($item) => trim((string) $item), is_array($seal['highlights'] ?? null) ? $seal['highlights'] : [])));
+                                                        $sealInfoTitle = trim((string) data_get($seal, 'information.title', 'Informations about the Seal'));
+                                                        $sealInfoDescription = (string) data_get($seal, 'information.description', '');
+                                                        $sealReportsTitle = trim((string) data_get($seal, 'reports.title', 'Reports and Records'));
+                                                        $sealReportsDescription = (string) data_get($seal, 'reports.description', '');
+                                                        $sealInfoHtml = trim($sealInfoDescription) !== strip_tags($sealInfoDescription)
+                                                            ? \App\Support\RichText::sanitize($sealInfoDescription)
+                                                            : nl2br(e($sealInfoDescription));
+                                                        $sealReportsHtml = trim($sealReportsDescription) !== strip_tags($sealReportsDescription)
+                                                            ? \App\Support\RichText::sanitize($sealReportsDescription)
+                                                            : nl2br(e($sealReportsDescription));
+                                                        $sealLinks = array_values(array_filter(is_array($seal['links'] ?? null) ? $seal['links'] : [], static function ($item) {
+                                                            if (!is_array($item)) {
+                                                                return false;
+                                                            }
+
+                                                            return trim((string) ($item['label'] ?? '')) !== '' || trim((string) ($item['url'] ?? '')) !== '';
+                                                        }));
+                                                    @endphp
+                                                    <button
+                                                        type="button"
+                                                        class="ls-gallery-card{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                                        data-ls-seal-trigger
+                                                        data-seal-id="{{ $sealId }}"
+                                                        aria-controls="ls-seal-panel-{{ $sealId }}"
+                                                        aria-expanded="false"
+                                                        @if($cmsPreview)
+                                                            data-about-section-card
+                                                            data-about-section-card-section="logo-and-symbols"
+                                                            data-about-section-card-index="{{ $loop->index }}"
+                                                            data-about-section-card-label="{{ $sealLabel !== '' ? $sealLabel : ('Seal ' . $loop->iteration) }}"
+                                                            data-about-section-card-route="logo-and-symbols"
+                                                        @endif
+                                                    >
+                                                        @if($cmsPreview)
+                                                            <span class="cms-preview-card-actions" aria-label="Seal actions">
+                                                                <span class="cms-preview-card-action" data-about-section-card-edit>Edit</span>
+                                                                <span class="cms-preview-card-action cms-preview-card-action-delete" data-about-section-card-delete>Delete</span>
+                                                            </span>
+                                                        @endif
                                                         <span class="ls-gallery-media">
-                                                            <img src="{{ $seal['image'] }}" alt="{{ $seal['label'] }}">
+                                                            <img src="{{ $sealImage }}" alt="{{ $sealLabel !== '' ? $sealLabel : 'Seal' }}">
                                                         </span>
-                                                        <span class="ls-gallery-label">{{ $seal['label'] }}</span>
-                                                        <span class="ls-gallery-tag">{{ $seal['tag'] }}</span>
+                                                        <span class="ls-gallery-label">{{ $sealLabel !== '' ? $sealLabel : ('Seal ' . $loop->iteration) }}</span>
+                                                        <span class="ls-gallery-tag">{{ $sealTag !== '' ? $sealTag : 'Campus Seal' }}</span>
                                                     </button>
                                                 @endforeach
                                             </div>
 
                                             <div class="ls-gallery-panel-shell">
                                                 <div class="ls-gallery-empty" data-ls-seal-empty>
-                                                    Select a logo or seal above to view its details.
+                                                    Select a seal above to view details.
                                                 </div>
 
                                                 @foreach($sealCards as $seal)
+                                                    @php
+                                                        $sealId = trim((string) ($seal['id'] ?? ''));
+                                                        if ($sealId === '') {
+                                                            $sealId = 'seal-'.$loop->iteration;
+                                                        }
+                                                        $sealLabel = trim((string) ($seal['label'] ?? ''));
+                                                        $sealTag = trim((string) ($seal['tag'] ?? ''));
+                                                        $sealHighlights = array_values(array_filter(array_map(static fn ($item) => trim((string) $item), is_array($seal['highlights'] ?? null) ? $seal['highlights'] : [])));
+                                                        $sealInfoTitle = trim((string) data_get($seal, 'information.title', 'Informations about the Seal'));
+                                                        $sealInfoDescription = (string) data_get($seal, 'information.description', '');
+                                                        $sealReportsTitle = trim((string) data_get($seal, 'reports.title', 'Reports and Records'));
+                                                        $sealReportsDescription = (string) data_get($seal, 'reports.description', '');
+                                                        $sealInfoHtml = trim($sealInfoDescription) !== strip_tags($sealInfoDescription)
+                                                            ? \App\Support\RichText::sanitize($sealInfoDescription)
+                                                            : nl2br(e($sealInfoDescription));
+                                                        $sealReportsHtml = trim($sealReportsDescription) !== strip_tags($sealReportsDescription)
+                                                            ? \App\Support\RichText::sanitize($sealReportsDescription)
+                                                            : nl2br(e($sealReportsDescription));
+                                                        $sealLinks = array_values(array_filter(is_array($seal['links'] ?? null) ? $seal['links'] : [], static function ($item) {
+                                                            if (!is_array($item)) {
+                                                                return false;
+                                                            }
+
+                                                            return trim((string) ($item['label'] ?? '')) !== '' || trim((string) ($item['url'] ?? '')) !== '';
+                                                        }));
+                                                    @endphp
                                                     <article
-                                                        id="ls-seal-panel-{{ $seal['id'] }}"
+                                                        id="ls-seal-panel-{{ $sealId }}"
                                                         class="ls-gallery-panel"
-                                                        data-ls-seal-panel="{{ $seal['id'] }}"
+                                                        data-ls-seal-panel="{{ $sealId }}"
                                                         hidden
                                                     >
                                                         <div class="ls-gallery-panel-head">
-                                                            <span class="ls-gallery-panel-tag">{{ $seal['tag'] }}</span>
-                                                            <h3 class="ls-gallery-panel-title">{{ $seal['label'] }}</h3>
+                                                            <span class="ls-gallery-panel-tag">{{ $sealTag !== '' ? $sealTag : 'Campus Seal' }}</span>
+                                                            <h3 class="ls-gallery-panel-title">{{ $sealLabel !== '' ? $sealLabel : ('Seal ' . $loop->iteration) }}</h3>
                                                         </div>
-                                                        <p class="ls-gallery-panel-body">{{ $seal['description'] }}</p>
-                                                        @if(!empty($seal['highlights']))
+                                                        @if(!empty($sealHighlights))
+                                                            <h4 class="ls-gallery-block-title">Highlights</h4>
                                                             <ul class="ls-gallery-panel-list">
-                                                                @foreach($seal['highlights'] as $highlight)
+                                                                @foreach($sealHighlights as $highlight)
                                                                     <li>{{ $highlight }}</li>
                                                                 @endforeach
                                                             </ul>
                                                         @endif
-                                                        @if(!empty($seal['details']))
-                                                            <div class="ls-gallery-detail-grid">
-                                                                @foreach($seal['details'] as $detail)
-                                                                    <article class="ls-gallery-detail-card">
-                                                                        @if(!empty($detail['title']))
-                                                                            <h4>{{ $detail['title'] }}</h4>
-                                                                        @endif
-                                                                        @if(!empty($detail['body']))
-                                                                            <p>{{ $detail['body'] }}</p>
-                                                                        @endif
-                                                                    </article>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                        @if(!empty($seal['notes']))
-                                                            <div class="ls-gallery-notes">
-                                                                @foreach($seal['notes'] as $point)
-                                                                    <div class="ls-gallery-note-item">{{ $point }}</div>
-                                                                @endforeach
-                                                            </div>
-                                                        @endif
-                                                        @if(($seal['id'] ?? '') === 'pup')
-                                                            <div class="ls-gallery-pup-extra">
-                                                                <div class="ls-symbols-panel">
-                                                                    <div class="ls-symbols-panel-head">
-                                                                        <span class="ls-symbols-kicker">Element Guide</span>
-                                                                        <h3 class="ls-symbols-panel-title">The logo explained by symbol, color, and meaning</h3>
-                                                                    </div>
-                                                                    <div class="ls-symbols-table" role="table" aria-label="Logo and symbols meaning table">
-                                                                        <div class="ls-symbols-table-head" role="rowgroup">
-                                                                            <div role="row">
-                                                                                <span role="columnheader">Element</span>
-                                                                                <span role="columnheader">Meaning</span>
-                                                                                <span role="columnheader">Color</span>
-                                                                                <span role="columnheader">Why it matters</span>
-                                                                            </div>
-                                                                        </div>
-                                                                        <div class="ls-symbols-table-body" role="rowgroup">
-                                                                            <div class="ls-symbols-row" role="row">
-                                                                                <span class="ls-symbols-cell-title" role="cell">Star</span>
-                                                                                <span role="cell">Perfection of the human person and the search for truth.</span>
-                                                                                <span role="cell">Golden yellow</span>
-                                                                                <span role="cell">Its natural star color also reflects one of the traditional University colors.</span>
-                                                                            </div>
-                                                                            <div class="ls-symbols-row" role="row">
-                                                                                <span class="ls-symbols-cell-title" role="cell">Five concentric circles</span>
-                                                                                <span role="cell">Infinite wisdom and quintessence.</span>
-                                                                                <span role="cell">White</span>
-                                                                                <span role="cell">White symbolizes purity and reinforces the ideal of refined knowledge.</span>
-                                                                            </div>
-                                                                            <div class="ls-symbols-row" role="row">
-                                                                                <span class="ls-symbols-cell-title" role="cell">Star + circles</span>
-                                                                                <span role="cell">Together they stand for quintessence, the highest form of quality and the most perfect example of creation.</span>
-                                                                                <span role="cell">Gold and white</span>
-                                                                                <span role="cell">The logo presents excellence not as one trait, but as a complete standard.</span>
-                                                                            </div>
-                                                                            <div class="ls-symbols-row" role="row">
-                                                                                <span class="ls-symbols-cell-title" role="cell">Two laurel arcs</span>
-                                                                                <span role="cell">Excellence and quality of education.</span>
-                                                                                <span role="cell">Seal accent</span>
-                                                                                <span role="cell">They honor the University's rich achievements over more than a century.</span>
-                                                                            </div>
-                                                                            <div class="ls-symbols-row" role="row">
-                                                                                <span class="ls-symbols-cell-title" role="cell">Background color</span>
-                                                                                <span role="cell">Dark maroon as a traditional University color.</span>
-                                                                                <span role="cell">Dark maroon</span>
-                                                                                <span role="cell">It anchors the seal in a strong institutional identity beside gold.</span>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-
-                                                                <div class="ls-symbols-colors">
-                                                                    <article class="ls-symbols-color-card ls-symbols-color-card--gold">
-                                                                        <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
-                                                                        <div class="ls-symbols-color-copy">
-                                                                            <h3>Golden Yellow</h3>
-                                                                            <p>Used for the star because it is a star's natural color and because it is a traditional University color.</p>
-                                                                        </div>
-                                                                    </article>
-                                                                    <article class="ls-symbols-color-card ls-symbols-color-card--maroon">
-                                                                        <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
-                                                                        <div class="ls-symbols-color-copy">
-                                                                            <h3>Dark Maroon</h3>
-                                                                            <p>Forms the traditional background pairing with gold and gives the seal its strong institutional character.</p>
-                                                                        </div>
-                                                                    </article>
-                                                                    <article class="ls-symbols-color-card ls-symbols-color-card--white">
-                                                                        <div class="ls-symbols-color-swatch" aria-hidden="true"></div>
-                                                                        <div class="ls-symbols-color-copy">
-                                                                            <h3>White</h3>
-                                                                            <p>Used for the five concentric circles to symbolize purity.</p>
-                                                                        </div>
-                                                                    </article>
-                                                                </div>
+                                                        <div class="ls-gallery-two-col">
+                                                            <article class="ls-gallery-container-card rich-text-content">
+                                                                <h4>{{ $sealInfoTitle !== '' ? $sealInfoTitle : 'Informations about the Seal' }}</h4>
+                                                                {!! $sealInfoHtml !!}
+                                                            </article>
+                                                            <article class="ls-gallery-container-card rich-text-content">
+                                                                <h4>{{ $sealReportsTitle !== '' ? $sealReportsTitle : 'Reports and Records' }}</h4>
+                                                                {!! $sealReportsHtml !!}
+                                                            </article>
+                                                        </div>
+                                                        @if(!empty($sealLinks))
+                                                            <div class="ls-gallery-links">
+                                                                <h4 class="ls-gallery-block-title">Links</h4>
+                                                                <ul>
+                                                                    @foreach($sealLinks as $sealLink)
+                                                                        @php
+                                                                            $linkLabel = trim((string) ($sealLink['label'] ?? ''));
+                                                                            $linkUrl = trim((string) ($sealLink['url'] ?? ''));
+                                                                        @endphp
+                                                                        @continue($linkLabel === '' && $linkUrl === '')
+                                                                        <li>
+                                                                            @if($linkUrl !== '')
+                                                                                <a href="{{ $linkUrl }}" target="_blank" rel="noopener noreferrer">{{ $linkLabel !== '' ? $linkLabel : $linkUrl }}</a>
+                                                                            @else
+                                                                                <span>{{ $linkLabel }}</span>
+                                                                            @endif
+                                                                        </li>
+                                                                    @endforeach
+                                                                </ul>
                                                             </div>
                                                         @endif
                                                     </article>
@@ -1354,6 +1267,8 @@
                 return;
             }
 
+            const isCmsPreview = document.body.hasAttribute('data-cms-preview');
+
             galleries.forEach((gallery) => {
                 const triggers = Array.from(gallery.querySelectorAll('[data-ls-seal-trigger]'));
                 const panels = Array.from(gallery.querySelectorAll('[data-ls-seal-panel]'));
@@ -1381,12 +1296,18 @@
                 };
 
                 triggers.forEach((trigger) => {
-                    trigger.addEventListener('click', () => {
+                    trigger.addEventListener('click', (event) => {
+                        if (isCmsPreview) {
+                            return;
+                        }
+
                         const sealId = trigger.getAttribute('data-seal-id') || '';
                         if (!sealId) {
                             return;
                         }
+
                         showPanel(sealId);
+                        event.preventDefault();
                     });
                 });
             });
@@ -2085,7 +2006,7 @@
                     }
 
                     const openEditor = (event) => {
-                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-section-card-delete], [data-about-strategic-goal-card], [data-about-strategic-goal-edit], [data-about-plan-priority-card], [data-about-plan-priority-edit], [data-about-plan-priority-delete], [data-about-plan-priority-add], [data-about-official-card-add]')) {
+                        if (event.target.closest('[data-about-card-edit], [data-about-card-delete], [data-about-contents-card], [data-about-history-card], [data-about-history-edit], [data-about-section-card], [data-about-section-card-edit], [data-about-section-card-delete], [data-about-strategic-goal-card], [data-about-strategic-goal-edit], [data-about-plan-priority-card], [data-about-plan-priority-edit], [data-about-plan-priority-delete], [data-about-plan-priority-add], [data-about-official-card-add], [data-about-seal-card-add]')) {
                             return;
                         }
 
@@ -2189,6 +2110,16 @@
                             }, '*');
                             return;
                         }
+
+                        if (section === 'logo-and-symbols') {
+                            window.parent?.postMessage({
+                                type: 'cms-about-seal-card-edit',
+                                index: index,
+                                label: label,
+                                route: route || 'logo-and-symbols',
+                            }, '*');
+                            return;
+                        }
                     }
 
                     const sectionCardDeleteTrigger = event.target.closest('[data-about-section-card-delete]');
@@ -2210,6 +2141,16 @@
                             }, '*');
                             return;
                         }
+
+                        if (section === 'logo-and-symbols') {
+                            window.parent?.postMessage({
+                                type: 'cms-about-seal-card-delete',
+                                index: index,
+                                label: label,
+                                route: route || 'logo-and-symbols',
+                            }, '*');
+                            return;
+                        }
                     }
 
                     const sectionCard = event.target.closest('[data-about-section-card]');
@@ -2226,6 +2167,18 @@
                             }, '*');
                             return;
                         }
+
+                        if (section === 'logo-and-symbols') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            window.parent?.postMessage({
+                                type: 'cms-about-seal-card-edit',
+                                index: sectionCard.getAttribute('data-about-section-card-index') || '',
+                                label: sectionCard.getAttribute('data-about-section-card-label') || 'Seal',
+                                route: sectionCard.getAttribute('data-about-section-card-route') || 'logo-and-symbols',
+                            }, '*');
+                            return;
+                        }
                     }
 
                     const addOfficialCardTrigger = event.target.closest('[data-about-official-card-add]');
@@ -2236,6 +2189,18 @@
                             type: 'cms-about-official-card-add',
                             route: 'campus-officials',
                             label: 'Add campus official',
+                        }, '*');
+                        return;
+                    }
+
+                    const addSealCardTrigger = event.target.closest('[data-about-seal-card-add]');
+                    if (addSealCardTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-seal-card-add',
+                            route: 'logo-and-symbols',
+                            label: 'Add seal',
                         }, '*');
                         return;
                     }

@@ -125,6 +125,21 @@ class CmsController extends Controller
             'about.sections.*.official_groups.*.body' => ['nullable', 'string'],
             'about.sections.*.official_groups.*.image' => ['nullable', 'string', 'max:2048'],
             'about.sections.*.official_groups.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.sections.*.seals' => ['nullable', 'array'],
+            'about.sections.*.seals.*.id' => ['nullable', 'string', 'max:120'],
+            'about.sections.*.seals.*.label' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.seals.*.tag' => ['nullable', 'string', 'max:120'],
+            'about.sections.*.seals.*.image' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.seals.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.sections.*.seals.*.highlights' => ['nullable', 'array'],
+            'about.sections.*.seals.*.highlights.*' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.seals.*.information.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.seals.*.information.description' => ['nullable', 'string'],
+            'about.sections.*.seals.*.reports.title' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.seals.*.reports.description' => ['nullable', 'string'],
+            'about.sections.*.seals.*.links' => ['nullable', 'array'],
+            'about.sections.*.seals.*.links.*.label' => ['nullable', 'string', 'max:255'],
+            'about.sections.*.seals.*.links.*.url' => ['nullable', 'string', 'max:2048'],
             'about.overview.story_tag' => ['nullable', 'string', 'max:255'],
             'about.overview.story_title' => ['nullable', 'string', 'max:255'],
             'about.overview.story_description' => ['nullable', 'string'],
@@ -541,6 +556,24 @@ class CmsController extends Controller
                         $storedPath = ImageStorage::store($upload, 'about/officials');
                         if ($storedPath !== false) {
                             $aboutInput['sections']['campus-officials']['official_groups'][$index]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
+            if ($sectionKey === '' || $sectionKey === 'logo-and-symbols') {
+                $sealUploads = data_get($request->file('about.sections', []), 'logo-and-symbols.seals', []);
+
+                if (is_array($sealUploads)) {
+                    foreach ($sealUploads as $index => $sealUpload) {
+                        $upload = is_array($sealUpload) ? ($sealUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'about/seals');
+                        if ($storedPath !== false) {
+                            $aboutInput['sections']['logo-and-symbols']['seals'][$index]['image'] = $storedPath;
                         }
                     }
                 }
