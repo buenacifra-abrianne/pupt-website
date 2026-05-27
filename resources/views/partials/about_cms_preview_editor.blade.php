@@ -2774,6 +2774,11 @@
                 return;
             }
 
+            const activePanel = modal.querySelector('[data-about-editor-panel]:not([hidden])');
+            if (activePanel?.getAttribute('data-about-editor-panel') === 'logo-and-symbols') {
+                discardPendingSealDrafts();
+            }
+
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
             modal.classList.remove('is-official-card-focus');
@@ -2890,7 +2895,7 @@
                     information: { title: 'Informations about the Seal', description: '' },
                     reports: { title: 'Reports and Records', description: '' },
                     links: [],
-                }, true);
+                }, true, true);
                 const nextIndex = editor?.getAttribute('data-about-seal-index') || '';
                 openAboutEditor('logo-and-symbols', data.label || 'Add seal', {
                     sealIndex: nextIndex,
@@ -2966,6 +2971,7 @@
         const activeSealIndexInput = sealsForm?.querySelector('[data-about-active-seal-index]') || null;
         const sealsTemplate = sealsForm?.querySelector('[data-about-seal-template]') || null;
         const sealLinkTemplate = sealsForm?.querySelector('[data-about-seal-link-template]') || null;
+        const pendingSealDraftEditors = new Set();
         const planPrioritiesForm = document.querySelector('[data-about-editor-panel="strategic-development-plan"] form[data-about-plan-priorities-form]');
         const planPrioritiesList = planPrioritiesForm?.querySelector('[data-about-plan-priorities-list]') || null;
         const planPrioritiesVersionInput = planPrioritiesForm?.querySelector('[data-about-plan-priorities-version]') || null;
@@ -4003,6 +4009,36 @@
                 return;
             }
 
+            const sealIdInput = editor.querySelector('[data-about-seal-id]');
+            if (sealIdInput instanceof HTMLInputElement) {
+                sealIdInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][id]`;
+            }
+
+            const imageInput = editor.querySelector('[data-about-seal-image]');
+            if (imageInput instanceof HTMLInputElement) {
+                imageInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][image]`;
+            }
+
+            const imageFileInput = editor.querySelector('.about-cms-image-dropzone-input');
+            if (imageFileInput instanceof HTMLInputElement) {
+                imageFileInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][image_file]`;
+            }
+
+            const labelInput = editor.querySelector('[data-about-seal-label]');
+            if (labelInput instanceof HTMLInputElement) {
+                labelInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][label]`;
+            }
+
+            const tagInput = editor.querySelector('[data-about-seal-tag]');
+            if (tagInput instanceof HTMLInputElement) {
+                tagInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][tag]`;
+            }
+
+            const highlightsInput = editor.querySelector('[data-about-seal-highlights]');
+            if (highlightsInput instanceof HTMLTextAreaElement) {
+                highlightsInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][highlights_text]`;
+            }
+
             const infoDescInput = editor.querySelector('[data-about-seal-info-desc] .rich-editor-input');
             if (infoDescInput instanceof HTMLTextAreaElement) {
                 infoDescInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][information][description]`;
@@ -4033,6 +4069,37 @@
                 syncSealEditorMeta(editor, index);
                 syncSealLinkNames(editor);
             });
+        };
+
+        const discardPendingSealDrafts = () => {
+            if (!sealsList || pendingSealDraftEditors.size === 0) {
+                return;
+            }
+
+            let removed = false;
+            pendingSealDraftEditors.forEach((editor) => {
+                if (editor instanceof HTMLElement && editor.isConnected) {
+                    editor.remove();
+                    removed = true;
+                }
+            });
+            pendingSealDraftEditors.clear();
+
+            if (!removed) {
+                return;
+            }
+
+            if (sealsList.querySelector('[data-about-seal-editor]')) {
+                relabelSealEditors();
+                setActiveSealEditor('', sealsForm || document, false);
+                bumpSealsVersion();
+                return;
+            }
+
+            if (activeSealIndexInput) {
+                activeSealIndexInput.value = '';
+            }
+            bumpSealsVersion();
         };
 
         const nextSealIndex = () => {
@@ -4160,7 +4227,7 @@
             return targetEditor;
         };
 
-        const addSealEditor = (seal = {}, focus = true) => {
+        const addSealEditor = (seal = {}, focus = true, trackAsDraft = false) => {
             if (!sealsList) {
                 return null;
             }
@@ -4173,6 +4240,9 @@
             }
 
             sealsList.appendChild(editor);
+            if (trackAsDraft) {
+                pendingSealDraftEditors.add(editor);
+            }
             if (typeof window.initializeRichTextEditors === 'function') {
                 window.initializeRichTextEditors(editor);
             }
@@ -4205,6 +4275,7 @@
                 return false;
             }
 
+            pendingSealDraftEditors.delete(editor);
             editor.remove();
             if (!sealsList.querySelector('[data-about-seal-editor]')) {
                 addSealEditor({
@@ -4281,7 +4352,7 @@
                         information: { title: 'Informations about the Seal', description: '' },
                         reports: { title: 'Reports and Records', description: '' },
                         links: [],
-                    }, true);
+                    }, true, true);
                     return;
                 }
 
@@ -4344,6 +4415,7 @@
                 if (typeof window.syncRichTextEditors === 'function') {
                     window.syncRichTextEditors(sealsForm);
                 }
+                pendingSealDraftEditors.clear();
                 bumpSealsVersion();
             }, true);
         };
