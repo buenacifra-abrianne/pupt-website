@@ -918,7 +918,12 @@
             captureHistoryFormSnapshot(form);
         }
 
-        getTrackableFields(form).forEach((field) => {
+        const trackableFields = getTrackableFields(form);
+        form.dataset.initialTrackableFieldSignature = JSON.stringify(
+            trackableFields.map((field, index) => `${index}:${field.name}`)
+        );
+
+        trackableFields.forEach((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return;
             }
@@ -933,7 +938,17 @@
         }
 
         syncFormEditors(form);
-        return getTrackableFields(form).some((field) => {
+        const trackableFields = getTrackableFields(form);
+        const initialTrackableFieldSignature = form.dataset.initialTrackableFieldSignature || '';
+        const currentTrackableFieldSignature = JSON.stringify(
+            trackableFields.map((field, index) => `${index}:${field.name}`)
+        );
+
+        if (initialTrackableFieldSignature && initialTrackableFieldSignature !== currentTrackableFieldSignature) {
+            return true;
+        }
+
+        return trackableFields.some((field) => {
             if (field instanceof HTMLInputElement && (field.type || '').toLowerCase() === 'file') {
                 return !!(field.files && field.files.length > 0);
             }
