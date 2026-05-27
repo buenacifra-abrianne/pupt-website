@@ -449,41 +449,9 @@ class StudentsCmsContent
                 is_array($base['admissions'] ?? null) ? $base['admissions'] : $defaults['admissions'],
                 $defaults['admissions']
             ),
-            'downloadable-forms' => self::ensureRequiredDownloadableLink($downloadableForms),
-            'downloadable-forms-personnel' => self::ensureRequiredDownloadableLink($personnelForms),
+            'downloadable-forms' => $downloadableForms,
+            'downloadable-forms-personnel' => $personnelForms,
         ];
-    }
-
-    private static function ensureRequiredDownloadableLink(array $page): array
-    {
-        $links = is_array($page['links'] ?? null) ? $page['links'] : [];
-        $items = is_array($links['items'] ?? null) ? array_values($links['items']) : [];
-        $required = self::PUP_TAGUIG_DOCUMENT_TEMPLATE_LINK;
-        $requiredHref = strtolower(trim((string) ($required['href'] ?? '')));
-        $requiredLabel = strtolower(trim((string) ($required['label'] ?? '')));
-
-        foreach ($items as $item) {
-            if (!is_array($item)) {
-                continue;
-            }
-
-            $itemHref = strtolower(trim((string) ($item['href'] ?? '')));
-            $itemLabel = strtolower(trim((string) ($item['label'] ?? '')));
-
-            if (($requiredHref !== '' && $itemHref === $requiredHref) || ($requiredLabel !== '' && $itemLabel === $requiredLabel)) {
-                return $page;
-            }
-        }
-
-        if (count($items) >= 50) {
-            array_pop($items);
-        }
-
-        $items[] = $required;
-        $links['items'] = $items;
-        $page['links'] = $links;
-
-        return $page;
     }
 
     private static function normalizeAdmissionsPage(array $source, array $base, array $defaults): array
