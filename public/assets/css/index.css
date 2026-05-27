@@ -520,7 +520,7 @@ body {
     }
 }
 
-@media (max-height: 760px) {
+@media (max-height: 700px) and (min-width: 961px) {
     .menu {
         padding-top: 10px;
         gap: 8px;
@@ -533,7 +533,7 @@ body {
     }
 
     .title-main-line {
-        font-size: clamp(2.05rem, 4vw, 3.15rem);
+        font-size: clamp(2.55rem, 4.8vw, 4rem);
     }
 }
 
