@@ -704,51 +704,275 @@
 
             @php
                 $logoEditor = $aboutSections['logo-and-symbols'] ?? [];
+                $logoSeals = is_array($logoEditor['seals'] ?? null) ? array_values($logoEditor['seals']) : [];
             @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="logo-and-symbols" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-about-seals-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="logo-and-symbols">
+                    <input type="hidden" name="about_seals_version" value="0" data-about-seals-version>
+                    <input type="hidden" name="about_active_seal_index" value="" data-about-active-seal-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="about-cms-form-grid">
-                        <div class="form-group">
-                            <label>Section Label</label>
-                            <input type="text" name="about[sections][logo-and-symbols][label]" maxlength="255" value="{{ $logoEditor['label'] ?? '' }}">
+                    <article class="about-cms-card-editor" data-about-card-panel-meta>
+                        <div class="about-cms-card-editor-head">
+                            <h4>Section Header</h4>
+                            <span>Shared details</span>
                         </div>
-                        <div class="form-group">
-                            <label>Section Summary</label>
-                            <textarea name="about[sections][logo-and-symbols][summary]" rows="4">{{ $logoEditor['summary'] ?? '' }}</textarea>
+                        <div class="about-cms-form-grid">
+                            <div class="form-group">
+                                <label>Section Label</label>
+                                <input type="text" name="about[sections][logo-and-symbols][label]" maxlength="255" value="{{ $logoEditor['label'] ?? '' }}">
+                            </div>
+                            <div class="form-group">
+                                <label>Section Summary</label>
+                                <textarea name="about[sections][logo-and-symbols][summary]" rows="4">{{ $logoEditor['summary'] ?? '' }}</textarea>
+                            </div>
                         </div>
+
+                        <div class="form-group">
+                            <label>Lead Paragraph</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'about[sections][logo-and-symbols][lead]',
+                                'value' => $logoEditor['lead'] ?? '',
+                                'placeholder' => 'Write the logo and symbols introduction...',
+                            ])
+                        </div>
+                    </article>
+
+                    <div class="about-cms-inline-actions">
+                        <button type="button" class="btn btn-outline-secondary" data-about-seal-add-editor>+ Add Seal</button>
                     </div>
 
-                    <div class="form-group">
-                        <label>Lead Paragraph</label>
-                        <textarea name="about[sections][logo-and-symbols][lead]" rows="5">{{ $logoEditor['lead'] ?? '' }}</textarea>
-                    </div>
-
-                    @foreach($logoEditor['identity_marks'] ?? [] as $index => $identityMark)
-                        <article class="about-cms-card-editor">
-                            <div class="about-cms-form-grid">
-                                <div class="form-group">
-                                    <label>Identity Card Title</label>
-                                    <input type="text" name="about[sections][logo-and-symbols][identity_marks][{{ $index }}][title]" maxlength="255" value="{{ $identityMark['title'] ?? '' }}">
+                    <div class="about-cms-card-stack" data-about-seals-list>
+                        @foreach($logoSeals as $index => $seal)
+                            @php
+                                $sealInputId = $idPrefix.'-about-seal-image-file-'.$index;
+                                $sealImageFieldId = $idPrefix.'-about-seal-image-'.$index;
+                                $sealImageValue = (string) ($seal['image'] ?? '');
+                                $sealFallbackImage = trim((string) ($seal['image'] ?? '')) !== ''
+                                    ? (string) $seal['image']
+                                    : '/assets/static_img/logo.png';
+                                $sealImagePreview = \App\Support\AboutCmsContent::resolveImagePath($sealImageValue !== '' ? $sealImageValue : null, ltrim($sealFallbackImage, '/'));
+                                $sealLinks = is_array($seal['links'] ?? null) ? array_values($seal['links']) : [];
+                                $sealHighlights = is_array($seal['highlights'] ?? null) ? $seal['highlights'] : [];
+                            @endphp
+                            <article class="about-cms-card-editor" data-about-seal-editor data-about-seal-index="{{ $index }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4 data-about-seal-heading>{{ $seal['label'] ?? ('Seal ' . $loop->iteration) }}</h4>
+                                    <span data-about-seal-meta>{{ $seal['tag'] ?? ('Seal ' . $loop->iteration) }}</span>
                                 </div>
+                                <input type="hidden" name="about[sections][logo-and-symbols][seals][{{ $index }}][id]" value="{{ $seal['id'] ?? '' }}" data-about-seal-id>
+                                <input type="hidden" id="{{ $sealImageFieldId }}" name="about[sections][logo-and-symbols][seals][{{ $index }}][image]" value="{{ $sealImageValue }}" data-about-image-field data-about-seal-image>
+
                                 <div class="form-group">
-                                    <label>Identity Card Body</label>
-                                    <textarea name="about[sections][logo-and-symbols][identity_marks][{{ $index }}][body]" rows="4">{{ $identityMark['body'] ?? '' }}</textarea>
+                                    <label>Upload Seal Image</label>
+                                    <div class="about-cms-image-dropzone-shell">
+                                        <input
+                                            type="file"
+                                            id="{{ $sealInputId }}"
+                                            name="about[sections][logo-and-symbols][seals][{{ $index }}][image_file]"
+                                            class="about-cms-image-dropzone-input"
+                                            accept="image/*"
+                                            data-about-image-field-id="{{ $sealImageFieldId }}"
+                                        >
+                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $sealInputId }}" tabindex="0" role="button" aria-label="Upload seal image">
+                                            <span class="about-cms-image-dropzone-preview-column">
+                                                <span class="about-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $sealImagePreview }}"
+                                                        alt="{{ $seal['label'] ?? 'Seal' }} preview"
+                                                        class="about-cms-image-dropzone-preview{{ $sealImageValue === '' ? ' about-cms-image-dropzone-preview--profile-placeholder' : '' }}"
+                                                        data-about-preview-for="{{ $sealInputId }}"
+                                                        data-about-default-src="{{ \App\Support\AboutCmsContent::resolveImagePath($sealFallbackImage, 'assets/static_img/logo.png') }}"
+                                                    >
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $sealInputId }}" aria-label="Delete image" title="Delete image" {{ $sealImageValue === '' ? 'hidden' : '' }}>
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload">
+                                                <span class="about-cms-image-dropzone-icon">
+                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                </span>
+                                                <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this seal.</span>
+                                                <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $sealInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="about-cms-form-grid">
+                                    <div class="form-group">
+                                        <label>Seal Title</label>
+                                        <input type="text" name="about[sections][logo-and-symbols][seals][{{ $index }}][label]" maxlength="255" value="{{ $seal['label'] ?? '' }}" data-about-seal-label>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Seal Tag</label>
+                                        <input type="text" name="about[sections][logo-and-symbols][seals][{{ $index }}][tag]" maxlength="120" value="{{ $seal['tag'] ?? '' }}" data-about-seal-tag>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Highlights</label>
+                                    <textarea name="about[sections][logo-and-symbols][seals][{{ $index }}][highlights_text]" rows="5" data-about-seal-highlights>{{ implode("\n", array_map(static fn ($item) => trim((string) $item), $sealHighlights)) }}</textarea>
+                                </div>
+
+                                <article class="about-cms-card-editor about-cms-card-editor--sub">
+                                    <div class="form-group" data-about-seal-info-desc>
+                                        <label>Informations about the Seal Description</label>
+                                        @include('partials.rich_text_editor', [
+                                            'name' => 'about[sections][logo-and-symbols][seals]['.$index.'][information][description]',
+                                            'value' => data_get($seal, 'information.description', ''),
+                                            'placeholder' => 'Write information about this seal...',
+                                        ])
+                                    </div>
+                                </article>
+
+                                <article class="about-cms-card-editor about-cms-card-editor--sub">
+                                    <div class="form-group" data-about-seal-reports-desc>
+                                        <label>Reports and Records Description</label>
+                                        @include('partials.rich_text_editor', [
+                                            'name' => 'about[sections][logo-and-symbols][seals]['.$index.'][reports][description]',
+                                            'value' => data_get($seal, 'reports.description', ''),
+                                            'placeholder' => 'Write reports and records details...',
+                                        ])
+                                    </div>
+                                </article>
+
+                                <article class="about-cms-card-editor about-cms-card-editor--sub">
+                                    <div class="about-cms-card-editor-head">
+                                        <h4>Links</h4>
+                                        <span>Add or remove multiple links</span>
+                                    </div>
+                                    <div class="about-cms-link-stack" data-about-seal-links-list>
+                                        @foreach($sealLinks as $linkIndex => $link)
+                                            <div class="about-cms-link-row" data-about-seal-link-item>
+                                                <input type="text" name="about[sections][logo-and-symbols][seals][{{ $index }}][links][{{ $linkIndex }}][label]" maxlength="255" value="{{ $link['label'] ?? '' }}" placeholder="Link label" data-about-seal-link-label>
+                                                <input type="text" name="about[sections][logo-and-symbols][seals][{{ $index }}][links][{{ $linkIndex }}][url]" maxlength="2048" value="{{ $link['url'] ?? '' }}" placeholder="https://..." data-about-seal-link-url>
+                                                <button type="button" class="btn btn-outline-danger" data-about-seal-link-delete>Delete</button>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="about-cms-inline-actions">
+                                        <button type="button" class="btn btn-outline-secondary" data-about-seal-link-add>+ Add Link</button>
+                                    </div>
+                                </article>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-about-seal-template>
+                        <article class="about-cms-card-editor" data-about-seal-editor data-about-seal-index="__INDEX__">
+                            <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                <h4 data-about-seal-heading>New Seal</h4>
+                                <span data-about-seal-meta>Seal __NUMBER__</span>
+                            </div>
+                            <input type="hidden" name="about[sections][logo-and-symbols][seals][__INDEX__][id]" value="" data-about-seal-id>
+                            <input type="hidden" id="{{ $idPrefix }}-about-seal-image-__INDEX__" name="about[sections][logo-and-symbols][seals][__INDEX__][image]" value="" data-about-image-field data-about-seal-image>
+
+                            <div class="form-group">
+                                <label>Upload Seal Image</label>
+                                <div class="about-cms-image-dropzone-shell">
+                                    <input
+                                        type="file"
+                                        id="{{ $idPrefix }}-about-seal-image-file-__INDEX__"
+                                        name="about[sections][logo-and-symbols][seals][__INDEX__][image_file]"
+                                        class="about-cms-image-dropzone-input"
+                                        accept="image/*"
+                                        data-about-image-field-id="{{ $idPrefix }}-about-seal-image-__INDEX__"
+                                    >
+                                    <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__" tabindex="0" role="button" aria-label="Upload seal image">
+                                        <span class="about-cms-image-dropzone-preview-column">
+                                            <span class="about-cms-image-dropzone-media">
+                                                <img
+                                                    src="{{ asset('assets/static_img/logo.png') }}"
+                                                    alt="Seal preview"
+                                                    class="about-cms-image-dropzone-preview about-cms-image-dropzone-preview--profile-placeholder"
+                                                    data-about-preview-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__"
+                                                    data-about-default-src="{{ asset('assets/static_img/logo.png') }}"
+                                                >
+                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                        </span>
+                                        <span class="about-cms-image-dropzone-upload">
+                                            <span class="about-cms-image-dropzone-icon">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this seal.</span>
+                                            <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
-                        </article>
-                    @endforeach
 
-                    <div class="form-group">
-                        <label>Symbolism Points</label>
-                        <textarea name="about[sections][logo-and-symbols][symbol_points_text]" rows="6">{{ implode("\n", $logoEditor['symbol_points'] ?? []) }}</textarea>
-                    </div>
+                            <div class="about-cms-form-grid">
+                                <div class="form-group">
+                                    <label>Seal Title</label>
+                                    <input type="text" name="about[sections][logo-and-symbols][seals][__INDEX__][label]" maxlength="255" value="" data-about-seal-label>
+                                </div>
+                                <div class="form-group">
+                                    <label>Seal Tag</label>
+                                    <input type="text" name="about[sections][logo-and-symbols][seals][__INDEX__][tag]" maxlength="120" value="" data-about-seal-tag>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Highlights</label>
+                                <textarea name="about[sections][logo-and-symbols][seals][__INDEX__][highlights_text]" rows="5" data-about-seal-highlights></textarea>
+                            </div>
+
+                            <article class="about-cms-card-editor about-cms-card-editor--sub">
+                                <div class="form-group" data-about-seal-info-desc>
+                                    <label>Informations about the Seal Description</label>
+                                    @include('partials.rich_text_editor', [
+                                        'name' => '',
+                                        'value' => '',
+                                        'placeholder' => 'Write information about this seal...',
+                                    ])
+                                </div>
+                            </article>
+
+                            <article class="about-cms-card-editor about-cms-card-editor--sub">
+                                <div class="form-group" data-about-seal-reports-desc>
+                                    <label>Reports and Records Description</label>
+                                    @include('partials.rich_text_editor', [
+                                        'name' => '',
+                                        'value' => '',
+                                        'placeholder' => 'Write reports and records details...',
+                                    ])
+                                </div>
+                            </article>
+
+                            <article class="about-cms-card-editor about-cms-card-editor--sub">
+                                <div class="about-cms-card-editor-head">
+                                    <h4>Links</h4>
+                                    <span>Add or remove multiple links</span>
+                                </div>
+                                <div class="about-cms-link-stack" data-about-seal-links-list></div>
+                                <div class="about-cms-inline-actions">
+                                    <button type="button" class="btn btn-outline-secondary" data-about-seal-link-add>+ Add Link</button>
+                                </div>
+                            </article>
+                        </article>
+                    </template>
+
+                    <template data-about-seal-link-template>
+                        <div class="about-cms-link-row" data-about-seal-link-item>
+                            <input type="text" maxlength="255" value="" placeholder="Link label" data-about-seal-link-label>
+                            <input type="text" maxlength="2048" value="" placeholder="https://..." data-about-seal-link-url>
+                            <button type="button" class="btn btn-outline-danger" data-about-seal-link-delete>Delete</button>
+                        </div>
+                    </template>
 
                     <div class="about-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">{{ $submitLabel('Logo & Symbols') }}</button>
@@ -1194,7 +1418,7 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 16px;
+        padding: 14px;
     }
 
     .about-cms-modal-backdrop {
@@ -1207,37 +1431,40 @@
     .about-cms-modal-dialog {
         position: relative;
         z-index: 1;
-        width: min(1080px, calc(100vw - 32px));
-        max-height: calc(100vh - 32px);
+        width: min(1320px, calc(100vw - 24px));
+        max-height: calc(100vh - 24px);
         margin: 0;
         overflow-x: hidden;
         overflow-y: auto;
-        border-radius: 24px;
-        background: #fffdfc;
-        box-shadow: 0 28px 80px rgba(25, 16, 12, 0.28);
+        border-radius: 28px;
+        background:
+            radial-gradient(circle at top right, rgba(212, 175, 55, 0.15), transparent 34%),
+            linear-gradient(180deg, #fffefc 0%, #fff6ef 100%);
+        box-shadow: 0 36px 100px rgba(25, 16, 12, 0.32);
     }
 
     .about-cms-modal-close {
         position: absolute;
-        top: 18px;
-        right: 18px;
+        top: 16px;
+        right: 16px;
         width: 46px;
         height: 46px;
         border: none;
         border-radius: 14px;
-        background: #f7ede8;
+        background: linear-gradient(180deg, #fff7f1 0%, #f7e8dc 100%);
         color: #5c0000;
         font-size: 1.6rem;
         cursor: pointer;
     }
 
     .about-cms-modal-header {
-        padding: 24px 24px 12px;
-        border-bottom: 1px solid #f1e9e4;
+        padding: 24px 30px 14px;
+        border-bottom: 1px solid #f0e2d9;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 246, 238, 0.75) 100%);
     }
 
     .about-cms-modal-panels {
-        padding: 22px 24px 24px;
+        padding: 24px 30px 30px;
         max-width: 100%;
         overflow-x: hidden;
     }
@@ -1468,6 +1695,18 @@
         margin: 0 auto;
     }
 
+    .about-cms-card-editor[data-about-seal-editor] {
+        width: min(100%, 940px);
+        margin: 0 auto;
+    }
+
+    .about-cms-card-editor--sub {
+        margin-top: 14px;
+        border-style: dashed;
+        border-color: #e7d9cf;
+        background: #fffdfa;
+    }
+
     .about-cms-card-editor[data-about-contents-editor] {
         display: none;
     }
@@ -1555,6 +1794,91 @@
         grid-template-columns: minmax(0, 1fr) auto;
         gap: 10px;
         align-items: center;
+    }
+
+    .about-cms-link-stack {
+        display: grid;
+        gap: 12px;
+        margin-top: 6px;
+    }
+
+    .about-cms-link-row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr) auto;
+        gap: 10px;
+        align-items: center;
+        padding: 10px;
+        border: 1px solid #e9d9cd;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #fffdfb 0%, #fff6ee 100%);
+        box-shadow: 0 8px 18px rgba(92, 12, 6, 0.05);
+    }
+
+    .about-cms-link-row input {
+        width: 100%;
+        min-width: 0;
+        height: 46px;
+        padding: 0 14px;
+        border: 1px solid #d9c7bb;
+        border-radius: 10px;
+        background: #fff;
+        color: #2e2422;
+        box-sizing: border-box;
+    }
+
+    .about-cms-link-row input:focus {
+        outline: none;
+        border-color: #8a0000;
+        box-shadow: 0 0 0 3px rgba(138, 0, 0, 0.12);
+    }
+
+    .about-cms-link-row [data-about-seal-link-delete] {
+        height: 46px;
+        padding: 0 16px;
+        border: 0;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #8f1a1f 0%, #6d1115 100%);
+        color: #fff7f4;
+        font-size: 0.84rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 10px 20px rgba(92, 10, 14, 0.22);
+    }
+
+    .about-cms-link-row [data-about-seal-link-delete]:hover,
+    .about-cms-link-row [data-about-seal-link-delete]:focus-visible {
+        transform: translateY(-1px);
+        background: linear-gradient(135deg, #9d1f24 0%, #7a1318 100%);
+    }
+
+    .about-cms-inline-actions [data-about-seal-link-add] {
+        height: 42px;
+        padding: 0 18px;
+        border-radius: 12px;
+        border: 1px solid rgba(127, 17, 19, 0.25);
+        background: linear-gradient(180deg, #fff 0%, #fff1e5 100%);
+        color: #6a0f13;
+        font-size: 0.86rem;
+        font-weight: 800;
+        letter-spacing: 0.01em;
+    }
+
+    .about-cms-inline-actions [data-about-seal-link-add]:hover,
+    .about-cms-inline-actions [data-about-seal-link-add]:focus-visible {
+        border-color: rgba(127, 17, 19, 0.42);
+        background: linear-gradient(180deg, #fff9f2 0%, #ffe8d8 100%);
+        transform: translateY(-1px);
+    }
+
+    .about-cms-inline-actions [data-about-seal-add-editor] {
+        min-height: 44px;
+        padding: 0 18px;
+        border-radius: 12px;
+        border: 1px solid rgba(127, 17, 19, 0.25);
+        background: linear-gradient(145deg, #fff 0%, #fff0e4 100%);
+        color: #690d12;
+        font-weight: 900;
+        letter-spacing: 0.01em;
     }
 
     .about-cms-image-dropzone-shell {
@@ -1697,9 +2021,10 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 40px;
+        gap: 6px;
+        min-width: 40px;
         height: 40px;
-        padding: 0;
+        padding: 0 12px;
         border: 1px solid rgba(127, 17, 19, 0.14);
         border-radius: 999px;
         background: rgba(255, 253, 250, 0.94);
@@ -1709,6 +2034,14 @@
         cursor: pointer;
         box-shadow: 0 10px 22px rgba(92, 12, 6, 0.12);
         backdrop-filter: blur(6px);
+    }
+
+    .about-cms-image-dropzone-remove::after {
+        content: "Delete image";
+        font-size: 0.72rem;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
     }
 
     .about-cms-image-dropzone-remove:hover {
@@ -1730,6 +2063,12 @@
         .about-cms-image-dropzone-remove {
             top: 12px;
             right: 12px;
+            padding: 0 10px;
+            height: 36px;
+        }
+
+        .about-cms-image-dropzone-remove::after {
+            content: "Delete";
         }
     }
 
@@ -1813,8 +2152,8 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-dialog {
-        width: min(860px, calc(100vw - 24px));
-        max-width: min(860px, calc(100vw - 24px));
+        width: min(1080px, calc(100vw - 20px));
+        max-width: min(1080px, calc(100vw - 20px));
         overflow-x: visible;
         overflow-y: auto;
         border-radius: 28px;
@@ -1823,8 +2162,8 @@
     }
 
     .about-cms-modal.is-official-card-focus .about-cms-modal-dialog {
-        width: min(720px, calc(100vw - 24px));
-        max-width: min(720px, calc(100vw - 24px));
+        width: min(900px, calc(100vw - 20px));
+        max-width: min(900px, calc(100vw - 20px));
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
@@ -1848,6 +2187,10 @@
 
     .about-cms-modal.is-official-card-focus .about-cms-editor-panel.is-card-focus form {
         max-width: 640px;
+    }
+
+    .about-cms-editor-panel[data-about-editor-panel="logo-and-symbols"].is-card-focus form {
+        max-width: 980px;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-stack {
@@ -1875,8 +2218,16 @@
             inset 0 1px 0 rgba(255, 255, 255, 0.8);
     }
 
+    .about-cms-editor-panel[data-about-editor-panel="logo-and-symbols"].is-card-focus .about-cms-card-editor.is-active {
+        padding: 24px 26px;
+    }
+
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .form-group + .form-group {
         margin-top: 14px;
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .about-cms-form-grid > .form-group + .form-group {
+        margin-top: 0;
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-footer {
@@ -1884,6 +2235,10 @@
         max-width: 700px;
         margin: 0 auto;
         padding-top: 6px;
+    }
+
+    .about-cms-editor-panel[data-about-editor-panel="logo-and-symbols"].is-card-focus .about-cms-modal-footer {
+        max-width: 980px;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-history-meta-grid .form-group + .form-group {
@@ -1953,8 +2308,16 @@
             grid-template-columns: 1fr;
         }
 
+        .about-cms-link-row {
+            grid-template-columns: 1fr;
+        }
+
+        .about-cms-link-row [data-about-seal-link-delete] {
+            width: 100%;
+        }
+
         .about-cms-modal-dialog {
-            width: min(100vw - 20px, 1080px);
+            width: min(100vw - 20px, 1320px);
             max-height: calc(100vh - 20px);
             margin: 10px auto;
         }
@@ -2364,7 +2727,8 @@
                 const isStrategicGoalFocus = sectionKey === 'strategic-goals' && String(options.strategicGoalIndex ?? '').trim() !== '';
                 const isPlanPriorityFocus = sectionKey === 'strategic-development-plan' && String(options.planPriorityIndex ?? '').trim() !== '';
                 const isOfficialCardFocus = sectionKey === 'campus-officials' && String(options.officialIndex ?? '').trim() !== '';
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus;
+                const isSealCardFocus = sectionKey === 'logo-and-symbols' && String(options.sealIndex ?? '').trim() !== '';
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -2390,6 +2754,8 @@
                         focusScope = setActivePlanPriorityEditor(options.planPriorityIndex ?? '', isCardFocus) || panel;
                     } else if (sectionKey === 'campus-officials') {
                         focusScope = setActiveOfficialEditor(options.officialIndex ?? '', panel) || panel;
+                    } else if (sectionKey === 'logo-and-symbols') {
+                        focusScope = setActiveSealEditor(options.sealIndex ?? '', panel, isCardFocus) || panel;
                     }
 
                     if (typeof window.initializeRichTextEditors === 'function') {
@@ -2513,6 +2879,39 @@
                 return;
             }
 
+            if (data.type === 'cms-about-seal-card-add') {
+                initSealsEditor();
+                const editor = addSealEditor({
+                    id: '',
+                    label: '',
+                    tag: '',
+                    image: '',
+                    highlights: [],
+                    information: { title: 'Informations about the Seal', description: '' },
+                    reports: { title: 'Reports and Records', description: '' },
+                    links: [],
+                }, true);
+                const nextIndex = editor?.getAttribute('data-about-seal-index') || '';
+                openAboutEditor('logo-and-symbols', data.label || 'Add seal', {
+                    sealIndex: nextIndex,
+                    route: data.route || 'logo-and-symbols',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-seal-card-delete') {
+                confirmDeleteSealCard(data.index || '', data.label || '');
+                return;
+            }
+
+            if (data.type === 'cms-about-seal-card-edit') {
+                openAboutEditor('logo-and-symbols', data.label ? `Edit ${data.label}` : 'Edit seal', {
+                    sealIndex: data.index || '',
+                    route: data.route || 'logo-and-symbols',
+                });
+                return;
+            }
+
             if (data.type === 'cms-about-preview-route') {
                 loadAboutPreviewPage(data.route || 'overview');
                 return;
@@ -2561,6 +2960,12 @@
         const officialsVersionInput = officialsForm?.querySelector('[data-about-officials-version]') || null;
         const activeOfficialIndexInput = officialsForm?.querySelector('[data-about-active-official-index]') || null;
         const officialsTemplate = officialsForm?.querySelector('[data-about-official-template]') || null;
+        const sealsForm = document.querySelector('[data-about-editor-panel="logo-and-symbols"] form[data-about-seals-form]');
+        const sealsList = sealsForm?.querySelector('[data-about-seals-list]') || null;
+        const sealsVersionInput = sealsForm?.querySelector('[data-about-seals-version]') || null;
+        const activeSealIndexInput = sealsForm?.querySelector('[data-about-active-seal-index]') || null;
+        const sealsTemplate = sealsForm?.querySelector('[data-about-seal-template]') || null;
+        const sealLinkTemplate = sealsForm?.querySelector('[data-about-seal-link-template]') || null;
         const planPrioritiesForm = document.querySelector('[data-about-editor-panel="strategic-development-plan"] form[data-about-plan-priorities-form]');
         const planPrioritiesList = planPrioritiesForm?.querySelector('[data-about-plan-priorities-list]') || null;
         const planPrioritiesVersionInput = planPrioritiesForm?.querySelector('[data-about-plan-priorities-version]') || null;
@@ -2599,6 +3004,12 @@
         const bumpOfficialsVersion = () => {
             if (officialsVersionInput) {
                 officialsVersionInput.value = String(Date.now());
+            }
+        };
+
+        const bumpSealsVersion = () => {
+            if (sealsVersionInput) {
+                sealsVersionInput.value = String(Date.now());
             }
         };
 
@@ -3125,6 +3536,36 @@
             officialsForm.addEventListener('change', markDirty);
         };
 
+        const bindSealsDirtyTracking = () => {
+            if (!sealsForm || sealsForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            sealsForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                const target = event.target;
+                if (target instanceof HTMLElement && target.closest('.rich-editor-surface')) {
+                    bumpSealsVersion();
+                    return;
+                }
+
+                if (!shouldTrackAboutContentsField(target)) {
+                    return;
+                }
+
+                bumpSealsVersion();
+            };
+
+            sealsForm.addEventListener('input', markDirty);
+            sealsForm.addEventListener('change', markDirty);
+            sealsForm.addEventListener('click', (event) => {
+                if (event.target.closest('.rich-editor-toolbar button')) {
+                    window.setTimeout(bumpSealsVersion, 0);
+                }
+            });
+        };
+
         const initOfficialsEditor = () => {
             if (!officialsForm || !officialsList || officialsForm.dataset.aboutOfficialsBound === '1') {
                 return;
@@ -3525,6 +3966,388 @@
             return targetEditor;
         };
 
+        const syncSealEditorMeta = (editor, displayIndex = null) => {
+            if (!editor) {
+                return;
+            }
+
+            const heading = editor.querySelector('[data-about-seal-heading]');
+            const meta = editor.querySelector('[data-about-seal-meta]');
+            const labelInput = editor.querySelector('[data-about-seal-label]');
+            const tagInput = editor.querySelector('[data-about-seal-tag]');
+            const sealIdInput = editor.querySelector('[data-about-seal-id]');
+            const labelValue = String(labelInput?.value || '').trim();
+            const tagValue = String(tagInput?.value || '').trim();
+            const fallbackLabel = Number.isFinite(displayIndex) ? `Seal ${Number(displayIndex) + 1}` : 'Seal';
+
+            if (heading) {
+                heading.textContent = labelValue || fallbackLabel;
+            }
+
+            if (meta) {
+                meta.textContent = tagValue || fallbackLabel;
+            }
+
+            if (sealIdInput instanceof HTMLInputElement) {
+                const current = String(sealIdInput.value || '').trim();
+                if (!current) {
+                    const raw = (labelValue || fallbackLabel).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+                    sealIdInput.value = raw || `seal-${Number.isFinite(displayIndex) ? Number(displayIndex) + 1 : 1}`;
+                }
+            }
+        };
+
+        const syncSealLinkNames = (editor) => {
+            const sealIndex = editor?.getAttribute('data-about-seal-index') || '';
+            if (!editor || sealIndex === '') {
+                return;
+            }
+
+            const infoDescInput = editor.querySelector('[data-about-seal-info-desc] .rich-editor-input');
+            if (infoDescInput instanceof HTMLTextAreaElement) {
+                infoDescInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][information][description]`;
+            }
+
+            const reportsDescInput = editor.querySelector('[data-about-seal-reports-desc] .rich-editor-input');
+            if (reportsDescInput instanceof HTMLTextAreaElement) {
+                reportsDescInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][reports][description]`;
+            }
+
+            const linkItems = Array.from(editor.querySelectorAll('[data-about-seal-link-item]'));
+            linkItems.forEach((item, linkIndex) => {
+                const labelInput = item.querySelector('[data-about-seal-link-label]');
+                const urlInput = item.querySelector('[data-about-seal-link-url]');
+                if (labelInput instanceof HTMLInputElement) {
+                    labelInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][links][${linkIndex}][label]`;
+                }
+                if (urlInput instanceof HTMLInputElement) {
+                    urlInput.name = `about[sections][logo-and-symbols][seals][${sealIndex}][links][${linkIndex}][url]`;
+                }
+            });
+        };
+
+        const relabelSealEditors = () => {
+            const editors = Array.from(sealsList?.querySelectorAll('[data-about-seal-editor]') || []);
+            editors.forEach((editor, index) => {
+                editor.setAttribute('data-about-seal-index', String(index));
+                syncSealEditorMeta(editor, index);
+                syncSealLinkNames(editor);
+            });
+        };
+
+        const nextSealIndex = () => {
+            const indexes = Array.from(sealsList?.querySelectorAll('[data-about-seal-editor]') || [])
+                .map((editor) => Number(editor.getAttribute('data-about-seal-index')))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        };
+
+        const createSealLinkRow = (link = {}) => {
+            if (!(sealLinkTemplate instanceof HTMLTemplateElement)) {
+                return null;
+            }
+
+            const row = sealLinkTemplate.content.firstElementChild?.cloneNode(true);
+            if (!(row instanceof HTMLElement)) {
+                return null;
+            }
+
+            const labelInput = row.querySelector('[data-about-seal-link-label]');
+            const urlInput = row.querySelector('[data-about-seal-link-url]');
+            if (labelInput instanceof HTMLInputElement) {
+                labelInput.value = String(link.label || '');
+            }
+            if (urlInput instanceof HTMLInputElement) {
+                urlInput.value = String(link.url || '');
+            }
+
+            return row;
+        };
+
+        const createSealEditor = (seal = {}, index = 0, displayNumber = 1) => {
+            if (!(sealsTemplate instanceof HTMLTemplateElement)) {
+                return null;
+            }
+
+            const markup = sealsTemplate.innerHTML
+                .replaceAll('__INDEX__', String(index))
+                .replaceAll('__NUMBER__', String(displayNumber));
+            const shell = document.createElement('div');
+            shell.innerHTML = markup.trim();
+            const editor = shell.firstElementChild;
+            if (!(editor instanceof HTMLElement)) {
+                return null;
+            }
+
+            const idInput = editor.querySelector('[data-about-seal-id]');
+            const labelInput = editor.querySelector('[data-about-seal-label]');
+            const tagInput = editor.querySelector('[data-about-seal-tag]');
+            const imageInput = editor.querySelector('[data-about-seal-image]');
+            const highlightsInput = editor.querySelector('[data-about-seal-highlights]');
+            const infoDescInput = editor.querySelector('[data-about-seal-info-desc] .rich-editor-input');
+            const reportsDescInput = editor.querySelector('[data-about-seal-reports-desc] .rich-editor-input');
+
+            if (idInput instanceof HTMLInputElement) {
+                idInput.value = String(seal.id || '');
+            }
+            if (labelInput instanceof HTMLInputElement) {
+                labelInput.value = String(seal.label || '');
+            }
+            if (tagInput instanceof HTMLInputElement) {
+                tagInput.value = String(seal.tag || '');
+            }
+            if (imageInput instanceof HTMLInputElement) {
+                imageInput.value = String(seal.image || '');
+            }
+            if (highlightsInput instanceof HTMLTextAreaElement) {
+                const highlights = Array.isArray(seal.highlights) ? seal.highlights : [];
+                highlightsInput.value = highlights.map((item) => String(item || '').trim()).filter(Boolean).join('\n');
+            }
+            if (infoDescInput instanceof HTMLTextAreaElement) {
+                infoDescInput.value = String(seal?.information?.description || '');
+            }
+            if (reportsDescInput instanceof HTMLTextAreaElement) {
+                reportsDescInput.value = String(seal?.reports?.description || '');
+            }
+
+            const linksHost = editor.querySelector('[data-about-seal-links-list]');
+            const links = Array.isArray(seal.links) ? seal.links : [];
+            if (linksHost) {
+                links.forEach((link) => {
+                    const row = createSealLinkRow(link);
+                    if (row) {
+                        linksHost.appendChild(row);
+                    }
+                });
+            }
+
+            return editor;
+        };
+
+        const setActiveSealEditor = (index = '', scope = document, collapse = false) => {
+            const editors = Array.from(scope.querySelectorAll('[data-about-seal-editor]'));
+
+            if (!editors.length) {
+                if (activeSealIndexInput) {
+                    activeSealIndexInput.value = '';
+                }
+                return null;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            let targetEditor = null;
+
+            if (normalizedIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-seal-index') === normalizedIndex) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.classList.toggle('is-disabled', targetEditor ? !isActive : false);
+                editor.hidden = collapse && targetEditor ? !isActive : false;
+            });
+
+            if (activeSealIndexInput) {
+                activeSealIndexInput.value = targetEditor?.getAttribute('data-about-seal-index') || '';
+            }
+
+            return targetEditor;
+        };
+
+        const addSealEditor = (seal = {}, focus = true) => {
+            if (!sealsList) {
+                return null;
+            }
+
+            const index = nextSealIndex();
+            const displayNumber = sealsList.querySelectorAll('[data-about-seal-editor]').length + 1;
+            const editor = createSealEditor(seal, index, displayNumber);
+            if (!editor) {
+                return null;
+            }
+
+            sealsList.appendChild(editor);
+            if (typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(editor);
+            }
+            initAboutImageDropzones(editor);
+            relabelSealEditors();
+            bumpSealsVersion();
+
+            const activeIndex = editor.getAttribute('data-about-seal-index') || String(index);
+            const activeEditor = setActiveSealEditor(activeIndex, sealsForm || document, true);
+            if (focus) {
+                const firstField = activeEditor?.querySelector('input:not([type="hidden"]), textarea, .rich-editor-surface');
+                firstField?.focus();
+            }
+
+            return activeEditor || editor;
+        };
+
+        const deleteSealByIndex = (index) => {
+            if (!sealsList) {
+                return false;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            if (normalizedIndex === '') {
+                return false;
+            }
+
+            const editor = sealsList.querySelector(`[data-about-seal-editor][data-about-seal-index="${normalizedIndex}"]`);
+            if (!editor) {
+                return false;
+            }
+
+            editor.remove();
+            if (!sealsList.querySelector('[data-about-seal-editor]')) {
+                addSealEditor({
+                    id: '',
+                    label: '',
+                    tag: '',
+                    image: '',
+                    highlights: [],
+                    information: { title: 'Informations about the Seal', description: '' },
+                    reports: { title: 'Reports and Records', description: '' },
+                    links: [],
+                }, false);
+            } else {
+                relabelSealEditors();
+                setActiveSealEditor('', sealsForm || document, true);
+                bumpSealsVersion();
+            }
+
+            return true;
+        };
+
+        const submitSealsForm = () => {
+            if (!sealsForm) {
+                return;
+            }
+
+            if (typeof window.syncRichTextEditors === 'function') {
+                window.syncRichTextEditors(sealsForm);
+            }
+
+            if (typeof sealsForm.requestSubmit === 'function') {
+                sealsForm.requestSubmit();
+                return;
+            }
+
+            sealsForm.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
+        const initSealsEditor = () => {
+            if (!sealsForm || !sealsList || sealsForm.dataset.aboutSealsBound === '1') {
+                return;
+            }
+
+            sealsForm.dataset.aboutSealsBound = '1';
+            if (!sealsList.querySelector('[data-about-seal-editor]')) {
+                addSealEditor({
+                    id: '',
+                    label: '',
+                    tag: '',
+                    image: '',
+                    highlights: [],
+                    information: { title: 'Informations about the Seal', description: '' },
+                    reports: { title: 'Reports and Records', description: '' },
+                    links: [],
+                }, false);
+            } else {
+                relabelSealEditors();
+                setActiveSealEditor('', sealsForm, false);
+            }
+
+            sealsForm.addEventListener('click', (event) => {
+                const addSealButton = event.target.closest('[data-about-seal-add-editor]');
+                if (addSealButton) {
+                    event.preventDefault();
+                    addSealEditor({
+                        id: '',
+                        label: '',
+                        tag: '',
+                        image: '',
+                        highlights: [],
+                        information: { title: 'Informations about the Seal', description: '' },
+                        reports: { title: 'Reports and Records', description: '' },
+                        links: [],
+                    }, true);
+                    return;
+                }
+
+                const editorHead = event.target.closest('[data-about-card-editor-head]');
+                if (editorHead) {
+                    const editor = editorHead.closest('[data-about-seal-editor]');
+                    const sealIndex = editor?.getAttribute('data-about-seal-index') || '';
+                    setActiveSealEditor(sealIndex, sealsForm, false);
+                }
+
+                const addLinkButton = event.target.closest('[data-about-seal-link-add]');
+                if (addLinkButton) {
+                    event.preventDefault();
+                    const editor = addLinkButton.closest('[data-about-seal-editor]');
+                    const linksHost = editor?.querySelector('[data-about-seal-links-list]');
+                    if (!editor || !linksHost) {
+                        return;
+                    }
+
+                    const row = createSealLinkRow({});
+                    if (row) {
+                        linksHost.appendChild(row);
+                        syncSealLinkNames(editor);
+                        bumpSealsVersion();
+                    }
+                    return;
+                }
+
+                const deleteLinkButton = event.target.closest('[data-about-seal-link-delete]');
+                if (deleteLinkButton) {
+                    event.preventDefault();
+                    const editor = deleteLinkButton.closest('[data-about-seal-editor]');
+                    deleteLinkButton.closest('[data-about-seal-link-item]')?.remove();
+                    if (editor) {
+                        syncSealLinkNames(editor);
+                    }
+                    bumpSealsVersion();
+                }
+            });
+
+            sealsForm.addEventListener('input', (event) => {
+                const editor = event.target.closest('[data-about-seal-editor]');
+                if (!editor) {
+                    return;
+                }
+
+                syncSealEditorMeta(editor);
+                syncSealLinkNames(editor);
+                bumpSealsVersion();
+            });
+
+            sealsForm.addEventListener('change', (event) => {
+                if (event.target.closest('[data-about-seal-editor]')) {
+                    bumpSealsVersion();
+                }
+            });
+
+            sealsForm.addEventListener('submit', () => {
+                relabelSealEditors();
+                if (typeof window.syncRichTextEditors === 'function') {
+                    window.syncRichTextEditors(sealsForm);
+                }
+                bumpSealsVersion();
+            }, true);
+        };
+
         const submitHistoryForm = () => {
             if (!historyForm) {
                 return;
@@ -3825,6 +4648,40 @@
             }
         };
 
+        const confirmDeleteSealCard = async (index, label, options = {}) => {
+            const normalizedIndex = String(index ?? '').trim();
+            if (normalizedIndex === '') {
+                return;
+            }
+
+            let confirmed = false;
+            const promptLabel = label || `Seal ${Number(normalizedIndex) + 1}`;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Seal',
+                    message: `Do you want to delete "${promptLabel}" from Logo and Symbols?`,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}" from Logo and Symbols?`);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const deleted = deleteSealByIndex(normalizedIndex);
+            if (!deleted) {
+                return;
+            }
+
+            if (options.submit !== false) {
+                submitSealsForm();
+            }
+        };
+
         document.querySelectorAll('form.{{ $formClass }}').forEach((form) => {
             if (form.dataset.aboutRichTextSubmitBound === '1') {
                 return;
@@ -3858,6 +4715,7 @@
         });
 
         initOfficialsEditor();
+        initSealsEditor();
         initPlanPrioritiesEditor();
         initStrategicGoalsEditor();
 
@@ -3945,6 +4803,7 @@
         bindAboutHistoryDirtyTracking();
         bindCoreValuesDirtyTracking();
         bindOfficialsDirtyTracking();
+        bindSealsDirtyTracking();
         setActiveHistoryEditor();
         window.__aboutCmsPreviewEditorReady = true;
     })();

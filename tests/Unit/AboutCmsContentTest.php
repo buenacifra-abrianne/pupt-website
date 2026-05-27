@@ -121,6 +121,51 @@ class AboutCmsContentTest extends TestCase
         $this->assertSame('', $official['body']);
     }
 
+    public function test_logo_seal_links_and_descriptions_are_normalized(): void
+    {
+        $base = $this->storedDefaults();
+
+        $content = AboutCmsContent::encode(AboutCmsContent::fromInput([
+            'sections' => [
+                'logo-and-symbols' => [
+                    'seals' => [
+                        [
+                            'id' => 'custom-seal',
+                            'label' => 'Custom Seal',
+                            'tag' => 'Record Seal',
+                            'highlights_text' => "First highlight\nSecond highlight",
+                            'information' => [
+                                'title' => 'Informations about the Seal',
+                                'description' => '<p>Custom info</p>',
+                            ],
+                            'reports' => [
+                                'title' => 'Reports and Records',
+                                'description' => '<p>Custom reports</p>',
+                            ],
+                            'links' => [
+                                ['label' => 'Reference A', 'url' => 'https://example.com/a'],
+                                ['label' => '', 'url' => ''],
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], $base));
+
+        $seal = AboutCmsContent::fromStored($content)['sections']['logo-and-symbols']['seals'][0];
+
+        $this->assertSame('custom-seal', $seal['id']);
+        $this->assertSame('Custom Seal', $seal['label']);
+        $this->assertSame(['First highlight', 'Second highlight'], $seal['highlights']);
+        $this->assertSame('Informations about the Seal', $seal['information']['title']);
+        $this->assertSame('<p>Custom info</p>', $seal['information']['description']);
+        $this->assertSame('Reports and Records', $seal['reports']['title']);
+        $this->assertSame('<p>Custom reports</p>', $seal['reports']['description']);
+        $this->assertCount(1, $seal['links']);
+        $this->assertSame('Reference A', $seal['links'][0]['label']);
+        $this->assertSame('https://example.com/a', $seal['links'][0]['url']);
+    }
+
     private function storedDefaults(): string
     {
         return AboutCmsContent::encode(AboutCmsContent::defaults());
