@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polytechnic University of the Philippines - Taguig Campus</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}?v={{ filemtime(public_path('assets/css/index.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}?v={{ filemtime(public_path('assets/css/components/landing-footer.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
     <style>
@@ -17,121 +17,105 @@
 <body>
 
 <main class="menu">
-
-    <!-- INNER CONTAINER -->
     <div class="landing-container">
-    
+        <section class="landing-identity">
+            <h1 class="title">
+                <span class="title-welcome">WELCOME TO</span>
+                <span class="title-main-line">PUP TAGUIG</span>
+                <span class="title-main-line">WEBSITE</span>
+            </h1>
 
-    <!-- Logos -->
-    <div class="hero-logo-stack">
-        <div class="hero-seal-wrap">
-            <img
-                class="hero-seal"
-                src="{{ asset('assets/static_img/logo.png') }}"
-                alt="PUP Seal"
-            >
-        </div>
+            <p class="kicker">Official Campus Website</p>
 
-        <div class="support-logo-row">
-            <img
-                class="support-logo support-logo--bagong"
-                src="{{ asset('assets/static_img/bagong_pilipinas_logo.png') }}"
-                alt="Bagong Pilipinas Logo"
-            >
-            <img
-                class="support-logo"
-                src="{{ asset('assets/static_img/transparency_seal.png') }}"
-                alt="Transparency Seal"
-            >
-            <img
-                class="support-logo"
-                src="{{ asset('assets/static_img/freedom_of_information.png') }}"
-                alt="Freedom of Information"
-            >
-            <img
-                class="support-logo support-logo--dpo"
-                src="{{ asset('assets/static_img/DPO_DPS_seal.png') }}"
-                alt="DPO DPS Seal"
-            >
-        </div>
-    </div>
-
-        <p class="kicker">Official Campus Website</p>
-
-        <!-- Title -->
-        <h2 class="Title">
-            Welcome to
-            <span>Polytechnic University of the Philippines - Taguig Campus</span>
-        </h2>
-
-        <!-- Subtitle -->
-        <p class="destination-hint">
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 fill="none"
-                 viewBox="0 0 24 24"
-                 stroke-width="1.5"
-                 stroke="currentColor"
-                 class="arrow-inline">
-                <path stroke-linecap="round"
-                      stroke-linejoin="round"
-                      d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-            </svg>
-            Select your destination to continue.
-        </p>
-
-        @if (session('no_role_error'))
-            <div class="landing-alert landing-alert-error">
-                {{ session('no_role_error') }}
+            <div class="landing-seals-shell" aria-label="Government and campus seals">
+                <div class="support-logo-row">
+                    <span class="support-logo-item">
+                        <img
+                            class="support-logo"
+                            src="{{ asset('assets/static_img/transparency_seal.png') }}"
+                            alt="Transparency Seal"
+                        >
+                    </span>
+                    <span class="support-logo-item">
+                        <img
+                            class="support-logo"
+                            src="{{ asset('assets/static_img/freedom_of_information.png') }}"
+                            alt="Freedom of Information"
+                        >
+                    </span>
+                    <span class="support-logo-item support-logo-item--dpo">
+                        <img
+                            class="support-logo support-logo--dpo"
+                            src="{{ asset('assets/static_img/DPO_DPS_seal.png') }}"
+                            alt="DPO DPS Seal"
+                        >
+                    </span>
+                </div>
             </div>
-        @endif
+        </section>
 
-        @if (session('error'))
-            <div class="landing-alert landing-alert-error">
-                {{ session('error') }}
+        <section class="landing-actions" aria-label="Landing actions">
+            <div class="landing-actions-seals-row" aria-label="Primary seals">
+                <img
+                    class="landing-actions-seal"
+                    src="{{ asset('assets/static_img/logo.png') }}"
+                    alt="PUP Seal"
+                >
+                <img
+                    class="landing-actions-seal landing-actions-seal--bagong"
+                    src="{{ asset('assets/static_img/bagong_pilipinas_logo.png') }}"
+                    alt="Bagong Pilipinas Logo"
+                >
             </div>
-        @endif
 
-        <!-- Buttons -->
-        <div class="button-container">
+            <h2>Choose Destination</h2>
+            <p>Access faculty services or enter the public homepage.</p>
 
-            <a href="{{ rtrim(config('services.oneportal.url'), '/') }}" class="portal-button">
-                <span class="icon">
-                    <!-- users -->
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
-</svg>
+            @if (session('no_role_error'))
+                <div class="landing-alert landing-alert-error">
+                    {{ session('no_role_error') }}
+                </div>
+            @endif
 
-                </span>
-                <span class="text">OnePortal</span>
-            </a>
+            @if (session('error'))
+                <div class="landing-alert landing-alert-error">
+                    {{ session('error') }}
+                </div>
+            @endif
 
-            <!-- <a href="{{ route('oneportal.redirect') }}" class="portal-button">
-                <span class="icon">
+            <div class="button-container">
+                <a href="{{ rtrim(config('services.oneportal.url'), '/') }}" class="portal-button portal-button--primary">
+                    <span class="icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                        </svg>
+                    </span>
+                    <span class="text">
+                        <strong>OnePortal</strong>
+                        <small>Faculty and staff sign in</small>
+                    </span>
+                </a>
 
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" />
-</svg>
+                <a href="{{ route('public.home.callback') }}" class="portal-button portal-button--surface">
+                    <span class="icon" aria-hidden="true">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+                        </svg>
+                    </span>
+                    <span class="text">
+                        <strong>View Homepage</strong>
+                        <small>Browse news, events, and public pages</small>
+                    </span>
+                </a>
+            </div>
 
-                </span>
-                <span class="text">Student</span>
-            </a> -->
-
-            <a href="{{ route('public.home.callback') }}" class="portal-button">
-                <span class="icon">
-                    <!-- home -->
-                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-  <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
-</svg>
-
-                </span>
-                <span class="text">View Homepage</span>
-            </a>
-
-        </div>
+            <p class="landing-helper">
+                For CMS access, please continue through OnePortal using your assigned account.
+            </p>
+        </section>
     </div>
 
     <x-landing-footer />
-
 </main>
 
 </body>
