@@ -9,22 +9,33 @@
     $heroImage = \App\Support\StudentsCmsContent::resolveImagePath($hero['image'] ?? null, 'assets/static_img/about_header_image.png');
     $headerText = $pageKey === 'admissions'
         ? 'ADMISSIONS'
-        : ($pageKey === 'downloadable-forms' ? 'DOWNLOADABLES' : strtoupper((string) ($hero['title'] ?? 'STUDENTS')));
+        : ($pageKey === 'downloadable-forms'
+            ? 'DOWNLOADABLES'
+            : ($pageKey === 'document-requests' ? 'DOCUMENT REQUESTS' : strtoupper((string) ($hero['title'] ?? 'STUDENTS'))));
     $heroSectionKey = $pageKey === 'admissions'
         ? 'admissions_hero'
-        : ($pageKey === 'downloadable-forms' ? 'downloadable_forms_hero' : '');
+        : ($pageKey === 'downloadable-forms'
+            ? 'downloadable_forms_hero'
+            : ($pageKey === 'document-requests' ? 'document_requests_hero' : ''));
     $instructionsSectionKey = $pageKey === 'admissions' ? 'admissions_instructions' : '';
-    $qrSectionKey = $pageKey === 'admissions' ? 'admissions_qr_codes' : '';
+    $qrSectionKey = $pageKey === 'admissions'
+        ? 'admissions_qr_codes'
+        : ($pageKey === 'document-requests' ? 'document_requests_qr_codes' : '');
     $linksSectionKey = $pageKey === 'admissions'
         ? 'admissions_links'
-        : ($pageKey === 'downloadable-forms' ? 'downloadable_forms_links' : '');
+        : ($pageKey === 'downloadable-forms'
+            ? 'downloadable_forms_links'
+            : '');
+    $isAdmissionsPage = $pageKey === 'admissions';
+    $isDownloadablesPage = $pageKey === 'downloadable-forms';
+    $isDocumentRequestsPage = $pageKey === 'document-requests';
 @endphp
 
 <section
     class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
     @if($cmsPreview && $heroSectionKey !== '')
         data-cms-section="{{ $heroSectionKey }}"
-        data-cms-section-label="{{ $pageKey === 'admissions' ? 'Admissions Header' : 'Downloadables Header' }}"
+        data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions Header' : ($isDownloadablesPage ? 'Downloadables Header' : 'Document Requests Header') }}"
     @endif
 >
     @if($cmsPreview && $heroSectionKey !== '')
@@ -66,12 +77,12 @@
 <div
     class="student-page-body reveal{{ $cmsPreview ? ' active' : '' }}"
 >
-    @if(!in_array($pageKey, ['admissions', 'downloadable-forms'], true))
+    @if(!in_array($pageKey, ['admissions', 'downloadable-forms', 'document-requests'], true))
         <section
             class="student-page-intro{{ $cmsPreview && $heroSectionKey !== '' ? ' cms-preview-editable' : '' }}"
             @if($cmsPreview && $heroSectionKey !== '')
                 data-cms-section="{{ $heroSectionKey }}"
-                data-cms-section-label="{{ $pageKey === 'admissions' ? 'Admissions Header' : 'Downloadables Header' }}"
+                data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions Header' : ($isDownloadablesPage ? 'Downloadables Header' : 'Document Requests Header') }}"
             @endif
         >
             <div data-cms-boundary class="cms-preview-boundary-full">
@@ -82,7 +93,7 @@
         </section>
     @endif
 
-    @if($pageKey === 'admissions')
+    @if($isAdmissionsPage)
         <section
             class="student-page-section{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
             @if($cmsPreview && $instructionsSectionKey !== '')
@@ -100,12 +111,14 @@
                 </div>
             </div>
         </section>
+    @endif
 
+    @if($isAdmissionsPage || $isDocumentRequestsPage)
         <section
             class="student-page-section{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
             @if($cmsPreview && $qrSectionKey !== '')
                 data-cms-section="{{ $qrSectionKey }}"
-                data-cms-section-label="Admissions QR Codes"
+                data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions QR Codes' : 'Document Requests QR Codes' }}"
             @endif
         >
             <div data-cms-boundary class="cms-preview-boundary-full">
@@ -137,45 +150,47 @@
         </section>
     @endif
 
-    <section
-        class="student-page-section{{ $cmsPreview && $linksSectionKey !== '' ? ' cms-preview-editable' : '' }}"
-        @if($cmsPreview && $linksSectionKey !== '')
-            data-cms-section="{{ $linksSectionKey }}"
-            data-cms-section-label="{{ $pageKey === 'admissions' ? 'Admissions Links' : 'Downloadables Links' }}"
-        @endif
-    >
-        <div data-cms-boundary class="cms-preview-boundary-full">
-            <div class="student-page-section-head">
-                <p class="section-tag">{{ $links['tag'] ?? '' }}</p>
-                <h2>{{ $links['title'] ?? '' }}</h2>
-                @if(trim((string) ($links['description'] ?? '')) !== '')
-                    <p>{{ $links['description'] }}</p>
-                @endif
-            </div>
+    @if($isAdmissionsPage || $isDownloadablesPage)
+        <section
+            class="student-page-section{{ $cmsPreview && $linksSectionKey !== '' ? ' cms-preview-editable' : '' }}"
+            @if($cmsPreview && $linksSectionKey !== '')
+                data-cms-section="{{ $linksSectionKey }}"
+                data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions Links' : 'Downloadables Links' }}"
+            @endif
+        >
+            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div class="student-page-section-head">
+                    <p class="section-tag">{{ $links['tag'] ?? '' }}</p>
+                    <h2>{{ $links['title'] ?? '' }}</h2>
+                    @if(trim((string) ($links['description'] ?? '')) !== '')
+                        <p>{{ $links['description'] }}</p>
+                    @endif
+                </div>
 
-            <div class="student-link-list">
-                @forelse(($links['items'] ?? []) as $link)
-                    @php
-                        $href = trim((string) ($link['href'] ?? ''));
-                        $isExternal = preg_match('/^https?:\/\//i', $href) === 1;
-                    @endphp
-                    <a
-                        href="{{ $href !== '' ? $href : '#' }}"
-                        class="student-link-row"
-                        @if($isExternal && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
-                    >
-                        <span>
-                            <strong>{{ $link['label'] ?? 'Link' }}</strong>
-                            @if(trim((string) ($link['description'] ?? '')) !== '')
-                                <small>{{ $link['description'] }}</small>
-                            @endif
-                        </span>
-                        <em>Open</em>
-                    </a>
-                @empty
-                    <p class="student-page-empty">No links have been added yet.</p>
-                @endforelse
+                <div class="student-link-list">
+                    @forelse(($links['items'] ?? []) as $link)
+                        @php
+                            $href = trim((string) ($link['href'] ?? ''));
+                            $isExternal = preg_match('/^https?:\/\//i', $href) === 1;
+                        @endphp
+                        <a
+                            href="{{ $href !== '' ? $href : '#' }}"
+                            class="student-link-row"
+                            @if($isExternal && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
+                        >
+                            <span>
+                                <strong>{{ $link['label'] ?? 'Link' }}</strong>
+                                @if(trim((string) ($link['description'] ?? '')) !== '')
+                                    <small>{{ $link['description'] }}</small>
+                                @endif
+                            </span>
+                            <em>Open</em>
+                        </a>
+                    @empty
+                        <p class="student-page-empty">No links have been added yet.</p>
+                    @endforelse
+                </div>
             </div>
-        </div>
-    </section>
+        </section>
+    @endif
 </div>

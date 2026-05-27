@@ -51,6 +51,12 @@ class StudentsCmsContent
                 'link' => '/students/downloadable-forms',
                 'image' => 'assets/static_img/pupillar.jpeg',
             ],
+            [
+                'title' => 'Document Requests',
+                'description' => 'Scan official QR codes for student document request procedures and channels.',
+                'link' => '/students/document-requests',
+                'image' => 'assets/static_img/pupillar.jpeg',
+            ],
         ],
         'pages' => [
             'admissions' => [
@@ -84,6 +90,26 @@ class StudentsCmsContent
                     'items' => [
                         [
                             'label' => 'Admissions QR Code',
+                            'description' => 'Upload a QR code image and update this caption.',
+                            'image' => '',
+                        ],
+                    ],
+                ],
+            ],
+            'document-requests' => [
+                'hero' => [
+                    'tag' => 'Document Requests',
+                    'title' => 'Document Requests',
+                    'subtitle' => 'Student Document Request Channels',
+                    'body' => 'Scan the official QR code references for student document request submissions and tracking.',
+                    'image' => 'assets/static_img/about_header_image.png',
+                ],
+                'qr_codes' => [
+                    'tag' => 'QR Codes',
+                    'title' => 'Scan for Document Requests',
+                    'items' => [
+                        [
+                            'label' => 'Document Request QR Code',
                             'description' => 'Upload a QR code image and update this caption.',
                             'image' => '',
                         ],
@@ -424,6 +450,10 @@ class StudentsCmsContent
             if ($title === 'downloadable forms' && ($link === '' || $link === '#')) {
                 $cards[$index]['link'] = '/students/downloadable-forms';
             }
+
+            if ($title === 'document requests' && ($link === '' || $link === '#')) {
+                $cards[$index]['link'] = '/students/document-requests';
+            }
         }
 
         return $cards;
@@ -437,6 +467,11 @@ class StudentsCmsContent
             is_array($base['downloadable-forms'] ?? null) ? $base['downloadable-forms'] : $defaults['downloadable-forms'],
             $defaults['downloadable-forms']
         );
+        $documentRequests = self::normalizeDocumentRequestsPage(
+            is_array($source['document-requests'] ?? null) ? $source['document-requests'] : [],
+            is_array($base['document-requests'] ?? null) ? $base['document-requests'] : $defaults['document-requests'],
+            $defaults['document-requests']
+        );
         $personnelForms = self::normalizeDownloadableFormsPage(
             is_array($source['downloadable-forms-personnel'] ?? null) ? $source['downloadable-forms-personnel'] : [],
             is_array($base['downloadable-forms-personnel'] ?? null) ? $base['downloadable-forms-personnel'] : $defaults['downloadable-forms-personnel'],
@@ -449,6 +484,7 @@ class StudentsCmsContent
                 is_array($base['admissions'] ?? null) ? $base['admissions'] : $defaults['admissions'],
                 $defaults['admissions']
             ),
+            'document-requests' => $documentRequests,
             'downloadable-forms' => $downloadableForms,
             'downloadable-forms-personnel' => $personnelForms,
         ];
@@ -522,6 +558,38 @@ class StudentsCmsContent
             'links' => array_key_exists('links', $source)
                 ? self::normalizeLinkSection($source['links'] ?? [], $baseLinks, $defaults['links'])
                 : $baseLinks,
+        ];
+    }
+
+    private static function normalizeDocumentRequestsPage(array $source, array $base, array $defaults): array
+    {
+        $baseQrCodes = is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : $defaults['qr_codes'];
+        $hasQrCodesInput = array_key_exists('qr_codes', $source);
+
+        return [
+            'hero' => self::normalizeHero($source['hero'] ?? [], $base['hero'] ?? [], $defaults['hero']),
+            'qr_codes' => $hasQrCodesInput
+                ? [
+                    'tag' => self::pickString(
+                        is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
+                        $baseQrCodes,
+                        $defaults['qr_codes'],
+                        'tag',
+                        120
+                    ),
+                    'title' => self::pickString(
+                        is_array($source['qr_codes'] ?? null) ? $source['qr_codes'] : [],
+                        $baseQrCodes,
+                        $defaults['qr_codes'],
+                        'title'
+                    ),
+                    'items' => self::normalizeQrItems(
+                        data_get($source, 'qr_codes.items', []),
+                        data_get($baseQrCodes, 'items', []),
+                        data_get($defaults, 'qr_codes.items', [])
+                    ),
+                ]
+                : $baseQrCodes,
         ];
     }
 

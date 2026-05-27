@@ -4,7 +4,7 @@
     $pageEditor = $studentsEditorData['page'] ?? $studentsDefaults['page'];
     $cardsEditor = $studentsEditorData['cards'] ?? $studentsDefaults['cards'];
     $requiredCardsEditor = collect($studentsDefaults['cards'] ?? [])
-        ->filter(fn ($card) => is_array($card) && in_array(strtolower(trim((string) ($card['title'] ?? ''))), ['admissions', 'downloadable forms'], true));
+        ->filter(fn ($card) => is_array($card) && in_array(strtolower(trim((string) ($card['title'] ?? ''))), ['admissions', 'downloadable forms', 'document requests'], true));
     $existingCardsEditorTitles = collect($cardsEditor)
         ->filter(fn ($card) => is_array($card))
         ->map(fn ($card) => strtolower(trim((string) ($card['title'] ?? ''))))
@@ -26,6 +26,7 @@
         'overview' => 'Overview',
         'admissions' => 'Admissions',
         'downloadable-forms' => 'Downloadable Forms',
+        'document-requests' => 'Document Requests',
     ];
     $submitLabel = static function (string $sectionLabel) use ($submitMode, $status): string {
         if ($submitMode === 'request') {
@@ -210,7 +211,7 @@
                                 $cardInputId = $idPrefix.'-students-card-image-'.$index;
                                 $cardPreview = \App\Support\StudentsCmsContent::resolveImagePath($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                 $cardTitleKey = strtolower(trim((string) ($card['title'] ?? '')));
-                                $isProtectedStudentCard = in_array($cardTitleKey, ['admissions', 'downloadable forms'], true);
+                                $isProtectedStudentCard = in_array($cardTitleKey, ['admissions', 'downloadable forms', 'document requests'], true);
                             @endphp
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
                                 <div class="students-cms-card-editor-head" data-students-card-editor-head>
@@ -510,6 +511,7 @@
                                     $qrInputId = $idPrefix.'-students-admissions-qr-'.$index;
                                     $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
                                     $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                    $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
                                 @endphp
                                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                                     <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
@@ -535,7 +537,7 @@
                                                 </span>
                                             </div>
                                         </div>
-                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}">
+                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
                                     </div>
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
@@ -574,16 +576,16 @@
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Links Tag</label>
-                            <input type="text" name="students[pages][admissions][links][tag]" maxlength="120" value="{{ $admissionsLinks['tag'] ?? '' }}">
+                            <input type="text" name="students[pages][admissions][links][tag]" maxlength="120" value="{{ $admissionsLinks['tag'] ?? '' }}" required>
                         </div>
                         <div class="form-group">
                             <label>Links Title</label>
-                            <input type="text" name="students[pages][admissions][links][title]" maxlength="255" value="{{ $admissionsLinks['title'] ?? '' }}">
+                            <input type="text" name="students[pages][admissions][links][title]" maxlength="255" value="{{ $admissionsLinks['title'] ?? '' }}" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Links Description</label>
-                        <textarea name="students[pages][admissions][links][description]" rows="2">{{ $admissionsLinks['description'] ?? '' }}</textarea>
+                        <textarea name="students[pages][admissions][links][description]" rows="2" required>{{ $admissionsLinks['description'] ?? '' }}</textarea>
                     </div>
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-links">
@@ -597,16 +599,16 @@
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Label</label>
-                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label>URL</label>
-                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" required>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label>Description</label>
-                                        <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2">{{ $item['description'] ?? '' }}</textarea>
+                                        <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
                                     </div>
                                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                                 </div>
@@ -618,6 +620,148 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
                             {{ $submitLabel('Admissions Links') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            @php
+                $documentRequestsPage = is_array($pagesEditor['document-requests'] ?? null) ? $pagesEditor['document-requests'] : ($studentsDefaults['pages']['document-requests'] ?? []);
+                $documentRequestsHero = is_array($documentRequestsPage['hero'] ?? null) ? $documentRequestsPage['hero'] : [];
+                $documentRequestsQrCodes = is_array($documentRequestsPage['qr_codes'] ?? null) ? $documentRequestsPage['qr_codes'] : [];
+                $documentRequestsHeroInputId = $idPrefix.'-students-document-requests-hero-image';
+                $documentRequestsHeroFieldId = $idPrefix.'-students-document-requests-hero-image-field';
+                $documentRequestsHeroPreview = \App\Support\StudentsCmsContent::resolveImagePath($documentRequestsHero['image'] ?? null, 'assets/static_img/about_header_image.png');
+            @endphp
+            <section class="students-cms-editor-panel" data-students-editor-panel="document_requests_hero" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="document_requests_hero">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <input type="hidden" id="{{ $documentRequestsHeroFieldId }}" name="students[pages][document-requests][hero][image]" value="{{ $documentRequestsHero['image'] ?? '' }}">
+
+                    <div class="form-group">
+                        <label>Upload Hero Image</label>
+                        <div class="students-cms-image-dropzone-shell">
+                            <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $documentRequestsHeroInputId }}" role="button" tabindex="0" aria-label="Upload document requests hero image">
+                                <span class="students-cms-image-dropzone-preview-column">
+                                    <span class="students-cms-image-dropzone-media">
+                                        <img src="{{ $documentRequestsHeroPreview }}" alt="Document requests hero image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $documentRequestsHeroInputId }}" data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}">
+                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $documentRequestsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-label">Hero Image</span>
+                                </span>
+                                <span class="students-cms-image-dropzone-upload">
+                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="students-cms-image-dropzone-upload-copy">Use this image at the top of the document requests page.</span>
+                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $documentRequestsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                        <input id="{{ $documentRequestsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $documentRequestsHeroFieldId }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Hero Title</label>
+                        <input type="text" name="students[pages][document-requests][hero][title]" maxlength="255" value="{{ $documentRequestsHero['title'] ?? '' }}">
+                    </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Document Requests Header') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="document_requests_qr_codes" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="document_requests_qr_codes">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>QR Section Tag</label>
+                            <input type="text" name="students[pages][document-requests][qr_codes][tag]" maxlength="120" value="{{ $documentRequestsQrCodes['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>QR Section Title</label>
+                            <input type="text" name="students[pages][document-requests][qr_codes][title]" maxlength="255" value="{{ $documentRequestsQrCodes['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="students-cms-repeatable" data-students-repeatable="document-requests-qr">
+                        <div class="students-cms-repeatable-head">
+                            <h4>QR Codes</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="document-requests-qr">Add QR Code</button>
+                        </div>
+                        <div data-students-repeatable-list="document-requests-qr">
+                            @foreach(($documentRequestsQrCodes['items'] ?? []) as $index => $item)
+                                @php
+                                    $qrInputId = $idPrefix.'-students-document-requests-qr-'.$index;
+                                    $qrFieldId = $idPrefix.'-students-document-requests-qr-field-'.$index;
+                                    $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                    $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
+                                @endphp
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
+                                    <div class="form-group">
+                                        <label>Upload QR Code Image</label>
+                                        <div class="students-cms-image-dropzone-shell">
+                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
+                                                <span class="students-cms-image-dropzone-preview-column">
+                                                    <span class="students-cms-image-dropzone-media">
+                                                        <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-label">QR Code</span>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload">
+                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                    <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for document requests.</span>
+                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
+                                    </div>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Label</label>
+                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" value="{{ $item['description'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Document Requests QR Codes') }}
                         </button>
                     </div>
                 </form>
@@ -697,17 +841,17 @@
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Links Tag</label>
-                            <input type="text" name="students[pages][downloadable-forms][links][tag]" maxlength="120" value="{{ $formsLinks['tag'] ?? '' }}">
+                            <input type="text" name="students[pages][downloadable-forms][links][tag]" maxlength="120" value="{{ $formsLinks['tag'] ?? '' }}" required>
                         </div>
                         <div class="form-group">
                             <label>Links Title</label>
-                            <input type="text" name="students[pages][downloadable-forms][links][title]" maxlength="255" value="{{ $formsLinks['title'] ?? '' }}">
+                            <input type="text" name="students[pages][downloadable-forms][links][title]" maxlength="255" value="{{ $formsLinks['title'] ?? '' }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Links Description</label>
-                        <textarea name="students[pages][downloadable-forms][links][description]" rows="2">{{ $formsLinks['description'] ?? '' }}</textarea>
+                        <textarea name="students[pages][downloadable-forms][links][description]" rows="2" required>{{ $formsLinks['description'] ?? '' }}</textarea>
                     </div>
 
                     <div class="students-cms-repeatable" data-students-repeatable="forms-links">
@@ -721,16 +865,16 @@
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Form Name</label>
-                                            <input type="text" name="students[pages][downloadable-forms][links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                            <input type="text" name="students[pages][downloadable-forms][links][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label>URL</label>
-                                            <input type="text" name="students[pages][downloadable-forms][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                            <input type="text" name="students[pages][downloadable-forms][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" required>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label>Description</label>
-                                        <textarea name="students[pages][downloadable-forms][links][items][{{ $index }}][description]" rows="2">{{ $item['description'] ?? '' }}</textarea>
+                                        <textarea name="students[pages][downloadable-forms][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
                                     </div>
                                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
                                 </div>
@@ -1594,6 +1738,8 @@
                     admissions_instructions: 'Update the admissions application instructions section.',
                     admissions_qr_codes: 'Manage the admissions QR codes section.',
                     admissions_links: 'Manage the admissions links section.',
+                    document_requests_hero: 'Update the document requests subpage header and intro copy.',
+                    document_requests_qr_codes: 'Manage the document requests QR codes section.',
                     downloadable_forms_hero: 'Update the downloadables subpage header and intro copy.',
                     downloadable_forms_links: 'Manage the downloadables links section.',
                 };
@@ -2222,6 +2368,10 @@
 
                     const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
                     removeButton.hidden = !hasImage;
+
+                    if (input.dataset.studentsRequireFileOnEmpty === '1') {
+                        input.required = !hasImage;
+                    }
                 };
 
                 const applyFile = (file) => {
@@ -2409,16 +2559,16 @@
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Label</label>
-                            <input type="text" name="students[pages][admissions][links][items][${index}][label]" maxlength="255" value="">
+                            <input type="text" name="students[pages][admissions][links][items][${index}][label]" maxlength="255" value="" required>
                         </div>
                         <div class="form-group">
                             <label>URL</label>
-                            <input type="text" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="">
+                            <input type="text" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2"></textarea>
+                        <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2" required></textarea>
                     </div>
                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                 </div>
@@ -2428,16 +2578,16 @@
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Form Name</label>
-                            <input type="text" name="students[pages][downloadable-forms][links][items][${index}][label]" maxlength="255" value="">
+                            <input type="text" name="students[pages][downloadable-forms][links][items][${index}][label]" maxlength="255" value="" required>
                         </div>
                         <div class="form-group">
                             <label>URL</label>
-                            <input type="text" name="students[pages][downloadable-forms][links][items][${index}][href]" maxlength="2048" value="">
+                            <input type="text" name="students[pages][downloadable-forms][links][items][${index}][href]" maxlength="2048" value="" required>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>Description</label>
-                        <textarea name="students[pages][downloadable-forms][links][items][${index}][description]" rows="2"></textarea>
+                        <textarea name="students[pages][downloadable-forms][links][items][${index}][description]" rows="2" required></textarea>
                     </div>
                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
                 </div>
@@ -2471,7 +2621,7 @@
                                     </span>
                                 </div>
                             </div>
-                            <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}">
+                            <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}" data-students-require-file-on-empty="1" required>
                         </div>
                         <div class="students-cms-form-grid">
                             <div class="form-group">
@@ -2481,6 +2631,51 @@
                             <div class="form-group">
                                 <label>Description</label>
                                 <input type="text" name="students[pages][admissions][qr_codes][items][${index}][description]" value="">
+                            </div>
+                        </div>
+                        <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
+                    </div>
+                `;
+            },
+            'document-requests-qr': (index) => {
+                const inputId = `{{ $idPrefix }}-students-document-requests-qr-${index}`;
+                const fieldId = `{{ $idPrefix }}-students-document-requests-qr-field-${index}`;
+
+                return `
+                    <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                        <input type="hidden" id="${fieldId}" name="students[pages][document-requests][qr_codes][items][${index}][image]" value="" data-students-image-field>
+                        <div class="form-group">
+                            <label>Upload QR Code Image</label>
+                            <div class="students-cms-image-dropzone-shell">
+                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${inputId}" role="button" tabindex="0" aria-label="Upload QR code image">
+                                    <span class="students-cms-image-dropzone-preview-column">
+                                        <span class="students-cms-image-dropzone-media">
+                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-label">QR Code</span>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-upload">
+                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for document requests.</span>
+                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${inputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}" data-students-require-file-on-empty="1" required>
+                        </div>
+                        <div class="students-cms-form-grid">
+                            <div class="form-group">
+                                <label>Label</label>
+                                <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][label]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][description]" value="">
                             </div>
                         </div>
                         <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>

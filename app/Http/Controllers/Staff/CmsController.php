@@ -71,6 +71,7 @@ class CmsController extends Controller
                 'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
                 'page', 'cards_header', 'cards', 'organizations',
                 'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links',
+                'document_requests_hero', 'document_requests_qr_codes',
                 'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links',
                 'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',
                 'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
@@ -750,7 +751,7 @@ class CmsController extends Controller
                 }
             }
 
-            foreach (['admissions', 'downloadable-forms'] as $pageKey) {
+            foreach (['admissions', 'document-requests', 'downloadable-forms'] as $pageKey) {
                 $pageSectionKeys = $this->studentsSectionKeysForPage($pageKey);
                 $isActivePageSection = $sectionKey === '' || in_array($sectionKey, $pageSectionKeys, true);
 
@@ -781,6 +782,8 @@ class CmsController extends Controller
                     }
                 }
             }
+
+            $this->enforceStudentsSectionRequirements($studentsInput, $sectionKey);
 
             $content = StudentsCmsContent::encode(
                 $sectionKey === 'cards'
@@ -1323,6 +1326,8 @@ class CmsController extends Controller
             'admissions_instructions' => data_get($content, 'pages.admissions.instructions', []),
             'admissions_qr_codes' => data_get($content, 'pages.admissions.qr_codes', []),
             'admissions_links' => data_get($content, 'pages.admissions.links', []),
+            'document_requests_hero' => data_get($content, 'pages.document-requests.hero', []),
+            'document_requests_qr_codes' => data_get($content, 'pages.document-requests.qr_codes', []),
             'downloadable_forms_page' => data_get($content, 'pages.downloadable-forms', []),
             'downloadable_forms_hero' => data_get($content, 'pages.downloadable-forms.hero', []),
             'downloadable_forms_links' => data_get($content, 'pages.downloadable-forms.links', []),
@@ -1438,6 +1443,8 @@ class CmsController extends Controller
             'admissions_instructions' => 'Admissions Instructions',
             'admissions_qr_codes' => 'Admissions QR Codes',
             'admissions_links' => 'Admissions Links',
+            'document_requests_hero' => 'Document Requests Header',
+            'document_requests_qr_codes' => 'Document Requests QR Codes',
             'downloadable_forms_page' => 'Downloadable Forms Page',
             'downloadable_forms_hero' => 'Downloadables Header',
             'downloadable_forms_links' => 'Downloadables Links',
@@ -1700,6 +1707,7 @@ class CmsController extends Controller
                     ->all(),
             ],
             'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links',
+            'document_requests_hero', 'document_requests_qr_codes',
             'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'
                 => $this->filterStudentsPageSectionInput($studentsInput, $sectionKey),
             default => $studentsInput,
@@ -1715,9 +1723,9 @@ class CmsController extends Controller
         }
 
         $subSection = match ($sectionKey) {
-            'admissions_hero', 'downloadable_forms_hero' => 'hero',
+            'admissions_hero', 'downloadable_forms_hero', 'document_requests_hero' => 'hero',
             'admissions_instructions' => 'instructions',
-            'admissions_qr_codes' => 'qr_codes',
+            'admissions_qr_codes', 'document_requests_qr_codes' => 'qr_codes',
             'admissions_links', 'downloadable_forms_links' => 'links',
             default => null,
         };
@@ -1743,6 +1751,7 @@ class CmsController extends Controller
     {
         return match ($sectionKey) {
             'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links' => 'admissions',
+            'document_requests_hero', 'document_requests_qr_codes' => 'document-requests',
             'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links' => 'downloadable-forms',
             default => null,
         };
@@ -1752,9 +1761,66 @@ class CmsController extends Controller
     {
         return match ($pageKey) {
             'admissions' => ['admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links'],
+            'document-requests' => ['document_requests_hero', 'document_requests_qr_codes'],
             'downloadable-forms' => ['downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'],
             default => [str_replace('-', '_', $pageKey).'_page'],
         };
+    }
+
+    private function enforceStudentsSectionRequirements(array $studentsInput, string $sectionKey): void
+    {
+        if (in_array($sectionKey, ['admissions_qr_codes', 'document_requests_qr_codes'], true)) {
+            $pageKey = $this->studentsPageKeyForSection($sectionKey);
+            $items = array_values(is_array(data_get($studentsInput, "pages.$pageKey.qr_codes.items")) ? data_get($studentsInput, "pages.$pageKey.qr_codes.items") : []);
+
+            if ($items === []) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "students.pages.$pageKey.qr_codes.items" => 'Add at least one QR code with an uploaded image.',
+                ]);
+            }
+
+            foreach ($items as $index => $item) {
+                $image = trim((string) (is_array($item) ? ($item['image'] ?? '') : ''));
+                if ($image === '') {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "students.pages.$pageKey.qr_codes.items.$index.image" => 'Each QR code entry requires an uploaded image.',
+                    ]);
+                }
+            }
+        }
+
+        if (in_array($sectionKey, ['admissions_links', 'downloadable_forms_links'], true)) {
+            $pageKey = $this->studentsPageKeyForSection($sectionKey);
+            $links = is_array(data_get($studentsInput, "pages.$pageKey.links")) ? data_get($studentsInput, "pages.$pageKey.links") : [];
+            $tag = trim((string) ($links['tag'] ?? ''));
+            $title = trim((string) ($links['title'] ?? ''));
+            $description = trim((string) ($links['description'] ?? ''));
+
+            if ($tag === '' || $title === '' || $description === '') {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "students.pages.$pageKey.links" => 'Links tag, title, and description are required.',
+                ]);
+            }
+
+            $items = array_values(is_array($links['items'] ?? null) ? $links['items'] : []);
+            if ($items === []) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    "students.pages.$pageKey.links.items" => 'Add at least one link item.',
+                ]);
+            }
+
+            foreach ($items as $index => $item) {
+                $label = trim((string) (is_array($item) ? ($item['label'] ?? '') : ''));
+                $href = trim((string) (is_array($item) ? ($item['href'] ?? '') : ''));
+                $itemDescription = trim((string) (is_array($item) ? ($item['description'] ?? '') : ''));
+
+                if ($label === '' || $href === '' || $itemDescription === '') {
+                    throw \Illuminate\Validation\ValidationException::withMessages([
+                        "students.pages.$pageKey.links.items.$index" => 'All link item fields (label, URL, and description) are required.',
+                    ]);
+                }
+            }
+        }
     }
 
     private function filterResearchInputBySection(array $researchInput, string $sectionKey): array

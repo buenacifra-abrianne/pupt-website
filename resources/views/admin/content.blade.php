@@ -229,6 +229,10 @@
                                 'studentsCms' => $studentsLive,
                                 'cmsPreview' => true,
                             ])->render(),
+                            'document-requests' => view('public.student_document_requests', [
+                                'studentsCms' => $studentsLive,
+                                'cmsPreview' => true,
+                            ])->render(),
                         ];
                     @endphp
 

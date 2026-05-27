@@ -20,7 +20,7 @@
             ->filter(fn ($card) => is_array($card))
             ->values();
         $requiredStudentCards = $defaultCards
-            ->filter(fn ($card) => in_array(strtolower(trim((string) ($card['title'] ?? ''))), ['admissions', 'downloadable forms'], true));
+            ->filter(fn ($card) => in_array(strtolower(trim((string) ($card['title'] ?? ''))), ['admissions', 'downloadable forms', 'document requests'], true));
         $existingCardTitles = $cards
             ->map(fn ($card) => strtolower(trim((string) ($card['title'] ?? ''))))
             ->all();
@@ -37,7 +37,8 @@
                 $priority = match ($title) {
                     'admissions' => 0,
                     'downloadable forms' => 1,
-                    default => 2,
+                    'document requests' => 2,
+                    default => 3,
                 };
 
                 return sprintf('%d-%04d', $priority, (int) ($card['_editor_index'] ?? 0));
@@ -139,6 +140,7 @@
                                 $cardTitleKey = strtolower($cardTitle);
                                 $isExternalCardLink = preg_match('/^https?:\/\//i', $cardLink) === 1;
                                 $isRequiredDisplayCard = (bool) ($card['_required_card'] ?? false);
+                                $isProtectedCoreCard = in_array($cardTitleKey, ['admissions', 'downloadable forms', 'document requests'], true);
                                 $editorIndex = (int) ($card['_editor_index'] ?? $loop->index);
                             @endphp
 
@@ -160,12 +162,12 @@
                             @endif
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        @unless($isRequiredDisplayCard)
+                                        @if(!$isRequiredDisplayCard || $isProtectedCoreCard)
                                             <button type="button" class="cms-preview-card-action" data-students-card-edit title="Edit card" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'student card' }}">
                                                 Edit
                                             </button>
-                                        @endunless
-                                        @unless($isRequiredDisplayCard || in_array($cardTitleKey, ['admissions', 'downloadable forms'], true))
+                                        @endif
+                                        @unless($isRequiredDisplayCard || $isProtectedCoreCard)
                                             <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-students-card-delete title="Delete card" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'student card' }}">
                                                 Delete
                                             </button>

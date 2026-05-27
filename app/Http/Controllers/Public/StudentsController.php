@@ -42,6 +42,14 @@ class StudentsController extends Controller
         ]);
     }
 
+    public function documentRequests(Request $request)
+    {
+        return view('public.student_document_requests', [
+            'studentsCms' => $this->loadStudentsCms(),
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
     private function loadStudentsCms(): array
     {
         $studentsCms = StudentsCmsContent::defaults();
