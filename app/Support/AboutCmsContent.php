@@ -861,13 +861,15 @@ class AboutCmsContent
                     $defaultItem['links'] ?? []
                 ),
             ];
+            $informationDescription = RichText::plainText((string) ($item['information']['description'] ?? ''));
+            $reportsDescription = RichText::plainText((string) ($item['reports']['description'] ?? ''));
 
             if (
                 trim((string) $item['label']) === ''
                 && trim((string) $item['tag']) === ''
                 && trim((string) $item['image']) === ''
-                && trim((string) ($item['information']['description'] ?? '')) === ''
-                && trim((string) ($item['reports']['description'] ?? '')) === ''
+                && $informationDescription === ''
+                && $reportsDescription === ''
                 && empty($item['highlights'])
                 && empty($item['links'])
             ) {
