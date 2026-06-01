@@ -73,10 +73,36 @@ table tr:nth-child(even){
     background:#5a0000;
 }
 
+.report-footer{
+    margin-top:40px;
+    padding-top:14px;
+    border-top:1px solid #bbb;
+    font-size:12px;
+    line-height:1.45;
+    color:#333;
+}
+
+.report-footer p{
+    margin:0 0 6px 0;
+}
+
 /* hide button in pdf */
 @media print{
     .print-btn{
         display:none;
+    }
+
+    body{
+        padding-bottom:90px;
+    }
+
+    .report-footer{
+        position:fixed;
+        left:40px;
+        right:40px;
+        bottom:20px;
+        margin-top:0;
+        background:#fff;
     }
 }
 
@@ -148,6 +174,11 @@ table tr:nth-child(even){
 </div>
 
 
+<div class="report-footer">
+    <p>This document contains personal-identifiable information that is subject to Data Privacy. Please keep this document protected and in a safe place.</p>
+    <p>This is system-generated, signature is not required.</p>
+</div>
+
+
 </body>
 </html>
-
