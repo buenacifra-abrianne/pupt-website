@@ -569,16 +569,20 @@ function initWidgetDock() {
   const widget = document.createElement("section");
   widget.className = "chatbot-widget-shell";
   widget.setAttribute("aria-hidden", "true");
-  widget.innerHTML = `
-    <iframe
-      class="chatbot-widget-frame"
-      src="${BOTPRESS_SHAREABLE_URL}"
-      title="AI Assistant"
-      loading="lazy"
-      allow="clipboard-write; microphone"
-      referrerpolicy="strict-origin-when-cross-origin"
-    ></iframe>
-  `;
+
+  const ensureChatIframe = () => {
+    if (widget.querySelector(".chatbot-widget-frame")) return;
+
+    const iframe = document.createElement("iframe");
+    iframe.className = "chatbot-widget-frame";
+    iframe.src = BOTPRESS_SHAREABLE_URL;
+    iframe.title = "AI Assistant";
+    iframe.allow = "clipboard-write; microphone";
+    iframe.referrerPolicy = "strict-origin-when-cross-origin";
+
+    // Load Botpress only after the user explicitly opens chat.
+    widget.appendChild(iframe);
+  };
 
   const dock = document.createElement("div");
   dock.className = "widget-dock";
@@ -662,6 +666,8 @@ function initWidgetDock() {
     if (!dock.classList.contains("is-open")) {
       setDockOpen(true);
     }
+
+    ensureChatIframe();
     setChatOpenState(!widget.classList.contains("is-open"));
   });
 

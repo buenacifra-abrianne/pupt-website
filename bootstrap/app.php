@@ -37,6 +37,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'nonsuperadmin.role' => \App\Http\Middleware\NonSuperadminRoleOnly::class,
             'cms.terms.accepted' => \App\Http\Middleware\EnsureCmsTermsAccepted::class,
             'idp.apikey' => \App\Http\Middleware\VerifyApiKey::class,
+            'botpress.webhook' => \App\Http\Middleware\VerifyBotpressWebhook::class,
             'check.idp' => \App\Http\Middleware\CheckIdpSession::class,
         ]);
     })

@@ -2,6 +2,8 @@
 
 This setup keeps a Botpress chatbot awake by invoking an AWS Lambda function every 5 minutes with Amazon EventBridge Scheduler.
 
+If your goal is to reduce Botpress usage and only activate the chatbot when a visitor explicitly opens AI chat, do not deploy this keep-alive stack. The website widget now loads Botpress on first user interaction, so the scheduler is only useful for legacy always-on behavior.
+
 It uses only:
 
 - AWS Lambda

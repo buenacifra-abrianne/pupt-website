@@ -60,4 +60,9 @@ return [
         'timeout' => env('OCMS_API_TIMEOUT', 15),
     ],
 
+    'botpress' => [
+        'webhook_secret' => env('BOTPRESS_WEBHOOK_SECRET'),
+        'webhook_url' => env('BOTPRESS_WEBHOOK_URL'),
+    ],
+
 ];

@@ -25,7 +25,7 @@ class FeedbackController extends Controller
         $feedbackContent = $this->resolveFeedbackContent();
         $questions = $this->resolveFeedbackQuestions($feedbackContent);
 
-        if ($questions === []) {
+        if ($questions === [] || ! Schema::hasTable('feedback_submissions')) {
             return redirect()
                 ->route('public.feedback')
                 ->withErrors([
@@ -52,8 +52,20 @@ class FeedbackController extends Controller
             'updated_at' => now(),
         ];
 
-        foreach (range(1, 10) as $questionNumber) {
-            $payload['q'.$questionNumber.'_score'] = $scores[$questionNumber - 1] ?? null;
+        foreach ($scores as $index => $score) {
+            $column = 'q'.($index + 1).'_score';
+
+            if (Schema::hasColumn('feedback_submissions', $column)) {
+                $payload[$column] = $score;
+            }
+        }
+
+        if (! collect($payload)->keys()->contains(fn ($key) => str_starts_with((string) $key, 'q'))) {
+            return redirect()
+                ->route('public.feedback')
+                ->withErrors([
+                    'feedback_form' => 'The feedback form is not available right now.',
+                ]);
         }
 
         DB::table('feedback_submissions')->insert($payload);
