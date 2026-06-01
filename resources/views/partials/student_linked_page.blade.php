@@ -130,10 +130,23 @@
                     @forelse(($qrCodes['items'] ?? []) as $qrCode)
                         @php
                             $qrImage = trim((string) ($qrCode['image'] ?? ''));
+                            $qrHref = trim((string) ($qrCode['href'] ?? ''));
+                            $qrIsExternalLink = preg_match('/^https?:\/\//i', $qrHref) === 1;
                         @endphp
                         <article class="student-qr-card">
                             @if($qrImage !== '')
-                                <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
+                                @if($qrHref !== '')
+                                    <a
+                                        href="{{ $qrHref }}"
+                                        class="student-qr-media-link"
+                                        @if($qrIsExternalLink && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
+                                        aria-label="Open link for {{ $qrCode['label'] ?? 'QR code' }}"
+                                    >
+                                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
+                                    </a>
+                                @else
+                                    <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
+                                @endif
                             @else
                                 <div class="student-qr-placeholder">QR</div>
                             @endif

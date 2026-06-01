@@ -546,7 +546,11 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Description</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" value="{{ $item['description'] ?? '' }}">
+                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Link</label>
+                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
                                         </div>
                                     </div>
                                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
@@ -749,7 +753,11 @@
                                         </div>
                                         <div class="form-group">
                                             <label>Description</label>
-                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" value="{{ $item['description'] ?? '' }}">
+                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Link</label>
+                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
                                         </div>
                                     </div>
                                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
@@ -2630,7 +2638,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <input type="text" name="students[pages][admissions][qr_codes][items][${index}][description]" value="">
+                                <input type="text" name="students[pages][admissions][qr_codes][items][${index}][description]" maxlength="50" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Link</label>
+                                <input type="text" name="students[pages][admissions][qr_codes][items][${index}][href]" maxlength="2048" value="">
                             </div>
                         </div>
                         <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
@@ -2675,7 +2687,11 @@
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][description]" value="">
+                                <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][description]" maxlength="50" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Link</label>
+                                <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][href]" maxlength="2048" value="">
                             </div>
                         </div>
                         <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
