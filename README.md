@@ -130,6 +130,8 @@ BOTPRESS_PAT=
 BOTPRESS_BOT_ID=
 BOTPRESS_KNOWLEDGE_BASE_ID=
 BOTPRESS_FILE_KEY_PREFIX=knowledge-sync
+BOTPRESS_WEBHOOK_SECRET=
+BOTPRESS_WEBHOOK_URL=${APP_URL}/api/botpress/webhook
 ```
 
 ### Migration
@@ -148,6 +150,18 @@ The service stores minimal metadata in `botpress_knowledge_links`:
 - `last_synced_at`
 
 (plus operational fields needed for reliability: active flag, error, file id, timestamps)
+
+### Webhook entrypoint
+
+To keep Botpress from responding until a real chat event occurs, wire your Botpress workflow to call `BOTPRESS_WEBHOOK_URL` from a `Conversation Started` trigger.
+
+Send the same value from `BOTPRESS_WEBHOOK_SECRET` as the `X-BP-SECRET` header so the Laravel webhook can verify the request.
+
+Botpress docs that match this pattern:
+
+- Conversation-start triggers: https://botpress.com/docs/webchat/interact/start-trigger
+- Webhook events: https://www.botpress.com/docs/integrations/integration-guides/webhook
+- Webchat event listeners: https://botpress.com/docs/webchat/interact/listen-to-events
 
 ### Botpress Notes
 
