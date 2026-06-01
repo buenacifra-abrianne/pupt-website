@@ -146,4 +146,28 @@ class StudentsCmsContentTest extends TestCase
         $this->assertSame('CSS', $result['organization_sections'][0]['items'][0]['abbr']);
         $this->assertSame('Non-Academic Student Organizations', $result['organization_sections'][1]['title']);
     }
+
+    public function test_from_input_preserves_qr_how_to_image_field(): void
+    {
+        $result = StudentsCmsContent::fromInput([
+            'pages' => [
+                'admissions' => [
+                    'qr_codes' => [
+                        'items' => [
+                            [
+                                'label' => 'Admissions QR',
+                                'description' => 'Scan this.',
+                                'href' => 'https://example.com',
+                                'image' => 'uploads/qr.png',
+                                'how_to_image' => 'uploads/how-to-portrait.png',
+                            ],
+                        ],
+                    ],
+                ],
+            ],
+        ], null);
+
+        $first = $result['pages']['admissions']['qr_codes']['items'][0] ?? [];
+        $this->assertSame('uploads/how-to-portrait.png', $first['how_to_image'] ?? null);
+    }
 }

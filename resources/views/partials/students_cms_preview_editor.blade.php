@@ -481,7 +481,7 @@
             </section>
 
             <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form data-students-qr-form="admissions_qr_codes">
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
                     <input type="hidden" name="section_key" value="admissions_qr_codes">
@@ -500,64 +500,180 @@
                         </div>
                     </div>
 
-                    <div class="students-cms-repeatable" data-students-repeatable="admissions-qr">
-                        <div class="students-cms-repeatable-head">
-                            <h4>QR Codes</h4>
-                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-qr">Add QR Code</button>
-                        </div>
-                        <div data-students-repeatable-list="admissions-qr">
-                            @foreach(($admissionsQrCodes['items'] ?? []) as $index => $item)
-                                @php
-                                    $qrInputId = $idPrefix.'-students-admissions-qr-'.$index;
-                                    $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
-                                    $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                                    $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
-                                @endphp
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
-                                    <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
-                                    <div class="form-group">
-                                        <label>Upload QR Code Image</label>
-                                        <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
-                                                <span class="students-cms-image-dropzone-preview-column">
-                                                    <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
-                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    </span>
-                                                    <span class="students-cms-image-dropzone-label">QR Code</span>
-                                                </span>
-                                                <span class="students-cms-image-dropzone-upload">
-                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                    <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for applicants.</span>
-                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
-                                    </div>
-                                    <div class="students-cms-form-grid">
-                                        <div class="form-group">
-                                            <label>Label</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Description</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Link</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
-                                </div>
-                            @endforeach
-                        </div>
+                    <div class="students-cms-repeatable-head">
+                        <h4>QR Codes</h4>
+                        <button type="button" class="btn btn-primary" data-students-qr-add-card="admissions_qr_codes">Add QR Code</button>
                     </div>
+                    <div class="students-cms-card-stack" data-students-qr-card-stack="admissions_qr_codes">
+                        @foreach(($admissionsQrCodes['items'] ?? []) as $index => $item)
+                            @php
+                                $qrInputId = $idPrefix.'-students-admissions-qr-'.$index;
+                                $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
+                                $howToInputId = $idPrefix.'-students-admissions-qr-how-to-'.$index;
+                                $howToFieldId = $idPrefix.'-students-admissions-qr-how-to-field-'.$index;
+                                $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $howToPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['how_to_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
+                            @endphp
+                            <article class="students-cms-card-editor" data-students-qr-card-editor data-students-qr-panel="admissions_qr_codes" data-students-qr-card-index="{{ $index }}">
+                                <div class="students-cms-card-editor-head">
+                                    <div>
+                                        <h4>QR Card {{ $loop->iteration }}</h4>
+                                        <span>{{ $item['label'] ?? '' }}</span>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-qr-remove-card data-students-qr-panel="admissions_qr_codes">Delete QR Card</button>
+                                </div>
+
+                                <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
+                                <input type="hidden" id="{{ $howToFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][how_to_image]" value="{{ $item['how_to_image'] ?? '' }}" data-students-image-field>
+
+                                <div class="form-group">
+                                    <label>Upload QR Code Image</label>
+                                    <div class="students-cms-image-dropzone-shell">
+                                        <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
+                                            <span class="students-cms-image-dropzone-preview-column">
+                                                <span class="students-cms-image-dropzone-media">
+                                                    <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-label">QR Code {{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-upload">
+                                                <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for applicants.</span>
+                                                <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Upload How-To Image (Portrait)</label>
+                                    <div class="students-cms-image-dropzone-shell">
+                                        <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $howToInputId }}" role="button" tabindex="0" aria-label="Upload how-to portrait image">
+                                            <span class="students-cms-image-dropzone-preview-column">
+                                                <span class="students-cms-image-dropzone-media">
+                                                    <img src="{{ $howToPreview }}" alt="How-to image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $howToInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $howToInputId }}" aria-label="Delete how-to image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-label">How-To {{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-upload">
+                                                <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                <span class="students-cms-image-dropzone-upload-title">Drag and drop portrait image files to upload</span>
+                                                <span class="students-cms-image-dropzone-upload-copy">Shown in the popout when users click this QR card.</span>
+                                                <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $howToInputId }}" data-empty-text="Drop portrait image here or click to replace">Drop portrait image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input id="{{ $howToInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][how_to_image_file]" accept="image/*" data-students-image-field-id="{{ $howToFieldId }}">
+                                </div>
+
+                                <div class="students-cms-form-grid">
+                                    <div class="form-group">
+                                        <label>Label</label>
+                                        <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Link</label>
+                                        <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-students-qr-card-template="admissions_qr_codes">
+                        <article class="students-cms-card-editor" data-students-qr-card-editor data-students-qr-panel="admissions_qr_codes" data-students-qr-card-index="__INDEX__">
+                            <div class="students-cms-card-editor-head">
+                                <div>
+                                    <h4>QR Card __NUMBER__</h4>
+                                    <span></span>
+                                </div>
+                                <button type="button" class="btn students-cms-delete-card" data-students-qr-remove-card data-students-qr-panel="admissions_qr_codes">Delete QR Card</button>
+                            </div>
+
+                            <input type="hidden" id="{{ $idPrefix }}-students-admissions-qr-field-__INDEX__" name="students[pages][admissions][qr_codes][items][__INDEX__][image]" value="" data-students-image-field>
+                            <input type="hidden" id="{{ $idPrefix }}-students-admissions-qr-how-to-field-__INDEX__" name="students[pages][admissions][qr_codes][items][__INDEX__][how_to_image]" value="" data-students-image-field>
+
+                            <div class="form-group">
+                                <label>Upload QR Code Image</label>
+                                <div class="students-cms-image-dropzone-shell">
+                                    <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $idPrefix }}-students-admissions-qr-__INDEX__" role="button" tabindex="0" aria-label="Upload QR code image">
+                                        <span class="students-cms-image-dropzone-preview-column">
+                                            <span class="students-cms-image-dropzone-media">
+                                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $idPrefix }}-students-admissions-qr-__INDEX__" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-admissions-qr-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-label">QR Code __NUMBER__</span>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-upload">
+                                            <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                            <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for applicants.</span>
+                                            <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $idPrefix }}-students-admissions-qr-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input id="{{ $idPrefix }}-students-admissions-qr-__INDEX__" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][__INDEX__][image_file]" accept="image/*" data-students-image-field-id="{{ $idPrefix }}-students-admissions-qr-field-__INDEX__" data-students-require-file-on-empty="1" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload How-To Image (Portrait)</label>
+                                <div class="students-cms-image-dropzone-shell">
+                                    <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $idPrefix }}-students-admissions-qr-how-to-__INDEX__" role="button" tabindex="0" aria-label="Upload how-to portrait image">
+                                        <span class="students-cms-image-dropzone-preview-column">
+                                            <span class="students-cms-image-dropzone-media">
+                                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="How-to image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $idPrefix }}-students-admissions-qr-how-to-__INDEX__" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-admissions-qr-how-to-__INDEX__" aria-label="Delete how-to image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-label">How-To __NUMBER__</span>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-upload">
+                                            <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                            <span class="students-cms-image-dropzone-upload-title">Drag and drop portrait image files to upload</span>
+                                            <span class="students-cms-image-dropzone-upload-copy">Shown in the popout when users click this QR card.</span>
+                                            <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $idPrefix }}-students-admissions-qr-how-to-__INDEX__" data-empty-text="Drop portrait image here or click to replace">Drop portrait image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input id="{{ $idPrefix }}-students-admissions-qr-how-to-__INDEX__" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][__INDEX__][how_to_image_file]" accept="image/*" data-students-image-field-id="{{ $idPrefix }}-students-admissions-qr-how-to-field-__INDEX__">
+                            </div>
+
+                            <div class="students-cms-form-grid">
+                                <div class="form-group">
+                                    <label>Label</label>
+                                    <input type="text" name="students[pages][admissions][qr_codes][items][__INDEX__][label]" maxlength="255" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <input type="text" name="students[pages][admissions][qr_codes][items][__INDEX__][description]" maxlength="50" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label>Link</label>
+                                    <input type="text" name="students[pages][admissions][qr_codes][items][__INDEX__][href]" maxlength="2048" value="">
+                                </div>
+                            </div>
+                        </article>
+                    </template>
 
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
@@ -688,7 +804,7 @@
             </section>
 
             <section class="students-cms-editor-panel" data-students-editor-panel="document_requests_qr_codes" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form data-students-qr-form="document_requests_qr_codes">
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
                     <input type="hidden" name="section_key" value="document_requests_qr_codes">
@@ -707,64 +823,180 @@
                         </div>
                     </div>
 
-                    <div class="students-cms-repeatable" data-students-repeatable="document-requests-qr">
-                        <div class="students-cms-repeatable-head">
-                            <h4>QR Codes</h4>
-                            <button type="button" class="btn btn-primary" data-students-add-repeatable="document-requests-qr">Add QR Code</button>
-                        </div>
-                        <div data-students-repeatable-list="document-requests-qr">
-                            @foreach(($documentRequestsQrCodes['items'] ?? []) as $index => $item)
-                                @php
-                                    $qrInputId = $idPrefix.'-students-document-requests-qr-'.$index;
-                                    $qrFieldId = $idPrefix.'-students-document-requests-qr-field-'.$index;
-                                    $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                                    $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
-                                @endphp
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
-                                    <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
-                                    <div class="form-group">
-                                        <label>Upload QR Code Image</label>
-                                        <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
-                                                <span class="students-cms-image-dropzone-preview-column">
-                                                    <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
-                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    </span>
-                                                    <span class="students-cms-image-dropzone-label">QR Code</span>
-                                                </span>
-                                                <span class="students-cms-image-dropzone-upload">
-                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                    <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for document requests.</span>
-                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
-                                    </div>
-                                    <div class="students-cms-form-grid">
-                                        <div class="form-group">
-                                            <label>Label</label>
-                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Description</label>
-                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Link</label>
-                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
-                                </div>
-                            @endforeach
-                        </div>
+                    <div class="students-cms-repeatable-head">
+                        <h4>QR Codes</h4>
+                        <button type="button" class="btn btn-primary" data-students-qr-add-card="document_requests_qr_codes">Add QR Code</button>
                     </div>
+                    <div class="students-cms-card-stack" data-students-qr-card-stack="document_requests_qr_codes">
+                        @foreach(($documentRequestsQrCodes['items'] ?? []) as $index => $item)
+                            @php
+                                $qrInputId = $idPrefix.'-students-document-requests-qr-'.$index;
+                                $qrFieldId = $idPrefix.'-students-document-requests-qr-field-'.$index;
+                                $howToInputId = $idPrefix.'-students-document-requests-qr-how-to-'.$index;
+                                $howToFieldId = $idPrefix.'-students-document-requests-qr-how-to-field-'.$index;
+                                $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $howToPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['how_to_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
+                            @endphp
+                            <article class="students-cms-card-editor" data-students-qr-card-editor data-students-qr-panel="document_requests_qr_codes" data-students-qr-card-index="{{ $index }}">
+                                <div class="students-cms-card-editor-head">
+                                    <div>
+                                        <h4>QR Card {{ $loop->iteration }}</h4>
+                                        <span>{{ $item['label'] ?? '' }}</span>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-qr-remove-card data-students-qr-panel="document_requests_qr_codes">Delete QR Card</button>
+                                </div>
+
+                                <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
+                                <input type="hidden" id="{{ $howToFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][how_to_image]" value="{{ $item['how_to_image'] ?? '' }}" data-students-image-field>
+
+                                <div class="form-group">
+                                    <label>Upload QR Code Image</label>
+                                    <div class="students-cms-image-dropzone-shell">
+                                        <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
+                                            <span class="students-cms-image-dropzone-preview-column">
+                                                <span class="students-cms-image-dropzone-media">
+                                                    <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-label">QR Code {{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-upload">
+                                                <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for document requests.</span>
+                                                <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Upload How-To Image (Portrait)</label>
+                                    <div class="students-cms-image-dropzone-shell">
+                                        <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $howToInputId }}" role="button" tabindex="0" aria-label="Upload how-to portrait image">
+                                            <span class="students-cms-image-dropzone-preview-column">
+                                                <span class="students-cms-image-dropzone-media">
+                                                    <img src="{{ $howToPreview }}" alt="How-to image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $howToInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $howToInputId }}" aria-label="Delete how-to image" title="Delete image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-label">How-To {{ $index + 1 }}</span>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-upload">
+                                                <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                <span class="students-cms-image-dropzone-upload-title">Drag and drop portrait image files to upload</span>
+                                                <span class="students-cms-image-dropzone-upload-copy">Shown in the popout when users click this QR card.</span>
+                                                <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $howToInputId }}" data-empty-text="Drop portrait image here or click to replace">Drop portrait image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input id="{{ $howToInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][how_to_image_file]" accept="image/*" data-students-image-field-id="{{ $howToFieldId }}">
+                                </div>
+
+                                <div class="students-cms-form-grid">
+                                    <div class="form-group">
+                                        <label>Label</label>
+                                        <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Description</label>
+                                        <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Link</label>
+                                        <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-students-qr-card-template="document_requests_qr_codes">
+                        <article class="students-cms-card-editor" data-students-qr-card-editor data-students-qr-panel="document_requests_qr_codes" data-students-qr-card-index="__INDEX__">
+                            <div class="students-cms-card-editor-head">
+                                <div>
+                                    <h4>QR Card __NUMBER__</h4>
+                                    <span></span>
+                                </div>
+                                <button type="button" class="btn students-cms-delete-card" data-students-qr-remove-card data-students-qr-panel="document_requests_qr_codes">Delete QR Card</button>
+                            </div>
+
+                            <input type="hidden" id="{{ $idPrefix }}-students-document-requests-qr-field-__INDEX__" name="students[pages][document-requests][qr_codes][items][__INDEX__][image]" value="" data-students-image-field>
+                            <input type="hidden" id="{{ $idPrefix }}-students-document-requests-qr-how-to-field-__INDEX__" name="students[pages][document-requests][qr_codes][items][__INDEX__][how_to_image]" value="" data-students-image-field>
+
+                            <div class="form-group">
+                                <label>Upload QR Code Image</label>
+                                <div class="students-cms-image-dropzone-shell">
+                                    <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $idPrefix }}-students-document-requests-qr-__INDEX__" role="button" tabindex="0" aria-label="Upload QR code image">
+                                        <span class="students-cms-image-dropzone-preview-column">
+                                            <span class="students-cms-image-dropzone-media">
+                                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $idPrefix }}-students-document-requests-qr-__INDEX__" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-document-requests-qr-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-label">QR Code __NUMBER__</span>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-upload">
+                                            <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                            <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for document requests.</span>
+                                            <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $idPrefix }}-students-document-requests-qr-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input id="{{ $idPrefix }}-students-document-requests-qr-__INDEX__" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][__INDEX__][image_file]" accept="image/*" data-students-image-field-id="{{ $idPrefix }}-students-document-requests-qr-field-__INDEX__" data-students-require-file-on-empty="1" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload How-To Image (Portrait)</label>
+                                <div class="students-cms-image-dropzone-shell">
+                                    <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $idPrefix }}-students-document-requests-qr-how-to-__INDEX__" role="button" tabindex="0" aria-label="Upload how-to portrait image">
+                                        <span class="students-cms-image-dropzone-preview-column">
+                                            <span class="students-cms-image-dropzone-media">
+                                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="How-to image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $idPrefix }}-students-document-requests-qr-how-to-__INDEX__" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-document-requests-qr-how-to-__INDEX__" aria-label="Delete how-to image" title="Delete image">
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                            <span class="students-cms-image-dropzone-label">How-To __NUMBER__</span>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-upload">
+                                            <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                            <span class="students-cms-image-dropzone-upload-title">Drag and drop portrait image files to upload</span>
+                                            <span class="students-cms-image-dropzone-upload-copy">Shown in the popout when users click this QR card.</span>
+                                            <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $idPrefix }}-students-document-requests-qr-how-to-__INDEX__" data-empty-text="Drop portrait image here or click to replace">Drop portrait image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input id="{{ $idPrefix }}-students-document-requests-qr-how-to-__INDEX__" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][__INDEX__][how_to_image_file]" accept="image/*" data-students-image-field-id="{{ $idPrefix }}-students-document-requests-qr-how-to-field-__INDEX__">
+                            </div>
+
+                            <div class="students-cms-form-grid">
+                                <div class="form-group">
+                                    <label>Label</label>
+                                    <input type="text" name="students[pages][document-requests][qr_codes][items][__INDEX__][label]" maxlength="255" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <input type="text" name="students[pages][document-requests][qr_codes][items][__INDEX__][description]" maxlength="50" value="">
+                                </div>
+                                <div class="form-group">
+                                    <label>Link</label>
+                                    <input type="text" name="students[pages][document-requests][qr_codes][items][__INDEX__][href]" maxlength="2048" value="">
+                                </div>
+                            </div>
+                        </article>
+                    </template>
 
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
@@ -1715,7 +1947,22 @@
             target.querySelector('input, textarea')?.focus();
         };
 
+        const focusQrCardEditor = (panelKey, cardIndex) => {
+            if (!panelKey || cardIndex === null || cardIndex === undefined || cardIndex === '') {
+                return;
+            }
+
+            const target = modal.querySelector(`[data-students-qr-card-editor][data-students-qr-panel="${panelKey}"][data-students-qr-card-index="${cardIndex}"]`);
+            if (!target) {
+                return;
+            }
+
+            target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            target.querySelector('input:not([type="hidden"]), textarea')?.focus();
+        };
+
         const openEditor = (sectionKey, label, options = {}) => {
+            const isQrSection = sectionKey === 'admissions_qr_codes' || sectionKey === 'document_requests_qr_codes';
             const isCardFocus = (
                 sectionKey === 'cards'
                 && options.cardIndex !== null
@@ -1724,7 +1971,7 @@
             ) || (
                 sectionKey === 'organizations'
                 && String(options.orgKey || '').trim() !== ''
-            );
+            ) || isQrSection;
 
             panels.forEach((panel) => {
                 const isActive = panel.getAttribute('data-students-editor-panel') === sectionKey;
@@ -1769,6 +2016,11 @@
             } else if (sectionKey === 'organizations') {
                 setActiveOrganizationEditor(options.orgKey ?? '');
                 window.setTimeout(() => focusOrganizationEditor(options.orgKey ?? ''), 40);
+            } else if (isQrSection) {
+                const shouldAddQrCard = options.addQrCard === true;
+                const requestedQrCardIndex = shouldAddQrCard ? addQrCard(sectionKey) : (options.qrCardIndex ?? null);
+                const activeQrCardIndex = setActiveQrCardEditor(sectionKey, requestedQrCardIndex);
+                window.setTimeout(() => focusQrCardEditor(sectionKey, activeQrCardIndex), 40);
             } else if (activePanel) {
                 const firstField = activePanel.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                 window.setTimeout(() => firstField?.focus(), 40);
@@ -2006,7 +2258,44 @@
                     return;
                 }
 
-                if (event.target.closest('[data-students-card-index], [data-students-org-index]')) {
+                const addQrCardTrigger = event.target.closest('[data-students-qr-add-card-trigger]');
+                if (addQrCardTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const sectionKey = addQrCardTrigger.getAttribute('data-students-qr-section') || '';
+                    if (sectionKey) {
+                        openEditor(sectionKey, 'Add QR card', { addQrCard: true });
+                    }
+                    return;
+                }
+
+                const editQrCardTrigger = event.target.closest('[data-students-qr-card-edit]');
+                if (editQrCardTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const card = editQrCardTrigger.closest('[data-students-qr-card-index]');
+                    const sectionKey = card?.getAttribute('data-students-qr-section') || '';
+                    const qrCardIndex = card?.getAttribute('data-students-qr-card-index') ?? null;
+                    if (sectionKey) {
+                        openEditor(sectionKey, 'Edit QR card', { qrCardIndex });
+                    }
+                    return;
+                }
+
+                const deleteQrCardTrigger = event.target.closest('[data-students-qr-card-delete]');
+                if (deleteQrCardTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const card = deleteQrCardTrigger.closest('[data-students-qr-card-index]');
+                    const sectionKey = card?.getAttribute('data-students-qr-section') || '';
+                    const qrCardIndex = card?.getAttribute('data-students-qr-card-index') ?? null;
+                    if (sectionKey && qrCardIndex !== null) {
+                        void confirmDeleteQrCard(sectionKey, qrCardIndex);
+                    }
+                    return;
+                }
+
+                if (event.target.closest('[data-students-card-index], [data-students-org-index], [data-students-qr-card-index]')) {
                     return;
                 }
 
@@ -2024,8 +2313,9 @@
                     const orgSectionIndex = sectionTrigger.getAttribute('data-students-org-section-index');
                     const orgIndex = sectionTrigger.getAttribute('data-students-org-index');
                     const orgKey = orgSectionIndex !== null && orgIndex !== null ? `${orgSectionIndex}-${orgIndex}` : '';
+                    const qrCardIndex = sectionTrigger.getAttribute('data-students-qr-card-index');
 
-                    openEditor(sectionKey, label, { cardIndex, orgKey });
+                    openEditor(sectionKey, label, { cardIndex, orgKey, qrCardIndex });
                     return;
                 }
 
@@ -2140,6 +2430,11 @@
         const activeCardIndexInput = modal.querySelector('[data-students-active-card-index]');
         const orgStack = modal.querySelector('[data-students-org-stack]');
         const activeOrgKeyInput = modal.querySelector('[data-students-active-org-key]');
+        const qrPanelKeys = ['admissions_qr_codes', 'document_requests_qr_codes'];
+
+        const getQrForm = (panelKey) => modal.querySelector(`[data-students-qr-form="${panelKey}"]`);
+        const getQrCardStack = (panelKey) => modal.querySelector(`[data-students-qr-card-stack="${panelKey}"]`);
+        const getQrCardTemplate = (panelKey) => modal.querySelector(`[data-students-qr-card-template="${panelKey}"]`);
 
         const bumpCardsVersion = () => {
             if (versionInput) {
@@ -2275,6 +2570,152 @@
             }
 
             submitCardsForm();
+        };
+
+        const relabelQrCards = (panelKey) => {
+            const editors = Array.from(getQrCardStack(panelKey)?.querySelectorAll('[data-students-qr-card-editor]') ?? []);
+            editors.forEach((editor, index) => {
+                const displayNumber = index + 1;
+                const headTitle = editor.querySelector('.students-cms-card-editor-head h4');
+                const headSubtitle = editor.querySelector('.students-cms-card-editor-head span');
+                const labelInput = editor.querySelector('input[name*="[label]"]');
+                const dropzoneTitles = Array.from(editor.querySelectorAll('.students-cms-image-dropzone-label'));
+
+                if (headTitle) {
+                    headTitle.textContent = `QR Card ${displayNumber}`;
+                }
+
+                if (headSubtitle) {
+                    headSubtitle.textContent = String(labelInput?.value || '').trim();
+                }
+
+                if (dropzoneTitles[0]) {
+                    dropzoneTitles[0].textContent = `QR Code ${displayNumber}`;
+                }
+
+                if (dropzoneTitles[1]) {
+                    dropzoneTitles[1].textContent = `How-To ${displayNumber}`;
+                }
+            });
+        };
+
+        const setActiveQrCardEditor = (panelKey, cardIndex = null) => {
+            const stack = getQrCardStack(panelKey);
+            const editors = Array.from(stack?.querySelectorAll('[data-students-qr-card-editor]') ?? []);
+            if (!editors.length) {
+                return null;
+            }
+
+            let targetEditor = null;
+            if (cardIndex !== null && cardIndex !== undefined && cardIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-students-qr-card-index') === String(cardIndex)) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                editor.classList.toggle('is-active', editor === targetEditor);
+            });
+
+            return targetEditor?.getAttribute('data-students-qr-card-index') ?? null;
+        };
+
+        const nextQrCardIndex = (panelKey) => {
+            const indexes = Array.from(getQrCardStack(panelKey)?.querySelectorAll('[data-students-qr-card-editor]') ?? [])
+                .map((editor) => Number(editor.getAttribute('data-students-qr-card-index') || '0'))
+                .filter((value) => Number.isFinite(value));
+
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        };
+
+        const addQrCard = (panelKey) => {
+            const stack = getQrCardStack(panelKey);
+            const template = getQrCardTemplate(panelKey);
+            if (!stack || !template) {
+                return null;
+            }
+
+            const index = nextQrCardIndex(panelKey);
+            const number = index + 1;
+            const markup = template.innerHTML
+                .replaceAll('__INDEX__', String(index))
+                .replaceAll('__NUMBER__', String(number));
+
+            stack.insertAdjacentHTML('beforeend', markup);
+            initStudentsImageDropzones(stack);
+            relabelQrCards(panelKey);
+            const activeIndex = setActiveQrCardEditor(panelKey, index);
+            return activeIndex;
+        };
+
+        const deleteQrCardByIndex = (panelKey, cardIndex) => {
+            const stack = getQrCardStack(panelKey);
+            const targetEditor = stack?.querySelector(`[data-students-qr-card-editor][data-students-qr-card-index="${cardIndex}"]`);
+            if (!targetEditor) {
+                return false;
+            }
+
+            targetEditor.remove();
+            relabelQrCards(panelKey);
+            setActiveQrCardEditor(panelKey);
+            return true;
+        };
+
+        const submitQrForm = (panelKey) => {
+            const form = getQrForm(panelKey);
+            if (!form) {
+                return;
+            }
+
+            syncEditorsInScope(form);
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit();
+                return;
+            }
+
+            form.dispatchEvent(new Event('submit', {
+                bubbles: true,
+                cancelable: true,
+            }));
+        };
+
+        const confirmDeleteQrCard = async (panelKey, cardIndex) => {
+            const stack = getQrCardStack(panelKey);
+            const targetEditor = stack?.querySelector(`[data-students-qr-card-editor][data-students-qr-card-index="${cardIndex}"]`);
+            if (!targetEditor) {
+                return;
+            }
+
+            const labelInput = targetEditor.querySelector('input[name*="[label]"]');
+            const cardLabel = String(labelInput?.value || '').trim();
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete QR Card',
+                    message: cardLabel
+                        ? `Do you want to delete "${cardLabel}"?`
+                        : 'Do you want to delete this QR card?',
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(
+                    cardLabel
+                        ? `Do you want to delete "${cardLabel}"?`
+                        : 'Do you want to delete this QR card?'
+                );
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            if (deleteQrCardByIndex(panelKey, cardIndex)) {
+                submitQrForm(panelKey);
+            }
         };
 
         const setActiveCardEditor = (cardIndex = null) => {
@@ -2739,11 +3180,53 @@
                 return;
             }
 
+            const addQrCardTrigger = event.target.closest('[data-students-qr-add-card]');
+            if (addQrCardTrigger) {
+                event.preventDefault();
+                const panelKey = addQrCardTrigger.getAttribute('data-students-qr-add-card') || '';
+                if (!qrPanelKeys.includes(panelKey)) {
+                    return;
+                }
+
+                const activeIndex = addQrCard(panelKey);
+                setActiveQrCardEditor(panelKey, activeIndex);
+                window.setTimeout(() => focusQrCardEditor(panelKey, activeIndex), 40);
+                return;
+            }
+
+            const removeQrCardTrigger = event.target.closest('[data-students-qr-remove-card]');
+            if (removeQrCardTrigger) {
+                event.preventDefault();
+                const panelKey = removeQrCardTrigger.getAttribute('data-students-qr-panel') || '';
+                const editor = removeQrCardTrigger.closest('[data-students-qr-card-editor]');
+                const cardIndex = editor?.getAttribute('data-students-qr-card-index') ?? null;
+                if (!qrPanelKeys.includes(panelKey) || cardIndex === null) {
+                    return;
+                }
+
+                void confirmDeleteQrCard(panelKey, cardIndex);
+                return;
+            }
+
             const removeRepeatableTrigger = event.target.closest('[data-students-remove-repeatable]');
             if (removeRepeatableTrigger) {
                 event.preventDefault();
                 removeRepeatableTrigger.closest('[data-students-repeatable-item]')?.remove();
             }
+        });
+
+        modal.addEventListener('input', (event) => {
+            const qrEditor = event.target.closest('[data-students-qr-card-editor]');
+            if (!qrEditor) {
+                return;
+            }
+
+            const panelKey = qrEditor.getAttribute('data-students-qr-panel') || '';
+            if (!qrPanelKeys.includes(panelKey)) {
+                return;
+            }
+
+            relabelQrCards(panelKey);
         });
 
         window.addEventListener('message', (event) => {
@@ -2839,6 +3322,10 @@
         relabelCards();
         setActiveCardEditor();
         setActiveOrganizationEditor('');
+        qrPanelKeys.forEach((panelKey) => {
+            relabelQrCards(panelKey);
+            setActiveQrCardEditor(panelKey);
+        });
         syncEditorsInScope(modal);
         initStudentsImageDropzones(modal);
         initStudentsCharCounters(modal);

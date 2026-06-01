@@ -93,6 +93,7 @@ class StudentsCmsContent
                             'description' => 'Upload a QR code image and update this caption.',
                             'href' => '',
                             'image' => '',
+                            'how_to_image' => '',
                         ],
                     ],
                 ],
@@ -114,6 +115,7 @@ class StudentsCmsContent
                             'description' => 'Upload a QR code image and update this caption.',
                             'href' => '',
                             'image' => '',
+                            'how_to_image' => '',
                         ],
                     ],
                 ],
@@ -668,7 +670,9 @@ class StudentsCmsContent
                 continue;
             }
 
-            $defaultItem = is_array($defaultItems[$index] ?? null) ? $defaultItems[$index] : ['label' => '', 'description' => '', 'href' => '', 'image' => ''];
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['label' => '', 'description' => '', 'href' => '', 'image' => '', 'how_to_image' => ''];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
             $normalized = [
                 'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
@@ -677,9 +681,18 @@ class StudentsCmsContent
                 'image' => array_key_exists('image', $item)
                     ? self::sanitizeOptionalString((string) $item['image'], 2048)
                     : self::sanitizeOptionalString((string) ($baseItem['image'] ?? ''), 2048),
+                'how_to_image' => array_key_exists('how_to_image', $item)
+                    ? self::sanitizeOptionalString((string) $item['how_to_image'], 2048)
+                    : self::sanitizeOptionalString((string) ($baseItem['how_to_image'] ?? ''), 2048),
             ];
 
-            if ($normalized['label'] === '' && $normalized['description'] === '' && $normalized['href'] === '' && $normalized['image'] === '') {
+            if (
+                $normalized['label'] === ''
+                && $normalized['description'] === ''
+                && $normalized['href'] === ''
+                && $normalized['image'] === ''
+                && $normalized['how_to_image'] === ''
+            ) {
                 continue;
             }
 

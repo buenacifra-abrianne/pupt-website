@@ -358,6 +358,18 @@ body {
   background: #fffaf6;
 }
 
+.student-qr-card-live-clickable {
+  cursor: pointer;
+  transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+}
+
+.student-qr-card-live-clickable:hover,
+.student-qr-card-live-clickable:focus-visible {
+  transform: translateY(-2px);
+  border-color: rgba(127, 17, 19, 0.24);
+  box-shadow: 0 14px 26px rgba(79, 9, 12, 0.1);
+}
+
 .student-qr-card img,
 .student-qr-placeholder {
   width: 100%;
@@ -398,6 +410,117 @@ body {
   margin: 6px 0 0;
   color: var(--muted);
   line-height: 1.6;
+}
+
+.student-qr-card-add {
+  border: 2px dashed rgba(127, 17, 19, 0.22);
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 243, 236, 0.9) 100%);
+  cursor: pointer;
+}
+
+.student-qr-card-add-inner {
+  min-height: 100%;
+  display: grid;
+  place-items: center;
+  gap: 10px;
+  text-align: center;
+  color: var(--maroon);
+}
+
+.student-qr-card-add-plus {
+  font-size: clamp(2.2rem, 5vw, 3.2rem);
+  line-height: 1;
+}
+
+.student-qr-card-add-label {
+  margin: 0;
+  font-size: .95rem;
+  font-weight: 700;
+  letter-spacing: .04em;
+}
+
+.student-qr-howto-modal[hidden] {
+  display: none;
+}
+
+.student-qr-howto-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.student-qr-howto-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 6, 8, 0.58);
+  backdrop-filter: blur(3px);
+}
+
+.student-qr-howto-modal-dialog {
+  position: relative;
+  z-index: 1;
+  width: min(460px, calc(100vw - 28px));
+  max-height: calc(100vh - 28px);
+  overflow: auto;
+  border-radius: 16px;
+  background: #fffdfa;
+  border: 1px solid rgba(127, 17, 19, 0.15);
+  box-shadow: 0 22px 48px rgba(22, 6, 8, 0.28);
+  padding: 16px;
+  display: grid;
+  gap: 14px;
+}
+
+.student-qr-howto-modal-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 999px;
+  background: rgba(127, 17, 19, 0.9);
+  color: #fff;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.student-qr-howto-modal-image-shell {
+  border-radius: 12px;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  background: #fff;
+  overflow: hidden;
+}
+
+.student-qr-howto-modal-image-shell img {
+  width: 100%;
+  max-height: 72vh;
+  object-fit: contain;
+  display: block;
+}
+
+.student-qr-howto-modal-copy {
+  display: grid;
+  gap: 10px;
+}
+
+.student-qr-howto-modal-copy h3,
+.student-qr-howto-modal-copy p {
+  margin: 0;
+}
+
+.student-qr-howto-modal-link {
+  display: inline-flex;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(127, 17, 19, 0.1);
+  color: var(--maroon);
+  text-decoration: none;
+  font-weight: 700;
 }
 
 .student-link-list {

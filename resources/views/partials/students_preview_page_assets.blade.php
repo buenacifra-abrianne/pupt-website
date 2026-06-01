@@ -111,6 +111,68 @@
         fill: currentColor;
     }
 
+    .student-qr-card[data-students-qr-card-index] {
+        position: relative;
+        cursor: default;
+        isolation: isolate;
+    }
+
+    .student-qr-card[data-students-qr-card-index]::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        z-index: 10;
+        box-sizing: border-box;
+        pointer-events: none;
+        border: 2px dashed rgba(242, 201, 76, 0.95);
+        border-radius: inherit;
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+            0 0 0 4px rgba(242, 201, 76, 0.12);
+    }
+
+    .student-qr-card[data-students-qr-card-index]:hover::after,
+    .student-qr-card[data-students-qr-card-index]:focus-within::after {
+        border-color: rgba(255, 220, 92, 1);
+        box-shadow:
+            inset 0 0 0 1px rgba(255, 255, 255, 0.32),
+            0 0 0 5px rgba(242, 201, 76, 0.2);
+    }
+
+    .cms-preview-card-actions {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        z-index: 12;
+        display: flex;
+        gap: 8px;
+    }
+
+    .cms-preview-card-action {
+        border: none;
+        border-radius: 12px;
+        padding: 0 12px;
+        min-width: 64px;
+        height: 36px;
+        background: rgba(127, 17, 19, 0.92);
+        color: #fffaf4;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+        cursor: pointer;
+    }
+
+    .cms-preview-card-action-delete {
+        background: rgba(80, 10, 12, 0.96);
+    }
+
+    .student-qr-card-add {
+        cursor: pointer;
+        border: 2px dashed rgba(127, 17, 19, 0.2);
+        background: linear-gradient(160deg, rgba(255, 255, 255, 0.96) 0%, rgba(250, 243, 236, 0.9) 100%);
+    }
+
     @media (max-width: 768px) {
         .hero-shell,
         .student-page-intro.cms-preview-editable,
@@ -124,6 +186,11 @@
             width: 40px;
             min-width: 40px;
             height: 40px;
+        }
+
+        .cms-preview-card-actions {
+            top: 10px;
+            right: 10px;
         }
     }
 </style>

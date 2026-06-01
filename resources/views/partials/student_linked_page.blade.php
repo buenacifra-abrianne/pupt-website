@@ -127,25 +127,79 @@
                     <h2>{{ $qrCodes['title'] ?? '' }}</h2>
                 </div>
                 <div class="student-qr-grid">
+                    @if($cmsPreview && $qrSectionKey !== '')
+                        <article
+                            class="student-qr-card student-qr-card-add"
+                            data-students-qr-add-card-trigger
+                            data-students-qr-section="{{ $qrSectionKey }}"
+                            tabindex="0"
+                            role="button"
+                            aria-label="Add QR card"
+                        >
+                            <div class="student-qr-card-add-inner">
+                                <span class="student-qr-card-add-plus" aria-hidden="true">+</span>
+                                <p class="student-qr-card-add-label">Add QR Card</p>
+                            </div>
+                        </article>
+                    @endif
+
                     @forelse(($qrCodes['items'] ?? []) as $qrCode)
                         @php
                             $qrImage = trim((string) ($qrCode['image'] ?? ''));
+                            $qrHowToImage = trim((string) ($qrCode['how_to_image'] ?? ''));
                             $qrHref = trim((string) ($qrCode['href'] ?? ''));
                             $qrIsExternalLink = preg_match('/^https?:\/\//i', $qrHref) === 1;
+                            $qrImageUrl = $qrImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') : '';
+                            $qrHowToImageUrl = $qrHowToImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($qrHowToImage, 'assets/static_img/pupillar.jpeg') : '';
                         @endphp
-                        <article class="student-qr-card">
+                        <article
+                            class="student-qr-card{{ !$cmsPreview && $qrHowToImage !== '' ? ' student-qr-card-live student-qr-card-live-clickable' : '' }}"
+                            @if($cmsPreview)
+                                data-students-qr-card-index="{{ $loop->index }}"
+                                data-students-qr-section="{{ $qrSectionKey }}"
+                            @elseif($qrHowToImage !== '')
+                                data-student-qr-open
+                                data-qr-howto-image="{{ e($qrHowToImageUrl) }}"
+                                data-qr-label="{{ e($qrCode['label'] ?? 'QR Code') }}"
+                                data-qr-description="{{ e($qrCode['description'] ?? '') }}"
+                                data-qr-link="{{ e($qrHref) }}"
+                                tabindex="0"
+                                role="button"
+                            @endif
+                        >
+                            @if($cmsPreview && $qrSectionKey !== '')
+                                <div class="cms-preview-card-actions" aria-label="QR card actions">
+                                    <button
+                                        type="button"
+                                        class="cms-preview-card-action"
+                                        data-students-qr-card-edit
+                                        aria-label="Edit {{ trim((string) ($qrCode['label'] ?? '')) !== '' ? $qrCode['label'] : 'QR card' }}"
+                                    >
+                                        Edit
+                                    </button>
+                                    <button
+                                        type="button"
+                                        class="cms-preview-card-action cms-preview-card-action-delete"
+                                        data-students-qr-card-delete
+                                        aria-label="Delete {{ trim((string) ($qrCode['label'] ?? '')) !== '' ? $qrCode['label'] : 'QR card' }}"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            @endif
+
                             @if($qrImage !== '')
-                                @if($qrHref !== '')
+                                @if(!$cmsPreview && $qrHowToImage === '' && $qrHref !== '')
                                     <a
                                         href="{{ $qrHref }}"
                                         class="student-qr-media-link"
-                                        @if($qrIsExternalLink && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
+                                        @if($qrIsExternalLink) target="_blank" rel="noopener noreferrer" @endif
                                         aria-label="Open link for {{ $qrCode['label'] ?? 'QR code' }}"
                                     >
-                                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
+                                        <img src="{{ $qrImageUrl }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
                                     </a>
                                 @else
-                                    <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
+                                    <img src="{{ $qrImageUrl }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
                                 @endif
                             @else
                                 <div class="student-qr-placeholder">QR</div>
@@ -161,6 +215,98 @@
                 </div>
             </div>
         </section>
+    @endif
+
+    @if(!$cmsPreview && ($isAdmissionsPage || $isDocumentRequestsPage))
+        <div class="student-qr-howto-modal" id="studentQrHowToModal" hidden aria-hidden="true">
+            <div class="student-qr-howto-modal-backdrop" data-student-qr-close></div>
+            <div class="student-qr-howto-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="studentQrHowToTitle">
+                <button type="button" class="student-qr-howto-modal-close" data-student-qr-close aria-label="Close how-to image">&times;</button>
+                <div class="student-qr-howto-modal-image-shell">
+                    <img src="" alt="" id="studentQrHowToImage">
+                </div>
+                <div class="student-qr-howto-modal-copy">
+                    <h3 id="studentQrHowToTitle">How To</h3>
+                    <p id="studentQrHowToDescription"></p>
+                    <a href="#" id="studentQrHowToLink" class="student-qr-howto-modal-link" target="_blank" rel="noopener noreferrer" hidden>Open Related Link</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById('studentQrHowToModal');
+                if (!modal) {
+                    return;
+                }
+
+                const image = document.getElementById('studentQrHowToImage');
+                const title = document.getElementById('studentQrHowToTitle');
+                const description = document.getElementById('studentQrHowToDescription');
+                const link = document.getElementById('studentQrHowToLink');
+
+                const closeModal = () => {
+                    modal.hidden = true;
+                    modal.setAttribute('aria-hidden', 'true');
+                    document.body.style.overflow = '';
+                };
+
+                const openModal = (trigger) => {
+                    const howToImage = String(trigger.getAttribute('data-qr-howto-image') || '').trim();
+                    if (howToImage === '' || !image || !title || !description || !link) {
+                        return;
+                    }
+
+                    const label = String(trigger.getAttribute('data-qr-label') || 'QR Code').trim();
+                    const copy = String(trigger.getAttribute('data-qr-description') || '').trim();
+                    const href = String(trigger.getAttribute('data-qr-link') || '').trim();
+
+                    image.src = howToImage;
+                    image.alt = `${label} how-to image`;
+                    title.textContent = `${label} How To`;
+                    description.textContent = copy !== '' ? copy : 'Follow the instructions shown in this image.';
+
+                    if (href !== '') {
+                        link.href = href;
+                        link.hidden = false;
+                    } else {
+                        link.hidden = true;
+                        link.removeAttribute('href');
+                    }
+
+                    modal.hidden = false;
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.style.overflow = 'hidden';
+                };
+
+                document.querySelectorAll('[data-student-qr-open]').forEach((card) => {
+                    const activate = (event) => {
+                        event.preventDefault();
+                        openModal(card);
+                    };
+
+                    card.addEventListener('click', activate);
+                    card.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            activate(event);
+                        }
+                    });
+                });
+
+                modal.addEventListener('click', (event) => {
+                    if (event.target.closest('[data-student-qr-close]')) {
+                        event.preventDefault();
+                        closeModal();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && !modal.hidden) {
+                        closeModal();
+                    }
+                });
+            });
+        </script>
     @endif
 
     @if($isAdmissionsPage || $isDownloadablesPage)
