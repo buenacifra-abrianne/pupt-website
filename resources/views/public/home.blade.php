@@ -457,6 +457,29 @@
 
         prev?.addEventListener('click', () => show(current - 1));
         next?.addEventListener('click', () => show(current + 1));
+
+        if (slides.length > 1) {
+          let autoSlideTimer = null;
+
+          const startAutoSlide = () => {
+            if (autoSlideTimer !== null) {
+              return;
+            }
+            autoSlideTimer = window.setInterval(() => show(current + 1), 5000);
+          };
+
+          const stopAutoSlide = () => {
+            if (autoSlideTimer === null) {
+              return;
+            }
+            window.clearInterval(autoSlideTimer);
+            autoSlideTimer = null;
+          };
+
+          startAutoSlide();
+          carousel.addEventListener('mouseenter', stopAutoSlide);
+          carousel.addEventListener('mouseleave', startAutoSlide);
+        }
       });
     });
   </script>
