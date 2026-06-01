@@ -387,6 +387,10 @@ body {
   padding: 16px;
 }
 
+.student-qr-modal[hidden] {
+  display: none !important;
+}
+
 .student-qr-modal-backdrop {
   position: absolute;
   inset: 0;
