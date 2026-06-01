@@ -510,15 +510,11 @@
                                 @php
                                     $qrInputId = $idPrefix.'-students-admissions-qr-'.$index;
                                     $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
-                                    $qrDetailInputId = $idPrefix.'-students-admissions-qr-detail-'.$index;
-                                    $qrDetailFieldId = $idPrefix.'-students-admissions-qr-detail-field-'.$index;
                                     $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                                    $qrDetailPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['detail_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                     $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
                                 @endphp
                                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                                     <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
-                                    <input type="hidden" id="{{ $qrDetailFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][detail_image]" value="{{ $item['detail_image'] ?? '' }}" data-students-image-field>
                                     <div class="form-group">
                                         <label>Upload QR Code Image</label>
                                         <div class="students-cms-image-dropzone-shell">
@@ -543,38 +539,14 @@
                                         </div>
                                         <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Upload Detail Image</label>
-                                        <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrDetailInputId }}" role="button" tabindex="0" aria-label="Upload detail image">
-                                                <span class="students-cms-image-dropzone-preview-column">
-                                                    <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $qrDetailPreview }}" alt="Detail image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrDetailInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrDetailInputId }}" aria-label="Delete image" title="Delete image">
-                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    </span>
-                                                    <span class="students-cms-image-dropzone-label">Detail Image</span>
-                                                </span>
-                                                <span class="students-cms-image-dropzone-upload">
-                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                    <span class="students-cms-image-dropzone-upload-copy">Displayed on the right side of the popout.</span>
-                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrDetailInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <input id="{{ $qrDetailInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][detail_image_file]" accept="image/*" data-students-image-field-id="{{ $qrDetailFieldId }}">
-                                    </div>
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
-                                            <label>Title</label>
+                                            <label>Label</label>
                                             <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Description</label>
-                                            <textarea name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" rows="2" maxlength="50">{{ $item['description'] ?? '' }}</textarea>
+                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Link</label>
@@ -745,15 +717,11 @@
                                 @php
                                     $qrInputId = $idPrefix.'-students-document-requests-qr-'.$index;
                                     $qrFieldId = $idPrefix.'-students-document-requests-qr-field-'.$index;
-                                    $qrDetailInputId = $idPrefix.'-students-document-requests-qr-detail-'.$index;
-                                    $qrDetailFieldId = $idPrefix.'-students-document-requests-qr-detail-field-'.$index;
                                     $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                                    $qrDetailPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['detail_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                     $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
                                 @endphp
                                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                                     <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
-                                    <input type="hidden" id="{{ $qrDetailFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][detail_image]" value="{{ $item['detail_image'] ?? '' }}" data-students-image-field>
                                     <div class="form-group">
                                         <label>Upload QR Code Image</label>
                                         <div class="students-cms-image-dropzone-shell">
@@ -778,38 +746,14 @@
                                         </div>
                                         <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Upload Detail Image</label>
-                                        <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrDetailInputId }}" role="button" tabindex="0" aria-label="Upload detail image">
-                                                <span class="students-cms-image-dropzone-preview-column">
-                                                    <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $qrDetailPreview }}" alt="Detail image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrDetailInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrDetailInputId }}" aria-label="Delete image" title="Delete image">
-                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    </span>
-                                                    <span class="students-cms-image-dropzone-label">Detail Image</span>
-                                                </span>
-                                                <span class="students-cms-image-dropzone-upload">
-                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                    <span class="students-cms-image-dropzone-upload-copy">Displayed on the right side of the popout.</span>
-                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrDetailInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <input id="{{ $qrDetailInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][detail_image_file]" accept="image/*" data-students-image-field-id="{{ $qrDetailFieldId }}">
-                                    </div>
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
-                                            <label>Title</label>
+                                            <label>Label</label>
                                             <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Description</label>
-                                            <textarea name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" rows="2" maxlength="50">{{ $item['description'] ?? '' }}</textarea>
+                                            <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
                                         </div>
                                         <div class="form-group">
                                             <label>Link</label>
@@ -2659,13 +2603,10 @@
             'admissions-qr': (index) => {
                 const inputId = `{{ $idPrefix }}-students-admissions-qr-${index}`;
                 const fieldId = `{{ $idPrefix }}-students-admissions-qr-field-${index}`;
-                const detailInputId = `{{ $idPrefix }}-students-admissions-qr-detail-${index}`;
-                const detailFieldId = `{{ $idPrefix }}-students-admissions-qr-detail-field-${index}`;
 
                 return `
                     <div class="students-cms-repeatable-item" data-students-repeatable-item>
                         <input type="hidden" id="${fieldId}" name="students[pages][admissions][qr_codes][items][${index}][image]" value="" data-students-image-field>
-                        <input type="hidden" id="${detailFieldId}" name="students[pages][admissions][qr_codes][items][${index}][detail_image]" value="" data-students-image-field>
                         <div class="form-group">
                             <label>Upload QR Code Image</label>
                             <div class="students-cms-image-dropzone-shell">
@@ -2690,38 +2631,14 @@
                             </div>
                             <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}" data-students-require-file-on-empty="1" required>
                         </div>
-                        <div class="form-group">
-                            <label>Upload Detail Image</label>
-                            <div class="students-cms-image-dropzone-shell">
-                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${detailInputId}" role="button" tabindex="0" aria-label="Upload detail image">
-                                    <span class="students-cms-image-dropzone-preview-column">
-                                        <span class="students-cms-image-dropzone-media">
-                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Detail image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${detailInputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${detailInputId}" aria-label="Delete image" title="Delete image">
-                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                            </button>
-                                        </span>
-                                        <span class="students-cms-image-dropzone-label">Detail Image</span>
-                                    </span>
-                                    <span class="students-cms-image-dropzone-upload">
-                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                        <span class="students-cms-image-dropzone-upload-copy">Displayed on the right side of the popout.</span>
-                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${detailInputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                    </span>
-                                </div>
-                            </div>
-                            <input id="${detailInputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][detail_image_file]" accept="image/*" data-students-image-field-id="${detailFieldId}">
-                        </div>
                         <div class="students-cms-form-grid">
                             <div class="form-group">
-                                <label>Title</label>
+                                <label>Label</label>
                                 <input type="text" name="students[pages][admissions][qr_codes][items][${index}][label]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea name="students[pages][admissions][qr_codes][items][${index}][description]" rows="2" maxlength="50"></textarea>
+                                <input type="text" name="students[pages][admissions][qr_codes][items][${index}][description]" maxlength="50" value="">
                             </div>
                             <div class="form-group">
                                 <label>Link</label>
@@ -2735,13 +2652,10 @@
             'document-requests-qr': (index) => {
                 const inputId = `{{ $idPrefix }}-students-document-requests-qr-${index}`;
                 const fieldId = `{{ $idPrefix }}-students-document-requests-qr-field-${index}`;
-                const detailInputId = `{{ $idPrefix }}-students-document-requests-qr-detail-${index}`;
-                const detailFieldId = `{{ $idPrefix }}-students-document-requests-qr-detail-field-${index}`;
 
                 return `
                     <div class="students-cms-repeatable-item" data-students-repeatable-item>
                         <input type="hidden" id="${fieldId}" name="students[pages][document-requests][qr_codes][items][${index}][image]" value="" data-students-image-field>
-                        <input type="hidden" id="${detailFieldId}" name="students[pages][document-requests][qr_codes][items][${index}][detail_image]" value="" data-students-image-field>
                         <div class="form-group">
                             <label>Upload QR Code Image</label>
                             <div class="students-cms-image-dropzone-shell">
@@ -2766,38 +2680,14 @@
                             </div>
                             <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}" data-students-require-file-on-empty="1" required>
                         </div>
-                        <div class="form-group">
-                            <label>Upload Detail Image</label>
-                            <div class="students-cms-image-dropzone-shell">
-                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${detailInputId}" role="button" tabindex="0" aria-label="Upload detail image">
-                                    <span class="students-cms-image-dropzone-preview-column">
-                                        <span class="students-cms-image-dropzone-media">
-                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Detail image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${detailInputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${detailInputId}" aria-label="Delete image" title="Delete image">
-                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                            </button>
-                                        </span>
-                                        <span class="students-cms-image-dropzone-label">Detail Image</span>
-                                    </span>
-                                    <span class="students-cms-image-dropzone-upload">
-                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                        <span class="students-cms-image-dropzone-upload-copy">Displayed on the right side of the popout.</span>
-                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${detailInputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                    </span>
-                                </div>
-                            </div>
-                            <input id="${detailInputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][${index}][detail_image_file]" accept="image/*" data-students-image-field-id="${detailFieldId}">
-                        </div>
                         <div class="students-cms-form-grid">
                             <div class="form-group">
-                                <label>Title</label>
+                                <label>Label</label>
                                 <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][label]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea name="students[pages][document-requests][qr_codes][items][${index}][description]" rows="2" maxlength="50"></textarea>
+                                <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][description]" maxlength="50" value="">
                             </div>
                             <div class="form-group">
                                 <label>Link</label>
