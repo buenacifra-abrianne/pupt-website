@@ -23,55 +23,61 @@ class HomeController extends Controller
         }
 
         // Announcements: ENABLED only (latest first)
-        $announcements = DB::table('announcements')
-            ->select('announcement_id','title','content','link','priority','date_published','created_at')
-            ->whereRaw("UPPER(TRIM(status)) = 'ENABLED'")
-            ->orderByRaw("
-                CASE 
-                    WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0
-                    WHEN UPPER(TRIM(priority)) = 'MEDIUM' THEN 1
-                    WHEN UPPER(TRIM(priority)) = 'LOW' THEN 2
-                    ELSE 3
-                END
-            ")
-            ->orderByRaw("COALESCE(date_published, created_at) DESC")
-            ->limit(10)
-            ->get()
-            ->map(function ($announcement) {
-                $announcement->title = PlainText::normalize($announcement->title ?? '');
+        $announcements = collect();
+        if (Schema::hasTable('announcements')) {
+            $announcements = DB::table('announcements')
+                ->select('announcement_id','title','content','link','priority','date_published','created_at')
+                ->whereRaw("UPPER(TRIM(status)) = 'ENABLED'")
+                ->orderByRaw("
+                    CASE 
+                        WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0
+                        WHEN UPPER(TRIM(priority)) = 'MEDIUM' THEN 1
+                        WHEN UPPER(TRIM(priority)) = 'LOW' THEN 2
+                        ELSE 3
+                    END
+                ")
+                ->orderByRaw("COALESCE(date_published, created_at) DESC")
+                ->limit(10)
+                ->get()
+                ->map(function ($announcement) {
+                    $announcement->title = PlainText::normalize($announcement->title ?? '');
 
-                return $announcement;
-            });
+                    return $announcement;
+                });
+        }
 
         // News: APPROVED only
-        $news = DB::table('news')
-            ->select('news_id','title','content', 'link', 'category','location','image_path','priority','date_published','created_at')
-            ->whereRaw("UPPER(TRIM(status)) = 'APPROVED'")
-            ->when($hasNewsHiddenColumn, function ($query) {
-                $query->where(function ($inner) {
-                    $inner->whereNull('is_hidden_from_public')
-                        ->orWhere('is_hidden_from_public', 0);
-                });
-            })
-            ->orderByRaw("
-                CASE 
-                    WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0
-                    WHEN UPPER(TRIM(priority)) = 'MEDIUM' THEN 1
-                    WHEN UPPER(TRIM(priority)) = 'LOW' THEN 2
-                    ELSE 3
-                END
-            ")
-            ->orderByDesc('date_published')
-            ->orderByDesc('created_at')
-            ->limit(10)
-            ->get()
-            ->map(function ($item) {
-                $item->title = PlainText::normalize($item->title ?? '');
-                $item->category = PlainText::normalize($item->category ?? '');
-                $item->location = PlainText::normalize($item->location ?? '');
+        $news = collect();
+        if (Schema::hasTable('news')) {
+            $news = DB::table('news')
+                ->select('news_id','title','content', 'link', 'category','location','image_path','priority','date_published','created_at')
+                ->whereRaw("UPPER(TRIM(status)) = 'APPROVED'")
+                ->when($hasNewsHiddenColumn, function ($query) {
+                    $query->where(function ($inner) {
+                        $inner->whereNull('is_hidden_from_public')
+                            ->orWhere('is_hidden_from_public', 0);
+                    });
+                })
+                ->orderByRaw("
+                    CASE 
+                        WHEN UPPER(TRIM(priority)) = 'HIGH' THEN 0
+                        WHEN UPPER(TRIM(priority)) = 'MEDIUM' THEN 1
+                        WHEN UPPER(TRIM(priority)) = 'LOW' THEN 2
+                        ELSE 3
+                    END
+                ")
+                ->orderByDesc('date_published')
+                ->orderByDesc('created_at')
+                ->limit(10)
+                ->get()
+                ->map(function ($item) {
+                    $item->title = PlainText::normalize($item->title ?? '');
+                    $item->category = PlainText::normalize($item->category ?? '');
+                    $item->location = PlainText::normalize($item->location ?? '');
 
-                return $item;
-            });
+                    return $item;
+                });
+        }
 
         return view('public.home', compact('announcements', 'news', 'homeCms'));
     }
