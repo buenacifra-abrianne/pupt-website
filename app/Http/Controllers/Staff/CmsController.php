@@ -368,6 +368,8 @@ class CmsController extends Controller
             'students.pages.*.qr_codes.items.*.href' => ['nullable', 'string', 'max:2048'],
             'students.pages.*.qr_codes.items.*.image' => ['nullable', 'string', 'max:2048'],
             'students.pages.*.qr_codes.items.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'students.pages.*.qr_codes.items.*.detail_image' => ['nullable', 'string', 'max:2048'],
+            'students.pages.*.qr_codes.items.*.detail_image_file' => ['nullable', 'image', 'max:5120'],
             'events.page' => ['nullable', 'array'],
             'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'events.page.title' => ['nullable', 'string', 'max:255'],
@@ -771,14 +773,20 @@ class CmsController extends Controller
                 $qrUploads = $request->file("students.pages.$pageKey.qr_codes.items", []);
                 if ($isActivePageSection && is_array($qrUploads)) {
                     foreach ($qrUploads as $index => $itemUpload) {
-                        $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
-                        if (!$upload instanceof UploadedFile) {
-                            continue;
+                        $qrImageUpload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
+                        if ($qrImageUpload instanceof UploadedFile) {
+                            $storedPath = ImageStorage::store($qrImageUpload, 'students/'.$pageKey.'/qr-codes');
+                            if ($storedPath !== false) {
+                                $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['image'] = $storedPath;
+                            }
                         }
 
-                        $storedPath = ImageStorage::store($upload, 'students/'.$pageKey.'/qr-codes');
-                        if ($storedPath !== false) {
-                            $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['image'] = $storedPath;
+                        $detailImageUpload = is_array($itemUpload) ? ($itemUpload['detail_image_file'] ?? null) : null;
+                        if ($detailImageUpload instanceof UploadedFile) {
+                            $storedPath = ImageStorage::store($detailImageUpload, 'students/'.$pageKey.'/qr-codes');
+                            if ($storedPath !== false) {
+                                $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['detail_image'] = $storedPath;
+                            }
                         }
                     }
                 }

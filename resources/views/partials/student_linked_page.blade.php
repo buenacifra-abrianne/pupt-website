@@ -129,30 +129,38 @@
                 <div class="student-qr-grid">
                     @forelse(($qrCodes['items'] ?? []) as $qrCode)
                         @php
+                            $qrTitle = trim((string) ($qrCode['label'] ?? 'QR Code'));
+                            $qrDescription = trim((string) ($qrCode['description'] ?? ''));
                             $qrImage = trim((string) ($qrCode['image'] ?? ''));
                             $qrHref = trim((string) ($qrCode['href'] ?? ''));
-                            $qrIsExternalLink = preg_match('/^https?:\/\//i', $qrHref) === 1;
+                            $qrDetailImage = trim((string) ($qrCode['detail_image'] ?? ''));
+                            $qrResolvedImage = $qrImage !== ''
+                                ? \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg')
+                                : asset('assets/static_img/pupillar.jpeg');
+                            $qrResolvedDetailImage = \App\Support\StudentsCmsContent::resolveImagePath(
+                                $qrDetailImage !== '' ? $qrDetailImage : $qrImage,
+                                'assets/static_img/pupillar.jpeg'
+                            );
                         @endphp
-                        <article class="student-qr-card">
+                        <article
+                            class="student-qr-card"
+                            data-student-qr-trigger
+                            data-qr-title="{{ e($qrTitle !== '' ? $qrTitle : 'QR Code') }}"
+                            data-qr-description="{{ e($qrDescription) }}"
+                            data-qr-link="{{ e($qrHref) }}"
+                            data-qr-image="{{ e($qrResolvedImage) }}"
+                            data-qr-detail-image="{{ e($qrResolvedDetailImage) }}"
+                            tabindex="0"
+                            role="button"
+                        >
                             @if($qrImage !== '')
-                                @if($qrHref !== '')
-                                    <a
-                                        href="{{ $qrHref }}"
-                                        class="student-qr-media-link"
-                                        @if($qrIsExternalLink && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
-                                        aria-label="Open link for {{ $qrCode['label'] ?? 'QR code' }}"
-                                    >
-                                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
-                                    </a>
-                                @else
-                                    <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
-                                @endif
+                                <img src="{{ $qrResolvedImage }}" alt="{{ $qrTitle !== '' ? $qrTitle : 'QR code' }}">
                             @else
                                 <div class="student-qr-placeholder">QR</div>
                             @endif
                             <div>
-                                <h3>{{ $qrCode['label'] ?? 'QR Code' }}</h3>
-                                <p>{{ $qrCode['description'] ?? '' }}</p>
+                                <h3>{{ $qrTitle !== '' ? $qrTitle : 'QR Code' }}</h3>
+                                <p>{{ $qrDescription }}</p>
                             </div>
                         </article>
                     @empty
@@ -161,6 +169,117 @@
                 </div>
             </div>
         </section>
+
+        <div class="student-qr-modal" data-student-qr-modal hidden>
+            <div class="student-qr-modal-backdrop" data-student-qr-close></div>
+            <div class="student-qr-modal-panel" role="dialog" aria-modal="true" aria-label="QR details">
+                <button type="button" class="student-qr-modal-close" data-student-qr-close aria-label="Close">&times;</button>
+
+                <div class="student-qr-modal-grid">
+                    <div class="student-qr-modal-left">
+                        <a href="#" class="student-qr-modal-link" data-student-qr-modal-link>
+                            <img src="" alt="QR code" data-student-qr-modal-image>
+                        </a>
+                    </div>
+
+                    <div class="student-qr-modal-right">
+                        <h3 data-student-qr-modal-title>QR Code</h3>
+                        <p data-student-qr-modal-description></p>
+                        <img src="" alt="" class="student-qr-modal-detail-image" data-student-qr-modal-detail-image hidden>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const isPreviewMode = @json($cmsPreview);
+                if (isPreviewMode) {
+                    return;
+                }
+
+                const modal = document.querySelector('[data-student-qr-modal]');
+                const modalLink = modal?.querySelector('[data-student-qr-modal-link]');
+                const modalImage = modal?.querySelector('[data-student-qr-modal-image]');
+                const modalTitle = modal?.querySelector('[data-student-qr-modal-title]');
+                const modalDescription = modal?.querySelector('[data-student-qr-modal-description]');
+                const modalDetailImage = modal?.querySelector('[data-student-qr-modal-detail-image]');
+                const triggers = Array.from(document.querySelectorAll('[data-student-qr-trigger]'));
+
+                if (!modal || !modalLink || !modalImage || !modalTitle || !modalDescription || !modalDetailImage || !triggers.length) {
+                    return;
+                }
+
+                const closeModal = () => {
+                    modal.hidden = true;
+                    document.body.classList.remove('student-qr-modal-open');
+                };
+
+                const openModal = (trigger) => {
+                    const title = trigger.getAttribute('data-qr-title') || 'QR Code';
+                    const description = trigger.getAttribute('data-qr-description') || '';
+                    const href = trigger.getAttribute('data-qr-link') || '';
+                    const imageSrc = trigger.getAttribute('data-qr-image') || '';
+                    const detailImageSrc = trigger.getAttribute('data-qr-detail-image') || '';
+                    const isExternalLink = /^https?:\/\//i.test(href);
+
+                    modalTitle.textContent = title;
+                    modalDescription.textContent = description;
+                    modalImage.src = imageSrc;
+                    modalImage.alt = title;
+
+                    modalLink.href = href !== '' ? href : '#';
+                    if (href !== '') {
+                        modalLink.removeAttribute('aria-disabled');
+                        modalLink.classList.remove('is-disabled');
+                        if (isExternalLink) {
+                            modalLink.setAttribute('target', '_blank');
+                            modalLink.setAttribute('rel', 'noopener noreferrer');
+                        } else {
+                            modalLink.removeAttribute('target');
+                            modalLink.removeAttribute('rel');
+                        }
+                    } else {
+                        modalLink.removeAttribute('target');
+                        modalLink.removeAttribute('rel');
+                        modalLink.setAttribute('aria-disabled', 'true');
+                        modalLink.classList.add('is-disabled');
+                    }
+
+                    if (detailImageSrc !== '') {
+                        modalDetailImage.src = detailImageSrc;
+                        modalDetailImage.alt = `${title} detail image`;
+                        modalDetailImage.hidden = false;
+                    } else {
+                        modalDetailImage.hidden = true;
+                        modalDetailImage.removeAttribute('src');
+                    }
+
+                    modal.hidden = false;
+                    document.body.classList.add('student-qr-modal-open');
+                };
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener('click', () => openModal(trigger));
+                    trigger.addEventListener('keydown', (event) => {
+                        if (event.key === 'Enter' || event.key === ' ') {
+                            event.preventDefault();
+                            openModal(trigger);
+                        }
+                    });
+                });
+
+                modal.querySelectorAll('[data-student-qr-close]').forEach((closeTrigger) => {
+                    closeTrigger.addEventListener('click', closeModal);
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (!modal.hidden && event.key === 'Escape') {
+                        closeModal();
+                    }
+                });
+            });
+        </script>
     @endif
 
     @if($isAdmissionsPage || $isDownloadablesPage)
