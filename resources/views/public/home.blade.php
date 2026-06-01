@@ -297,7 +297,12 @@
                     $facilityName = trim((string) ($facility['name'] ?? ''));
                   @endphp
                   <figure class="campus-tour-facility-slide{{ $loop->first ? ' is-active' : '' }}" data-campus-tour-slide>
-                    <img src="{{ $facilityImage }}" alt="{{ $facilityName !== '' ? e($facilityName) : 'Campus facility '.$loop->iteration }}">
+                    <div class="campus-tour-facility-image-shell">
+                      <img src="{{ $facilityImage }}" alt="{{ $facilityName !== '' ? e($facilityName) : 'Campus facility '.$loop->iteration }}">
+                    </div>
+                    <figcaption class="campus-tour-facility-name">
+                      {{ $facilityName !== '' ? e($facilityName) : 'Facility '.$loop->iteration }}
+                    </figcaption>
                   </figure>
                 @endforeach
               </div>
