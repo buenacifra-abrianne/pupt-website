@@ -180,7 +180,7 @@
             </div>
 
             <div class="mbody">
-    <div class="frow frow-single">
+    <div class="frow frow-single" id="facultyPickerRow" style="display:grid;">
       <div class="fg">
         <label>Select User <span class="req">*</span></label>
         <div class="searchable-select" id="facultySearchWrap">
@@ -747,9 +747,22 @@ function clrForm(){
   closeRoleDropdown();
 }
 
+function toggleFacultyPicker(show) {
+  const pickerRow = document.getElementById('facultyPickerRow');
+  if (pickerRow) {
+    pickerRow.hidden = !show;
+    pickerRow.style.display = show ? 'grid' : 'none';
+  }
+
+  if (!show) {
+    closeFacultyDropdown();
+  }
+}
+
 function openAdd(){
   editId = null;
   clrForm();
+  toggleFacultyPicker(true);
   document.getElementById('mTitle').innerHTML = '<i class="fas fa-user-plus"></i> Assign CMS Access';
   document.getElementById('saveLbl').textContent = 'Save Access';
   openM('userModal');
@@ -775,6 +788,7 @@ function openEdit(id){
   const roleSearch = document.getElementById('roleSearch');
   if (roleSearch) roleSearch.value = '';
 
+  toggleFacultyPicker(false);
   document.getElementById('mTitle').innerHTML = '<i class="fas fa-pen"></i> Edit CMS Access';
   document.getElementById('saveLbl').textContent = 'Update Access';
 
