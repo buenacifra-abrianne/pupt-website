@@ -91,7 +91,7 @@
                         </svg>
                     </span>
                     <span class="text">
-                        <strong>OnePortal</strong>
+                        <strong>One Portal</strong>
                         <small>Faculty and staff sign in</small>
                     </span>
                 </a>
@@ -109,9 +109,6 @@
                 </a>
             </div>
 
-            <p class="landing-helper">
-                For CMS access, please continue through OnePortal using your assigned account.
-            </p>
         </section>
     </div>
 
