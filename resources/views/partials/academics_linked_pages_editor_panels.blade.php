@@ -92,7 +92,10 @@
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][body]" value="{{ $item['body'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][dept]" value="{{ $item['dept'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_levels]" value="{{ $item['accreditation_levels'] ?? '' }}">
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accrediting_institution]" value="{{ $item['accrediting_institution'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity]" value="{{ $item['accreditation_validity'] ?? '' }}">
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity_start]" value="{{ $item['accreditation_validity_start'] ?? '' }}">
+                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity_end]" value="{{ $item['accreditation_validity_end'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" value="{{ $item['href'] ?? '' }}">
                     <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][cta]" value="{{ $item['cta'] ?? '' }}">
@@ -127,7 +130,7 @@
                             $accreditationOptions = ['I', 'II', 'III', 'IV'];
                             $currentAccreditationLevel = trim((string) ($item['accreditation_levels'] ?? ''));
                         @endphp
-                        <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="{{ $index }}">
+                        <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="{{ $index }}" data-accreditation-validity-range>
                             <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
                                 <h4>{{ $pageLabel }} Card {{ $loop->iteration }}</h4>
                                 <span>{{ $item['href'] ?? '' }}</span>
@@ -182,7 +185,11 @@
                                     <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][dept]" maxlength="255" value="{{ $item['dept'] ?? '' }}">
                                 </div>
                                 <div class="form-group">
-                                    <label>Program Accreditation Status (Roman Numeral)</label>
+                                    <label>Link</label>
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Accreditation Level</label>
                                     <select name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_levels]">
                                         <option value="">Select accreditation level</option>
                                         @foreach($accreditationOptions as $option)
@@ -194,12 +201,19 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label>Validity of Accreditation (start date - end date)</label>
-                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity]" maxlength="255" value="{{ $item['accreditation_validity'] ?? '' }}">
+                                    <label>Accrediting Institution</label>
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accrediting_institution]" maxlength="255" value="{{ $item['accrediting_institution'] ?? '' }}">
                                 </div>
                                 <div class="form-group">
-                                    <label>Link</label>
-                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                    <label>Validity Start Date</label>
+                                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity]" value="{{ $item['accreditation_validity'] ?? '' }}" data-accreditation-validity-value>
+                                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity_start]" value="{{ $item['accreditation_validity_start'] ?? '' }}" data-accreditation-validity-start-value>
+                                    <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][accreditation_validity_end]" value="{{ $item['accreditation_validity_end'] ?? '' }}" data-accreditation-validity-end-value>
+                                    <input type="text" value="{{ $item['accreditation_validity_start'] ?? '' }}" placeholder="Select start date" autocomplete="off" data-accreditation-validity-start>
+                                </div>
+                                <div class="form-group">
+                                    <label>Validity End Date</label>
+                                    <input type="text" value="{{ $item['accreditation_validity_end'] ?? '' }}" placeholder="Select end date" autocomplete="off" data-accreditation-validity-end>
                                 </div>
                             </div>
 
@@ -218,7 +232,7 @@
                 </div>
 
                 <template data-academics-program-card-template="{{ $cardsSectionKey }}">
-                    <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="__INDEX__">
+                    <article class="academics-cms-card-editor" data-academics-page-card-editor="{{ $cardsSectionKey }}" data-academics-page-card-index="__INDEX__" data-accreditation-validity-range>
                         <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
                             <h4>{{ $pageLabel }} Card</h4>
                             <span>New card</span>
@@ -273,7 +287,11 @@
                                 <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][dept]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
-                                <label>Program Accreditation Status (Roman Numeral)</label>
+                                <label>Link</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][href]" maxlength="2048" value="#">
+                            </div>
+                            <div class="form-group">
+                                <label>Accreditation Level</label>
                                 <select name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_levels]">
                                     <option value="" selected>Select accreditation level</option>
                                     <option value="I">I</option>
@@ -283,12 +301,19 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <label>Validity of Accreditation (start date - end date)</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_validity]" maxlength="255" value="">
+                                <label>Accrediting Institution</label>
+                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accrediting_institution]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
-                                <label>Link</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][href]" maxlength="2048" value="#">
+                                <label>Validity Start Date</label>
+                                <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_validity]" value="" data-accreditation-validity-value>
+                                <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_validity_start]" value="" data-accreditation-validity-start-value>
+                                <input type="hidden" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][accreditation_validity_end]" value="" data-accreditation-validity-end-value>
+                                <input type="text" value="" placeholder="Select start date" autocomplete="off" data-accreditation-validity-start>
+                            </div>
+                            <div class="form-group">
+                                <label>Validity End Date</label>
+                                <input type="text" value="" placeholder="Select end date" autocomplete="off" data-accreditation-validity-end>
                             </div>
                         </div>
 
@@ -503,6 +528,185 @@
         </div>
     </form>
 </section>
+
+<x-calendar-assets />
+@once
+    <script>
+        (() => {
+            if (window.__academicsAccreditationCalendarInit) {
+                return;
+            }
+
+            window.__academicsAccreditationCalendarInit = true;
+
+            const displayFormatter = new Intl.DateTimeFormat('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric',
+            });
+
+            const toIsoDate = (value) => {
+                const raw = String(value || '').trim();
+                if (raw === '') {
+                    return '';
+                }
+
+                if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+                    return raw;
+                }
+
+                const parsed = new Date(raw);
+                if (Number.isNaN(parsed.getTime())) {
+                    return '';
+                }
+
+                const year = parsed.getFullYear();
+                const month = String(parsed.getMonth() + 1).padStart(2, '0');
+                const day = String(parsed.getDate()).padStart(2, '0');
+
+                return `${year}-${month}-${day}`;
+            };
+
+            const formatDisplayDate = (value) => {
+                const iso = toIsoDate(value);
+                if (iso === '') {
+                    return '';
+                }
+
+                const [year, month, day] = iso.split('-').map(Number);
+                return displayFormatter.format(new Date(year, month - 1, day));
+            };
+
+            const parseRange = (value) => {
+                const raw = String(value || '').trim();
+                if (raw === '') {
+                    return { start: '', end: '' };
+                }
+
+                const match = raw.match(/^(.*?)(?:\s+-\s+|\s+to\s+)(.*?)$/i);
+                if (!match) {
+                    return { start: toIsoDate(raw), end: '' };
+                }
+
+                return {
+                    start: toIsoDate(match[1]),
+                    end: toIsoDate(match[2]),
+                };
+            };
+
+            const buildRangeLabel = (startValue, endValue) => {
+                const start = formatDisplayDate(startValue);
+                const end = formatDisplayDate(endValue);
+
+                if (start !== '' && end !== '') {
+                    return `${start} - ${end}`;
+                }
+
+                return start || end || '';
+            };
+
+            const syncRangeInputs = (container) => {
+                const hiddenValue = container.querySelector('[data-accreditation-validity-value]');
+                const hiddenStart = container.querySelector('[data-accreditation-validity-start-value]');
+                const hiddenEnd = container.querySelector('[data-accreditation-validity-end-value]');
+                const visibleStart = container.querySelector('[data-accreditation-validity-start]');
+                const visibleEnd = container.querySelector('[data-accreditation-validity-end]');
+
+                if (!hiddenValue || !hiddenStart || !hiddenEnd || !visibleStart || !visibleEnd) {
+                    return;
+                }
+
+                const start = toIsoDate(visibleStart.value);
+                let end = toIsoDate(visibleEnd.value);
+
+                if (start !== '' && end !== '' && end < start) {
+                    end = '';
+                    visibleEnd.value = '';
+                    visibleEnd._flatpickr?.clear();
+                }
+
+                hiddenStart.value = start;
+                hiddenEnd.value = end;
+                hiddenValue.value = buildRangeLabel(start, end);
+
+                if (visibleEnd._flatpickr) {
+                    visibleEnd._flatpickr.set('minDate', start || null);
+                }
+            };
+
+            const initRangeContainer = (container) => {
+                if (!(container instanceof HTMLElement) || container.dataset.accreditationCalendarReady === '1') {
+                    return;
+                }
+
+                const hiddenValue = container.querySelector('[data-accreditation-validity-value]');
+                const hiddenStart = container.querySelector('[data-accreditation-validity-start-value]');
+                const hiddenEnd = container.querySelector('[data-accreditation-validity-end-value]');
+                const visibleStart = container.querySelector('[data-accreditation-validity-start]');
+                const visibleEnd = container.querySelector('[data-accreditation-validity-end]');
+
+                if (!hiddenValue || !hiddenStart || !hiddenEnd || !visibleStart || !visibleEnd) {
+                    return;
+                }
+
+                const parsedRange = parseRange(hiddenValue.value);
+                visibleStart.value = toIsoDate(hiddenStart.value) || parsedRange.start;
+                visibleEnd.value = toIsoDate(hiddenEnd.value) || parsedRange.end;
+
+                if (typeof window.CmsCalendar?.init === 'function') {
+                    window.CmsCalendar.init(visibleStart, {
+                        onChange: () => syncRangeInputs(container),
+                    });
+
+                    window.CmsCalendar.init(visibleEnd, {
+                        minDate: visibleStart.value || null,
+                        onChange: () => syncRangeInputs(container),
+                    });
+                }
+
+                visibleStart.addEventListener('change', () => syncRangeInputs(container));
+                visibleEnd.addEventListener('change', () => syncRangeInputs(container));
+                container.dataset.accreditationCalendarReady = '1';
+
+                syncRangeInputs(container);
+            };
+
+            const initAllRangeContainers = (scope = document) => {
+                scope.querySelectorAll('[data-accreditation-validity-range]').forEach((container) => {
+                    initRangeContainer(container);
+                });
+            };
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', () => initAllRangeContainers());
+            } else {
+                initAllRangeContainers();
+            }
+
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (!(node instanceof HTMLElement)) {
+                            return;
+                        }
+
+                        if (node.matches('[data-accreditation-validity-range]')) {
+                            initRangeContainer(node);
+                            return;
+                        }
+
+                        initAllRangeContainers(node);
+                    });
+                });
+            });
+
+            observer.observe(document.documentElement, {
+                childList: true,
+                subtree: true,
+            });
+        })();
+    </script>
+@endonce
 
 <section class="academics-cms-editor-panel" data-academics-editor-panel="pup-iapply-schedule" hidden>
     <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">

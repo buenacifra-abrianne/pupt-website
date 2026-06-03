@@ -96,6 +96,7 @@
                     $itemBadge = trim((string) ($item['badge'] ?? ''));
                     $itemDept = trim((string) ($item['dept'] ?? ''));
                     $itemAccreditationLevels = trim((string) ($item['accreditation_levels'] ?? ''));
+                    $itemAccreditingInstitution = trim((string) ($item['accrediting_institution'] ?? ''));
                     $itemAccreditationValidity = trim((string) ($item['accreditation_validity'] ?? ''));
                 @endphp
                 @if($cmsPreview)
@@ -121,6 +122,7 @@
                         data-program-title="{{ $itemTitle }}"
                         data-program-badge="{{ $itemBadge }}"
                         data-program-accreditation="{{ $itemAccreditationLevels }}"
+                        data-program-accrediting-institution="{{ $itemAccreditingInstitution }}"
                         data-program-accreditation-validity="{{ $itemAccreditationValidity }}"
                     >
                 @endif
@@ -189,6 +191,11 @@
                         <p class="dp-program-modal-field-value" data-program-modal-accreditation-validity></p>
                     </div>
 
+                    <div class="dp-program-modal-field">
+                        <p class="dp-program-modal-field-label">Accrediting Institution</p>
+                        <p class="dp-program-modal-field-value" data-program-modal-accrediting-institution></p>
+                    </div>
+
                     <div class="dp-program-modal-field dp-program-modal-field--span-2">
                         <p class="dp-program-modal-field-label">Description</p>
                         <div class="dp-program-modal-body academic-rich-copy" data-program-modal-body-target></div>
@@ -209,6 +216,7 @@
             const nameEl = modal.querySelector('[data-program-modal-name]');
             const badgeEl = modal.querySelector('[data-program-modal-badge]');
             const accreditationEl = modal.querySelector('[data-program-modal-accreditation]');
+            const accreditingInstitutionEl = modal.querySelector('[data-program-modal-accrediting-institution]');
             const accreditationValidityEl = modal.querySelector('[data-program-modal-accreditation-validity]');
             const bodyEl = modal.querySelector('[data-program-modal-body-target]');
             let lastTrigger = null;
@@ -241,11 +249,13 @@
                 const title = (trigger.dataset.programTitle || '').trim();
                 const badge = (trigger.dataset.programBadge || '').trim();
                 const accreditation = (trigger.dataset.programAccreditation || '').trim();
+                const accreditingInstitution = (trigger.dataset.programAccreditingInstitution || '').trim();
                 const accreditationValidity = (trigger.dataset.programAccreditationValidity || '').trim();
 
                 setFieldValue(nameEl, title);
                 setFieldValue(badgeEl, badge);
                 setFieldValue(accreditationEl, accreditation);
+                setFieldValue(accreditingInstitutionEl, accreditingInstitution);
                 setFieldValue(accreditationValidityEl, accreditationValidity);
 
                 if (bodyEl) {
