@@ -71,6 +71,7 @@ class StudentsCmsContent
                     'tag' => 'How to Apply',
                     'title' => 'Application Guide',
                     'body' => '<p>Write the admissions process here. You can add reminders, step-by-step instructions, and requirements for applicants.</p>',
+                    'image' => '',
                 ],
                 'links' => [
                     'tag' => 'Application Links',
@@ -93,6 +94,7 @@ class StudentsCmsContent
                             'description' => 'Upload a QR code image and update this caption.',
                             'href' => '',
                             'image' => '',
+                            'flyer_image' => '',
                         ],
                     ],
                 ],
@@ -114,6 +116,7 @@ class StudentsCmsContent
                             'description' => 'Upload a QR code image and update this caption.',
                             'href' => '',
                             'image' => '',
+                            'flyer_image' => '',
                         ],
                     ],
                 ],
@@ -522,6 +525,13 @@ class StudentsCmsContent
                     'body',
                     20000
                 ),
+                'image' => self::pickOptionalString(
+                    is_array($source['instructions'] ?? null) ? $source['instructions'] : [],
+                    is_array($base['instructions'] ?? null) ? $base['instructions'] : [],
+                    $defaults['instructions'],
+                    'image',
+                    2048
+                ),
             ],
             'links' => $hasLinksInput
                 ? self::normalizeLinkSection($source['links'] ?? [], $baseLinks, $defaults['links'])
@@ -668,7 +678,7 @@ class StudentsCmsContent
                 continue;
             }
 
-            $defaultItem = is_array($defaultItems[$index] ?? null) ? $defaultItems[$index] : ['label' => '', 'description' => '', 'href' => '', 'image' => ''];
+            $defaultItem = is_array($defaultItems[$index] ?? null) ? $defaultItems[$index] : ['label' => '', 'description' => '', 'href' => '', 'image' => '', 'flyer_image' => ''];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
             $normalized = [
                 'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
@@ -677,9 +687,12 @@ class StudentsCmsContent
                 'image' => array_key_exists('image', $item)
                     ? self::sanitizeOptionalString((string) $item['image'], 2048)
                     : self::sanitizeOptionalString((string) ($baseItem['image'] ?? ''), 2048),
+                'flyer_image' => array_key_exists('flyer_image', $item)
+                    ? self::sanitizeOptionalString((string) $item['flyer_image'], 2048)
+                    : self::sanitizeOptionalString((string) ($baseItem['flyer_image'] ?? ''), 2048),
             ];
 
-            if ($normalized['label'] === '' && $normalized['description'] === '' && $normalized['href'] === '' && $normalized['image'] === '') {
+            if ($normalized['label'] === '' && $normalized['description'] === '' && $normalized['href'] === '' && $normalized['image'] === '' && $normalized['flyer_image'] === '') {
                 continue;
             }
 

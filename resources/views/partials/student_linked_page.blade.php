@@ -109,6 +109,14 @@
                 <div class="students-rich-copy student-page-rich">
                     {!! \App\Support\RichText::sanitize($instructions['body'] ?? '') !!}
                 </div>
+                @php
+                    $instructionsImage = trim((string) ($instructions['image'] ?? ''));
+                @endphp
+                @if($instructionsImage !== '')
+                    <figure class="student-application-guide-image">
+                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($instructionsImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $instructions['title'] ?? 'Application Guide' }} step by step process">
+                    </figure>
+                @endif
             </div>
         </section>
     @endif
@@ -130,37 +138,65 @@
                     @forelse(($qrCodes['items'] ?? []) as $qrCode)
                         @php
                             $qrImage = trim((string) ($qrCode['image'] ?? ''));
+                            $qrImageSrc = $qrImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') : '';
+                            $qrFlyerImage = trim((string) ($qrCode['flyer_image'] ?? ''));
+                            $qrFlyerImageSrc = $qrFlyerImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($qrFlyerImage, 'assets/static_img/pupillar.jpeg') : '';
                             $qrHref = trim((string) ($qrCode['href'] ?? ''));
-                            $qrIsExternalLink = preg_match('/^https?:\/\//i', $qrHref) === 1;
+                            $qrLabel = trim((string) ($qrCode['label'] ?? 'QR Code'));
+                            $qrDescription = trim((string) ($qrCode['description'] ?? ''));
                         @endphp
-                        <article class="student-qr-card">
+                        <button
+                            type="button"
+                            class="student-qr-card student-qr-trigger"
+                            data-qr-title="{{ $qrLabel }}"
+                            data-qr-description="{{ $qrDescription }}"
+                            data-qr-image="{{ $qrImageSrc }}"
+                            data-qr-flyer-image="{{ $qrFlyerImageSrc }}"
+                            data-qr-link="{{ $qrHref }}"
+                            aria-label="Open QR details for {{ $qrLabel }}"
+                        >
                             @if($qrImage !== '')
-                                @if($qrHref !== '')
-                                    <a
-                                        href="{{ $qrHref }}"
-                                        class="student-qr-media-link"
-                                        @if($qrIsExternalLink && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
-                                        aria-label="Open link for {{ $qrCode['label'] ?? 'QR code' }}"
-                                    >
-                                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
-                                    </a>
-                                @else
-                                    <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $qrCode['label'] ?? 'QR code' }}">
-                                @endif
+                                <img src="{{ $qrImageSrc }}" alt="{{ $qrLabel }}">
                             @else
                                 <div class="student-qr-placeholder">QR</div>
                             @endif
                             <div>
-                                <h3>{{ $qrCode['label'] ?? 'QR Code' }}</h3>
-                                <p>{{ $qrCode['description'] ?? '' }}</p>
+                                <h3>{{ $qrLabel }}</h3>
+                                <p>{{ $qrDescription }}</p>
                             </div>
-                        </article>
+                        </button>
                     @empty
                         <p class="student-page-empty">No QR codes have been added yet.</p>
                     @endforelse
                 </div>
             </div>
         </section>
+
+        <div class="student-qr-modal" id="studentQrModal" aria-hidden="true">
+            <div class="student-qr-modal-backdrop" data-student-qr-close></div>
+            <div class="student-qr-modal-panel" role="dialog" aria-modal="true" aria-labelledby="studentQrModalTitle">
+                <div class="student-qr-modal-head">
+                    <div>
+                        <h2 id="studentQrModalTitle">QR Code</h2>
+                        <p id="studentQrModalDescription"></p>
+                    </div>
+                    <button type="button" class="student-qr-modal-close" data-student-qr-close aria-label="Close QR details">&times;</button>
+                </div>
+                <div class="student-qr-modal-gallery">
+                    <figure class="student-qr-modal-frame">
+                        <figcaption>QR Code</figcaption>
+                        <img id="studentQrModalImage" src="" alt="QR code">
+                        <div class="student-qr-modal-empty" id="studentQrModalImageEmpty">No QR image uploaded.</div>
+                    </figure>
+                    <figure class="student-qr-modal-frame">
+                        <figcaption>Step by Step process</figcaption>
+                        <img id="studentQrModalFlyerImage" src="" alt="Flyer or step by step guide">
+                        <div class="student-qr-modal-empty" id="studentQrModalFlyerEmpty">No flyer image uploaded.</div>
+                    </figure>
+                </div>
+                <a href="#" class="student-qr-modal-link" id="studentQrModalLink" target="_blank" rel="noopener noreferrer">Open link</a>
+            </div>
+        </div>
     @endif
 
     @if($isAdmissionsPage || $isDownloadablesPage)

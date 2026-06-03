@@ -440,8 +440,13 @@
                 </form>
             </section>
 
+            @php
+                $admissionsInstructionsImageInputId = $idPrefix.'-students-admissions-instructions-image';
+                $admissionsInstructionsImageFieldId = $idPrefix.'-students-admissions-instructions-image-field';
+                $admissionsInstructionsImagePreview = \App\Support\StudentsCmsContent::resolveImagePath($admissionsInstructions['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+            @endphp
             <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
                     <input type="hidden" name="section_key" value="admissions_instructions">
@@ -469,6 +474,32 @@
                             'characterLimit' => 10000,
                             'counterMode' => 'limit',
                         ])
+                    </div>
+
+                    <input type="hidden" id="{{ $admissionsInstructionsImageFieldId }}" name="students[pages][admissions][instructions][image]" value="{{ $admissionsInstructions['image'] ?? '' }}" data-students-image-field>
+                    <div class="form-group">
+                        <label>Upload Step by Step Process Image</label>
+                        <div class="students-cms-image-dropzone-shell">
+                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $admissionsInstructionsImageInputId }}" role="button" tabindex="0" aria-label="Upload admissions step by step process image">
+                                <span class="students-cms-image-dropzone-preview-column">
+                                    <span class="students-cms-image-dropzone-media">
+                                        <img src="{{ $admissionsInstructionsImagePreview }}" alt="Step by step process preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $admissionsInstructionsImageInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $admissionsInstructionsImageInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-label">Step by Step process</span>
+                                </span>
+                                <span class="students-cms-image-dropzone-upload">
+                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="students-cms-image-dropzone-upload-copy">Upload the application guide step by step process image.</span>
+                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $admissionsInstructionsImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                        <input id="{{ $admissionsInstructionsImageInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][instructions][image_file]" accept="image/*" data-students-image-field-id="{{ $admissionsInstructionsImageFieldId }}">
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -512,6 +543,9 @@
                                     $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
                                     $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                     $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
+                                    $qrFlyerInputId = $idPrefix.'-students-admissions-qr-flyer-'.$index;
+                                    $qrFlyerFieldId = $idPrefix.'-students-admissions-qr-flyer-field-'.$index;
+                                    $qrFlyerPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['flyer_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                 @endphp
                                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                                     <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
@@ -538,6 +572,31 @@
                                             </div>
                                         </div>
                                         <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
+                                    </div>
+                                    <input type="hidden" id="{{ $qrFlyerFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][flyer_image]" value="{{ $item['flyer_image'] ?? '' }}" data-students-image-field>
+                                    <div class="form-group">
+                                        <label>Upload Step by Step Process Image</label>
+                                        <div class="students-cms-image-dropzone-shell">
+                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrFlyerInputId }}" role="button" tabindex="0" aria-label="Upload flyer or step by step image">
+                                                <span class="students-cms-image-dropzone-preview-column">
+                                                    <span class="students-cms-image-dropzone-media">
+                                                        <img src="{{ $qrFlyerPreview }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrFlyerInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-label">Step by Step process</span>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload">
+                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                    <span class="students-cms-image-dropzone-upload-copy">Upload the companion step by step process image.</span>
+                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrFlyerInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input id="{{ $qrFlyerInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][flyer_image_file]" accept="image/*" data-students-image-field-id="{{ $qrFlyerFieldId }}">
                                     </div>
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
@@ -719,6 +778,9 @@
                                     $qrFieldId = $idPrefix.'-students-document-requests-qr-field-'.$index;
                                     $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                     $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
+                                    $qrFlyerInputId = $idPrefix.'-students-document-requests-qr-flyer-'.$index;
+                                    $qrFlyerFieldId = $idPrefix.'-students-document-requests-qr-flyer-field-'.$index;
+                                    $qrFlyerPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['flyer_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                 @endphp
                                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                                     <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
@@ -745,6 +807,31 @@
                                             </div>
                                         </div>
                                         <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
+                                    </div>
+                                    <input type="hidden" id="{{ $qrFlyerFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][flyer_image]" value="{{ $item['flyer_image'] ?? '' }}" data-students-image-field>
+                                    <div class="form-group">
+                                        <label>Upload Step by Step Process Image</label>
+                                        <div class="students-cms-image-dropzone-shell">
+                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrFlyerInputId }}" role="button" tabindex="0" aria-label="Upload flyer or step by step image">
+                                                <span class="students-cms-image-dropzone-preview-column">
+                                                    <span class="students-cms-image-dropzone-media">
+                                                        <img src="{{ $qrFlyerPreview }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrFlyerInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-label">Step by Step process</span>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload">
+                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                    <span class="students-cms-image-dropzone-upload-copy">Upload the companion step by step process image.</span>
+                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrFlyerInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input id="{{ $qrFlyerInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][{{ $index }}][flyer_image_file]" accept="image/*" data-students-image-field-id="{{ $qrFlyerFieldId }}">
                                     </div>
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
@@ -2603,6 +2690,8 @@
             'admissions-qr': (index) => {
                 const inputId = `{{ $idPrefix }}-students-admissions-qr-${index}`;
                 const fieldId = `{{ $idPrefix }}-students-admissions-qr-field-${index}`;
+                const flyerInputId = `{{ $idPrefix }}-students-admissions-qr-flyer-${index}`;
+                const flyerFieldId = `{{ $idPrefix }}-students-admissions-qr-flyer-field-${index}`;
 
                 return `
                     <div class="students-cms-repeatable-item" data-students-repeatable-item>
@@ -2631,6 +2720,31 @@
                             </div>
                             <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}" data-students-require-file-on-empty="1" required>
                         </div>
+                        <input type="hidden" id="${flyerFieldId}" name="students[pages][admissions][qr_codes][items][${index}][flyer_image]" value="" data-students-image-field>
+                        <div class="form-group">
+                            <label>Upload Step by Step Process Image</label>
+                            <div class="students-cms-image-dropzone-shell">
+                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${flyerInputId}" role="button" tabindex="0" aria-label="Upload flyer or step by step image">
+                                    <span class="students-cms-image-dropzone-preview-column">
+                                        <span class="students-cms-image-dropzone-media">
+                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${flyerInputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${flyerInputId}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-label">Step by Step process</span>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-upload">
+                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="students-cms-image-dropzone-upload-copy">Upload the companion step by step process image.</span>
+                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${flyerInputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <input id="${flyerInputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][${index}][flyer_image_file]" accept="image/*" data-students-image-field-id="${flyerFieldId}">
+                        </div>
                         <div class="students-cms-form-grid">
                             <div class="form-group">
                                 <label>Label</label>
@@ -2652,6 +2766,8 @@
             'document-requests-qr': (index) => {
                 const inputId = `{{ $idPrefix }}-students-document-requests-qr-${index}`;
                 const fieldId = `{{ $idPrefix }}-students-document-requests-qr-field-${index}`;
+                const flyerInputId = `{{ $idPrefix }}-students-document-requests-qr-flyer-${index}`;
+                const flyerFieldId = `{{ $idPrefix }}-students-document-requests-qr-flyer-field-${index}`;
 
                 return `
                     <div class="students-cms-repeatable-item" data-students-repeatable-item>
@@ -2679,6 +2795,31 @@
                                 </div>
                             </div>
                             <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}" data-students-require-file-on-empty="1" required>
+                        </div>
+                        <input type="hidden" id="${flyerFieldId}" name="students[pages][document-requests][qr_codes][items][${index}][flyer_image]" value="" data-students-image-field>
+                        <div class="form-group">
+                            <label>Upload Step by Step Process Image</label>
+                            <div class="students-cms-image-dropzone-shell">
+                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${flyerInputId}" role="button" tabindex="0" aria-label="Upload flyer or step by step image">
+                                    <span class="students-cms-image-dropzone-preview-column">
+                                        <span class="students-cms-image-dropzone-media">
+                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${flyerInputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${flyerInputId}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-label">Step by Step process</span>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-upload">
+                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="students-cms-image-dropzone-upload-copy">Upload the companion step by step process image.</span>
+                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${flyerInputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <input id="${flyerInputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][qr_codes][items][${index}][flyer_image_file]" accept="image/*" data-students-image-field-id="${flyerFieldId}">
                         </div>
                         <div class="students-cms-form-grid">
                             <div class="form-group">

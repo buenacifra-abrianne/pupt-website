@@ -722,6 +722,76 @@ function initWidgetDock() {
   accessibilityObserver.observe(document.body, { childList: true, subtree: true });
 }
 
+function initStudentQrModal() {
+  const modal = document.getElementById("studentQrModal");
+  const triggers = document.querySelectorAll(".student-qr-trigger");
+  if (!modal || !triggers.length) return;
+
+  if (modal.parentElement !== document.body) {
+    document.body.appendChild(modal);
+  }
+
+  const title = document.getElementById("studentQrModalTitle");
+  const description = document.getElementById("studentQrModalDescription");
+  const qrImage = document.getElementById("studentQrModalImage");
+  const flyerImage = document.getElementById("studentQrModalFlyerImage");
+  const link = document.getElementById("studentQrModalLink");
+  const qrFrame = qrImage?.closest(".student-qr-modal-frame");
+  const flyerFrame = flyerImage?.closest(".student-qr-modal-frame");
+  let lastTrigger = null;
+
+  if (!title || !description || !qrImage || !flyerImage || !link || !qrFrame || !flyerFrame) {
+    return;
+  }
+
+  const syncImage = (img, frame, src) => {
+    const hasImage = Boolean(src);
+    frame.classList.toggle("is-empty", !hasImage);
+    img.src = hasImage ? src : "";
+  };
+
+  const openModal = (trigger) => {
+    lastTrigger = trigger;
+    title.textContent = trigger.dataset.qrTitle || "QR Code";
+    description.textContent = trigger.dataset.qrDescription || "";
+
+    syncImage(qrImage, qrFrame, trigger.dataset.qrImage || "");
+    syncImage(flyerImage, flyerFrame, trigger.dataset.qrFlyerImage || "");
+
+    const href = trigger.dataset.qrLink || "";
+    link.classList.toggle("is-visible", Boolean(href));
+    link.href = href || "#";
+
+    modal.classList.add("is-open");
+    modal.setAttribute("aria-hidden", "false");
+    document.body.classList.add("student-qr-modal-open");
+    modal.querySelector("[data-student-qr-close]")?.focus();
+  };
+
+  const closeModal = () => {
+    modal.classList.remove("is-open");
+    modal.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("student-qr-modal-open");
+    if (lastTrigger) {
+      lastTrigger.focus();
+    }
+  };
+
+  triggers.forEach((trigger) => {
+    trigger.addEventListener("click", () => openModal(trigger));
+  });
+
+  modal.querySelectorAll("[data-student-qr-close]").forEach((closeTrigger) => {
+    closeTrigger.addEventListener("click", closeModal);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && modal.classList.contains("is-open")) {
+      closeModal();
+    }
+  });
+}
+
 // =======================
 // 5) Boot
 // =======================
@@ -763,6 +833,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initReadMore();
   initHistoryTimelineToggles();
   initVisionMissionToggles();
+  initStudentQrModal();
   initWidgetDock();
 });
 

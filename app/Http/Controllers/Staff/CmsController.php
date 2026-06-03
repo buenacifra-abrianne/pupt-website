@@ -351,6 +351,8 @@ class CmsController extends Controller
             'students.pages.*.instructions.tag' => ['nullable', 'string', 'max:120'],
             'students.pages.*.instructions.title' => ['nullable', 'string', 'max:255'],
             'students.pages.*.instructions.body' => ['nullable', 'string'],
+            'students.pages.*.instructions.image' => ['nullable', 'string', 'max:2048'],
+            'students.pages.*.instructions.image_file' => ['nullable', 'image', 'max:5120'],
             'students.pages.*.links' => ['nullable', 'array'],
             'students.pages.*.links.tag' => ['nullable', 'string', 'max:120'],
             'students.pages.*.links.title' => ['nullable', 'string', 'max:255'],
@@ -367,7 +369,9 @@ class CmsController extends Controller
             'students.pages.*.qr_codes.items.*.description' => ['nullable', 'string', 'max:50'],
             'students.pages.*.qr_codes.items.*.href' => ['nullable', 'string', 'max:2048'],
             'students.pages.*.qr_codes.items.*.image' => ['nullable', 'string', 'max:2048'],
+            'students.pages.*.qr_codes.items.*.flyer_image' => ['nullable', 'string', 'max:2048'],
             'students.pages.*.qr_codes.items.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'students.pages.*.qr_codes.items.*.flyer_image_file' => ['nullable', 'image', 'max:5120'],
             'events.page' => ['nullable', 'array'],
             'events.page.eyebrow' => ['nullable', 'string', 'max:120'],
             'events.page.title' => ['nullable', 'string', 'max:255'],
@@ -768,17 +772,35 @@ class CmsController extends Controller
                     }
                 }
 
+                $instructionsUpload = $request->file("students.pages.$pageKey.instructions.image_file");
+                if ($isActivePageSection && $pageKey === 'admissions' && $instructionsUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($instructionsUpload, 'students/'.$pageKey.'/instructions');
+                    if ($storedPath !== false) {
+                        $studentsInput['pages'][$pageKey]['instructions']['image'] = $storedPath;
+                    }
+                }
+
                 $qrUploads = $request->file("students.pages.$pageKey.qr_codes.items", []);
                 if ($isActivePageSection && is_array($qrUploads)) {
                     foreach ($qrUploads as $index => $itemUpload) {
-                        $upload = is_array($itemUpload) ? ($itemUpload['image_file'] ?? null) : null;
-                        if (!$upload instanceof UploadedFile) {
+                        if (!is_array($itemUpload)) {
                             continue;
                         }
 
-                        $storedPath = ImageStorage::store($upload, 'students/'.$pageKey.'/qr-codes');
-                        if ($storedPath !== false) {
-                            $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['image'] = $storedPath;
+                        $upload = $itemUpload['image_file'] ?? null;
+                        if ($upload instanceof UploadedFile) {
+                            $storedPath = ImageStorage::store($upload, 'students/'.$pageKey.'/qr-codes');
+                            if ($storedPath !== false) {
+                                $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['image'] = $storedPath;
+                            }
+                        }
+
+                        $flyerUpload = $itemUpload['flyer_image_file'] ?? null;
+                        if ($flyerUpload instanceof UploadedFile) {
+                            $storedPath = ImageStorage::store($flyerUpload, 'students/'.$pageKey.'/qr-flyers');
+                            if ($storedPath !== false) {
+                                $studentsInput['pages'][$pageKey]['qr_codes']['items'][$index]['flyer_image'] = $storedPath;
+                            }
                         }
                     }
                 }
