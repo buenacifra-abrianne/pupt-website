@@ -2,12 +2,14 @@
     --acc-maroon: #800000;
     --acc-maroon-dark: #5c0000;
     --acc-maroon-soft: rgba(128, 0, 0, 0.14);
-    --widget-fab-size: 62px;
-    --widget-fab-gap: 12px;
-    --widget-edge-offset: 24px;
+    --widget-fab-size: clamp(54px, 6vw, 62px);
+    --widget-fab-gap: clamp(10px, 1.5vw, 12px);
+    --widget-edge-offset: clamp(14px, 2.5vw, 24px);
     --widget-panel-gap: 24px;
     --fab-stack-height: calc(var(--widget-fab-size) + var(--widget-fab-size) + var(--widget-fab-size) + var(--widget-fab-gap) + var(--widget-fab-gap));
     --widget-panel-edge: clamp(16px, 4vw, 32px);
+    --widget-panel-width: clamp(472px, 30vw, 540px);
+    --widget-panel-height: clamp(880px, 88vh, 1000px);
     --widget-panel-safe-bottom: calc(var(--widget-edge-offset) + var(--fab-stack-height) + var(--widget-panel-gap) + env(safe-area-inset-bottom, 0px));
     --widget-fab-bg: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
     --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
@@ -31,12 +33,13 @@
 
 .acc-container .acc-toggle-btn {
     position: fixed !important;
-    right: 28px !important;
-    bottom: 28px !important;
+    right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
     width: var(--widget-fab-size) !important;
     height: var(--widget-fab-size) !important;
     min-width: var(--widget-fab-size) !important;
     min-height: var(--widget-fab-size) !important;
+    box-sizing: border-box !important;
     border: none !important;
     border-radius: 50% !important;
     padding: 0 !important;
@@ -57,8 +60,8 @@ body.has-widget-dock .acc-container .acc-toggle-btn {
 }
 
 body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
-    right: 24px !important;
-    bottom: calc(24px + var(--widget-fab-size) + var(--widget-fab-gap)) !important;
+    right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px)) !important;
+    bottom: calc(var(--widget-edge-offset) + var(--widget-fab-size) + var(--widget-fab-gap) + env(safe-area-inset-bottom, 0px)) !important;
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
@@ -68,6 +71,8 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
 
 body.has-widget-dock .acc-container {
     z-index: var(--widget-panel-z) !important;
+    font-size: 16px !important;
+    line-height: 1.4 !important;
 }
 
 body.has-widget-dock .acc-container > .acc-panel,
@@ -81,19 +86,24 @@ body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
 body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
 body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
 body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
+    /* Keep the panel beside the floating dock instead of stacking above it. */
     position: fixed !important;
+    top: calc(var(--widget-edge-offset) + env(safe-area-inset-top, 0px)) !important;
     left: auto !important;
-    right: calc(env(safe-area-inset-right, 0px) + var(--widget-panel-edge)) !important;
-    bottom: var(--widget-panel-safe-bottom) !important;
-    width: min(420px, calc(100vw - 32px)) !important;
-    max-width: calc(100vw - 32px) !important;
-    max-height: min(640px, calc(100vh - var(--widget-panel-safe-bottom) - 16px)) !important;
-    max-height: min(640px, calc(100dvh - var(--widget-panel-safe-bottom) - 16px)) !important;
+    right: calc(env(safe-area-inset-right, 0px) + var(--widget-panel-right-clearance)) !important;
+    bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
+    width: min(var(--widget-panel-width), calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px))) !important;
+    max-width: calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px)) !important;
+    height: auto !important;
+    max-height: none !important;
     overflow: hidden !important;
     overscroll-behavior: contain !important;
     display: flex !important;
     flex-direction: column !important;
     box-sizing: border-box !important;
+    font-size: 16px !important;
+    transform: none !important;
+    transform-origin: bottom right !important;
 }
 
 body.has-widget-dock .acc-container .widget-dock-accessibility-panel .acc-body,
@@ -175,6 +185,21 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
     color: #ffffff !important;
 }
 
+.acc-container .acc-header {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: clamp(20px, 2.4vw, 28px) clamp(28px, 3.2vw, 36px) !important;
+    min-height: clamp(76px, 7.5vw, 90px) !important;
+    gap: clamp(18px, 2.2vw, 24px) !important;
+}
+
+.acc-container .acc-header .acc-label {
+    margin-left: clamp(14px, 1.8vw, 20px) !important;
+    line-height: 1.22 !important;
+    letter-spacing: 0.01em !important;
+}
+
 .acc-container .acc-btn.acc-selected:hover,
 .acc-container .acc-btn[aria-pressed="true"]:hover,
 .acc-container .acc-lang-item.selected:hover,
@@ -227,16 +252,16 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
 
 @media (max-width: 768px) {
     :root {
-        --widget-fab-size: 58px;
+        --widget-fab-size: clamp(52px, 13vw, 58px);
         --widget-fab-gap: 10px;
-        --widget-edge-offset: 16px;
+        --widget-edge-offset: clamp(12px, 3vw, 16px);
         --widget-panel-gap: 24px;
         --widget-panel-edge: 16px;
     }
 
     .acc-container .acc-toggle-btn {
-        right: 16px !important;
-        bottom: calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+        right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px)) !important;
+        bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
         font-size: 1.35rem !important;
     }
 
@@ -247,21 +272,21 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
     }
 
     body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
-        right: 16px !important;
-        bottom: calc(16px + var(--widget-fab-size) + var(--widget-fab-gap) + env(safe-area-inset-bottom, 0px)) !important;
+        right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px)) !important;
+        bottom: calc(var(--widget-edge-offset) + var(--widget-fab-size) + var(--widget-fab-gap) + env(safe-area-inset-bottom, 0px)) !important;
     }
 
     body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
     body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
     body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
     body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
-        right: calc(16px + env(safe-area-inset-right, 0px)) !important;
-        left: 16px !important;
-        bottom: calc(var(--widget-edge-offset) + var(--fab-stack-height) + var(--widget-panel-gap) + env(safe-area-inset-bottom, 0px)) !important;
-        width: auto !important;
-        max-width: none !important;
-        max-height: max(220px, calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
-        max-height: max(220px, calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
+        right: calc(env(safe-area-inset-right, 0px) + var(--widget-panel-right-clearance)) !important;
+        top: calc(var(--widget-edge-offset) + env(safe-area-inset-top, 0px)) !important;
+        bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
+        width: min(var(--widget-panel-width), calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px))) !important;
+        max-width: calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px)) !important;
+        height: auto !important;
+        max-height: none !important;
     }
 }
 
@@ -272,28 +297,51 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
     body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
         left: 16px !important;
         right: calc(16px + env(safe-area-inset-right, 0px)) !important;
+        top: auto !important;
         bottom: max(
             calc(96px + env(safe-area-inset-bottom, 0px)),
             calc(var(--widget-edge-offset) + var(--fab-stack-height) + var(--widget-panel-gap) + env(safe-area-inset-bottom, 0px))
         ) !important;
         width: auto !important;
         max-width: none !important;
-        max-height: max(180px, calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
-        max-height: max(180px, calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
+        height: min(var(--widget-panel-height), calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
+        height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
+        max-height: min(var(--widget-panel-height), calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
+        max-height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
     }
 }
 
-@media (max-height: 700px) {
+@media (max-width: 480px) {
+    :root {
+        --widget-fab-size: clamp(46px, 15vw, 52px);
+        --widget-fab-gap: 8px;
+        --widget-edge-offset: clamp(8px, 3.8vw, 12px);
+    }
+
+    .acc-container .acc-toggle-btn {
+        font-size: 1.2rem !important;
+    }
+
+    .acc-container .acc-toggle-icon,
+    .acc-container .acc-toggle-icon svg {
+        width: 1.2rem !important;
+        height: 1.2rem !important;
+    }
+}
+
+@media (min-width: 601px) and (max-height: 700px) {
     body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
     body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
     body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
     body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
-        max-height: max(180px, calc(100vh - var(--widget-panel-safe-bottom) - 12px)) !important;
-        max-height: max(180px, calc(100dvh - var(--widget-panel-safe-bottom) - 12px)) !important;
+        top: calc(var(--widget-edge-offset) + env(safe-area-inset-top, 0px)) !important;
+        bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
+        height: auto !important;
+        max-height: none !important;
     }
 }
 
-@media (max-width: 768px) and (max-height: 700px) {
+@media (max-width: 600px) and (max-height: 700px) {
     body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
     body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
     body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
@@ -680,6 +728,12 @@ body.pup-dark-mode .acc-container [class*="attribution"] {
 body.pup-dark-mode .acc-container .acc-header {
   background: linear-gradient(135deg, #7f1113 0%, #5c0d0f 100%) !important;
   border-bottom: 1px solid rgba(200, 80, 80, 0.2) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  padding: clamp(20px, 2.4vw, 28px) clamp(28px, 3.2vw, 36px) !important;
+  min-height: clamp(76px, 7.5vw, 90px) !important;
+  gap: clamp(18px, 2.2vw, 24px) !important;
 }
 
 body.pup-dark-mode .acc-container ::-webkit-scrollbar-track {

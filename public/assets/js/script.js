@@ -382,14 +382,15 @@ function initWidgetDock() {
     style.id = "widget-dock-inline-styles";
     style.textContent = `
       .widget-dock {
-        --widget-fab-size: 62px;
-        --widget-fab-gap: 12px;
+        --widget-fab-size: clamp(54px, 6vw, 62px);
+        --widget-fab-gap: clamp(10px, 1.5vw, 12px);
+        --widget-edge-offset: clamp(14px, 2.5vw, 24px);
         --widget-expanded-gap: 16px;
         --widget-fab-bg: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
         --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
         position: fixed;
-        right: 24px;
-        bottom: 24px;
+        right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px));
+        bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px));
         display: grid;
         justify-items: end;
         gap: var(--widget-fab-gap);
@@ -422,6 +423,7 @@ function initWidgetDock() {
         height: var(--widget-fab-size);
         min-width: var(--widget-fab-size);
         min-height: var(--widget-fab-size);
+        box-sizing: border-box;
         border: 0;
         border-radius: 999px;
         display: inline-flex;
@@ -545,11 +547,12 @@ function initWidgetDock() {
 
       @media (max-width: 640px) {
         .widget-dock {
-          --widget-fab-size: 58px;
+          --widget-fab-size: clamp(52px, 13vw, 58px);
           --widget-fab-gap: 10px;
+          --widget-edge-offset: clamp(12px, 4vw, 16px);
           --widget-expanded-gap: 14px;
-          right: 16px;
-          bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+          right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px));
+          bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px));
         }
 
         .chatbot-widget-shell {
@@ -559,6 +562,30 @@ function initWidgetDock() {
           width: auto;
           height: min(320px, calc(100vh - 270px));
           max-height: calc(100vh - 250px);
+        }
+      }
+
+      @media (max-width: 480px) {
+        .widget-dock {
+          --widget-fab-size: clamp(46px, 15vw, 52px);
+          --widget-fab-gap: 8px;
+          --widget-expanded-gap: 10px;
+          --widget-edge-offset: clamp(8px, 3.8vw, 12px);
+        }
+
+        .widget-dock-fab svg,
+        .widget-dock-action svg {
+          width: 24px;
+          height: 24px;
+        }
+      }
+
+      @media (hover: none), (pointer: coarse) {
+        .widget-dock-fab:hover,
+        .widget-dock-fab:focus-visible,
+        .widget-dock-action:hover,
+        .widget-dock-action:focus-visible {
+          transform: none;
         }
       }
     `;
