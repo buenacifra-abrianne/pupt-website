@@ -735,12 +735,16 @@ function initStudentQrModal() {
   const description = document.getElementById("studentQrModalDescription");
   const qrImage = document.getElementById("studentQrModalImage");
   const flyerImage = document.getElementById("studentQrModalFlyerImage");
-  const link = document.getElementById("studentQrModalLink");
+  const qrImageLink = document.getElementById("studentQrModalImageLink");
+  const zoomTrigger = document.getElementById("studentQrModalZoomTrigger");
+  const zoom = document.getElementById("studentQrZoom");
+  const zoomImage = document.getElementById("studentQrZoomImage");
+  const zoomClose = document.getElementById("studentQrZoomClose");
   const qrFrame = qrImage?.closest(".student-qr-modal-frame");
   const flyerFrame = flyerImage?.closest(".student-qr-modal-frame");
   let lastTrigger = null;
 
-  if (!title || !description || !qrImage || !flyerImage || !link || !qrFrame || !flyerFrame) {
+  if (!title || !description || !qrImage || !flyerImage || !qrImageLink || !zoomTrigger || !zoom || !zoomImage || !zoomClose || !qrFrame || !flyerFrame) {
     return;
   }
 
@@ -759,8 +763,10 @@ function initStudentQrModal() {
     syncImage(flyerImage, flyerFrame, trigger.dataset.qrFlyerImage || "");
 
     const href = trigger.dataset.qrLink || "";
-    link.classList.toggle("is-visible", Boolean(href));
-    link.href = href || "#";
+    qrImageLink.classList.toggle("is-disabled", !href);
+    qrImageLink.href = href || "#";
+    qrImageLink.setAttribute("aria-disabled", href ? "false" : "true");
+    qrImageLink.tabIndex = href ? 0 : -1;
 
     modal.classList.add("is-open");
     modal.setAttribute("aria-hidden", "false");
@@ -771,14 +777,44 @@ function initStudentQrModal() {
   const closeModal = () => {
     modal.classList.remove("is-open");
     modal.setAttribute("aria-hidden", "true");
+    closeZoom();
     document.body.classList.remove("student-qr-modal-open");
     if (lastTrigger) {
       lastTrigger.focus();
     }
   };
 
+  const openZoom = () => {
+    if (flyerFrame.classList.contains("is-empty") || !flyerImage.src) return;
+
+    zoomImage.src = flyerImage.src;
+    zoom.classList.add("is-open");
+    zoom.setAttribute("aria-hidden", "false");
+    zoomClose.focus();
+  };
+
+  const closeZoom = () => {
+    zoom.classList.remove("is-open");
+    zoom.setAttribute("aria-hidden", "true");
+    zoomImage.removeAttribute("src");
+  };
+
   triggers.forEach((trigger) => {
     trigger.addEventListener("click", () => openModal(trigger));
+  });
+
+  qrImageLink.addEventListener("click", (event) => {
+    if (qrImageLink.classList.contains("is-disabled")) {
+      event.preventDefault();
+    }
+  });
+
+  zoomTrigger.addEventListener("click", openZoom);
+  zoomClose.addEventListener("click", closeZoom);
+  zoom.addEventListener("click", (event) => {
+    if (event.target === zoom) {
+      closeZoom();
+    }
   });
 
   modal.querySelectorAll("[data-student-qr-close]").forEach((closeTrigger) => {
@@ -786,7 +822,14 @@ function initStudentQrModal() {
   });
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape" && modal.classList.contains("is-open")) {
+    if (event.key !== "Escape" || !modal.classList.contains("is-open")) {
+      return;
+    }
+
+    if (zoom.classList.contains("is-open")) {
+      closeZoom();
+      zoomTrigger.focus();
+    } else {
       closeModal();
     }
   });

@@ -185,16 +185,24 @@
                 <div class="student-qr-modal-gallery">
                     <figure class="student-qr-modal-frame">
                         <figcaption>QR Code</figcaption>
-                        <img id="studentQrModalImage" src="" alt="QR code">
+                        <a href="#" class="student-qr-modal-image-link" id="studentQrModalImageLink" target="_blank" rel="noopener noreferrer" aria-label="Open QR link">
+                            <img id="studentQrModalImage" src="" alt="QR code">
+                        </a>
                         <div class="student-qr-modal-empty" id="studentQrModalImageEmpty">No QR image uploaded.</div>
                     </figure>
                     <figure class="student-qr-modal-frame">
                         <figcaption>Step by Step process</figcaption>
-                        <img id="studentQrModalFlyerImage" src="" alt="Flyer or step by step guide">
+                        <button type="button" class="student-qr-modal-zoom-trigger" id="studentQrModalZoomTrigger" aria-label="Zoom step by step image">
+                            <img id="studentQrModalFlyerImage" src="" alt="Flyer or step by step guide">
+                            <span>Zoom</span>
+                        </button>
                         <div class="student-qr-modal-empty" id="studentQrModalFlyerEmpty">No flyer image uploaded.</div>
                     </figure>
                 </div>
-                <a href="#" class="student-qr-modal-link" id="studentQrModalLink" target="_blank" rel="noopener noreferrer">Open link</a>
+            </div>
+            <div class="student-qr-zoom" id="studentQrZoom" aria-hidden="true">
+                <button type="button" class="student-qr-zoom-close" id="studentQrZoomClose" aria-label="Close zoomed image">&times;</button>
+                <img id="studentQrZoomImage" src="" alt="Zoomed step by step guide">
             </div>
         </div>
     @endif

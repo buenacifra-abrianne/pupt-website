@@ -585,6 +585,50 @@ body {
   object-fit: contain;
 }
 
+.student-qr-modal-image-link,
+.student-qr-modal-zoom-trigger {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.student-qr-modal-image-link.is-disabled {
+  cursor: default;
+  pointer-events: none;
+}
+
+.student-qr-modal-image-link:focus-visible,
+.student-qr-modal-zoom-trigger:focus-visible {
+  outline: 3px solid rgba(215, 170, 67, 0.68);
+  outline-offset: 3px;
+}
+
+.student-qr-modal-zoom-trigger span {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 8px;
+  background: rgba(79, 9, 12, 0.88);
+  color: #fffaf4;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: 0 10px 22px rgba(22, 16, 16, 0.22);
+}
+
 .student-qr-modal-empty {
   display: none;
   place-items: center;
@@ -597,27 +641,58 @@ body {
   display: none;
 }
 
+.student-qr-modal-frame.is-empty .student-qr-modal-image-link,
+.student-qr-modal-frame.is-empty .student-qr-modal-zoom-trigger {
+  display: none;
+}
+
 .student-qr-modal-frame.is-empty .student-qr-modal-empty {
   display: grid;
 }
 
-.student-qr-modal-link {
-  justify-self: start;
-  display: none;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: var(--maroon);
-  color: #fff;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.student-qr-modal-link.is-visible {
-  display: inline-flex;
-}
-
 body.student-qr-modal-open {
   overflow: hidden;
+}
+
+.student-qr-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(22, 16, 16, 0.86);
+}
+
+.student-qr-zoom.is-open {
+  display: flex;
+}
+
+.student-qr-zoom img {
+  width: auto;
+  max-width: min(1200px, calc(100vw - 48px));
+  max-height: calc(100vh - 48px);
+  border-radius: 8px;
+  background: #fffaf6;
+  object-fit: contain;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.38);
+}
+
+.student-qr-zoom-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 1;
+  width: 44px;
+  height: 44px;
+  border: 1px solid rgba(255, 250, 244, 0.28);
+  border-radius: 8px;
+  background: rgba(255, 250, 244, 0.12);
+  color: #fffaf4;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
 }
 
 @media (max-width: 767.98px) {
