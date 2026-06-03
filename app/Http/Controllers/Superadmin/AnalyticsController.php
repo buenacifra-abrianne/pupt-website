@@ -66,6 +66,7 @@ class AnalyticsController extends Controller
             'total_visitors' => data_get($payload, 'kpis.total_visitors', $request->input('total_visitors', 0)),
             'avg_duration' => data_get($payload, 'kpis.avg_duration', $request->input('avg_duration', '0m 0s')),
             'bounce_rate' => data_get($payload, 'kpis.bounce_rate', $request->input('bounce_rate', '0%')),
+            'total_uploads' => data_get($payload, 'upload_analytics.total_uploads', 0),
 
             'sessions' => data_get($payload, 'user_engagement.sessions', $request->input('sessions', 0)),
             'pageviews' => data_get($payload, 'user_engagement.pageviews', $request->input('pageviews', 0)),
@@ -74,8 +75,17 @@ class AnalyticsController extends Controller
 
         return view('superadmin.analytics.print', [
             'data' => $data,
+            'feedback' => data_get($payload, 'feedback_results', $this->feedbackDefaults()),
+            'uploads' => data_get($payload, 'upload_analytics', $this->uploadDefaults()),
+            'announcementReach' => data_get($payload, 'announcement_reach', [
+                'views' => 0,
+                'unique_viewers' => 0,
+                'clicks' => 0,
+                'ctr_pct' => 0,
+            ]),
             'start' => $request->input('start', ''),
             'end' => $request->input('end', ''),
+            'generatedAt' => now()->format('F d, Y h:i A'),
         ]);
     }
 
@@ -115,6 +125,7 @@ class AnalyticsController extends Controller
         $bounceRatePct = round(($bounceSessions / max(1, $sessions)) * 100, 2);
         $pagesPerSession = round($pageviews / max(1, $sessions), 2);
         $feedbackResults = $this->resolveFeedbackResults($startAt, $endAt);
+        $uploadAnalytics = $this->resolveUploadAnalytics($startAt, $endAt);
 
         return [
             'kpis' => [
@@ -128,6 +139,7 @@ class AnalyticsController extends Controller
                 'pages_per_session' => $pagesPerSession,
             ],
             'feedback_results' => $feedbackResults,
+            'upload_analytics' => $uploadAnalytics,
             'announcement_reach' => [
                 'views' => 0,
                 'unique_viewers' => 0,
@@ -171,6 +183,7 @@ class AnalyticsController extends Controller
                 'pages_per_session' => 0,
             ],
             'feedback_results' => $this->feedbackDefaults(),
+            'upload_analytics' => $this->uploadDefaults(),
             'announcement_reach' => [
                 'views' => 0,
                 'unique_viewers' => 0,
@@ -292,6 +305,237 @@ class AnalyticsController extends Controller
         }
 
         return 'Unsatisfactory';
+    }
+
+    private function resolveUploadAnalytics(Carbon $startAt, Carbon $endAt): array
+    {
+        $roleCounts = [];
+        $sourceCounts = [
+            'CMS Images' => 0,
+            'News Images' => 0,
+            'Announcement Images' => 0,
+            'Downloadable Files' => 0,
+        ];
+
+        $this->collectUploadedPathRows(
+            $roleCounts,
+            $sourceCounts,
+            'news',
+            'image_path',
+            'created_by',
+            'created_at',
+            'News Images',
+            $startAt,
+            $endAt
+        );
+
+        $this->collectUploadedPathRows(
+            $roleCounts,
+            $sourceCounts,
+            'announcements',
+            'image_path',
+            'created_by',
+            'created_at',
+            'Announcement Images',
+            $startAt,
+            $endAt
+        );
+
+        $this->collectUploadedPathRows(
+            $roleCounts,
+            $sourceCounts,
+            'downloadables',
+            'file_path',
+            'created_by',
+            'created_at',
+            'Downloadable Files',
+            $startAt,
+            $endAt
+        );
+
+        if (Schema::hasTable('cms_contents') && Schema::hasColumns('cms_contents', ['content', 'updated_by', 'updated_at'])) {
+            $rows = DB::table('cms_contents')
+                ->select('content', 'updated_by', 'updated_at')
+                ->whereBetween('updated_at', [$startAt, $endAt])
+                ->get();
+
+            $roleLabels = $this->roleLabelsForUsers($rows->pluck('updated_by')->filter()->all());
+
+            foreach ($rows as $row) {
+                $count = $this->countUploadsInCmsContent((string) ($row->content ?? ''));
+                if ($count <= 0) {
+                    continue;
+                }
+
+                $label = $roleLabels[(int) $row->updated_by] ?? 'Unknown';
+                $roleCounts[$label] = ($roleCounts[$label] ?? 0) + $count;
+                $sourceCounts['CMS Images'] += $count;
+            }
+        }
+
+        $total = (int) array_sum($roleCounts);
+        $roles = collect($roleCounts)
+            ->map(function ($count, $role) use ($total) {
+                $count = (int) $count;
+
+                return [
+                    'role' => (string) $role,
+                    'count' => $count,
+                    'percentage' => $total > 0 ? round(($count / $total) * 100, 2) : 0,
+                ];
+            })
+            ->sortByDesc('count')
+            ->values()
+            ->all();
+
+        $sources = collect($sourceCounts)
+            ->map(fn ($count, $source) => [
+                'source' => (string) $source,
+                'count' => (int) $count,
+            ])
+            ->filter(fn ($row) => $row['count'] > 0)
+            ->sortByDesc('count')
+            ->values()
+            ->all();
+
+        return [
+            'total_uploads' => $total,
+            'roles' => $roles,
+            'sources' => $sources,
+        ];
+    }
+
+    private function collectUploadedPathRows(
+        array &$roleCounts,
+        array &$sourceCounts,
+        string $table,
+        string $pathColumn,
+        string $userColumn,
+        string $dateColumn,
+        string $sourceLabel,
+        Carbon $startAt,
+        Carbon $endAt
+    ): void {
+        if (! Schema::hasTable($table) || ! Schema::hasColumns($table, [$pathColumn, $userColumn, $dateColumn])) {
+            return;
+        }
+
+        $rows = DB::table($table)
+            ->select($userColumn, $dateColumn)
+            ->whereNotNull($pathColumn)
+            ->where($pathColumn, '<>', '')
+            ->whereBetween($dateColumn, [$startAt, $endAt])
+            ->get();
+
+        if ($rows->isEmpty()) {
+            return;
+        }
+
+        $roleLabels = $this->roleLabelsForUsers($rows->pluck($userColumn)->filter()->all());
+
+        foreach ($rows as $row) {
+            $userId = (int) ($row->{$userColumn} ?? 0);
+            $label = $roleLabels[$userId] ?? 'Unknown';
+            $roleCounts[$label] = ($roleCounts[$label] ?? 0) + 1;
+            $sourceCounts[$sourceLabel] = ($sourceCounts[$sourceLabel] ?? 0) + 1;
+        }
+    }
+
+    private function roleLabelsForUsers(array $userIds): array
+    {
+        $userIds = collect($userIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($userIds) || ! Schema::hasTable('users')) {
+            return [];
+        }
+
+        $userPk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+        $query = DB::table('users')
+            ->whereIn('users.'.$userPk, $userIds)
+            ->select('users.'.$userPk.' as user_key');
+
+        if (Schema::hasTable('roles') && Schema::hasColumn('users', 'role_id')) {
+            $query->leftJoin('roles', 'users.role_id', '=', 'roles.id');
+            if (Schema::hasColumn('roles', 'name')) {
+                $query->addSelect('roles.name as role_name');
+            }
+            if (Schema::hasColumn('roles', 'code')) {
+                $query->addSelect('roles.code as role_code');
+            }
+        }
+
+        if (Schema::hasColumn('users', 'role')) {
+            $query->addSelect('users.role as user_role');
+        }
+
+        return $query->get()
+            ->mapWithKeys(function ($row) {
+                $label = (string) ($row->role_name ?? $row->role_code ?? $row->user_role ?? 'Unknown');
+                $label = trim($label) !== '' ? $label : 'Unknown';
+
+                return [(int) $row->user_key => $label];
+            })
+            ->all();
+    }
+
+    private function countUploadsInCmsContent(string $content): int
+    {
+        $decoded = json_decode($content, true);
+
+        if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+            return $this->countUploadPathsInValue($decoded);
+        }
+
+        preg_match_all('/(?:storage|uploads|cms|home|about|academics|students|research|events)\/[^"\']+\.(?:jpe?g|png|gif|webp|svg|pdf|docx?|xlsx?|pptx?)/i', $content, $matches);
+
+        return count(array_unique($matches[0] ?? []));
+    }
+
+    private function countUploadPathsInValue(mixed $value): int
+    {
+        if (is_array($value)) {
+            $count = 0;
+            foreach ($value as $key => $child) {
+                if (is_string($child) && $this->looksLikeUploadPath($child, (string) $key)) {
+                    $count++;
+                    continue;
+                }
+
+                $count += $this->countUploadPathsInValue($child);
+            }
+
+            return $count;
+        }
+
+        return 0;
+    }
+
+    private function looksLikeUploadPath(string $value, string $key = ''): bool
+    {
+        $value = trim($value);
+        if ($value === '') {
+            return false;
+        }
+
+        $hasUploadKey = preg_match('/(^|_)(image|file|path|photo|poster|flyer|logo|icon|qr)(_|$)/i', $key) === 1;
+        $hasAssetExtension = preg_match('/\.(jpe?g|png|gif|webp|svg|pdf|docx?|xlsx?|pptx?)($|\?)/i', $value) === 1;
+        $isUploadLocation = preg_match('/^(storage\/|uploads\/|home\/|about\/|academics\/|students\/|research\/|events\/)/i', $value) === 1;
+
+        return $hasAssetExtension && ($hasUploadKey || $isUploadLocation);
+    }
+
+    private function uploadDefaults(): array
+    {
+        return [
+            'total_uploads' => 0,
+            'roles' => [],
+            'sources' => [],
+        ];
     }
 
     private function resolveDateRange(Request $request): array

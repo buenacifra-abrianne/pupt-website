@@ -4,64 +4,15 @@
 <title>PUP Taguig Website Analytics Report</title>
 
 <style>
-
 body{
     font-family: Arial, sans-serif;
-    margin:40px;
+    margin:34px;
     color:#222;
-}
-
-.header{
-    display:flex;
-    align-items:center;
-    border-bottom:4px solid #7b0000;
-    padding-bottom:15px;
-    margin-bottom:30px;
-}
-
-.logo{
-    width:70px;
-    margin-right:20px;
-}
-
-.title-block h1{
-    margin:0;
-    color:#7b0000;
-    font-size:28px;
-}
-
-.title-block p{
-    margin:4px 0;
-    font-size:14px;
-}
-
-.section{
-    margin-top:35px;
-}
-
-.section h2{
-    color:#7b0000;
-    border-bottom:2px solid #ddd;
-    padding-bottom:5px;
-}
-
-table{
-    width:100%;
-    border-collapse:collapse;
-    margin-top:15px;
-}
-
-table td{
-    border:1px solid #ccc;
-    padding:10px;
-}
-
-table tr:nth-child(even){
-    background:#f5f5f5;
+    font-size:13px;
 }
 
 .print-btn{
-    margin-bottom:25px;
+    margin-bottom:18px;
     padding:8px 14px;
     border:none;
     background:#7b0000;
@@ -69,116 +20,358 @@ table tr:nth-child(even){
     cursor:pointer;
 }
 
-.print-btn:hover{
-    background:#5a0000;
+.header{
+    display:flex;
+    align-items:center;
+    border-bottom:4px solid #7b0000;
+    padding-bottom:14px;
+    margin-bottom:18px;
+}
+
+.logo{
+    width:68px;
+    margin-right:18px;
+}
+
+.title-block h1{
+    margin:0;
+    color:#7b0000;
+    font-size:25px;
+}
+
+.title-block p{
+    margin:4px 0;
+    font-size:13px;
+}
+
+.section{
+    margin-top:24px;
+    page-break-inside:avoid;
+}
+
+.section h2{
+    color:#7b0000;
+    border-bottom:2px solid #ddd;
+    padding-bottom:5px;
+    margin:0 0 12px;
+    font-size:18px;
+}
+
+.summary-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+}
+
+.summary-card{
+    border:1px solid #ccc;
+    padding:11px;
+    background:#fafafa;
+}
+
+.summary-label{
+    color:#555;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:.03em;
+}
+
+.summary-value{
+    color:#7b0000;
+    font-weight:bold;
+    font-size:20px;
+    margin-top:5px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    margin-top:8px;
+}
+
+th,
+td{
+    border:1px solid #ccc;
+    padding:8px;
+    text-align:left;
+}
+
+th{
+    background:#7b0000;
+    color:#fff;
+}
+
+tr:nth-child(even) td{
+    background:#f5f5f5;
+}
+
+.muted{
+    color:#777;
+    font-style:italic;
+}
+
+.two-col{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
 }
 
 .report-footer{
-    margin-top:40px;
-    padding-top:14px;
-    border-top:1px solid #bbb;
-    font-size:12px;
+    margin-top:34px;
+    padding-top:0;
+    font-size:11px;
     line-height:1.45;
-    color:#333;
+    font-weight:bold;
 }
 
 .report-footer p{
-    margin:0 0 6px 0;
+    margin:0 0 5px;
 }
 
-/* hide button in pdf */
+.report-footer-right{
+    color:#000;
+    text-align:right;
+    margin-bottom:8px;
+}
+
+.report-footer-rule{
+    border:0;
+    border-top:1px solid #7b0000;
+    margin:0 0 8px;
+}
+
+.report-footer-left{
+    color:#7b0000;
+    display:inline-block;
+    text-align:center;
+    width:auto;
+    margin-left:0;
+    white-space:nowrap;
+}
+
 @media print{
     .print-btn{
         display:none;
     }
 
     body{
-        padding-bottom:90px;
+        margin:28px;
+        padding-bottom:82px;
     }
 
     .report-footer{
         position:fixed;
-        left:40px;
-        right:40px;
-        bottom:20px;
+        left:28px;
+        right:28px;
+        bottom:16px;
         margin-top:0;
         background:#fff;
     }
 }
-
 </style>
 </head>
 
 <body>
+@php
+    $feedbackRows = [
+        ['Q1', data_get($feedback, 'question_1_avg', 0)],
+        ['Q2', data_get($feedback, 'question_2_avg', 0)],
+        ['Q3', data_get($feedback, 'question_3_avg', 0)],
+        ['Q4', data_get($feedback, 'question_4_avg', 0)],
+        ['Q5', data_get($feedback, 'question_5_avg', 0)],
+        ['Q6', data_get($feedback, 'question_6_avg', 0)],
+        ['Q7', data_get($feedback, 'question_7_avg', 0)],
+        ['Q8', data_get($feedback, 'question_8_avg', 0)],
+        ['Q9', data_get($feedback, 'question_9_avg', 0)],
+        ['Q10', data_get($feedback, 'question_10_avg', 0)],
+    ];
+
+    $ratingRows = [
+        ['Outstanding', data_get($feedback, 'outstanding', 0)],
+        ['Very Satisfactory', data_get($feedback, 'very_satisfactory', 0)],
+        ['Satisfactory', data_get($feedback, 'satisfactory', 0)],
+        ['Unsatisfactory', data_get($feedback, 'unsatisfactory', 0)],
+    ];
+
+    $uploadRoles = data_get($uploads, 'roles', []);
+    $uploadSources = data_get($uploads, 'sources', []);
+@endphp
 
 <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
 
 <div class="header">
-
-<img src="{{ asset('assets/static_img/logo.png') }}" class="logo">
-
-<div class="title-block">
-<h1>PUP Taguig Website Analytics Report</h1>
-<p>Polytechnic University of the Philippines – Taguig Campus</p>
-<p><strong>Date Range:</strong> {{ $start }} to {{ $end }}</p>
+    <img src="{{ asset('assets/static_img/logo.png') }}" class="logo" alt="PUP Logo">
+    <div class="title-block">
+        <h1>PUP Taguig Website Analytics Report</h1>
+        <p>Polytechnic University of the Philippines - Taguig Campus</p>
+        <p><strong>Date Range:</strong> {{ $start ?: 'All Dates' }} to {{ $end ?: 'All Dates' }}</p>
+        <p><strong>Generated:</strong> {{ $generatedAt }}</p>
+    </div>
 </div>
-
-</div>
-
 
 <div class="section">
-<h2>KPIs</h2>
-
-<table>
-<tr>
-<td>Total Visitors</td>
-<td>{{ $data['total_visitors'] }}</td>
-</tr>
-
-<tr>
-<td>Avg Session Duration</td>
-<td>{{ $data['avg_duration'] }}</td>
-</tr>
-
-<tr>
-<td>Bounce Rate</td>
-<td>{{ $data['bounce_rate'] }}</td>
-</tr>
-</table>
-
+    <h2>Part 1: Monitoring Overview</h2>
+    <div class="summary-grid">
+        <div class="summary-card">
+            <div class="summary-label">Total Visitors</div>
+            <div class="summary-value">{{ $data['total_visitors'] }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Avg. Session Duration</div>
+            <div class="summary-value">{{ $data['avg_duration'] }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Bounce Rate</div>
+            <div class="summary-value">{{ $data['bounce_rate'] }}</div>
+        </div>
+        <div class="summary-card">
+            <div class="summary-label">Total Uploads</div>
+            <div class="summary-value">{{ data_get($uploads, 'total_uploads', $data['total_uploads'] ?? 0) }}</div>
+        </div>
+    </div>
 </div>
-
 
 <div class="section">
-<h2>User Engagement</h2>
-
-<table>
-
-<tr>
-<td>Sessions</td>
-<td>{{ $data['sessions'] }}</td>
-</tr>
-
-<tr>
-<td>Page views</td>
-<td>{{ $data['pageviews'] }}</td>
-</tr>
-
-<tr>
-<td>Pages / Session</td>
-<td>{{ $data['pages_per_session'] }}</td>
-</tr>
-
-</table>
-
+    <h2>Part 2: User Engagement</h2>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Sessions</td>
+            <td>{{ $data['sessions'] }}</td>
+        </tr>
+        <tr>
+            <td>Page views</td>
+            <td>{{ $data['pageviews'] }}</td>
+        </tr>
+        <tr>
+            <td>Pages / Session</td>
+            <td>{{ $data['pages_per_session'] }}</td>
+        </tr>
+    </table>
 </div>
 
+<div class="section">
+    <h2>Part 3: Feedback Result</h2>
+    <div class="two-col">
+        <table>
+            <tr>
+                <th>Question</th>
+                <th>Average Score</th>
+            </tr>
+            @foreach ($feedbackRows as [$label, $value])
+                <tr>
+                    <td>{{ $label }}</td>
+                    <td>{{ number_format((float) $value, 2) }} / 4</td>
+                </tr>
+            @endforeach
+            <tr>
+                <td><strong>Total Average</strong></td>
+                <td><strong>{{ number_format((float) data_get($feedback, 'overall_average', 0), 2) }} / 4</strong></td>
+            </tr>
+            <tr>
+                <td><strong>Final Result</strong></td>
+                <td><strong>{{ data_get($feedback, 'final_rating', 'No Data') }}</strong></td>
+            </tr>
+        </table>
+
+        <table>
+            <tr>
+                <th>Rating</th>
+                <th>Responses</th>
+            </tr>
+            @foreach ($ratingRows as [$label, $value])
+                <tr>
+                    <td>{{ $label }}</td>
+                    <td>{{ number_format((int) $value) }}</td>
+                </tr>
+            @endforeach
+            <tr>
+                <td><strong>Total Responses</strong></td>
+                <td><strong>{{ number_format((int) data_get($feedback, 'total_responses', 0)) }}</strong></td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Part 4: Upload Percentage</h2>
+    <div class="two-col">
+        <table>
+            <tr>
+                <th>Uploader Role</th>
+                <th>Uploads</th>
+                <th>Percentage</th>
+            </tr>
+            @forelse ($uploadRoles as $row)
+                <tr>
+                    <td>{{ data_get($row, 'role', 'Unknown') }}</td>
+                    <td>{{ number_format((int) data_get($row, 'count', 0)) }}</td>
+                    <td>{{ number_format((float) data_get($row, 'percentage', 0), 2) }}%</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="3" class="muted">No role upload data found.</td>
+                </tr>
+            @endforelse
+        </table>
+
+        <table>
+            <tr>
+                <th>Upload Source</th>
+                <th>Uploads</th>
+            </tr>
+            @forelse ($uploadSources as $row)
+                <tr>
+                    <td>{{ data_get($row, 'source', 'Uploads') }}</td>
+                    <td>{{ number_format((int) data_get($row, 'count', 0)) }}</td>
+                </tr>
+            @empty
+                <tr>
+                    <td colspan="2" class="muted">No uploads found.</td>
+                </tr>
+            @endforelse
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <h2>Part 5: Announcement Reach</h2>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Views</td>
+            <td>{{ number_format((int) data_get($announcementReach, 'views', 0)) }}</td>
+        </tr>
+        <tr>
+            <td>Unique Viewers</td>
+            <td>{{ number_format((int) data_get($announcementReach, 'unique_viewers', 0)) }}</td>
+        </tr>
+        <tr>
+            <td>Clicks</td>
+            <td>{{ number_format((int) data_get($announcementReach, 'clicks', 0)) }}</td>
+        </tr>
+        <tr>
+            <td>CTR</td>
+            <td>{{ number_format((float) data_get($announcementReach, 'ctr_pct', 0), 2) }}%</td>
+        </tr>
+    </table>
+</div>
 
 <div class="report-footer">
-    <p>This document contains personal-identifiable information that is subject to Data Privacy. Please keep this document protected and in a safe place.</p>
-    <p>This is system-generated, signature is not required.</p>
+    <div class="report-footer-right">
+        <p>This is system-generated, signature is not required.</p>
+    </div>
+    <hr class="report-footer-rule">
+    <div class="report-footer-left">
+        <p>This document contains personal-identifiable information that is subject to Data Privacy.</p>
+        <p>Please keep this document protected and in a safe place.</p>
+    </div>
 </div>
-
-
 </body>
 </html>

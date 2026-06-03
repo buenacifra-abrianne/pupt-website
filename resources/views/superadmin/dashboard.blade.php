@@ -393,17 +393,27 @@
                         <div class="stat-value" id="kpiBounce">0%</div>
                     </div>
                 </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon success">
+                        <i class="fas fa-upload"></i>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-label">Total Uploads</div>
+                        <div class="stat-value" id="kpiUploads">0</div>
+                    </div>
+                </div>
             </div>
 
             <!-- Tab: User Engagement -->
             <div class="tab-content" id="engagement">
                 <div class="analytics-split-grid">
-                    <div class="card analytics-panel">
+                    <div class="card analytics-panel analytics-engagement-panel">
                         <div class="analytics-panel-header">
                             <h3 class="analytics-panel-title">User Engagement</h3>
                         </div>
 
-                        <div class="analytics-engagement-grid vertical">
+                        <div class="analytics-engagement-grid">
                             <div class="stat-card">
                                 <div class="stat-icon maroon"><i class="fas fa-layer-group"></i></div>
                                 <div class="stat-info">
@@ -430,67 +440,38 @@
                         </div>
                     </div>
 
-                    <div class="card analytics-panel">
+                    <div class="card analytics-panel upload-analytics-panel">
+                        <div class="analytics-panel-header">
+                            <h3 class="analytics-panel-title">Upload Percentage</h3>
+                        </div>
+
+                        <div class="upload-analytics-layout">
+                            <div class="upload-chart-shell">
+                                <div class="upload-donut-wrap">
+                                    <div class="upload-donut" id="uploadRoleDonut">
+                                        <div class="upload-donut-center">
+                                            <span>Uploads</span>
+                                            <strong id="uploadRoleTotal">0</strong>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="upload-source-grid" id="uploadSourceGrid">
+                                    <div class="upload-empty">No uploads found.</div>
+                                </div>
+                            </div>
+
+                            <div class="upload-role-list" id="uploadRoleList">
+                                <div class="upload-empty">No role upload data found.</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card analytics-panel analytics-feedback-panel">
                         <div class="analytics-panel-header">
                             <h3 class="analytics-panel-title">Feedback Result</h3>
                         </div>
 
                         <div class="feedback-pie-layout">
-                            <div class="feedback-question-panel">
-                                <h4 class="feedback-question-title">Per Question Results</h4>
-
-                                <div class="feedback-question-list">
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q1</span>
-                                        <span class="feedback-question-value" id="fbQ1Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q2</span>
-                                        <span class="feedback-question-value" id="fbQ2Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q3</span>
-                                        <span class="feedback-question-value" id="fbQ3Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q4</span>
-                                        <span class="feedback-question-value" id="fbQ4Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q5</span>
-                                        <span class="feedback-question-value" id="fbQ5Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q6</span>
-                                        <span class="feedback-question-value" id="fbQ6Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q7</span>
-                                        <span class="feedback-question-value" id="fbQ7Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q8</span>
-                                        <span class="feedback-question-value" id="fbQ8Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q9</span>
-                                        <span class="feedback-question-value" id="fbQ9Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row">
-                                        <span class="feedback-question-label">Q10</span>
-                                        <span class="feedback-question-value" id="fbQ10Avg">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row total">
-                                        <span class="feedback-question-label">Total Average</span>
-                                        <span class="feedback-question-value" id="fbAverageTotal">0.00 / 4</span>
-                                    </div>
-                                    <div class="feedback-question-row final">
-                                        <span class="feedback-question-label">Final Result</span>
-                                        <span class="feedback-question-value" id="fbFinalResultText">No Data</span>
-                                    </div>
-                                </div>
-                            </div>
-
                             <div class="feedback-chart-panel">
                                 <div class="feedback-chart-shell">
                                     <div class="feedback-pie-wrap">
@@ -522,6 +503,69 @@
                                             <span class="feedback-legend-label">Unsatisfactory</span>
                                             <span class="feedback-legend-value" id="fbUnsatisfactoryCount">0 (0%)</span>
                                         </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="feedback-question-panel">
+                                <button class="feedback-question-toggle" type="button" id="feedbackQuestionToggle" aria-expanded="false" aria-controls="feedbackQuestionCollapse">
+                                    <span>Questions Rating</span>
+                                    <i class="fas fa-chevron-down" aria-hidden="true"></i>
+                                </button>
+
+                                <div class="feedback-question-collapse" id="feedbackQuestionCollapse">
+                                    <div class="feedback-question-list">
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q1</span>
+                                            <span class="feedback-question-value" id="fbQ1Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q2</span>
+                                            <span class="feedback-question-value" id="fbQ2Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q3</span>
+                                            <span class="feedback-question-value" id="fbQ3Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q4</span>
+                                            <span class="feedback-question-value" id="fbQ4Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q5</span>
+                                            <span class="feedback-question-value" id="fbQ5Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q6</span>
+                                            <span class="feedback-question-value" id="fbQ6Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q7</span>
+                                            <span class="feedback-question-value" id="fbQ7Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q8</span>
+                                            <span class="feedback-question-value" id="fbQ8Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q9</span>
+                                            <span class="feedback-question-value" id="fbQ9Avg">0.00 / 4</span>
+                                        </div>
+                                        <div class="feedback-question-row">
+                                            <span class="feedback-question-label">Q10</span>
+                                            <span class="feedback-question-value" id="fbQ10Avg">0.00 / 4</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="feedback-summary-list">
+                                    <div class="feedback-question-row total">
+                                        <span class="feedback-question-label">Total Average</span>
+                                        <span class="feedback-question-value" id="fbAverageTotal">0.00 / 4</span>
+                                    </div>
+                                    <div class="feedback-question-row final">
+                                        <span class="feedback-question-label">Final Result</span>
+                                        <span class="feedback-question-value" id="fbFinalResultText">No Data</span>
                                     </div>
                                 </div>
                             </div>
@@ -843,6 +887,16 @@
             }
         }
 
+        document.getElementById('feedbackQuestionToggle')?.addEventListener('click', () => {
+            const toggle = document.getElementById('feedbackQuestionToggle');
+            const collapse = document.getElementById('feedbackQuestionCollapse');
+            if (!toggle || !collapse) return;
+
+            const isOpen = collapse.classList.toggle('open');
+            toggle.classList.toggle('open', isOpen);
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
         // default inner analytics tab
         switchTab('engagement');
     });
@@ -944,6 +998,16 @@ async function postJSON(url, data) {
         el.textContent = `${value}%`;
     }
 
+    function escapeHtml(value) {
+        return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;',
+        }[char]));
+    }
+
     function ratingFromAverage(score) {
         const avg = Number(score || 0);
         if (avg >= 3.5) return 'Outstanding';
@@ -1025,6 +1089,81 @@ async function postJSON(url, data) {
         )`;
     }
 
+    function updateUploadAnalyticsChart(uploadAnalytics) {
+        const totalUploads = Math.max(0, Number(uploadAnalytics?.total_uploads || 0));
+        const roles = Array.isArray(uploadAnalytics?.roles) ? uploadAnalytics.roles : [];
+        const sources = Array.isArray(uploadAnalytics?.sources) ? uploadAnalytics.sources : [];
+        const colors = ['#800000', '#d4af37', '#1f8fb8', '#2fa54a', '#b03a48', '#6f42c1', '#495057'];
+
+        setTextSafe('kpiUploads', totalUploads.toLocaleString());
+        setTextSafe('uploadRoleTotal', totalUploads.toLocaleString());
+
+        const donut = document.getElementById('uploadRoleDonut');
+        const roleList = document.getElementById('uploadRoleList');
+        const sourceGrid = document.getElementById('uploadSourceGrid');
+
+        if (donut) {
+            if (totalUploads === 0 || roles.length === 0) {
+                donut.style.background = 'conic-gradient(#eceff1 0deg 360deg)';
+            } else {
+                let cursor = 0;
+                const stops = roles.map((row, index) => {
+                    const pct = Math.max(0, Number(row.percentage || 0));
+                    const start = cursor;
+                    const end = index === roles.length - 1 ? 360 : cursor + (pct * 3.6);
+                    cursor = end;
+                    const color = colors[index % colors.length];
+
+                    return `${color} ${start}deg ${end}deg`;
+                });
+
+                donut.style.background = `conic-gradient(${stops.join(', ')})`;
+            }
+        }
+
+        if (roleList) {
+            if (totalUploads === 0 || roles.length === 0) {
+                roleList.innerHTML = '<div class="upload-empty">No role upload data found.</div>';
+            } else {
+                roleList.innerHTML = roles.map((row, index) => {
+                    const role = String(row.role || 'Unknown');
+                    const count = Math.max(0, Number(row.count || 0));
+                    const pct = Math.max(0, Math.min(100, Number(row.percentage || 0)));
+                    const color = colors[index % colors.length];
+
+                    return `
+                        <div class="upload-role-row">
+                            <span class="upload-role-color" style="background:${color}"></span>
+                            <span class="upload-role-name">${escapeHtml(role)}</span>
+                            <span class="upload-role-bar">
+                                <span class="upload-role-fill" style="width:${pct}%; background:${color}"></span>
+                            </span>
+                            <span class="upload-role-value">${count.toLocaleString()} (${Math.round(pct)}%)</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        if (sourceGrid) {
+            if (sources.length === 0) {
+                sourceGrid.innerHTML = '<div class="upload-empty">No uploads found.</div>';
+            } else {
+                sourceGrid.innerHTML = sources.map((row) => {
+                    const source = String(row.source || 'Uploads');
+                    const count = Math.max(0, Number(row.count || 0));
+
+                    return `
+                        <div class="upload-source-card">
+                            <span class="upload-source-label">${escapeHtml(source)}</span>
+                            <span class="upload-source-value">${count.toLocaleString()}</span>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    }
+
     function setAnalyticsEmptyState(show) {
         const el = document.getElementById('analyticsEmptyState');
         if (!el) return;
@@ -1039,6 +1178,7 @@ async function postJSON(url, data) {
 
         try {
             const json = await postJSON("{{ route('superadmin.analytics.superadminApi') }}", { start, end });
+            window.latestAnalyticsPayload = json;
 
             const k = json.kpis;
 
@@ -1054,6 +1194,9 @@ async function postJSON(url, data) {
             const fr = json.feedback_results || {};
             updateFeedbackResultsChart(fr);
 
+            const uploads = json.upload_analytics || {};
+            updateUploadAnalyticsChart(uploads);
+
             const ar = json.announcement_reach || {};
             setTextSafe('reachViews', Number(ar.views || 0).toLocaleString());
             setTextSafe('reachUnique', Number(ar.unique_viewers || 0).toLocaleString());
@@ -1067,7 +1210,8 @@ async function postJSON(url, data) {
                 || Number(fr.total_responses || 0) > 0
                 || Number(ar.views || 0) > 0
                 || Number(ar.unique_viewers || 0) > 0
-                || Number(ar.clicks || 0) > 0;
+                || Number(ar.clicks || 0) > 0
+                || Number(uploads.total_uploads || 0) > 0;
             setAnalyticsEmptyState(!hasData);
 
         } catch (err) {
@@ -1089,7 +1233,9 @@ async function postJSON(url, data) {
         const totalVisitors = metricToNumber(document.getElementById('kpiVisitors')?.textContent);
         const sessions = metricToNumber(document.getElementById('engSessions')?.textContent);
         const pageviews = metricToNumber(document.getElementById('engPageviews')?.textContent);
-        return totalVisitors > 0 || sessions > 0 || pageviews > 0;
+        const uploads = metricToNumber(document.getElementById('kpiUploads')?.textContent);
+        const feedbackResponses = metricToNumber(document.getElementById('feedbackTotalResponses')?.textContent);
+        return totalVisitors > 0 || sessions > 0 || pageviews > 0 || uploads > 0 || feedbackResponses > 0;
     }
 
     function exportAnalytics(type){
@@ -1167,7 +1313,10 @@ function exportPdf() {
   const end   = document.getElementById('analyticsEnd')?.value || '';
 
   // ✅ grab EXACT numbers already shown on screen
+  const latestPayload = window.latestAnalyticsPayload || {};
+
   const payload = {
+    ...latestPayload,
     kpis: {
       total_visitors: document.getElementById('kpiVisitors')?.textContent?.trim() || '0',
       avg_duration: document.getElementById('kpiAvgDuration')?.textContent?.trim() || '0m 0s',
@@ -1177,7 +1326,10 @@ function exportPdf() {
       sessions: document.getElementById('engSessions')?.textContent?.trim() || '0',
       pageviews: document.getElementById('engPageviews')?.textContent?.trim() || '0',
       pages_per_session: document.getElementById('engPagesPerSession')?.textContent?.trim() || '0',
-    }
+    },
+    feedback_results: latestPayload.feedback_results || {},
+    upload_analytics: latestPayload.upload_analytics || {},
+    announcement_reach: latestPayload.announcement_reach || {},
   };
 
   document.getElementById('exp_start').value = start;
