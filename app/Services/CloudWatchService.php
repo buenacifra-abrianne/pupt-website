@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Aws\CloudWatch\CloudWatchClient;
+use Aws\Lightsail\LightsailClient;
 use Carbon\Carbon;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Facades\Cache;
@@ -14,6 +15,8 @@ class CloudWatchService
     private const CACHE_TTL_SECONDS = 60;
 
     private ?CloudWatchClient $client = null;
+
+    private ?LightsailClient $lightsailClient = null;
 
     public function getServerHealth(): array
     {
@@ -71,6 +74,10 @@ class CloudWatchService
             config('services.cloudwatch.cpu_dimensions')
         );
 
+        if ($this->isLightsailNamespace($namespace)) {
+            return $this->fetchLightsailCpuUsage($metricName, $configuredDimensions);
+        }
+
         if ($configuredDimensions !== []) {
             return $this->fetchLatestMetricValue($namespace, $metricName, $configuredDimensions);
         }
@@ -84,6 +91,54 @@ class CloudWatchService
         return $this->fetchLatestMetricValue($namespace, $metricName, [
             ['Name' => 'InstanceId', 'Value' => $instanceId],
         ]);
+    }
+
+    private function fetchLightsailCpuUsage(string $metricName, array $configuredDimensions): ?float
+    {
+        $instanceName = $this->findDimensionValue($configuredDimensions, 'InstanceName');
+
+        if ($instanceName === null) {
+            Log::warning('Lightsail CPU metric fetch skipped because AWS_CLOUDWATCH_CPU_DIMENSIONS does not include InstanceName.');
+
+            return null;
+        }
+
+        $endTime = now();
+        $startTime = now()->subMinutes(15);
+
+        try {
+            $result = $this->lightsailClient()->getInstanceMetricData([
+                'instanceName' => $instanceName,
+                'metricName' => $metricName,
+                'period' => 300,
+                'startTime' => $startTime,
+                'endTime' => $endTime,
+                'unit' => 'Percent',
+                'statistics' => ['Average'],
+            ]);
+        } catch (\Throwable $e) {
+            Log::warning('Lightsail CPU metric request failed.', [
+                'instance_name' => $instanceName,
+                'metric' => $metricName,
+                'error' => $e->getMessage(),
+            ]);
+
+            return null;
+        }
+
+        $datapoints = collect($result->get('metricData') ?? []);
+
+        if ($datapoints->isEmpty()) {
+            return null;
+        }
+
+        $latest = $datapoints
+            ->sortByDesc(fn (array $datapoint) => $this->timestampToUnix($datapoint['timestamp'] ?? null))
+            ->first();
+
+        $value = $latest['average'] ?? null;
+
+        return is_numeric($value) ? (float) $value : null;
     }
 
     private function fetchMemoryUsage(?string $instanceId): ?float
@@ -341,6 +396,29 @@ class CloudWatchService
             ->all();
     }
 
+    private function findDimensionValue(array $dimensions, string $name): ?string
+    {
+        foreach ($dimensions as $dimension) {
+            $dimensionName = trim((string) ($dimension['Name'] ?? $dimension['name'] ?? ''));
+            $dimensionValue = trim((string) ($dimension['Value'] ?? $dimension['value'] ?? ''));
+
+            if ($dimensionValue === '') {
+                continue;
+            }
+
+            if (strcasecmp($dimensionName, $name) === 0) {
+                return $dimensionValue;
+            }
+        }
+
+        return null;
+    }
+
+    private function isLightsailNamespace(string $namespace): bool
+    {
+        return strcasecmp(trim($namespace), 'AWS/Lightsail') === 0;
+    }
+
     private function timestampToUnix(mixed $timestamp): int
     {
         if ($timestamp instanceof CarbonInterface) {
@@ -349,6 +427,10 @@ class CloudWatchService
 
         if ($timestamp instanceof \DateTimeInterface) {
             return $timestamp->getTimestamp();
+        }
+
+        if (is_numeric($timestamp)) {
+            return (int) $timestamp;
         }
 
         try {
@@ -373,5 +455,22 @@ class CloudWatchService
         ]);
 
         return $this->client;
+    }
+
+    private function lightsailClient(): LightsailClient
+    {
+        if ($this->lightsailClient instanceof LightsailClient) {
+            return $this->lightsailClient;
+        }
+
+        $this->lightsailClient = new LightsailClient([
+            'version' => (string) config('services.cloudwatch.version', 'latest'),
+            'region' => (string) config(
+                'services.cloudwatch.region',
+                config('services.ses.region', env('AWS_DEFAULT_REGION', 'us-east-1'))
+            ),
+        ]);
+
+        return $this->lightsailClient;
     }
 }
