@@ -52,6 +52,7 @@ class PUPHeader extends HTMLElement {
       <li><a href="${research}" data-key="research">RESEARCH & EXTENSION</a></li>
       <li class="nav-mobile-footer">Mula Sa'yo, Para sa Bayan</li>
     </ul>
+    <span class="nav-hover-indicator" aria-hidden="true"></span>
   </nav>
 </header>
     `.trim();
@@ -119,6 +120,46 @@ class PUPHeader extends HTMLElement {
     }
 
     const navLinks = this.querySelectorAll(".nav-menu a");
+    const navbar = this.querySelector(".navbar");
+    const hoverIndicator = this.querySelector(".nav-hover-indicator");
+
+    const moveHoverIndicator = (link) => {
+      if (!navbar || !hoverIndicator || window.matchMedia("(max-width: 900px)").matches) {
+        return;
+      }
+
+      const navbarRect = navbar.getBoundingClientRect();
+      const linkRect = link.getBoundingClientRect();
+      hoverIndicator.style.setProperty(
+        "--nav-indicator-x",
+        `${linkRect.left - navbarRect.left + (linkRect.width / 2)}px`
+      );
+      hoverIndicator.classList.add("is-visible");
+    };
+
+    const restoreActiveIndicator = () => {
+      const activeLink = this.querySelector(".nav-menu a.active");
+      if (activeLink) {
+        moveHoverIndicator(activeLink);
+      } else {
+        hoverIndicator?.classList.remove("is-visible");
+      }
+    };
+
+    navLinks.forEach((link) => {
+      link.addEventListener("pointerenter", () => moveHoverIndicator(link));
+      link.addEventListener("focus", () => moveHoverIndicator(link));
+    });
+
+    navMenu.addEventListener("pointerleave", restoreActiveIndicator);
+    navMenu.addEventListener("focusout", (event) => {
+      if (!navMenu.contains(event.relatedTarget)) {
+        restoreActiveIndicator();
+      }
+    });
+
+    window.addEventListener("resize", restoreActiveIndicator);
+    requestAnimationFrame(restoreActiveIndicator);
 
     const closeMenu = () => {
       navMenu.classList.remove("open");

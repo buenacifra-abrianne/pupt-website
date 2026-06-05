@@ -11,13 +11,12 @@
   <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ filemtime(public_path('assets/css/home.css')) }}" />
 </head>
 
-<body>
+<body class="home-carousel-redesign {{ ($cmsPreview ?? false) ? 'cms-preview-mode' : 'public-home-mode' }}">
   @php
     $cmsPreview = (bool) ($cmsPreview ?? false);
     $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
     $defaults = \App\Support\HomeCmsContent::defaults();
     $slides = $homeCms['carousel_slides'] ?? [];
-    $hero = $homeCms['hero'] ?? $defaults['hero'];
     $updatesSection = $homeCms['updates'] ?? $defaults['updates'];
     $campusTourSection = $homeCms['campus_tour'] ?? ($defaults['campus_tour'] ?? []);
     $quickLinksSection = $homeCms['quick_links'] ?? $defaults['quick_links'];
@@ -27,10 +26,58 @@
         $slides = $defaults['carousel_slides'];
     }
 
-    $slideCount = count($slides);
     $newsFeed = $news->take(5)->values();
     $announcementFeed = collect($announcements ?? [])->values();
     $quickLinks = $quickLinksSection['items'] ?? $defaults['quick_links']['items'] ?? [];
+    $pageSlideFallbacks = [
+        [
+            'title' => 'Welcome to PUP Taguig Campus',
+            'subtitle' => 'Discover our campus, identity, and institutional story.',
+            'image' => 'assets/static_img/pupillar.jpeg',
+        ],
+        [
+            'title' => 'Academic Excellence',
+            'subtitle' => 'Explore programs that prepare leaders for tomorrow.',
+            'image' => 'assets/static_img/graduates.jpg',
+        ],
+        [
+            'title' => 'Student Life',
+            'subtitle' => 'Find student services, support, and campus opportunities.',
+            'image' => 'assets/static_img/studentbody.jpg',
+        ],
+        [
+            'title' => 'Campus Events',
+            'subtitle' => 'Stay connected with upcoming activities and campus milestones.',
+            'image' => 'assets/static_img/mula sayo para sa bayan.jpg',
+        ],
+        [
+            'title' => 'Research & Extension',
+            'subtitle' => 'Discover research tools, extension programs, and institutional resources.',
+            'image' => 'assets/static_img/research.jpg',
+        ],
+    ];
+    $pageSlideOrder = [0, 2, 1, 3, 4];
+
+    $carouselSlides = collect($pageSlideOrder)->map(function ($sourceIndex) use ($quickLinks, $slides, $pageSlideFallbacks) {
+        $link = $quickLinks[$sourceIndex] ?? [];
+        $fallback = $pageSlideFallbacks[$sourceIndex] ?? $pageSlideFallbacks[0];
+        $cmsSlide = $slides[$sourceIndex] ?? [];
+
+        return [
+            'title' => trim((string) ($cmsSlide['title'] ?? '')) !== ''
+                ? $cmsSlide['title']
+                : $fallback['title'],
+            'subtitle' => trim((string) ($cmsSlide['subtitle'] ?? '')) !== ''
+                ? $cmsSlide['subtitle']
+                : $fallback['subtitle'],
+            'image' => trim((string) ($cmsSlide['image'] ?? '')) !== ''
+                ? $cmsSlide['image']
+                : $fallback['image'],
+            'page_label' => $link['label'] ?? $link['title'] ?? 'Explore',
+            'href' => $link['href'] ?? '#',
+        ];
+    });
+
     $campusTourVideo = \App\Support\ImageStorage::url((string) ($campusTourSection['avp_video'] ?? ''), null);
     $campusFacilities = collect($campusTourSection['facilities'] ?? [])
         ->filter(fn ($item) => is_array($item) && trim((string) ($item['image'] ?? '')) !== '')
@@ -69,17 +116,16 @@
         <section class="carousel-section">
           <div class="carousel full-carousel">
             <div class="carousel-stage">
-              @foreach($slides as $slide)
+              @foreach($carouselSlides as $slide)
                 @php
-                  $nextSlide = $slides[($loop->index + 1) % max($slideCount, 1)] ?? $slide;
                   $leftSlideImage = \App\Support\HomeCmsContent::resolveImagePath(
                       (string) ($slide['image'] ?? ''),
                       'assets/static_img/pupillar.jpeg'
                   );
-                  $rightSlideImage = \App\Support\HomeCmsContent::resolveImagePath(
-                      (string) ($nextSlide['image'] ?? ''),
-                      'assets/static_img/pupillar.jpeg'
-                  );
+                  $slideHref = trim((string) ($slide['href'] ?? ''));
+                  if ($slideHref !== '' && preg_match('/^(https?:)?\/\//i', $slideHref) !== 1) {
+                      $slideHref = url('/'.ltrim($slideHref, '/'));
+                  }
                 @endphp
 
                 <div class="carousel-slide fade{{ $loop->first ? ' active' : '' }}">
@@ -89,33 +135,33 @@
                       alt=""
                       class="carousel-half carousel-half-left"
                     />
-                    <img
-                      src="{{ $rightSlideImage }}"
-                      alt=""
-                      class="carousel-half carousel-half-right"
-                    />
+                  </div>
+
+                  <div class="carousel-caption">
+                    <span class="caption-label">PUP Taguig Campus</span>
+                    <h2>{{ e($slide['title'] ?? '') }}</h2>
+                    @if(trim(strip_tags((string) ($slide['subtitle'] ?? ''))) !== '')
+                      <div class="carousel-caption-copy">
+                        {!! \App\Support\RichText::sanitize($slide['subtitle'] ?? '') !!}
+                      </div>
+                    @endif
+
+                    @if($slideHref !== '')
+                      <a class="carousel-page-link" href="{{ $slideHref }}">
+                        {{ e($slide['page_label'] ?? 'Explore') }}
+                        <span aria-hidden="true">&rarr;</span>
+                      </a>
+                    @endif
                   </div>
                 </div>
               @endforeach
-            </div>
-
-            <div class="carousel-crest-wrap">
-              <article class="carousel-crest">
-                <div class="crest-inner">
-                  <div class="crest-icon" aria-hidden="true">
-                    <img src="{{ asset('assets/static_img/logo.png') }}" alt="" role="presentation">
-                  </div>
-                  <h1>{!! nl2br(e($hero['crest_heading'] ?? '')) !!}</h1>
-                  <p class="crest-year">{{ e($hero['crest_year'] ?? '') }}</p>
-                </div>
-              </article>
             </div>
 
             <button type="button" class="carousel-prev" onclick="changeSlide(-1)" aria-label="Previous slide">&#10094;</button>
             <button type="button" class="carousel-next" onclick="changeSlide(1)" aria-label="Next slide">&#10095;</button>
 
             <div class="carousel-indicators">
-              @foreach($slides as $slide)
+              @foreach($carouselSlides as $slide)
                 <span class="indicator{{ $loop->first ? ' active' : '' }}" onclick="goToSlide({{ $loop->iteration }})"></span>
               @endforeach
             </div>
@@ -319,7 +365,8 @@
       </div>
     </section>
 
-    <section class="quick-links reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
+    @if($cmsPreview)
+    <section class="quick-links reveal cms-preview-editable">
       <div class="section-heading layout-inset reveal">
         <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
         <h2>{{ e($quickLinksSection['title'] ?? 'Navigate the campus experience.') }}</h2>
@@ -371,6 +418,7 @@
           </div>
       </div>
     </section>
+    @endif
 
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
       <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">

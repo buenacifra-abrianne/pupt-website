@@ -752,15 +752,25 @@ body :is(
 }
 
 pup-header .navbar {
-  background: #991b21;
+  position: relative;
+  background: linear-gradient(100deg, #69060b 0%, #8f1118 52%, #6c080d 100%);
   border-top: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 4px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 8px 18px rgba(70, 7, 11, 0.18);
+  transition: border-color 0.24s ease;
+}
+
+pup-header .navbar:has(.nav-menu a:hover),
+pup-header .navbar:has(.nav-menu a:focus-visible) {
+  border-bottom-color: #f4bd16;
 }
 
 pup-header .nav-menu {
+  --nav-gap: 52px;
   display: flex;
   justify-content: center;
   align-items: stretch;
-  gap: 52px;
+  gap: var(--nav-gap);
   list-style: none;
   width: 100%;
   max-width: 1480px;
@@ -770,7 +780,13 @@ pup-header .nav-menu {
 
 pup-header .nav-menu li {
   position: relative;
-  transition: background-color 0.24s ease, box-shadow 0.24s ease;
+  flex: 1 1 0;
+}
+
+pup-header .nav-menu li:hover,
+pup-header .nav-menu li:has(a.active) {
+  background: transparent;
+  box-shadow: none;
 }
 
 pup-header .nav-menu-header {
@@ -782,10 +798,18 @@ pup-header .nav-mobile-footer {
   display: none;
 }
 
-pup-header .nav-menu li:hover,
-pup-header .nav-menu li:has(a.active) {
-  background: #7f1113;
-  box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
+pup-header .nav-menu li:not(.nav-menu-header, .nav-mobile-intro, .nav-mobile-footer)::after {
+  content: "";
+  position: absolute;
+  top: 30%;
+  right: calc(var(--nav-gap) / -2);
+  width: 1px;
+  height: 40%;
+  background: rgba(255, 255, 255, 0.18);
+}
+
+pup-header .nav-menu li:nth-last-child(2)::after {
+  display: none;
 }
 
 pup-header .nav-menu a {
@@ -802,26 +826,50 @@ pup-header .nav-menu a {
   font-weight: 700;
   letter-spacing: 0.055em;
   text-transform: uppercase;
-  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  transition: color 0.24s ease, transform 0.24s ease, text-shadow 0.24s ease;
 }
 
-pup-header .nav-menu a::after {
-  content: "";
+pup-header .nav-menu a:hover,
+pup-header .nav-menu a:focus-visible,
+pup-header .nav-menu a.active {
+  color: #ffd43b;
+  text-shadow: 0 0 16px rgba(255, 212, 59, 0.3);
+  transform: translateY(-2px);
+}
+
+pup-header .nav-menu a:focus-visible {
+  outline: 2px solid #ffd43b;
+  outline-offset: -7px;
+}
+
+pup-header .nav-hover-indicator {
+  --nav-indicator-x: 50%;
   position: absolute;
-  left: 22px;
-  right: 22px;
-  bottom: 10px;
-  height: 3px;
-  border-radius: 999px;
-  background: #f3c45a;
-  transform: scaleX(0);
-  transform-origin: center;
-  transition: transform 0.22s ease;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 0;
+  border-right: 10px solid transparent;
+  border-bottom: 11px solid rgba(255, 255, 255, 0.92);
+  border-left: 10px solid transparent;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(calc(var(--nav-indicator-x) - 10px));
+  transition:
+    transform 0.34s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.18s ease,
+    border-bottom-color 0.24s ease;
+  z-index: 2;
 }
 
-pup-header .nav-menu li:hover a::after,
-pup-header .nav-menu a.active::after {
-  transform: scaleX(1);
+pup-header .nav-hover-indicator.is-visible {
+  opacity: 1;
+}
+
+pup-header .navbar:has(.nav-menu a:hover) .nav-hover-indicator,
+pup-header .navbar:has(.nav-menu a:focus-visible) .nav-hover-indicator {
+  border-bottom-color: #f4bd16;
 }
 
 pup-header .hamburger {
@@ -834,7 +882,7 @@ pup-header .nav-overlay {
 
 @media (max-width: 1240px) {
   pup-header .nav-menu {
-    gap: 28px;
+    --nav-gap: 28px;
   }
 
   pup-header .nav-menu a {
@@ -919,6 +967,8 @@ pup-header .nav-overlay {
   pup-header .navbar {
     background: transparent;
     border-top: none;
+    border-bottom: none;
+    box-shadow: none;
   }
 
   pup-header .hamburger {
@@ -1096,6 +1146,11 @@ pup-header .nav-overlay {
     flex: none;
   }
 
+  pup-header .nav-menu li::after,
+  pup-header .nav-hover-indicator {
+    display: none;
+  }
+
   pup-header .nav-menu a {
     justify-content: flex-start;
     min-height: 46px;
@@ -1109,10 +1164,23 @@ pup-header .nav-overlay {
   }
 
   pup-header .nav-menu a::after {
+    content: "";
+    position: absolute;
     left: 16px;
     right: auto;
     bottom: 8px;
     width: 36px;
+    height: 3px;
+    border-radius: 999px;
+    background: #f3c45a;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.22s ease;
+  }
+
+  pup-header .nav-menu li:hover a::after,
+  pup-header .nav-menu a.active::after {
+    transform: scaleX(1);
   }
 
   pup-header .nav-menu li:hover,
@@ -1151,6 +1219,13 @@ pup-header .nav-overlay {
   .scroll-nav-button svg {
     width: 24px;
     height: 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  pup-header .nav-menu a,
+  pup-header .nav-hover-indicator {
+    transition-duration: 0.01ms;
   }
 }
 
