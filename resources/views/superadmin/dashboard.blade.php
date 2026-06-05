@@ -1203,6 +1203,18 @@ async function postJSON(url, data) {
             : 'Loading server metrics...';
     }
 
+    function clearServerHealthFeedback() {
+        const { fallback, fallbackText } = getServerHealthElements();
+
+        if (fallback) {
+            fallback.hidden = true;
+        }
+
+        if (fallbackText) {
+            fallbackText.textContent = '';
+        }
+    }
+
     function setServerHealthBadge(status) {
         const { status: statusEl } = getServerHealthElements();
         if (!statusEl) return;
@@ -1234,6 +1246,7 @@ async function postJSON(url, data) {
 
         card.dataset.loaded = '1';
         grid.hidden = false;
+        clearServerHealthFeedback();
         if (fallback && fallbackText) {
             fallback.hidden = false;
             fallbackText.textContent = message || 'Server health data is temporarily unavailable.';
@@ -1250,8 +1263,10 @@ async function postJSON(url, data) {
     }
 
     function renderServerHealth(data) {
-        const { card, grid, fallback } = getServerHealthElements();
+        const { card, grid } = getServerHealthElements();
         if (!card || !grid) return;
+
+        clearServerHealthFeedback();
 
         const status = String(data?.status || '').trim();
         const cpu = Number(data?.cpu_usage);
@@ -1268,10 +1283,6 @@ async function postJSON(url, data) {
         if (!hasMetrics) {
             renderUnavailableServerHealth(data?.message || 'Server health data is temporarily unavailable.');
             return;
-        }
-
-        if (fallback) {
-            fallback.hidden = true;
         }
 
         setServerHealthBadge(status);
