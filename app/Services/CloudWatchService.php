@@ -29,20 +29,8 @@ class CloudWatchService
         $fetchedAt = now();
         $instanceId = $this->resolveInstanceId();
 
-        if ($instanceId === null) {
-            Log::warning('CloudWatch server health fetch skipped because the EC2 instance ID could not be resolved.');
-
-            return $this->fallbackPayload('Server health data is temporarily unavailable.');
-        }
-
         try {
-            $cpuUsage = $this->fetchLatestMetricValue(
-                (string) config('services.cloudwatch.ec2_namespace', 'AWS/EC2'),
-                (string) config('services.cloudwatch.cpu_metric', 'CPUUtilization'),
-                [
-                    ['Name' => 'InstanceId', 'Value' => $instanceId],
-                ]
-            );
+            $cpuUsage = $this->fetchCpuUsage($instanceId);
 
             $memoryUsage = $this->fetchMemoryUsage($instanceId);
 
@@ -75,7 +63,30 @@ class CloudWatchService
         }
     }
 
-    private function fetchMemoryUsage(string $instanceId): ?float
+    private function fetchCpuUsage(?string $instanceId): ?float
+    {
+        $namespace = (string) config('services.cloudwatch.cpu_namespace', 'AWS/EC2');
+        $metricName = (string) config('services.cloudwatch.cpu_metric', 'CPUUtilization');
+        $configuredDimensions = $this->parseConfiguredDimensions(
+            config('services.cloudwatch.cpu_dimensions')
+        );
+
+        if ($configuredDimensions !== []) {
+            return $this->fetchLatestMetricValue($namespace, $metricName, $configuredDimensions);
+        }
+
+        if ($instanceId === null) {
+            Log::warning('CloudWatch CPU metric fetch skipped because no CPU dimensions were configured and the instance ID could not be resolved.');
+
+            return null;
+        }
+
+        return $this->fetchLatestMetricValue($namespace, $metricName, [
+            ['Name' => 'InstanceId', 'Value' => $instanceId],
+        ]);
+    }
+
+    private function fetchMemoryUsage(?string $instanceId): ?float
     {
         $namespace = (string) config('services.cloudwatch.cwagent_namespace', 'CWAgent');
         $metricName = (string) config('services.cloudwatch.memory_metric', 'mem_used_percent');
@@ -85,6 +96,12 @@ class CloudWatchService
 
         if ($configuredDimensions !== []) {
             return $this->fetchLatestMetricValue($namespace, $metricName, $configuredDimensions);
+        }
+
+        if ($instanceId === null) {
+            Log::warning('CloudWatch memory metric fetch skipped because no memory dimensions were configured and the instance ID could not be resolved.');
+
+            return null;
         }
 
         $dimensionSets = $this->discoverMemoryMetricDimensions($namespace, $metricName, $instanceId);
