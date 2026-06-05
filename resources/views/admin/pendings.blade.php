@@ -58,7 +58,7 @@
             <li class="nav-item">
                 <a href="{{ route('admin.downloadables') ?? '#' }}" class="nav-link">
                     <i class="fas fa-download"></i>
-                    <span>Downloadables</span>
+                    <span>Campus Memorandum</span>
                 </a>
             </li>
             <li class="nav-item">

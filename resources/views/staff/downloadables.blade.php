@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Downloadables - PUP Taguig CMS</title>
+    <title>Campus Memorandum - PUP Taguig CMS</title>
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -44,7 +44,7 @@
             <li class="nav-item">
                 <a href="{{ route('staff.downloadables') }}" class="nav-link active">
                     <i class="fas fa-download"></i>
-                    <span>Downloadables</span>
+                    <span>Campus Memorandum</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -62,7 +62,7 @@
 
     <main class="main-content">
         <div class="page-header">
-            <h1 class="page-title">Downloadables</h1>
+            <h1 class="page-title">Campus Memorandum</h1>
             <p class="page-subtitle">
                 {{ $isFacultyPro ? 'View files and submit downloadable requests for approval' : 'View and download approved files' }}
             </p>
@@ -77,7 +77,7 @@
 
             <div class="search-bar" style="margin-left:auto;">
                 <i class="fas fa-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search downloadables...">
+                <input type="text" id="globalSearch" placeholder="Search campus memoranda...">
             </div>
         </div>
 
@@ -329,7 +329,7 @@
 
         <div class="card" style="margin-top:18px;">
             <div class="card-header">
-                <h3 class="card-title">Available Downloadables</h3>
+                <h3 class="card-title">Available Campus Memoranda</h3>
                 <span class="status-badge status-enabled">Total: {{ $downloadables->count() }}</span>
             </div>
 
@@ -371,7 +371,7 @@
                         </div>
                     </div>
                 @empty
-                    <div style="padding:18px; opacity:.75;">No downloadables available.</div>
+                    <div style="padding:18px; opacity:.75;">No campus memoranda available.</div>
                 @endforelse
             </div>
         </div>
