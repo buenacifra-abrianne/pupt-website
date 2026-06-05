@@ -1880,3 +1880,115 @@ document.addEventListener('DOMContentLoaded', async () => {
   console.log('[NEWS_EVENTS] all:', all);
   if (all.ok) renderCardGrid(all.items || []);
 });
+const initAlphabeticalCardPages = () => {
+  document.querySelectorAll(".alphabetical-card-pages").forEach((container, containerIndex) => {
+    if (container.dataset.alphabeticalPagesReady === "true") {
+      return;
+    }
+
+    const getCardTitle = (card) => (
+      card.querySelector("h1, h2, h3, h4")?.textContent?.trim() || card.textContent.trim()
+    );
+    const getCardInitial = (card) => {
+      const initial = getCardTitle(card).match(/[A-Z0-9]/i)?.[0]?.toUpperCase();
+      return initial || "#";
+    };
+    const cards = Array.from(container.children);
+    if (cards.length < 2) {
+      return;
+    }
+
+    cards
+      .sort((first, second) => {
+        return getCardTitle(first).localeCompare(getCardTitle(second), undefined, { sensitivity: "base" });
+      })
+      .forEach((card) => container.appendChild(card));
+
+    const cardGroups = cards.reduce((groups, card) => {
+      const initial = getCardInitial(card);
+      const group = groups.find((item) => item.initial === initial);
+
+      if (group) {
+        group.cards.push(card);
+      } else {
+        groups.push({ initial, cards: [card] });
+      }
+
+      return groups;
+    }, []);
+    const selector = document.createElement("nav");
+    const selectorId = `alphabetical-card-selector-${containerIndex + 1}`;
+    selector.id = selectorId;
+    selector.className = "alphabetical-card-selector";
+    selector.setAttribute("aria-label", `${container.getAttribute("aria-label") || "Card"} pages`);
+    container.insertAdjacentElement("afterend", selector);
+    container.setAttribute("aria-describedby", selectorId);
+    container.dataset.alphabeticalPagesReady = "true";
+
+    let currentGroup = -1;
+
+    const render = (restoreFocus = false) => {
+      currentGroup = Math.min(currentGroup, cardGroups.length - 1);
+      const showAll = currentGroup === -1;
+      const activeGroup = showAll ? null : cardGroups[currentGroup];
+
+      cards.forEach((card) => {
+        card.hidden = !showAll && !activeGroup.cards.includes(card);
+      });
+
+      container.classList.toggle("alphabetical-card-pages--all", showAll);
+      selector.replaceChildren();
+
+      const allButton = document.createElement("button");
+      allButton.type = "button";
+      allButton.textContent = "...";
+      allButton.setAttribute("aria-label", "Show all cards alphabetically");
+
+      if (showAll) {
+        allButton.setAttribute("aria-current", "page");
+      }
+
+      allButton.addEventListener("click", () => {
+        currentGroup = -1;
+        render(true);
+      });
+
+      selector.appendChild(allButton);
+
+      cardGroups.forEach((group, groupIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = group.initial;
+        button.setAttribute(
+          "aria-label",
+          `Show ${group.cards.length === 1 ? "card" : "cards"} starting with ${group.initial}`
+        );
+
+        if (groupIndex === currentGroup) {
+          button.setAttribute("aria-current", "page");
+        }
+
+        button.addEventListener("click", () => {
+          currentGroup = groupIndex;
+          render(true);
+        });
+
+        selector.appendChild(button);
+      });
+
+      selector.hidden = false;
+
+      if (restoreFocus) {
+        selector.querySelector('[aria-current="page"]')?.focus();
+      }
+    };
+
+    render();
+  });
+};
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAlphabeticalCardPages);
+} else {
+  initAlphabeticalCardPages();
+}

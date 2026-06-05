@@ -6,6 +6,7 @@
     <title>Research & Extension - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/research.css') }}?v={{ filemtime(public_path('assets/css/research.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
@@ -108,7 +109,7 @@
                         <p class="section-tag">Contents</p>
                     </div>
 
-                    <nav class="students-cards" aria-label="Research and Extension contents">
+                    <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Research and Extension contents">
                         @if($cmsPreview)
                             <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add content">
                                 <div class="students-card-inner">

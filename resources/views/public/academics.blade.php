@@ -6,6 +6,7 @@
     <title>Academics - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/academics.css') }}?v={{ filemtime(public_path('assets/css/academics.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
@@ -84,7 +85,7 @@
             </div>
 
             <div class="contents-strip-inner">
-                    <nav class="contents-cards show-card-action" aria-label="Academic page contents">
+                    <nav class="contents-cards show-card-action{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Academic page contents">
                         @foreach($contentsItems as $item)
                             @if($cmsPreview)
                                 <article
@@ -162,7 +163,7 @@
             </div>
 
             <div class="academic-features-inner layout-inset">
-                    <div class="academic-features-grid">
+                    <div class="academic-features-grid{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}">
                         @foreach($featureItems as $item)
                             <div
                                 class="academic-feature-card{{ !empty($item['wide']) ? ' academic-feature-card--wide' : '' }} cards_information"

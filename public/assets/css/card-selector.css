@@ -1,0 +1,170 @@
+.alphabetical-card-pages {
+  --alphabetical-card-width: 260px;
+  --alphabetical-card-height: 320px;
+  display: grid !important;
+  grid-auto-flow: row !important;
+  grid-auto-columns: unset !important;
+  grid-template-columns: repeat(auto-fit, var(--alphabetical-card-width)) !important;
+  justify-content: start !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  gap: 18px !important;
+  padding: 4px 0 8px !important;
+  overflow: visible !important;
+  scroll-snap-type: none !important;
+  touch-action: auto !important;
+}
+
+.alphabetical-card-pages > * {
+  width: var(--alphabetical-card-width) !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  height: var(--alphabetical-card-height) !important;
+  min-height: var(--alphabetical-card-height) !important;
+  box-sizing: border-box;
+}
+
+.alphabetical-card-pages.alphabetical-card-pages--all {
+  display: grid !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: var(--alphabetical-card-width) !important;
+  grid-template-columns: none !important;
+  justify-content: start !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 17, 19, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.alphabetical-card-pages.alphabetical-card-pages--all > * {
+  scroll-snap-align: start;
+}
+
+.alphabetical-card-pages.alphabetical-card-pages--all::-webkit-scrollbar {
+  height: 8px;
+}
+
+.alphabetical-card-pages.alphabetical-card-pages--all::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(127, 17, 19, 0.3);
+}
+
+.students-contents-strip:has(.alphabetical-card-pages) .students-contents-inner,
+.students-contents-strip:has(.alphabetical-card-pages) > div,
+.contents-strip:has(.alphabetical-card-pages) .contents-strip-inner,
+.contents-strip:has(.alphabetical-card-pages) .contents-strip-head,
+.academic-features:has(.alphabetical-card-pages) .academic-features-inner,
+.academic-features:has(.alphabetical-card-pages) .academic-features-header {
+  width: 100% !important;
+  max-width: none !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+}
+
+.alphabetical-card-pages > [hidden] {
+  display: none !important;
+}
+
+.alphabetical-card-selector {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 18px auto 0;
+  padding: 8px;
+  border: 1px solid rgba(127, 17, 19, 0.1);
+  border-radius: 16px;
+  background: rgba(255, 250, 244, 0.72);
+  box-shadow: 0 8px 24px rgba(79, 9, 12, 0.08);
+}
+
+.alphabetical-card-selector button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 48px;
+  height: 48px;
+  padding: 0 14px;
+  border: 1px solid rgba(127, 17, 19, 0.22);
+  border-radius: 12px;
+  background: #8b171b;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(79, 9, 12, 0.14);
+  font: 700 1rem/1 "Poppins", sans-serif;
+  cursor: pointer;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.alphabetical-card-selector button:hover,
+.alphabetical-card-selector button:focus-visible {
+  background: #6f1014;
+  border-color: #6f1014;
+  box-shadow: 0 10px 22px rgba(79, 9, 12, 0.22);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.alphabetical-card-selector button[aria-current="page"] {
+  background: #4f090c;
+  border-color: #4f090c;
+  box-shadow: 0 0 0 3px rgba(127, 17, 19, 0.16);
+}
+
+body.pup-dark-mode .alphabetical-card-selector button {
+  border-color: rgba(255, 255, 255, 0.18);
+  background: #a5262b;
+  color: #fff;
+}
+
+body.pup-dark-mode .alphabetical-card-selector {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(24, 8, 10, 0.78);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+}
+
+body.pup-dark-mode .alphabetical-card-selector button[aria-current="page"] {
+  background: #d7d7d7;
+  border-color: #d7d7d7;
+  color: #3b080a;
+}
+
+@media (max-width: 759px) {
+  .alphabetical-card-pages {
+    --alphabetical-card-width: 230px;
+    --alphabetical-card-height: 290px;
+    gap: 12px !important;
+  }
+
+}
+
+@media (max-width: 519px) {
+  .alphabetical-card-pages {
+    --alphabetical-card-width: min(230px, 100%);
+    --alphabetical-card-height: 280px;
+    grid-template-columns: var(--alphabetical-card-width) !important;
+  }
+
+  .alphabetical-card-selector {
+    gap: 9px;
+    margin-top: 16px;
+    padding: 7px;
+  }
+
+  .alphabetical-card-selector button {
+    min-width: 44px;
+    height: 44px;
+    border-radius: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .alphabetical-card-selector button {
+    transition: none;
+  }
+}
