@@ -1208,6 +1208,7 @@ async function postJSON(url, data) {
 
         if (fallback) {
             fallback.hidden = true;
+            fallback.style.display = 'none';
         }
 
         if (fallbackText) {
@@ -1249,6 +1250,7 @@ async function postJSON(url, data) {
         clearServerHealthFeedback();
         if (fallback && fallbackText) {
             fallback.hidden = false;
+            fallback.style.display = 'flex';
             fallbackText.textContent = message || 'Server health data is temporarily unavailable.';
         }
 

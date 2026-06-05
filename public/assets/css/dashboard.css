@@ -1020,6 +1020,10 @@ color: #8a6400;
 font-size: 14px;
 }
 
+.server-health-fallback[hidden] {
+display: none !important;
+}
+
 .server-health-grid {
 display: grid;
 grid-template-columns: repeat(4, minmax(0, 1fr));
