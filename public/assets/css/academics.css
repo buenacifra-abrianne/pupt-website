@@ -3617,8 +3617,8 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
 }
 
 .dp-program-cards {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 18px;
   padding: 4px 2px 10px;
 }
@@ -3626,10 +3626,10 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
 .dp-program-cards .contents-card {
   display: block;
   text-decoration: none;
-  flex: 0 0 calc((100% - 72px) / 5);
-  max-width: calc((100% - 72px) / 5);
+  min-width: 0;
+  max-width: none;
   min-height: 300px;
-  height: 300px;
+  height: auto;
   border-radius: 18px;
   border: 1px solid rgba(127, 17, 19, 0.14);
   background: linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(247,239,232,0.88) 100%);
@@ -3689,6 +3689,7 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
 
 .dp-diploma-title {
   margin: 0;
+  overflow-wrap: anywhere;
   font-size: 1rem;
   font-weight: 700;
   color: var(--ink);
@@ -3716,6 +3717,7 @@ body.pup-dark-mode .dp-diploma-dept   { color: #c8a8a8; }
   display: inline-flex;
   align-items: center;
   width: fit-content;
+  max-width: 100%;
   margin-top: -2px;
   padding: 5px 10px;
   border-radius: 999px;
@@ -4127,30 +4129,26 @@ body.pup-dark-mode .dp-accreditation-footer-inner p {
 }
 
 @media (max-width: 1200px) {
-  .dp-program-cards .contents-card {
-    flex-basis: calc((100% - 54px) / 4);
-    max-width: calc((100% - 54px) / 4);
+  .dp-program-cards {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 900px) {
-  .dp-program-cards .contents-card {
-    flex-basis: calc((100% - 36px) / 3);
-    max-width: calc((100% - 36px) / 3);
+  .dp-program-cards {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .dp-program-cards .contents-card {
-    flex-basis: calc((100% - 18px) / 2);
-    max-width: calc((100% - 18px) / 2);
+  .dp-program-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 480px) {
-  .dp-program-cards .contents-card {
-    flex: 0 0 100%;
-    max-width: 100%;
+  .dp-program-cards {
+    grid-template-columns: minmax(0, 1fr);
   }
 
   .dp-diploma-card-body {
