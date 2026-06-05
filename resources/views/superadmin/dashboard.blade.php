@@ -440,6 +440,8 @@
                         </div>
                     </div>
 
+                    <x-server-health-widget />
+
                     <div class="card analytics-panel upload-analytics-panel">
                         <div class="analytics-panel-header">
                             <h3 class="analytics-panel-title">Upload Percentage</h3>
@@ -746,6 +748,9 @@
 
         if (tabId === 'analyticsTab' && !isTermsConsentPending()) {
             applyAnalytics();
+            startServerHealthPolling(true);
+        } else {
+            stopServerHealthPolling();
         }
 
     }
@@ -1168,6 +1173,178 @@ async function postJSON(url, data) {
         const el = document.getElementById('analyticsEmptyState');
         if (!el) return;
         el.style.display = show ? 'flex' : 'none';
+    }
+
+    let serverHealthPollHandle = null;
+    let serverHealthRequestInFlight = false;
+
+    function getServerHealthElements() {
+        return {
+            card: document.getElementById('serverHealthCard'),
+            grid: document.getElementById('serverHealthGrid'),
+            loading: document.getElementById('serverHealthLoading'),
+            loadingText: document.getElementById('serverHealthLoadingText'),
+            fallback: document.getElementById('serverHealthFallback'),
+            fallbackText: document.getElementById('serverHealthFallbackText'),
+            status: document.getElementById('serverHealthStatus'),
+            cpu: document.getElementById('serverHealthCpu'),
+            memory: document.getElementById('serverHealthMemory'),
+            updated: document.getElementById('serverHealthUpdated'),
+        };
+    }
+
+    function setServerHealthLoading(loading, hasRenderedData) {
+        const { loading: loadingEl, loadingText } = getServerHealthElements();
+        if (!loadingEl || !loadingText) return;
+
+        loadingEl.hidden = !loading;
+        loadingText.textContent = hasRenderedData
+            ? 'Refreshing server metrics...'
+            : 'Loading server metrics...';
+    }
+
+    function setServerHealthBadge(status) {
+        const { status: statusEl } = getServerHealthElements();
+        if (!statusEl) return;
+
+        statusEl.textContent = status;
+        statusEl.className = 'server-health-badge';
+
+        if (status === 'Healthy') {
+            statusEl.classList.add('status-healthy');
+            return;
+        }
+
+        if (status === 'Warning') {
+            statusEl.classList.add('status-warning');
+            return;
+        }
+
+        if (status === 'Critical') {
+            statusEl.classList.add('status-critical');
+            return;
+        }
+
+        statusEl.classList.add('status-unavailable');
+    }
+
+    function renderUnavailableServerHealth(message) {
+        const { card, grid, fallback, fallbackText, cpu, memory, updated } = getServerHealthElements();
+        if (!card || !grid) return;
+
+        card.dataset.loaded = '1';
+        grid.hidden = false;
+        if (fallback && fallbackText) {
+            fallback.hidden = false;
+            fallbackText.textContent = message || 'Server health data is temporarily unavailable.';
+        }
+
+        setServerHealthBadge('Unavailable');
+        setTextSafe('serverHealthCpu', '--');
+        setTextSafe('serverHealthMemory', '--');
+        setTextSafe('serverHealthUpdated', '--');
+
+        if (cpu) cpu.textContent = '--';
+        if (memory) memory.textContent = '--';
+        if (updated) updated.textContent = '--';
+    }
+
+    function renderServerHealth(data) {
+        const { card, grid, fallback } = getServerHealthElements();
+        if (!card || !grid) return;
+
+        const status = String(data?.status || '').trim();
+        const cpu = Number(data?.cpu_usage);
+        const memory = Number(data?.memory_usage);
+        const lastUpdated = String(data?.last_updated || '').trim();
+        const hasMetrics = ['Healthy', 'Warning', 'Critical'].includes(status)
+            && Number.isFinite(cpu)
+            && Number.isFinite(memory)
+            && lastUpdated !== '';
+
+        card.dataset.loaded = '1';
+        grid.hidden = false;
+
+        if (!hasMetrics) {
+            renderUnavailableServerHealth(data?.message || 'Server health data is temporarily unavailable.');
+            return;
+        }
+
+        if (fallback) {
+            fallback.hidden = true;
+        }
+
+        setServerHealthBadge(status);
+        setTextSafe('serverHealthCpu', `${Math.round(cpu)}%`);
+        setTextSafe('serverHealthMemory', `${Math.round(memory)}%`);
+        setTextSafe('serverHealthUpdated', lastUpdated);
+    }
+
+    async function fetchServerHealth() {
+        const { card } = getServerHealthElements();
+        if (!card || serverHealthRequestInFlight || isTermsConsentPending()) {
+            return;
+        }
+
+        serverHealthRequestInFlight = true;
+        const hasRenderedData = card.dataset.loaded === '1';
+        setServerHealthLoading(true, hasRenderedData);
+
+        try {
+            const response = await fetch(card.dataset.url, {
+                method: 'GET',
+                credentials: 'same-origin',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            const raw = await response.text();
+            let json;
+
+            try {
+                json = JSON.parse(raw);
+            } catch (error) {
+                throw new Error('Server health endpoint returned non-JSON data.');
+            }
+
+            if (!response.ok) {
+                throw new Error(json.message || `Server health request failed (${response.status}).`);
+            }
+
+            renderServerHealth(json);
+        } catch (error) {
+            console.error(error);
+            renderUnavailableServerHealth('Server health data is temporarily unavailable.');
+        } finally {
+            serverHealthRequestInFlight = false;
+            setServerHealthLoading(false, card.dataset.loaded === '1');
+        }
+    }
+
+    function startServerHealthPolling(refreshNow = false) {
+        stopServerHealthPolling();
+
+        if (refreshNow) {
+            fetchServerHealth();
+        }
+
+        serverHealthPollHandle = window.setInterval(() => {
+            const analyticsTab = document.getElementById('analyticsTab');
+            if (!analyticsTab?.classList.contains('active')) {
+                return;
+            }
+
+            fetchServerHealth();
+        }, 60000);
+    }
+
+    function stopServerHealthPolling() {
+        if (serverHealthPollHandle) {
+            window.clearInterval(serverHealthPollHandle);
+            serverHealthPollHandle = null;
+        }
     }
 
     window.applyAnalytics = async function () {

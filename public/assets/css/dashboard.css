@@ -959,6 +959,10 @@ grid-column: 1;
 grid-column: 2;
 }
 
+.server-health-panel {
+grid-column: 1 / -1;
+}
+
 .analytics-panel-header {
 display: flex;
 align-items: center;
@@ -986,6 +990,105 @@ gap: 18px;
 .analytics-engagement-grid .stat-card {
 margin-bottom: 0;
 min-height: 118px;
+}
+
+.server-health-refresh-note {
+font-size: 12px;
+font-weight: 600;
+color: #7a7a7a;
+}
+
+.server-health-state {
+display: inline-flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 16px;
+color: #666;
+font-size: 14px;
+}
+
+.server-health-fallback {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 16px;
+padding: 14px 16px;
+border: 1px dashed #e1cccc;
+border-radius: 10px;
+background: #fffaf1;
+color: #8a6400;
+font-size: 14px;
+}
+
+.server-health-grid {
+display: grid;
+grid-template-columns: repeat(4, minmax(0, 1fr));
+gap: 18px;
+}
+
+.server-health-item {
+padding: 18px;
+border: 1px solid rgba(139, 0, 0, 0.08);
+border-radius: 12px;
+background: #fff;
+box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.server-health-label {
+display: block;
+margin-bottom: 10px;
+color: #777;
+font-size: 12px;
+font-weight: 700;
+letter-spacing: 0.08em;
+text-transform: uppercase;
+}
+
+.server-health-value {
+display: inline-flex;
+align-items: center;
+min-height: 38px;
+color: var(--admin-primary);
+font-size: 28px;
+font-weight: 800;
+line-height: 1.2;
+}
+
+.server-health-value-sm {
+font-size: 18px;
+font-weight: 700;
+}
+
+.server-health-badge {
+display: inline-flex;
+align-items: center;
+justify-content: center;
+min-height: 38px;
+padding: 8px 14px;
+border-radius: 999px;
+font-size: 14px;
+font-weight: 800;
+line-height: 1;
+}
+
+.server-health-badge.status-healthy {
+background: #e8f7ec;
+color: #237a38;
+}
+
+.server-health-badge.status-warning {
+background: #fff4d8;
+color: #9c6b00;
+}
+
+.server-health-badge.status-critical {
+background: #fde9eb;
+color: #a42f3e;
+}
+
+.server-health-badge.status-unavailable {
+background: #eef1f4;
+color: #59606b;
 }
 
 .feedback-pie-layout {
@@ -1421,6 +1524,10 @@ text-align: center;
     grid-template-columns: 1fr;
 }
 
+.server-health-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .analytics-engagement-grid {
     grid-template-columns: 1fr;
 }
@@ -1444,6 +1551,22 @@ text-align: center;
 }
 
 @media (max-width: 520px) {
+.server-health-grid {
+    grid-template-columns: 1fr;
+}
+
+.server-health-item {
+    padding: 16px;
+}
+
+.server-health-value {
+    font-size: 24px;
+}
+
+.server-health-value-sm {
+    font-size: 16px;
+}
+
 .feedback-pie {
     width: 170px;
     height: 170px;

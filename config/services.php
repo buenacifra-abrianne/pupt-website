@@ -28,6 +28,19 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'cloudwatch' => [
+        'region' => env('AWS_CLOUDWATCH_REGION', env('AWS_DEFAULT_REGION', 'us-east-1')),
+        'version' => env('AWS_CLOUDWATCH_VERSION', 'latest'),
+        'instance_id' => env('AWS_CLOUDWATCH_INSTANCE_ID', env('EC2_INSTANCE_ID')),
+        'ec2_namespace' => env('AWS_CLOUDWATCH_EC2_NAMESPACE', 'AWS/EC2'),
+        'cpu_metric' => env('AWS_CLOUDWATCH_CPU_METRIC', 'CPUUtilization'),
+        'cwagent_namespace' => env('AWS_CLOUDWATCH_CWAGENT_NAMESPACE', 'CWAgent'),
+        'memory_metric' => env('AWS_CLOUDWATCH_MEMORY_METRIC', 'mem_used_percent'),
+        'memory_dimensions' => env('AWS_CLOUDWATCH_MEMORY_DIMENSIONS', ''),
+        'period' => (int) env('AWS_CLOUDWATCH_PERIOD', 300),
+        'lookback_minutes' => (int) env('AWS_CLOUDWATCH_LOOKBACK_MINUTES', 10),
+    ],
+
     'slack' => [
         'notifications' => [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),

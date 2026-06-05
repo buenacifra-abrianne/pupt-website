@@ -11,6 +11,7 @@ use App\Http\Controllers\Superadmin\ApprovalsController;
 use App\Http\Controllers\Superadmin\CmsController;
 use App\Http\Controllers\Superadmin\NotificationController;
 use App\Http\Controllers\Superadmin\AnalyticsController;
+use App\Http\Controllers\Superadmin\AnalyticsServerHealthController;
 use App\Http\Controllers\Superadmin\AccountsController;
 use App\Http\Controllers\Superadmin\AuditController;
 use App\Http\Controllers\Superadmin\DownloadableController as SuperadminDownloadableController;
@@ -334,3 +335,7 @@ Route::prefix('superadmin')->group(function () {
 
 
 });
+
+Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])
+    ->get('/api/analytics/server-health', AnalyticsServerHealthController::class)
+    ->name('superadmin.analytics.serverHealth');
