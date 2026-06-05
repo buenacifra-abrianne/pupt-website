@@ -25,15 +25,21 @@ body {
     min-height: 100%;
 }
 
+html {
+    background: #180607;
+}
+
 body {
     font-family: "Poppins", sans-serif;
     color: var(--landing-ink);
     background: #180607;
+    overflow-x: hidden;
 }
 
 .menu {
     --menu-pad-x: 24px;
     position: relative;
+    width: 100%;
     min-height: 100vh;
     min-height: 100dvh;
     display: flex;
@@ -69,6 +75,8 @@ body {
 
 .landing-container {
     width: min(1080px, 100%);
+    min-width: 0;
+    flex: 0 0 auto;
     margin: auto;
     border-radius: 30px;
     border: 1px solid rgba(255, 245, 236, 0.2);
@@ -95,6 +103,7 @@ body {
 
 .landing-identity {
     position: relative;
+    min-width: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -133,6 +142,7 @@ body {
     display: flex;
     flex-wrap: nowrap;
     align-items: center;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -214,7 +224,7 @@ body {
     display: block;
     white-space: nowrap;
     color: #fff9f3;
-    font-size: clamp(3rem, 6vw, 5rem);
+    font-size: clamp(2.4rem, 6vw, 5rem);
     font-weight: 900;
     line-height: 1.1;
     letter-spacing: 0.01em;
@@ -223,6 +233,7 @@ body {
 }
 
 .landing-actions {
+    min-width: 0;
     min-height: 100%;
     padding: clamp(24px, 3.8vw, 38px);
     display: flex;
@@ -245,6 +256,7 @@ body {
 
 .landing-actions-seal {
     width: 106px;
+    max-width: 100%;
     height: auto;
     object-fit: contain;
     display: block;
@@ -323,6 +335,7 @@ body {
     font-size: 0.76rem;
     line-height: 1.35;
     opacity: 0.9;
+    overflow-wrap: anywhere;
 }
 
 .portal-button--primary {
@@ -438,6 +451,10 @@ body {
         padding-bottom: 18px;
     }
 
+    .title-main-line {
+        font-size: clamp(2.35rem, 9vw, 4.25rem);
+    }
+
     .kicker {
         width: auto;
     }
@@ -488,6 +505,60 @@ body {
     }
 }
 
+@media (max-width: 700px) {
+    .menu {
+        --menu-pad-x: clamp(8px, 3vw, 12px);
+        padding-top: clamp(8px, 2.5vw, 14px);
+    }
+
+    .landing-container {
+        border-radius: clamp(16px, 5vw, 22px);
+    }
+
+    .landing-identity {
+        padding: clamp(20px, 6vw, 28px) clamp(14px, 5vw, 20px) 18px;
+    }
+
+    .landing-seals-shell {
+        width: min(100%, 286px);
+        margin-top: clamp(14px, 5vw, 24px);
+        padding: clamp(8px, 3vw, 12px);
+    }
+
+    .support-logo-row {
+        gap: clamp(6px, 2.5vw, 8px);
+    }
+
+    .support-logo-item,
+    .support-logo-item--dpo {
+        width: clamp(60px, 21vw, 74px);
+        height: clamp(60px, 21vw, 74px);
+        border-radius: clamp(12px, 4vw, 14px);
+    }
+
+    .support-logo {
+        width: clamp(46px, 16vw, 56px);
+        max-height: 80%;
+    }
+
+    .support-logo--dpo {
+        width: clamp(50px, 17vw, 60px);
+    }
+
+    .landing-actions {
+        padding: clamp(16px, 5vw, 20px);
+    }
+
+    .landing-actions-seal,
+    .landing-actions-seal--bagong {
+        width: clamp(72px, 23vw, 90px);
+    }
+
+    .portal-button {
+        min-height: 64px;
+    }
+}
+
 @media (max-width: 560px) {
     .landing-actions-seals-row {
         gap: 10px;
@@ -520,6 +591,40 @@ body {
     }
 }
 
+@media (max-width: 400px) {
+    .title {
+        letter-spacing: 0.02em;
+    }
+
+    .title-welcome {
+        font-size: clamp(1.25rem, 7vw, 1.65rem);
+        letter-spacing: 0.05em;
+    }
+
+    .title-main-line {
+        font-size: clamp(2rem, 10.5vw, 2.6rem);
+        letter-spacing: 0;
+    }
+
+    .kicker {
+        font-size: 0.66rem;
+        letter-spacing: 0.14em;
+    }
+
+    .landing-actions h2 {
+        font-size: 1.18rem;
+    }
+
+    .landing-actions > p {
+        font-size: 0.84rem;
+        line-height: 1.5;
+    }
+
+    .portal-button {
+        gap: 10px;
+    }
+}
+
 @media (max-height: 700px) and (min-width: 961px) {
     .menu {
         padding-top: 10px;
@@ -534,6 +639,41 @@ body {
 
     .title-main-line {
         font-size: clamp(2.55rem, 4.8vw, 4rem);
+    }
+
+    .landing-seals-shell {
+        margin-top: 14px;
+    }
+
+    .support-logo-item,
+    .support-logo-item--dpo {
+        width: 72px;
+        height: 72px;
+    }
+
+    .support-logo {
+        width: 54px;
+    }
+
+    .support-logo--dpo {
+        width: 58px;
+    }
+}
+
+@media (max-height: 560px) and (min-width: 700px) {
+    .menu {
+        padding-top: 8px;
+        gap: 8px;
+    }
+
+    .landing-container {
+        margin-block: 0;
+    }
+
+    .landing-identity,
+    .landing-actions {
+        padding-top: 14px;
+        padding-bottom: 14px;
     }
 }
 

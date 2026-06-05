@@ -149,9 +149,11 @@ body {
 
 .main-content {
   width: 100%;
+  max-width: none;
   margin: 0;
   padding: 0;
   min-height: 0;
+  overflow-x: clip;
 }
 
 .main-content,
@@ -201,6 +203,7 @@ body {
 
 .hero-shell {
   width: 100vw;
+  max-width: none;
   position: relative;
   left: 50%;
   right: 50%;
@@ -588,6 +591,7 @@ body {
 .campus-tour,
 .feedback-banner {
   width: 100vw;
+  max-width: none;
   position: relative;
   left: 50%;
   right: 50%;
