@@ -101,6 +101,17 @@
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
+.alphabetical-card-selector button.alphabetical-card-selector__all {
+  padding: 0;
+}
+
+.alphabetical-card-selector button.alphabetical-card-selector__all svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: currentColor;
+}
+
 .alphabetical-card-selector button:hover,
 .alphabetical-card-selector button:focus-visible {
   background: #6f1014;
