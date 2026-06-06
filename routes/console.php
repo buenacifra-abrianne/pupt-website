@@ -15,3 +15,7 @@ Schedule::command('scan:links')
 Schedule::command('sync:botpress')
     ->dailyAt('02:00')
     ->withoutOverlapping();
+
+Schedule::command('database-backups:run-scheduled')
+    ->dailyAt('02:30')
+    ->withoutOverlapping();
