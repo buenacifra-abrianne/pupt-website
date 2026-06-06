@@ -384,6 +384,9 @@
                 $admissionsPage = is_array($pagesEditor['admissions'] ?? null) ? $pagesEditor['admissions'] : ($studentsDefaults['pages']['admissions'] ?? []);
                 $admissionsHero = is_array($admissionsPage['hero'] ?? null) ? $admissionsPage['hero'] : [];
                 $admissionsInstructions = is_array($admissionsPage['instructions'] ?? null) ? $admissionsPage['instructions'] : [];
+                $admissionsContact = is_array($admissionsPage['contact'] ?? null) ? $admissionsPage['contact'] : [];
+                $admissionsContactOffices = is_array($admissionsContact['offices'] ?? null) ? $admissionsContact['offices'] : [];
+                $admissionsContactPersons = is_array($admissionsContact['persons'] ?? null) ? $admissionsContact['persons'] : [];
                 $admissionsLinks = is_array($admissionsPage['links'] ?? null) ? $admissionsPage['links'] : [];
                 $admissionsQrCodes = is_array($admissionsPage['qr_codes'] ?? null) ? $admissionsPage['qr_codes'] : [];
                 $admissionsHeroInputId = $idPrefix.'-students-admissions-hero-image';
@@ -506,6 +509,134 @@
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
                             {{ $submitLabel('Admissions Instructions') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            @php
+                $admissionsContactOfficeCount = count($admissionsContactOffices);
+                $admissionsContactPersonCount = count($admissionsContactPersons);
+            @endphp
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_contact" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_contact">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Contact Tag</label>
+                            <input type="text" name="students[pages][admissions][contact][tag]" maxlength="120" value="{{ $admissionsContact['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Title</label>
+                            <input type="text" name="students[pages][admissions][contact][title]" maxlength="255" value="{{ $admissionsContact['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact Description</label>
+                        <textarea name="students[pages][admissions][contact][description]" rows="2">{{ $admissionsContact['description'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-offices">
+                        <div class="students-cms-repeatable-head">
+                            <h4>Contact Us Offices</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-contact-offices">Add Office</button>
+                        </div>
+                        <div data-students-repeatable-list="admissions-contact-offices">
+                            @foreach($admissionsContactOffices as $index => $item)
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Office Name</label>
+                                            <input type="text" name="students[pages][admissions][contact][offices][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Contact Number</label>
+                                            <input type="text" name="students[pages][admissions][contact][offices][{{ $index }}][value]" maxlength="255" value="{{ $item['value'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Phone Link</label>
+                                        <input type="text" name="students[pages][admissions][contact][offices][{{ $index }}][href]" maxlength="255" value="{{ $item['href'] ?? '' }}">
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Office</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-persons">
+                        <div class="students-cms-repeatable-head">
+                            <h4>Contact Persons</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-contact-persons">Add Person</button>
+                        </div>
+                        <div data-students-repeatable-list="admissions-contact-persons">
+                            @foreach($admissionsContactPersons as $index => $item)
+                                @php
+                                    $personInputId = $idPrefix.'-students-admissions-contact-person-'.$index;
+                                    $personFieldId = $idPrefix.'-students-admissions-contact-person-field-'.$index;
+                                    $personPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                @endphp
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <input type="hidden" id="{{ $personFieldId }}" name="students[pages][admissions][contact][persons][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
+                                    <div class="form-group">
+                                        <label>Upload Profile Photo</label>
+                                        <div class="students-cms-image-dropzone-shell">
+                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $personInputId }}" role="button" tabindex="0" aria-label="Upload contact person profile photo">
+                                                <span class="students-cms-image-dropzone-preview-column">
+                                                    <span class="students-cms-image-dropzone-media">
+                                                        <img src="{{ $personPreview }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $personInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $personInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    </span>
+                                                    <span class="students-cms-image-dropzone-label">Profile Photo</span>
+                                                </span>
+                                                <span class="students-cms-image-dropzone-upload">
+                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                    <span class="students-cms-image-dropzone-upload-copy">Upload the contact person's profile photo.</span>
+                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $personInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                </span>
+                                            </div>
+                                        </div>
+                                        <input id="{{ $personInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][contact][persons][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $personFieldId }}">
+                                    </div>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Name</label>
+                                            <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][name]" maxlength="255" value="{{ $item['name'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Role</label>
+                                            <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][role]" maxlength="255" value="{{ $item['role'] ?? '' }}">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email</label>
+                                        <input type="email" name="students[pages][admissions][contact][persons][{{ $index }}][email]" maxlength="255" value="{{ $item['email'] ?? '' }}">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Email Link</label>
+                                        <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][href]" maxlength="255" value="{{ $item['href'] ?? '' }}">
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Person</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Admissions Contact') }}
                         </button>
                     </div>
                 </form>
@@ -1831,6 +1962,7 @@
                     cards_header: 'Update the heading, title, and supporting copy above the student cards.',
                     admissions_hero: 'Update the admissions subpage header and intro copy.',
                     admissions_instructions: 'Update the admissions application instructions section.',
+                    admissions_contact: 'Manage the admissions contact offices and contact person profiles.',
                     admissions_qr_codes: 'Manage the admissions QR codes section.',
                     admissions_links: 'Manage the admissions links section.',
                     document_requests_hero: 'Update the document requests subpage header and intro copy.',
@@ -2668,6 +2800,78 @@
                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                 </div>
             `,
+            'admissions-contact-offices': (index) => `
+                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Office Name</label>
+                            <input type="text" name="students[pages][admissions][contact][offices][${index}][label]" maxlength="255" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Number</label>
+                            <input type="text" name="students[pages][admissions][contact][offices][${index}][value]" maxlength="255" value="">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Link</label>
+                        <input type="text" name="students[pages][admissions][contact][offices][${index}][href]" maxlength="255" value="">
+                    </div>
+                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Office</button>
+                </div>
+            `,
+            'admissions-contact-persons': (index) => {
+                const inputId = `{{ $idPrefix }}-students-admissions-contact-person-${index}`;
+                const fieldId = `{{ $idPrefix }}-students-admissions-contact-person-field-${index}`;
+
+                return `
+                    <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                        <input type="hidden" id="${fieldId}" name="students[pages][admissions][contact][persons][${index}][image]" value="" data-students-image-field>
+                        <div class="form-group">
+                            <label>Upload Profile Photo</label>
+                            <div class="students-cms-image-dropzone-shell">
+                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${inputId}" role="button" tabindex="0" aria-label="Upload contact person profile photo">
+                                    <span class="students-cms-image-dropzone-preview-column">
+                                        <span class="students-cms-image-dropzone-media">
+                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="students-cms-image-dropzone-label">Profile Photo</span>
+                                    </span>
+                                    <span class="students-cms-image-dropzone-upload">
+                                        <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                        <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="students-cms-image-dropzone-upload-copy">Upload the contact person's profile photo.</span>
+                                        <span class="students-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="students-cms-image-dropzone-file" data-students-file-name-for="${inputId}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    </span>
+                                </div>
+                            </div>
+                            <input id="${inputId}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][contact][persons][${index}][image_file]" accept="image/*" data-students-image-field-id="${fieldId}">
+                        </div>
+                        <div class="students-cms-form-grid">
+                            <div class="form-group">
+                                <label>Name</label>
+                                <input type="text" name="students[pages][admissions][contact][persons][${index}][name]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Role</label>
+                                <input type="text" name="students[pages][admissions][contact][persons][${index}][role]" maxlength="255" value="">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" name="students[pages][admissions][contact][persons][${index}][email]" maxlength="255" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Link</label>
+                            <input type="text" name="students[pages][admissions][contact][persons][${index}][href]" maxlength="255" value="">
+                        </div>
+                        <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Person</button>
+                    </div>
+                `;
+            },
             'forms-links': (index) => `
                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                     <div class="students-cms-form-grid">

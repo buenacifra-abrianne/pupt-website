@@ -386,7 +386,7 @@ function initWidgetDock() {
         --widget-fab-gap: clamp(10px, 1.5vw, 12px);
         --widget-edge-offset: clamp(14px, 2.5vw, 24px);
         --widget-expanded-gap: 16px;
-        --widget-fab-bg: linear-gradient(135deg, #7f1113 0%, #a11d23 100%);
+        --widget-fab-bg: #8d0d10;
         --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
         position: fixed;
         right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px));
@@ -623,7 +623,15 @@ function initWidgetDock() {
     </div>
     <button type="button" class="widget-dock-fab" title="Open widgets" aria-label="Open widgets" aria-expanded="false">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-        <path fill="currentColor" d="M5 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>
+        <rect x="2" y="2" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="9.25" y="2" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="16.5" y="2" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="2" y="9.25" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="9.25" y="9.25" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="16.5" y="9.25" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="2" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="9.25" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+        <rect x="16.5" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
       </svg>
     </button>
   `;
@@ -642,7 +650,15 @@ function initWidgetDock() {
   `.trim();
   const launcherIcon = `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-      <path fill="currentColor" d="M5 10a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Zm7 0a2 2 0 1 1 0 4 2 2 0 0 1 0-4Z"/>
+      <rect x="2" y="2" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="9.25" y="2" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="16.5" y="2" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="2" y="9.25" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="9.25" y="9.25" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="16.5" y="9.25" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="2" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="9.25" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
+      <rect x="16.5" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
     </svg>
   `.trim();
 
@@ -1941,7 +1957,20 @@ const initAlphabeticalCardPages = () => {
 
       const allButton = document.createElement("button");
       allButton.type = "button";
-      allButton.textContent = "...";
+      allButton.classList.add("alphabetical-card-selector__all");
+      allButton.innerHTML = `
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <rect x="2" y="2" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="9.25" y="2" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="16.5" y="2" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="2" y="9.25" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="9.25" y="9.25" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="16.5" y="9.25" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="2" y="16.5" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="9.25" y="16.5" width="5.5" height="5.5" rx="1.4"></rect>
+          <rect x="16.5" y="16.5" width="5.5" height="5.5" rx="1.4"></rect>
+        </svg>
+      `;
       allButton.setAttribute("aria-label", "Show all cards alphabetically");
 
       if (showAll) {

@@ -73,6 +73,44 @@ class StudentsCmsContent
                     'body' => '<p>Write the admissions process here. You can add reminders, step-by-step instructions, and requirements for applicants.</p>',
                     'image' => '',
                 ],
+                'contact' => [
+                    'tag' => 'Contact Person',
+                    'title' => 'Admissions contact details',
+                    'description' => 'For admissions concerns, you may reach the offices and contact persons below.',
+                    'offices' => [
+                        [
+                            'label' => 'Office of the Head of Academic Programs',
+                            'value' => '(02) 8837-5858',
+                            'href' => 'tel:+63288375858',
+                        ],
+                        [
+                            'label' => 'Office of the Campus Registrar',
+                            'value' => '(02) 8837-5859',
+                            'href' => 'tel:+63288375859',
+                        ],
+                        [
+                            'label' => 'Quality Assurance Office',
+                            'value' => '(02) 8837-5860',
+                            'href' => 'tel:+63288375860',
+                        ],
+                    ],
+                    'persons' => [
+                        [
+                            'name' => 'MHEL P. GARCIA',
+                            'role' => 'Campus Registrar',
+                            'email' => 'mpgarcia@pup.edu.ph',
+                            'href' => 'mailto:mpgarcia@pup.edu.ph',
+                            'image' => '',
+                        ],
+                        [
+                            'name' => 'DIANNE S. SEGURORA',
+                            'role' => 'Head of Admission Office',
+                            'email' => 'dssegurora@pup.edu.ph',
+                            'href' => 'mailto:dssegurora@pup.edu.ph',
+                            'image' => '',
+                        ],
+                    ],
+                ],
                 'links' => [
                     'tag' => 'Application Links',
                     'title' => 'Open the official application portals',
@@ -500,6 +538,7 @@ class StudentsCmsContent
     {
         $baseLinks = is_array($base['links'] ?? null) ? $base['links'] : $defaults['links'];
         $baseQrCodes = is_array($base['qr_codes'] ?? null) ? $base['qr_codes'] : $defaults['qr_codes'];
+        $baseContact = is_array($base['contact'] ?? null) ? $base['contact'] : $defaults['contact'];
         $hasLinksInput = array_key_exists('links', $source);
         $hasQrCodesInput = array_key_exists('qr_codes', $source);
 
@@ -559,7 +598,109 @@ class StudentsCmsContent
                     ),
                 ]
                 : $baseQrCodes,
+            'contact' => [
+                'tag' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'tag',
+                    120
+                ),
+                'title' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'title'
+                ),
+                'description' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'description',
+                    5000
+                ),
+                'offices' => self::normalizeAdmissionsContactOffices(
+                    data_get($source, 'contact.offices', data_get($baseContact, 'offices', [])),
+                    data_get($baseContact, 'offices', []),
+                    data_get($defaults, 'contact.offices', [])
+                ),
+                'persons' => self::normalizeAdmissionsContactPersons(
+                    data_get($source, 'contact.persons', data_get($baseContact, 'persons', [])),
+                    data_get($baseContact, 'persons', []),
+                    data_get($defaults, 'contact.persons', [])
+                ),
+            ],
         ];
+    }
+
+    private static function normalizeAdmissionsContactOffices(mixed $input, mixed $base, mixed $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = is_array($base) ? array_values($base) : [];
+        $defaultItems = is_array($defaults) ? array_values($defaults) : [];
+        $items = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['label' => '', 'value' => '', 'href' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $normalized = [
+                'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
+                'value' => self::sanitizeString((string) ($item['value'] ?? ($baseItem['value'] ?? '')), 255, ''),
+                'href' => self::sanitizeString((string) ($item['href'] ?? ($baseItem['href'] ?? '')), 255, ''),
+            ];
+
+            if ($normalized['label'] === '' && $normalized['value'] === '') {
+                continue;
+            }
+
+            $items[] = $normalized;
+        }
+
+        return $items;
+    }
+
+    private static function normalizeAdmissionsContactPersons(mixed $input, mixed $base, mixed $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = is_array($base) ? array_values($base) : [];
+        $defaultItems = is_array($defaults) ? array_values($defaults) : [];
+        $items = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['name' => '', 'role' => '', 'email' => '', 'href' => '', 'image' => ''];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $normalized = [
+                'name' => self::sanitizeString((string) ($item['name'] ?? ($baseItem['name'] ?? '')), 255, ''),
+                'role' => self::sanitizeString((string) ($item['role'] ?? ($baseItem['role'] ?? '')), 255, ''),
+                'email' => self::sanitizeString((string) ($item['email'] ?? ($baseItem['email'] ?? '')), 255, ''),
+                'href' => self::sanitizeString((string) ($item['href'] ?? ($baseItem['href'] ?? '')), 255, ''),
+                'image' => array_key_exists('image', $item)
+                    ? self::sanitizeOptionalString((string) $item['image'], 2048)
+                    : self::sanitizeOptionalString((string) ($baseItem['image'] ?? ''), 2048),
+            ];
+
+            if ($normalized['name'] === '' && $normalized['role'] === '' && $normalized['email'] === '') {
+                continue;
+            }
+
+            $items[] = $normalized;
+        }
+
+        return $items;
     }
 
     private static function normalizeDownloadableFormsPage(array $source, array $base, array $defaults): array

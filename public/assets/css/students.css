@@ -258,7 +258,7 @@ body {
   position: relative;
   z-index: 1;
   min-height: 340px;
-  width: min(1100px, calc(100% - (var(--students-shell-gutter) * 2)));
+  width: min(1400px, calc(100% - (var(--students-shell-gutter) * 2)));
   margin: 0 auto;
   display: flex;
   flex-direction: column;
@@ -294,7 +294,7 @@ body {
 }
 
 .student-page-body {
-  width: min(1100px, calc(100% - (var(--students-shell-gutter) * 2)));
+  width: min(1400px, calc(100% - (var(--students-shell-gutter) * 2)));
   margin: 0 auto;
   padding: 28px 0 56px;
   display: grid;
@@ -482,6 +482,388 @@ body {
 .student-page-empty {
   margin: 0;
   color: var(--muted);
+}
+
+.student-admissions-contact {
+  margin-top: 18px;
+}
+
+.student-admissions-contact-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+
+.student-admissions-contact-panel {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  overflow: hidden;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 250, 246, 0.98) 0%, rgba(247, 239, 232, 0.92) 100%);
+  box-shadow: 0 14px 30px rgba(79, 9, 12, 0.08);
+}
+
+.student-admissions-contact-panel-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, #9b0f11 0%, #6f070a 100%);
+  color: #fffaf4;
+}
+
+.student-admissions-contact-panel-head p {
+  margin: 0 0 4px;
+  color: rgba(255, 250, 244, 0.84);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.student-admissions-contact-panel-head h4 {
+  margin: 0;
+  color: #fffaf4;
+  font-size: 1.02rem;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.student-admissions-contact-panel-icon {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  color: #fffaf4;
+}
+
+.student-admissions-contact-panel-icon--person {
+  width: 30px;
+  height: 30px;
+}
+
+.student-admissions-contact-panel-icon svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.student-admissions-contact-summary {
+  margin: 0;
+  padding: 14px 18px 2px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+
+.student-admissions-contact-items {
+  position: relative;
+  display: grid;
+  padding: 10px 18px 4px;
+}
+
+.student-admissions-contact-items::before {
+  content: "";
+  position: absolute;
+  left: 40px;
+  top: 60px;
+  bottom: 18px;
+  width: 2px;
+  background: repeating-linear-gradient(
+    to bottom,
+    rgba(127, 17, 19, 0.16) 0 9px,
+    transparent 9px 18px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.student-admissions-contact-item {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr) 22px;
+  gap: 14px;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(127, 17, 19, 0.1);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.student-admissions-contact-item {
+  cursor: pointer;
+}
+
+.student-admissions-contact-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.student-admissions-contact-item-icon,
+.student-admissions-contact-arrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #fffaf4;
+  background: linear-gradient(180deg, #a51417 0%, #76080b 100%);
+  box-shadow: 0 8px 16px rgba(79, 9, 12, 0.16);
+}
+
+.student-admissions-contact-item-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 999px;
+}
+
+.student-admissions-contact-item-icon svg,
+.student-admissions-contact-arrow svg,
+.student-admissions-person-avatar svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.student-admissions-person-avatar img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+  border-radius: inherit;
+}
+
+.student-admissions-contact-arrow {
+  width: 18px;
+  height: 18px;
+  color: rgba(79, 9, 12, 0.72);
+  background: transparent;
+  box-shadow: none;
+}
+
+.student-admissions-contact-item-copy {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.student-admissions-contact-item-copy strong,
+.student-admissions-person-copy strong {
+  color: var(--ink);
+  font-size: 0.88rem;
+  line-height: 1.2;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.student-admissions-contact-item-copy span,
+.student-admissions-person-copy span,
+.student-admissions-person a {
+  color: var(--maroon);
+  font-size: 0.98rem;
+  line-height: 1.2;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.student-admissions-contact-item:hover .student-admissions-contact-arrow,
+.student-admissions-contact-item:focus-visible .student-admissions-contact-arrow {
+  color: var(--maroon-deep);
+}
+
+.student-admissions-contact-item:hover,
+.student-admissions-contact-item:focus-visible {
+  outline: none;
+}
+
+.student-admissions-contact-item:hover .student-admissions-contact-item-copy span,
+.student-admissions-contact-item:focus-visible .student-admissions-contact-item-copy span,
+.student-admissions-person a:hover {
+  color: var(--maroon-deep);
+  text-decoration: underline;
+}
+
+.student-admissions-person-grid {
+  display: grid;
+  gap: 12px;
+  padding: 10px 18px 6px;
+}
+
+.student-admissions-person {
+  display: grid;
+  grid-template-columns: 88px minmax(0, 1fr) 1px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  min-height: 108px;
+  padding: 14px 18px;
+  border: 1px solid rgba(127, 17, 19, 0.1);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.student-admissions-person-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f0dfc5 0%, #dfc39f 100%);
+  color: rgba(116, 78, 35, 0.82);
+}
+
+.student-admissions-person-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.student-admissions-person-copy span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.student-admissions-person-divider {
+  width: 1px;
+  height: 58px;
+  background: rgba(127, 17, 19, 0.12);
+}
+
+.student-admissions-person a {
+  justify-self: start;
+  word-break: break-word;
+}
+
+@media (max-width: 880px) {
+  .student-admissions-contact-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .student-admissions-contact-panel-head {
+    padding: 14px 16px;
+  }
+
+  .student-admissions-contact-items,
+  .student-admissions-person-grid {
+    padding-inline: 16px;
+  }
+
+  .student-admissions-contact-items::before {
+    left: 37px;
+    top: 56px;
+    bottom: 14px;
+  }
+
+  .student-admissions-person {
+    grid-template-columns: 58px minmax(0, 1fr);
+    gap: 12px;
+    min-height: auto;
+    padding: 12px;
+  }
+
+  .student-admissions-person-divider,
+  .student-admissions-person a {
+    grid-column: 1 / -1;
+  }
+
+  .student-admissions-person-divider {
+    height: 1px;
+    width: 100%;
+  }
+
+  .student-admissions-person-avatar {
+    width: 58px;
+    height: 58px;
+  }
+}
+
+@media (max-width: 480px) {
+  .student-admissions-contact-panel-head {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .student-admissions-contact-items,
+  .student-admissions-person-grid {
+    padding-inline: 14px;
+  }
+
+  .student-admissions-contact-item {
+    grid-template-columns: 38px minmax(0, 1fr) 16px;
+    gap: 10px;
+    padding: 12px 0;
+  }
+
+  .student-admissions-contact-item-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .student-admissions-contact-items::before {
+    left: 29px;
+    top: 48px;
+    bottom: 12px;
+  }
+
+  .student-admissions-person {
+    padding: 12px;
+  }
+
+  .student-admissions-person-avatar {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+body.pup-dark-mode .student-admissions-contact-panel {
+  background: linear-gradient(180deg, rgba(34, 5, 7, 0.98) 0%, rgba(20, 3, 4, 0.98) 100%);
+  border-color: rgba(200, 80, 80, 0.14);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+
+body.pup-dark-mode .student-admissions-contact-summary,
+body.pup-dark-mode .student-admissions-person-copy span {
+  color: rgba(245, 232, 232, 0.74);
+}
+
+body.pup-dark-mode .student-admissions-contact-item {
+  border-bottom-color: rgba(200, 80, 80, 0.14);
+}
+
+body.pup-dark-mode .student-admissions-contact-item-copy strong,
+body.pup-dark-mode .student-admissions-contact-item-copy span,
+body.pup-dark-mode .student-admissions-person-copy strong,
+body.pup-dark-mode .student-admissions-person a {
+  color: #f5e8e8;
+}
+
+body.pup-dark-mode .student-admissions-contact-arrow {
+  color: rgba(245, 232, 232, 0.68);
+}
+
+body.pup-dark-mode .student-admissions-person {
+  background: linear-gradient(180deg, rgba(44, 7, 9, 0.96) 0%, rgba(30, 4, 6, 0.98) 100%);
+  border-color: rgba(200, 80, 80, 0.14);
+}
+
+body.pup-dark-mode .student-admissions-person-avatar {
+  background: linear-gradient(180deg, #e4c7a2 0%, #cfa777 100%);
+  color: rgba(82, 51, 20, 0.82);
+}
+
+body.pup-dark-mode .student-admissions-person-divider {
+  background: rgba(200, 80, 80, 0.16);
+}
+
+body.pup-dark-mode .student-admissions-contact-item:hover .student-admissions-contact-arrow,
+body.pup-dark-mode .student-admissions-contact-item:focus-visible .student-admissions-contact-arrow,
+body.pup-dark-mode .student-admissions-person a:hover {
+  color: #e08080;
 }
 
 .student-qr-modal {
