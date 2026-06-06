@@ -1867,17 +1867,22 @@ display: flex;
             display: flex;
             gap: 12px;
             margin: 20px 0;
+            flex-wrap: wrap;
         }
         .top-tab-btn {
             border: 1px solid #ddd;
             background: #fff;
-            padding: 10px 14px;
-            border-radius: 10px;
+            padding: 0 18px;
+            min-height: 48px;
+            border-radius: 14px;
             cursor: pointer;
             font-weight: 600;
+            font-size: 14px;
             display: inline-flex;
             align-items: center;
             gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 18px rgba(60, 35, 15, 0.06);
         }
 .top-tab-btn:hover {
             border-color: var(--admin-accent);
@@ -2106,9 +2111,40 @@ display: flex;
 
 .backup-tab-actions {
     display: flex;
-    gap: 12px;
+    gap: 16px;
     flex-wrap: wrap;
     align-items: center;
+}
+
+.backup-page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+}
+
+.backup-page-header > :first-child {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.backup-page-header .backup-tab-actions {
+    flex: 0 0 auto;
+    justify-content: flex-end;
+    align-self: flex-end;
+}
+
+.backup-tab-actions form {
+    display: flex;
+    margin: 0;
+}
+
+.backup-tab-actions .btn {
+    min-height: 50px !important;
+    padding: 0 22px !important;
+    border-radius: 14px !important;
+    font-size: 14px !important;
+    box-shadow: 0 10px 22px rgba(60, 35, 15, 0.08);
 }
 
 .backup-stats-grid {
@@ -2271,6 +2307,16 @@ display: flex;
 @media (max-width: 768px) {
     .backup-settings-grid {
         grid-template-columns: 1fr;
+    }
+
+    .backup-page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .backup-page-header .backup-tab-actions {
+        justify-content: flex-start;
+        align-self: stretch;
     }
 
     .backup-tab-actions,

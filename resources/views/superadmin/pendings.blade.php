@@ -152,7 +152,8 @@
                                             @json($item->display_content),
                                             @json($item->display_image_url),
                                             @json($item->display_category),
-                                            @json($item->display_location)
+                                            @json($item->display_location),
+                                            null
                                             )'>
                                         <i class="fas fa-eye"></i> View Details
                                         </button>
@@ -331,16 +332,11 @@
                                                 @json($item->display_content),
                                                 @json($item->display_image_url),
                                                 @json($item->display_category),
-                                                @json($item->display_location)
+                                                @json($item->display_location),
+                                                @json($item->rejection_reason)
                                             )'>
                                             <i class="fas fa-eye"></i> View Details
                                         </button>
-
-                                        @if($isRejected && !empty($item->rejection_reason))
-                                            <div style="margin-top:8px; font-size:13px; opacity:.8;">
-                                                <strong>Reason:</strong> {{ e($item->rejection_reason) }}
-                                            </div>
-                                        @endif
                                     </td>
 
                                     <td style="padding:10px;">
@@ -439,6 +435,11 @@
 <div id="dMeta" style="display:none; margin: 8px 0 12px 0; opacity:.85; font-size:14px;">
   <span id="dCategory"></span>
   <span id="dLocation" style="margin-left:10px;"></span>
+</div>
+
+<div id="dRejectionWrap" style="display:none; margin: 8px 0 12px 0;">
+  <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Reason for Rejection</div>
+  <div id="dRejectionReason" style="white-space:pre-wrap; background:#fff4f4; border:1px solid rgba(176, 58, 72, .18); border-radius:12px; padding:12px;">—</div>
 </div>
 
 <div id="dImgWrap" style="display:none; margin: 10px 0;">
@@ -983,7 +984,7 @@ function prettyType(rawType) {
   return m[key] || rawType || 'General';
 }
 
-function openDetails(type, title, priority, content, imageUrl, category, location) {
+function openDetails(type, title, priority, content, imageUrl, category, location, rejectionReason) {
   const modal = document.getElementById('detailsModal');
   modal.classList.add('active');
   document.body.classList.add('approval-modal-open');
@@ -1027,6 +1028,20 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
   else lEl.innerHTML = '';
 
   meta.style.display = (category || location) ? 'block' : 'none';
+
+  const rejectionWrap = document.getElementById('dRejectionWrap');
+  const rejectionEl = document.getElementById('dRejectionReason');
+  const rejectionText = String(rejectionReason || '').trim();
+
+  if (rejectionWrap && rejectionEl) {
+    if (rejectionText !== '') {
+      rejectionEl.textContent = rejectionText;
+      rejectionWrap.style.display = 'block';
+    } else {
+      rejectionEl.textContent = '—';
+      rejectionWrap.style.display = 'none';
+    }
+  }
 
   // ✅ image
   const wrap = document.getElementById('dImgWrap');
