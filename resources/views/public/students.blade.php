@@ -6,6 +6,7 @@
     <title>Students - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/students.css') }}?v={{ filemtime(public_path('assets/css/students.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body>
@@ -117,7 +118,7 @@
 
             <div>
                 <div class="students-contents-inner">
-                    <nav class="students-cards" aria-label="Student services">
+                    <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Student services">
                         @if($cmsPreview)
                             <article class="students-card students-card-add" data-students-add-card-trigger tabindex="0" role="button" aria-label="Add services">
                                 <div class="students-card-inner">

@@ -1,7 +1,6 @@
 @php
     $homeDefaults = \App\Support\HomeCmsContent::defaults();
     $homeEditorData = \App\Support\HomeCmsContent::fromInput($homeEditorData ?? [], null);
-    $heroEditor = $homeEditorData['hero'] ?? $homeDefaults['hero'];
     $updatesEditor = $homeEditorData['updates'] ?? $homeDefaults['updates'];
     $campusTourEditor = $homeEditorData['campus_tour'] ?? $homeDefaults['campus_tour'];
     $campusTourFacilitiesEditor = array_values(is_array($campusTourEditor['facilities'] ?? null) ? $campusTourEditor['facilities'] : []);
@@ -9,6 +8,13 @@
     $feedbackEditor = $homeEditorData['feedback'] ?? $homeDefaults['feedback'];
     $feedbackQuestionsEditor = $feedbackEditor['questions'] ?? ($homeDefaults['feedback']['questions'] ?? []);
     $slidesEditor = $homeEditorData['carousel_slides'] ?? $homeDefaults['carousel_slides'];
+    $carouselPageLabels = [
+        'About',
+        'Academics',
+        'Students',
+        'Events',
+        'Research & Extension',
+    ];
     $formClass = $homeEditorFormClass ?? 'cms-save-form';
     $submitRoute = $homeEditorSubmitRoute;
     $submitMode = $homeEditorSubmitMode ?? 'save';
@@ -84,16 +90,16 @@
                     @endif
 
                     <div class="carousel-manager-grid">
-                        @for($idx = 0; $idx < 3; $idx++)
+                        @for($idx = 0; $idx < 5; $idx++)
                             @php
                                 $slide = $slidesEditor[$idx] ?? ['title' => '', 'subtitle' => '', 'image' => ''];
                                 $slideInputId = $idPrefix.'-home-slide-'.$idx;
-                                $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', 'assets/static_img/pupillar.jpeg');
+                                $defaultSlideImage = $homeDefaults['carousel_slides'][$idx]['image'] ?? 'assets/static_img/pupillar.jpeg';
+                                $slidePreview = \App\Support\HomeCmsContent::resolveImagePath($slide['image'] ?? '', $defaultSlideImage);
+                                $pageLabel = $carouselPageLabels[$idx] ?? 'Page';
                             @endphp
                             <div class="carousel-manager-item">
                                 <input type="hidden" name="home[carousel][{{ $idx }}][image]" value="{{ $slide['image'] }}" data-home-carousel-image-field>
-                                <input type="hidden" name="home[carousel][{{ $idx }}][title]" value="{{ $slide['title'] }}">
-                                <input type="hidden" name="home[carousel][{{ $idx }}][subtitle]" value="{{ $slide['subtitle'] }}">
 
                                 <label class="home-dropzone slide-dropzone" for="{{ $slideInputId }}" data-home-carousel-dropzone-for="{{ $slideInputId }}">
                                     <span class="home-cms-carousel-media">
@@ -102,7 +108,7 @@
                                             alt="Slide {{ $idx + 1 }} preview"
                                             class="slide-preview"
                                             data-home-carousel-preview-for="{{ $slideInputId }}"
-                                            data-home-carousel-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                            data-home-carousel-default-src="{{ asset($defaultSlideImage) }}"
                                         >
                                         <button
                                             type="button"
@@ -114,7 +120,7 @@
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
-                                    <span class="dropzone-label">Slide {{ $idx + 1 }}</span>
+                                    <span class="dropzone-label">Slide {{ $idx + 1 }}: {{ $pageLabel }}</span>
                                     <span class="dropzone-file-name" data-home-carousel-file-name-for="{{ $slideInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </label>
                                 <input
@@ -124,22 +130,28 @@
                                     name="home[carousel][{{ $idx }}][image_file]"
                                     accept="image/*"
                                 >
+                                <div class="form-group">
+                                    <label for="{{ $slideInputId }}-title">{{ $pageLabel }} title</label>
+                                    <input
+                                        id="{{ $slideInputId }}-title"
+                                        type="text"
+                                        name="home[carousel][{{ $idx }}][title]"
+                                        maxlength="255"
+                                        value="{{ $slide['title'] }}"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label for="{{ $slideInputId }}-subtitle">{{ $pageLabel }} subtitle</label>
+                                    <input
+                                        id="{{ $slideInputId }}-subtitle"
+                                        type="text"
+                                        name="home[carousel][{{ $idx }}][subtitle]"
+                                        maxlength="255"
+                                        value="{{ $slide['subtitle'] }}"
+                                    >
+                                </div>
                             </div>
                         @endfor
-                    </div>
-
-                    <div class="home-cms-form-grid home-cms-carousel-meta-grid" data-home-card-panel-meta>
-                        @php
-                            $crestHeadingValue = str_replace(["\r", "\n"], ' ', (string) ($heroEditor['crest_heading'] ?? ''));
-                        @endphp
-                        <div class="form-group">
-                            <label>Crest Heading</label>
-                            <input type="text" name="home[hero][crest_heading]" maxlength="255" value="{{ $crestHeadingValue }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Crest Year</label>
-                            <input type="text" name="home[hero][crest_year]" maxlength="50" value="{{ $heroEditor['crest_year'] ?? '' }}">
-                        </div>
                     </div>
 
                     <div class="home-cms-modal-footer">
@@ -750,7 +762,7 @@
 
     .carousel-manager-grid {
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
     }
 
@@ -812,8 +824,17 @@
     }
 
     .slide-dropzone {
-        min-height: 100%;
+        min-height: 0;
+        margin-bottom: 14px;
         text-align: center;
+    }
+
+    .carousel-manager-item .form-group {
+        margin-bottom: 12px;
+    }
+
+    .carousel-manager-item .form-group:last-child {
+        margin-bottom: 0;
     }
 
     .campus-tour-dropzone {

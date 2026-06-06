@@ -34,14 +34,6 @@ class StudentsController extends Controller
         ]);
     }
 
-    public function downloadableFormsPersonnel(Request $request)
-    {
-        return view('public.student_downloadable_forms_personnel', [
-            'studentsCms' => $this->loadStudentsCms(),
-            'cmsPreview' => $request->boolean('cms_preview'),
-        ]);
-    }
-
     public function documentRequests(Request $request)
     {
         return view('public.student_document_requests', [

@@ -42,5 +42,18 @@
         font-size: 11px;
         line-height: 1.35;
         flex-wrap: wrap;
+        text-align: center;
+    }
+
+    .landing-footer .footer-copy {
+        flex-basis: 100%;
+    }
+}
+
+@media (max-width: 360px) {
+    .landing-footer {
+        column-gap: 5px;
+        padding-inline: 8px;
+        font-size: 10px;
     }
 }

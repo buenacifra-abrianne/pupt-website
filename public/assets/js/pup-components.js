@@ -52,6 +52,7 @@ class PUPHeader extends HTMLElement {
       <li><a href="${research}" data-key="research">RESEARCH & EXTENSION</a></li>
       <li class="nav-mobile-footer">Mula Sa'yo, Para sa Bayan</li>
     </ul>
+    <span class="nav-hover-indicator" aria-hidden="true"></span>
   </nav>
 </header>
     `.trim();
@@ -119,6 +120,46 @@ class PUPHeader extends HTMLElement {
     }
 
     const navLinks = this.querySelectorAll(".nav-menu a");
+    const navbar = this.querySelector(".navbar");
+    const hoverIndicator = this.querySelector(".nav-hover-indicator");
+
+    const moveHoverIndicator = (link) => {
+      if (!navbar || !hoverIndicator || window.matchMedia("(max-width: 900px)").matches) {
+        return;
+      }
+
+      const navbarRect = navbar.getBoundingClientRect();
+      const linkRect = link.getBoundingClientRect();
+      hoverIndicator.style.setProperty(
+        "--nav-indicator-x",
+        `${linkRect.left - navbarRect.left + (linkRect.width / 2)}px`
+      );
+      hoverIndicator.classList.add("is-visible");
+    };
+
+    const restoreActiveIndicator = () => {
+      const activeLink = this.querySelector(".nav-menu a.active");
+      if (activeLink) {
+        moveHoverIndicator(activeLink);
+      } else {
+        hoverIndicator?.classList.remove("is-visible");
+      }
+    };
+
+    navLinks.forEach((link) => {
+      link.addEventListener("pointerenter", () => moveHoverIndicator(link));
+      link.addEventListener("focus", () => moveHoverIndicator(link));
+    });
+
+    navMenu.addEventListener("pointerleave", restoreActiveIndicator);
+    navMenu.addEventListener("focusout", (event) => {
+      if (!navMenu.contains(event.relatedTarget)) {
+        restoreActiveIndicator();
+      }
+    });
+
+    window.addEventListener("resize", restoreActiveIndicator);
+    requestAnimationFrame(restoreActiveIndicator);
 
     const closeMenu = () => {
       navMenu.classList.remove("open");
@@ -322,7 +363,9 @@ class PUPFooter extends HTMLElement {
     const isLanding = variant === "landing";
     const year = new Date().getFullYear();
     const assets = this.dataset.assets || "/assets";
+    const about = this.dataset.about || "/about";
     const logoUrl = `${assets}/static_img/logo.png`;
+    const bagongPilipinasLogoUrl = `${assets}/static_img/bagong_pilipinas_logo.png`;
     const republicSealUrl = `${assets}/static_img/govph-seal-mono-footer.png`;
     const dpoDpsSealUrl = `${assets}/static_img/DPO_DPS_seal.png`;
     const npcCorSealDriveUrl = "https://drive.google.com/file/d/1Ef-hJnBux5Bn9Z3L4xUNeOETT-11f_7l/view?usp=drive_link";
@@ -381,6 +424,25 @@ class PUPFooter extends HTMLElement {
     filter:
       drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
       drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
+  }
+
+  .footer-bagong-pilipinas-logo {
+    width: 150px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    filter:
+      drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
+      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
+    animation: footer-logo-float 4s ease-in-out infinite;
+    transition: transform 0.18s ease, filter 0.18s ease;
+  }
+
+  .footer-bagong-pilipinas-logo:hover {
+    transform: translateY(-2px);
+    filter:
+      drop-shadow(0 0 18px rgba(240, 200, 90, 0.5))
+      drop-shadow(0 20px 30px rgba(18, 3, 4, 0.34));
   }
 
   @keyframes footer-logo-float {
@@ -761,6 +823,10 @@ class PUPFooter extends HTMLElement {
       height: 76px;
     }
 
+    .footer-bagong-pilipinas-logo {
+      width: 112px;
+    }
+
     .footer-column-title {
       margin-bottom: 8px;
       font-size: 11px;
@@ -917,9 +983,10 @@ class PUPFooter extends HTMLElement {
   <div class="footer-shell">
     <div class="footer-content">
       <div class="footer-brand">
-        <a class="footer-brand-logo" href="https://www.facebook.com/PUPTOFFICIAL" target="_blank" rel="noopener noreferrer" aria-label="PUP Taguig Facebook">
+        <a class="footer-brand-logo" href="${about}" aria-label="About PUP Taguig">
           <img src="${logoUrl}" alt="PUP Logo">
         </a>
+        <img class="footer-bagong-pilipinas-logo" src="${bagongPilipinasLogoUrl}" alt="Bagong Pilipinas">
       </div>
 
       <div class="footer-links-stack">
@@ -978,10 +1045,6 @@ class PUPFooter extends HTMLElement {
               <a class="footer-service-link" href="/students/downloadable-forms">
                 <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
                 <span>For Students</span>
-              </a>
-              <a class="footer-service-link" href="/students/downloadable-forms-university-personnel">
-                <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
-                <span>For University Personnel</span>
               </a>
             </div>
           </section>

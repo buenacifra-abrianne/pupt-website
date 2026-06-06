@@ -6,6 +6,7 @@
     <title>About - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 </head>
 <body @if(!empty($cmsPreview)) data-cms-preview="true" @endif>
@@ -149,7 +150,7 @@
                         <h2>{{ $overview['contents_title'] ?? 'All about the campus' }}</h2>
                     </div>
 
-                    <nav class="contents-cards" aria-label="About page contents">
+                    <nav class="contents-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="About page contents">
                         @foreach($contentsSections as $section)
                             @if($cmsPreview)
                                 <article

@@ -78,7 +78,7 @@
             <li class="nav-item">
                 <a href="{{ route('admin.downloadables') ?? '#' }}" class="nav-link">
                     <i class="fas fa-download"></i>
-                    <span>Downloadables</span>
+                    <span>Campus Memorandum</span>
                 </a>
             </li>
             <li class="nav-item">
@@ -132,6 +132,7 @@
                     </li>
                 @endforeach
             </ul>
+            <span class="cms-tab-indicator" aria-hidden="true"></span>
         </nav>
 
         @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
@@ -318,35 +319,56 @@
     }
 
     .tab-navigation {
+        position: relative;
         width: calc(100% + (var(--cms-tab-bleed) * 2));
         margin: 0 calc(var(--cms-tab-bleed) * -1) 26px;
-        overflow-x: auto;
-        background: #991b21;
+        overflow: visible;
+        background: linear-gradient(100deg, #69060b 0%, #8f1118 52%, #6c080d 100%);
         border-top: 1px solid rgba(255, 255, 255, 0.08);
+        border-bottom: 4px solid rgba(255, 255, 255, 0.92);
         border-radius: 0;
-        box-shadow: 0 16px 32px rgba(66, 12, 12, 0.14);
+        box-shadow: 0 8px 18px rgba(70, 7, 11, 0.18);
+        transition: border-color 0.24s ease;
+    }
+
+    .tab-navigation:has(.cms-tab-btn:hover),
+    .tab-navigation:has(.cms-tab-btn:focus-visible) {
+        border-bottom-color: #f4bd16;
     }
 
     .tab-navigation-list {
+        --cms-tab-gap: 52px;
         display: flex;
         justify-content: center;
         align-items: stretch;
-        gap: 28px;
+        gap: var(--cms-tab-gap);
         list-style: none;
         width: 100%;
+        max-width: 1480px;
         margin: 0;
-        padding: 0 30px;
+        margin-inline: auto;
+        padding: 0 24px;
     }
 
     .tab-navigation-item {
         position: relative;
-        transition: background-color 0.24s ease, box-shadow 0.24s ease;
+        flex: 1 1 0;
     }
 
     .tab-navigation-item:hover,
     .tab-navigation-item.is-active {
-        background: #7f1113;
-        box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .tab-navigation-item:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        top: 30%;
+        right: calc(var(--cms-tab-gap) / -2);
+        width: 1px;
+        height: 40%;
+        background: rgba(255, 255, 255, 0.18);
     }
 
     .cms-page-loading-overlay[hidden] {
@@ -427,52 +449,76 @@
         align-items: center;
         justify-content: center;
         min-height: 58px;
-        padding: 16px 30px;
+        padding: 16px 36px;
         border: 0;
         background: transparent;
         color: #fff;
         cursor: pointer;
         font-family: inherit;
-        font-size: 0.82rem;
+        font-size: 12.5px;
         font-weight: 700;
         letter-spacing: 0.055em;
         text-transform: uppercase;
         white-space: nowrap;
-        transition: background 0.2s ease, color 0.2s ease;
+        transition: color 0.24s ease, transform 0.24s ease, text-shadow 0.24s ease;
     }
 
     .cms-tab-btn::after {
-        content: "";
-        position: absolute;
-        left: 22px;
-        right: 22px;
-        bottom: 10px;
-        height: 3px;
-        border-radius: 999px;
-        background: #f3c45a;
-        transform: scaleX(0);
-        transform-origin: center;
-        transition: transform 0.22s ease;
-    }
-
-    .tab-navigation-item:hover .cms-tab-btn::after,
-    .cms-tab-btn:focus-visible::after,
-    .cms-tab-btn.active::after {
-        transform: scaleX(1);
+        display: none;
     }
 
     .cms-tab-btn:hover,
+    .cms-tab-btn:focus-visible {
+        color: #ffd43b;
+        text-shadow: 0 0 16px rgba(255, 212, 59, 0.3);
+        transform: translateY(-2px);
+    }
+
     .cms-tab-btn.active {
         color: #fff;
+        text-shadow: none;
+    }
+
+    .cms-tab-btn.active:hover,
+    .cms-tab-btn.active:focus-visible {
+        color: #ffd43b;
+        text-shadow: 0 0 16px rgba(255, 212, 59, 0.3);
     }
 
     .cms-tab-btn:focus-visible {
-        outline: none;
-        box-shadow: inset 0 0 0 2px rgba(243, 196, 90, 0.95);
+        outline: 2px solid #ffd43b;
+        outline-offset: -7px;
+        box-shadow: none;
     }
 
     .cms-tab-btn.active:focus-visible {
-        box-shadow: inset 0 0 0 2px rgba(243, 196, 90, 0.95);
+        box-shadow: none;
+    }
+
+    .cms-tab-indicator {
+        --cms-tab-indicator-x: 50%;
+        position: absolute;
+        left: 0;
+        bottom: -1px;
+        width: 0;
+        height: 0;
+        border-right: 10px solid transparent;
+        border-bottom: 11px solid rgba(255, 255, 255, 0.92);
+        border-left: 10px solid transparent;
+        opacity: 0;
+        pointer-events: none;
+        transform: translateX(calc(var(--cms-tab-indicator-x) - 10px));
+        transition: transform 0.34s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.18s ease, border-bottom-color 0.24s ease;
+        z-index: 2;
+    }
+
+    .cms-tab-indicator.is-visible {
+        opacity: 1;
+    }
+
+    .tab-navigation:has(.cms-tab-btn:hover) .cms-tab-indicator,
+    .tab-navigation:has(.cms-tab-btn:focus-visible) .cms-tab-indicator {
+        border-bottom-color: #f4bd16;
     }
 
     .stats-grid {
@@ -529,17 +575,24 @@
         background: rgba(243, 196, 90, 0.16);
     }
 
-    @media (max-width: 860px) {
+    @media (max-width: 900px) {
         .tab-navigation {
+            overflow-x: auto;
+            overflow-y: hidden;
             scrollbar-width: thin;
         }
 
         .tab-navigation-list {
+            --cms-tab-gap: 8px;
             justify-content: flex-start;
             width: max-content;
             min-width: 100%;
             padding: 0 14px;
             gap: 8px;
+        }
+
+        .tab-navigation-item {
+            flex: none;
         }
 
         .cms-tab-btn {
@@ -755,6 +808,40 @@
             el.classList.toggle('active', isActive);
             el.hidden = !isActive;
         });
+
+        window.requestAnimationFrame(() => moveCmsTabIndicator(btn));
+    }
+
+    function moveCmsTabIndicator(btn) {
+        const navigation = document.querySelector('.tab-navigation');
+        const indicator = navigation?.querySelector('.cms-tab-indicator');
+        if (!navigation || !indicator || !btn) return;
+
+        const navigationRect = navigation.getBoundingClientRect();
+        const buttonRect = btn.getBoundingClientRect();
+        indicator.style.setProperty(
+            '--cms-tab-indicator-x',
+            `${buttonRect.left - navigationRect.left + navigation.scrollLeft + (buttonRect.width / 2)}px`
+        );
+        indicator.classList.add('is-visible');
+    }
+
+    function initCmsTabIndicator() {
+        const navigation = document.querySelector('.tab-navigation');
+        if (!navigation) return;
+
+        const restoreActive = () => moveCmsTabIndicator(navigation.querySelector('.cms-tab-btn.active'));
+        navigation.querySelectorAll('.cms-tab-btn').forEach((btn) => {
+            btn.addEventListener('pointerenter', () => moveCmsTabIndicator(btn));
+            btn.addEventListener('focus', () => moveCmsTabIndicator(btn));
+        });
+        navigation.addEventListener('pointerleave', restoreActive);
+        navigation.addEventListener('focusout', (event) => {
+            if (!navigation.contains(event.relatedTarget)) restoreActive();
+        });
+        navigation.addEventListener('scroll', restoreActive, { passive: true });
+        window.addEventListener('resize', restoreActive);
+        window.requestAnimationFrame(restoreActive);
     }
 
     function switchCmsTab(tabKey, btn) {
@@ -1165,6 +1252,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
         bindCmsTabKeyboardNav();
+        initCmsTabIndicator();
 
         if (window.__cmsEntryLoading) {
             const entrySessionId = showCmsPreviewLoading();

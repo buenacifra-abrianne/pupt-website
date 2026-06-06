@@ -85,14 +85,24 @@ class AuditController extends Controller
                     'users.first_name',
                     'users.last_name',
                     'users.name',
-                    'roles.code as role_code',
+                    Schema::hasColumn('users', 'role') ? 'users.role as legacy_role' : null,
                     Schema::hasColumn('users', 'profile_picture') ? 'users.profile_picture' : null,
                 ]));
                 $userRows = DB::table('users')
-                    ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
                     ->whereIn('users.' . $userPk, $userIds)
                     ->select($userSelect)
                     ->get();
+
+                $rolesByUser = collect();
+                if (Schema::hasTable('user_roles')) {
+                    $rolesByUser = DB::table('user_roles')
+                        ->whereIn('user_id', $userIds)
+                        ->orderByDesc('is_primary')
+                        ->orderBy('id')
+                        ->get()
+                        ->groupBy('user_id')
+                        ->map(fn ($roles) => strtoupper((string) ($roles->first()->role_code ?? '')));
+                }
 
                 foreach ($userRows as $user) {
                     $name = trim((string) ($user->first_name ?? '') . ' ' . (string) ($user->last_name ?? ''));
@@ -100,9 +110,11 @@ class AuditController extends Controller
                         $name = (string) ($user->name ?? 'Unknown');
                     }
 
+                    $userId = (int) $user->{$userPk};
                     $userMap[(int) $user->{$userPk}] = [
                         'name' => $name,
-                        'role' => strtoupper((string) ($user->role_code ?? '')),
+                        'role' => (string) ($rolesByUser->get($userId)
+                            ?: strtoupper((string) ($user->legacy_role ?? ''))),
                         'avatar_url' => Avatar::resolveUrl((string) ($user->profile_picture ?? '')),
                         'avatar_initials' => Avatar::initials(
                             $name,

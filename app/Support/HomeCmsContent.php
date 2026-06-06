@@ -114,6 +114,16 @@ class HomeCmsContent
                 'subtitle' => 'Building Community and Character',
                 'image' => 'assets/static_img/studentbody.jpg',
             ],
+            [
+                'title' => 'Campus Events',
+                'subtitle' => 'Stay Connected with Campus Activities',
+                'image' => 'assets/static_img/mula sayo para sa bayan.jpg',
+            ],
+            [
+                'title' => 'Research & Extension',
+                'subtitle' => 'Advancing Knowledge and Community Service',
+                'image' => 'assets/static_img/research.jpg',
+            ],
         ],
     ];
 
@@ -508,7 +518,7 @@ class HomeCmsContent
         $inputSlides = is_array($input) ? array_values($input) : [];
         $normalized = [];
 
-        for ($i = 0; $i < 3; $i++) {
+        for ($i = 0; $i < 5; $i++) {
             $defaultSlide = $defaults[$i] ?? ['title' => '', 'subtitle' => '', 'image' => ''];
             $baseSlide = $baseSlides[$i] ?? $defaultSlide;
             $current = is_array($inputSlides[$i] ?? null) ? $inputSlides[$i] : [];

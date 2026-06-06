@@ -252,11 +252,13 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
 
 @media (max-width: 768px) {
     :root {
-        --widget-fab-size: clamp(52px, 13vw, 58px);
-        --widget-fab-gap: 10px;
-        --widget-edge-offset: clamp(12px, 3vw, 16px);
-        --widget-panel-gap: 24px;
-        --widget-panel-edge: 16px;
+        --widget-fab-size: clamp(48px, 11vw, 54px);
+        --widget-fab-gap: 8px;
+        --widget-edge-offset: clamp(10px, 2.5vw, 14px);
+        --widget-panel-gap: 16px;
+        --widget-panel-edge: 14px;
+        --widget-panel-width: clamp(360px, 86vw, 420px);
+        --widget-panel-height: clamp(640px, 76vh, 780px);
     }
 
     .acc-container .acc-toggle-btn {
@@ -285,25 +287,31 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
         bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
         width: min(var(--widget-panel-width), calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px))) !important;
         max-width: calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px)) !important;
-        height: auto !important;
-        max-height: none !important;
+        height: min(var(--widget-panel-height), calc(100dvh - (var(--widget-edge-offset) * 2))) !important;
+        max-height: min(var(--widget-panel-height), calc(100dvh - (var(--widget-edge-offset) * 2))) !important;
     }
 }
 
 @media (max-width: 600px) {
+    :root {
+        --widget-panel-width: clamp(320px, 90vw, 380px);
+        --widget-panel-height: clamp(600px, 72vh, 720px);
+        --widget-panel-gap: 14px;
+    }
+
     body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
     body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
     body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
     body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
-        left: 16px !important;
-        right: calc(16px + env(safe-area-inset-right, 0px)) !important;
+        left: auto !important;
+        right: calc(env(safe-area-inset-right, 0px) + var(--widget-panel-right-clearance)) !important;
         top: auto !important;
         bottom: max(
             calc(96px + env(safe-area-inset-bottom, 0px)),
             calc(var(--widget-edge-offset) + var(--fab-stack-height) + var(--widget-panel-gap) + env(safe-area-inset-bottom, 0px))
         ) !important;
-        width: auto !important;
-        max-width: none !important;
+        width: min(var(--widget-panel-width), calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px))) !important;
+        max-width: calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px)) !important;
         height: min(var(--widget-panel-height), calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
         height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
         max-height: min(var(--widget-panel-height), calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
@@ -313,9 +321,15 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
 
 @media (max-width: 480px) {
     :root {
-        --widget-fab-size: clamp(46px, 15vw, 52px);
+        --widget-fab-size: clamp(44px, 14vw, 48px);
         --widget-fab-gap: 8px;
-        --widget-edge-offset: clamp(8px, 3.8vw, 12px);
+        --widget-edge-offset: clamp(8px, 3.2vw, 10px);
+        --widget-panel-width: clamp(300px, 92vw, 360px);
+        --widget-panel-height: clamp(560px, 68vh, 680px);
+    }
+
+    body.has-widget-dock .acc-container {
+        font-size: 14px !important;
     }
 
     .acc-container .acc-toggle-btn {
@@ -327,17 +341,34 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
         width: 1.2rem !important;
         height: 1.2rem !important;
     }
+
+    .acc-container .acc-header,
+    body.pup-dark-mode .acc-container .acc-header {
+        padding: 12px 16px !important;
+        min-height: 54px !important;
+        gap: 10px !important;
+    }
+
+    .acc-container .acc-header .acc-label {
+        margin-left: 8px !important;
+        line-height: 1.15 !important;
+    }
 }
 
 @media (min-width: 601px) and (max-height: 700px) {
+    :root {
+        --widget-panel-width: clamp(360px, 52vw, 460px);
+        --widget-panel-height: clamp(620px, 78vh, 760px);
+    }
+
     body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
     body.has-widget-dock.widget-dock-open .acc-container > [class*="panel"],
     body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
     body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
         top: calc(var(--widget-edge-offset) + env(safe-area-inset-top, 0px)) !important;
         bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
-        height: auto !important;
-        max-height: none !important;
+        height: min(var(--widget-panel-height), calc(100dvh - (var(--widget-edge-offset) * 2))) !important;
+        max-height: min(var(--widget-panel-height), calc(100dvh - (var(--widget-edge-offset) * 2))) !important;
     }
 }
 
