@@ -366,6 +366,7 @@ class PUPFooter extends HTMLElement {
     const about = this.dataset.about || "/about";
     const logoUrl = `${assets}/static_img/logo.png`;
     const bagongPilipinasLogoUrl = `${assets}/static_img/bagong_pilipinas_logo.png`;
+    const artaSealUrl = `${assets}/static_img/ARTA.png`;
     const republicSealUrl = `${assets}/static_img/govph-seal-mono-footer.png`;
     const dpoDpsSealUrl = `${assets}/static_img/DPO_DPS_seal.png`;
     const npcCorSealDriveUrl = "https://drive.google.com/file/d/1Ef-hJnBux5Bn9Z3L4xUNeOETT-11f_7l/view?usp=drive_link";
@@ -395,14 +396,16 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer-brand {
-    display: grid;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     gap: 12px;
-    justify-items: start;
+    justify-content: flex-start;
   }
 
   .footer-brand-logo {
-    width: 164px;
-    height: 164px;
+    width: 154px;
+    height: 154px;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -427,7 +430,7 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer-bagong-pilipinas-logo {
-    width: 150px;
+    width: 146px;
     height: auto;
     display: block;
     object-fit: contain;
@@ -439,6 +442,25 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer-bagong-pilipinas-logo:hover {
+    transform: translateY(-2px);
+    filter:
+      drop-shadow(0 0 18px rgba(240, 200, 90, 0.5))
+      drop-shadow(0 20px 30px rgba(18, 3, 4, 0.34));
+  }
+
+  .footer-arta-logo {
+    width: 146px;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    filter:
+      drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
+      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
+    animation: footer-logo-float 4s ease-in-out infinite;
+    transition: transform 0.18s ease, filter 0.18s ease;
+  }
+
+  .footer-arta-logo:hover {
     transform: translateY(-2px);
     filter:
       drop-shadow(0 0 18px rgba(240, 200, 90, 0.5))
@@ -814,17 +836,20 @@ class PUPFooter extends HTMLElement {
     }
 
     .footer-brand {
-      justify-items: center;
       gap: 8px;
     }
 
     .footer-brand-logo {
-      width: 76px;
-      height: 76px;
+      width: 72px;
+      height: 72px;
     }
 
     .footer-bagong-pilipinas-logo {
       width: 112px;
+    }
+
+    .footer-arta-logo {
+      width: 92px;
     }
 
     .footer-column-title {
@@ -987,6 +1012,7 @@ class PUPFooter extends HTMLElement {
           <img src="${logoUrl}" alt="PUP Logo">
         </a>
         <img class="footer-bagong-pilipinas-logo" src="${bagongPilipinasLogoUrl}" alt="Bagong Pilipinas">
+        <img class="footer-arta-logo" src="${artaSealUrl}" alt="ARTA Seal">
       </div>
 
       <div class="footer-links-stack">

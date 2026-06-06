@@ -235,10 +235,11 @@ body {
 .landing-actions {
     min-width: 0;
     min-height: 100%;
-    padding: clamp(24px, 3.8vw, 38px);
+    padding: clamp(28px, 4.2vw, 44px);
     display: flex;
     flex-direction: column;
-    gap: 14px;
+    justify-content: center;
+    gap: 16px;
     align-items: stretch;
     background: linear-gradient(180deg, rgba(255, 252, 248, 0.98) 0%, rgba(248, 241, 235, 0.96) 100%);
 }
@@ -261,10 +262,40 @@ body {
     object-fit: contain;
     display: block;
     filter: drop-shadow(0 8px 14px rgba(45, 8, 10, 0.14));
+    transform-origin: center;
+    will-change: transform, filter;
+    animation: seal-float 4.2s ease-in-out infinite, seal-glow 2.8s ease-in-out infinite;
+}
+
+.landing-actions-seal--pup {
+    animation-delay: 0s;
 }
 
 .landing-actions-seal--bagong {
     width: 106px;
+    animation-delay: 0.35s;
+}
+
+@keyframes seal-float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-7px);
+    }
+}
+
+@keyframes seal-glow {
+    0%, 100% {
+        filter: drop-shadow(0 8px 14px rgba(45, 8, 10, 0.14))
+            drop-shadow(0 0 0 rgba(240, 200, 90, 0));
+    }
+
+    50% {
+        filter: drop-shadow(0 10px 18px rgba(45, 8, 10, 0.18))
+            drop-shadow(0 0 18px rgba(240, 200, 90, 0.55));
+    }
 }
 
 .landing-actions h2 {
@@ -285,7 +316,7 @@ body {
 .button-container {
     display: grid;
     gap: 10px;
-    margin-top: 6px;
+    margin-top: 10px;
 }
 
 .portal-button {
@@ -349,16 +380,18 @@ body {
     border: 1px solid rgba(255, 245, 234, 0.2);
 }
 
-.portal-button--surface {
+.portal-button--surface,
+.portal-button--homepage {
     border-color: var(--landing-line);
-    background: linear-gradient(180deg, #fffdfb 0%, #f7eee6 100%);
-    color: var(--landing-maroon);
-    box-shadow: 0 10px 20px rgba(31, 24, 22, 0.08);
+    background: linear-gradient(135deg, var(--landing-maroon-light), var(--landing-maroon-deep));
+    color: #fff7ef;
+    box-shadow: 0 14px 24px rgba(63, 7, 11, 0.24);
 }
 
-.portal-button--surface .icon {
-    background: rgba(127, 17, 19, 0.08);
-    border: 1px solid rgba(127, 17, 19, 0.14);
+.portal-button--surface .icon,
+.portal-button--homepage .icon {
+    background: rgba(255, 248, 239, 0.16);
+    border: 1px solid rgba(255, 245, 234, 0.2);
 }
 
 .portal-button:hover {
@@ -375,9 +408,9 @@ body {
     box-shadow: 0 18px 30px rgba(63, 7, 11, 0.3);
 }
 
-.portal-button--surface:hover {
-    border-color: rgba(127, 17, 19, 0.24);
-    box-shadow: 0 14px 24px rgba(31, 24, 22, 0.12);
+.portal-button--surface:hover,
+.portal-button--homepage:hover {
+    box-shadow: 0 18px 30px rgba(63, 7, 11, 0.3);
 }
 
 .portal-button:focus-visible {
@@ -682,5 +715,9 @@ body {
     .portal-button {
         animation: none !important;
         transition: none !important;
+    }
+
+    .landing-actions-seal {
+        animation: none !important;
     }
 }
