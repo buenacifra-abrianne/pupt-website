@@ -14,6 +14,7 @@ use App\Http\Controllers\Superadmin\AnalyticsController;
 use App\Http\Controllers\Superadmin\AnalyticsServerHealthController;
 use App\Http\Controllers\Superadmin\AccountsController;
 use App\Http\Controllers\Superadmin\AuditController;
+use App\Http\Controllers\Superadmin\DatabaseBackupController;
 use App\Http\Controllers\Superadmin\DownloadableController as SuperadminDownloadableController;
 
 // Admin
@@ -255,6 +256,21 @@ Route::prefix('superadmin')->group(function () {
         Route::get('/accounts', [AccountsController::class, 'index'])->name('superadmin.accounts');
 
         Route::get('/audit', [AuditController::class, 'index'])->name('superadmin.audit');
+
+        Route::get('/database-backups', [DatabaseBackupController::class, 'index'])
+            ->name('superadmin.database-backups.index');
+
+        Route::post('/database-backups', [DatabaseBackupController::class, 'store'])
+            ->name('superadmin.database-backups.store');
+
+        Route::patch('/database-backups/settings', [DatabaseBackupController::class, 'updateSettings'])
+            ->name('superadmin.database-backups.settings');
+
+        Route::get('/database-backups/{backup}/download', [DatabaseBackupController::class, 'download'])
+            ->name('superadmin.database-backups.download');
+
+        Route::delete('/database-backups/{backup}', [DatabaseBackupController::class, 'destroy'])
+            ->name('superadmin.database-backups.destroy');
 
         Route::post('/analytics/api', [AnalyticsController::class, 'superadminApi'])->name('superadmin.analytics.superadminApi');
 

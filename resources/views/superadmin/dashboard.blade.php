@@ -96,6 +96,9 @@
             <button class="top-tab-btn" onclick="switchTopTab('analyticsTab', this)">
                 <i class="fas fa-chart-line"></i> Analytics
             </button>
+            <button class="top-tab-btn" onclick="switchTopTab('databaseBackupTab', this)">
+                <i class="fas fa-database"></i> Database Backup
+            </button>
         </div>
 
         <!-- ========================= -->
@@ -309,7 +312,14 @@
         </div>
 
         <!-- ========================= -->
-        <!-- ✅ TAB 2: ANALYTICS -->
+        <!-- ✅ TAB 2: DATABASE BACKUP -->
+        <!-- ========================= -->
+        <div id="databaseBackupTab" class="top-tab-content">
+            @include('superadmin.partials.dashboard-database-backups')
+        </div>
+
+        <!-- ========================= -->
+        <!-- ✅ TAB 3: ANALYTICS -->
         <!-- ========================= -->
         <div id="analyticsTab" class="top-tab-content">
 
@@ -734,7 +744,7 @@
         return overlay?.dataset?.needsConsent === '1';
     }
 
-    // ✅ NEW: top-level tab switching (Dashboard / Analytics)
+    // ✅ NEW: top-level tab switching (Dashboard / Analytics / Database Backup)
     function switchTopTab(tabId, btn) {
         document.querySelectorAll('.top-tab-content').forEach(t => t.classList.remove('active'));
         document.querySelectorAll('.top-tab-btn').forEach(b => b.classList.remove('active'));
@@ -796,6 +806,32 @@
         if (modal) {
             modal.classList.remove('active');
         }
+    }
+
+    function openBackupDeleteModal(button) {
+        const modal = document.getElementById('backupDeleteModal');
+        const form = document.getElementById('backupDeleteForm');
+        const text = document.getElementById('backupDeleteText');
+        if (!modal || !form || !text || !button) return;
+
+        form.action = button.dataset.deleteAction || '';
+        text.textContent = `Are you sure you want to delete ${button.dataset.backupName || 'this backup'}? This action cannot be undone.`;
+        modal.classList.add('active');
+    }
+
+    function closeBackupDeleteModal() {
+        const modal = document.getElementById('backupDeleteModal');
+        if (modal) {
+            modal.classList.remove('active');
+        }
+    }
+
+    function syncBackupSettingsState() {
+        const checkbox = document.getElementById('automaticBackupsEnabled');
+        const form = document.querySelector('.backup-settings-form');
+        if (!checkbox || !form) return;
+
+        form.classList.toggle('is-disabled', !checkbox.checked);
     }
 
     // Close modal when clicking outside modal content
@@ -862,6 +898,9 @@
 
     // ✅ Restore last selected top-level tab on load
     document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('automaticBackupsEnabled')?.addEventListener('change', syncBackupSettingsState);
+        syncBackupSettingsState();
+
         if (window.CmsDateRange && typeof window.CmsDateRange.init === 'function') {
             window.CmsDateRange.init({
                 presetId: 'analyticsPreset',
@@ -879,9 +918,14 @@
             });
         }
 
+        const requestedTab = new URLSearchParams(window.location.search).get('tab');
+        const requestedTopTab = requestedTab === 'database-backups'
+            ? 'databaseBackupTab'
+            : (requestedTab === 'analytics' ? 'analyticsTab' : '');
+
         const saved = isTermsConsentPending()
             ? 'dashboardTab'
-            : localStorage.getItem('activeDashboardTopTab');
+            : (requestedTopTab || localStorage.getItem('activeDashboardTopTab'));
         if (saved) {
             const btn = document.querySelector(`.top-tab-btn[onclick*="${saved}"]`);
             if (btn) switchTopTab(saved, btn);

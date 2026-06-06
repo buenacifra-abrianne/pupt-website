@@ -78,6 +78,13 @@ return [
             'report' => false,
         ],
 
+        'database_backups_local' => [
+            'driver' => 'local',
+            'root' => storage_path('app/backups'),
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*

@@ -3,7 +3,10 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Backup;
 use App\Models\ApprovalRequest;
+use App\Services\DatabaseBackupService;
+use App\Services\DatabaseBackupSettingsService;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -11,7 +14,10 @@ use Illuminate\Support\Facades\Schema;
 
 class DashboardController extends Controller
 {
-    public function index()
+    public function index(
+        DatabaseBackupService $backupService,
+        DatabaseBackupSettingsService $settingsService
+    )
     {
         $pendingApprovals = ApprovalRequest::where('status', 'pending')->count();
 
@@ -62,14 +68,105 @@ class DashboardController extends Controller
             ->limit(6)
             ->get();
 
+        $databaseBackups = Backup::query()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->get();
+
+        $backupCreatorNames = $this->creatorNamesFor($databaseBackups->pluck('created_by')->filter()->all());
+        $lastBackup = $databaseBackups->first();
+
+        $databaseBackupRows = $databaseBackups->map(function (Backup $backup) use ($backupCreatorNames, $backupService) {
+            return [
+                'id' => $backup->id,
+                'backup_name' => $backup->backup_name,
+                'file_size_human' => $this->formatBytes((int) $backup->file_size),
+                'storage_location' => $backup->storage_disk === config('database_backups.s3_disk', 's3')
+                    ? $backupService->s3StorageLabel()
+                    : $backupService->localStorageLabel(),
+                'created_by_name' => $backup->created_by
+                    ? ($backupCreatorNames[$backup->created_by] ?? 'Unknown User')
+                    : 'System',
+                'created_at' => $backup->created_at,
+            ];
+        });
+
+        $databaseBackupStats = [
+            'total_backups' => $databaseBackups->count(),
+            'last_backup_date' => $lastBackup?->created_at,
+            'total_storage_used' => $this->formatBytes((int) $databaseBackups->sum('file_size')),
+        ];
+
+        $databaseBackupSettings = $settingsService->current();
+
         return view('superadmin.dashboard', compact(
             'total_announcements',
             'recent_announcements',
             'recent_notifications',
             'pendingApprovals',
             'uptime',
-            'recentActivities'
+            'recentActivities',
+            'databaseBackupRows',
+            'databaseBackupStats',
+            'databaseBackupSettings'
         ));
+    }
+
+    private function creatorNamesFor(array $userIds): array
+    {
+        $userIds = collect($userIds)
+            ->map(fn ($id) => (int) $id)
+            ->filter(fn ($id) => $id > 0)
+            ->unique()
+            ->values()
+            ->all();
+
+        if (empty($userIds) || ! Schema::hasTable('users')) {
+            return [];
+        }
+
+        $primaryKey = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+        $columns = [$primaryKey];
+
+        foreach (['first_name', 'last_name', 'name', 'email'] as $column) {
+            if (Schema::hasColumn('users', $column)) {
+                $columns[] = $column;
+            }
+        }
+
+        return DB::table('users')
+            ->select($columns)
+            ->whereIn($primaryKey, $userIds)
+            ->get()
+            ->mapWithKeys(function ($user) use ($primaryKey) {
+                $fullName = trim((string) ($user->first_name ?? '').' '.(string) ($user->last_name ?? ''));
+
+                if ($fullName === '') {
+                    $fullName = trim((string) ($user->name ?? ''));
+                }
+
+                if ($fullName === '') {
+                    $fullName = (string) ($user->email ?? 'Unknown User');
+                }
+
+                return [(int) $user->{$primaryKey} => $fullName];
+            })
+            ->all();
+    }
+
+    private function formatBytes(int $bytes): string
+    {
+        $bytes = max(0, $bytes);
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $index = 0;
+        $value = (float) $bytes;
+
+        while ($value >= 1024 && $index < count($units) - 1) {
+            $value /= 1024;
+            $index++;
+        }
+
+        return number_format($value, $value >= 100 || $value < 10 ? 0 : 1).' '.$units[$index];
     }
 
     private function applyAdminAudienceScope(Builder $query, int $userId): void
