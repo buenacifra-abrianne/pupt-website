@@ -375,7 +375,7 @@ class PUPFooter extends HTMLElement {
     this.innerHTML = `
 <style>
   .footer {
-    background: linear-gradient(180deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
+    background: linear-gradient(180deg, #8f1016 0%, #5f080b 56%, #330507 100%);
     color: #fff;
   }
 
@@ -384,35 +384,64 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer-shell {
-    max-width: 1480px;
+    max-width: 1540px;
     margin: 0 auto;
-    padding: 40px 36px 0;
+    padding: 18px 28px 14px;
   }
 
-  .footer-content {
+  .footer-top {
     display: grid;
-    grid-template-columns: 220px minmax(0, 1fr) 56px;
-    gap: 26px;
-    align-items: start;
+    grid-template-columns: 220px minmax(170px, 1fr) minmax(160px, 0.84fr) minmax(210px, 1.1fr) minmax(200px, 1.05fr) 96px;
+    align-items: stretch;
+    background: transparent;
+    border-top: 1px solid rgba(255, 232, 182, 0.08);
+  }
+
+  .footer-brand,
+  .footer-panel,
+  .footer-socials-panel {
+    min-width: 0;
   }
 
   .footer-brand {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 12px;
-    justify-content: flex-start;
+    justify-content: center;
+    padding: 22px 18px;
+  }
+
+  .footer-brand-seals {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 10px;
+    align-items: center;
+    justify-items: center;
+    width: 100%;
+    max-width: 184px;
+  }
+
+  .footer-brand-seal {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 84px;
+    transition: transform 0.18s ease, filter 0.18s ease;
+  }
+
+  .footer-brand-seal:hover {
+    transform: translateY(-2px);
   }
 
   .footer-brand-logo {
-    width: 154px;
-    height: 154px;
+    width: 100%;
+    max-width: 84px;
+    aspect-ratio: 1 / 1;
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.18s ease, box-shadow 0.18s ease;
-    animation: footer-logo-float 4s ease-in-out infinite;
   }
 
   .footer-brand-logo:hover {
@@ -425,49 +454,32 @@ class PUPFooter extends HTMLElement {
     height: 100%;
     object-fit: contain;
     display: block;
-    filter:
-      drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
-      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
-  }
-
-  .footer-bagong-pilipinas-logo {
-    width: 146px;
-    height: auto;
-    display: block;
-    object-fit: contain;
-    filter:
-      drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
-      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
     animation: footer-logo-float 4s ease-in-out infinite;
-    transition: transform 0.18s ease, filter 0.18s ease;
-  }
-
-  .footer-bagong-pilipinas-logo:hover {
-    transform: translateY(-2px);
     filter:
-      drop-shadow(0 0 18px rgba(240, 200, 90, 0.5))
-      drop-shadow(0 20px 30px rgba(18, 3, 4, 0.34));
+      drop-shadow(0 0 14px rgba(240, 200, 90, 0.32))
+      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.26));
   }
 
+  .footer-bagong-pilipinas-logo,
   .footer-arta-logo,
   .footer-tuvsu-logo {
-    width: 146px;
+    width: 100%;
     height: auto;
-    display: block;
     object-fit: contain;
-    filter:
-      drop-shadow(0 0 14px rgba(240, 200, 90, 0.36))
-      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.3));
+    display: block;
     animation: footer-logo-float 4s ease-in-out infinite;
     transition: transform 0.18s ease, filter 0.18s ease;
+    filter:
+      drop-shadow(0 0 14px rgba(240, 200, 90, 0.32))
+      drop-shadow(0 18px 28px rgba(18, 3, 4, 0.26));
   }
 
+  .footer-bagong-pilipinas-logo:hover,
   .footer-arta-logo:hover,
   .footer-tuvsu-logo:hover {
-    transform: translateY(-2px);
     filter:
-      drop-shadow(0 0 18px rgba(240, 200, 90, 0.5))
-      drop-shadow(0 20px 30px rgba(18, 3, 4, 0.34));
+      drop-shadow(0 0 18px rgba(240, 200, 90, 0.48))
+      drop-shadow(0 20px 30px rgba(18, 3, 4, 0.32));
   }
 
   @keyframes footer-logo-float {
@@ -476,58 +488,74 @@ class PUPFooter extends HTMLElement {
       transform: translateY(0);
     }
     50% {
-      transform: translateY(-8px);
+      transform: translateY(-7px);
     }
   }
 
-  .footer-column-title {
-    margin: 0 0 20px;
-    color: #fff;
-    font-size: 15px;
+  .footer-panel,
+  .footer-socials-panel {
+    padding: 18px 18px 16px;
+    border-left: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .footer-panel {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 14px;
+  }
+
+  .footer-panel-header {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 9px;
+  }
+
+  .footer-panel-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(248, 215, 130, 0.82);
+    color: #f0c85a;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .footer-panel-icon svg {
+    width: 16px;
+    height: 16px;
+    fill: currentColor;
+  }
+
+  .footer-panel-title,
+  .footer-accreditation-label {
+    margin: 0;
+    color: #fff4d7;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.12em;
     text-transform: uppercase;
   }
 
-  .footer-links-stack {
-    display: grid;
-    gap: 24px;
-  }
-
-  .footer-links-top {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 22px;
-    align-items: start;
-  }
-
-  .footer-links-bottom {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 22px;
-    align-items: start;
-  }
-
-  .footer-section {
-    display: grid;
-    gap: 12px;
-    min-width: 0;
+  .footer-panel-title {
+    font-size: 13px;
   }
 
   .footer-services-grid {
     display: grid;
-    grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .footer-service-link {
     display: inline-flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     min-width: 0;
-    color: rgba(255, 255, 255, 0.94);
-    font-size: 15px;
-    line-height: 1.4;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 13px;
+    line-height: 1.45;
     transition: color 0.18s ease, transform 0.18s ease;
   }
 
@@ -541,21 +569,22 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer-service-icon {
-    width: 38px;
-    height: 38px;
-    flex: 0 0 38px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.12);
+    width: 30px;
+    height: 30px;
+    flex: 0 0 30px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.03);
     display: inline-flex;
     align-items: center;
     justify-content: center;
   }
 
   .footer-service-icon svg {
-    width: 19px;
-    height: 19px;
+    width: 15px;
+    height: 15px;
     fill: currentColor;
-    color: #fff;
+    color: #f7d87e;
   }
 
   .footer-contact-group {
@@ -563,63 +592,14 @@ class PUPFooter extends HTMLElement {
     gap: 10px;
   }
 
-  .footer-accreditation-links {
-    display: grid;
-    gap: 10px;
-  }
-
-  .footer-accreditation-link {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    padding: 10px 14px;
-    border-radius: 999px;
-    color: #fff8ef;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.08) 100%);
-    border: 1px solid rgba(248, 215, 130, 0.56);
-    box-shadow:
-      0 10px 20px rgba(31, 3, 5, 0.26),
-      0 0 0 1px rgba(255, 227, 169, 0.2) inset,
-      0 0 16px rgba(240, 200, 90, 0.24);
-    transition:
-      transform 0.2s ease,
-      color 0.2s ease,
-      border-color 0.2s ease,
-      box-shadow 0.2s ease,
-      background 0.2s ease;
-  }
-
-  .footer-accreditation-link:hover {
-    color: #fffdf8;
-    border-color: rgba(249, 222, 152, 0.86);
-    transform: translateY(-2px);
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.24) 0%, rgba(255, 255, 255, 0.11) 100%);
-    box-shadow:
-      0 12px 24px rgba(31, 3, 5, 0.3),
-      0 0 0 1px rgba(255, 235, 193, 0.28) inset,
-      0 0 20px rgba(246, 208, 108, 0.4);
-  }
-
-  .footer-accreditation-link svg {
-    width: 14px;
-    height: 14px;
-    margin-left: 7px;
-    fill: currentColor;
-  }
-
   .footer-contact-item {
     display: grid;
     grid-template-columns: 18px minmax(0, 1fr);
-    gap: 10px;
+    gap: 9px;
     align-items: start;
-    color: rgba(255, 255, 255, 0.94);
-    font-size: 14px;
-    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 13px;
+    line-height: 1.5;
   }
 
   .footer-contact-item svg {
@@ -627,7 +607,7 @@ class PUPFooter extends HTMLElement {
     height: 18px;
     fill: currentColor;
     color: #f0c85a;
-    margin-top: 3px;
+    margin-top: 2px;
   }
 
   .footer-contact-item a {
@@ -638,73 +618,65 @@ class PUPFooter extends HTMLElement {
     color: #f6d16a;
   }
 
-  .footer-socials-row {
+  .footer-socials-panel {
     display: flex;
-    justify-content: flex-end;
-    align-self: start;
-    padding-top: 4px;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 14px;
   }
 
   .footer-socials {
     display: flex;
-    flex-direction: column;
-    gap: 12px;
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
-    justify-content: flex-start;
+    justify-content: center;
   }
 
   .footer-social-link {
-    width: 42px;
-    height: 42px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background: #fff;
-    color: #800000;
+    border: 1px solid rgba(255, 255, 255, 0.42);
+    background: transparent;
+    color: #fff;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.18s ease, background-color 0.18s ease, color 0.18s ease;
+    transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
   }
 
   .footer-social-link:hover {
     transform: translateY(-2px);
-    background: #f0c85a;
-    color: #6a0000;
+    background: rgba(240, 200, 90, 0.14);
+    border-color: #f0c85a;
+    color: #fff9e8;
   }
 
   .footer-social-link svg {
-    width: 19px;
-    height: 19px;
+    width: 16px;
+    height: 16px;
     fill: currentColor;
   }
 
-  .footer-legal {
-    border-top: 1px solid rgba(255, 255, 255, 0.14);
-    margin-top: 28px;
-    padding: 14px 18px 16px;
+  .footer-bottom-strip {
     display: flex;
-    justify-content: center;
     align-items: center;
-    gap: 10px;
+    justify-content: center;
+    gap: 18px;
     flex-wrap: wrap;
-    text-align: center;
-    color: rgba(255, 255, 255, 0.92);
-    font-size: 13px;
-    font-weight: 500;
-    line-height: 1.4;
-    background: rgba(20, 4, 6, 0.18);
-  }
-
-  .footer-govph-band {
-    margin-top: 16px;
-    padding: 24px 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.16);
-    background: linear-gradient(180deg, rgba(35, 6, 8, 0.58) 0%, rgba(20, 4, 6, 0.36) 100%);
-    border-radius: 20px;
+    margin-top: 0;
+    padding: 14px 16px;
+    background: transparent;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
   }
 
   .footer-govph-grid {
+    margin-top: 16px;
+    padding-top: 18px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
     display: grid;
-    grid-template-columns: 1.15fr 0.8fr 1fr 1fr;
+    grid-template-columns: 1.1fr 0.82fr 1fr 1fr;
     gap: 18px;
     align-items: start;
   }
@@ -781,9 +753,70 @@ class PUPFooter extends HTMLElement {
     transform: translateX(2px);
   }
 
+  .footer-accreditation-label {
+    font-size: 12px;
+    letter-spacing: 0.32em;
+  }
+
+  .footer-accreditation-links {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .footer-accreditation-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-width: 154px;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: #fff7eb;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(248, 215, 130, 0.78);
+    box-shadow: 0 0 0 1px rgba(255, 227, 169, 0.15) inset;
+    transition: transform 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease;
+  }
+
+  .footer-accreditation-link:hover {
+    transform: translateY(-2px);
+    background: rgba(240, 200, 90, 0.12);
+    color: #fffdf8;
+    border-color: rgba(249, 222, 152, 0.95);
+  }
+
+  .footer-accreditation-link svg {
+    width: 13px;
+    height: 13px;
+    fill: currentColor;
+  }
+
+  .footer-legal {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    padding: 10px 16px 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    text-align: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 1.4;
+    background: rgba(20, 4, 6, 0.18);
+  }
+
   .footer-legal .footer-copy {
     font-weight: 600;
-    color: #ffffff;
+    color: #fff;
   }
 
   .footer-legal-links {
@@ -810,7 +843,7 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer.footer-landing {
-    background: linear-gradient(180deg, #a11d23 0%, #7f1113 52%, #3f070b 100%);
+    background: linear-gradient(180deg, #8f1016 0%, #5f080b 56%, #330507 100%);
     color: #fff;
     position: absolute;
     left: 0;
@@ -819,7 +852,7 @@ class PUPFooter extends HTMLElement {
     z-index: 2;
   }
 
-  .footer.footer-landing .footer-content {
+  .footer.footer-landing .footer-shell {
     display: none;
   }
 
@@ -828,127 +861,101 @@ class PUPFooter extends HTMLElement {
     width: 100%;
   }
 
-  @media (max-width: 768px) {
-    .footer-shell {
-      padding: 14px 12px 0;
+  @media (max-width: 1200px) {
+    .footer-top {
+      grid-template-columns: 200px minmax(160px, 1fr) minmax(150px, 0.85fr) minmax(180px, 1fr) minmax(180px, 1fr);
     }
 
-    .footer-content {
+    .footer-socials-panel {
+      grid-column: 1 / -1;
+      justify-content: center;
+      border-left: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 14px 18px 16px;
+    }
+
+    .footer-govph-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  @media (max-width: 900px) {
+    .footer-shell {
+      padding: 14px 12px 12px;
+    }
+
+    .footer-top {
       grid-template-columns: 1fr;
-      gap: 12px;
+    }
+
+    .footer-brand,
+    .footer-panel,
+    .footer-socials-panel {
+      border-left: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .footer-brand {
-      gap: 8px;
+      border-top: 0;
+      padding: 18px 16px 14px;
     }
 
+    .footer-brand-seals {
+      max-width: 252px;
+    }
+
+    .footer-brand-seal,
     .footer-brand-logo {
-      width: 72px;
-      height: 72px;
+      max-width: 72px;
     }
 
-    .footer-bagong-pilipinas-logo {
-      width: 112px;
-    }
-
-    .footer-arta-logo,
-    .footer-tuvsu-logo {
-      width: 92px;
-    }
-
-    .footer-column-title {
-      margin-bottom: 8px;
-      font-size: 11px;
-      text-align: left;
-    }
-
-    .footer-links-stack {
+    .footer-panel {
       gap: 12px;
+      padding: 16px;
     }
 
-    .footer-links-top,
-    .footer-links-bottom {
-      grid-template-columns: 1fr;
-      gap: 12px;
+    .footer-panel-header {
+      align-items: center;
+      text-align: center;
     }
 
-    .footer-section {
-      gap: 10px;
+    .footer-panel-title {
+      font-size: 12px;
+      letter-spacing: 0.1em;
     }
 
-    .footer-services-grid {
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .footer-service-link {
-      gap: 8px;
+    .footer-service-link,
+    .footer-contact-item {
       font-size: 12px;
     }
 
-    .footer-service-icon {
-      width: 32px;
-      height: 32px;
-      flex-basis: 32px;
-      border-radius: 10px;
-    }
-
-    .footer-service-icon svg {
-      width: 15px;
-      height: 15px;
-    }
-
-    .footer-contact-group { gap: 6px; }
-
-    .footer-contact-item {
-      gap: 8px;
-      font-size: 11px;
-      line-height: 1.35;
-    }
-
-    .footer-accreditation-link {
-      width: fit-content;
-      padding: 8px 12px;
-      font-size: 10px;
-    }
-
-    .footer-socials-row {
+    .footer-socials-panel {
+      padding: 16px;
       justify-content: center;
-      padding-top: 6px;
     }
 
     .footer-socials {
-      flex-direction: row;
-      gap: 6px;
+      gap: 8px;
     }
 
-    .footer-social-link {
-      width: 30px;
-      height: 30px;
+    .footer-bottom-strip {
+      gap: 12px;
+      padding: 12px 14px;
     }
 
-    .footer-social-link svg {
-      width: 14px;
-      height: 14px;
+    .footer-accreditation-links {
+      gap: 10px;
     }
 
-    .footer-legal {
-      gap: 5px;
-      margin-top: 12px;
-      padding: 6px 8px 8px;
-      font-size: 9px;
-      line-height: 1.25;
-    }
-
-    .footer-govph-band {
-      margin-top: 12px;
-      padding: 14px 10px;
-      border-radius: 14px;
+    .footer-accreditation-link {
+      width: min(100%, 280px);
     }
 
     .footer-govph-grid {
       grid-template-columns: 1fr;
-      gap: 14px;
+      gap: 16px;
+      margin-top: 14px;
+      padding-top: 16px;
     }
 
     .footer-govph-brand {
@@ -980,123 +987,138 @@ class PUPFooter extends HTMLElement {
       width: 96px;
     }
 
-    .footer-legal .footer-copy,
-    .footer-legal .footer-legal-links {
-      width: 100%;
-      justify-content: center;
+    .footer-legal {
+      padding: 8px 12px 10px;
+      font-size: 11px;
     }
   }
 
-  @media (max-width: 420px) {
+  @media (max-width: 480px) {
     .footer-shell {
-      padding: 12px 10px 0;
+      padding: 10px 10px 10px;
     }
 
-    .footer-socials {
-      gap: 5px;
+    .footer-brand-seals {
+      max-width: 220px;
+      gap: 10px 8px;
+    }
+
+    .footer-brand-seal,
+    .footer-brand-logo {
+      max-width: 62px;
     }
 
     .footer-social-link {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
     }
 
     .footer-social-link svg {
-      width: 14px;
-      height: 14px;
+      width: 15px;
+      height: 15px;
+    }
+
+    .footer-bottom-strip {
+      padding: 12px;
+    }
+
+    .footer-accreditation-label {
+      letter-spacing: 0.22em;
     }
   }
 </style>
 <footer class="footer${isLanding ? " footer-landing" : ""}">
   ${!isLanding ? `
   <div class="footer-shell">
-    <div class="footer-content">
+    <div class="footer-top">
       <div class="footer-brand">
-        <a class="footer-brand-logo" href="${about}" aria-label="About PUP Taguig">
-          <img src="${logoUrl}" alt="PUP Logo">
-        </a>
-        <img class="footer-bagong-pilipinas-logo" src="${bagongPilipinasLogoUrl}" alt="Bagong Pilipinas">
-        <img class="footer-arta-logo" src="${artaSealUrl}" alt="ARTA Seal">
-        <img class="footer-tuvsu-logo" src="${tuvsuSealUrl}" alt="TUVSU Seal">
-      </div>
-
-      <div class="footer-links-stack">
-        <div class="footer-links-top">
-          <section class="footer-section">
-            <h3 class="footer-column-title">Online Services</h3>
-            <div class="footer-services-grid">
-              <a class="footer-service-link" href="https://outlook.office.com/mail/" target="_blank" rel="noopener noreferrer">
-                <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Zm2 0v.4l6.9 5.2 7.1-5.2v-.4a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5Zm14 13v-10l-6.5 4.8a1 1 0 0 1-1.2 0L5 8.5v10c0 .3.2.5.5.5h13c.3 0 .5-.2.5-.5Z"/></svg></span>
-                <span>PUP WebMail</span>
-              </a>
-              <a class="footer-service-link" href="https://www.pup.edu.ph/iapply/" target="_blank" rel="noopener noreferrer">
-                <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
-                <span>PUP iApply</span>
-              </a>
-              <a class="footer-service-link" href="https://sisstudents.pup.edu.ph/" target="_blank" rel="noopener noreferrer">
-                <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8.2-4.1V15H22V8L12 3Zm-6.4 8.4V15c0 2.5 3 4.5 6.4 4.5s6.4-2 6.4-4.5v-3.6L12 15l-6.4-3.6Z"/></svg></span>
-                <span>SIS for Students</span>
-              </a>
-              <a class="footer-service-link" href="https://sisfaculty.pup.edu.ph/" target="_blank" rel="noopener noreferrer">
-                <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-7 8a7 7 0 1 1 14 0H5Zm14-8.5 1.6-1.6 1.4 1.4-1.6 1.6 1.6 1.6-1.4 1.4-1.6-1.6-1.6 1.6-1.4-1.4 1.6-1.6-1.6-1.6 1.4-1.4 1.6 1.6Z"/></svg></span>
-                <span>SIS for Faculty</span>
-              </a>
-            </div>
-          </section>
-
-          <section class="footer-section">
-            <h3 class="footer-column-title">Address</h3>
-            <div class="footer-contact-group">
-              <div class="footer-contact-item">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
-                <span><a href="https://www.google.com/maps/search/?api=1&query=Polytechnic+University+of+the+Philippines+Taguig+Campus%2C+Gen.+Santos+Ave.%2C+Lower+Bicutan%2C+Taguig+City%2C+Philippines" target="_blank" rel="noopener noreferrer">Gen. Santos Ave., Lower Bicutan<br>Taguig City, Philippines</a></span>
-              </div>
-            </div>
-          </section>
-
-          <section class="footer-section">
-            <h3 class="footer-column-title">Contact Us</h3>
-            <div class="footer-contact-group">
-              <div class="footer-contact-item">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
-                <span><a href="tel:+6328375858">(63 2) 837-5858</a> | <a href="tel:+6328375859">(63 2) 837-5859</a></span>
-              </div>
-              <div class="footer-contact-item">
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Zm2 0v.4l6.9 5.2 7.1-5.2v-.4a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5Zm14 13v-10l-6.5 4.8a1 1 0 0 1-1.2 0L5 8.5v10c0 .3.2.5.5.5h13c.3 0 .5-.2.5-.5Z"/></svg>
-                <span><a href="mailto:taguig@pup.edu.ph">taguig@pup.edu.ph</a></span>
-              </div>
-            </div>
-          </section>
-        </div>
-
-        <div class="footer-links-bottom">
-          <section class="footer-section">
-            <h3 class="footer-column-title">Downloadables</h3>
-            <div class="footer-services-grid">
-              <a class="footer-service-link" href="/students/downloadable-forms">
-                <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
-                <span>For Students</span>
-              </a>
-            </div>
-          </section>
-
-          <section class="footer-section">
-            <h3 class="footer-column-title">Accreditation</h3>
-            <div class="footer-accreditation-links">
-              <a class="footer-accreditation-link" href="https://drive.google.com/file/d/1I1fTVNwsYkeWfzz8bMqIVRI5vLI5EMob/view" target="_blank" rel="noopener noreferrer">
-                <span>Higher Education</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
-              </a>
-              <a class="footer-accreditation-link" href="https://drive.google.com/file/d/1zegfm_kj7-9TJHnrHeXqWWGTwIOesZso/view" target="_blank" rel="noopener noreferrer">
-                <span>Advance Education</span>
-                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
-              </a>
-            </div>
-          </section>
+        <div class="footer-brand-seals" aria-label="University and government seals">
+          <a class="footer-brand-logo" href="${about}" aria-label="PUP Seal">
+            <img src="${logoUrl}" alt="PUP Seal">
+          </a>
+          <img class="footer-brand-seal footer-bagong-pilipinas-logo" src="${bagongPilipinasLogoUrl}" alt="Bagong Pilipinas">
+          <img class="footer-brand-seal footer-arta-logo" src="${artaSealUrl}" alt="ARTA Seal">
+          <img class="footer-brand-seal footer-tuvsu-logo" src="${tuvsuSealUrl}" alt="TUVSU Seal">
         </div>
       </div>
 
-      <div class="footer-socials-row">
+      <section class="footer-panel">
+        <div class="footer-panel-header">
+          <span class="footer-panel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v8A1.5 1.5 0 0 1 18.5 15H14l-2 2-2-2H5.5A1.5 1.5 0 0 1 4 13.5v-8Zm2 .2V13h4.2l1.1 1.1L12.4 13h5.4V5.7H6Z"/></svg>
+          </span>
+          <h3 class="footer-panel-title">Online Services</h3>
+        </div>
+        <div class="footer-services-grid">
+          <a class="footer-service-link" href="https://outlook.office.com/mail/" target="_blank" rel="noopener noreferrer">
+            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Zm2 0v.4l6.9 5.2 7.1-5.2v-.4a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5Zm14 13v-10l-6.5 4.8a1 1 0 0 1-1.2 0L5 8.5v10c0 .3.2.5.5.5h13c.3 0 .5-.2.5-.5Z"/></svg></span>
+            <span>PUP WebMail</span>
+          </a>
+          <a class="footer-service-link" href="https://www.pup.edu.ph/iapply/" target="_blank" rel="noopener noreferrer">
+            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
+            <span>PUP iApply</span>
+          </a>
+          <a class="footer-service-link" href="https://sisstudents.pup.edu.ph/" target="_blank" rel="noopener noreferrer">
+            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3 2 8l10 5 8.2-4.1V15H22V8L12 3Zm-6.4 8.4V15c0 2.5 3 4.5 6.4 4.5s6.4-2 6.4-4.5v-3.6L12 15l-6.4-3.6Z"/></svg></span>
+            <span>SIS for Students</span>
+          </a>
+          <a class="footer-service-link" href="https://sisfaculty.pup.edu.ph/" target="_blank" rel="noopener noreferrer">
+            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-7 8a7 7 0 1 1 14 0H5Zm14-8.5 1.6-1.6 1.4 1.4-1.6 1.6 1.6 1.6-1.4 1.4-1.6-1.6-1.6 1.6-1.4-1.4 1.6-1.6-1.6-1.6 1.4-1.4 1.6 1.6Z"/></svg></span>
+            <span>SIS for Faculty</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="footer-panel">
+        <div class="footer-panel-header">
+          <span class="footer-panel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg>
+          </span>
+          <h3 class="footer-panel-title">Downloadables</h3>
+        </div>
+        <div class="footer-services-grid">
+          <a class="footer-service-link" href="/students/downloadable-forms">
+            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
+            <span>For Students</span>
+          </a>
+        </div>
+      </section>
+
+      <section class="footer-panel">
+        <div class="footer-panel-header">
+          <span class="footer-panel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+          </span>
+          <h3 class="footer-panel-title">Address</h3>
+        </div>
+        <div class="footer-contact-group">
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+            <span><a href="https://www.google.com/maps/search/?api=1&query=Polytechnic+University+of+the+Philippines+Taguig+Campus%2C+Gen.+Santos+Ave.%2C+Lower+Bicutan%2C+Taguig+City%2C+Philippines" target="_blank" rel="noopener noreferrer">Gen. Santos Ave., Lower Bicutan<br>Taguig City, Philippines</a></span>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer-panel">
+        <div class="footer-panel-header">
+          <span class="footer-panel-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
+          </span>
+          <h3 class="footer-panel-title">Contact Us</h3>
+        </div>
+        <div class="footer-contact-group">
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
+            <span><a href="tel:+6328375858">(63 2) 837-5858</a> | <a href="tel:+6328375859">(63 2) 837-5859</a></span>
+          </div>
+          <div class="footer-contact-item">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Zm2 0v.4l6.9 5.2 7.1-5.2v-.4a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5Zm14 13v-10l-6.5 4.8a1 1 0 0 1-1.2 0L5 8.5v10c0 .3.2.5.5.5h13c.3 0 .5-.2.5-.5Z"/></svg>
+            <span><a href="mailto:taguig@pup.edu.ph">taguig@pup.edu.ph</a></span>
+          </div>
+        </div>
+      </section>
+
+      <div class="footer-socials-panel">
         <div class="footer-socials" aria-label="PUP Taguig social media links">
           <a class="footer-social-link" href="https://www.facebook.com/PUPTOFFICIAL" target="_blank" rel="noopener noreferrer" aria-label="Facebook">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 22v-8.1h2.7l.4-3.2h-3.1V8.6c0-.9.2-1.6 1.6-1.6H16.7V4.1c-.3 0-1.3-.1-2.5-.1-2.5 0-4.2 1.5-4.2 4.3v2.4H7.2v3.2H10V22h3.5Z"/></svg>
@@ -1116,46 +1138,59 @@ class PUPFooter extends HTMLElement {
         </div>
       </div>
     </div>
-    <div class="footer-govph-band" aria-label="Government footer links and references">
-      <div class="footer-govph-grid">
-        <section class="footer-govph-block">
-          <div class="footer-govph-brand">
-            <img src="${republicSealUrl}" alt="Republic of the Philippines">
-            <div>
-              <h3 class="footer-govph-title">Republic of the Philippines</h3>
-              <p class="footer-govph-copy">All content is in the public domain unless otherwise stated.</p>
-            </div>
-          </div>
-        </section>
 
-        <section class="footer-govph-block">
-          <a class="footer-govph-seal-link" href="${npcCorSealDriveUrl}" target="_blank" rel="noopener noreferrer" aria-label="NPC COR Seal">
-            <img src="${dpoDpsSealUrl}" alt="NPC COR Seal">
-          </a>
-        </section>
-
-        <section class="footer-govph-block">
-          <h3 class="footer-govph-title">About GOVPH</h3>
-          <p class="footer-govph-copy">Learn more about the Philippine government, its structure, how government works and the people behind it.</p>
-          <ul class="footer-govph-list">
-            <li><a href="http://www.gov.ph/" target="_blank" rel="noopener noreferrer">Official Gazette</a></li>
-            <li><a href="http://data.gov.ph/" target="_blank" rel="noopener noreferrer">Open Data Portal</a></li>
-          </ul>
-        </section>
-
-        <section class="footer-govph-block">
-          <h3 class="footer-govph-title">Government Links</h3>
-          <ul class="footer-govph-list">
-            <li><a href="http://president.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the President</a></li>
-            <li><a href="http://ovp.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the Vice President</a></li>
-            <li><a href="http://www.senate.gov.ph/" target="_blank" rel="noopener noreferrer">Senate of the Philippines</a></li>
-            <li><a href="http://www.congress.gov.ph/" target="_blank" rel="noopener noreferrer">House of Representatives</a></li>
-            <li><a href="http://sc.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Supreme Court</a></li>
-            <li><a href="http://ca.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Court of Appeals</a></li>
-            <li><a href="http://sb.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Sandiganbayan</a></li>
-          </ul>
-        </section>
+  <div class="footer-bottom-strip">
+      <span class="footer-accreditation-label">Accreditation</span>
+      <div class="footer-accreditation-links">
+        <a class="footer-accreditation-link" href="https://drive.google.com/file/d/1I1fTVNwsYkeWfzz8bMqIVRI5vLI5EMob/view" target="_blank" rel="noopener noreferrer">
+          <span>Higher Education</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
+        </a>
+        <a class="footer-accreditation-link" href="https://drive.google.com/file/d/1zegfm_kj7-9TJHnrHeXqWWGTwIOesZso/view" target="_blank" rel="noopener noreferrer">
+          <span>Advance Education</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
+        </a>
       </div>
+    </div>
+
+    <div class="footer-govph-grid" aria-label="Government footer links and references">
+      <section class="footer-govph-block">
+        <div class="footer-govph-brand">
+          <img src="${republicSealUrl}" alt="Republic of the Philippines">
+          <div>
+            <h3 class="footer-govph-title">Republic of the Philippines</h3>
+            <p class="footer-govph-copy">All content is in the public domain unless otherwise stated.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="footer-govph-block">
+        <a class="footer-govph-seal-link" href="${npcCorSealDriveUrl}" target="_blank" rel="noopener noreferrer" aria-label="NPC COR Seal">
+          <img src="${dpoDpsSealUrl}" alt="NPC COR Seal">
+        </a>
+      </section>
+
+      <section class="footer-govph-block">
+        <h3 class="footer-govph-title">About GOVPH</h3>
+        <p class="footer-govph-copy">Learn more about the Philippine government, its structure, how government works and the people behind it.</p>
+        <ul class="footer-govph-list">
+          <li><a href="http://www.gov.ph/" target="_blank" rel="noopener noreferrer">Official Gazette</a></li>
+          <li><a href="http://data.gov.ph/" target="_blank" rel="noopener noreferrer">Open Data Portal</a></li>
+        </ul>
+      </section>
+
+      <section class="footer-govph-block">
+        <h3 class="footer-govph-title">Government Links</h3>
+        <ul class="footer-govph-list">
+          <li><a href="http://president.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the President</a></li>
+          <li><a href="http://ovp.gov.ph/" target="_blank" rel="noopener noreferrer">Office of the Vice President</a></li>
+          <li><a href="http://www.senate.gov.ph/" target="_blank" rel="noopener noreferrer">Senate of the Philippines</a></li>
+          <li><a href="http://www.congress.gov.ph/" target="_blank" rel="noopener noreferrer">House of Representatives</a></li>
+          <li><a href="http://sc.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Supreme Court</a></li>
+          <li><a href="http://ca.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Court of Appeals</a></li>
+          <li><a href="http://sb.judiciary.gov.ph/" target="_blank" rel="noopener noreferrer">Sandiganbayan</a></li>
+        </ul>
+      </section>
     </div>
   </div>
 
