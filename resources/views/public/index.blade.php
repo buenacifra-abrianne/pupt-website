@@ -39,6 +39,13 @@
                     <span class="support-logo-item">
                         <img
                             class="support-logo"
+                            src="{{ asset('assets/static_img/TUVSUD%20ISO.png') }}"
+                            alt="TUVSU Seal"
+                        >
+                    </span>
+                    <span class="support-logo-item">
+                        <img
+                            class="support-logo"
                             src="{{ asset('assets/static_img/transparency_seal.png') }}"
                             alt="Transparency Seal"
                         >

@@ -367,6 +367,7 @@ class PUPFooter extends HTMLElement {
     const logoUrl = `${assets}/static_img/logo.png`;
     const bagongPilipinasLogoUrl = `${assets}/static_img/bagong_pilipinas_logo.png`;
     const artaSealUrl = `${assets}/static_img/ARTA.png`;
+    const tuvsuSealUrl = `${assets}/static_img/TUVSUD%20ISO.png`;
     const republicSealUrl = `${assets}/static_img/govph-seal-mono-footer.png`;
     const dpoDpsSealUrl = `${assets}/static_img/DPO_DPS_seal.png`;
     const npcCorSealDriveUrl = "https://drive.google.com/file/d/1Ef-hJnBux5Bn9Z3L4xUNeOETT-11f_7l/view?usp=drive_link";
@@ -448,7 +449,8 @@ class PUPFooter extends HTMLElement {
       drop-shadow(0 20px 30px rgba(18, 3, 4, 0.34));
   }
 
-  .footer-arta-logo {
+  .footer-arta-logo,
+  .footer-tuvsu-logo {
     width: 146px;
     height: auto;
     display: block;
@@ -460,7 +462,8 @@ class PUPFooter extends HTMLElement {
     transition: transform 0.18s ease, filter 0.18s ease;
   }
 
-  .footer-arta-logo:hover {
+  .footer-arta-logo:hover,
+  .footer-tuvsu-logo:hover {
     transform: translateY(-2px);
     filter:
       drop-shadow(0 0 18px rgba(240, 200, 90, 0.5))
@@ -848,7 +851,8 @@ class PUPFooter extends HTMLElement {
       width: 112px;
     }
 
-    .footer-arta-logo {
+    .footer-arta-logo,
+    .footer-tuvsu-logo {
       width: 92px;
     }
 
@@ -1013,6 +1017,7 @@ class PUPFooter extends HTMLElement {
         </a>
         <img class="footer-bagong-pilipinas-logo" src="${bagongPilipinasLogoUrl}" alt="Bagong Pilipinas">
         <img class="footer-arta-logo" src="${artaSealUrl}" alt="ARTA Seal">
+        <img class="footer-tuvsu-logo" src="${tuvsuSealUrl}" alt="TUVSU Seal">
       </div>
 
       <div class="footer-links-stack">
