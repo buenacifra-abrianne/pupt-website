@@ -298,13 +298,6 @@
                     @elseif($selectedSlug === 'vision-and-mission')
                         <section class="history-story history-story--vision">
                             <div class="history-story-inner">
-                                <div class="history-page-header history-page-header--vision history-timeline-head reveal delay-100">
-                                    <div>
-                                        <p class="history-page-kicker">{{ $selectedSection['page_kicker'] ?? 'Vision and Mission' }}</p>
-                                        <h2>{{ $selectedSection['page_title'] ?? '' }}</h2>
-                                    </div>
-                                </div>
-
                                 <div class="history-timeline-container history-timeline-container--vision reveal">
                                     <div class="history-timeline-shell history-timeline-shell--vision">
                                     <div class="about-detail-body about-detail-body--vision">
@@ -421,7 +414,7 @@
                                                             $strategicGoalNumber = 1;
                                                         @endphp
                                                         @foreach($selectedSection['strategic_goals'] ?? [] as $goalGroup)
-                                                            <article
+                                                            <details
                                                                 class="about-goal-pillar{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
                                                                 @if($cmsPreview)
                                                                     data-about-strategic-goal-card
@@ -429,46 +422,55 @@
                                                                     data-about-strategic-goal-label="{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}"
                                                                 @endif
                                                             >
+                                                                <summary class="about-goal-pillar-summary">
+                                                                    <div class="about-goal-pillar-head">
+                                                                        <div class="about-goal-pillar-tag" aria-label="{{ $goalGroup['pillar'] ?? '' }}">
+                                                                            <span class="about-goal-pillar-icon-shell" aria-hidden="true">
+                                                                                @php
+                                                                                    $pillarIconSet = [
+                                                                                        'assets/static_img/pillar_1_icon.svg',
+                                                                                        'assets/static_img/pillar_2_icon.svg',
+                                                                                        'assets/static_img/pillar_3_icon.svg',
+                                                                                    ];
+                                                                                    $pillarIcon = $pillarIconSet[$loop->index % count($pillarIconSet)] ?? $pillarIconSet[0];
+                                                                                @endphp
+                                                                                <img
+                                                                                    src="{{ asset($pillarIcon) }}"
+                                                                                    alt=""
+                                                                                    class="about-goal-pillar-icon"
+                                                                                >
+                                                                            </span>
+                                                                            <span class="about-goal-pillar-label-group">
+                                                                                <span class="about-goal-pillar-label">{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}</span>
+                                                                            </span>
+                                                                        </div>
+                                                                        <h4>{{ $goalGroup['title'] ?? '' }}</h4>
+                                                                    </div>
+                                                                    <span class="about-goal-pillar-toggle" aria-hidden="true">
+                                                                        <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                                                                            <path d="M6 9l6 6 6-6"></path>
+                                                                        </svg>
+                                                                    </span>
+                                                                </summary>
                                                                 @if($cmsPreview)
                                                                     <div class="cms-preview-card-actions">
                                                                         <button type="button" class="cms-preview-card-action" data-about-strategic-goal-edit>Edit</button>
                                                                     </div>
                                                                 @endif
-                                                                <div class="about-goal-pillar-head">
-                                                                    <div class="about-goal-pillar-tag" aria-label="{{ $goalGroup['pillar'] ?? '' }}">
-                                                                        <span class="about-goal-pillar-icon-shell" aria-hidden="true">
+                                                                <div class="about-goal-pillar-body">
+                                                                    <ul class="about-goal-list">
+                                                                        @foreach($goalGroup['goals'] ?? [] as $goal)
+                                                                            <li>
+                                                                                <span class="about-goal-code">SG-{{ $strategicGoalNumber }}</span>
+                                                                                <span class="about-goal-text">{{ $goal['text'] ?? '' }}</span>
+                                                                            </li>
                                                                             @php
-                                                                                $pillarIconSet = [
-                                                                                    'assets/static_img/pillar_1_icon.svg',
-                                                                                    'assets/static_img/pillar_2_icon.svg',
-                                                                                    'assets/static_img/pillar_3_icon.svg',
-                                                                                ];
-                                                                                $pillarIcon = $pillarIconSet[$loop->index % count($pillarIconSet)] ?? $pillarIconSet[0];
+                                                                                $strategicGoalNumber++;
                                                                             @endphp
-                                                                            <img
-                                                                                src="{{ asset($pillarIcon) }}"
-                                                                                alt=""
-                                                                                class="about-goal-pillar-icon"
-                                                                            >
-                                                                        </span>
-                                                                        <span class="about-goal-pillar-label-group">
-                                                                            <span class="about-goal-pillar-label">{{ $goalGroup['pillar'] ?? ('Pillar ' . $loop->iteration) }}</span>
-                                                                        </span>
-                                                                    </div>
-                                                                    <h4>{{ $goalGroup['title'] ?? '' }}</h4>
+                                                                        @endforeach
+                                                                    </ul>
                                                                 </div>
-                                                                <ul class="about-goal-list">
-                                                                    @foreach($goalGroup['goals'] ?? [] as $goal)
-                                                                        <li>
-                                                                            <span class="about-goal-code">SG-{{ $strategicGoalNumber }}</span>
-                                                                            <span class="about-goal-text">{{ $goal['text'] ?? '' }}</span>
-                                                                        </li>
-                                                                        @php
-                                                                            $strategicGoalNumber++;
-                                                                        @endphp
-                                                                    @endforeach
-                                                                </ul>
-                                                            </article>
+                                                            </details>
                                                         @endforeach
                                                     </div>
                                                 </div>
@@ -1998,7 +2000,7 @@
                     }
 
                     const strategicGoalCard = event.target.closest('[data-about-strategic-goal-card]');
-                    if (strategicGoalCard) {
+                    if (strategicGoalCard && !event.target.closest('.about-goal-pillar-summary')) {
                         event.preventDefault();
                         event.stopPropagation();
                         window.parent?.postMessage({

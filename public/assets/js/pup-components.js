@@ -507,14 +507,15 @@ class PUPFooter extends HTMLElement {
 
   .footer-panel-header {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 9px;
+    flex-direction: row;
+    align-items: center;
+    gap: 11px;
   }
 
   .footer-panel-icon {
     width: 34px;
     height: 34px;
+    flex: 0 0 34px;
     border-radius: 50%;
     border: 1px solid rgba(248, 215, 130, 0.82);
     color: #f0c85a;
@@ -541,6 +542,7 @@ class PUPFooter extends HTMLElement {
 
   .footer-panel-title {
     font-size: 13px;
+    line-height: 34px;
   }
 
   .footer-services-grid {
@@ -916,11 +918,11 @@ class PUPFooter extends HTMLElement {
 
     .footer-panel-header {
       align-items: center;
-      text-align: center;
     }
 
     .footer-panel-title {
       font-size: 12px;
+      line-height: 1.1;
       letter-spacing: 0.1em;
     }
 
