@@ -994,6 +994,55 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
+                    @php
+                        $officialChartInputId = $idPrefix.'-about-official-chart-image-file';
+                        $officialChartFieldId = $idPrefix.'-about-official-chart-image';
+                        $officialChartValue = (string) ($officialsEditor['organizational_chart_image'] ?? '');
+                        $officialChartPreview = \App\Support\AboutCmsContent::resolveImagePath(
+                            $officialChartValue !== '' ? $officialChartValue : ($officialsEditor['image'] ?? null),
+                            'assets/static_img/about_header_image.png'
+                        );
+                    @endphp
+
+                    <div class="form-group">
+                        <div class="about-cms-image-dropzone-shell">
+                            <input type="hidden" id="{{ $officialChartFieldId }}" name="about[sections][campus-officials][organizational_chart_image]" value="{{ $officialChartValue }}" data-about-image-field>
+                            <input
+                                type="file"
+                                id="{{ $officialChartInputId }}"
+                                name="about[sections][campus-officials][organizational_chart_image_file]"
+                                class="about-cms-image-dropzone-input"
+                                accept="image/*"
+                                data-about-image-field-id="{{ $officialChartFieldId }}"
+                            >
+                            <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $officialChartInputId }}" tabindex="0" role="button" aria-label="Upload organizational structure image">
+                                <span class="about-cms-image-dropzone-preview-column">
+                                    <span class="about-cms-image-dropzone-media">
+                                        <img
+                                            src="{{ $officialChartPreview }}"
+                                            alt="Organizational structure preview"
+                                            class="about-cms-image-dropzone-preview"
+                                            data-about-preview-for="{{ $officialChartInputId }}"
+                                            data-about-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
+                                        >
+                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $officialChartInputId }}" aria-label="Delete image" title="Delete image" {{ $officialChartValue === '' ? 'hidden' : '' }}>
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                </span>
+                                <span class="about-cms-image-dropzone-upload">
+                                    <span class="about-cms-image-dropzone-icon">
+                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="about-cms-image-dropzone-upload-copy">This image appears above the campus officials cards and opens in a zoom view on the public page.</span>
+                                    <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $officialChartInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="about-cms-card-stack" data-about-officials-list>
                         @foreach($officialsEditor['official_groups'] ?? [] as $index => $officialGroup)
                             @php
@@ -1179,7 +1228,7 @@
                     </template>
 
                     <div class="about-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Campus Officials') }}</button>
+                        <button type="submit" class="btn btn-primary">Save Changes</button>
                     </div>
                 </form>
             </section>
@@ -2166,6 +2215,11 @@
         max-width: min(900px, calc(100vw - 20px));
     }
 
+    .about-cms-modal.is-chart-focus .about-cms-modal-dialog {
+        width: min(1080px, calc(100vw - 20px));
+        max-width: min(1080px, calc(100vw - 20px));
+    }
+
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
         display: grid;
         gap: 16px;
@@ -2235,6 +2289,67 @@
         max-width: 700px;
         margin: 0 auto;
         padding-top: 6px;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-modal-header p {
+        display: none;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-card-stack {
+        display: none;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-modal-panels {
+        padding: 12px 12px 18px;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-shell {
+        max-width: none;
+        width: 100%;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        padding: 12px;
+        border-color: rgba(127, 17, 19, 0.28);
+        background: linear-gradient(180deg, #fffaf2 0%, #fff4eb 100%);
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-preview-column {
+        min-height: 0;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-media {
+        height: auto;
+        min-height: 0;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-preview {
+        height: auto;
+        min-height: 0;
+        max-height: min(84vh, 1200px);
+        object-fit: contain;
+        border: 2px solid rgba(127, 17, 19, 0.16);
+        box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.9),
+            0 20px 42px rgba(127, 17, 19, 0.16);
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload {
+        display: none;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-remove {
+        top: 16px;
+        right: 16px;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-modal-footer {
+        width: 100%;
+        max-width: 1080px;
+        margin: 18px auto 0;
+        padding-top: 4px;
     }
 
     .about-cms-editor-panel[data-about-editor-panel="logo-and-symbols"].is-card-focus .about-cms-modal-footer {
@@ -2714,11 +2829,13 @@
 
             const title = modal.querySelector('#{{ $idPrefix }}-modal-title');
             const description = modal.querySelector('[data-about-editor-description]');
+            const isChartFocus = sectionKey === 'campus-officials' && options.chartOnly === true;
 
             modal.hidden = false;
             document.body.style.overflow = 'hidden';
             document.body.classList.add('cms-editor-modal-open');
             modal.classList.remove('is-official-card-focus');
+            modal.classList.toggle('is-chart-focus', isChartFocus);
 
             modal.querySelectorAll('[data-about-editor-panel]').forEach((panel) => {
                 const isActive = panel.getAttribute('data-about-editor-panel') === sectionKey;
@@ -2726,7 +2843,7 @@
                 const isHistoryCardFocus = sectionKey === 'history' && String(options.historyIndex ?? '').trim() !== '';
                 const isStrategicGoalFocus = sectionKey === 'strategic-goals' && String(options.strategicGoalIndex ?? '').trim() !== '';
                 const isPlanPriorityFocus = sectionKey === 'strategic-development-plan' && String(options.planPriorityIndex ?? '').trim() !== '';
-                const isOfficialCardFocus = sectionKey === 'campus-officials' && String(options.officialIndex ?? '').trim() !== '';
+                const isOfficialCardFocus = sectionKey === 'campus-officials' && !isChartFocus && String(options.officialIndex ?? '').trim() !== '';
                 const isSealCardFocus = sectionKey === 'logo-and-symbols' && String(options.sealIndex ?? '').trim() !== '';
                 const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus;
                 panel.hidden = !isActive;
@@ -2740,7 +2857,8 @@
                     }
 
                     if (description) {
-                        description.textContent = 'Update this section and save to refresh the About page preview.';
+                        description.hidden = isChartFocus;
+                        description.textContent = isChartFocus ? '' : 'Update this section and save to refresh the About page preview.';
                     }
 
                     let focusScope = panel;
@@ -2752,7 +2870,7 @@
                         focusScope = setActiveStrategicGoalEditor(options.strategicGoalIndex ?? '', isCardFocus) || panel;
                     } else if (sectionKey === 'strategic-development-plan') {
                         focusScope = setActivePlanPriorityEditor(options.planPriorityIndex ?? '', isCardFocus) || panel;
-                    } else if (sectionKey === 'campus-officials') {
+                    } else if (sectionKey === 'campus-officials' && !isChartFocus) {
                         focusScope = setActiveOfficialEditor(options.officialIndex ?? '', panel) || panel;
                     } else if (sectionKey === 'logo-and-symbols') {
                         focusScope = setActiveSealEditor(options.sealIndex ?? '', panel, isCardFocus) || panel;
@@ -2782,6 +2900,12 @@
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
             modal.classList.remove('is-official-card-focus');
+            modal.classList.remove('is-chart-focus');
+            const description = modal.querySelector('[data-about-editor-description]');
+            if (description) {
+                description.hidden = false;
+                description.textContent = 'Select a section from the preview to start editing.';
+            }
             document.body.style.overflow = '';
             document.body.classList.remove('cms-editor-modal-open');
         }
@@ -2867,6 +2991,14 @@
                 openAboutEditor('campus-officials', data.label || 'Add campus official', {
                     officialIndex: nextIndex,
                     route: data.route || 'campus-officials',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-official-chart-edit') {
+                openAboutEditor('campus-officials', 'Organizational Structure and Image Uploader', {
+                    route: data.route || 'campus-officials',
+                    chartOnly: true,
                 });
                 return;
             }

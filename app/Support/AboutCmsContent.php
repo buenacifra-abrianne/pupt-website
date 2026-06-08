@@ -348,6 +348,7 @@ class AboutCmsContent
                 'visible_in_contents' => '1',
                 'summary' => 'See the key leadership and service offices that guide campus operations.',
                 'image' => self::DEFAULT_CARD_IMAGE,
+                'organizational_chart_image' => '',
                 'lead' => 'Campus leadership is organized through academic, student, administrative, and service offices that support daily operations and long-term development.',
                 'official_groups' => [
                     [
@@ -634,6 +635,7 @@ class AboutCmsContent
                 ),
             ]),
             'campus-officials' => array_merge($section, [
+                'organizational_chart_image' => self::pickOptionalString($source, $base, $defaults, 'organizational_chart_image', 2048),
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
                 'official_groups' => self::normalizeOfficialGroups(
                     $source['official_groups'] ?? [],

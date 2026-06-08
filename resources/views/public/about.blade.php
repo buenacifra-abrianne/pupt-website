@@ -879,10 +879,39 @@
                                     </div>
 
                                 @elseif($selectedSlug === 'campus-officials')
+                                @php
+                                    $officialChartImageValue = trim((string) ($selectedSection['organizational_chart_image'] ?? ''));
+                                    $officialChartImage = \App\Support\AboutCmsContent::resolveImagePath(
+                                        $officialChartImageValue !== '' ? $officialChartImageValue : ($selectedSection['image'] ?? null),
+                                        'assets/static_img/about_header_image.png'
+                                    );
+                                @endphp
                                 <div class="ls-page-header reveal">
                                     <p class="section-tag">Campus Leadership</p>
                                     <h2 class="ls-page-title">{{ $selectedSection['label'] ?? 'Campus Officials' }}</h2>
                                     <p class="ls-page-subtitle">{{ $selectedSection['summary'] ?? '' }}</p>
+                                </div>
+                                <div class="officials-chart-shell reveal">
+                                    <button
+                                        type="button"
+                                        class="officials-chart-trigger{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
+                                        @if($cmsPreview)
+                                            data-about-campus-officials-chart-edit
+                                            aria-label="Edit organizational structure image"
+                                        @else
+                                            data-campus-officials-chart-zoom
+                                            aria-label="Zoom organizational structure image"
+                                        @endif
+                                    >
+                                        <img
+                                            src="{{ $officialChartImage }}"
+                                            alt="{{ $selectedSection['label'] ?? 'Campus Officials' }} organizational structure"
+                                            class="officials-chart-image"
+                                            loading="lazy"
+                                            decoding="async"
+                                        >
+                                        <span class="officials-chart-zoom-badge">{{ $cmsPreview ? 'Edit' : 'Zoom' }}</span>
+                                    </button>
                                 </div>
                                 <div class="officials-grid">
                                 @if($cmsPreview)
@@ -971,6 +1000,11 @@
 
                                 </div>
                                 <p class="about-detail-caption">{{ $selectedSection['officials_note'] ?? '' }}</p>
+
+                                <div class="officials-chart-zoom" id="campusOfficialsChartZoom" aria-hidden="true">
+                                    <button type="button" class="officials-chart-zoom-close" data-campus-officials-chart-zoom-close aria-label="Close organizational structure zoom">&times;</button>
+                                    <img id="campusOfficialsChartZoomImage" src="" alt="Zoomed organizational structure">
+                                </div>
 
                                 <script>
                                 (function () {
@@ -1077,10 +1111,101 @@
                                         });
                                     }
 
+                                    function initOfficialChartZoom() {
+                                        const zoom = document.getElementById('campusOfficialsChartZoom');
+                                        const zoomImage = document.getElementById('campusOfficialsChartZoomImage');
+                                        const zoomClose = zoom?.querySelector('[data-campus-officials-chart-zoom-close]');
+                                        const triggers = document.querySelectorAll('[data-campus-officials-chart-zoom]');
+                                        let lastTrigger = null;
+
+                                        if (!(zoom instanceof HTMLElement) || !(zoomImage instanceof HTMLImageElement) || !(zoomClose instanceof HTMLElement) || !triggers.length) {
+                                            return;
+                                        }
+
+                                        if (zoom.parentElement !== document.body) {
+                                            document.body.appendChild(zoom);
+                                        }
+
+                                        const openZoom = (trigger) => {
+                                            const image = trigger.querySelector('img');
+                                            if (!(image instanceof HTMLImageElement) || !image.src) {
+                                                return;
+                                            }
+
+                                            lastTrigger = trigger;
+                                            zoomImage.src = image.src;
+                                            zoom.classList.add('is-open');
+                                            zoom.setAttribute('aria-hidden', 'false');
+                                            document.body.classList.add('about-chart-zoom-open');
+                                            zoomClose.focus();
+                                        };
+
+                                        const closeZoom = () => {
+                                            zoom.classList.remove('is-open');
+                                            zoom.setAttribute('aria-hidden', 'true');
+                                            zoomImage.removeAttribute('src');
+                                            document.body.classList.remove('about-chart-zoom-open');
+                                            if (lastTrigger instanceof HTMLElement) {
+                                                lastTrigger.focus();
+                                            }
+                                        };
+
+                                        triggers.forEach(function (trigger) {
+                                            trigger.addEventListener('click', function () {
+                                                openZoom(trigger);
+                                            });
+
+                                            trigger.addEventListener('keydown', function (event) {
+                                                if (event.key === 'Enter' || event.key === ' ') {
+                                                    event.preventDefault();
+                                                    openZoom(trigger);
+                                                }
+                                            });
+                                        });
+
+                                        zoomClose.addEventListener('click', closeZoom);
+                                        zoom.addEventListener('click', function (event) {
+                                            if (event.target === zoom) {
+                                                closeZoom();
+                                            }
+                                        });
+
+                                        document.addEventListener('keydown', function (event) {
+                                            if (event.key === 'Escape' && zoom.classList.contains('is-open')) {
+                                                closeZoom();
+                                            }
+                                        });
+                                    }
+
+                                    function initOfficialChartEditor() {
+                                        @if($cmsPreview)
+                                        const trigger = document.querySelector('[data-about-campus-officials-chart-edit]');
+                                        if (!(trigger instanceof HTMLElement)) {
+                                            return;
+                                        }
+
+                                        trigger.addEventListener('click', function (event) {
+                                            event.preventDefault();
+                                            event.stopPropagation();
+                                            window.parent?.postMessage({
+                                                type: 'cms-about-official-chart-edit',
+                                                route: 'campus-officials',
+                                                label: 'Organizational Structure and Image Uploader',
+                                            }, '*');
+                                        });
+                                        @endif
+                                    }
+
                                     if (document.readyState === 'loading') {
-                                        document.addEventListener('DOMContentLoaded', initOfficialCards, { once: true });
+                                        document.addEventListener('DOMContentLoaded', function () {
+                                            initOfficialCards();
+                                            initOfficialChartZoom();
+                                            initOfficialChartEditor();
+                                        }, { once: true });
                                     } else {
                                         initOfficialCards();
+                                        initOfficialChartZoom();
+                                        initOfficialChartEditor();
                                     }
                                 })();
                                 </script>
