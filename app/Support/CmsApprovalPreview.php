@@ -33,7 +33,7 @@ class CmsApprovalPreview
         $normalizedPrevious = self::normalizeComparable($previous);
 
         if ($normalizedPrevious === '' || $normalizedPrevious === $normalizedRequested) {
-            return self::renderPanel('Requested Section', $sectionLabel, $requested);
+            return self::renderPanel('Requested Update', $sectionLabel, $requested);
         }
 
         return implode('', [
@@ -84,6 +84,12 @@ class CmsApprovalPreview
                     'carousel_slides' => $decoded['carousel_slides'] ?? ($decoded['carousel'] ?? []),
                 ],
                 'updates' => $decoded['updates'] ?? [],
+                'campus_tour_video' => [
+                    'campus_tour' => self::onlyKeys($decoded['campus_tour'] ?? [], ['avp_video']),
+                ],
+                'campus_tour_facilities' => [
+                    'campus_tour' => self::onlyKeys($decoded['campus_tour'] ?? [], ['facilities']),
+                ],
                 'quick_links' => $decoded['quick_links'] ?? [],
                 'feedback' => $decoded['feedback'] ?? [],
                 default => $decoded,
@@ -154,7 +160,7 @@ class CmsApprovalPreview
         }
 
         return '<div style="margin-bottom:12px;">'
-            .'<div style="font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700;">Requested CMS Section</div>'
+            .'<div style="font-size:12px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700;">CMS Section</div>'
             .'<div style="font-size:18px; font-weight:700; color:#5c0000;">'.e($sectionLabel).'</div>'
             .'</div>';
     }
@@ -239,11 +245,31 @@ class CmsApprovalPreview
         if ($text === '') {
             return self::isImageKey($key)
                 ? self::emptyImageState()
-                : self::emptyState();
+                : (self::isVideoKey($key)
+                    ? self::emptyVideoState()
+                    : (self::isLinkLikeKey($key)
+                        ? self::emptyLinkState()
+                        : self::emptyState()));
         }
 
         if (self::isImageKey($key)) {
             return self::renderImageValue($text);
+        }
+
+        if (self::isVideoKey($key) || self::looksLikeVideoReference($text)) {
+            return self::renderVideoValue($text);
+        }
+
+        if (self::isLinkLikeKey($key)) {
+            return self::renderLinkValue($text);
+        }
+
+        if (self::looksLikeAbsoluteUrl($text)) {
+            if (self::looksLikeVideoReference($text)) {
+                return self::renderVideoValue($text);
+            }
+
+            return self::renderLinkValue($text);
         }
 
         return self::renderScalar($text);
@@ -256,13 +282,13 @@ class CmsApprovalPreview
 
     private static function renderChangedScalar(array $value, string $key = ''): string
     {
-        return '<div style="display:grid; gap:10px;">'
-            .'<div>'
-            .'<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700; margin-bottom:4px;">Previous</div>'
+        return '<div class="approval-change-split">'
+            .'<div class="approval-change-column">'
+            .'<div class="approval-change-column-title">Current</div>'
             .self::renderNestedValue($value['previous'] ?? null, $key)
             .'</div>'
-            .'<div>'
-            .'<div style="font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:#8f7d74; font-weight:700; margin-bottom:4px;">Requested</div>'
+            .'<div class="approval-change-column">'
+            .'<div class="approval-change-column-title">Requested Update</div>'
             .self::renderNestedValue($value['requested'] ?? null, $key)
             .'</div>'
             .'</div>';
@@ -355,6 +381,16 @@ class CmsApprovalPreview
         return '<div style="border:1px dashed rgba(128,0,0,.22); border-radius:12px; padding:14px; color:#8f7d74; font-style:italic; background:#fff;">No image provided.</div>';
     }
 
+    private static function emptyVideoState(): string
+    {
+        return '<div style="border:1px dashed rgba(128,0,0,.22); border-radius:12px; padding:14px; color:#8f7d74; font-style:italic; background:#fff;">No video provided.</div>';
+    }
+
+    private static function emptyLinkState(): string
+    {
+        return '<div style="border:1px dashed rgba(128,0,0,.22); border-radius:12px; padding:14px; color:#8f7d74; font-style:italic; background:#fff;">No link provided.</div>';
+    }
+
     private static function renderImageValue(string $path): string
     {
         $url = ImageStorage::url($path);
@@ -364,9 +400,65 @@ class CmsApprovalPreview
         }
 
         return '<figure style="margin:0;">'
-            .'<img src="'.e($url).'" alt="Requested image preview" style="display:block; max-width:100%; max-height:320px; object-fit:contain; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#fff;">'
+            .'<img src="'.e($url).'" alt="Image preview" style="display:block; max-width:100%; max-height:320px; object-fit:contain; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#fff;">'
             .'<figcaption style="margin-top:6px; font-size:12px; color:#8f7d74; word-break:break-all;">'.e($path).'</figcaption>'
             .'</figure>';
+    }
+
+    private static function renderVideoValue(string $path): string
+    {
+        $embedUrl = self::resolveVideoEmbedUrl($path);
+        if ($embedUrl !== null) {
+            return '<figure style="margin:0;">'
+                .'<div style="position:relative; width:100%; padding-top:56.25%; overflow:hidden; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#140f0f;">'
+                .'<iframe src="'.e($embedUrl).'" title="Video preview" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen loading="lazy" style="position:absolute; inset:0; width:100%; height:100%; border:0;"></iframe>'
+                .'</div>'
+                .'<figcaption style="margin-top:8px; font-size:12px; color:#8f7d74; word-break:break-all;">'
+                .self::renderInlineAnchor($path, $path)
+                .'</figcaption>'
+                .'</figure>';
+        }
+
+        $url = self::resolveAssetUrl($path);
+        if ($url !== null && self::isDirectVideoPath($url)) {
+            return '<figure style="margin:0;">'
+                .'<video controls preload="metadata" style="display:block; width:100%; max-height:360px; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#140f0f;">'
+                .'<source src="'.e($url).'">'
+                .'Your browser does not support the video tag.'
+                .'</video>'
+                .'<figcaption style="margin-top:8px; font-size:12px; color:#8f7d74; word-break:break-all;">'.e($path).'</figcaption>'
+                .'</figure>';
+        }
+
+        return self::renderLinkValue($path, 'Open video');
+    }
+
+    private static function renderLinkValue(string $value, string $label = 'Open link'): string
+    {
+        $url = self::resolveLinkUrl($value);
+        if ($url === null) {
+            return self::renderScalar($value);
+        }
+
+        return '<div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 14px; border-radius:12px; border:1px solid rgba(128,0,0,.12); background:#fff7f0;">'
+            .'<span style="display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:999px; background:rgba(128,0,0,.08); color:#800000; flex:0 0 auto;">'
+            .'<i class="fas fa-link" aria-hidden="true"></i>'
+            .'</span>'
+            .'<div style="min-width:0; flex:1 1 220px;">'
+            .'<a href="'.e($url).'" target="_blank" rel="noopener noreferrer" style="color:#800000; font-weight:700; text-decoration:none;">'.e($label).'</a>'
+            .'<div style="margin-top:4px; font-size:12px; color:#8f7d74; word-break:break-all;">'.e($value).'</div>'
+            .'</div>'
+            .'</div>';
+    }
+
+    private static function renderInlineAnchor(string $url, string $label): string
+    {
+        $resolvedUrl = self::resolveLinkUrl($url);
+        if ($resolvedUrl === null) {
+            return e($label);
+        }
+
+        return '<a href="'.e($resolvedUrl).'" target="_blank" rel="noopener noreferrer" style="color:#800000; text-decoration:none; font-weight:600;">'.e($label).'</a>';
     }
 
     private static function isImageKey(string $key): bool
@@ -377,6 +469,106 @@ class CmsApprovalPreview
             || $normalized === 'image_path'
             || str_ends_with($normalized, '_image')
             || str_ends_with($normalized, '_image_path');
+    }
+
+    private static function isVideoKey(string $key): bool
+    {
+        $normalized = strtolower(trim($key));
+
+        return $normalized === 'video'
+            || $normalized === 'video_url'
+            || $normalized === 'avp_video'
+            || str_contains($normalized, 'video');
+    }
+
+    private static function isLinkLikeKey(string $key): bool
+    {
+        $normalized = strtolower(trim($key));
+
+        return in_array($normalized, ['link', 'href', 'url', 'file', 'file_path', 'download_url'], true)
+            || str_ends_with($normalized, '_link')
+            || str_ends_with($normalized, '_href')
+            || str_ends_with($normalized, '_url')
+            || str_ends_with($normalized, '_file')
+            || str_ends_with($normalized, '_file_path');
+    }
+
+    private static function looksLikeVideoReference(string $value): bool
+    {
+        $normalized = strtolower(trim($value));
+
+        if ($normalized === '') {
+            return false;
+        }
+
+        return self::resolveVideoEmbedUrl($value) !== null
+            || self::isDirectVideoPath($normalized);
+    }
+
+    private static function isDirectVideoPath(string $value): bool
+    {
+        $path = preg_replace('/[?#].*$/', '', strtolower(trim($value)));
+
+        return preg_match('/\.(mp4|webm|ogg|mov|m4v)$/', $path) === 1;
+    }
+
+    private static function resolveVideoEmbedUrl(string $value): ?string
+    {
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if (preg_match('~(?:youtube\.com/watch\?v=|youtube\.com/embed/|youtu\.be/|youtube\.com/shorts/)([A-Za-z0-9_-]{6,})~i', $trimmed, $matches) === 1) {
+            return 'https://www.youtube.com/embed/'.$matches[1];
+        }
+
+        if (preg_match('~(?:player\.)?vimeo\.com/(?:video/)?(\d+)~i', $trimmed, $matches) === 1) {
+            return 'https://player.vimeo.com/video/'.$matches[1];
+        }
+
+        return null;
+    }
+
+    private static function resolveAssetUrl(string $value): ?string
+    {
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if (self::looksLikeAbsoluteUrl($trimmed) || str_starts_with($trimmed, 'data:')) {
+            return $trimmed;
+        }
+
+        return ImageStorage::url($trimmed);
+    }
+
+    private static function resolveLinkUrl(string $value): ?string
+    {
+        $trimmed = trim($value);
+        if ($trimmed === '') {
+            return null;
+        }
+
+        if (self::isSafeDirectLink($trimmed) || str_starts_with($trimmed, '/')) {
+            return $trimmed;
+        }
+
+        return ImageStorage::url($trimmed);
+    }
+
+    private static function looksLikeAbsoluteUrl(string $value): bool
+    {
+        return preg_match('/^(https?:)?\/\//i', trim($value)) === 1;
+    }
+
+    private static function isSafeDirectLink(string $value): bool
+    {
+        $trimmed = trim($value);
+
+        return self::looksLikeAbsoluteUrl($trimmed)
+            || preg_match('/^(mailto|tel):/i', $trimmed) === 1;
     }
 
     private static function normalizeComparable(mixed $value): string
@@ -419,6 +611,8 @@ class CmsApprovalPreview
                 'description' => 'Description',
                 'carousel' => 'Hero Carousel',
                 'updates' => 'Campus Updates',
+                'campus_tour_video' => 'Campus Tour AVP',
+                'campus_tour_facilities' => 'Campus Tour Facilities',
                 'quick_links' => 'Explore Section',
                 'feedback' => 'Feedback Banner',
                 default => '',

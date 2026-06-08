@@ -448,7 +448,7 @@
        style="max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
 </div>
 
-      <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Previous and Requested/New Values</div>
+      <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Current and Requested Update</div>
       <div id="dContent" style="white-space:pre-wrap; background:#f7f7f7; border-radius:12px; padding:12px;">
         —
       </div>
@@ -701,6 +701,45 @@
     object-fit: contain;
   }
 
+  #detailsModal #dContent video,
+  #detailsModal #dContent iframe {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    border-radius: 12px;
+  }
+
+  #detailsModal #dContent figure {
+    margin: 0;
+  }
+
+  #detailsModal #dContent a {
+    overflow-wrap: anywhere;
+  }
+
+  #detailsModal #dContent .approval-change-split {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+
+  #detailsModal #dContent .approval-change-column {
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(128, 0, 0, 0.08);
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fffdfb 0%, #fff6ee 100%);
+  }
+
+  #detailsModal #dContent .approval-change-column-title {
+    margin-bottom: 8px;
+    color: #8f7d74;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+
   #detailsModal #dContent .rich-text-content,
   #detailsModal #dContent p,
   #detailsModal #dContent li {
@@ -741,6 +780,10 @@
 
     #detailsModal #dTitle {
       font-size: 18px !important;
+    }
+
+    #detailsModal #dContent .approval-change-split {
+      grid-template-columns: 1fr;
     }
   }
 
