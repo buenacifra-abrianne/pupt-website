@@ -138,6 +138,8 @@ class CmsController extends Controller
             'about.sections.*.official_groups.*.body' => ['nullable', 'string'],
             'about.sections.*.official_groups.*.image' => ['nullable', 'string', 'max:2048'],
             'about.sections.*.official_groups.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.sections.*.organizational_chart_image' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.organizational_chart_image_file' => ['nullable', 'image', 'max:5120'],
             'about.sections.*.seals' => ['nullable', 'array'],
             'about.sections.*.seals.*.id' => ['nullable', 'string', 'max:120'],
             'about.sections.*.seals.*.label' => ['nullable', 'string', 'max:255'],
@@ -575,6 +577,18 @@ class CmsController extends Controller
             }
 
             if ($sectionKey === '' || $sectionKey === 'campus-officials') {
+                if ($request->exists('about.sections.campus-officials.organizational_chart_image')) {
+                    $aboutInput['sections']['campus-officials']['organizational_chart_image'] = (string) ($request->input('about.sections.campus-officials.organizational_chart_image') ?? '');
+                }
+
+                $organizationalChartUpload = $request->file('about.sections.campus-officials.organizational_chart_image_file');
+                if ($organizationalChartUpload instanceof UploadedFile) {
+                    $storedPath = ImageStorage::store($organizationalChartUpload, 'about/officials/chart');
+                    if ($storedPath !== false) {
+                        $aboutInput['sections']['campus-officials']['organizational_chart_image'] = $storedPath;
+                    }
+                }
+
                 $officialUploads = data_get($request->file('about.sections', []), 'campus-officials.official_groups', []);
 
                 if (is_array($officialUploads)) {
