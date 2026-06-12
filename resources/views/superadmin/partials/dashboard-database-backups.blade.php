@@ -16,6 +16,30 @@
     </div>
 </div>
 
+@if (session('success'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(@json(session('success')), 'success', 'Success');
+        });
+    </script>
+@endif
+
+@if (session('warning'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(@json(session('warning')), 'warning', 'Warning');
+        });
+    </script>
+@endif
+
+@if (session('error'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            showToast(@json(session('error')), 'error', 'Request Failed');
+        });
+    </script>
+@endif
+
 <div class="stats-grid backup-stats-grid">
     <div class="stat-card">
         <div class="stat-icon maroon">
