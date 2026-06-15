@@ -1645,7 +1645,7 @@ class CmsController extends Controller
             ],
             'core-values' => [
                 'sections' => [
-                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['core_values'])),
+                    'vision-and-mission' => array_intersect_key($visionSection, array_flip(['core_values', 'core_values_heading'])),
                 ],
             ],
             default => [

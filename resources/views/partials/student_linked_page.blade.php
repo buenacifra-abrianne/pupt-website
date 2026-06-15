@@ -214,11 +214,23 @@
                                                 $personHref = trim((string) ($person['href'] ?? ''));
                                                 $personImage = trim((string) ($person['image'] ?? ''));
                                                 $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/pupillar.jpeg') : '';
+                                                $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/pupillar.jpeg');
+                                                $personModalEmailHref = $personHref !== '' ? $personHref : ($personEmail !== '' ? 'mailto:'.$personEmail : '');
                                             @endphp
-                                            <article class="student-admissions-person">
+                                            <button
+                                                type="button"
+                                                class="student-admissions-person student-admissions-person-trigger"
+                                                data-student-admissions-person-trigger
+                                                data-person-name="{{ e($personName) }}"
+                                                data-person-role="{{ e($personRole) }}"
+                                                data-person-email="{{ e($personEmail) }}"
+                                                data-person-href="{{ e($personModalEmailHref) }}"
+                                                data-person-image="{{ e($personModalImageSrc) }}"
+                                                aria-label="Open profile for {{ e($personName !== '' ? $personName : 'contact person') }}"
+                                            >
                                                 <span class="student-admissions-person-avatar" aria-hidden="true">
                                                     @if($personImageSrc !== '')
-                                                        <img src="{{ $personImageSrc }}" alt="{{ $personName }} profile photo">
+                                                        <img src="{{ $personImageSrc }}" alt="">
                                                     @else
                                                         <svg viewBox="0 0 24 24" fill="none">
                                                             <path d="M12 12.2a4.1 4.1 0 1 0-4.1-4.1A4.1 4.1 0 0 0 12 12.2Zm0 1.8c-4.1 0-7.6 2.5-8.4 6.1a1 1 0 0 0 1 .9h14.8a1 1 0 0 0 1-.9c-.8-3.6-4.3-6.1-8.4-6.1Z" fill="currentColor"/>
@@ -230,12 +242,8 @@
                                                     <span>{{ $personRole }}</span>
                                                 </div>
                                                 <div class="student-admissions-person-divider" aria-hidden="true"></div>
-                                                @if($personHref !== '')
-                                                    <a href="{{ $personHref }}">{{ $personEmail }}</a>
-                                                @else
-                                                    <a href="mailto:{{ $personEmail }}">{{ $personEmail }}</a>
-                                                @endif
-                                            </article>
+                                                <span class="student-admissions-person-email">{{ $personEmail }}</span>
+                                            </button>
                                         @endforeach
                                     </div>
                                 </div>
@@ -245,6 +253,24 @@
                 @endif
             </div>
         </section>
+    @endif
+
+    @if($isAdmissionsPage && $admissionsContactPersons !== [])
+        <div class="student-admissions-person-modal" id="studentAdmissionsPersonModal" aria-hidden="true">
+            <div class="student-admissions-person-modal-backdrop" data-student-admissions-person-close></div>
+            <div class="student-admissions-person-modal-panel" role="dialog" aria-modal="true" aria-labelledby="studentAdmissionsPersonModalName">
+                <button type="button" class="student-admissions-person-modal-close" data-student-admissions-person-close aria-label="Close contact profile">&times;</button>
+                <div class="student-admissions-person-modal-media">
+                    <img id="studentAdmissionsPersonModalImage" src="" alt="">
+                </div>
+                <div class="student-admissions-person-modal-copy">
+                    <p class="student-admissions-person-modal-kicker">Contact Person</p>
+                    <h2 id="studentAdmissionsPersonModalName"></h2>
+                    <p class="student-admissions-person-modal-role" id="studentAdmissionsPersonModalRole"></p>
+                    <a id="studentAdmissionsPersonModalEmail" href="#" rel="noopener noreferrer" hidden></a>
+                </div>
+            </div>
+        </div>
     @endif
 
     @if($isAdmissionsPage || $isDocumentRequestsPage)
@@ -331,6 +357,100 @@
                 <img id="studentQrZoomImage" src="" alt="Zoomed step by step guide">
             </div>
         </div>
+    @endif
+
+    @if($isAdmissionsPage && $admissionsContactPersons !== [])
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const modal = document.getElementById('studentAdmissionsPersonModal');
+                const triggers = document.querySelectorAll('[data-student-admissions-person-trigger]');
+
+                if (!modal || !triggers.length) {
+                    return;
+                }
+
+                if (modal.parentElement !== document.body) {
+                    document.body.appendChild(modal);
+                }
+
+                const name = document.getElementById('studentAdmissionsPersonModalName');
+                const role = document.getElementById('studentAdmissionsPersonModalRole');
+                const email = document.getElementById('studentAdmissionsPersonModalEmail');
+                const image = document.getElementById('studentAdmissionsPersonModalImage');
+                let lastTrigger = null;
+
+                const closeModal = () => {
+                    modal.classList.remove('is-open');
+                    modal.setAttribute('aria-hidden', 'true');
+                    document.body.classList.remove('student-admissions-person-modal-open');
+                    if (lastTrigger instanceof HTMLElement) {
+                        lastTrigger.focus();
+                    }
+                    lastTrigger = null;
+                };
+
+                const openModal = (trigger) => {
+                    lastTrigger = trigger;
+
+                    const personName = trigger.dataset.personName || 'Contact Person';
+                    const personRole = trigger.dataset.personRole || '';
+                    const personEmail = trigger.dataset.personEmail || '';
+                    const personHref = trigger.dataset.personHref || '';
+                    const personImage = trigger.dataset.personImage || '';
+
+                    if (name) {
+                        name.textContent = personName;
+                    }
+
+                    if (role) {
+                        role.textContent = personRole;
+                        role.hidden = personRole.trim() === '';
+                    }
+
+                    if (image) {
+                        image.src = personImage || '';
+                        image.alt = personName ? `${personName} profile photo` : 'Contact person profile photo';
+                    }
+
+                    if (email) {
+                        if (personEmail.trim() !== '' && personHref.trim() !== '') {
+                            email.href = personHref;
+                            email.textContent = personEmail;
+                            email.hidden = false;
+                        } else {
+                            email.removeAttribute('href');
+                            email.textContent = '';
+                            email.hidden = true;
+                        }
+                    }
+
+                    modal.classList.add('is-open');
+                    modal.setAttribute('aria-hidden', 'false');
+                    document.body.classList.add('student-admissions-person-modal-open');
+                    modal.querySelector('.student-admissions-person-modal-close')?.focus();
+                };
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener('click', () => openModal(trigger));
+                });
+
+                modal.querySelectorAll('[data-student-admissions-person-close]').forEach((closeTrigger) => {
+                    closeTrigger.addEventListener('click', closeModal);
+                });
+
+                modal.addEventListener('click', (event) => {
+                    if (event.target === modal) {
+                        closeModal();
+                    }
+                });
+
+                document.addEventListener('keydown', (event) => {
+                    if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                        closeModal();
+                    }
+                });
+            });
+        </script>
     @endif
 
     @if($isAdmissionsPage || $isDownloadablesPage)

@@ -4,7 +4,6 @@
     $updatesEditor = $homeEditorData['updates'] ?? $homeDefaults['updates'];
     $campusTourEditor = $homeEditorData['campus_tour'] ?? $homeDefaults['campus_tour'];
     $campusTourFacilitiesEditor = array_values(is_array($campusTourEditor['facilities'] ?? null) ? $campusTourEditor['facilities'] : []);
-    $quickLinksEditor = $homeEditorData['quick_links'] ?? $homeDefaults['quick_links'];
     $feedbackEditor = $homeEditorData['feedback'] ?? $homeDefaults['feedback'];
     $feedbackQuestionsEditor = $feedbackEditor['questions'] ?? ($homeDefaults['feedback']['questions'] ?? []);
     $slidesEditor = $homeEditorData['carousel_slides'] ?? $homeDefaults['carousel_slides'];

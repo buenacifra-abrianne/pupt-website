@@ -590,6 +590,11 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
+                    <div class="form-group">
+                        <label>Core Values Heading</label>
+                        <input type="text" name="about[sections][vision-and-mission][core_values_heading]" maxlength="255" value="{{ $visionEditor['core_values_heading'] ?? 'INSPIRED values that shape the character of the PUP community.' }}">
+                    </div>
+
                     <div class="about-cms-card-stack">
                         @foreach($visionEditor['core_values'] ?? [] as $index => $coreValue)
                             <article class="about-cms-card-editor">
@@ -1348,6 +1353,7 @@
     .about-cms-workspace {
         --about-preview-width: 1520px;
         --about-preview-height: 1800px;
+        --about-preview-vision-height-cap: 1800px;
         --about-preview-min-height: 0px;
         --about-preview-scale: 1;
         --about-preview-scaled-width: calc(var(--about-preview-width) * var(--about-preview-scale));
@@ -2607,13 +2613,17 @@
         function setAboutPreviewHeight(frame, nextHeight) {
             const workspace = frame.closest('.about-cms-workspace');
             const height = Math.max(1, Number(nextHeight) || 0);
+            const visionHeightCap = currentAboutPreviewRoute === 'vision-and-mission'
+                ? Number.parseFloat(getComputedStyle(workspace || document.documentElement).getPropertyValue('--about-preview-vision-height-cap')) || 0
+                : 0;
+            const nextViewportHeight = visionHeightCap > 0 ? Math.min(height, visionHeightCap) : height;
 
             if (!workspace || !height) {
                 return;
             }
 
-            workspace.style.setProperty('--about-preview-height', `${height}px`);
-            frame.style.height = `${height}px`;
+            workspace.style.setProperty('--about-preview-height', `${nextViewportHeight}px`);
+            frame.style.height = `${nextViewportHeight}px`;
             fitAboutPreview(frame);
         }
 
@@ -2662,6 +2672,19 @@
             const cleanups = [];
             const schedule = () => queueAboutPreviewSettledSync(frame);
             const main = doc.querySelector('.main-content');
+            const focusVisionCoreValues = () => {
+                if (currentAboutPreviewRoute !== 'vision-and-mission') {
+                    return;
+                }
+
+                const target = doc.querySelector('.about-values-band');
+                if (!(target instanceof HTMLElement) || !win || typeof win.scrollTo !== 'function') {
+                    return;
+                }
+
+                const top = Math.max(0, target.offsetTop - 24);
+                win.scrollTo({ top, behavior: 'auto' });
+            };
 
             if (typeof window.bindCmsPreviewScrollBridge === 'function') {
                 window.bindCmsPreviewScrollBridge(frame, cleanups);
@@ -2733,6 +2756,10 @@
                 cleanups.push(() => win.removeEventListener('resize', handleResize));
             }
 
+            focusVisionCoreValues();
+            [120, 320, 720].forEach((delay) => {
+                window.setTimeout(focusVisionCoreValues, delay);
+            });
             frame.__aboutPreviewCleanup = () => {
                 cleanups.forEach((cleanup) => cleanup());
             };
