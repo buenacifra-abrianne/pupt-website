@@ -2,18 +2,32 @@
   --alphabetical-card-width: 260px;
   --alphabetical-card-height: 320px;
   display: grid !important;
-  grid-auto-flow: row !important;
-  grid-auto-columns: unset !important;
-  grid-template-columns: repeat(auto-fit, var(--alphabetical-card-width)) !important;
+  grid-auto-flow: column !important;
+  grid-auto-columns: var(--alphabetical-card-width) !important;
+  grid-template-columns: none !important;
   justify-content: start !important;
   align-items: stretch !important;
   width: 100% !important;
   max-width: 100% !important;
   gap: 18px !important;
   padding: 4px 0 8px !important;
-  overflow: visible !important;
-  scroll-snap-type: none !important;
+  overflow-x: auto !important;
+  overflow-y: visible !important;
+  overscroll-behavior-inline: contain;
+  scroll-snap-type: x proximity !important;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 17, 19, 0.3) transparent;
+  -webkit-overflow-scrolling: touch;
   touch-action: auto !important;
+}
+
+.alphabetical-card-pages::-webkit-scrollbar {
+  height: 8px;
+}
+
+.alphabetical-card-pages::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(127, 17, 19, 0.3);
 }
 
 .alphabetical-card-pages > * {
@@ -23,34 +37,11 @@
   height: var(--alphabetical-card-height) !important;
   min-height: var(--alphabetical-card-height) !important;
   box-sizing: border-box;
-}
-
-.alphabetical-card-pages.alphabetical-card-pages--all {
-  display: grid !important;
-  grid-auto-flow: column !important;
-  grid-auto-columns: var(--alphabetical-card-width) !important;
-  grid-template-columns: none !important;
-  justify-content: start !important;
-  overflow-x: auto !important;
-  overflow-y: visible !important;
-  overscroll-behavior-inline: contain;
-  scroll-snap-type: x proximity !important;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(127, 17, 19, 0.3) transparent;
-  -webkit-overflow-scrolling: touch;
-}
-
-.alphabetical-card-pages.alphabetical-card-pages--all > * {
   scroll-snap-align: start;
 }
 
-.alphabetical-card-pages.alphabetical-card-pages--all::-webkit-scrollbar {
-  height: 8px;
-}
-
-.alphabetical-card-pages.alphabetical-card-pages--all::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(127, 17, 19, 0.3);
+.alphabetical-card-pages.alphabetical-card-pages--all {
+  scroll-padding-inline: 2px;
 }
 
 .students-contents-strip:has(.alphabetical-card-pages) .students-contents-inner,
@@ -151,14 +142,12 @@ body.pup-dark-mode .alphabetical-card-selector button[aria-current="page"] {
     --alphabetical-card-height: 290px;
     gap: 12px !important;
   }
-
 }
 
 @media (max-width: 519px) {
   .alphabetical-card-pages {
-    --alphabetical-card-width: min(230px, 100%);
+    --alphabetical-card-width: min(230px, calc(100vw - (var(--page-gutter) * 2)));
     --alphabetical-card-height: 280px;
-    grid-template-columns: var(--alphabetical-card-width) !important;
   }
 
   .alphabetical-card-selector {
@@ -171,6 +160,23 @@ body.pup-dark-mode .alphabetical-card-selector button[aria-current="page"] {
     min-width: 44px;
     height: 44px;
     border-radius: 10px;
+  }
+}
+
+@media (max-width: 759px) {
+  .alphabetical-card-selector {
+    flex-wrap: nowrap;
+    justify-content: center;
+    width: fit-content;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-inline: contain;
+  }
+
+  .alphabetical-card-selector button {
+    flex: 0 0 auto;
   }
 }
 
