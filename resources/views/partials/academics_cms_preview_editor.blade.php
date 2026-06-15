@@ -615,8 +615,6 @@
     }
 
     .academics-cms-image-dropzone {
-        position: relative;
-        isolation: isolate;
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 16px;
@@ -635,8 +633,6 @@
     }
 
     .academics-cms-image-dropzone-preview-column {
-        position: relative;
-        z-index: 1;
         display: flex;
         min-width: 0;
         min-height: 180px;
@@ -670,8 +666,6 @@
     }
 
     .academics-cms-image-dropzone-upload {
-        position: relative;
-        z-index: 2;
         display: grid;
         justify-items: center;
         align-content: center;
@@ -718,16 +712,20 @@
         justify-content: center;
         min-height: 40px;
         padding: 0 18px;
+        margin: 0;
         border-radius: 999px;
         background: #fff8f1;
         color: #1b1714;
         font-size: 0.9rem;
         font-weight: 700;
-        border: 0;
-        appearance: none;
-        position: relative;
-        z-index: 3;
-        pointer-events: auto;
+        line-height: 1;
+        letter-spacing: normal;
+        text-transform: none;
+        text-decoration: none;
+        white-space: nowrap;
+        align-self: center;
+        width: auto;
+        max-width: 100%;
         cursor: pointer;
     }
 
@@ -740,12 +738,7 @@
     }
 
     .academics-cms-image-dropzone-input {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        opacity: 0;
-        pointer-events: none;
-        overflow: hidden;
+        display: none;
     }
 
     .academics-cms-image-dropzone-remove {
@@ -1408,7 +1401,6 @@
                     || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
-                const selectButton = label?.querySelector('.academics-cms-image-dropzone-upload-button') || null;
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
                     : (
@@ -1424,8 +1416,6 @@
                 input.dataset.academicsDropzoneBound = '1';
                 const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
                 const defaultSrc = previewEl?.dataset.academicsDefaultSrc || '';
-                selectButton?.setAttribute('role', 'button');
-                selectButton?.setAttribute('tabindex', '0');
 
                 const openFilePicker = () => {
                     input.disabled = false;
@@ -1461,26 +1451,13 @@
                 });
 
                 label.addEventListener('click', (event) => {
-                    if (event.target.closest('[data-academics-clear-image-for]')) {
+                    if (
+                        event.target.closest('[data-academics-clear-image-for]')
+                        || event.target.closest('.academics-cms-image-dropzone-upload-button')
+                    ) {
                         return;
                     }
 
-                    openFilePicker();
-                });
-
-                selectButton?.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openFilePicker();
-                });
-
-                selectButton?.addEventListener('keydown', (event) => {
-                    if (event.key !== 'Enter' && event.key !== ' ') {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
                     openFilePicker();
                 });
 
