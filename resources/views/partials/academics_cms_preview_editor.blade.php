@@ -953,6 +953,9 @@
 <script>
     (() => {
         if (window.__academicsCmsPreviewEditorReady) {
+            if (typeof window.__rebindAcademicsCmsPreviewEditor === 'function') {
+                window.__rebindAcademicsCmsPreviewEditor();
+            }
             return;
         }
 
@@ -1405,13 +1408,18 @@
                     return;
                 }
 
-                const label = scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
+                const dropzone = input.closest('.academics-cms-image-dropzone')
+                    || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
-                const fileNameEl = scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
+                const label = dropzone;
+                const fileNameEl = dropzone?.querySelector(`[data-academics-file-name-for="${input.id}"]`)
+                    || scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-file-name-for="${input.id}"]`);
-                const previewEl = scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
+                const previewEl = dropzone?.querySelector(`[data-academics-preview-for="${input.id}"]`)
+                    || scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
-                const removeButton = scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
+                const removeButton = dropzone?.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
+                    || scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
@@ -1551,6 +1559,11 @@
                 syncCounter();
             });
         }
+
+        window.__rebindAcademicsCmsPreviewEditor = () => {
+            initAcademicsImageDropzones(document);
+            initAcademicsCharCounters(document);
+        };
 
         function submitEditorForm(form) {
             if (!form) {
@@ -2008,8 +2021,7 @@
                 `academicsCardDirtyTrackingBound${collection.form.getAttribute('data-academics-card-form') || ''}`
             );
         });
-        initAcademicsImageDropzones(document);
-        initAcademicsCharCounters(document);
+        window.__rebindAcademicsCmsPreviewEditor();
         window.__academicsCmsPreviewEditorReady = true;
     })();
 </script>
