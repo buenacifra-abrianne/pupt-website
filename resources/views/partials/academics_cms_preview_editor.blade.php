@@ -112,7 +112,7 @@
                                     </span>
                                     <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                     <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
-                                    <label for="{{ $academicsHeroInputId }}" class="academics-cms-image-dropzone-upload-button">Select image</label>
+                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </span>
                             </div>
@@ -218,7 +218,7 @@
                                                     </span>
                                                     <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                                     <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
-                                                    <label for="{{ $itemInputId }}" class="academics-cms-image-dropzone-upload-button">Select image</label>
+                                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $itemInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                 </span>
                                             </div>
@@ -615,6 +615,8 @@
     }
 
     .academics-cms-image-dropzone {
+        position: relative;
+        isolation: isolate;
         display: grid;
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
         gap: 16px;
@@ -633,6 +635,8 @@
     }
 
     .academics-cms-image-dropzone-preview-column {
+        position: relative;
+        z-index: 1;
         display: flex;
         min-width: 0;
         min-height: 180px;
@@ -666,6 +670,8 @@
     }
 
     .academics-cms-image-dropzone-upload {
+        position: relative;
+        z-index: 2;
         display: grid;
         justify-items: center;
         align-content: center;
@@ -712,21 +718,11 @@
         justify-content: center;
         min-height: 40px;
         padding: 0 18px;
-        margin: 0;
         border-radius: 999px;
         background: #fff8f1;
         color: #1b1714;
         font-size: 0.9rem;
         font-weight: 700;
-        line-height: 1;
-        letter-spacing: normal;
-        text-transform: none;
-        text-decoration: none;
-        white-space: nowrap;
-        align-self: center;
-        width: auto;
-        max-width: 100%;
-        cursor: pointer;
     }
 
     .academics-cms-image-dropzone-file {
@@ -1417,11 +1413,6 @@
                 const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
                 const defaultSrc = previewEl?.dataset.academicsDefaultSrc || '';
 
-                const openFilePicker = () => {
-                    input.disabled = false;
-                    input.click();
-                };
-
                 const syncRemoveState = () => {
                     if (!removeButton) {
                         return;
@@ -1451,14 +1442,11 @@
                 });
 
                 label.addEventListener('click', (event) => {
-                    if (
-                        event.target.closest('[data-academics-clear-image-for]')
-                        || event.target.closest('.academics-cms-image-dropzone-upload-button')
-                    ) {
+                    if (event.target.closest('[data-academics-clear-image-for]')) {
                         return;
                     }
 
-                    openFilePicker();
+                    input.click();
                 });
 
                 label.addEventListener('keydown', (event) => {
@@ -1467,7 +1455,7 @@
                     }
 
                     event.preventDefault();
-                    openFilePicker();
+                    input.click();
                 });
 
                 label.addEventListener('dragover', (event) => {
