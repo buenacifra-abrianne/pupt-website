@@ -317,12 +317,14 @@ class OnePortalController extends Controller
         (int) session('user_id', 0)
     );
 
+    $frontChannelLogoutUrl = $this->buildFrontChannelIdpLogoutUrl();
     $idpRedirectUrl = $this->revokeIdpTokens($request, $accessToken, $refreshToken);
+    $redirectUrl = $frontChannelLogoutUrl ?: $idpRedirectUrl;
 
-    if ($idpRedirectUrl) {
+    if ($redirectUrl) {
         return $this->clearLocalSession(
             $request,
-            redirect()->away($idpRedirectUrl)
+            redirect()->away($redirectUrl)
         );
     }
 
@@ -331,12 +333,12 @@ class OnePortalController extends Controller
 
     public function idpLogout(Request $request): Response
     {
-        $accessToken = (string) (session('access_token') ?: $request->cookie('access_token') ?: '');
-        $refreshToken = (string) (session('refresh_token') ?: $request->cookie('refresh_token') ?: '');
+        $redirectTo = $this->sanitizeLogoutRedirectTarget((string) $request->query('redirect_to', ''));
+        $response = $redirectTo !== ''
+            ? redirect($redirectTo)->with('success', 'You have been logged out.')
+            : redirect()->route('logout.completed');
 
-        $this->revokeIdpTokens($request, $accessToken, $refreshToken);
-
-        return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
+        return $this->clearLocalSession($request, $response);
     }
 
     private function redirectByRole($role)
@@ -430,22 +432,25 @@ class OnePortalController extends Controller
             return null;
         }
 
-        $payload = array_filter([
+        if (!$accessToken) {
+            \Log::warning('IDP logout skipped because no access token was available for bearer auth.');
+
+            return null;
+        }
+
+        $payload = [
             'client_id' => $clientId,
-            'access_token' => $accessToken ?: null,
-            'refresh_token' => $refreshToken ?: null,
-        ], fn ($value) => $value !== null && $value !== '');
+        ];
 
         try {
             $http = Http::asJson()
                 ->acceptJson()
+                ->connectTimeout(5)
+                ->timeout(10)
                 ->withOptions([
                     'allow_redirects' => false,
-                ]);
-
-            if ($accessToken) {
-                $http = $http->withToken($accessToken);
-            }
+                ])
+                ->withToken($accessToken);
 
             if (app()->environment(['local', 'testing'])) {
                 $http = $http->withoutVerifying();
@@ -482,6 +487,74 @@ class OnePortalController extends Controller
         }
 
         return null;
+    }
+
+    private function buildFrontChannelIdpLogoutUrl(): ?string
+    {
+        $logoutMode = strtolower(trim((string) config('services.idp.logout_mode', 'post')));
+        $logoutUrl = trim((string) config('services.idp.logout_url_get', ''));
+        $clientId = trim((string) config('services.idp.client_id', ''));
+
+        if (!in_array($logoutMode, ['get', 'front_channel'], true) || $logoutUrl === '' || $clientId === '') {
+            return null;
+        }
+
+        $userId = trim((string) session('oneportal_id', ''));
+        $redirectParameter = trim((string) config('services.idp.logout_redirect_parameter', ''));
+        $redirectUrl = trim((string) config('services.idp.logout_redirect_url', ''));
+
+        if ($redirectParameter !== '' && $redirectUrl === '') {
+            $redirectUrl = route('idp.logout', [
+                'redirect_to' => route('logout.completed', [], false),
+            ]);
+        }
+
+        $query = [
+            'client_id' => $clientId,
+            'user_id' => $userId !== '' ? $userId : null,
+        ];
+
+        if ($redirectParameter !== '' && $redirectUrl !== '') {
+            $query[$redirectParameter] = $redirectUrl;
+        }
+
+        $query = array_filter($query, fn ($value) => $value !== null && $value !== '');
+
+        return rtrim($logoutUrl, '?') . '?' . http_build_query($query);
+    }
+
+    private function sanitizeLogoutRedirectTarget(string $target): string
+    {
+        $target = trim($target);
+
+        if ($target === '') {
+            return '';
+        }
+
+        if (str_starts_with($target, '/')) {
+            return $target;
+        }
+
+        $targetParts = parse_url($target);
+        $appUrlParts = parse_url((string) config('app.url'));
+
+        if (
+            !is_array($targetParts) ||
+            !is_array($appUrlParts) ||
+            empty($targetParts['host']) ||
+            empty($appUrlParts['host'])
+        ) {
+            return '';
+        }
+
+        if (!hash_equals((string) $appUrlParts['host'], (string) $targetParts['host'])) {
+            return '';
+        }
+
+        $path = (string) ($targetParts['path'] ?? '/');
+        $query = isset($targetParts['query']) ? '?' . $targetParts['query'] : '';
+
+        return $path . $query;
     }
 
     private function attachCookieExpiryHeaders(Response $response): Response

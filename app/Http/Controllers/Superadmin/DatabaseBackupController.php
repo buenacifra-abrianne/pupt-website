@@ -64,22 +64,39 @@ class DatabaseBackupController extends Controller
         DatabaseBackupSettingsService $settingsService,
         DatabaseBackupService $backupService
     ) {
-        $validated = $request->validated();
+        try {
+            $validated = $request->validated();
 
-        $settings = $settingsService->update([
-            'automatic_backups_enabled' => $request->boolean('automatic_backups_enabled'),
-            'frequency' => $validated['frequency'],
-            'retention_count' => (int) $validated['retention_count'],
-        ]);
+            $settings = $settingsService->update([
+                'automatic_backups_enabled' => $request->boolean('automatic_backups_enabled'),
+                'frequency' => $validated['frequency'],
+                'retention_count' => (int) $validated['retention_count'],
+            ]);
 
-        if ($settings->automatic_backups_enabled) {
-            $backupService->pruneOldBackups((int) $settings->retention_count, $this->sessionUserId());
+            $redirect = $this->dashboardBackupRedirect();
+
+            if ($settings->automatic_backups_enabled) {
+                try {
+                    $backupService->pruneOldBackups((int) $settings->retention_count, $this->sessionUserId());
+                } catch (Throwable $e) {
+                    report($e);
+
+                    $redirect->with(
+                        'warning',
+                        'Backup settings were saved, but old backups could not be pruned automatically.'
+                    );
+                }
+            }
+
+            AuditLog::record('UPDATED', 'DATABASE_BACKUPS', 'Updated database backup settings.');
+
+            return $redirect->with('success', 'Backup settings updated successfully.');
+        } catch (Throwable $e) {
+            report($e);
+
+            return $this->dashboardBackupRedirect()
+                ->with('error', 'Backup settings update failed.');
         }
-
-        AuditLog::record('UPDATED', 'DATABASE_BACKUPS', 'Updated database backup settings.');
-
-        return $this->dashboardBackupRedirect()
-            ->with('success', 'Backup settings updated successfully.');
     }
 
     private function dashboardBackupRedirect()
