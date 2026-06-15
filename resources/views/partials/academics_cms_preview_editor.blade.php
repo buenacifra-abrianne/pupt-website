@@ -112,7 +112,7 @@
                                     </span>
                                     <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                     <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
-                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
+                                    <button type="button" class="academics-cms-image-dropzone-upload-button">Select image</button>
                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </span>
                             </div>
@@ -218,7 +218,7 @@
                                                     </span>
                                                     <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                                     <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
-                                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
+                                                    <button type="button" class="academics-cms-image-dropzone-upload-button">Select image</button>
                                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $itemInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                 </span>
                                             </div>
@@ -717,6 +717,10 @@
         color: #1b1714;
         font-size: 0.9rem;
         font-weight: 700;
+        border: 0;
+        appearance: none;
+        position: relative;
+        z-index: 1;
         cursor: pointer;
     }
 
@@ -1418,16 +1422,6 @@
 
                 const openFilePicker = () => {
                     input.disabled = false;
-
-                    if (typeof input.showPicker === 'function') {
-                        try {
-                            input.showPicker();
-                            return;
-                        } catch (_) {
-                            // Fall through to click for browsers that restrict showPicker.
-                        }
-                    }
-
                     input.click();
                 };
 
