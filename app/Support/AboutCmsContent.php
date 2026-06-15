@@ -131,6 +131,7 @@ class AboutCmsContent
                     ['letter' => 'E', 'title' => 'Excellence'],
                     ['letter' => 'D', 'title' => 'Democracy'],
                 ],
+                'core_values_heading' => 'INSPIRED values that shape the character of the PUP community.',
             ],
             'logo-and-symbols' => [
                 'slug' => 'logo-and-symbols',
@@ -556,6 +557,7 @@ class AboutCmsContent
                     $base['core_values'] ?? $defaults['core_values'],
                     $defaults['core_values']
                 ),
+                'core_values_heading' => self::pickString($source, $base, $defaults, 'core_values_heading', 255),
             ]),
             'logo-and-symbols' => (function () use ($section, $source, $base, $defaults): array {
                 $lead = self::pickString($source, $base, $defaults, 'lead', 4000);

@@ -703,6 +703,24 @@ a.student-admissions-contact-item {
   background: #fff;
 }
 
+.student-admissions-person-trigger {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.student-admissions-person-trigger:hover,
+.student-admissions-person-trigger:focus-visible {
+  outline: none;
+  border-color: rgba(127, 17, 19, 0.22);
+  box-shadow: 0 12px 24px rgba(79, 9, 12, 0.1);
+  transform: translateY(-1px);
+}
+
 .student-admissions-person-avatar {
   display: inline-flex;
   align-items: center;
@@ -732,8 +750,12 @@ a.student-admissions-contact-item {
   background: rgba(127, 17, 19, 0.12);
 }
 
-.student-admissions-person a {
+.student-admissions-person-email {
   justify-self: start;
+  color: var(--maroon);
+  font-size: 0.98rem;
+  line-height: 1.2;
+  font-weight: 800;
   word-break: break-word;
 }
 
@@ -767,7 +789,7 @@ a.student-admissions-contact-item {
   }
 
   .student-admissions-person-divider,
-  .student-admissions-person a {
+  .student-admissions-person-email {
     grid-column: 1 / -1;
   }
 
@@ -838,7 +860,7 @@ body.pup-dark-mode .student-admissions-contact-item {
 body.pup-dark-mode .student-admissions-contact-item-copy strong,
 body.pup-dark-mode .student-admissions-contact-item-copy span,
 body.pup-dark-mode .student-admissions-person-copy strong,
-body.pup-dark-mode .student-admissions-person a {
+body.pup-dark-mode .student-admissions-person-email {
   color: #f5e8e8;
 }
 
@@ -862,8 +884,204 @@ body.pup-dark-mode .student-admissions-person-divider {
 
 body.pup-dark-mode .student-admissions-contact-item:hover .student-admissions-contact-arrow,
 body.pup-dark-mode .student-admissions-contact-item:focus-visible .student-admissions-contact-arrow,
-body.pup-dark-mode .student-admissions-person a:hover {
+body.pup-dark-mode .student-admissions-person-email:hover {
   color: #e08080;
+}
+
+.student-admissions-person-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1250;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.student-admissions-person-modal.is-open {
+  display: flex;
+}
+
+.student-admissions-person-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(22, 16, 16, 0.72);
+  backdrop-filter: blur(9px);
+}
+
+.student-admissions-person-modal-panel {
+  position: relative;
+  z-index: 1;
+  width: min(960px, 100%);
+  max-height: min(86vh, 900px);
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
+  overflow: hidden;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 253, 250, 0.99) 0%, rgba(247, 239, 232, 0.97) 100%);
+  box-shadow: 0 28px 72px rgba(79, 9, 12, 0.26);
+}
+
+.student-admissions-person-modal-media {
+  min-width: 0;
+  min-height: 0;
+  padding: 18px;
+  background: linear-gradient(180deg, rgba(127, 17, 19, 0.08) 0%, rgba(212, 175, 55, 0.08) 100%);
+}
+
+.student-admissions-person-modal-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 0.92;
+  object-fit: cover;
+  border-radius: 22px;
+  background: #e8d3b1;
+  box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+}
+
+.student-admissions-person-modal-copy {
+  min-width: 0;
+  padding: 30px 34px 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.student-admissions-person-modal-kicker {
+  margin: 0;
+  color: var(--maroon);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.student-admissions-person-modal-copy h2 {
+  margin: 0;
+  color: var(--ink);
+  font-size: clamp(1.7rem, 3vw, 2.6rem);
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+.student-admissions-person-modal-role {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.student-admissions-person-modal-copy a {
+  display: inline-flex;
+  align-self: flex-start;
+  color: var(--maroon);
+  font-size: 1rem;
+  font-weight: 800;
+  text-decoration: none;
+  word-break: break-word;
+}
+
+.student-admissions-person-modal-copy a:hover,
+.student-admissions-person-modal-copy a:focus-visible {
+  outline: none;
+  color: var(--maroon-deep);
+  text-decoration: underline;
+}
+
+.student-admissions-person-modal-close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  z-index: 2;
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--maroon);
+  font-size: 1.7rem;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 10px 24px rgba(79, 9, 12, 0.14);
+}
+
+.student-admissions-person-modal-close:hover,
+.student-admissions-person-modal-close:focus-visible {
+  outline: none;
+  background: rgba(255, 255, 255, 1);
+  color: var(--maroon-deep);
+}
+
+body.student-admissions-person-modal-open {
+  overflow: hidden;
+}
+
+@media (max-width: 767.98px) {
+  .student-admissions-person-modal {
+    padding: 14px;
+  }
+
+  .student-admissions-person-modal-panel {
+    grid-template-columns: 1fr;
+    width: 100%;
+    max-height: 90vh;
+  }
+
+  .student-admissions-person-modal-media {
+    padding: 14px 14px 0;
+  }
+
+  .student-admissions-person-modal-media img {
+    aspect-ratio: 1;
+    max-height: 42vh;
+  }
+
+  .student-admissions-person-modal-copy {
+    padding: 20px 18px 22px;
+    justify-content: flex-start;
+  }
+
+  .student-admissions-person-modal-close {
+    top: 12px;
+    right: 12px;
+    width: 40px;
+    height: 40px;
+  }
+}
+
+@media (max-width: 480px) {
+  .student-admissions-person-modal {
+    padding: 10px;
+  }
+
+  .student-admissions-person-modal-panel {
+    border-radius: 22px;
+  }
+
+  .student-admissions-person-modal-media {
+    padding: 12px 12px 0;
+  }
+
+  .student-admissions-person-modal-copy {
+    padding: 18px 14px 18px;
+  }
+
+  .student-admissions-person-modal-copy h2 {
+    font-size: 1.45rem;
+  }
+
+  .student-admissions-person-modal-role {
+    font-size: 0.86rem;
+  }
+
+  .student-admissions-person-modal-copy a {
+    font-size: 0.95rem;
+  }
 }
 
 .student-qr-modal {

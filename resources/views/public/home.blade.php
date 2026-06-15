@@ -365,61 +365,6 @@
       </div>
     </section>
 
-    @if($cmsPreview)
-    <section class="quick-links reveal cms-preview-editable">
-      <div class="section-heading layout-inset reveal">
-        <p class="section-tag layout-kicker">{{ e($quickLinksSection['tag'] ?? 'Explore') }}</p>
-        <h2>{{ e($quickLinksSection['title'] ?? 'Navigate the campus experience.') }}</h2>
-        <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($quickLinksSection['description'] ?? '') !!}</div>
-      </div>
-
-      <div class="quick-links-inner layout-inset">
-          <div class="quick-links-grid">
-            @foreach($quickLinks as $link)
-              @php
-                $linkHrefRaw = trim((string) ($link['href'] ?? ''));
-
-                if ($linkHrefRaw === '') {
-                    $linkHref = '#';
-                } elseif (preg_match('/^(https?:)?\/\//i', $linkHrefRaw) === 1 || str_starts_with($linkHrefRaw, 'mailto:') || str_starts_with($linkHrefRaw, 'tel:')) {
-                    $linkHref = $linkHrefRaw;
-                } elseif (str_starts_with($linkHrefRaw, '/')) {
-                    $linkHref = url($linkHrefRaw);
-                } else {
-                    $linkHref = url('/'.ltrim($linkHrefRaw, '/'));
-                }
-              @endphp
-
-              @if($cmsPreview)
-                <article
-                  class="quick-link-card cards_information"
-                  data-home-quick-link-card
-                  data-home-quick-link-index="{{ $loop->index }}"
-                  data-cms-edit-trigger="quick_links"
-                  data-cms-section-label="Explore Section"
-                >
-                  <div class="cms-preview-card-actions" aria-label="Card actions">
-                    <button type="button" class="cms-preview-card-action" data-home-card-edit>Edit</button>
-                  </div>
-              @else
-                <a href="{{ $linkHref }}" class="quick-link-card cards_information">
-              @endif
-                  <h3 class="academic-feature-title">{{ e($link['label'] ?? '') }}</h3>
-                  <div class="quick-link-rich">
-                    <strong>{{ e($link['title'] ?? '') }}</strong>
-                    <div class="home-rich-copy">{!! \App\Support\RichText::sanitize($link['body'] ?? ($link['text'] ?? '')) !!}</div>
-                  </div>
-              @if($cmsPreview)
-                </article>
-              @else
-                </a>
-              @endif
-            @endforeach
-          </div>
-      </div>
-    </section>
-    @endif
-
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
       <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">
         <button class="advisory-modal-close" type="button" aria-label="Close details">&times;</button>

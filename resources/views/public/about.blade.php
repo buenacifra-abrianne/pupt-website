@@ -499,7 +499,7 @@
                                     <div data-cms-boundary class="cms-preview-boundary-edge">
                                         <div class="about-values-band-head">
                                             <span class="about-values-band-kicker">Core Values</span>
-                                            <h3>INSPIRED values that shape the character of the PUP community.</h3>
+                                            <h3>{{ $selectedSection['core_values_heading'] ?? 'INSPIRED values that shape the character of the PUP community.' }}</h3>
                                         </div>
 
                                         <div class="about-values-grid">
@@ -1514,6 +1514,11 @@
                 margin-top: 0 !important;
                 margin-bottom: 0 !important;
                 border-radius: 0 !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                transform: none !important;
+                filter: none !important;
+                z-index: 2;
             }
 
             .about-values-band.cms-preview-editable > [data-cms-boundary] {
@@ -1532,7 +1537,7 @@
             }
 
             .history-story--vision .about-values-band.cms-preview-editable {
-                box-shadow: none !important;
+                box-shadow: 0 22px 40px rgba(79, 9, 12, 0.18) !important;
             }
 
             .cms-preview-editable {

@@ -123,21 +123,6 @@ class AcademicsCmsContent
                         ['title' => 'BS Psychology', 'badge' => 'BSPSY', 'dept' => 'College of Social Sciences and Development', 'accreditation_levels' => '', 'accrediting_institution' => '', 'accreditation_validity' => '', 'accreditation_validity_start' => '', 'accreditation_validity_end' => '', 'body' => 'Studies human behavior, mental processes, and psychological assessment. Prepares students for careers in counseling, HR, and research.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#bspsy', 'cta' => 'View Program'],
                     ],
                 ],
-                'contact' => [
-                    'campus_name' => 'PUP Taguig',
-                    'campus_sub' => 'Branch Campus',
-                    'address' => 'Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila',
-                    'tag' => 'Get in Touch',
-                    'title' => 'Want more information?',
-                    'description' => 'Contact PUP Taguig Branch today and our admissions team will be happy to assist you.',
-                    'rows' => [
-                        ['label' => 'Telephone', 'value' => '(63 2) 837-5858', 'href' => 'tel:+6328375858', 'tone' => 'maroon'],
-                        ['label' => 'Telephone', 'value' => '(63 2) 837-5859', 'href' => 'tel:+6328375859', 'tone' => 'maroon'],
-                        ['label' => 'Email', 'value' => 'taguig@pup.edu.ph', 'href' => 'mailto:taguig@pup.edu.ph', 'tone' => 'gold'],
-                    ],
-                    'cta_label' => 'Send Us a Message',
-                    'cta_href' => 'mailto:taguig@pup.edu.ph',
-                ],
             ],
             'diploma-programs' => [
                 'hero' => [
@@ -169,21 +154,6 @@ class AcademicsCmsContent
                         ['title' => 'Diploma in Information Communication Technology', 'badge' => 'DICT', 'dept' => 'Dept. of Information & Communications Technology', 'accreditation_levels' => '', 'accrediting_institution' => '', 'accreditation_validity' => '', 'accreditation_validity_start' => '', 'accreditation_validity_end' => '', 'body' => 'A focused program covering computer systems, networking, and digital communications. Prepares graduates for technical roles in the ICT industry.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#dict', 'cta' => 'View Program'],
                         ['title' => 'Diploma in Office Management Technology', 'badge' => 'DOMT', 'dept' => 'Dept. of Office Administration', 'accreditation_levels' => '', 'accrediting_institution' => '', 'accreditation_validity' => '', 'accreditation_validity_start' => '', 'accreditation_validity_end' => '', 'body' => 'Covers office procedures, records management, and business communications. Equips students for administrative and clerical careers in various industries.', 'image' => 'assets/static_img/pupillar.jpeg', 'href' => '#domt', 'cta' => 'View Program'],
                     ],
-                ],
-                'contact' => [
-                    'campus_name' => 'PUP Taguig',
-                    'campus_sub' => 'Branch Campus',
-                    'address' => 'Gen. Santos Ave., Lower Bicutan, Taguig City, Metro Manila',
-                    'tag' => 'Get in Touch',
-                    'title' => 'Want more information?',
-                    'description' => 'Contact PUP Taguig Branch today and our admissions team will be happy to assist you.',
-                    'rows' => [
-                        ['label' => 'Telephone', 'value' => '(63 2) 837-5858', 'href' => 'tel:+6328375858', 'tone' => 'maroon'],
-                        ['label' => 'Telephone', 'value' => '(63 2) 837-5859', 'href' => 'tel:+6328375859', 'tone' => 'maroon'],
-                        ['label' => 'Email', 'value' => 'taguig@pup.edu.ph', 'href' => 'mailto:taguig@pup.edu.ph', 'tone' => 'gold'],
-                    ],
-                    'cta_label' => 'Send Us a Message',
-                    'cta_href' => 'mailto:taguig@pup.edu.ph',
                 ],
             ],
             'pup-iapply' => [

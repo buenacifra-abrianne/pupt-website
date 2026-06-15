@@ -6,11 +6,9 @@
     $hero = is_array($pageData['hero'] ?? null) ? $pageData['hero'] : [];
     $info = is_array($pageData['info'] ?? null) ? $pageData['info'] : [];
     $cards = is_array($pageData['cards'] ?? null) ? $pageData['cards'] : [];
-    $contact = is_array($pageData['contact'] ?? null) ? $pageData['contact'] : [];
     $programsOfferedLabel = $pageKey === 'diploma-programs' ? 'Diploma Programs Offered' : 'Undergraduate Programs Offered';
     $cardItems = array_values(is_array($cards['items'] ?? null) ? $cards['items'] : []);
     $infoRows = array_values(is_array($info['items'] ?? null) ? $info['items'] : []);
-    $contactRows = array_values(is_array($contact['rows'] ?? null) ? $contact['rows'] : []);
     $modalId = 'dp-program-modal-'.\Illuminate\Support\Str::slug($pageKey);
 
     $accreditationRank = static function (mixed $rawLevel): int {
@@ -346,74 +344,6 @@
         });
     </script>
 @endunless
-
-@if($contactRows !== [] || trim((string) ($contact['title'] ?? '')) !== '' || trim((string) ($contact['description'] ?? '')) !== '')
-    <section
-        class="iapply-schedule-strip dp-program-contact{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-        @if($cmsPreview)
-            data-cms-section="{{ $pageKey }}-contact"
-            data-cms-section-label="{{ $pageTitle }} Contact"
-        @endif
-    >
-        <div data-cms-boundary class="cms-preview-boundary-full">
-            <div class="iapply-schedule-inner">
-                <div class="iapply-schedule-head reveal">
-                    <span class="section-tag">{{ $contact['tag'] ?? '' }}</span>
-                    <h2>{{ $contact['title'] ?? '' }}</h2>
-                    @if(trim((string) ($contact['description'] ?? '')) !== '')
-                        <div class="academic-rich-copy">
-                            {!! \App\Support\RichText::sanitize($contact['description'] ?? '') !!}
-                        </div>
-                    @endif
-                </div>
-
-                <div class="iapply-schedule-grid reveal delay-100">
-                    <article class="iapply-section-card">
-                        <span class="section-tag">{{ $contact['campus_sub'] ?? 'Campus' }}</span>
-                        <h3>{{ $contact['campus_name'] ?? $pageTitle }}</h3>
-                        @if(trim((string) ($contact['address'] ?? '')) !== '')
-                            <p>{{ $contact['address'] }}</p>
-                        @endif
-                        @if(trim((string) ($contact['cta_href'] ?? '')) !== '')
-                            <a
-                                href="{{ $contact['cta_href'] }}"
-                                class="apply-now-btn"
-                                @unless($cmsPreview) target="_blank" rel="noopener noreferrer" @endunless
-                            >
-                                {{ $contact['cta_label'] ?? 'Contact Us' }}
-                            </a>
-                        @endif
-                    </article>
-
-                    @foreach($contactRows as $row)
-                        @php
-                            $rowLabel = trim((string) ($row['label'] ?? ''));
-                            $rowValue = trim((string) ($row['value'] ?? ''));
-                            $rowHref = trim((string) ($row['href'] ?? ''));
-                        @endphp
-                        <article class="iapply-schedule-box">
-                            <span class="iapply-schedule-box-label">{{ $rowLabel !== '' ? $rowLabel : 'Contact' }}</span>
-                            @if($rowHref !== '')
-                                <a
-                                    class="iapply-schedule-box-value"
-                                    href="{{ $rowHref }}"
-                                    @if(!$cmsPreview && preg_match('/^https?:\/\//i', $rowHref) === 1)
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    @endif
-                                >
-                                    {{ $rowValue !== '' ? $rowValue : $rowHref }}
-                                </a>
-                            @else
-                                <span class="iapply-schedule-box-value">{{ $rowValue !== '' ? $rowValue : 'Not specified' }}</span>
-                            @endif
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
-@endif
 
 <section class="dp-accreditation-footer-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
     <div class="dp-accreditation-footer-inner">

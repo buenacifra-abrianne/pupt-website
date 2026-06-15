@@ -2,7 +2,6 @@
 
 namespace Tests\Feature;
 
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -10,8 +9,6 @@ use Tests\TestCase;
 
 class FeedbackSubmissionTest extends TestCase
 {
-    use RefreshDatabase;
-
     public function test_feedback_submission_succeeds_when_only_first_six_score_columns_exist(): void
     {
         Schema::dropIfExists('feedback_submissions');
@@ -62,5 +59,17 @@ class FeedbackSubmissionTest extends TestCase
         $this->assertSame(4, (int) $row->q6_score);
         $this->assertSame('4.00', number_format((float) $row->overall_score, 2, '.', ''));
         $this->assertSame('Outstanding', $row->overall_rating);
+
+        $analyticsResponse = $this
+            ->withoutMiddleware()
+            ->postJson(route('superadmin.analytics.superadminApi'), [
+                'start' => now()->subDay()->toDateString(),
+                'end' => now()->addDay()->toDateString(),
+            ]);
+
+        $analyticsResponse->assertOk();
+        $analyticsResponse->assertJsonPath('feedback_results.total_responses', 1);
+        $analyticsResponse->assertJsonPath('feedback_results.final_rating', 'Outstanding');
+        $analyticsResponse->assertJsonPath('feedback_results.outstanding', 1);
     }
 }

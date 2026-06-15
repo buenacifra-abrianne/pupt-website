@@ -195,56 +195,47 @@ class AnalyticsController extends Controller
 
     private function resolveFeedbackResults(Carbon $startAt, Carbon $endAt): array
     {
-        if (! $this->hasFeedbackSchema()) {
+        $scoreColumns = $this->feedbackScoreColumns();
+
+        if ($scoreColumns === []) {
             return $this->feedbackDefaults();
         }
 
-        $row = DB::table('feedback_submissions')
-            ->selectRaw('COUNT(*) as total_responses')
-            ->selectRaw('AVG(q1_score) as question_1_avg')
-            ->selectRaw('AVG(q2_score) as question_2_avg')
-            ->selectRaw('AVG(q3_score) as question_3_avg')
-            ->selectRaw('AVG(q4_score) as question_4_avg')
-            ->selectRaw('AVG(q5_score) as question_5_avg')
-            ->selectRaw('AVG(q6_score) as question_6_avg')
-            ->selectRaw('AVG(q7_score) as question_7_avg')
-            ->selectRaw('AVG(q8_score) as question_8_avg')
-            ->selectRaw('AVG(q9_score) as question_9_avg')
-            ->selectRaw('AVG(q10_score) as question_10_avg')
-            ->selectRaw('SUM(CASE WHEN overall_score >= 3.5 THEN 1 ELSE 0 END) as outstanding')
-            ->selectRaw('SUM(CASE WHEN overall_score >= 2.5 AND overall_score < 3.5 THEN 1 ELSE 0 END) as very_satisfactory')
-            ->selectRaw('SUM(CASE WHEN overall_score >= 1.5 AND overall_score < 2.5 THEN 1 ELSE 0 END) as satisfactory')
-            ->selectRaw('SUM(CASE WHEN overall_score < 1.5 THEN 1 ELSE 0 END) as unsatisfactory')
-            ->whereBetween('created_at', [$startAt, $endAt])
-            ->first();
+        $query = DB::table('feedback_submissions');
+
+        if (Schema::hasColumn('feedback_submissions', 'created_at')) {
+            $query->whereBetween('created_at', [$startAt, $endAt]);
+        }
+
+        $selects = ['COUNT(*) as total_responses'];
+        foreach ($scoreColumns as $index => $column) {
+            $questionNumber = $index + 1;
+            $selects[] = sprintf('AVG(%s) as question_%d_avg', $column, $questionNumber);
+        }
+
+        $overallScoreExpr = $this->feedbackOverallScoreExpression($scoreColumns);
+
+        $selects[] = sprintf('AVG(%s) as overall_average', $overallScoreExpr);
+        $selects[] = sprintf('SUM(CASE WHEN %s >= 3.5 THEN 1 ELSE 0 END) as outstanding', $overallScoreExpr);
+        $selects[] = sprintf('SUM(CASE WHEN %s >= 2.5 AND %s < 3.5 THEN 1 ELSE 0 END) as very_satisfactory', $overallScoreExpr, $overallScoreExpr);
+        $selects[] = sprintf('SUM(CASE WHEN %s >= 1.5 AND %s < 2.5 THEN 1 ELSE 0 END) as satisfactory', $overallScoreExpr, $overallScoreExpr);
+        $selects[] = sprintf('SUM(CASE WHEN %s < 1.5 THEN 1 ELSE 0 END) as unsatisfactory', $overallScoreExpr);
+
+        $row = $query->selectRaw(implode(', ', $selects))->first();
 
         if (! $row || (int) ($row->total_responses ?? 0) === 0) {
             return $this->feedbackDefaults();
         }
 
-        $questionAverages = [
-            $row->question_1_avg,
-            $row->question_2_avg,
-            $row->question_3_avg,
-            $row->question_4_avg,
-            $row->question_5_avg,
-            $row->question_6_avg,
-            $row->question_7_avg,
-            $row->question_8_avg,
-            $row->question_9_avg,
-            $row->question_10_avg,
-        ];
+        $questionAverages = [];
+        foreach (range(1, 10) as $questionNumber) {
+            $questionAverages[] = $row->{'question_'.$questionNumber.'_avg'} ?? null;
+        }
         $roundedQuestionAverages = collect($questionAverages)
             ->map(fn ($value) => round((float) ($value ?? 0), 2))
             ->values()
             ->all();
-        $activeQuestionAverages = collect($questionAverages)
-            ->filter(fn ($value) => $value !== null)
-            ->map(fn ($value) => (float) $value)
-            ->values();
-        $overallAverage = $activeQuestionAverages->isNotEmpty()
-            ? round($activeQuestionAverages->avg(), 2)
-            : 0.0;
+        $overallAverage = round((float) ($row->overall_average ?? 0), 2);
 
         return [
             'total_responses' => (int) ($row->total_responses ?? 0),
@@ -572,19 +563,40 @@ class AnalyticsController extends Controller
     private function hasFeedbackSchema(): bool
     {
         return Schema::hasTable('feedback_submissions')
-            && Schema::hasColumns('feedback_submissions', [
-                'q1_score',
-                'q2_score',
-                'q3_score',
-                'q4_score',
-                'q5_score',
-                'q6_score',
-                'q7_score',
-                'q8_score',
-                'q9_score',
-                'q10_score',
-                'overall_score',
-                'created_at',
-            ]);
+            && $this->feedbackScoreColumns() !== [];
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    private function feedbackScoreColumns(): array
+    {
+        $columns = [];
+
+        foreach (range(1, 10) as $questionNumber) {
+            $column = 'q'.$questionNumber.'_score';
+
+            if (Schema::hasColumn('feedback_submissions', $column)) {
+                $columns[] = $column;
+            }
+        }
+
+        return $columns;
+    }
+
+    /**
+     * Build a row-level average expression from the available feedback score columns.
+     */
+    private function feedbackOverallScoreExpression(array $scoreColumns): string
+    {
+        $scoreSumExpr = collect($scoreColumns)
+            ->map(fn (string $column) => 'COALESCE('.$column.', 0)')
+            ->implode(' + ');
+
+        $scoreCountExpr = collect($scoreColumns)
+            ->map(fn (string $column) => 'CASE WHEN '.$column.' IS NULL THEN 0 ELSE 1 END')
+            ->implode(' + ');
+
+        return 'CASE WHEN ('.$scoreCountExpr.') > 0 THEN ('.$scoreSumExpr.' / ('.$scoreCountExpr.')) ELSE 0 END';
     }
 }
