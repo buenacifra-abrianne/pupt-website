@@ -250,7 +250,7 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
     display: none !important;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 600px) {
     :root {
         --widget-fab-size: clamp(48px, 11vw, 54px);
         --widget-fab-gap: 8px;
@@ -283,20 +283,23 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
     body.has-widget-dock.widget-dock-open .acc-container > .acc-menu,
     body.has-widget-dock.widget-dock-open .acc-container .widget-dock-accessibility-panel {
         right: calc(env(safe-area-inset-right, 0px) + var(--widget-panel-right-clearance)) !important;
-        top: calc(var(--widget-edge-offset) + env(safe-area-inset-top, 0px)) !important;
+        top: auto !important;
         bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px)) !important;
         width: min(var(--widget-panel-width), calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px))) !important;
         max-width: calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px)) !important;
-        height: min(var(--widget-panel-height), calc(100dvh - (var(--widget-edge-offset) * 2))) !important;
-        max-height: min(var(--widget-panel-height), calc(100dvh - (var(--widget-edge-offset) * 2))) !important;
+        height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--widget-panel-gap) - env(safe-area-inset-bottom, 0px))) !important;
+        max-height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--widget-panel-gap) - env(safe-area-inset-bottom, 0px))) !important;
     }
 }
 
 @media (max-width: 600px) {
     :root {
         --widget-panel-width: clamp(320px, 90vw, 380px);
-        --widget-panel-height: clamp(600px, 72vh, 720px);
-        --widget-panel-gap: 14px;
+        --widget-panel-height: clamp(520px, 68vh, 660px);
+        --widget-panel-gap: 12px;
+        --widget-expanded-gap: 12px;
+        --widget-fab-gap: 12px;
+        --widget-edge-offset: clamp(10px, 4vw, 14px);
     }
 
     body.has-widget-dock.widget-dock-open .acc-container > .acc-panel,
@@ -312,20 +315,19 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visib
         ) !important;
         width: min(var(--widget-panel-width), calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px))) !important;
         max-width: calc(100vw - var(--widget-panel-right-clearance) - var(--widget-edge-offset) - env(safe-area-inset-left, 0px)) !important;
-        height: min(var(--widget-panel-height), calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
-        height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
-        max-height: min(var(--widget-panel-height), calc(100vh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
-        max-height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 16px - env(safe-area-inset-bottom, 0px))) !important;
+        height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 20px - env(safe-area-inset-bottom, 0px))) !important;
+        max-height: min(var(--widget-panel-height), calc(100dvh - var(--widget-edge-offset) - var(--fab-stack-height) - var(--widget-panel-gap) - 20px - env(safe-area-inset-bottom, 0px))) !important;
     }
 }
 
 @media (max-width: 480px) {
     :root {
         --widget-fab-size: clamp(44px, 14vw, 48px);
-        --widget-fab-gap: 8px;
-        --widget-edge-offset: clamp(8px, 3.2vw, 10px);
+        --widget-fab-gap: 12px;
+        --widget-expanded-gap: 12px;
+        --widget-edge-offset: clamp(10px, 4vw, 14px);
         --widget-panel-width: clamp(300px, 92vw, 360px);
-        --widget-panel-height: clamp(560px, 68vh, 680px);
+        --widget-panel-height: clamp(480px, 64vh, 620px);
     }
 
     body.has-widget-dock .acc-container {

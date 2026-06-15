@@ -548,9 +548,9 @@ function initWidgetDock() {
       @media (max-width: 640px) {
         .widget-dock {
           --widget-fab-size: clamp(52px, 13vw, 58px);
-          --widget-fab-gap: 10px;
-          --widget-edge-offset: clamp(12px, 4vw, 16px);
-          --widget-expanded-gap: 14px;
+          --widget-fab-gap: 12px;
+          --widget-edge-offset: clamp(12px, 4vw, 18px);
+          --widget-expanded-gap: 12px;
           right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px));
           bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px));
         }
@@ -568,9 +568,9 @@ function initWidgetDock() {
       @media (max-width: 480px) {
         .widget-dock {
           --widget-fab-size: clamp(46px, 15vw, 52px);
-          --widget-fab-gap: 8px;
-          --widget-expanded-gap: 10px;
-          --widget-edge-offset: clamp(8px, 3.8vw, 12px);
+          --widget-fab-gap: 12px;
+          --widget-expanded-gap: 12px;
+          --widget-edge-offset: clamp(10px, 4vw, 14px);
         }
 
         .widget-dock-fab svg,
