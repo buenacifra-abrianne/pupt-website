@@ -107,18 +107,23 @@
 
         <section
             class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+            @if($cmsPreview)
+                data-cms-section="cards_header"
+                data-cms-section-label="Student Cards Header"
+            @endif
         >
-            <div class="students-contents-head layout-inset">
-                        <p class="section-tag">{{ trim((string) ($pageSection['contents_tag'] ?? '')) !== '' ? (string) $pageSection['contents_tag'] : 'Contents' }}</p>
-                        <h2>{{ trim((string) ($pageSection['contents_title'] ?? '')) !== '' ? (string) $pageSection['contents_title'] : 'Student Services' }}</h2>
-                        @if(trim((string) ($pageSection['contents_description'] ?? '')) !== '')
-                            <div class="students-contents-description students-rich-copy">{!! \App\Support\RichText::sanitize($pageSection['contents_description']) !!}</div>
-                        @endif
-                    </div>
+            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div class="students-contents-head layout-inset">
+                            <p class="section-tag">{{ trim((string) ($pageSection['contents_tag'] ?? '')) !== '' ? (string) $pageSection['contents_tag'] : 'Contents' }}</p>
+                            <h2>{{ trim((string) ($pageSection['contents_title'] ?? '')) !== '' ? (string) $pageSection['contents_title'] : 'Student Services' }}</h2>
+                            @if(trim((string) ($pageSection['contents_description'] ?? '')) !== '')
+                                <div class="students-contents-description students-rich-copy">{!! \App\Support\RichText::sanitize($pageSection['contents_description']) !!}</div>
+                            @endif
+                        </div>
 
-            <div>
-                <div class="students-contents-inner">
-                    <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Student services">
+                <div>
+                    <div class="students-contents-inner">
+                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Student services">
                         @if($cmsPreview)
                             <article class="students-card students-card-add" data-students-add-card-trigger tabindex="0" role="button" aria-label="Add services">
                                 <div class="students-card-inner">
@@ -211,15 +216,23 @@
                                 </div>
                             </article>
                         @endforelse
-                    </nav>
+                        </nav>
+                    </div>
                 </div>
             </div>
         </section>
 
         {{-- Student Organizations Section --}}
-        <section class="students-orgs-section reveal{{ $cmsPreview ? ' active' : '' }}">
-            <div class="students-orgs-inner">
-                <div class="students-orgs-blurred students-orgs-live">
+        <section
+            class="students-orgs-section reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+            @if($cmsPreview)
+                data-cms-section="organizations"
+                data-cms-section-label="Student Organizations"
+            @endif
+        >
+            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div class="students-orgs-inner">
+                    <div class="students-orgs-blurred students-orgs-live">
 
                 @foreach($organizationSections as $sectionIndex => $organizationSection)
                 <div class="students-orgs-group">
@@ -270,7 +283,8 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
+                    @endforeach
+                </div>
             </div>
         </section>
     </main>
