@@ -149,45 +149,53 @@
             </div>
         </section>
 
-        <section class="academic-features reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
-            <div class="academic-features-header layout-inset">
-                <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['tag'] ?? ($featuresSection['eyebrow'] ?? 'What we offer') }}</p>
-                @if(trim((string) ($featuresSection['title'] ?? '')) !== '')
-                    <h2 class="academic-features-heading">{{ $featuresSection['title'] }}</h2>
-                @endif
-                @if(trim((string) ($featuresSection['description'] ?? '')) !== '')
-                    <div class="academic-feature-copy academic-rich-copy academic-features-description">
-                        {!! \App\Support\RichText::sanitize($featuresSection['description'] ?? '') !!}
-                    </div>
-                @endif
-            </div>
+        <section
+            class="academic-features reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+            @if($cmsPreview)
+                data-cms-section="features"
+                data-cms-section-label="Academics Features"
+            @endif
+        >
+            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div class="academic-features-header layout-inset">
+                    <p class="academic-features-eyebrow layout-kicker">{{ $featuresSection['tag'] ?? ($featuresSection['eyebrow'] ?? 'What we offer') }}</p>
+                    @if(trim((string) ($featuresSection['title'] ?? '')) !== '')
+                        <h2 class="academic-features-heading">{{ $featuresSection['title'] }}</h2>
+                    @endif
+                    @if(trim((string) ($featuresSection['description'] ?? '')) !== '')
+                        <div class="academic-feature-copy academic-rich-copy academic-features-description">
+                            {!! \App\Support\RichText::sanitize($featuresSection['description'] ?? '') !!}
+                        </div>
+                    @endif
+                </div>
 
-            <div class="academic-features-inner layout-inset">
-                    <div class="academic-features-grid{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}">
-                        @foreach($featureItems as $item)
-                            <div
-                                class="academic-feature-card{{ !empty($item['wide']) ? ' academic-feature-card--wide' : '' }} cards_information"
-                                @if($cmsPreview)
-                                    data-academics-feature-card
-                                    data-academics-feature-index="{{ $loop->index }}"
-                                @endif
-                            >
-                                @if($cmsPreview)
-                                    <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        <button type="button" class="cms-preview-card-action" data-academics-feature-edit>Edit</button>
+                <div class="academic-features-inner layout-inset">
+                        <div class="academic-features-grid{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}">
+                            @foreach($featureItems as $item)
+                                <div
+                                    class="academic-feature-card{{ !empty($item['wide']) ? ' academic-feature-card--wide' : '' }} cards_information"
+                                    @if($cmsPreview)
+                                        data-academics-feature-card
+                                        data-academics-feature-index="{{ $loop->index }}"
+                                    @endif
+                                >
+                                    @if($cmsPreview)
+                                        <div class="cms-preview-card-actions" aria-label="Card actions">
+                                            <button type="button" class="cms-preview-card-action" data-academics-feature-edit>Edit</button>
+                                        </div>
+                                    @endif
+                                    <div class="academic-feature-card-accent"></div>
+                                    <p class="academic-feature-tag">{{ $item['tag'] ?? ($item['title'] ?? '') }}</p>
+                                    @if(trim((string) ($item['title'] ?? '')) !== '')
+                                        <h3 class="academic-feature-title">{{ $item['title'] }}</h3>
+                                    @endif
+                                    <div class="academic-feature-copy academic-rich-copy">
+                                        {!! \App\Support\RichText::sanitize($item['description'] ?? ($item['body'] ?? '')) !!}
                                     </div>
-                                @endif
-                                <div class="academic-feature-card-accent"></div>
-                                <p class="academic-feature-tag">{{ $item['tag'] ?? ($item['title'] ?? '') }}</p>
-                                @if(trim((string) ($item['title'] ?? '')) !== '')
-                                    <h3 class="academic-feature-title">{{ $item['title'] }}</h3>
-                                @endif
-                                <div class="academic-feature-copy academic-rich-copy">
-                                    {!! \App\Support\RichText::sanitize($item['description'] ?? ($item['body'] ?? '')) !!}
                                 </div>
-                            </div>
-                        @endforeach
-                    </div>
+                            @endforeach
+                        </div>
+                </div>
             </div>
         </section>
     </main>

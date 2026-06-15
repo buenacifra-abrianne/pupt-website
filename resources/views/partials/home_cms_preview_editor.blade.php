@@ -1713,6 +1713,7 @@
             const payload = payloads[frameIndex] || payloads[0];
             const explicitSessionId = options.sessionId;
             const routeKey = String(options.routeKey || currentHomePreviewRoute || 'overview');
+            const shouldForceReload = options.forceReload === true;
 
             if (!payload || !frame) {
                 return;
@@ -1720,6 +1721,12 @@
 
             if (Number.isFinite(Number(explicitSessionId))) {
                 frame.__homePreviewLoadingSession = Number(explicitSessionId) - 1;
+            }
+
+            if (!shouldForceReload && currentHomePreviewRoute === routeKey && (typeof window.hasCmsPreviewFrameContent === 'function' ? window.hasCmsPreviewFrameContent(frame) : !!frame.srcdoc)) {
+                setHomePreviewLoading(frame, true);
+                queueHomePreviewSettledSync(frame);
+                return;
             }
 
             setHomePreviewLoading(frame, true);
@@ -1753,6 +1760,7 @@
                 loadHomePreview(frame, {
                     routeKey: targetKey,
                     sessionId: options.sessionId,
+                    forceReload: options.forceReload === true,
                 });
             });
         }
@@ -2199,7 +2207,9 @@
 
         document.querySelectorAll('[data-home-preview-page]').forEach((button) => {
             button.addEventListener('click', () => {
-                loadHomePreviewPage(button.getAttribute('data-home-preview-page') || 'overview');
+                loadHomePreviewPage(button.getAttribute('data-home-preview-page') || 'overview', {
+                    forceReload: true,
+                });
             });
         });
 
@@ -2244,7 +2254,10 @@
                 return;
             }
 
-            loadHomePreviewPage(currentHomePreviewRoute || 'overview', { sessionId });
+            loadHomePreviewPage(currentHomePreviewRoute || 'overview', {
+                sessionId,
+                forceReload: true,
+            });
             window.setTimeout(() => scheduleFitAllHomePreviews(), 40);
             window.setTimeout(() => scheduleFitAllHomePreviews(), 180);
         });
@@ -2262,6 +2275,7 @@
             frames.forEach((frame) => {
                 loadHomePreview(frame, {
                     routeKey: currentHomePreviewRoute,
+                    forceReload: true,
                 });
             });
         };
