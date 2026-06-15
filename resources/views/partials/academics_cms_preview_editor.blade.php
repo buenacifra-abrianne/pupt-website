@@ -112,7 +112,7 @@
                                     </span>
                                     <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                     <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
-                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
+                                    <label for="{{ $academicsHeroInputId }}" class="academics-cms-image-dropzone-upload-button">Select image</label>
                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                 </span>
                             </div>
@@ -218,7 +218,7 @@
                                                     </span>
                                                     <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                                     <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
-                                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
+                                                    <label for="{{ $itemInputId }}" class="academics-cms-image-dropzone-upload-button">Select image</label>
                                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $itemInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                 </span>
                                             </div>
@@ -1407,8 +1407,6 @@
                 input.dataset.academicsDropzoneBound = '1';
                 const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
                 const defaultSrc = previewEl?.dataset.academicsDefaultSrc || '';
-                selectButton?.setAttribute('role', 'button');
-                selectButton?.setAttribute('tabindex', '0');
 
                 const openFilePicker = () => {
                     input.disabled = false;
@@ -1444,26 +1442,13 @@
                 });
 
                 label.addEventListener('click', (event) => {
-                    if (event.target.closest('[data-academics-clear-image-for]')) {
+                    if (
+                        event.target.closest('[data-academics-clear-image-for]')
+                        || event.target.closest('.academics-cms-image-dropzone-upload-button')
+                    ) {
                         return;
                     }
 
-                    openFilePicker();
-                });
-
-                selectButton?.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    openFilePicker();
-                });
-
-                selectButton?.addEventListener('keydown', (event) => {
-                    if (event.key !== 'Enter' && event.key !== ' ') {
-                        return;
-                    }
-
-                    event.preventDefault();
-                    event.stopPropagation();
                     openFilePicker();
                 });
 
