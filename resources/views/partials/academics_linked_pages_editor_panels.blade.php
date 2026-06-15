@@ -163,7 +163,7 @@
                                             </span>
                                             <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                             <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
-                                            <label for="{{ $cardInputId }}" class="academics-cms-image-dropzone-upload-button">Select image</label>
+                                            <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                             <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                         </span>
                                     </div>
@@ -265,7 +265,7 @@
                                         </span>
                                         <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                                         <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
-                                        <label for="__DROPZONE_ID__" class="academics-cms-image-dropzone-upload-button">Select image</label>
+                                        <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                         <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="__DROPZONE_ID__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                     </span>
                                 </div>
@@ -907,7 +907,7 @@
                         </span>
                         <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
                         <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this section.</span>
-                        <label for="{{ $calendarHeroInputId }}" class="academics-cms-image-dropzone-upload-button">Select image</label>
+                        <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                         <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $calendarHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                     </span>
                 </div>
