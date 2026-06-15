@@ -56,7 +56,7 @@ return [
         'client_secret' => env('IDP_CLIENT_SECRET'),
         'api_key' => env('IDP_API_KEY'),
         'logout_url' => env('IDP_LOGOUT_URL'),
-        'logout_url_get' => env('IDP_LOGOUT_URL_GET'),
+        'logout_url_get' => env('IDP_LOGOUT_URL_GET', env('IDP_GET_LOGOUT_URL')),
         'logout_mode' => env('IDP_LOGOUT_MODE', 'post'),
         'logout_redirect_url' => env('IDP_LOGOUT_REDIRECT_URL'),
         'logout_redirect_parameter' => env('IDP_LOGOUT_REDIRECT_PARAMETER'),

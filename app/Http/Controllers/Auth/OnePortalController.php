@@ -309,6 +309,7 @@ class OnePortalController extends Controller
 {
     $accessToken = (string) (session('access_token') ?: $request->cookie('access_token') ?: '');
     $refreshToken = (string) (session('refresh_token') ?: $request->cookie('refresh_token') ?: '');
+    $logoutMode = strtolower(trim((string) config('services.idp.logout_mode', 'post')));
 
     AuditLog::record(
         'LOGOUT',
@@ -317,14 +318,16 @@ class OnePortalController extends Controller
         (int) session('user_id', 0)
     );
 
-    $frontChannelLogoutUrl = $this->buildFrontChannelIdpLogoutUrl();
-    $idpRedirectUrl = $this->revokeIdpTokens($request, $accessToken, $refreshToken);
-    $redirectUrl = $frontChannelLogoutUrl ?: $idpRedirectUrl;
+    if (in_array($logoutMode, ['get', 'front_channel', 'idp_get'], true)) {
+        return $this->handleIdpGetLogout($request, $accessToken);
+    }
 
-    if ($redirectUrl) {
+    $idpRedirectUrl = $this->revokeIdpTokens($request, $accessToken, $refreshToken);
+
+    if ($idpRedirectUrl) {
         return $this->clearLocalSession(
             $request,
-            redirect()->away($redirectUrl)
+            redirect()->away($idpRedirectUrl)
         );
     }
 
@@ -333,7 +336,10 @@ class OnePortalController extends Controller
 
     public function idpLogout(Request $request): Response
     {
+        $accessToken = (string) (session('access_token') ?: $request->cookie('access_token') ?: '');
+        $refreshToken = (string) (session('refresh_token') ?: $request->cookie('refresh_token') ?: '');
         $redirectTo = $this->sanitizeLogoutRedirectTarget((string) $request->query('redirect_to', ''));
+        $this->revokeIdpTokens($request, $accessToken, $refreshToken);
         $response = $redirectTo !== ''
             ? redirect($redirectTo)->with('success', 'You have been logged out.')
             : redirect()->route('logout.completed');
@@ -489,38 +495,70 @@ class OnePortalController extends Controller
         return null;
     }
 
-    private function buildFrontChannelIdpLogoutUrl(): ?string
+    private function handleIdpGetLogout(Request $request, ?string $accessToken = null): Response
     {
-        $logoutMode = strtolower(trim((string) config('services.idp.logout_mode', 'post')));
+        $logoutUrl = $this->buildFrontChannelIdpLogoutUrl($accessToken);
+
+        if ($logoutUrl === null) {
+            return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
+        }
+
+        return $this->clearLocalSession(
+            $request,
+            redirect()->away($logoutUrl)
+        );
+    }
+
+    private function buildFrontChannelIdpLogoutUrl(?string $accessToken = null): ?string
+    {
         $logoutUrl = trim((string) config('services.idp.logout_url_get', ''));
         $clientId = trim((string) config('services.idp.client_id', ''));
 
-        if (!in_array($logoutMode, ['get', 'front_channel'], true) || $logoutUrl === '' || $clientId === '') {
+        if ($logoutUrl === '' || $clientId === '') {
             return null;
         }
 
-        $userId = trim((string) session('oneportal_id', ''));
-        $redirectParameter = trim((string) config('services.idp.logout_redirect_parameter', ''));
-        $redirectUrl = trim((string) config('services.idp.logout_redirect_url', ''));
-
-        if ($redirectParameter !== '' && $redirectUrl === '') {
-            $redirectUrl = route('idp.logout', [
-                'redirect_to' => route('logout.completed', [], false),
-            ]);
-        }
+        $userId = $this->fetchIdpUserIdForLogout($accessToken);
 
         $query = [
             'client_id' => $clientId,
             'user_id' => $userId !== '' ? $userId : null,
         ];
 
-        if ($redirectParameter !== '' && $redirectUrl !== '') {
-            $query[$redirectParameter] = $redirectUrl;
-        }
-
         $query = array_filter($query, fn ($value) => $value !== null && $value !== '');
 
         return rtrim($logoutUrl, '?') . '?' . http_build_query($query);
+    }
+
+    private function fetchIdpUserIdForLogout(?string $accessToken = null): string
+    {
+        if ($accessToken) {
+            try {
+                $http = Http::withToken($accessToken);
+
+                if (app()->environment(['local', 'testing'])) {
+                    $http = $http->withoutVerifying();
+                }
+
+                $response = $http->get(
+                    rtrim((string) config('services.idp.base_url'), '/') . '/api/v1/me'
+                );
+
+                if ($response->successful()) {
+                    $userId = trim((string) ($response->json('id') ?? ''));
+
+                    if ($userId !== '') {
+                        return $userId;
+                    }
+                }
+            } catch (\Throwable $e) {
+                \Log::warning('Unable to resolve IDP user id for GET logout.', [
+                    'error' => $e->getMessage(),
+                ]);
+            }
+        }
+
+        return trim((string) session('oneportal_id', ''));
     }
 
     private function sanitizeLogoutRedirectTarget(string $target): string
