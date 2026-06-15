@@ -172,6 +172,19 @@ tr:nth-child(even) td{
 </head>
 
 <body>
+<script>
+    window.addEventListener('load', () => {
+        window.setTimeout(() => {
+            window.print();
+        }, 250);
+    });
+
+    window.addEventListener('afterprint', () => {
+        if (window.opener && !window.closed) {
+            window.close();
+        }
+    });
+</script>
 @php
     $feedbackRows = [
         ['Q1', data_get($feedback, 'question_1_avg', 0)],
