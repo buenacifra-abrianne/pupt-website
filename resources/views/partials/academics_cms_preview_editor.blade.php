@@ -1511,23 +1511,7 @@
                     removeButton.hidden = !hasImage;
                 };
 
-                const applyPreviewSource = (src) => {
-                    const nextSrc = String(src || '').trim();
-
-                    if (previewEl && nextSrc !== '') {
-                        previewEl.src = nextSrc;
-                    }
-
-                    syncAcademicsPreviewImage(previewSection, previewCardIndex, nextSrc || previewEl?.src || '', defaultSrc);
-                    syncRemoveState();
-                };
-
                 const applyFile = (file) => {
-                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
-                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
-                        input.__academicsPreviewObjectUrl = '';
-                    }
-
                     if (!file) {
                         syncRemoveState();
                         return;
@@ -1535,30 +1519,11 @@
 
                     fileNameEl.textContent = `Selected: ${file.name}`;
 
-                    if (typeof FileReader === 'function') {
-                        const reader = new FileReader();
-                        reader.addEventListener('load', () => {
-                            applyPreviewSource(typeof reader.result === 'string' ? reader.result : '');
-                        });
-                        reader.addEventListener('error', () => {
-                            if (typeof URL?.createObjectURL === 'function') {
-                                input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
-                                applyPreviewSource(input.__academicsPreviewObjectUrl);
-                                return;
-                            }
-
-                            syncRemoveState();
-                        });
-                        reader.readAsDataURL(file);
-                        return;
+                    if (previewEl) {
+                        previewEl.src = URL.createObjectURL(file);
                     }
 
-                    if (typeof URL?.createObjectURL === 'function') {
-                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
-                        applyPreviewSource(input.__academicsPreviewObjectUrl);
-                        return;
-                    }
-
+                    syncAcademicsPreviewImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
                     syncRemoveState();
                 };
 
@@ -1610,10 +1575,6 @@
                 removeButton?.addEventListener('click', (event) => {
                     event.preventDefault();
                     event.stopPropagation();
-                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
-                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
-                        input.__academicsPreviewObjectUrl = '';
-                    }
                     input.value = '';
                     if (imageField) {
                         imageField.value = '';
