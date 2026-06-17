@@ -1454,11 +1454,16 @@
         }
 
         function bindAcademicsDirtyTracking(form, versionInput, boundKey) {
-            if (!form || form.dataset[boundKey] === '1') {
+            const boundAttribute = `data-${String(boundKey || 'academics-dirty-tracking-bound')
+                .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+                .replace(/[^a-zA-Z0-9_-]+/g, '-')
+                .toLowerCase()}`;
+
+            if (!form || form.getAttribute(boundAttribute) === '1') {
                 return;
             }
 
-            form.dataset[boundKey] = '1';
+            form.setAttribute(boundAttribute, '1');
 
             const markDirty = (event) => {
                 if (!shouldTrackAcademicsField(event.target)) {
@@ -1472,145 +1477,294 @@
             form.addEventListener('change', markDirty);
         }
 
-        function initAcademicsImageDropzones(scope = document) {
-            scope.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
-                if (input.dataset.academicsDropzoneBound === '1') {
+        const academicsDropzoneDelegationRoots = new WeakSet();
+
+        function findAcademicsDropzoneElement(scope, attribute, inputId) {
+            if (!scope || !inputId) {
+                return null;
+            }
+
+            return Array.from(scope.querySelectorAll(`[${attribute}]`))
+                .find((element) => element.getAttribute(attribute) === inputId) || null;
+        }
+
+        function resolveAcademicsDropzone(input) {
+            if (!(input instanceof HTMLInputElement) || !input.classList.contains('academics-cms-image-dropzone-input')) {
+                return null;
+            }
+
+            const inputId = input.id || '';
+            const dropzone = input.closest('.academics-cms-image-dropzone')
+                || findAcademicsDropzoneElement(input.closest('[data-academics-editor-modal]') || document, 'data-academics-dropzone-for', inputId);
+            const scope = input.closest('[data-academics-editor-panel]')
+                || input.closest('[data-academics-editor-modal]')
+                || document;
+            const previewEl = findAcademicsDropzoneElement(dropzone, 'data-academics-preview-for', inputId)
+                || findAcademicsDropzoneElement(scope, 'data-academics-preview-for', inputId)
+                || findAcademicsDropzoneElement(document, 'data-academics-preview-for', inputId);
+            const fileNameEl = findAcademicsDropzoneElement(dropzone, 'data-academics-file-name-for', inputId)
+                || findAcademicsDropzoneElement(scope, 'data-academics-file-name-for', inputId)
+                || findAcademicsDropzoneElement(document, 'data-academics-file-name-for', inputId);
+            const removeButton = findAcademicsDropzoneElement(dropzone, 'data-academics-clear-image-for', inputId)
+                || findAcademicsDropzoneElement(scope, 'data-academics-clear-image-for', inputId)
+                || findAcademicsDropzoneElement(document, 'data-academics-clear-image-for', inputId);
+            const imageField = input.dataset.academicsImageFieldId
+                ? document.getElementById(input.dataset.academicsImageFieldId)
+                : (
+                    input.closest('[data-academics-page-card-editor]')?.querySelector('[data-academics-image-field]')
+                    || input.closest('[data-academics-contents-editor]')?.querySelector('[data-academics-image-field]')
+                    || null
+                );
+            const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor')
+                || input.closest('[data-academics-editor-panel]')?.getAttribute('data-academics-editor-panel')
+                || '';
+            const previewCardIndex = input.closest('[data-academics-page-card-index]')?.getAttribute('data-academics-page-card-index') || '';
+
+            return {
+                input,
+                dropzone,
+                fileNameEl,
+                previewEl,
+                removeButton,
+                imageField,
+                previewSection,
+                previewCardIndex,
+                defaultSrc: previewEl?.dataset.academicsDefaultSrc || '',
+                emptyText: fileNameEl?.dataset.emptyText || 'Drop image here or click to replace',
+            };
+        }
+
+        function revokeAcademicsPreviewUrl(input) {
+            if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                input.__academicsPreviewObjectUrl = '';
+            }
+        }
+
+        function syncAcademicsDropzoneRemoveState(parts) {
+            if (!parts?.removeButton) {
+                return;
+            }
+
+            const hasImage = Boolean((parts.imageField?.value || '').trim() !== '' || (parts.input.files && parts.input.files[0]));
+            parts.removeButton.hidden = !hasImage;
+        }
+
+        function applyAcademicsDropzoneFile(input, file) {
+            const parts = resolveAcademicsDropzone(input);
+            if (!parts) {
+                return;
+            }
+
+            revokeAcademicsPreviewUrl(input);
+
+            if (!file) {
+                syncAcademicsDropzoneRemoveState(parts);
+                return;
+            }
+
+            if (parts.fileNameEl) {
+                parts.fileNameEl.textContent = `Selected: ${file.name}`;
+            }
+
+            let nextSrc = '';
+            if (parts.previewEl && typeof URL?.createObjectURL === 'function') {
+                input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
+                nextSrc = input.__academicsPreviewObjectUrl;
+                if (!parts.previewEl.dataset.academicsSavedSrc) {
+                    parts.previewEl.dataset.academicsSavedSrc = parts.previewEl.getAttribute('src') || '';
+                }
+                parts.previewEl.src = nextSrc;
+            }
+
+            syncAcademicsDropzoneRemoveState(parts);
+        }
+
+        function clearAcademicsDropzoneInput(input) {
+            const parts = resolveAcademicsDropzone(input);
+            if (!parts) {
+                return;
+            }
+
+            revokeAcademicsPreviewUrl(input);
+            input.value = '';
+
+            if (parts.imageField) {
+                if (!parts.imageField.dataset.academicsSavedValue) {
+                    parts.imageField.dataset.academicsSavedValue = parts.imageField.value || '';
+                }
+                parts.imageField.value = '';
+            }
+
+            if (parts.previewEl && parts.defaultSrc) {
+                if (!parts.previewEl.dataset.academicsSavedSrc) {
+                    parts.previewEl.dataset.academicsSavedSrc = parts.previewEl.getAttribute('src') || '';
+                }
+                parts.previewEl.src = parts.defaultSrc;
+            }
+
+            if (parts.fileNameEl) {
+                parts.fileNameEl.textContent = parts.emptyText;
+            }
+
+            syncAcademicsDropzoneRemoveState(parts);
+        }
+
+        function resetAcademicsDropzonePreview(input) {
+            const parts = resolveAcademicsDropzone(input);
+            if (!parts) {
+                return;
+            }
+
+            revokeAcademicsPreviewUrl(input);
+            input.value = '';
+
+            if (parts.imageField?.dataset.academicsSavedValue !== undefined) {
+                parts.imageField.value = parts.imageField.dataset.academicsSavedValue;
+                delete parts.imageField.dataset.academicsSavedValue;
+            }
+
+            if (parts.previewEl) {
+                const savedSrc = parts.previewEl.dataset.academicsSavedSrc || parts.previewEl.getAttribute('src') || parts.defaultSrc;
+                if (savedSrc) {
+                    parts.previewEl.src = savedSrc;
+                }
+                delete parts.previewEl.dataset.academicsSavedSrc;
+            }
+
+            if (parts.fileNameEl) {
+                parts.fileNameEl.textContent = parts.emptyText;
+            }
+
+            syncAcademicsDropzoneRemoveState(parts);
+        }
+
+        function resetAcademicsModalDropzonePreviews(modal) {
+            modal?.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
+                resetAcademicsDropzonePreview(input);
+            });
+        }
+
+        function inputForAcademicsDropzone(dropzone) {
+            const inputId = dropzone?.getAttribute('data-academics-dropzone-for') || '';
+            return Array.from((dropzone || document).querySelectorAll('.academics-cms-image-dropzone-input'))
+                .find((input) => input.id === inputId)
+                || document.getElementById(inputId)
+                || null;
+        }
+
+        function inputForAcademicsClearButton(button) {
+            const inputId = button?.getAttribute('data-academics-clear-image-for') || '';
+            return document.getElementById(inputId);
+        }
+
+        function bindAcademicsDropzoneDelegates(root) {
+            if (!root || academicsDropzoneDelegationRoots.has(root)) {
+                return;
+            }
+
+            academicsDropzoneDelegationRoots.add(root);
+
+            root.addEventListener('change', (event) => {
+                const input = event.target;
+                if (!(input instanceof HTMLInputElement) || !input.classList.contains('academics-cms-image-dropzone-input')) {
                     return;
                 }
 
-                const dropzone = input.closest('.academics-cms-image-dropzone')
-                    || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
-                    || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
-                const label = dropzone;
-                const fileNameEl = dropzone?.querySelector(`[data-academics-file-name-for="${input.id}"]`)
-                    || scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
-                    || document.querySelector(`[data-academics-file-name-for="${input.id}"]`);
-                const previewEl = dropzone?.querySelector(`[data-academics-preview-for="${input.id}"]`)
-                    || scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
-                    || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
-                const removeButton = dropzone?.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
-                    || scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
-                    || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
-                const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor')
-                    || input.closest('[data-academics-editor-panel]')?.getAttribute('data-academics-editor-panel')
-                    || '';
-                const previewCardIndex = input.closest('[data-academics-page-card-index]')?.getAttribute('data-academics-page-card-index') || '';
-                const imageField = input.dataset.academicsImageFieldId
-                    ? document.getElementById(input.dataset.academicsImageFieldId)
-                    : (
-                        input.closest('[data-academics-page-card-editor]')?.querySelector('[data-academics-image-field]')
-                        || input.closest('[data-academics-contents-editor]')?.querySelector('[data-academics-image-field]')
-                        || null
-                    );
+                applyAcademicsDropzoneFile(input, input.files && input.files[0] ? input.files[0] : null);
+            });
 
-                if (!label || !fileNameEl) {
+            root.addEventListener('click', (event) => {
+                const clearButton = event.target.closest('[data-academics-clear-image-for]');
+                if (clearButton) {
+                    const input = inputForAcademicsClearButton(clearButton);
+                    if (!input) {
+                        return;
+                    }
+
+                    event.preventDefault();
+                    event.stopPropagation();
+                    clearAcademicsDropzoneInput(input);
                     return;
                 }
 
-                input.dataset.academicsDropzoneBound = '1';
-                const emptyText = fileNameEl.dataset.emptyText || 'Drop image here or click to replace';
-                const defaultSrc = previewEl?.dataset.academicsDefaultSrc || '';
+                const dropzone = event.target.closest('[data-academics-dropzone-for]');
+                if (!dropzone || event.target.closest('.academics-cms-image-dropzone-input')) {
+                    return;
+                }
 
-                const syncRemoveState = () => {
-                    if (!removeButton) {
-                        return;
-                    }
-
-                    const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
-                    removeButton.hidden = !hasImage;
-                };
-
-                const applyFile = (file) => {
-                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
-                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
-                        input.__academicsPreviewObjectUrl = '';
-                    }
-
-                    if (!file) {
-                        syncRemoveState();
-                        return;
-                    }
-
-                    fileNameEl.textContent = `Selected: ${file.name}`;
-
-                    if (previewEl) {
-                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
-                        previewEl.src = input.__academicsPreviewObjectUrl;
-                    }
-
-                    syncAcademicsPreviewImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
-
-                    syncRemoveState();
-                };
-
-                input.addEventListener('change', () => {
-                    applyFile(input.files && input.files[0] ? input.files[0] : null);
-                });
-
-                label.addEventListener('click', (event) => {
-                    if (
-                        event.target.closest('[data-academics-clear-image-for]')
-                        || event.target.closest('.academics-cms-image-dropzone-input')
-                    ) {
-                        return;
-                    }
-
+                const input = inputForAcademicsDropzone(dropzone);
+                if (input) {
                     input.click();
-                });
+                }
+            });
 
-                label.addEventListener('keydown', (event) => {
-                    if (event.key !== 'Enter' && event.key !== ' ') {
-                        return;
-                    }
+            root.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
 
-                    event.preventDefault();
-                    input.click();
-                });
+                const dropzone = event.target.closest('[data-academics-dropzone-for]');
+                if (!dropzone) {
+                    return;
+                }
 
-                label.addEventListener('dragover', (event) => {
-                    event.preventDefault();
-                    label.classList.add('dragover');
-                });
+                const input = inputForAcademicsDropzone(dropzone);
+                if (!input) {
+                    return;
+                }
 
-                label.addEventListener('dragleave', () => {
-                    label.classList.remove('dragover');
-                });
+                event.preventDefault();
+                input.click();
+            });
 
-                label.addEventListener('drop', (event) => {
-                    event.preventDefault();
-                    label.classList.remove('dragover');
+            root.addEventListener('dragover', (event) => {
+                const dropzone = event.target.closest('[data-academics-dropzone-for]');
+                if (!dropzone) {
+                    return;
+                }
 
-                    const file = event.dataTransfer?.files?.[0] ?? null;
-                    if (!file) {
-                        return;
-                    }
+                event.preventDefault();
+                dropzone.classList.add('dragover');
+            });
 
+            root.addEventListener('dragleave', (event) => {
+                const dropzone = event.target.closest('[data-academics-dropzone-for]');
+                if (dropzone) {
+                    dropzone.classList.remove('dragover');
+                }
+            });
+
+            root.addEventListener('drop', (event) => {
+                const dropzone = event.target.closest('[data-academics-dropzone-for]');
+                if (!dropzone) {
+                    return;
+                }
+
+                event.preventDefault();
+                dropzone.classList.remove('dragover');
+
+                const file = event.dataTransfer?.files?.[0] ?? null;
+                const input = inputForAcademicsDropzone(dropzone);
+                if (!file || !input) {
+                    return;
+                }
+
+                if (typeof DataTransfer === 'function') {
                     const transfer = new DataTransfer();
                     transfer.items.add(file);
                     input.files = transfer.files;
-                    applyFile(file);
-                });
+                }
 
-                removeButton?.addEventListener('click', (event) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
-                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
-                        input.__academicsPreviewObjectUrl = '';
-                    }
-                    input.value = '';
-                    if (imageField) {
-                        imageField.value = '';
-                    }
-                    if (previewEl && defaultSrc) {
-                        previewEl.src = defaultSrc;
-                    }
-                    syncAcademicsPreviewImage(previewSection, previewCardIndex, defaultSrc, defaultSrc);
-                    fileNameEl.textContent = emptyText;
-                    syncRemoveState();
-                });
+                applyAcademicsDropzoneFile(input, file);
+            });
+        }
 
-                syncRemoveState();
+        function initAcademicsImageDropzones(scope = document) {
+            bindAcademicsDropzoneDelegates(document);
+
+            scope.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
+                syncAcademicsDropzoneRemoveState(resolveAcademicsDropzone(input));
             });
         }
 
@@ -1920,6 +2074,7 @@
                 return;
             }
 
+            resetAcademicsModalDropzonePreviews(modal);
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
             modal.classList.remove('is-title-focus');
