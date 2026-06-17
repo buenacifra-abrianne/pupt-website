@@ -612,12 +612,12 @@
                                                             data-about-section-card-route="logo-and-symbols"
                                                         @endif
                                                     >
-                                                        @if($cmsPreview)
-                                                            <span class="cms-preview-card-actions" aria-label="Seal actions">
-                                                                <span class="cms-preview-card-action" data-about-section-card-edit>Edit</span>
-                                                                <span class="cms-preview-card-action cms-preview-card-action-delete" data-about-section-card-delete>Delete</span>
-                                                            </span>
-                                                        @endif
+                                                    @if($cmsPreview)
+                                                        <span class="cms-preview-card-actions" aria-label="Seal actions">
+                                                            <span class="cms-preview-card-action" data-about-section-card-edit>Edit</span>
+                                                            <span class="cms-preview-card-action cms-preview-card-action-delete" data-about-section-card-delete>Delete</span>
+                                                        </span>
+                                                    @endif
                                                         <span class="ls-gallery-media">
                                                             <img src="{{ $sealImage }}" alt="{{ $sealLabel !== '' ? $sealLabel : 'Seal' }}">
                                                         </span>
