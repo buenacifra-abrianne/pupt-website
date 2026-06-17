@@ -114,17 +114,17 @@
                                     <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
                                     <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                    <input
+                                        id="{{ $academicsHeroInputId }}"
+                                        class="academics-cms-image-dropzone-input"
+                                        type="file"
+                                        name="academics[hero][image_file]"
+                                        accept="image/*"
+                                        data-academics-image-field-id="{{ $academicsHeroFieldId }}"
+                                    >
                                 </span>
                             </div>
                         </div>
-                        <input
-                            id="{{ $academicsHeroInputId }}"
-                            class="academics-cms-image-dropzone-input"
-                            type="file"
-                            name="academics[hero][image_file]"
-                            accept="image/*"
-                            data-academics-image-field-id="{{ $academicsHeroFieldId }}"
-                        >
                     </div>
 
                     <div class="form-group">
@@ -220,16 +220,16 @@
                                                     <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
                                                     <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $itemInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                                    <input
+                                                        id="{{ $itemInputId }}"
+                                                        class="academics-cms-image-dropzone-input"
+                                                        type="file"
+                                                        name="academics[contents][items][{{ $index }}][image_file]"
+                                                        accept="image/*"
+                                                    >
                                                 </span>
                                             </div>
                                         </div>
-                                        <input
-                                            id="{{ $itemInputId }}"
-                                            class="academics-cms-image-dropzone-input"
-                                            type="file"
-                                            name="academics[contents][items][{{ $index }}][image_file]"
-                                            accept="image/*"
-                                        >
                                     </div>
 
                                     <div class="form-group">
@@ -745,17 +745,12 @@
 
     .academics-cms-image-dropzone-input {
         position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        clip-path: inset(50%);
-        white-space: nowrap;
-        border: 0;
+        inset: 0;
+        width: 100%;
+        height: 100%;
         opacity: 0;
-        pointer-events: none;
+        cursor: pointer;
+        z-index: 3;
     }
 
     .academics-cms-image-dropzone-remove {
@@ -1402,9 +1397,7 @@
         function syncAcademicsPreviewImage(sectionKey, cardIndex, src, defaultSrc = '') {
             const normalizedSection = String(sectionKey || '').trim();
             const normalizedIndex = String(cardIndex ?? '').trim();
-            const canTrack = normalizedSection === 'hero'
-                || normalizedSection.endsWith('-hero')
-                || normalizedIndex !== '';
+            const canTrack = normalizedSection === 'hero' || normalizedIndex !== '';
 
             if (!normalizedSection || !canTrack) {
                 return;
@@ -1479,65 +1472,24 @@
             form.addEventListener('change', markDirty);
         }
 
-        function warnAcademicsDropzoneMissing(input, part) {
-            console.warn('Academics CMS image dropzone is missing a required element.', {
-                inputId: input?.id || '',
-                part,
-            });
-        }
-
-        function resetAcademicsImageDropzones(scope = document) {
-            scope.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
-                if (!(input instanceof HTMLInputElement) || input.dataset.academicsDropzoneBound !== '1') {
-                    return;
-                }
-
-                const replacement = input.cloneNode(true);
-                input.replaceWith(replacement);
-            });
-        }
-
-        function requestAcademicsFilePicker(input, event) {
-            if (!(input instanceof HTMLInputElement)) {
-                return;
-            }
-
-            if (!event || event.isTrusted !== true) {
-                return;
-            }
-
-            if (input.dataset.academicsPickerOpening === '1') {
-                return;
-            }
-
-            input.dataset.academicsPickerOpening = '1';
-
-            try {
-                input.click();
-            } finally {
-                window.setTimeout(() => {
-                    delete input.dataset.academicsPickerOpening;
-                }, 0);
-            }
-        }
-
         function initAcademicsImageDropzones(scope = document) {
             scope.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
-                if (!(input instanceof HTMLInputElement)) {
-                    return;
-                }
-
                 if (input.dataset.academicsDropzoneBound === '1') {
                     return;
                 }
 
-                const label = scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
+                const dropzone = input.closest('.academics-cms-image-dropzone')
+                    || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
-                const fileNameEl = scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
+                const label = dropzone;
+                const fileNameEl = dropzone?.querySelector(`[data-academics-file-name-for="${input.id}"]`)
+                    || scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-file-name-for="${input.id}"]`);
-                const previewEl = scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
+                const previewEl = dropzone?.querySelector(`[data-academics-preview-for="${input.id}"]`)
+                    || scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
-                const removeButton = scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
+                const removeButton = dropzone?.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
+                    || scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
                 const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor')
                     || input.closest('[data-academics-editor-panel]')?.getAttribute('data-academics-editor-panel')
@@ -1551,26 +1503,8 @@
                         || null
                     );
 
-                if (!label) {
-                    warnAcademicsDropzoneMissing(input, 'label');
+                if (!label || !fileNameEl) {
                     return;
-                }
-
-                if (!fileNameEl) {
-                    warnAcademicsDropzoneMissing(input, 'fileNameEl');
-                    return;
-                }
-
-                if (!previewEl) {
-                    warnAcademicsDropzoneMissing(input, 'previewEl');
-                }
-
-                if (!removeButton) {
-                    warnAcademicsDropzoneMissing(input, 'removeButton');
-                }
-
-                if (!imageField) {
-                    warnAcademicsDropzoneMissing(input, 'imageField');
                 }
 
                 input.dataset.academicsDropzoneBound = '1';
@@ -1587,6 +1521,11 @@
                 };
 
                 const applyFile = (file) => {
+                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                        input.__academicsPreviewObjectUrl = '';
+                    }
+
                     if (!file) {
                         syncRemoveState();
                         return;
@@ -1595,10 +1534,12 @@
                     fileNameEl.textContent = `Selected: ${file.name}`;
 
                     if (previewEl) {
-                        previewEl.src = URL.createObjectURL(file);
+                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
+                        previewEl.src = input.__academicsPreviewObjectUrl;
                     }
 
                     syncAcademicsPreviewImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
+
                     syncRemoveState();
                 };
 
@@ -1607,11 +1548,14 @@
                 });
 
                 label.addEventListener('click', (event) => {
-                    if (event.target.closest('[data-academics-clear-image-for]')) {
+                    if (
+                        event.target.closest('[data-academics-clear-image-for]')
+                        || event.target.closest('.academics-cms-image-dropzone-input')
+                    ) {
                         return;
                     }
 
-                    requestAcademicsFilePicker(input, event);
+                    input.click();
                 });
 
                 label.addEventListener('keydown', (event) => {
@@ -1620,7 +1564,7 @@
                     }
 
                     event.preventDefault();
-                    requestAcademicsFilePicker(input, event);
+                    input.click();
                 });
 
                 label.addEventListener('dragover', (event) => {
@@ -1650,6 +1594,10 @@
                 removeButton?.addEventListener('click', (event) => {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                        input.__academicsPreviewObjectUrl = '';
+                    }
                     input.value = '';
                     if (imageField) {
                         imageField.value = '';
@@ -1700,7 +1648,6 @@
         }
 
         window.__rebindAcademicsCmsPreviewEditor = () => {
-            resetAcademicsImageDropzones(document);
             initAcademicsImageDropzones(document);
             initAcademicsCharCounters(document);
         };
