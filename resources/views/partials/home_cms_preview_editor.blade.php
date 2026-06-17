@@ -25,6 +25,8 @@
     $campusTourVideoUrl = $campusTourVideoPath !== ''
         ? \App\Support\ImageStorage::url($campusTourVideoPath, null)
         : null;
+    $campusTourVideoMaxMb = \App\Support\CmsUploadLimits::CAMPUS_AVP_MAX_MB;
+    $campusTourVideoMaxBytes = \App\Support\CmsUploadLimits::CAMPUS_AVP_MAX_BYTES;
     $submitLabel = static function (string $sectionLabel) use ($submitMode, $status): string {
         if ($submitMode === 'request') {
             return $status === 'pending'
@@ -246,7 +248,9 @@
                             name="home[campus_tour][avp_video_file]"
                             accept="video/mp4,video/webm,video/quicktime"
                             data-home-campus-tour-video-input
+                            data-max-bytes="{{ $campusTourVideoMaxBytes }}"
                         >
+                        <p class="home-cms-helper-text">Maximum file size allowed: {{ $campusTourVideoMaxMb }}MB.</p>
                     </div>
 
                     <div class="home-cms-modal-footer">
@@ -876,6 +880,13 @@
         padding: 18px;
     }
 
+    .home-cms-helper-text {
+        margin: 10px 0 0;
+        font-size: 13px;
+        line-height: 1.4;
+        color: #5f6878;
+    }
+
     .home-cms-carousel-media {
         position: relative;
         display: block;
@@ -1308,6 +1319,27 @@
 
             input.dataset.homeCampusTourVideoBound = '1';
             const emptyText = fileName.dataset.emptyText || 'Upload MP4, WebM, or MOV video';
+            const maxBytes = Number(input.dataset.maxBytes || '0');
+
+            const resetSelectedFile = () => {
+                input.value = '';
+                fileName.textContent = emptyText;
+                if (!(field?.value || '').trim()) {
+                    preview.removeAttribute('src');
+                    preview.load();
+                }
+                updateState();
+            };
+
+            const applySelectedFile = (file) => {
+                fileName.textContent = `Selected: ${file.name}`;
+                preview.src = URL.createObjectURL(file);
+                preview.hidden = false;
+                if (empty) {
+                    empty.hidden = true;
+                }
+                updateState();
+            };
 
             const updateState = () => {
                 const hasStored = Boolean((field?.value || '').trim() !== '');
@@ -1329,13 +1361,15 @@
                     return;
                 }
 
-                fileName.textContent = `Selected: ${file.name}`;
-                preview.src = URL.createObjectURL(file);
-                preview.hidden = false;
-                if (empty) {
-                    empty.hidden = true;
+                if (maxBytes > 0 && file.size > maxBytes) {
+                    resetSelectedFile();
+                    if (typeof window.showToast === 'function') {
+                        window.showToast('File too large!', 'error', 'Upload Failed');
+                    }
+                    return;
                 }
-                updateState();
+
+                applySelectedFile(file);
             });
 
             clearButton?.addEventListener('click', (event) => {

@@ -105,14 +105,16 @@ class CheckIdpSession
 
         if ($request->expectsJson() || $request->header('X-CMS-IDP-CHECK') === '1') {
             return response()->json([
-                'message' => 'Session expired.',
+                'ok' => false,
+                'message' => 'Your session has expired! Please log in again.',
+                'session_expired' => true,
                 'logout' => true,
                 'redirect' => route('public.landing'),
-            ], 401);
+            ], 419);
         }
 
         $response = redirect()->route('public.landing')
-            ->with('error', 'Session expired.');
+            ->with('error', 'Your session has expired! Please log in again.');
 
         $cookieNames = [
             'access_token',

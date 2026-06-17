@@ -7,7 +7,9 @@ use App\Support\AcademicsCmsContent;
 use App\Support\AboutCmsContent;
 use App\Support\AuditLog;
 use App\Support\CmsSections;
+use App\Support\CmsUploadLimits;
 use App\Support\DownloadableFile;
+use App\Support\EventsCmsCardValidation;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use App\Support\ImageStorage;
@@ -174,7 +176,7 @@ class CmsController extends Controller
             'home.updates.description' => ['nullable', 'string'],
             'home.campus_tour' => ['nullable', 'array'],
             'home.campus_tour.avp_video' => ['nullable', 'string', 'max:2048'],
-            'home.campus_tour.avp_video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:512000'],
+            'home.campus_tour.avp_video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:'.CmsUploadLimits::CAMPUS_AVP_MAX_KB],
             'home.campus_tour.facilities' => ['nullable', 'array', 'max:24'],
             'home.campus_tour.facilities.*.name' => ['nullable', 'string', 'max:255'],
             'home.campus_tour.facilities.*.image' => ['nullable', 'string', 'max:2048'],
@@ -395,6 +397,8 @@ class CmsController extends Controller
             'events.cards.*.end_time' => ['nullable', 'date_format:H:i'],
             'events.cards.*.category' => ['nullable', Rule::in(array_keys(EventsCmsContent::categoryOptions()))],
             'events.cards.*.featured' => ['nullable'],
+        ], [
+            'home.campus_tour.avp_video_file.max' => CmsUploadLimits::FILE_TOO_LARGE_MESSAGE,
         ]);
 
         $email = trim((string) session('user_email'));
@@ -922,6 +926,20 @@ class CmsController extends Controller
                 }
             }
 
+            $eventsErrors = EventsCmsCardValidation::validateCardsSubmission(
+                $eventsInput['cards'] ?? [],
+                $request->filled('events_active_card_index') ? (int) $request->input('events_active_card_index') : null
+            );
+            if ($eventsErrors !== []) {
+                $firstMessage = collect($eventsErrors)->flatten()->first() ?: 'Please complete the required event fields.';
+
+                return response()->json([
+                    'ok' => false,
+                    'message' => $firstMessage,
+                    'errors' => $eventsErrors,
+                ], 422);
+            }
+
             $content = EventsCmsContent::encode(
                 $sectionKey === 'cards'
                     ? EventsCmsContent::fromCardsInput($eventsInput['cards'] ?? [], $baseEventsEncoded)
@@ -937,14 +955,16 @@ class CmsController extends Controller
             if ($this->requestHasUploadedFiles($request)) {
                 return response()->json([
                     'ok' => false,
-                    'message' => 'Image upload failed. Check the S3 storage configuration and try again.',
+                    'message' => 'We could not finish uploading that file. Please try again.',
                 ], 422);
             }
 
             if ($this->requestExceededUploadLimit($request)) {
                 return response()->json([
                     'ok' => false,
-                    'message' => 'Upload failed because the file exceeds the server upload limit (currently '.$this->readIniLimit('upload_max_filesize').').',
+                    'message' => $sectionKey === 'campus_tour_video'
+                        ? CmsUploadLimits::FILE_TOO_LARGE_MESSAGE
+                        : 'One of the uploaded files is too large. Please choose a smaller file and try again.',
                 ], 422);
             }
 
