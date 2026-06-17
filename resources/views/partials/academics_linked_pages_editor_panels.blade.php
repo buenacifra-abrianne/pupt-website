@@ -487,7 +487,7 @@
 
         <div class="academics-cms-card-stack">
             @foreach(($iapplyHero['list_items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor">
+                <article class="academics-cms-card-editor is-active">
                     <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
                         <h4>Benefit {{ $loop->iteration }}</h4>
                     </div>
@@ -709,7 +709,7 @@
 @endonce
 
 <section class="academics-cms-editor-panel" data-academics-editor-panel="pup-iapply-schedule" hidden>
-    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-card-form="pup-iapply-schedule">
         @csrf
         <input type="hidden" name="tab_key" value="academics">
         <input type="hidden" name="section_key" value="pup-iapply-schedule">
@@ -717,37 +717,58 @@
             <input type="hidden" name="request_id" value="{{ $requestId }}">
         @endif
 
-        <div class="academics-cms-form-grid">
-            <div class="form-group">
-                <label>Section Tag</label>
-                <input type="text" name="academics[pages][pup-iapply][schedule][tag]" maxlength="120" value="{{ $iapplySchedule['tag'] ?? '' }}">
-            </div>
+        @php
+            $scheduleEditorTitle = trim((string) ($iapplySchedule['title'] ?? ''));
+            $scheduleItems = array_slice(
+                array_values(is_array($iapplySchedule['items'] ?? null) ? $iapplySchedule['items'] : []),
+                0,
+                3
+            );
+            $scheduleItemLabels = [
+                'Online Application',
+                'Last day of Issuance',
+                'Evaluation Result',
+            ];
+            $normalizeScheduleDateInput = static function (mixed $value): string {
+                $value = trim((string) $value);
+
+                if ($value === '') {
+                    return '';
+                }
+
+                if (preg_match('/\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b/i', $value, $matches)) {
+                    $timestamp = strtotime($matches[0]);
+                } else {
+                    $timestamp = strtotime($value);
+                }
+
+                return $timestamp ? date('Y-m-d', $timestamp) : '';
+            };
+        @endphp
+
+        <div data-academics-page-card-section-shell>
             <div class="form-group">
                 <label>Section Title</label>
-                <input type="text" name="academics[pages][pup-iapply][schedule][title]" maxlength="255" value="{{ $iapplySchedule['title'] ?? '' }}">
+                <input type="text" name="academics[pages][pup-iapply][schedule][title]" maxlength="255" value="{{ $scheduleEditorTitle }}">
             </div>
         </div>
 
-        <div class="academics-cms-card-stack">
-            @foreach(($iapplySchedule['items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor">
+        <div class="academics-cms-card-stack" data-academics-card-stack="pup-iapply-schedule">
+            @foreach($scheduleItems as $index => $item)
+                <article class="academics-cms-card-editor is-active" data-academics-page-card-editor="pup-iapply-schedule" data-academics-page-card-index="{{ $index }}">
                     <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>Schedule Item {{ $loop->iteration }}</h4>
-                    </div>
-                    <div class="academics-cms-form-grid">
-                        <div class="form-group">
-                            <label>Label</label>
-                            <input type="text" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][label]" maxlength="120" value="{{ $item['label'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Value</label>
-                            <input type="text" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][value]" maxlength="2048" value="{{ $item['value'] ?? '' }}">
-                        </div>
+                        <h4>{{ $scheduleItemLabels[$index] ?? 'Date' }}</h4>
                     </div>
                     <div class="form-group">
-                        <label>Optional Link</label>
-                        <input type="text" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                        <label>{{ $scheduleItemLabels[$index] ?? 'Date' }}</label>
+                        <input type="date" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][value]" value="{{ $normalizeScheduleDateInput($item['value'] ?? '') }}">
                     </div>
+                    @if($index === 2)
+                        <div class="form-group">
+                            <label>Link</label>
+                            <input type="text" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" placeholder="https://...">
+                        </div>
+                    @endif
                 </article>
             @endforeach
         </div>
@@ -824,7 +845,7 @@
 
         <div class="academics-cms-card-stack">
             @foreach(($iapplyReminders['notice_items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor">
+                <article class="academics-cms-card-editor is-active">
                     <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
                         <h4>Reminder {{ $loop->iteration }}</h4>
                     </div>
@@ -848,16 +869,25 @@
             ])
         </div>
 
+        @php
+            $iapplyStepItems = array_values(
+                is_array($iapplyReminders['steps'] ?? null)
+                    ? $iapplyReminders['steps']
+                    : (is_array($iapplyReminders['checklist_items'] ?? null) ? $iapplyReminders['checklist_items'] : [])
+            );
+            $iapplyStepItems = array_slice(array_pad($iapplyStepItems, 5, ''), 0, 5);
+        @endphp
+
         <div class="academics-cms-card-stack">
-            @foreach(($iapplyReminders['checklist_items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor">
+            @foreach($iapplyStepItems as $index => $item)
+                <article class="academics-cms-card-editor is-active">
                     <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>Checklist Item {{ $loop->iteration }}</h4>
+                        <h4>Step {{ $loop->iteration }}</h4>
                     </div>
                     <div class="form-group">
-                        <label>Checklist Text</label>
+                        <label>Step Description</label>
                         <div class="academics-cms-textarea-field" data-academics-char-limit="255">
-                            <textarea name="academics[pages][pup-iapply][reminders][checklist_items][{{ $index }}]" rows="3" maxlength="255" data-academics-char-input>{{ $item }}</textarea>
+                            <textarea name="academics[pages][pup-iapply][reminders][steps][{{ $index }}]" rows="3" maxlength="255" data-academics-char-input>{{ $item }}</textarea>
                             <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/255</div>
                         </div>
                     </div>

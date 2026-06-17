@@ -873,6 +873,10 @@
         gap: 0;
     }
 
+    .academics-cms-editor-panel.is-title-focus [data-academics-card-stack="pup-iapply-schedule"] {
+        display: none;
+    }
+
     .academics-cms-editor-panel.is-card-focus [data-academics-card-panel-meta],
     .academics-cms-editor-panel.is-card-focus [data-academics-card-editor-head] {
         display: none;
@@ -1870,12 +1874,16 @@
                 const isActive = panel.getAttribute('data-academics-editor-panel') === sectionKey;
                 const hasCardTarget = options.cardIndex !== null && options.cardIndex !== undefined && options.cardIndex !== '';
                 const cardCollection = cardEditorCollections[sectionKey] || null;
+                const isScheduleSection = sectionKey === 'pup-iapply-schedule';
+                const isTitleFocus = Boolean(isActive && isScheduleSection && !hasCardTarget);
                 const isCardFocus = Boolean(cardCollection && hasCardTarget);
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
+                panel.classList.toggle('is-title-focus', isTitleFocus);
 
                 if (isActive) {
                     modal.classList.toggle('is-card-focus', isCardFocus);
+                    modal.classList.toggle('is-title-focus', isTitleFocus);
                     if (title) {
                         title.textContent = label || 'Edit academics section';
                     }
@@ -1885,7 +1893,7 @@
                     }
 
                     let activeCardEditor = null;
-                    if (cardCollection) {
+                    if (cardCollection && !isTitleFocus) {
                         activeCardEditor = setActiveEditor(
                             cardCollection.stack,
                             cardCollection.selector,
@@ -1914,6 +1922,7 @@
 
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
+            modal.classList.remove('is-title-focus');
             document.body.style.overflow = '';
             document.body.classList.remove('cms-editor-modal-open');
         }
