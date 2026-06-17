@@ -90,7 +90,6 @@
                 <div class="research-story-card cms-preview-boundary-edge" data-cms-boundary>
                     <div class="research-story-layout">
                         <div class="research-story-copy">
-                            <p class="research-story-tag">{{ $pageSection['eyebrow'] ?? 'Research & Extension' }}</p>
                             <h1>{{ $pageSection['title'] ?? 'Research and Extension' }}</h1>
                         </div>
 

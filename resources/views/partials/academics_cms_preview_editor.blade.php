@@ -1348,6 +1348,70 @@
         };
 
         const cardEditorCollections = getCardEditorCollections();
+        const academicsPreviewCardImageState = new Map();
+
+        function getAcademicsPreviewFrames() {
+            return Array.from(document.querySelectorAll('[data-academics-preview-frame]'));
+        }
+
+        function getAcademicsPreviewCardImageKey(sectionKey, cardIndex) {
+            return `${String(sectionKey ?? '').trim()}:${String(cardIndex ?? '').trim()}`;
+        }
+
+        function replayAcademicsPreviewCardImages(frame) {
+            const targetWindow = frame?.contentWindow;
+            if (!targetWindow) {
+                return;
+            }
+
+            academicsPreviewCardImageState.forEach((state) => {
+                targetWindow.postMessage({
+                    type: 'cms-academics-preview-image',
+                    section: state.sectionKey,
+                    cardIndex: state.cardIndex,
+                    src: state.src,
+                    defaultSrc: state.defaultSrc,
+                }, '*');
+            });
+        }
+
+        function syncAcademicsPreviewCardImage(sectionKey, cardIndex, src, defaultSrc = '') {
+            const normalizedSection = String(sectionKey || '').trim();
+            const normalizedIndex = String(cardIndex ?? '').trim();
+            if (!normalizedSection || !normalizedIndex) {
+                return;
+            }
+
+            const nextSrc = String(src || '').trim();
+            const nextDefaultSrc = String(defaultSrc || '').trim();
+            const key = getAcademicsPreviewCardImageKey(normalizedSection, normalizedIndex);
+
+            if (nextSrc && nextSrc !== nextDefaultSrc) {
+                academicsPreviewCardImageState.set(key, {
+                    sectionKey: normalizedSection,
+                    cardIndex: normalizedIndex,
+                    src: nextSrc,
+                    defaultSrc: nextDefaultSrc,
+                });
+            } else {
+                academicsPreviewCardImageState.delete(key);
+            }
+
+            getAcademicsPreviewFrames().forEach((frame) => {
+                const targetWindow = frame.contentWindow;
+                if (!targetWindow) {
+                    return;
+                }
+
+                targetWindow.postMessage({
+                    type: 'cms-academics-preview-image',
+                    section: normalizedSection,
+                    cardIndex: normalizedIndex,
+                    src: nextSrc,
+                    defaultSrc: nextDefaultSrc,
+                }, '*');
+            });
+        }
 
         function bumpEditorVersion(input) {
             if (input) {
@@ -1401,6 +1465,8 @@
                     || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
+                const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor') || '';
+                const previewCardIndex = input.closest('[data-academics-page-card-index]')?.getAttribute('data-academics-page-card-index') || '';
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
                     : (
@@ -1432,6 +1498,11 @@
                 };
 
                 const applyFile = (file) => {
+                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                        input.__academicsPreviewObjectUrl = '';
+                    }
+
                     if (!file) {
                         syncRemoveState();
                         return;
@@ -1440,7 +1511,12 @@
                     fileNameEl.textContent = `Selected: ${file.name}`;
 
                     if (previewEl) {
-                        previewEl.src = URL.createObjectURL(file);
+                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
+                        previewEl.src = input.__academicsPreviewObjectUrl;
+                    }
+
+                    if (previewSection === 'contents' && previewCardIndex) {
+                        syncAcademicsPreviewCardImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
                     }
 
                     syncRemoveState();
@@ -1497,12 +1573,19 @@
                 removeButton?.addEventListener('click', (event) => {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                        input.__academicsPreviewObjectUrl = '';
+                    }
                     input.value = '';
                     if (imageField) {
                         imageField.value = '';
                     }
                     if (previewEl && defaultSrc) {
                         previewEl.src = defaultSrc;
+                    }
+                    if (previewSection === 'contents' && previewCardIndex) {
+                        syncAcademicsPreviewCardImage(previewSection, previewCardIndex, defaultSrc, defaultSrc);
                     }
                     fileNameEl.textContent = emptyText;
                     syncRemoveState();
@@ -1916,6 +1999,7 @@
 
             frame.addEventListener('load', () => {
                 bindAcademicsPreviewDocument(frame);
+                replayAcademicsPreviewCardImages(frame);
                 queueAcademicsPreviewSettledSync(frame);
                 scheduleFitAllAcademicsPreviews();
                 window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 120);
