@@ -8,9 +8,11 @@ use App\Console\Commands\NormalizeHtmlEntityText;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\Request;
 use Illuminate\Session\TokenMismatchException;
 use Illuminate\Validation\ValidationException;
+use App\Support\ErrorPageContent;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
 
 return Application::configure(basePath: dirname(__DIR__))
@@ -186,5 +188,29 @@ return Application::configure(basePath: dirname(__DIR__))
                 'ok' => false,
                 'message' => 'We could not complete that request. Please try again.',
             ], max(400, $status));
+        });
+
+        $exceptions->render(function (\Throwable $e, Request $request) use ($expectsJsonResponse) {
+            if ($expectsJsonResponse($request)) {
+                return null;
+            }
+
+            if ($e instanceof ValidationException || $e instanceof AuthenticationException || $e instanceof HttpResponseException) {
+                return null;
+            }
+
+            $status = $e instanceof HttpExceptionInterface ? $e->getStatusCode() : 500;
+
+            if ($status < 400) {
+                return null;
+            }
+
+            $content = ErrorPageContent::forStatus($status);
+
+            return response()->view('errors.http', [
+                'statusCode' => $status,
+                'headline' => $content['headline'],
+                'message' => $content['message'],
+            ], $status);
         });
     })->create();

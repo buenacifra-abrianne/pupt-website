@@ -1,0 +1,211 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+:root {
+  --error-bg: #f7eee6;
+  --error-surface: rgba(255, 252, 247, 0.96);
+  --error-surface-strong: rgba(255, 248, 239, 0.98);
+  --error-line: rgba(127, 17, 19, 0.14);
+  --error-ink: #1f1615;
+  --error-muted: #685b56;
+  --error-maroon: #7f1113;
+  --error-maroon-deep: #4f090c;
+  --error-gold: #f2c94c;
+  --error-gold-deep: #d7aa43;
+  --error-shadow: 0 28px 60px rgba(79, 9, 12, 0.16);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  min-height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: "Poppins", sans-serif;
+  color: var(--error-ink);
+  background:
+    radial-gradient(circle at top right, rgba(242, 201, 76, 0.24), transparent 26%),
+    radial-gradient(circle at left 18%, rgba(127, 17, 19, 0.12), transparent 24%),
+    linear-gradient(180deg, #fbf5ee 0%, var(--error-bg) 100%);
+}
+
+.error-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+}
+
+.error-shell {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: clamp(20px, 4vw, 48px);
+}
+
+.error-panel {
+  position: relative;
+  width: min(880px, 100%);
+  overflow: hidden;
+  border: 1px solid var(--error-line);
+  border-radius: 32px;
+  background:
+    linear-gradient(155deg, var(--error-surface) 0%, var(--error-surface-strong) 100%);
+  box-shadow: var(--error-shadow);
+}
+
+.error-panel::before,
+.error-panel::after {
+  content: "";
+  position: absolute;
+  border-radius: 999px;
+  pointer-events: none;
+}
+
+.error-panel::before {
+  width: 260px;
+  height: 260px;
+  top: -110px;
+  right: -80px;
+  background: radial-gradient(circle, rgba(127, 17, 19, 0.18) 0%, rgba(127, 17, 19, 0) 72%);
+}
+
+.error-panel::after {
+  width: 240px;
+  height: 240px;
+  bottom: -120px;
+  left: -70px;
+  background: radial-gradient(circle, rgba(242, 201, 76, 0.26) 0%, rgba(242, 201, 76, 0) 72%);
+}
+
+.error-brand,
+.error-content {
+  position: relative;
+  z-index: 1;
+}
+
+.error-brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: clamp(24px, 4vw, 32px) clamp(24px, 4vw, 34px) 0;
+}
+
+.error-brand-logo {
+  width: clamp(68px, 10vw, 82px);
+  height: clamp(68px, 10vw, 82px);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 18px 34px rgba(79, 9, 12, 0.18);
+}
+
+.error-brand-copy {
+  min-width: 0;
+}
+
+.error-kicker,
+.error-subkicker,
+.error-code,
+.error-message {
+  margin: 0;
+}
+
+.error-kicker {
+  color: var(--error-maroon);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.error-subkicker {
+  margin-top: 6px;
+  color: var(--error-muted);
+  font-size: 0.98rem;
+}
+
+.error-content {
+  padding: clamp(18px, 3vw, 24px) clamp(24px, 4vw, 34px) clamp(28px, 5vw, 40px);
+}
+
+.error-code {
+  display: inline-flex;
+  align-items: center;
+  min-height: 48px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: rgba(127, 17, 19, 0.08);
+  color: var(--error-maroon);
+  font-size: clamp(1.4rem, 3vw, 1.8rem);
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.error-content h1 {
+  margin: 20px 0 0;
+  max-width: 12ch;
+  color: var(--error-ink);
+  font-size: clamp(2.2rem, 7vw, 4.6rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+  text-shadow: 0 12px 30px rgba(79, 9, 12, 0.12);
+}
+
+.error-message {
+  margin-top: 18px;
+  max-width: 42rem;
+  color: var(--error-muted);
+  font-size: clamp(1rem, 2vw, 1.1rem);
+  line-height: 1.75;
+}
+
+.error-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 50px;
+  margin-top: 28px;
+  padding: 0 24px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--error-gold) 0%, var(--error-gold-deep) 100%);
+  color: #2d1606;
+  text-decoration: none;
+  font-size: 0.94rem;
+  font-weight: 800;
+  transition: transform 0.22s ease, box-shadow 0.22s ease;
+  box-shadow: 0 14px 26px rgba(215, 170, 67, 0.26);
+}
+
+.error-home-link:hover,
+.error-home-link:focus-visible {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 30px rgba(215, 170, 67, 0.3);
+  outline: none;
+}
+
+@media (max-width: 720px) {
+  .error-panel {
+    border-radius: 24px;
+  }
+
+  .error-brand {
+    gap: 14px;
+    padding: 20px 18px 0;
+  }
+
+  .error-content {
+    padding: 18px 18px 28px;
+  }
+
+  .error-message {
+    line-height: 1.65;
+  }
+
+  .error-home-link {
+    width: 100%;
+  }
+}
