@@ -1159,7 +1159,16 @@
             try { json = JSON.parse(raw); } catch (_) {}
 
             if (!res.ok || !json.ok) {
-                throw new Error(json.message || json.error || raw.slice(0, 180) || ('Request failed (' + res.status + ')'));
+                const failure = typeof window.cmsResolveRequestError === 'function'
+                    ? window.cmsResolveRequestError({ response: res, json, raw })
+                    : null;
+
+                if (failure?.sessionExpired && typeof window.handleSessionExpired === 'function') {
+                    window.handleSessionExpired(failure.redirect);
+                    return;
+                }
+
+                throw new Error(failure?.message || 'Something went wrong. Please try again later.');
             }
 
             if (typeof window.showToast === 'function') {
@@ -1176,10 +1185,15 @@
                 window.location.reload();
             }
         } catch (err) {
+            if (err?.sessionExpired && typeof window.handleSessionExpired === 'function') {
+                window.handleSessionExpired(err.redirect);
+                return;
+            }
+
             if (typeof window.showToast === 'function') {
-                window.showToast(err.message, 'error', 'Request Failed');
+                window.showToast(err?.message || 'Something went wrong. Please try again later.', 'error', 'Request Failed');
             } else {
-                alert(err.message);
+                alert(err?.message || 'Something went wrong. Please try again later.');
             }
         } finally {
             if (submitBtn) submitBtn.disabled = false;

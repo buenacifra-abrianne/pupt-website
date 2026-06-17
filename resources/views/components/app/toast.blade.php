@@ -60,6 +60,7 @@
     margin-top: 3px;
     color: #3f434b;
     line-height: 1.35;
+    white-space: pre-line;
     word-break: break-word;
   }
 
@@ -273,6 +274,7 @@
 
     const TIMEOUT = 3200;
     const QUEUED_TOAST_KEY = '__cmsQueuedToast';
+    const DEFAULT_ERROR_MESSAGE = 'Something went wrong. Please try again later.';
 
     function getWrap() {
       let wrap = document.getElementById('cmsToastWrap');
@@ -285,6 +287,72 @@
         document.body.appendChild(wrap);
       }
       return wrap;
+    }
+
+    function isLikelySessionExpiredMessage(message) {
+      const value = String(message || '').toLowerCase();
+      return value.includes('csrf')
+        || value.includes('token mismatch')
+        || value.includes('page expired')
+        || value.includes('session expired')
+        || value.includes('please log in again')
+        || value.includes('unauthenticated');
+    }
+
+    function isLikelyServerErrorMessage(message) {
+      const value = String(message || '').toLowerCase();
+      return value.includes('sqlstate')
+        || value.includes('stack trace')
+        || value.includes('<!doctype')
+        || value.includes('<html')
+        || value.includes('server error')
+        || value.includes('exception')
+        || value.includes('s3 storage')
+        || value.includes('request failed (500)');
+    }
+
+    function isLikelyNetworkMessage(message) {
+      const value = String(message || '').toLowerCase();
+      return value.includes('cannot reach server')
+        || value.includes('failed to fetch')
+        || value.includes('networkerror')
+        || value.includes('network request failed');
+    }
+
+    function normalizeToastMessage(message, type) {
+      const raw = String(message || '').trim();
+      if (!raw) {
+        return type === 'error' ? DEFAULT_ERROR_MESSAGE : '';
+      }
+
+      if (isLikelySessionExpiredMessage(raw)) {
+        return 'Your session has expired! Please log in again.';
+      }
+
+      if (raw === 'File too large!') {
+        return raw;
+      }
+
+      if (isLikelyServerErrorMessage(raw)) {
+        return DEFAULT_ERROR_MESSAGE;
+      }
+
+      if (isLikelyNetworkMessage(raw)) {
+        return 'Unable to reach the server. Please try again.';
+      }
+
+      return raw;
+    }
+
+    function isSessionRedirectUrl(url) {
+      try {
+        const target = new URL(url, window.location.href);
+        const path = target.pathname.toLowerCase();
+        return target.origin === window.location.origin
+          && (path === '/' || path.endsWith('/login'));
+      } catch (_) {
+        return false;
+      }
     }
 
     function titleFromType(type) {
@@ -308,8 +376,45 @@
       return '#24a148';
     }
 
+    window.handleSessionExpired = function (redirectUrl) {
+      if (window.__cmsSessionRedirectPending) {
+        return;
+      }
+
+      window.__cmsSessionRedirectPending = true;
+      window.cmsToast('Your session has expired! Please log in again.', 'error', 'Session Expired', 2200);
+
+      window.setTimeout(() => {
+        window.location.assign(redirectUrl || '{{ route('public.landing') }}');
+      }, 1400);
+    };
+
+    window.cmsResolveRequestError = function ({ response, json, raw, fallbackMessage } = {}) {
+      const payload = json && typeof json === 'object' ? json : {};
+      const rawText = typeof raw === 'string' ? raw.trim() : '';
+      const redirect = typeof payload.redirect === 'string' && payload.redirect
+        ? payload.redirect
+        : (response?.url || '{{ route('public.landing') }}');
+      const sessionExpired = Boolean(payload.session_expired)
+        || response?.status === 419
+        || isLikelySessionExpiredMessage(payload.message || rawText)
+        || (response?.redirected && isSessionRedirectUrl(response.url));
+
+      let message = payload.message || payload.error || '';
+      if (!message && rawText && !rawText.startsWith('<!DOCTYPE') && !rawText.startsWith('<html')) {
+        message = rawText.slice(0, 220);
+      }
+
+      return {
+        message: normalizeToastMessage(message || fallbackMessage || DEFAULT_ERROR_MESSAGE, 'error'),
+        redirect,
+        sessionExpired,
+      };
+    };
+
     window.cmsToast = function (message, type, title, duration) {
       const toastType = (type || 'success').toLowerCase();
+      const normalizedMessage = normalizeToastMessage(message, toastType);
       const wrap = getWrap();
 
       const toast = document.createElement('div');
@@ -325,7 +430,7 @@
       titleEl.textContent = title || titleFromType(toastType);
       const msgEl = document.createElement('div');
       msgEl.className = 'cms-toast-message';
-      msgEl.textContent = String(message || '');
+      msgEl.textContent = normalizedMessage;
       body.appendChild(titleEl);
       body.appendChild(msgEl);
 
@@ -403,6 +508,38 @@
 
     // Show queued success/error toast after full page reload/navigation.
     window.flushQueuedToast();
+
+    if (typeof window.fetch === 'function' && !window.__cmsFetchWrapped) {
+      const originalFetch = window.fetch.bind(window);
+      window.__cmsFetchWrapped = true;
+
+      window.fetch = async function (input, init) {
+        const config = init ? { ...init } : {};
+        const headers = new Headers(config.headers || (input instanceof Request ? input.headers : undefined));
+        const requestUrl = typeof input === 'string' ? input : (input?.url || '');
+
+        try {
+          const resolvedUrl = new URL(requestUrl || window.location.href, window.location.href);
+          if (resolvedUrl.origin === window.location.origin) {
+            if (!headers.has('X-Requested-With')) {
+              headers.set('X-Requested-With', 'XMLHttpRequest');
+            }
+            if (!headers.has('Accept')) {
+              headers.set('Accept', 'application/json, text/plain, */*');
+            }
+          }
+        } catch (_) {}
+
+        config.headers = headers;
+        const response = await originalFetch(input, config);
+
+        if (response.redirected && isSessionRedirectUrl(response.url)) {
+          window.handleSessionExpired(response.url);
+        }
+
+        return response;
+      };
+    }
 
     let confirmBusy = false;
 

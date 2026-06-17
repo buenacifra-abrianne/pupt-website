@@ -17,7 +17,19 @@ class NonSuperadminRoleOnly
     public function handle($request, \Closure $next)
     {
         if (!session('user_logged_in')) {
-            return redirect('public.landing');
+            if ($request->expectsJson()
+                || $request->ajax()
+                || strtolower((string) $request->header('X-Requested-With')) === 'xmlhttprequest'
+                || str_contains(strtolower((string) $request->header('Accept')), 'application/json')) {
+                return response()->json([
+                    'ok' => false,
+                    'message' => 'Your session has expired! Please log in again.',
+                    'session_expired' => true,
+                    'redirect' => route('public.landing'),
+                ], 419);
+            }
+
+            return redirect()->route('public.landing');
         }
 
         $role = CmsSections::normalizeRole((string) session('user_role'));
