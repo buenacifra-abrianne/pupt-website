@@ -1367,23 +1367,23 @@
         };
 
         const cardEditorCollections = getCardEditorCollections();
-        const academicsPreviewCardImageState = new Map();
+        const academicsPreviewImageState = new Map();
 
         function getAcademicsPreviewFrames() {
             return Array.from(document.querySelectorAll('[data-academics-preview-frame]'));
         }
 
-        function getAcademicsPreviewCardImageKey(sectionKey, cardIndex) {
+        function getAcademicsPreviewImageKey(sectionKey, cardIndex) {
             return `${String(sectionKey ?? '').trim()}:${String(cardIndex ?? '').trim()}`;
         }
 
-        function replayAcademicsPreviewCardImages(frame) {
+        function replayAcademicsPreviewImages(frame) {
             const targetWindow = frame?.contentWindow;
             if (!targetWindow) {
                 return;
             }
 
-            academicsPreviewCardImageState.forEach((state) => {
+            academicsPreviewImageState.forEach((state) => {
                 targetWindow.postMessage({
                     type: 'cms-academics-preview-image',
                     section: state.sectionKey,
@@ -1394,26 +1394,28 @@
             });
         }
 
-        function syncAcademicsPreviewCardImage(sectionKey, cardIndex, src, defaultSrc = '') {
+        function syncAcademicsPreviewImage(sectionKey, cardIndex, src, defaultSrc = '') {
             const normalizedSection = String(sectionKey || '').trim();
             const normalizedIndex = String(cardIndex ?? '').trim();
-            if (!normalizedSection || !normalizedIndex) {
+            const canTrack = normalizedSection === 'hero' || normalizedIndex !== '';
+
+            if (!normalizedSection || !canTrack) {
                 return;
             }
 
             const nextSrc = String(src || '').trim();
             const nextDefaultSrc = String(defaultSrc || '').trim();
-            const key = getAcademicsPreviewCardImageKey(normalizedSection, normalizedIndex);
+            const key = getAcademicsPreviewImageKey(normalizedSection, normalizedIndex);
 
             if (nextSrc && nextSrc !== nextDefaultSrc) {
-                academicsPreviewCardImageState.set(key, {
+                academicsPreviewImageState.set(key, {
                     sectionKey: normalizedSection,
                     cardIndex: normalizedIndex,
                     src: nextSrc,
                     defaultSrc: nextDefaultSrc,
                 });
             } else {
-                academicsPreviewCardImageState.delete(key);
+                academicsPreviewImageState.delete(key);
             }
 
             getAcademicsPreviewFrames().forEach((frame) => {
@@ -1489,7 +1491,9 @@
                 const removeButton = dropzone?.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
-                const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor') || '';
+                const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor')
+                    || input.closest('[data-academics-editor-panel]')?.getAttribute('data-academics-editor-panel')
+                    || '';
                 const previewCardIndex = input.closest('[data-academics-page-card-index]')?.getAttribute('data-academics-page-card-index') || '';
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
@@ -1534,9 +1538,7 @@
                         previewEl.src = input.__academicsPreviewObjectUrl;
                     }
 
-                    if (previewSection === 'contents' && previewCardIndex) {
-                        syncAcademicsPreviewCardImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
-                    }
+                    syncAcademicsPreviewImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
 
                     syncRemoveState();
                 };
@@ -1603,9 +1605,7 @@
                     if (previewEl && defaultSrc) {
                         previewEl.src = defaultSrc;
                     }
-                    if (previewSection === 'contents' && previewCardIndex) {
-                        syncAcademicsPreviewCardImage(previewSection, previewCardIndex, defaultSrc, defaultSrc);
-                    }
+                    syncAcademicsPreviewImage(previewSection, previewCardIndex, defaultSrc, defaultSrc);
                     fileNameEl.textContent = emptyText;
                     syncRemoveState();
                 });
@@ -2028,7 +2028,7 @@
 
             frame.addEventListener('load', () => {
                 bindAcademicsPreviewDocument(frame);
-                replayAcademicsPreviewCardImages(frame);
+                replayAcademicsPreviewImages(frame);
                 queueAcademicsPreviewSettledSync(frame);
                 scheduleFitAllAcademicsPreviews();
                 window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 120);

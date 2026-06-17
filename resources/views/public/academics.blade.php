@@ -59,6 +59,8 @@
                                         src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($heroSection['image'] ?? '', 'assets/static_img/about_header_image.png') }}"
                                         alt=""
                                         class="carousel-half carousel-half-left"
+                                        data-academics-hero-image
+                                        data-academics-default-src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($heroSection['image'] ?? '', 'assets/static_img/about_header_image.png') }}"
                                     >
                                 </div>
                                 <div class="carousel-caption">
@@ -595,6 +597,25 @@
                     }, '*');
                 };
 
+                const updateHeroImage = (src, defaultSrc = '') => {
+                    const image = document.querySelector('[data-academics-hero-image]');
+                    if (!(image instanceof HTMLImageElement)) {
+                        return;
+                    }
+
+                    const nextSrc = String(src || '').trim() || String(defaultSrc || image.dataset.academicsDefaultSrc || image.getAttribute('src') || '').trim();
+                    if (!nextSrc) {
+                        return;
+                    }
+
+                    if (defaultSrc) {
+                        image.dataset.academicsDefaultSrc = defaultSrc;
+                    }
+
+                    image.src = nextSrc;
+                    scheduleSettledPreviewHeight();
+                };
+
                 const updateContentsCardImage = (cardIndex, src, defaultSrc = '') => {
                     const card = document.querySelector(`[data-academics-contents-card][data-academics-contents-index="${cardIndex}"]`);
                     if (!card) {
@@ -664,11 +685,14 @@
                         return;
                     }
 
-                    if ((data.section || '') !== 'contents') {
+                    if ((data.section || '') === 'hero') {
+                        updateHeroImage(data.src, data.defaultSrc);
                         return;
                     }
 
-                    updateContentsCardImage(data.cardIndex, data.src, data.defaultSrc);
+                    if ((data.section || '') === 'contents') {
+                        updateContentsCardImage(data.cardIndex, data.src, data.defaultSrc);
+                    }
                 });
 
                 targets.forEach((target) => {
