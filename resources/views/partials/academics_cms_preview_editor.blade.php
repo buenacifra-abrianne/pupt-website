@@ -114,17 +114,17 @@
                                     <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
                                     <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                    <input
-                                        id="{{ $academicsHeroInputId }}"
-                                        class="academics-cms-image-dropzone-input"
-                                        type="file"
-                                        name="academics[hero][image_file]"
-                                        accept="image/*"
-                                        data-academics-image-field-id="{{ $academicsHeroFieldId }}"
-                                    >
                                 </span>
                             </div>
                         </div>
+                        <input
+                            id="{{ $academicsHeroInputId }}"
+                            class="academics-cms-image-dropzone-input"
+                            type="file"
+                            name="academics[hero][image_file]"
+                            accept="image/*"
+                            data-academics-image-field-id="{{ $academicsHeroFieldId }}"
+                        >
                     </div>
 
                     <div class="form-group">
@@ -220,16 +220,16 @@
                                                     <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
                                                     <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                                     <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $itemInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                    <input
-                                                        id="{{ $itemInputId }}"
-                                                        class="academics-cms-image-dropzone-input"
-                                                        type="file"
-                                                        name="academics[contents][items][{{ $index }}][image_file]"
-                                                        accept="image/*"
-                                                    >
                                                 </span>
                                             </div>
                                         </div>
+                                        <input
+                                            id="{{ $itemInputId }}"
+                                            class="academics-cms-image-dropzone-input"
+                                            type="file"
+                                            name="academics[contents][items][{{ $index }}][image_file]"
+                                            accept="image/*"
+                                        >
                                     </div>
 
                                     <div class="form-group">

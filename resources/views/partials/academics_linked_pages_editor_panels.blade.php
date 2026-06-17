@@ -165,10 +165,10 @@
                                             <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
                                             <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                             <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                            <input id="{{ $cardInputId }}" class="academics-cms-image-dropzone-input" type="file" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][image_file]" accept="image/*">
                                         </span>
                                     </div>
                                 </div>
+                                <input id="{{ $cardInputId }}" class="academics-cms-image-dropzone-input" type="file" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][image_file]" accept="image/*">
                             </div>
 
                             <div class="academics-cms-form-grid">
@@ -267,10 +267,10 @@
                                         <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this card.</span>
                                         <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                                         <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="__DROPZONE_ID__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                        <input id="__DROPZONE_ID__" class="academics-cms-image-dropzone-input" type="file" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][image_file]" accept="image/*">
                                     </span>
                                 </div>
                             </div>
+                            <input id="__DROPZONE_ID__" class="academics-cms-image-dropzone-input" type="file" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][image_file]" accept="image/*">
                         </div>
 
                         <div class="academics-cms-form-grid">
@@ -939,17 +939,17 @@
                         <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this section.</span>
                         <span class="academics-cms-image-dropzone-upload-button">Select image</span>
                         <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $calendarHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                        <input
-                            id="{{ $calendarHeroInputId }}"
-                            class="academics-cms-image-dropzone-input"
-                            type="file"
-                            name="academics[pages][university-calendar][hero][image_file]"
-                            accept="image/*"
-                            data-academics-image-field-id="{{ $calendarHeroFieldId }}"
-                        >
                     </span>
                 </div>
             </div>
+            <input
+                id="{{ $calendarHeroInputId }}"
+                class="academics-cms-image-dropzone-input"
+                type="file"
+                name="academics[pages][university-calendar][hero][image_file]"
+                accept="image/*"
+                data-academics-image-field-id="{{ $calendarHeroFieldId }}"
+            >
         </div>
 
         <div class="academics-cms-form-grid">
