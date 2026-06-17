@@ -744,13 +744,7 @@
     }
 
     .academics-cms-image-dropzone-input {
-        position: absolute;
-        inset: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0;
-        cursor: pointer;
-        z-index: 3;
+        display: none;
     }
 
     .academics-cms-image-dropzone-remove {
@@ -1480,20 +1474,13 @@
                     return;
                 }
 
-                const dropzone = input.closest('.academics-cms-image-dropzone')
-                    || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
+                const label = scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
-                const label = dropzone
-                    || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
-                    || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
-                const fileNameEl = dropzone?.querySelector(`[data-academics-file-name-for="${input.id}"]`)
-                    || scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
+                const fileNameEl = scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-file-name-for="${input.id}"]`);
-                const previewEl = dropzone?.querySelector(`[data-academics-preview-for="${input.id}"]`)
-                    || scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
+                const previewEl = scope.querySelector(`[data-academics-preview-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-preview-for="${input.id}"]`);
-                const removeButton = dropzone?.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
-                    || scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
+                const removeButton = scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
                 const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor')
                     || input.closest('[data-academics-editor-panel]')?.getAttribute('data-academics-editor-panel')
@@ -1580,10 +1567,7 @@
                 });
 
                 label.addEventListener('click', (event) => {
-                    if (
-                        event.target.closest('[data-academics-clear-image-for]')
-                        || event.target.closest('.academics-cms-image-dropzone-input')
-                    ) {
+                    if (event.target.closest('[data-academics-clear-image-for]')) {
                         return;
                     }
 
