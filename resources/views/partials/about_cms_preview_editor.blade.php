@@ -4,6 +4,9 @@
     $aboutPreviewData = \App\Support\AboutCmsContent::fromInput($aboutPreviewData ?? $aboutEditorData, null);
     $aboutSections = $aboutEditorData['sections'] ?? [];
     $aboutPreviewSections = $aboutPreviewData['sections'] ?? [];
+    $aboutLockedSectionSlugs = ['hymn', 'maps'];
+    $aboutSections = array_diff_key($aboutSections, array_flip($aboutLockedSectionSlugs));
+    $aboutPreviewSections = array_diff_key($aboutPreviewSections, array_flip($aboutLockedSectionSlugs));
     $overviewEditor = $aboutEditorData['overview'] ?? ($aboutDefaults['overview'] ?? []);
     $formClass = $aboutEditorFormClass ?? 'cms-save-form';
     $submitRoute = $aboutEditorSubmitRoute;
