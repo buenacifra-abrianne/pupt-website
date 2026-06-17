@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Support\AnalyticsPdfBuilder;
 use App\Services\CloudWatchService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -42,28 +43,92 @@ class AnalyticsController extends Controller
     {
         $filename = 'analytics_report_'.now()->format('Ymd_His').'.csv';
         $payload = $this->decodeExportPayload($request);
-        $serverHealth = $this->resolveExportServerHealth($payload);
+        $report = $this->buildExportReport($request, $payload);
 
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="'.$filename.'"');
 
         $output = fopen('php://output', 'w');
 
-        fputcsv($output, ['Metric', 'Value']);
-
-        fputcsv($output, ['Total Visitors', $request->input('total_visitors', 0)]);
-        fputcsv($output, ['Avg Session Duration', $request->input('avg_duration', '0m 0s')]);
-        fputcsv($output, ['Bounce Rate', $request->input('bounce_rate', '0%')]);
-
-        fputcsv($output, ['Sessions', $request->input('sessions', 0)]);
-        fputcsv($output, ['Page views', $request->input('pageviews', 0)]);
-        fputcsv($output, ['Pages per Session', $request->input('pages_per_session', 0)]);
+        fputcsv($output, ['PUP Taguig Website Analytics Report']);
+        fputcsv($output, ['Date Range', ($report['start'] !== '' ? $report['start'] : 'All Dates').' to '.($report['end'] !== '' ? $report['end'] : 'All Dates')]);
+        fputcsv($output, ['Generated', $report['generatedAt']]);
         fputcsv($output, []);
-        fputcsv($output, ['Server Health', 'Value']);
-        fputcsv($output, ['Server Status', $serverHealth['status']]);
-        fputcsv($output, ['CPU Usage', $serverHealth['cpu_usage']]);
-        fputcsv($output, ['Memory Usage', $serverHealth['memory_usage']]);
-        fputcsv($output, ['Last Updated', $serverHealth['last_updated']]);
+
+        $this->writeCsvMetricSection($output, 'Part 1: Monitoring Overview', [
+            ['Total Visitors', $report['data']['total_visitors']],
+            ['Avg. Session Duration', $report['data']['avg_duration']],
+            ['Bounce Rate', $report['data']['bounce_rate']],
+            ['Total Uploads', data_get($report, 'uploads.total_uploads', $report['data']['total_uploads'] ?? 0)],
+        ]);
+
+        $this->writeCsvMetricSection($output, 'Part 2: User Engagement', [
+            ['Sessions', $report['data']['sessions']],
+            ['Page views', $report['data']['pageviews']],
+            ['Pages / Session', $report['data']['pages_per_session']],
+        ]);
+
+        $feedback = $report['feedback'];
+        $feedbackRows = [];
+        for ($index = 1; $index <= 10; $index++) {
+            $feedbackRows[] = ['Q'.$index, number_format((float) data_get($feedback, 'question_'.$index.'_avg', 0), 2).' / 4'];
+        }
+        $feedbackRows[] = ['Total Average', number_format((float) data_get($feedback, 'overall_average', 0), 2).' / 4'];
+        $feedbackRows[] = ['Final Result', data_get($feedback, 'final_rating', 'No Data')];
+        $feedbackRows[] = ['Outstanding', number_format((int) data_get($feedback, 'outstanding', 0))];
+        $feedbackRows[] = ['Very Satisfactory', number_format((int) data_get($feedback, 'very_satisfactory', 0))];
+        $feedbackRows[] = ['Satisfactory', number_format((int) data_get($feedback, 'satisfactory', 0))];
+        $feedbackRows[] = ['Unsatisfactory', number_format((int) data_get($feedback, 'unsatisfactory', 0))];
+        $feedbackRows[] = ['Total Responses', number_format((int) data_get($feedback, 'total_responses', 0))];
+        $this->writeCsvMetricSection($output, 'Part 3: Feedback Result', $feedbackRows);
+
+        fputcsv($output, ['Part 4: Upload Percentage']);
+        fputcsv($output, ['Uploader Role', 'Uploads', 'Percentage']);
+        $uploadRoles = data_get($report, 'uploads.roles', []);
+        if ($uploadRoles === []) {
+            fputcsv($output, ['No role upload data found.', '', '']);
+        } else {
+            foreach ($uploadRoles as $row) {
+                fputcsv($output, [
+                    data_get($row, 'role', 'Unknown'),
+                    number_format((int) data_get($row, 'count', 0)),
+                    number_format((float) data_get($row, 'percentage', 0), 2).'%',
+                ]);
+            }
+        }
+        fputcsv($output, []);
+        fputcsv($output, ['Upload Source', 'Uploads']);
+        $uploadSources = data_get($report, 'uploads.sources', []);
+        if ($uploadSources === []) {
+            fputcsv($output, ['No uploads found.', '']);
+        } else {
+            foreach ($uploadSources as $row) {
+                fputcsv($output, [
+                    data_get($row, 'source', 'Uploads'),
+                    number_format((int) data_get($row, 'count', 0)),
+                ]);
+            }
+        }
+        fputcsv($output, []);
+
+        $this->writeCsvMetricSection($output, 'Part 5: Announcement Reach', [
+            ['Views', number_format((int) data_get($report, 'announcementReach.views', 0))],
+            ['Unique Viewers', number_format((int) data_get($report, 'announcementReach.unique_viewers', 0))],
+            ['Clicks', number_format((int) data_get($report, 'announcementReach.clicks', 0))],
+            ['CTR', number_format((float) data_get($report, 'announcementReach.ctr_pct', 0), 2).'%'],
+        ]);
+
+        $this->writeCsvMetricSection($output, 'Part 6: Server Health', [
+            ['Server Status', data_get($report, 'serverHealth.status', 'Unavailable')],
+            ['CPU Usage', data_get($report, 'serverHealth.cpu_usage', '--')],
+            ['Memory Usage', data_get($report, 'serverHealth.memory_usage', '--')],
+            ['Last Updated', data_get($report, 'serverHealth.last_updated', '--')],
+        ]);
+
+        if ((string) data_get($report, 'serverHealth.status', 'Unavailable') === 'Unavailable') {
+            fputcsv($output, ['Note', data_get($report, 'serverHealth.message', 'Server health data is temporarily unavailable.')]);
+            fputcsv($output, []);
+        }
 
         fclose($output);
         exit;
@@ -72,20 +137,44 @@ class AnalyticsController extends Controller
     public function exportPdf(Request $request)
     {
         $payload = $this->decodeExportPayload($request);
+        $report = $this->buildExportReport($request, $payload);
 
-        $data = [
-            'total_visitors' => data_get($payload, 'kpis.total_visitors', $request->input('total_visitors', 0)),
-            'avg_duration' => data_get($payload, 'kpis.avg_duration', $request->input('avg_duration', '0m 0s')),
-            'bounce_rate' => data_get($payload, 'kpis.bounce_rate', $request->input('bounce_rate', '0%')),
-            'total_uploads' => data_get($payload, 'upload_analytics.total_uploads', 0),
-
-            'sessions' => data_get($payload, 'user_engagement.sessions', $request->input('sessions', 0)),
-            'pageviews' => data_get($payload, 'user_engagement.pageviews', $request->input('pageviews', 0)),
-            'pages_per_session' => data_get($payload, 'user_engagement.pages_per_session', $request->input('pages_per_session', 0)),
-        ];
+        if ($request->boolean('download_pdf')) {
+            return $this->downloadPdfReport($report);
+        }
 
         return view('superadmin.analytics.print', [
-            'data' => $data,
+            'data' => $report['data'],
+            'feedback' => $report['feedback'],
+            'uploads' => $report['uploads'],
+            'serverHealth' => $report['serverHealth'],
+            'announcementReach' => $report['announcementReach'],
+            'start' => $report['start'],
+            'end' => $report['end'],
+            'generatedAt' => $report['generatedAt'],
+            'downloadPayload' => json_encode($payload, JSON_UNESCAPED_SLASHES),
+        ]);
+    }
+
+    private function decodeExportPayload(Request $request): array
+    {
+        $payload = json_decode((string) $request->input('payload', ''), true);
+
+        return is_array($payload) ? $payload : [];
+    }
+
+    private function buildExportReport(Request $request, array $payload): array
+    {
+        return [
+            'data' => [
+                'total_visitors' => data_get($payload, 'kpis.total_visitors', $request->input('total_visitors', 0)),
+                'avg_duration' => data_get($payload, 'kpis.avg_duration', $request->input('avg_duration', '0m 0s')),
+                'bounce_rate' => data_get($payload, 'kpis.bounce_rate', $request->input('bounce_rate', '0%')),
+                'total_uploads' => data_get($payload, 'upload_analytics.total_uploads', 0),
+                'sessions' => data_get($payload, 'user_engagement.sessions', $request->input('sessions', 0)),
+                'pageviews' => data_get($payload, 'user_engagement.pageviews', $request->input('pageviews', 0)),
+                'pages_per_session' => data_get($payload, 'user_engagement.pages_per_session', $request->input('pages_per_session', 0)),
+            ],
             'feedback' => data_get($payload, 'feedback_results', $this->feedbackDefaults()),
             'uploads' => data_get($payload, 'upload_analytics', $this->uploadDefaults()),
             'serverHealth' => $this->resolveExportServerHealth($payload),
@@ -98,14 +187,7 @@ class AnalyticsController extends Controller
             'start' => $request->input('start', ''),
             'end' => $request->input('end', ''),
             'generatedAt' => now()->format('F d, Y h:i A'),
-        ]);
-    }
-
-    private function decodeExportPayload(Request $request): array
-    {
-        $payload = json_decode((string) $request->input('payload', ''), true);
-
-        return is_array($payload) ? $payload : [];
+        ];
     }
 
     private function resolveExportServerHealth(array $payload): array
@@ -151,6 +233,30 @@ class AnalyticsController extends Controller
         }
 
         return is_numeric($text) ? round((float) $text).'%' : $text;
+    }
+
+    private function downloadPdfReport(array $report)
+    {
+        $pdf = (new AnalyticsPdfBuilder())->build($report);
+        $filename = 'analytics_report_'.now()->format('Ymd_His').'.pdf';
+
+        return response($pdf, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'"',
+            'Content-Length' => (string) strlen($pdf),
+        ]);
+    }
+
+    private function writeCsvMetricSection($output, string $title, array $rows): void
+    {
+        fputcsv($output, [$title]);
+        fputcsv($output, ['Metric', 'Value']);
+
+        foreach ($rows as [$label, $value]) {
+            fputcsv($output, [$label, $value]);
+        }
+
+        fputcsv($output, []);
     }
 
     private function buildAnalyticsPayload(Carbon $startAt, Carbon $endAt): array

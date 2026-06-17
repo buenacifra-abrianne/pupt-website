@@ -162,7 +162,7 @@ class CmsController extends Controller
             'home.updates.description' => ['nullable', 'string'],
             'home.campus_tour' => ['nullable', 'array'],
             'home.campus_tour.avp_video' => ['nullable', 'string', 'max:2048'],
-            'home.campus_tour.avp_video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:102400'],
+            'home.campus_tour.avp_video_file' => ['nullable', 'file', 'mimetypes:video/mp4,video/webm,video/quicktime', 'max:512000'],
             'home.campus_tour.facilities' => ['nullable', 'array', 'max:24'],
             'home.campus_tour.facilities.*.name' => ['nullable', 'string', 'max:255'],
             'home.campus_tour.facilities.*.image' => ['nullable', 'string', 'max:2048'],

@@ -16,6 +16,7 @@ body{
     align-items:center;
     gap:10px;
     margin-bottom:18px;
+    flex-wrap:wrap;
 }
 
 .report-action{
@@ -30,12 +31,6 @@ body{
 .report-action-secondary{
     background:#fff;
     color:#7b0000;
-}
-
-.report-actions-note{
-    margin:0;
-    color:#555;
-    font-size:12px;
 }
 
 .header{
@@ -196,7 +191,7 @@ tr:nth-child(even) td{
     }
 
     function saveReportAsPdf() {
-        window.print();
+        document.getElementById('downloadPdfForm')?.submit();
     }
 </script>
 @php
@@ -228,8 +223,15 @@ tr:nth-child(even) td{
 <div class="report-actions">
     <button class="report-action" type="button" onclick="printReport()">Print Report</button>
     <button class="report-action report-action-secondary" type="button" onclick="saveReportAsPdf()">Save as PDF</button>
-    <p class="report-actions-note">Choose your browser's Save as PDF destination after clicking the PDF button.</p>
 </div>
+
+<form id="downloadPdfForm" method="POST" action="{{ route('superadmin.analytics.exportPdf') }}" style="display:none;">
+    @csrf
+    <input type="hidden" name="start" value="{{ $start }}">
+    <input type="hidden" name="end" value="{{ $end }}">
+    <input type="hidden" name="payload" value="{{ $downloadPayload }}">
+    <input type="hidden" name="download_pdf" value="1">
+</form>
 
 <div class="header">
     <img src="{{ asset('assets/static_img/logo.png') }}" class="logo" alt="PUP Logo">
