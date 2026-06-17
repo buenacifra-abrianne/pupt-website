@@ -1397,7 +1397,9 @@
         function syncAcademicsPreviewImage(sectionKey, cardIndex, src, defaultSrc = '') {
             const normalizedSection = String(sectionKey || '').trim();
             const normalizedIndex = String(cardIndex ?? '').trim();
-            const canTrack = normalizedSection === 'hero' || normalizedIndex !== '';
+            const canTrack = normalizedSection === 'hero'
+                || normalizedSection.endsWith('-hero')
+                || normalizedIndex !== '';
 
             if (!normalizedSection || !canTrack) {
                 return;
@@ -1481,7 +1483,9 @@
                 const dropzone = input.closest('.academics-cms-image-dropzone')
                     || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
-                const label = dropzone;
+                const label = dropzone
+                    || scope.querySelector(`[data-academics-dropzone-for="${input.id}"]`)
+                    || document.querySelector(`[data-academics-dropzone-for="${input.id}"]`);
                 const fileNameEl = dropzone?.querySelector(`[data-academics-file-name-for="${input.id}"]`)
                     || scope.querySelector(`[data-academics-file-name-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-file-name-for="${input.id}"]`);
@@ -1520,6 +1524,17 @@
                     removeButton.hidden = !hasImage;
                 };
 
+                const applyPreviewSource = (src) => {
+                    const nextSrc = String(src || '').trim();
+
+                    if (previewEl && nextSrc !== '') {
+                        previewEl.src = nextSrc;
+                    }
+
+                    syncAcademicsPreviewImage(previewSection, previewCardIndex, nextSrc || previewEl?.src || '', defaultSrc);
+                    syncRemoveState();
+                };
+
                 const applyFile = (file) => {
                     if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
                         URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
@@ -1533,12 +1548,29 @@
 
                     fileNameEl.textContent = `Selected: ${file.name}`;
 
-                    if (previewEl) {
-                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
-                        previewEl.src = input.__academicsPreviewObjectUrl;
+                    if (typeof FileReader === 'function') {
+                        const reader = new FileReader();
+                        reader.addEventListener('load', () => {
+                            applyPreviewSource(typeof reader.result === 'string' ? reader.result : '');
+                        });
+                        reader.addEventListener('error', () => {
+                            if (typeof URL?.createObjectURL === 'function') {
+                                input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
+                                applyPreviewSource(input.__academicsPreviewObjectUrl);
+                                return;
+                            }
+
+                            syncRemoveState();
+                        });
+                        reader.readAsDataURL(file);
+                        return;
                     }
 
-                    syncAcademicsPreviewImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
+                    if (typeof URL?.createObjectURL === 'function') {
+                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
+                        applyPreviewSource(input.__academicsPreviewObjectUrl);
+                        return;
+                    }
 
                     syncRemoveState();
                 };
