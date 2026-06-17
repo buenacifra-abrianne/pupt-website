@@ -343,6 +343,31 @@
             });
         });
 
+        document.querySelectorAll('[data-academics-schedule-card]').forEach((card) => {
+            const cardIndex = Number(card.getAttribute('data-academics-schedule-card-index'));
+            const label = card.getAttribute('data-academics-schedule-card-label') || 'Edit Schedule Item';
+
+            const postScheduleCard = () => {
+                postCardEdit('pup-iapply-schedule', label, cardIndex);
+            };
+
+            card.addEventListener('click', (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                postScheduleCard();
+            });
+
+            card.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') {
+                    return;
+                }
+
+                event.preventDefault();
+                event.stopPropagation();
+                postScheduleCard();
+            });
+        });
+
         document.querySelectorAll('[data-cms-card-delete]').forEach((button) => {
             button.addEventListener('click', (event) => {
                 event.preventDefault();

@@ -873,6 +873,10 @@
         gap: 0;
     }
 
+    .academics-cms-editor-panel.is-title-focus [data-academics-card-stack="pup-iapply-schedule"] {
+        display: none;
+    }
+
     .academics-cms-editor-panel.is-card-focus [data-academics-card-panel-meta],
     .academics-cms-editor-panel.is-card-focus [data-academics-card-editor-head] {
         display: none;
@@ -1363,6 +1367,70 @@
         };
 
         const cardEditorCollections = getCardEditorCollections();
+        const academicsPreviewCardImageState = new Map();
+
+        function getAcademicsPreviewFrames() {
+            return Array.from(document.querySelectorAll('[data-academics-preview-frame]'));
+        }
+
+        function getAcademicsPreviewCardImageKey(sectionKey, cardIndex) {
+            return `${String(sectionKey ?? '').trim()}:${String(cardIndex ?? '').trim()}`;
+        }
+
+        function replayAcademicsPreviewCardImages(frame) {
+            const targetWindow = frame?.contentWindow;
+            if (!targetWindow) {
+                return;
+            }
+
+            academicsPreviewCardImageState.forEach((state) => {
+                targetWindow.postMessage({
+                    type: 'cms-academics-preview-image',
+                    section: state.sectionKey,
+                    cardIndex: state.cardIndex,
+                    src: state.src,
+                    defaultSrc: state.defaultSrc,
+                }, '*');
+            });
+        }
+
+        function syncAcademicsPreviewCardImage(sectionKey, cardIndex, src, defaultSrc = '') {
+            const normalizedSection = String(sectionKey || '').trim();
+            const normalizedIndex = String(cardIndex ?? '').trim();
+            if (!normalizedSection || !normalizedIndex) {
+                return;
+            }
+
+            const nextSrc = String(src || '').trim();
+            const nextDefaultSrc = String(defaultSrc || '').trim();
+            const key = getAcademicsPreviewCardImageKey(normalizedSection, normalizedIndex);
+
+            if (nextSrc && nextSrc !== nextDefaultSrc) {
+                academicsPreviewCardImageState.set(key, {
+                    sectionKey: normalizedSection,
+                    cardIndex: normalizedIndex,
+                    src: nextSrc,
+                    defaultSrc: nextDefaultSrc,
+                });
+            } else {
+                academicsPreviewCardImageState.delete(key);
+            }
+
+            getAcademicsPreviewFrames().forEach((frame) => {
+                const targetWindow = frame.contentWindow;
+                if (!targetWindow) {
+                    return;
+                }
+
+                targetWindow.postMessage({
+                    type: 'cms-academics-preview-image',
+                    section: normalizedSection,
+                    cardIndex: normalizedIndex,
+                    src: nextSrc,
+                    defaultSrc: nextDefaultSrc,
+                }, '*');
+            });
+        }
 
         function bumpEditorVersion(input) {
             if (input) {
@@ -1421,6 +1489,8 @@
                 const removeButton = dropzone?.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || scope.querySelector(`[data-academics-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-academics-clear-image-for="${input.id}"]`);
+                const previewSection = input.closest('[data-academics-page-card-editor]')?.getAttribute('data-academics-page-card-editor') || '';
+                const previewCardIndex = input.closest('[data-academics-page-card-index]')?.getAttribute('data-academics-page-card-index') || '';
                 const imageField = input.dataset.academicsImageFieldId
                     ? document.getElementById(input.dataset.academicsImageFieldId)
                     : (
@@ -1447,6 +1517,11 @@
                 };
 
                 const applyFile = (file) => {
+                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                        input.__academicsPreviewObjectUrl = '';
+                    }
+
                     if (!file) {
                         syncRemoveState();
                         return;
@@ -1455,7 +1530,12 @@
                     fileNameEl.textContent = `Selected: ${file.name}`;
 
                     if (previewEl) {
-                        previewEl.src = URL.createObjectURL(file);
+                        input.__academicsPreviewObjectUrl = URL.createObjectURL(file);
+                        previewEl.src = input.__academicsPreviewObjectUrl;
+                    }
+
+                    if (previewSection === 'contents' && previewCardIndex) {
+                        syncAcademicsPreviewCardImage(previewSection, previewCardIndex, previewEl?.src || '', defaultSrc);
                     }
 
                     syncRemoveState();
@@ -1512,12 +1592,19 @@
                 removeButton?.addEventListener('click', (event) => {
                     event.preventDefault();
                     event.stopPropagation();
+                    if (input.__academicsPreviewObjectUrl && typeof URL?.revokeObjectURL === 'function') {
+                        URL.revokeObjectURL(input.__academicsPreviewObjectUrl);
+                        input.__academicsPreviewObjectUrl = '';
+                    }
                     input.value = '';
                     if (imageField) {
                         imageField.value = '';
                     }
                     if (previewEl && defaultSrc) {
                         previewEl.src = defaultSrc;
+                    }
+                    if (previewSection === 'contents' && previewCardIndex) {
+                        syncAcademicsPreviewCardImage(previewSection, previewCardIndex, defaultSrc, defaultSrc);
                     }
                     fileNameEl.textContent = emptyText;
                     syncRemoveState();
@@ -1787,12 +1874,16 @@
                 const isActive = panel.getAttribute('data-academics-editor-panel') === sectionKey;
                 const hasCardTarget = options.cardIndex !== null && options.cardIndex !== undefined && options.cardIndex !== '';
                 const cardCollection = cardEditorCollections[sectionKey] || null;
+                const isScheduleSection = sectionKey === 'pup-iapply-schedule';
+                const isTitleFocus = Boolean(isActive && isScheduleSection && !hasCardTarget);
                 const isCardFocus = Boolean(cardCollection && hasCardTarget);
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
+                panel.classList.toggle('is-title-focus', isTitleFocus);
 
                 if (isActive) {
                     modal.classList.toggle('is-card-focus', isCardFocus);
+                    modal.classList.toggle('is-title-focus', isTitleFocus);
                     if (title) {
                         title.textContent = label || 'Edit academics section';
                     }
@@ -1802,7 +1893,7 @@
                     }
 
                     let activeCardEditor = null;
-                    if (cardCollection) {
+                    if (cardCollection && !isTitleFocus) {
                         activeCardEditor = setActiveEditor(
                             cardCollection.stack,
                             cardCollection.selector,
@@ -1831,6 +1922,7 @@
 
             modal.hidden = true;
             modal.classList.remove('is-card-focus');
+            modal.classList.remove('is-title-focus');
             document.body.style.overflow = '';
             document.body.classList.remove('cms-editor-modal-open');
         }
@@ -1936,6 +2028,7 @@
 
             frame.addEventListener('load', () => {
                 bindAcademicsPreviewDocument(frame);
+                replayAcademicsPreviewCardImages(frame);
                 queueAcademicsPreviewSettledSync(frame);
                 scheduleFitAllAcademicsPreviews();
                 window.setTimeout(() => scheduleAcademicsPreviewSync(frame), 120);

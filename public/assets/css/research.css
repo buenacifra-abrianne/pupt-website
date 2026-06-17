@@ -299,16 +299,17 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 }
 
 .research-story-layout {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   width: 100%;
   margin: 0;
 }
 
 .research-story-copy {
   min-width: 0;
-  max-width: 1080px;
-  padding-left: 0;
-  padding-right: 0;
+  width: 100%;
+  max-width: none;
 }
 
 .research-story-tag {
@@ -345,7 +346,8 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 
 .research-story-description {
   margin: 0;
-  max-width: 72ch;
+  width: 100%;
+  max-width: none;
   color: rgba(255, 245, 238, 0.9);
   font-size: 0.94rem;
   line-height: 1.7;

@@ -179,10 +179,9 @@ class AcademicsCmsContent
                     'tag' => 'Schedule & Key Dates',
                     'title' => 'Branch Campus - Taguig City',
                     'items' => [
-                        ['label' => 'Online Application', 'value' => 'January 27, 2022 - May 30, 2022', 'href' => ''],
-                        ['label' => 'Last Day of Issuance', 'value' => 'June 15, 2022', 'href' => ''],
-                        ['label' => 'Evaluation Result', 'value' => 'June 15, 2022', 'href' => ''],
-                        ['label' => 'Criteria', 'value' => 'View on Google Drive ↗', 'href' => '#'],
+                        ['label' => 'Online Application', 'value' => '2022-01-27', 'href' => ''],
+                        ['label' => 'Last Day of Issuance', 'value' => '2022-06-15', 'href' => ''],
+                        ['label' => 'Evaluation Result', 'value' => '2022-06-15', 'href' => ''],
                     ],
                 ],
                 'guide' => [
@@ -201,6 +200,13 @@ class AcademicsCmsContent
                         'Wrong entry of information and grades are grounds for disqualification.',
                     ],
                     'body_html' => '<p><strong>Note:</strong> For general admission requirements, please read the Specific Academic Program Criteria.</p><p>Before you apply online, please make sure that you have the following files on your device or USB drive <em>(each file size must not be more than 300 kilobytes / KB)</em>:</p>',
+                    'steps' => [
+                        "Applicant's photo (JPEG file - read photo guidelines)",
+                        'Grades in English, Math, Science and General Weighted Average (GWA) in Grade 10; and Grades in all subjects in Grade 11 and GWA in Grade 11.',
+                        'Scanned Grade 10 Report Card (JPEG file)',
+                        'Scanned Grade 11 Report Card (JPEG file)',
+                        'Report Cards must clearly show your complete name, LRN, grades in English, Math, Science and GWA.',
+                    ],
                     'checklist_items' => [
                         "Applicant's photo (JPEG file - read photo guidelines)",
                         'Grades in English, Math, Science and General Weighted Average (GWA) in Grade 10; and Grades in all subjects in Grade 11 and GWA in Grade 11.',
@@ -580,9 +586,71 @@ class AcademicsCmsContent
             $sourcePage = is_array($source[$pageKey] ?? null) ? $source[$pageKey] : [];
             $basePage = is_array($base[$pageKey] ?? null) ? $base[$pageKey] : $pageDefaults;
             $pages[$pageKey] = self::mergePageTree($sourcePage, $basePage, $pageDefaults);
+
+            if ($pageKey === 'pup-iapply') {
+                $pages[$pageKey]['reminders'] = self::normalizePupIApplyReminders(
+                    is_array($sourcePage['reminders'] ?? null) ? $sourcePage['reminders'] : [],
+                    is_array($basePage['reminders'] ?? null) ? $basePage['reminders'] : (is_array($pageDefaults['reminders'] ?? null) ? $pageDefaults['reminders'] : []),
+                    is_array($pageDefaults['reminders'] ?? null) ? $pageDefaults['reminders'] : []
+                );
+            }
         }
 
         return $pages;
+    }
+
+    private static function normalizePupIApplyReminders(array $source, array $base, array $defaults): array
+    {
+        $noticeDefaults = is_array($defaults['notice_items'] ?? null) ? $defaults['notice_items'] : [];
+        $noticeBase = is_array($base['notice_items'] ?? null) ? $base['notice_items'] : $noticeDefaults;
+        $noticeSource = is_array($source['notice_items'] ?? null) ? $source['notice_items'] : [];
+
+        $stepDefaults = is_array($defaults['steps'] ?? null)
+            ? $defaults['steps']
+            : (is_array($defaults['checklist_items'] ?? null) ? $defaults['checklist_items'] : []);
+        $stepBase = is_array($base['steps'] ?? null)
+            ? $base['steps']
+            : (is_array($base['checklist_items'] ?? null) ? $base['checklist_items'] : $stepDefaults);
+        $stepSource = array_key_exists('steps', $source)
+            ? (is_array($source['steps'] ?? null) ? $source['steps'] : [])
+            : (is_array($source['checklist_items'] ?? null) ? $source['checklist_items'] : []);
+
+        $steps = self::normalizeFixedStringList($stepSource, $stepBase, $stepDefaults, 5, 2048);
+
+        return [
+            'tag' => self::pickString($source, $base, $defaults, 'tag', 120),
+            'title' => self::pickString($source, $base, $defaults, 'title'),
+            'notice_title' => self::pickString($source, $base, $defaults, 'notice_title'),
+            'notice_items' => self::normalizeFixedStringList($noticeSource, $noticeBase, $noticeDefaults, 3, 2048),
+            'body_html' => self::pickString($source, $base, $defaults, 'body_html', 20000),
+            'steps' => $steps,
+            'checklist_items' => $steps,
+        ];
+    }
+
+    private static function normalizeFixedStringList(mixed $source, mixed $base, mixed $defaults, int $count, int $maxLen): array
+    {
+        $sourceItems = array_values(is_array($source) ? $source : []);
+        $baseItems = array_values(is_array($base) ? $base : []);
+        $defaultItems = array_values(is_array($defaults) ? $defaults : []);
+        $items = [];
+
+        for ($index = 0; $index < $count; $index++) {
+            $fallback = (string) ($defaultItems[$index] ?? '');
+            $candidate = $sourceItems[$index] ?? null;
+
+            if ($candidate === null || (is_string($candidate) && trim($candidate) === '')) {
+                $candidate = $baseItems[$index] ?? null;
+            }
+
+            if ($candidate === null || (is_string($candidate) && trim($candidate) === '')) {
+                $candidate = $fallback;
+            }
+
+            $items[] = self::sanitizeString((string) $candidate, $maxLen, $fallback);
+        }
+
+        return $items;
     }
 
     private static function mergePageTree(mixed $source, mixed $base, mixed $defaults): mixed

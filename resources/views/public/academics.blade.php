@@ -104,6 +104,8 @@
                                         <img
                                             src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($item['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                             alt="{{ $item['label'] ?? 'Academics section' }}"
+                                            data-academics-contents-card-image
+                                            data-academics-default-src="{{ \App\Support\AcademicsCmsContent::resolveImagePath($item['image'] ?? '', 'assets/static_img/pupillar.jpeg') }}"
                                         >
                                         <div class="contents-card-copy">
                                             <h3>{{ $item['label'] ?? '' }}</h3>
@@ -593,6 +595,30 @@
                     }, '*');
                 };
 
+                const updateContentsCardImage = (cardIndex, src, defaultSrc = '') => {
+                    const card = document.querySelector(`[data-academics-contents-card][data-academics-contents-index="${cardIndex}"]`);
+                    if (!card) {
+                        return;
+                    }
+
+                    const image = card.querySelector('[data-academics-contents-card-image]') || card.querySelector('.contents-card-front img');
+                    if (!(image instanceof HTMLImageElement)) {
+                        return;
+                    }
+
+                    const nextSrc = String(src || '').trim() || String(defaultSrc || image.dataset.academicsDefaultSrc || image.getAttribute('src') || '').trim();
+                    if (!nextSrc) {
+                        return;
+                    }
+
+                    if (defaultSrc) {
+                        image.dataset.academicsDefaultSrc = defaultSrc;
+                    }
+
+                    image.src = nextSrc;
+                    scheduleSettledPreviewHeight();
+                };
+
                 const schedulePreviewHeight = () => {
                     if (previewHeightFrame !== null) {
                         window.cancelAnimationFrame(previewHeightFrame);
@@ -631,6 +657,19 @@
                         image.addEventListener('error', handleImageSettled, { once: true });
                     });
                 };
+
+                window.addEventListener('message', (event) => {
+                    const data = event.data || {};
+                    if (data.type !== 'cms-academics-preview-image') {
+                        return;
+                    }
+
+                    if ((data.section || '') !== 'contents') {
+                        return;
+                    }
+
+                    updateContentsCardImage(data.cardIndex, data.src, data.defaultSrc);
+                });
 
                 targets.forEach((target) => {
                     const section = target.getAttribute('data-cms-section') || '';

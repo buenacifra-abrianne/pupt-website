@@ -118,6 +118,15 @@
                         <input type="text" name="research[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
                     </div>
 
+                    <div class="form-group">
+                        <label>Hero Description</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'research[page][description]',
+                            'value' => $pageEditor['description'] ?? '',
+                            'placeholder' => 'Write the research and extension page description...',
+                        ])
+                    </div>
+
                     <div class="research-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
@@ -148,11 +157,7 @@
                                 <div class="research-cms-card-editor-head" data-research-card-editor-head>
                                     <div>
                                         <h4>Content {{ $loop->iteration }}</h4>
-                                        <span>{{ $card['title'] ?? '' }}</span>
                                     </div>
-                                    <button type="button" class="btn research-cms-delete-card" data-remove-research-card>
-                                        Delete Content
-                                    </button>
                                 </div>
 
                                 <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-research-image-field>
@@ -223,11 +228,7 @@
                             <div class="research-cms-card-editor-head" data-research-card-editor-head>
                                 <div>
                                     <h4>Content __NUMBER__</h4>
-                                    <span></span>
                                 </div>
-                                <button type="button" class="btn research-cms-delete-card" data-remove-research-card>
-                                    Delete Content
-                                </button>
                             </div>
 
                             <input type="hidden" name="research[cards][__INDEX__][image]" value="" data-research-image-field>
@@ -498,20 +499,6 @@
     .research-cms-card-editor-head span {
         color: #8a7a73;
         font-size: 0.8rem;
-    }
-
-    .research-cms-delete-card {
-        border: none;
-        border-radius: 12px;
-        padding: 0 14px;
-        min-width: 128px;
-        height: 38px;
-        background: rgba(80, 10, 12, 0.96);
-        color: #fffaf4;
-        font-size: 0.82rem;
-        font-weight: 700;
-        cursor: pointer;
-        box-shadow: 0 10px 18px rgba(32, 8, 8, 0.16);
     }
 
     .research-cms-image-dropzone-shell {
@@ -1216,16 +1203,10 @@
             editors.forEach((editor, index) => {
                 const displayNumber = index + 1;
                 const headTitle = editor.querySelector('[data-research-card-editor-head] h4');
-                const headSubtitle = editor.querySelector('[data-research-card-editor-head] span');
-                const titleInput = editor.querySelector('input[name*="[title]"]');
                 const dropzoneTitle = editor.querySelector('.research-cms-image-dropzone-label');
 
                 if (headTitle) {
                     headTitle.textContent = `Content ${displayNumber}`;
-                }
-
-                if (headSubtitle) {
-                    headSubtitle.textContent = String(titleInput?.value || '').trim();
                 }
 
                 if (dropzoneTitle) {
@@ -1252,63 +1233,6 @@
                 bubbles: true,
                 cancelable: true,
             }));
-        };
-
-        const deleteCardByIndex = (cardIndex) => {
-            if (cardIndex === null || cardIndex === undefined) {
-                return false;
-            }
-
-            const targetEditor = modal.querySelector(`[data-research-card-editor][data-research-card-index="${cardIndex}"]`);
-            if (!targetEditor) {
-                return false;
-            }
-
-            targetEditor.remove();
-            bumpCardsVersion();
-            relabelCards();
-            setActiveCardEditor();
-
-            return true;
-        };
-
-        const confirmDeleteCard = async (cardIndex) => {
-            const targetEditor = modal.querySelector(`[data-research-card-editor][data-research-card-index="${cardIndex}"]`);
-            if (!targetEditor) {
-                return;
-            }
-
-            const titleInput = targetEditor.querySelector('input[name*="[title]"]');
-            const cardTitle = String(titleInput?.value || '').trim();
-            let confirmed = false;
-
-            if (typeof window.confirmAction === 'function') {
-                confirmed = await window.confirmAction({
-                    title: 'Delete Content',
-                    message: cardTitle
-                        ? `Do you want to delete "${cardTitle}"?`
-                        : 'Do you want to delete this content item?',
-                    confirmText: 'Delete',
-                    tone: 'danger',
-                });
-            } else {
-                confirmed = window.confirm(
-                    cardTitle
-                        ? `Do you want to delete "${cardTitle}"?`
-                        : 'Do you want to delete this content item?'
-                );
-            }
-
-            if (!confirmed) {
-                return;
-            }
-
-            const deleted = deleteCardByIndex(cardIndex);
-            if (!deleted) {
-                return;
-            }
-
-            submitCardsForm();
         };
 
         const setActiveCardEditor = (cardIndex = null) => {
@@ -1533,27 +1457,6 @@
                 event.preventDefault();
                 addCard();
                 return;
-            }
-
-            const removeTrigger = event.target.closest('[data-remove-research-card]');
-            if (removeTrigger) {
-                event.preventDefault();
-                event.stopPropagation();
-                const editor = removeTrigger.closest('[data-research-card-editor]');
-                if (!editor) {
-                    return;
-                }
-
-                if (editor.getAttribute('data-research-unsaved') === '1') {
-                    editor.remove();
-                    bumpCardsVersion();
-                    relabelCards();
-                    setActiveCardEditor();
-                    return;
-                }
-
-                const cardIndex = editor.getAttribute('data-research-card-index');
-                void confirmDeleteCard(cardIndex === null ? null : Number(cardIndex));
             }
         });
 

@@ -6,7 +6,7 @@ class ResearchCmsContent
 {
     private const DEFAULTS = [
         'page' => [
-            'eyebrow' => 'Research & Extension',
+            'eyebrow' => '',
             'title' => 'Research and Extension',
             'description' => 'Discover the campus initiatives, scholarly work, and community-centered extension programs that connect PUP Taguig with industry, partner institutions, and the wider public.',
             'hero_image' => 'assets/static_img/pupillar.jpeg',

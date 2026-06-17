@@ -5,6 +5,36 @@
     $schedule = is_array($pageData['schedule'] ?? null) ? $pageData['schedule'] : [];
     $guide = is_array($pageData['guide'] ?? null) ? $pageData['guide'] : [];
     $reminders = is_array($pageData['reminders'] ?? null) ? $pageData['reminders'] : [];
+    $iapplySteps = array_values(
+        is_array($reminders['steps'] ?? null)
+            ? $reminders['steps']
+            : (is_array($reminders['checklist_items'] ?? null) ? $reminders['checklist_items'] : [])
+    );
+    $scheduleItems = array_slice(
+        array_values(is_array($schedule['items'] ?? null) ? $schedule['items'] : []),
+        0,
+        3
+    );
+    $scheduleItemLabels = [
+        'Online Application',
+        'Last day of Issuance',
+        'Evaluation Result',
+    ];
+    $formatScheduleDateDisplay = static function (mixed $value): string {
+        $value = trim((string) $value);
+
+        if ($value === '') {
+            return '';
+        }
+
+        if (preg_match('/\b(?:January|February|March|April|May|June|July|August|September|October|November|December)\s+\d{1,2},\s+\d{4}\b/i', $value, $matches)) {
+            $timestamp = strtotime($matches[0]);
+        } else {
+            $timestamp = strtotime($value);
+        }
+
+        return $timestamp ? date('F j, Y', $timestamp) : $value;
+    };
     $applyHref = trim((string) ($hero['cta_href'] ?? ''));
     $applyHref = $applyHref !== '' && $applyHref !== '#' ? $applyHref : 'https://iapply.pup.edu.ph/signin';
     $guideVideoUrl = trim((string) ($guide['video_url'] ?? ''));
@@ -86,27 +116,41 @@
                 </div>
 
                 <div class="iapply-schedule-grid reveal delay-100">
-                    @foreach(($schedule['items'] ?? []) as $item)
+                    @foreach($scheduleItems as $index => $item)
                         @php
-                            $itemLabel = trim((string) ($item['label'] ?? ''));
+                            $itemLabel = $scheduleItemLabels[$index] ?? trim((string) ($item['label'] ?? ''));
                             $itemValue = trim((string) ($item['value'] ?? ''));
                             $itemHref = trim((string) ($item['href'] ?? ''));
+                            $itemDisplayValue = $formatScheduleDateDisplay($itemValue);
                         @endphp
-                        <article class="iapply-schedule-box">
-                            <span class="iapply-schedule-box-label">{{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}</span>
-                            @if($itemHref !== '')
-                                <a
-                                    class="iapply-schedule-box-value"
-                                    href="{{ $itemHref }}"
-                                    @if(!$cmsPreview && preg_match('/^https?:\/\//i', $itemHref) === 1)
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    @endif
-                                >
-                                    {{ $itemValue !== '' ? $itemValue : $itemHref }}
-                                </a>
-                            @else
-                                <span class="iapply-schedule-box-value">{{ $itemValue !== '' ? $itemValue : 'Not specified' }}</span>
+                        <article
+                            class="iapply-schedule-box{{ $itemHref !== '' && $index === 2 ? ' iapply-schedule-box--with-action' : '' }}"
+                            @if($cmsPreview)
+                                data-academics-schedule-card
+                                data-academics-schedule-card-index="{{ $index }}"
+                                data-academics-schedule-card-label="{{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}"
+                                role="button"
+                                tabindex="0"
+                                aria-label="Edit {{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}"
+                            @endif
+                        >
+                            <div class="iapply-schedule-box-content">
+                                <span class="iapply-schedule-box-label">{{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}</span>
+                                <span class="iapply-schedule-box-value">{{ $itemDisplayValue !== '' ? $itemDisplayValue : 'Not specified' }}</span>
+                            </div>
+                            @if($itemHref !== '' && $index === 2)
+                                <div class="iapply-schedule-box-action">
+                                    <a
+                                        class="iapply-schedule-results-btn"
+                                        href="{{ $itemHref }}"
+                                        @if(!$cmsPreview && preg_match('/^https?:\/\//i', $itemHref) === 1)
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        @endif
+                                    >
+                                        View Results
+                                    </a>
+                                </div>
                             @endif
                         </article>
                     @endforeach
@@ -192,7 +236,7 @@
                 </div>
 
                 <ol class="iapply-checklist">
-                    @foreach(($reminders['checklist_items'] ?? []) as $item)
+                    @foreach($iapplySteps as $item)
                         @if(trim((string) $item) !== '')
                             <li>{{ $item }}</li>
                         @endif
