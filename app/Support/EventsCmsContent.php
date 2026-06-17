@@ -157,6 +157,7 @@ class EventsCmsContent
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = is_array($base) ? array_values($base) : [];
         $cards = [];
+        $featuredAlreadyAssigned = false;
 
         foreach ($sourceItems as $index => $item) {
             if (!is_array($item)) {
@@ -199,6 +200,14 @@ class EventsCmsContent
                 && $normalized['event_date'] === ''
             ) {
                 continue;
+            }
+
+            if ($normalized['featured']) {
+                if ($featuredAlreadyAssigned) {
+                    $normalized['featured'] = false;
+                } else {
+                    $featuredAlreadyAssigned = true;
+                }
             }
 
             $cards[] = $normalized;

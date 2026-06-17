@@ -110,6 +110,7 @@
                     <input type="hidden" name="tab_key" value="events">
                     <input type="hidden" name="section_key" value="cards">
                     <input type="hidden" name="events_cards_version" value="0" data-events-cards-version>
+                    <input type="hidden" name="events_active_card_index" value="" data-events-active-card-index>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -219,7 +220,7 @@
                                             </div>
                                         </div>
 
-                                        <label class="events-cms-feature-check">
+                                        <label class="events-cms-feature-check" data-events-feature-check>
                                             <span class="events-cms-feature-switch">
                                                 <input class="events-cms-feature-toggle" type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
                                                 <span class="events-cms-feature-slider" aria-hidden="true"></span>
@@ -227,6 +228,7 @@
                                             <span class="events-cms-feature-copy">
                                                 <strong>Featured Event</strong>
                                                 <small>Pin this card to the highlighted event section.</small>
+                                                <small class="events-cms-feature-note" data-events-feature-note hidden>A featured event already exists. Only one featured event is allowed at a time.</small>
                                             </span>
                                         </label>
 
@@ -347,7 +349,7 @@
                                             </div>
                                         </div>
 
-                                        <label class="events-cms-feature-check">
+                                        <label class="events-cms-feature-check" data-events-feature-check>
                                             <span class="events-cms-feature-switch">
                                                 <input class="events-cms-feature-toggle" type="checkbox" name="events[cards][{{ $index }}][featured]" value="1" @checked(!empty($card['featured']))>
                                                 <span class="events-cms-feature-slider" aria-hidden="true"></span>
@@ -355,6 +357,7 @@
                                             <span class="events-cms-feature-copy">
                                                 <strong>Featured Event</strong>
                                                 <small>Pin this card to the highlighted event section.</small>
+                                                <small class="events-cms-feature-note" data-events-feature-note hidden>A featured event already exists. Only one featured event is allowed at a time.</small>
                                             </span>
                                         </label>
 
@@ -454,7 +457,7 @@
                                 </div>
                             </div>
 
-                            <label class="events-cms-feature-check">
+                            <label class="events-cms-feature-check" data-events-feature-check>
                                 <span class="events-cms-feature-switch">
                                     <input class="events-cms-feature-toggle" type="checkbox" name="events[cards][__INDEX__][featured]" value="1">
                                     <span class="events-cms-feature-slider" aria-hidden="true"></span>
@@ -462,6 +465,7 @@
                                 <span class="events-cms-feature-copy">
                                     <strong>Featured Event</strong>
                                     <small>Pin this card to the highlighted event section.</small>
+                                    <small class="events-cms-feature-note" data-events-feature-note hidden>A featured event already exists. Only one featured event is allowed at a time.</small>
                                 </span>
                             </label>
 
@@ -819,6 +823,11 @@
         user-select: none;
     }
 
+    .events-cms-feature-check.is-locked {
+        opacity: 0.55;
+        cursor: not-allowed;
+    }
+
     .events-cms-feature-switch {
         position: relative;
         display: block;
@@ -923,6 +932,10 @@
         color: #7c6660;
         font-size: 0.8rem;
         line-height: 1.45;
+    }
+
+    .events-cms-feature-copy .events-cms-feature-note {
+        color: #8f1117;
     }
 
     .events-cms-image-dropzone-shell {
@@ -1538,6 +1551,7 @@
         function setActiveEventsCardEditor(targetIndex = null) {
             const cardsPanel = document.querySelector('[data-events-editor-panel="cards"]');
             const stack = cardsPanel?.querySelector('[data-events-card-stack]');
+            const activeIndexField = cardsPanel?.querySelector('[data-events-active-card-index]');
             const editors = Array.from(cardsPanel?.querySelectorAll('[data-events-card-editor]') || []);
 
             if (!editors.length) {
@@ -1566,7 +1580,12 @@
                 stack.dataset.eventsVisibleGroup = editorGroup !== '' ? editorGroup : 'active';
             }
 
+            if (activeIndexField instanceof HTMLInputElement) {
+                activeIndexField.value = activeEditor?.getAttribute('data-events-card-index') || '';
+            }
+
             refreshEventsCardGroups(cardsPanel);
+            syncEventsFeaturedToggles(cardsPanel);
 
             return activeEditor;
         }
@@ -1623,6 +1642,38 @@
 
             form.addEventListener('input', markDirty);
             form.addEventListener('change', markDirty);
+        }
+
+        function syncEventsFeaturedToggles(scope) {
+            const form = scope?.matches?.('[data-events-cards-form]')
+                ? scope
+                : scope?.querySelector?.('[data-events-cards-form]') || document.querySelector('[data-events-cards-form]');
+
+            if (!(form instanceof HTMLElement)) {
+                return;
+            }
+
+            const toggles = Array.from(form.querySelectorAll('.events-cms-feature-toggle'));
+            const checkedToggles = toggles.filter((toggle) => toggle.checked);
+            const activeToggle = checkedToggles[0] || null;
+
+            checkedToggles.slice(1).forEach((toggle) => {
+                toggle.checked = false;
+            });
+
+            toggles.forEach((toggle) => {
+                const wrapper = toggle.closest('[data-events-feature-check]');
+                const note = wrapper?.querySelector('[data-events-feature-note]');
+                const shouldLock = activeToggle !== null && activeToggle !== toggle;
+
+                toggle.disabled = shouldLock;
+                toggle.setAttribute('aria-disabled', shouldLock ? 'true' : 'false');
+                wrapper?.classList.toggle('is-locked', shouldLock);
+
+                if (note instanceof HTMLElement) {
+                    note.hidden = !shouldLock;
+                }
+            });
         }
 
         function getEventsTodayKey(stack) {
@@ -1959,6 +2010,7 @@
             bindEventsCardDateInput(newCard);
             initEventsImageDropzones(newCard);
             moveEventsCardEditorToGroup(newCard);
+            syncEventsFeaturedToggles(form);
 
             markEventsCardsChanged(form);
 
@@ -2250,7 +2302,7 @@
 
         function showEventsValidationToast(message) {
             if (typeof window.showToast === 'function') {
-                window.showToast(message, 'error', 'Required Fields');
+                window.showToast(message, 'warning', 'Missing Details');
                 return;
             }
 
@@ -2327,6 +2379,7 @@
             form.addEventListener('submit', (event) => {
                 if (!validateEventsCardsForm(form)) {
                     event.preventDefault();
+                    event.stopImmediatePropagation();
                     event.stopPropagation();
                     return;
                 }
@@ -2414,7 +2467,13 @@
         const eventsCardsForm = document.querySelector('[data-events-cards-form]');
         initEventsImageDropzones(eventsCardsForm || document);
         bindEventsCardsDirtyTracking(eventsCardsForm);
+        eventsCardsForm?.addEventListener('change', (event) => {
+            if (event.target instanceof HTMLInputElement && event.target.classList.contains('events-cms-feature-toggle')) {
+                syncEventsFeaturedToggles(eventsCardsForm);
+            }
+        });
         refreshEventsCardGroups(eventsCardsForm);
+        syncEventsFeaturedToggles(eventsCardsForm);
         scheduleFitAllEventsPreviews();
         window.__eventsCmsPreviewEditorReady = true;
     })();

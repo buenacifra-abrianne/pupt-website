@@ -9,6 +9,7 @@ use App\Support\AuditLog;
 use App\Support\CmsSections;
 use App\Support\CmsUploadLimits;
 use App\Support\DownloadableFile;
+use App\Support\EventsCmsCardValidation;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use App\Support\ImageStorage;
@@ -923,6 +924,20 @@ class CmsController extends Controller
                         $eventsInput['cards'][$index]['image'] = $storedPath;
                     }
                 }
+            }
+
+            $eventsErrors = EventsCmsCardValidation::validateCardsSubmission(
+                $eventsInput['cards'] ?? [],
+                $request->filled('events_active_card_index') ? (int) $request->input('events_active_card_index') : null
+            );
+            if ($eventsErrors !== []) {
+                $firstMessage = collect($eventsErrors)->flatten()->first() ?: 'Please complete the required event fields.';
+
+                return response()->json([
+                    'ok' => false,
+                    'message' => $firstMessage,
+                    'errors' => $eventsErrors,
+                ], 422);
             }
 
             $content = EventsCmsContent::encode(
