@@ -1480,6 +1480,7 @@ async function postJSON(url, data) {
 
     const start=document.getElementById('analyticsStart')?.value || '';
     const end=document.getElementById('analyticsEnd')?.value || '';
+    const exportPayload = buildAnalyticsExportPayload();
 
     const payload={
         start:start,
@@ -1492,6 +1493,7 @@ async function postJSON(url, data) {
         sessions:document.getElementById('engSessions')?.textContent || 0,
         pageviews:document.getElementById('engPageviews')?.textContent || 0,
         pages_per_session:document.getElementById('engPagesPerSession')?.textContent || 0,
+        payload: JSON.stringify(exportPayload),
     };
 
     let url='';
@@ -1536,20 +1538,21 @@ async function postJSON(url, data) {
     form.submit();
 }
 
-function exportPdf() {
-  if (!hasAnalyticsExportContent()) {
-    showToast("No analytics content found to export.", 'warning', 'No Changes');
-    return;
-  }
+function readExportServerHealth() {
+  return {
+    status: document.getElementById('serverHealthStatus')?.textContent?.trim() || 'Unavailable',
+    cpu_usage: document.getElementById('serverHealthCpu')?.textContent?.trim() || '--',
+    memory_usage: document.getElementById('serverHealthMemory')?.textContent?.trim() || '--',
+    last_updated: document.getElementById('serverHealthUpdated')?.textContent?.trim() || '--',
+  };
+}
 
-  // grab date range currently used
-  const start = document.getElementById('analyticsStart')?.value || '';
-  const end   = document.getElementById('analyticsEnd')?.value || '';
-
-  // ✅ grab EXACT numbers already shown on screen
+function buildAnalyticsExportPayload() {
   const latestPayload = window.latestAnalyticsPayload || {};
 
-  const payload = {
+  // Use the current on-screen analytics values for export consistency.
+
+  return {
     ...latestPayload,
     kpis: {
       total_visitors: document.getElementById('kpiVisitors')?.textContent?.trim() || '0',
@@ -1564,7 +1567,24 @@ function exportPdf() {
     feedback_results: latestPayload.feedback_results || {},
     upload_analytics: latestPayload.upload_analytics || {},
     announcement_reach: latestPayload.announcement_reach || {},
+    server_health: readExportServerHealth(),
   };
+}
+
+function exportPdf() {
+  if (!hasAnalyticsExportContent()) {
+    showToast("No analytics content found to export.", 'warning', 'No Changes');
+    return;
+  }
+
+  // grab date range currently used
+  const start = document.getElementById('analyticsStart')?.value || '';
+  const end   = document.getElementById('analyticsEnd')?.value || '';
+
+  // ✅ grab EXACT numbers already shown on screen
+  // Use the current on-screen analytics values for export consistency.
+
+  const payload = buildAnalyticsExportPayload();
 
   document.getElementById('exp_start').value = start;
   document.getElementById('exp_end').value = end;

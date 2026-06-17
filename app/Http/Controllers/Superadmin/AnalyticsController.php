@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Services\CloudWatchService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -10,6 +11,11 @@ use Illuminate\Support\Facades\Schema;
 
 class AnalyticsController extends Controller
 {
+    public function __construct(
+        private readonly CloudWatchService $cloudWatchService
+    ) {
+    }
+
     public function superadminApi(Request $request)
     {
         try {
@@ -35,6 +41,8 @@ class AnalyticsController extends Controller
     public function exportExcel(Request $request)
     {
         $filename = 'analytics_report_'.now()->format('Ymd_His').'.csv';
+        $payload = $this->decodeExportPayload($request);
+        $serverHealth = $this->resolveExportServerHealth($payload);
 
         header('Content-Type: text/csv');
         header('Content-Disposition: attachment; filename="'.$filename.'"');
@@ -50,6 +58,12 @@ class AnalyticsController extends Controller
         fputcsv($output, ['Sessions', $request->input('sessions', 0)]);
         fputcsv($output, ['Page views', $request->input('pageviews', 0)]);
         fputcsv($output, ['Pages per Session', $request->input('pages_per_session', 0)]);
+        fputcsv($output, []);
+        fputcsv($output, ['Server Health', 'Value']);
+        fputcsv($output, ['Server Status', $serverHealth['status']]);
+        fputcsv($output, ['CPU Usage', $serverHealth['cpu_usage']]);
+        fputcsv($output, ['Memory Usage', $serverHealth['memory_usage']]);
+        fputcsv($output, ['Last Updated', $serverHealth['last_updated']]);
 
         fclose($output);
         exit;
@@ -57,10 +71,7 @@ class AnalyticsController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $payload = json_decode((string) $request->input('payload', ''), true);
-        if (! is_array($payload)) {
-            $payload = [];
-        }
+        $payload = $this->decodeExportPayload($request);
 
         $data = [
             'total_visitors' => data_get($payload, 'kpis.total_visitors', $request->input('total_visitors', 0)),
@@ -77,6 +88,7 @@ class AnalyticsController extends Controller
             'data' => $data,
             'feedback' => data_get($payload, 'feedback_results', $this->feedbackDefaults()),
             'uploads' => data_get($payload, 'upload_analytics', $this->uploadDefaults()),
+            'serverHealth' => $this->resolveExportServerHealth($payload),
             'announcementReach' => data_get($payload, 'announcement_reach', [
                 'views' => 0,
                 'unique_viewers' => 0,
@@ -87,6 +99,58 @@ class AnalyticsController extends Controller
             'end' => $request->input('end', ''),
             'generatedAt' => now()->format('F d, Y h:i A'),
         ]);
+    }
+
+    private function decodeExportPayload(Request $request): array
+    {
+        $payload = json_decode((string) $request->input('payload', ''), true);
+
+        return is_array($payload) ? $payload : [];
+    }
+
+    private function resolveExportServerHealth(array $payload): array
+    {
+        $serverHealth = data_get($payload, 'server_health');
+
+        if (! is_array($serverHealth)) {
+            $serverHealth = $this->cloudWatchService->getServerHealth();
+        }
+
+        return $this->normalizeServerHealth($serverHealth);
+    }
+
+    private function normalizeServerHealth(array $serverHealth): array
+    {
+        $status = trim((string) data_get($serverHealth, 'status', ''));
+        $lastUpdated = trim((string) data_get($serverHealth, 'last_updated', ''));
+        $message = trim((string) data_get($serverHealth, 'message', ''));
+
+        return [
+            'status' => $status !== '' ? $status : 'Unavailable',
+            'cpu_usage' => $this->formatServerHealthMetric(data_get($serverHealth, 'cpu_usage')),
+            'memory_usage' => $this->formatServerHealthMetric(data_get($serverHealth, 'memory_usage')),
+            'last_updated' => $lastUpdated !== '' ? $lastUpdated : '--',
+            'message' => $message !== '' ? $message : 'Server health data is temporarily unavailable.',
+        ];
+    }
+
+    private function formatServerHealthMetric(mixed $value): string
+    {
+        if (is_numeric($value)) {
+            return round((float) $value).'%';
+        }
+
+        $text = trim((string) $value);
+
+        if ($text === '') {
+            return '--';
+        }
+
+        if (str_ends_with($text, '%')) {
+            return $text;
+        }
+
+        return is_numeric($text) ? round((float) $text).'%' : $text;
     }
 
     private function buildAnalyticsPayload(Carbon $startAt, Carbon $endAt): array

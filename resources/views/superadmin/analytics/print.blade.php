@@ -11,13 +11,31 @@ body{
     font-size:13px;
 }
 
-.print-btn{
+.report-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
     margin-bottom:18px;
+}
+
+.report-action{
     padding:8px 14px;
-    border:none;
+    border:1px solid #7b0000;
     background:#7b0000;
     color:white;
     cursor:pointer;
+    font-size:13px;
+}
+
+.report-action-secondary{
+    background:#fff;
+    color:#7b0000;
+}
+
+.report-actions-note{
+    margin:0;
+    color:#555;
+    font-size:12px;
 }
 
 .header{
@@ -150,7 +168,7 @@ tr:nth-child(even) td{
 }
 
 @media print{
-    .print-btn{
+    .report-actions{
         display:none;
     }
 
@@ -173,17 +191,13 @@ tr:nth-child(even) td{
 
 <body>
 <script>
-    window.addEventListener('load', () => {
-        window.setTimeout(() => {
-            window.print();
-        }, 250);
-    });
+    function printReport() {
+        window.print();
+    }
 
-    window.addEventListener('afterprint', () => {
-        if (window.opener && !window.closed) {
-            window.close();
-        }
-    });
+    function saveReportAsPdf() {
+        window.print();
+    }
 </script>
 @php
     $feedbackRows = [
@@ -208,9 +222,14 @@ tr:nth-child(even) td{
 
     $uploadRoles = data_get($uploads, 'roles', []);
     $uploadSources = data_get($uploads, 'sources', []);
+    $serverHealthStatus = data_get($serverHealth, 'status', 'Unavailable');
 @endphp
 
-<button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+<div class="report-actions">
+    <button class="report-action" type="button" onclick="printReport()">Print Report</button>
+    <button class="report-action report-action-secondary" type="button" onclick="saveReportAsPdf()">Save as PDF</button>
+    <p class="report-actions-note">Choose your browser's Save as PDF destination after clicking the PDF button.</p>
+</div>
 
 <div class="header">
     <img src="{{ asset('assets/static_img/logo.png') }}" class="logo" alt="PUP Logo">
@@ -374,6 +393,35 @@ tr:nth-child(even) td{
             <td>{{ number_format((float) data_get($announcementReach, 'ctr_pct', 0), 2) }}%</td>
         </tr>
     </table>
+</div>
+
+<div class="section">
+    <h2>Part 6: Server Health</h2>
+    <table>
+        <tr>
+            <th>Metric</th>
+            <th>Value</th>
+        </tr>
+        <tr>
+            <td>Server Status</td>
+            <td>{{ $serverHealthStatus }}</td>
+        </tr>
+        <tr>
+            <td>CPU Usage</td>
+            <td>{{ data_get($serverHealth, 'cpu_usage', '--') }}</td>
+        </tr>
+        <tr>
+            <td>Memory Usage</td>
+            <td>{{ data_get($serverHealth, 'memory_usage', '--') }}</td>
+        </tr>
+        <tr>
+            <td>Last Updated</td>
+            <td>{{ data_get($serverHealth, 'last_updated', '--') }}</td>
+        </tr>
+    </table>
+    @if ($serverHealthStatus === 'Unavailable')
+        <p class="muted">{{ data_get($serverHealth, 'message', 'Server health data is temporarily unavailable.') }}</p>
+    @endif
 </div>
 
 <div class="report-footer">
