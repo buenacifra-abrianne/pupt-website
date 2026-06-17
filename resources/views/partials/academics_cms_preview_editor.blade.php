@@ -744,7 +744,18 @@
     }
 
     .academics-cms-image-dropzone-input {
-        display: none;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        clip-path: inset(50%);
+        white-space: nowrap;
+        border: 0;
+        opacity: 0;
+        pointer-events: none;
     }
 
     .academics-cms-image-dropzone-remove {
@@ -1468,8 +1479,54 @@
             form.addEventListener('change', markDirty);
         }
 
+        function warnAcademicsDropzoneMissing(input, part) {
+            console.warn('Academics CMS image dropzone is missing a required element.', {
+                inputId: input?.id || '',
+                part,
+            });
+        }
+
+        function resetAcademicsImageDropzones(scope = document) {
+            scope.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
+                if (!(input instanceof HTMLInputElement) || input.dataset.academicsDropzoneBound !== '1') {
+                    return;
+                }
+
+                const replacement = input.cloneNode(true);
+                input.replaceWith(replacement);
+            });
+        }
+
+        function requestAcademicsFilePicker(input, event) {
+            if (!(input instanceof HTMLInputElement)) {
+                return;
+            }
+
+            if (!event || event.isTrusted !== true) {
+                return;
+            }
+
+            if (input.dataset.academicsPickerOpening === '1') {
+                return;
+            }
+
+            input.dataset.academicsPickerOpening = '1';
+
+            try {
+                input.click();
+            } finally {
+                window.setTimeout(() => {
+                    delete input.dataset.academicsPickerOpening;
+                }, 0);
+            }
+        }
+
         function initAcademicsImageDropzones(scope = document) {
             scope.querySelectorAll('.academics-cms-image-dropzone-input').forEach((input) => {
+                if (!(input instanceof HTMLInputElement)) {
+                    return;
+                }
+
                 if (input.dataset.academicsDropzoneBound === '1') {
                     return;
                 }
@@ -1494,8 +1551,26 @@
                         || null
                     );
 
-                if (!label || !fileNameEl) {
+                if (!label) {
+                    warnAcademicsDropzoneMissing(input, 'label');
                     return;
+                }
+
+                if (!fileNameEl) {
+                    warnAcademicsDropzoneMissing(input, 'fileNameEl');
+                    return;
+                }
+
+                if (!previewEl) {
+                    warnAcademicsDropzoneMissing(input, 'previewEl');
+                }
+
+                if (!removeButton) {
+                    warnAcademicsDropzoneMissing(input, 'removeButton');
+                }
+
+                if (!imageField) {
+                    warnAcademicsDropzoneMissing(input, 'imageField');
                 }
 
                 input.dataset.academicsDropzoneBound = '1';
@@ -1536,7 +1611,7 @@
                         return;
                     }
 
-                    input.click();
+                    requestAcademicsFilePicker(input, event);
                 });
 
                 label.addEventListener('keydown', (event) => {
@@ -1545,7 +1620,7 @@
                     }
 
                     event.preventDefault();
-                    input.click();
+                    requestAcademicsFilePicker(input, event);
                 });
 
                 label.addEventListener('dragover', (event) => {
@@ -1625,6 +1700,7 @@
         }
 
         window.__rebindAcademicsCmsPreviewEditor = () => {
+            resetAcademicsImageDropzones(document);
             initAcademicsImageDropzones(document);
             initAcademicsCharCounters(document);
         };
