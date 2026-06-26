@@ -1550,6 +1550,24 @@
             parts.removeButton.hidden = !hasImage;
         }
 
+        async function prepareAcademicsImageFile(input, file) {
+            if (!file || !window.CmsImageEditor) {
+                return file;
+            }
+
+            const parts = resolveAcademicsDropzone(input);
+            const editedFile = await window.CmsImageEditor.editFile(file, {
+                input,
+                previewElement: parts?.previewEl || null,
+            });
+
+            if (editedFile && editedFile !== file) {
+                window.CmsImageEditor.setInputFile(input, editedFile);
+            }
+
+            return editedFile;
+        }
+
         function applyAcademicsDropzoneFile(input, file) {
             const parts = resolveAcademicsDropzone(input);
             if (!parts) {
@@ -1665,13 +1683,17 @@
 
             academicsDropzoneDelegationRoots.add(root);
 
-            root.addEventListener('change', (event) => {
+            root.addEventListener('change', async (event) => {
                 const input = event.target;
                 if (!(input instanceof HTMLInputElement) || !input.classList.contains('academics-cms-image-dropzone-input')) {
                     return;
                 }
 
-                applyAcademicsDropzoneFile(input, input.files && input.files[0] ? input.files[0] : null);
+                const file = await prepareAcademicsImageFile(input, input.files && input.files[0] ? input.files[0] : null);
+                if (!file) {
+                    input.value = '';
+                }
+                applyAcademicsDropzoneFile(input, file);
             });
 
             root.addEventListener('click', (event) => {
@@ -1735,7 +1757,7 @@
                 }
             });
 
-            root.addEventListener('drop', (event) => {
+            root.addEventListener('drop', async (event) => {
                 const dropzone = event.target.closest('[data-academics-dropzone-for]');
                 if (!dropzone) {
                     return;
@@ -1750,13 +1772,15 @@
                     return;
                 }
 
-                if (typeof DataTransfer === 'function') {
-                    const transfer = new DataTransfer();
-                    transfer.items.add(file);
-                    input.files = transfer.files;
+                const editedFile = await prepareAcademicsImageFile(input, file);
+                if (!editedFile) {
+                    input.value = '';
+                    applyAcademicsDropzoneFile(input, null);
+                    return;
                 }
 
-                applyAcademicsDropzoneFile(input, file);
+                window.CmsImageEditor?.setInputFile(input, editedFile);
+                applyAcademicsDropzoneFile(input, editedFile);
             });
         }
 

@@ -1152,6 +1152,23 @@
                     removeButton.hidden = !hasImage;
                 };
 
+                const prepareImageFile = async (file) => {
+                    if (!file || !window.CmsImageEditor) {
+                        return file;
+                    }
+
+                    const editedFile = await window.CmsImageEditor.editFile(file, {
+                        input,
+                        previewElement: previewEl,
+                    });
+
+                    if (editedFile && editedFile !== file) {
+                        window.CmsImageEditor.setInputFile(input, editedFile);
+                    }
+
+                    return editedFile;
+                };
+
                 const applyFile = (file) => {
                     if (!file) {
                         syncRemoveState();
@@ -1163,8 +1180,12 @@
                     syncRemoveState();
                 };
 
-                input.addEventListener('change', () => {
-                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                input.addEventListener('change', async () => {
+                    const file = await prepareImageFile(input.files && input.files[0] ? input.files[0] : null);
+                    if (!file) {
+                        input.value = '';
+                    }
+                    applyFile(file);
                 });
 
                 dropzone.addEventListener('dragover', (event) => {
@@ -1176,7 +1197,7 @@
                     dropzone.classList.remove('dragover');
                 });
 
-                dropzone.addEventListener('drop', (event) => {
+                dropzone.addEventListener('drop', async (event) => {
                     event.preventDefault();
                     dropzone.classList.remove('dragover');
 
@@ -1185,10 +1206,15 @@
                         return;
                     }
 
-                    const transfer = new DataTransfer();
-                    transfer.items.add(file);
-                    input.files = transfer.files;
-                    applyFile(file);
+                    const editedFile = await prepareImageFile(file);
+                    if (!editedFile) {
+                        input.value = '';
+                        applyFile(null);
+                        return;
+                    }
+
+                    window.CmsImageEditor?.setInputFile(input, editedFile);
+                    applyFile(editedFile);
                 });
 
                 removeButton?.addEventListener('click', (event) => {
@@ -1242,6 +1268,23 @@
                     removeButton.hidden = !hasImage;
                 };
 
+                const prepareImageFile = async (file) => {
+                    if (!file || !window.CmsImageEditor) {
+                        return file;
+                    }
+
+                    const editedFile = await window.CmsImageEditor.editFile(file, {
+                        input,
+                        previewElement: previewEl,
+                    });
+
+                    if (editedFile && editedFile !== file) {
+                        window.CmsImageEditor.setInputFile(input, editedFile);
+                    }
+
+                    return editedFile;
+                };
+
                 const applyFile = (file) => {
                     if (!file) {
                         syncRemoveState();
@@ -1253,8 +1296,12 @@
                     syncRemoveState();
                 };
 
-                input.addEventListener('change', () => {
-                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                input.addEventListener('change', async () => {
+                    const file = await prepareImageFile(input.files && input.files[0] ? input.files[0] : null);
+                    if (!file) {
+                        input.value = '';
+                    }
+                    applyFile(file);
                 });
 
                 dropzone.addEventListener('dragover', (event) => {
@@ -1266,7 +1313,7 @@
                     dropzone.classList.remove('dragover');
                 });
 
-                dropzone.addEventListener('drop', (event) => {
+                dropzone.addEventListener('drop', async (event) => {
                     event.preventDefault();
                     dropzone.classList.remove('dragover');
 
@@ -1275,10 +1322,15 @@
                         return;
                     }
 
-                    const transfer = new DataTransfer();
-                    transfer.items.add(file);
-                    input.files = transfer.files;
-                    applyFile(file);
+                    const editedFile = await prepareImageFile(file);
+                    if (!editedFile) {
+                        input.value = '';
+                        applyFile(null);
+                        return;
+                    }
+
+                    window.CmsImageEditor?.setInputFile(input, editedFile);
+                    applyFile(editedFile);
                 });
 
                 removeButton?.addEventListener('click', (event) => {

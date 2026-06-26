@@ -1,3 +1,5 @@
+@include('partials.cms_image_editor_assets')
+
 <style>
     :root {
         --cms-modal-viewport-height: 100vh;

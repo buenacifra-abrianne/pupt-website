@@ -2252,6 +2252,10 @@
         max-width: 640px;
     }
 
+    .about-cms-modal.is-official-card-focus .about-cms-editor-panel[data-about-editor-panel="campus-officials"] > form > .form-group:first-of-type {
+        display: none;
+    }
+
     .about-cms-editor-panel[data-about-editor-panel="logo-and-symbols"].is-card-focus form {
         max-width: 980px;
     }
@@ -2319,7 +2323,7 @@
 
     .about-cms-modal.is-chart-focus .about-cms-image-dropzone {
         grid-template-columns: minmax(0, 1fr);
-        gap: 0;
+        gap: 14px;
         padding: 12px;
         border-color: rgba(127, 17, 19, 0.28);
         background: linear-gradient(180deg, #fffaf2 0%, #fff4eb 100%);
@@ -2346,7 +2350,84 @@
     }
 
     .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload {
-        display: none;
+        display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas:
+            "icon title button"
+            "icon copy button"
+            "icon file button";
+        align-items: center;
+        justify-items: center;
+        column-gap: 16px;
+        row-gap: 2px;
+        width: 100%;
+        min-height: 0;
+        padding: 14px 16px;
+        border: 0;
+        border-radius: 14px;
+        background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
+        color: #f8f4ef;
+        text-align: center;
+        box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-icon {
+        grid-area: icon;
+        width: 44px;
+        height: 44px;
+        background: rgba(73, 8, 13, 0.42);
+        color: #f2f0ed;
+        font-size: 1.05rem;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload-title {
+        grid-area: title;
+        color: #fff8f1;
+        font-size: 0.92rem;
+        font-weight: 800;
+        line-height: 1.25;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload-copy {
+        grid-area: copy;
+        max-width: 640px;
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.78rem;
+        line-height: 1.35;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload-button {
+        grid-area: button;
+        justify-self: end;
+        min-height: 40px;
+        padding: 0 18px;
+        background: #fff8f1;
+        color: #1b1714;
+        box-shadow: none;
+    }
+
+    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-file {
+        grid-area: file;
+        max-width: 640px;
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 0.74rem;
+        line-height: 1.35;
+    }
+
+    @media (max-width: 720px) {
+        .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload {
+            grid-template-columns: auto minmax(0, 1fr);
+            grid-template-areas:
+                "icon title"
+                "icon copy"
+                "icon file"
+                "button button";
+            justify-items: center;
+        }
+
+        .about-cms-modal.is-chart-focus .about-cms-image-dropzone-upload-button {
+            justify-self: center;
+        }
     }
 
     .about-cms-modal.is-chart-focus .about-cms-image-dropzone-remove {
@@ -4647,6 +4728,23 @@
                     removeButton.hidden = !hasImage;
                 };
 
+                const prepareImageFile = async (file) => {
+                    if (!file || !window.CmsImageEditor) {
+                        return file;
+                    }
+
+                    const editedFile = await window.CmsImageEditor.editFile(file, {
+                        input,
+                        previewElement: previewEl,
+                    });
+
+                    if (editedFile && editedFile !== file) {
+                        window.CmsImageEditor.setInputFile(input, editedFile);
+                    }
+
+                    return editedFile;
+                };
+
                 const applyFile = (file) => {
                     if (!file) {
                         syncRemoveState();
@@ -4663,8 +4761,12 @@
                     syncRemoveState();
                 };
 
-                input.addEventListener('change', () => {
-                    applyFile(input.files && input.files[0] ? input.files[0] : null);
+                input.addEventListener('change', async () => {
+                    const file = await prepareImageFile(input.files && input.files[0] ? input.files[0] : null);
+                    if (!file) {
+                        input.value = '';
+                    }
+                    applyFile(file);
                 });
 
                 label.addEventListener('click', (event) => {
@@ -4693,7 +4795,7 @@
                     label.classList.remove('dragover');
                 });
 
-                label.addEventListener('drop', (event) => {
+                label.addEventListener('drop', async (event) => {
                     event.preventDefault();
                     label.classList.remove('dragover');
 
@@ -4702,10 +4804,15 @@
                         return;
                     }
 
-                    const transfer = new DataTransfer();
-                    transfer.items.add(file);
-                    input.files = transfer.files;
-                    applyFile(file);
+                    const editedFile = await prepareImageFile(file);
+                    if (!editedFile) {
+                        input.value = '';
+                        applyFile(null);
+                        return;
+                    }
+
+                    window.CmsImageEditor?.setInputFile(input, editedFile);
+                    applyFile(editedFile);
                 });
 
                 removeButton?.addEventListener('click', (event) => {

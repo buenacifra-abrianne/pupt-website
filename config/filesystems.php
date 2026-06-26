@@ -28,7 +28,7 @@ return [
 
     'image_disk' => env(
         'FILESYSTEM_IMAGE_DISK',
-        env('APP_ENV', 'production') === 'local' ? 'public' : 's3'
+        's3'
     ),
 
     'image_fallback_disk' => env('FILESYSTEM_IMAGE_FALLBACK_DISK', 'public'),
