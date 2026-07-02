@@ -222,7 +222,10 @@ function cancelEdit(blockKey) {
 async function handleImageUpload(sectionId, input) {
   if (!input?.files?.[0]) return;
 
-  const file = input.files[0];
+  const previewElement = document.getElementById(sectionId + "ImagePreview")?.querySelector('img') || null;
+  const file = await prepareCmsImageInputFile(input, previewElement);
+  if (!file) return;
+
   const form = new FormData();
   form.append("block_key", sectionId);
   form.append("image", file);
@@ -621,7 +624,8 @@ async function saveAddEvent() {
   const category = document.getElementById("addEventCategory").value;
   const short_description = document.getElementById("addEventShortDesc").value.trim();
   const full_description = document.getElementById("addEventFullDesc").value.trim();
-  const imageFile = document.getElementById("addEventImageFile").files[0];
+  const imageInput = document.getElementById("addEventImageFile");
+  const imageFile = await prepareCmsImageInputFile(imageInput);
 
   if (!title) return showToast("Title is required.");
   if (!event_date) return showToast("Date is required.");
@@ -727,7 +731,8 @@ async function saveEventEdit() {
   const short_description = document.getElementById("editEventShortDescription").value.trim();
   const full_description = document.getElementById("editEventFullDescription").value.trim();
 
-  const imageFile = document.getElementById("editEventImageFile").files[0];
+  const imageInput = document.getElementById("editEventImageFile");
+  const imageFile = await prepareCmsImageInputFile(imageInput);
 
   if (!title || !event_date || !full_description) {
     showToast("Please fill: Title, Date, Full Description.");
@@ -856,8 +861,35 @@ function cancelPortalEdit(id, type, field) {
     delete originalValues[fieldId];
 }
 
-function handlePortalImageUpload(id, type, input) {
+async function prepareCmsImageInputFile(input, previewElement = null) {
+    const file = input?.files?.[0] || null;
+
+    if (!file || !file.type?.startsWith('image/')) {
+        return file;
+    }
+
+    const selectedFile = window.CmsImageEditor
+        ? await window.CmsImageEditor.editFile(file, { input, previewElement })
+        : file;
+
+    if (!selectedFile) {
+        if (input) input.value = '';
+        return null;
+    }
+
+    if (window.CmsImageEditor && selectedFile !== file) {
+        window.CmsImageEditor.setInputFile(input, selectedFile);
+    }
+
+    return selectedFile;
+}
+
+async function handlePortalImageUpload(id, type, input) {
     if (input.files && input.files[0]) {
+        const previewElement = document.getElementById(`${type}Portal${id}ImagePreview`)?.querySelector('img') || null;
+        const selectedFile = await prepareCmsImageInputFile(input, previewElement);
+        if (!selectedFile) return;
+
         const reader = new FileReader();
         reader.onload = function(e) {
             const portalData = type === 'student' ? studentPortalsData : servicePortalsData;
@@ -875,7 +907,7 @@ function handlePortalImageUpload(id, type, input) {
                 showSuccess();
             }
         };
-        reader.readAsDataURL(input.files[0]);
+        reader.readAsDataURL(selectedFile);
     }
 }
 
@@ -1242,6 +1274,8 @@ async function deletePortalDb(portalId, type) {
 
 async function uploadPortalImageDb(portalId, type, input) {
   if (!input?.files?.[0]) return;
+  const imageFile = await prepareCmsImageInputFile(input);
+  if (!imageFile) return;
 
   const form = new FormData();
   form.append("action", "update");
@@ -1252,7 +1286,7 @@ async function uploadPortalImageDb(portalId, type, input) {
   form.append("title", "");        // your API should handle empty by keeping existing OR you must send current
   form.append("description", "");  // same as above
   form.append("link_url", "");
-  form.append("image", input.files[0]);
+  form.append("image", imageFile);
 
   const res = await fetch(PORTALS_API, { method: "POST", body: form });
   const data = await res.json();
@@ -1263,25 +1297,6 @@ async function uploadPortalImageDb(portalId, type, input) {
   }
 
   showSuccess("Portal image updated!");
-  loadPortals(type);
-}
-
-async function deletePortalImageDb(portalId, type) {
-  // easiest: implement an action in PHP like action=clear_image
-  const form = new FormData();
-  form.append("action", "clear_image");
-  form.append("type", type);
-  form.append("portal_id", portalId);
-
-  const res = await fetch(PORTALS_API, { method: "POST", body: form });
-  const data = await res.json();
-
-  if (!data.ok) {
-    showToast(data.message || "Failed to delete image.");
-    return;
-  }
-
-  showSuccess("Portal image deleted!");
   loadPortals(type);
 }
 
@@ -1304,7 +1319,8 @@ async function saveAddPortalDb() {
   const title = document.getElementById("addPortalTitle").value.trim();
   const description = document.getElementById("addPortalDescription").value.trim();
   const link_url = document.getElementById("addPortalUrl").value.trim();
-  const imageFile = document.getElementById("addPortalImage").files[0];
+  const imageInput = document.getElementById("addPortalImage");
+  const imageFile = await prepareCmsImageInputFile(imageInput);
 
   if (!title) return showToast("Title is required.");
   if (!description) return showToast("Description is required.");
@@ -1400,7 +1416,9 @@ async function savePortalEditDb() {
   const title = document.getElementById("editPortalTitle").value.trim();
   const description = document.getElementById("editPortalDescription").value.trim();
   const link_url = document.getElementById("editPortalUrl").value.trim();
-  const imageFile = document.getElementById("editPortalImageFile").files[0];
+  const imageInput = document.getElementById("editPortalImageFile");
+  const previewElement = document.getElementById("editPortalImagePreview")?.querySelector('img') || null;
+  const imageFile = await prepareCmsImageInputFile(imageInput, previewElement);
 
   if (!title) return showToast("Title is required.");
   if (!description) return showToast("Description is required.");

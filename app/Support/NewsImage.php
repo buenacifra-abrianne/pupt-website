@@ -16,22 +16,7 @@ class NewsImage
         $disk = self::disk();
 
         try {
-            $path = $file->store($directory, $disk);
-        } catch (Throwable) {
-            $path = false;
-        }
-
-        if ($path !== false) {
-            return $path;
-        }
-
-        $fallbackDisk = self::fallbackDisk();
-        if ($fallbackDisk === $disk) {
-            return false;
-        }
-
-        try {
-            return $file->store($directory, $fallbackDisk);
+            return $file->store($directory, $disk);
         } catch (Throwable) {
             return false;
         }
@@ -136,13 +121,9 @@ class NewsImage
 
     private static function disk(): string
     {
-        $disk = (string) config('filesystems.image_disk', 'public');
+        $disk = (string) config('filesystems.image_disk', 's3');
 
-        if ($disk === 's3' && app()->environment('local') && !self::s3IsConfigured()) {
-            return self::fallbackDisk();
-        }
-
-        return $disk !== '' ? $disk : 'public';
+        return $disk !== '' ? $disk : 's3';
     }
 
     private static function fallbackDisk(): string
@@ -150,12 +131,6 @@ class NewsImage
         $disk = (string) config('filesystems.image_fallback_disk', 'public');
 
         return $disk !== '' ? $disk : 'public';
-    }
-
-    private static function s3IsConfigured(): bool
-    {
-        return trim((string) config('filesystems.disks.s3.bucket')) !== ''
-            && trim((string) config('filesystems.disks.s3.region')) !== '';
     }
 
     private static function isExternal(string $path): bool

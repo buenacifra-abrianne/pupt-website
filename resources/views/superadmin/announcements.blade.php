@@ -11,6 +11,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
+    @include('partials.cms_image_editor_assets')
 </head>
 <body>
     <!-- Sidebar -->
@@ -1215,7 +1216,7 @@
                     return;
                 }
 
-                handleNewsImageSelection(file, isEdit ? 'edit' : 'new');
+                handleNewsImageSelection(file, isEdit ? 'edit' : 'new', imageUpload);
             });
         }
 
@@ -1593,18 +1594,33 @@ function setNewsImageButtonLabel(text) {
         setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
     }
 
-    function handleNewsImageSelection(file, mode = 'new') {
+    async function handleNewsImageSelection(file, mode = 'new', input = null) {
         if (!file || !file.type.startsWith('image/')) {
             resetNewsImageUI(mode);
             showToast('Please choose a valid image file.', 'warning', 'Invalid Image');
             return;
         }
 
+        const previewElement = document.getElementById('imagePreview');
+        const selectedFile = window.CmsImageEditor
+            ? await window.CmsImageEditor.editFile(file, { input, previewElement })
+            : file;
+
+        if (!selectedFile) {
+            if (input) input.value = '';
+            resetNewsImageUI(mode);
+            return;
+        }
+
+        if (input && window.CmsImageEditor && selectedFile !== file) {
+            window.CmsImageEditor.setInputFile(input, selectedFile);
+        }
+
         const reader = new FileReader();
         reader.onload = function (e) {
             showNewsImagePreview(e.target.result, mode, false);
         };
-        reader.readAsDataURL(file);
+        reader.readAsDataURL(selectedFile);
     }
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;

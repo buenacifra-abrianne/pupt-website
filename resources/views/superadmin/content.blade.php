@@ -1223,6 +1223,23 @@
             const previewEl = document.querySelector(`[data-preview-for="${input.id}"]`);
             if (!label || !fileNameEl) return;
 
+            const prepareImageFile = async (file) => {
+                if (!file || !window.CmsImageEditor) {
+                    return file;
+                }
+
+                const editedFile = await window.CmsImageEditor.editFile(file, {
+                    input,
+                    previewElement: previewEl,
+                });
+
+                if (editedFile && editedFile !== file) {
+                    window.CmsImageEditor.setInputFile(input, editedFile);
+                }
+
+                return editedFile;
+            };
+
             const applyFile = (file) => {
                 if (!file) return;
                 fileNameEl.textContent = `Selected: ${file.name}`;
@@ -1233,8 +1250,9 @@
                 }
             };
 
-            input.addEventListener('change', () => {
-                const file = input.files && input.files[0] ? input.files[0] : null;
+            input.addEventListener('change', async () => {
+                const file = await prepareImageFile(input.files && input.files[0] ? input.files[0] : null);
+                if (!file) input.value = '';
                 applyFile(file);
             });
 
@@ -1247,17 +1265,19 @@
                 label.classList.remove('dragover');
             });
 
-            label.addEventListener('drop', (e) => {
+            label.addEventListener('drop', async (e) => {
                 e.preventDefault();
                 label.classList.remove('dragover');
 
                 const files = e.dataTransfer?.files;
                 if (!files || files.length === 0) return;
 
-                const file = files[0];
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input.files = dt.files;
+                const file = await prepareImageFile(files[0]);
+                if (!file) {
+                    input.value = '';
+                    return;
+                }
+                window.CmsImageEditor?.setInputFile(input, file);
                 applyFile(file);
             });
         });

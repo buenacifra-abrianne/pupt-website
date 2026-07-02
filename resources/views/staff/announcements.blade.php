@@ -11,6 +11,7 @@
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
+    @include('partials.cms_image_editor_assets')
 </head>
 <body>
     <!-- Sidebar -->
@@ -1770,10 +1771,24 @@ async function requestToggleAnnouncement(announcementId, title, currentStatus) {
       }
   }
 
-function handleNewsImagePick(input) {
+async function handleNewsImagePick(input) {
     const file = input.files && input.files[0];
     if (!file || !file.type.startsWith('image/')) {
         return;
+    }
+
+    const previewElement = document.getElementById('newsPreviewImg');
+    const selectedFile = window.CmsImageEditor
+        ? await window.CmsImageEditor.editFile(file, { input, previewElement })
+        : file;
+
+    if (!selectedFile) {
+        input.value = '';
+        return;
+    }
+
+    if (window.CmsImageEditor && selectedFile !== file) {
+        window.CmsImageEditor.setInputFile(input, selectedFile);
     }
 
     const removeFlag = document.getElementById('news_remove_image');
@@ -1783,7 +1798,7 @@ function handleNewsImagePick(input) {
     reader.onload = function (e) {
         setNewsPreview(e.target.result);
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(selectedFile);
 }
 
 function clearNewsImage() {

@@ -2088,6 +2088,18 @@
                 });
 
                 document.addEventListener('click', (event) => {
+                    const officialChartEditTrigger = event.target.closest('[data-about-campus-officials-chart-edit]');
+                    if (officialChartEditTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-official-chart-edit',
+                            route: 'campus-officials',
+                            label: 'Organizational Structure and Image Uploader',
+                        }, '*');
+                        return;
+                    }
+
                     const historyEditTrigger = event.target.closest('[data-about-history-edit]');
                     if (historyEditTrigger) {
                         event.preventDefault();
