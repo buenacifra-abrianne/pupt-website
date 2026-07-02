@@ -224,7 +224,7 @@ class OnePortalController extends Controller
     // if account is inactive, deny access
     if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
         return redirect()->route('public.landing')
-            ->with('error', 'Your CMS account is not active.');
+            ->with('error', 'Your CMS account is not active. Please contact Superadmin.');
     }
 
     // local DB role
