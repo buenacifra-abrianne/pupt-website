@@ -12,6 +12,8 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
 use App\Support\AuditLog;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 
 class MfaController extends Controller
 {
@@ -51,9 +53,13 @@ class MfaController extends Controller
         $writer = new Writer($renderer);
         $qrCodeSvg = $writer->writeString($qrCodeUrl);
 
+        $backupCodes = collect(range(1, 8))->map(fn() => strtoupper(Str::random(8)))->toArray();
+        session(['mfa_setup_backup_codes' => $backupCodes]);
+
         return view('superadmin.mfa_setup', [
             'qrCodeSvg' => $qrCodeSvg,
-            'secret' => $secret
+            'secret' => $secret,
+            'backupCodes' => $backupCodes
         ]);
     }
 
@@ -77,7 +83,8 @@ class MfaController extends Controller
     public function verify(Request $request)
     {
         $request->validate([
-            'one_time_password' => 'required|string',
+            'one_time_password' => 'nullable|string',
+            'backup_code' => 'nullable|string',
             'is_setup' => 'nullable|boolean'
         ]);
 
@@ -94,10 +101,42 @@ class MfaController extends Controller
         }
 
         $isSetup = $request->boolean('is_setup');
+
+        if ($request->filled('backup_code') && !$isSetup) {
+            $storedCodes = json_decode($user->backup_codes ?? '[]', true) ?: [];
+            $inputCode = strtoupper(trim((string)$request->backup_code));
+            
+            $validCodeIndex = -1;
+            foreach ($storedCodes as $index => $hashedCode) {
+                if (Hash::check($inputCode, $hashedCode)) {
+                    $validCodeIndex = $index;
+                    break;
+                }
+            }
+
+            if ($validCodeIndex !== -1) {
+                unset($storedCodes[$validCodeIndex]);
+                DB::table('users')->where($idColumn, $userId)->update([
+                    'backup_codes' => json_encode(array_values($storedCodes))
+                ]);
+                
+                AuditLog::record('SECURITY', 'ACCOUNT', 'User logged in using a backup code.', $userId);
+                
+                $authController = app(AuthController::class);
+                return $authController->completeLogin($user);
+            }
+
+            return back()->withErrors(['backup_code' => 'Invalid backup code.']);
+        }
+
         $secret = $isSetup ? session('mfa_setup_secret') : $user->mfa_secret;
 
         if (!$secret) {
             return back()->withErrors(['one_time_password' => 'MFA secret missing.']);
+        }
+
+        if (!$request->filled('one_time_password')) {
+            return back()->withErrors(['one_time_password' => 'The authentication code is required.']);
         }
 
         $google2fa = app(Google2FA::class);
@@ -105,10 +144,14 @@ class MfaController extends Controller
 
         if ($valid) {
             if ($isSetup) {
+                $rawBackupCodes = session('mfa_setup_backup_codes', []);
+                $hashedBackupCodes = array_map(fn($code) => Hash::make($code), $rawBackupCodes);
+
                 DB::table('users')->where($idColumn, $userId)->update([
-                    'mfa_secret' => $secret
+                    'mfa_secret' => $secret,
+                    'backup_codes' => json_encode($hashedBackupCodes)
                 ]);
-                session()->forget('mfa_setup_secret');
+                session()->forget(['mfa_setup_secret', 'mfa_setup_backup_codes']);
                 
                 AuditLog::record(
                     'SECURITY',
@@ -118,7 +161,6 @@ class MfaController extends Controller
                 );
             }
 
-            // Call the completeLogin method from AuthController to finalize the session
             $authController = app(AuthController::class);
             return $authController->completeLogin($user);
         }
