@@ -79,8 +79,8 @@ class SyncFacultyCache extends Command
             $this->info(sprintf('Fetched %d active faculties. Updating database...', count($activeFaculties)));
 
             DB::transaction(function () use ($activeFaculties) {
-                // Clear the existing cache table
-                DB::table('faculty_cache')->truncate();
+                // Clear the existing cache table (delete avoids implicit commit caused by truncate in MySQL)
+                DB::table('faculty_cache')->delete();
                 
                 // Chunk the inserts to avoid payload too large issues
                 $chunks = array_chunk($activeFaculties, 500);
