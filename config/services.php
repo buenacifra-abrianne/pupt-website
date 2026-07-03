@@ -66,10 +66,6 @@ return [
         'url' => env('ONEPORTAL_URL'),
     ],
 
-    'puptweb' => [
-        'url' => env('PUPT_WEB_URL'),
-    ],
-
     'flss' => [
             'base_url' => env('FLSS_API_BASE_URL'),
             'api_key'  => env('FLSS_API_KEY'),
