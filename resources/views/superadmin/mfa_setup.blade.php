@@ -98,8 +98,11 @@
 
 
 
-                        <div class="backup-codes-container" style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; text-align: left;">
-                            <h4 style="margin-top: 0; margin-bottom: 5px; font-size: 14px;">Save Your Backup Codes</h4>
+                        <div class="backup-codes-container" style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; text-align: left; position: relative;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                <h4 style="margin: 0; font-size: 14px;">Save Your Backup Codes</h4>
+                                <button type="button" onclick="copyBackupCodes()" id="copy-btn" style="background: #d39e00; color: #fff; border: none; padding: 4px 8px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: bold; transition: background 0.2s;">Copy</button>
+                            </div>
                             <p style="margin-bottom: 8px;">These codes can be used to log in if you lose access to your authenticator app. <strong>Save them in a secure place.</strong> Each code can only be used once.</p>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-family: monospace; font-size: 14px; background: #fff; padding: 6px; border-radius: 4px; border: 1px solid #ffeeba;">
                                 @foreach($backupCodes as $code)
@@ -135,6 +138,23 @@
     </main>
 
     <script>
+    function copyBackupCodes() {
+        const codes = @json($backupCodes);
+        const textToCopy = codes.join('\n');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const btn = document.getElementById('copy-btn');
+            btn.innerText = 'Copied!';
+            btn.style.background = '#28a745';
+            setTimeout(() => {
+                btn.innerText = 'Copy';
+                btn.style.background = '#d39e00';
+            }, 2000);
+        }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert('Failed to copy backup codes to clipboard.');
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         const inputs = document.querySelectorAll('.mfa-split-input input');
         const hiddenInput = document.getElementById('one_time_password');
