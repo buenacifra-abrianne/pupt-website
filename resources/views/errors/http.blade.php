@@ -24,7 +24,7 @@
                 <h1 id="error-title">{{ $headline }}</h1>
                 <p class="error-message">{{ $message }}</p>
 
-                <a href="{{ route('public.landing') }}" class="error-home-link">Go Back to Homepage</a>
+                <a href="{{ route('public.landing') }}" class="error-home-link">Go Back to Landing Page</a>
             </div>
         </section>
     </main>

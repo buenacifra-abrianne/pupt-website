@@ -19,7 +19,7 @@ class ErrorPageRenderingTest extends TestCase
         $response->assertStatus(404);
         $response->assertSee('404', false);
         $response->assertSee('Page not found.');
-        $response->assertSee('Go Back to Homepage');
+        $response->assertSee('Go Back to Landing Page');
         $response->assertSee(route('public.landing'));
     }
 
@@ -34,7 +34,7 @@ class ErrorPageRenderingTest extends TestCase
         $response->assertStatus(419);
         $response->assertSee('419', false);
         $response->assertSee('Your session has expired. Please log in again.');
-        $response->assertSee('Go Back to Homepage');
+        $response->assertSee('Go Back to Landing Page');
     }
 
     public function test_unexpected_exceptions_hide_raw_exception_messages(): void
@@ -48,7 +48,7 @@ class ErrorPageRenderingTest extends TestCase
         $response->assertStatus(500);
         $response->assertSee('500', false);
         $response->assertSee('Something went wrong on our side. Please try again later.');
-        $response->assertSee('Go Back to Homepage');
+        $response->assertSee('Go Back to Landing Page');
         $response->assertDontSee('Top secret exception message');
     }
 }
