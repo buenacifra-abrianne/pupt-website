@@ -8,6 +8,22 @@
     <link rel="stylesheet" href="{{ asset('assets/css/loginstyle.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}">
     <style>
+        .logo {
+            width: 70px !important;
+            height: 70px !important;
+            margin-bottom: 5px !important;
+        }
+        .header {
+            margin-bottom: 5px !important;
+        }
+        .header h2 {
+            font-size: 22px !important;
+            margin-bottom: 2px !important;
+        }
+        .header p {
+            font-size: 13px !important;
+            margin-bottom: 5px !important;
+        }
         .mfa-split-input {
             display: flex;
             justify-content: center;
