@@ -11,37 +11,27 @@
         .qr-container {
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             background: #fff;
-            padding: 10px;
+            padding: 5px;
             border-radius: 8px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.05);
         }
         .qr-container svg {
-            width: 200px;
-            height: 200px;
+            width: 140px;
+            height: 140px;
         }
-        .secret-key {
-            text-align: center;
-            font-family: monospace;
-            font-size: 16px;
-            margin-bottom: 20px;
-            color: #555;
-            letter-spacing: 2px;
-            background: #f4f4f4;
-            padding: 10px;
-            border-radius: 5px;
-        }
+
         .mfa-split-input {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 10px;
         }
         .mfa-split-input input {
-            width: 45px;
-            height: 55px;
-            font-size: 24px;
+            width: 40px;
+            height: 45px;
+            font-size: 20px;
             text-align: center;
             border: 2px solid #ccc;
             border-radius: 8px;
@@ -90,14 +80,12 @@
                             {!! $qrCodeSvg !!}
                         </div>
 
-                        <div class="secret-key">
-                            {{ $secret }}
-                        </div>
 
-                        <div class="backup-codes-container" style="background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 14px; text-align: left;">
-                            <h4 style="margin-top: 0; margin-bottom: 10px;">Save Your Backup Codes</h4>
-                            <p style="margin-bottom: 10px;">These codes can be used to log in if you lose access to your authenticator app. <strong>Save them in a secure place.</strong> Each code can only be used once.</p>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-family: monospace; font-size: 16px; background: #fff; padding: 10px; border-radius: 4px; border: 1px solid #ffeeba;">
+
+                        <div class="backup-codes-container" style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 12px; text-align: left;">
+                            <h4 style="margin-top: 0; margin-bottom: 5px; font-size: 14px;">Save Your Backup Codes</h4>
+                            <p style="margin-bottom: 8px;">These codes can be used to log in if you lose access to your authenticator app. <strong>Save them in a secure place.</strong> Each code can only be used once.</p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-family: monospace; font-size: 14px; background: #fff; padding: 6px; border-radius: 4px; border: 1px solid #ffeeba;">
                                 @foreach($backupCodes as $code)
                                     <div>{{ $code }}</div>
                                 @endforeach

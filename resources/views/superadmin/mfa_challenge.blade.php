@@ -11,13 +11,13 @@
         .mfa-split-input {
             display: flex;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 6px;
+            margin-bottom: 10px;
         }
         .mfa-split-input input {
-            width: 45px;
-            height: 55px;
-            font-size: 24px;
+            width: 40px;
+            height: 45px;
+            font-size: 20px;
             text-align: center;
             border: 2px solid #ccc;
             border-radius: 8px;

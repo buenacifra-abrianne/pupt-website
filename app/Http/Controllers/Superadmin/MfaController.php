@@ -41,7 +41,7 @@ class MfaController extends Controller
         session(['mfa_setup_secret' => $secret]);
 
         $qrCodeUrl = $google2fa->getQRCodeUrl(
-            config('app.name'),
+            'PUP-T Website',
             $user->email,
             $secret
         );
