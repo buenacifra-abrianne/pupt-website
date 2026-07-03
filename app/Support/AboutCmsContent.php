@@ -400,6 +400,14 @@ class AboutCmsContent
                 'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'The Citizen\'s Charter outlines the standard processes and requirements for the services we provide.',
                 'body_text' => 'Content for Citizen\'s Charter will be updated soon.',
+                'services' => [
+                    [
+                        'title' => 'Sample Service',
+                        'description' => 'Description for this service.',
+                        'link' => '',
+                        'image' => 'assets/static_img/pupillar.jpeg',
+                    ],
+                ],
             ],
         ],
     ];
@@ -636,6 +644,11 @@ class AboutCmsContent
             'citizens-charter' => array_merge($section, [
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
                 'body_text' => self::pickString($source, $base, $defaults, 'body_text', 12000),
+                'services' => self::normalizeServices(
+                    $source['services'] ?? [],
+                    $base['services'] ?? $defaults['services'],
+                    $defaults['services']
+                ),
             ]),
             default => $section,
         };
@@ -742,6 +755,73 @@ class AboutCmsContent
         }
 
         return $items;
+    }
+
+    private static function normalizeServices(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $baseItems = is_array($base) ? array_values($base) : [];
+        $defaultItems = is_array($defaults) ? array_values($defaults) : [];
+        $services = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['title' => '', 'description' => '', 'link' => '', 'image' => 'assets/static_img/pupillar.jpeg'];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $normalized = [
+                'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
+                'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
+                'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, ''),
+                'image' => array_key_exists('image', $item)
+                    ? self::sanitizeOptionalString((string) $item['image'], 2048)
+                    : self::sanitizeString((string) ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg'), 2048, 'assets/static_img/pupillar.jpeg'),
+            ];
+            $hasExplicitImage = trim((string) ($item['image'] ?? '')) !== '';
+
+            if (
+                $normalized['title'] === ''
+                && $normalized['description'] === ''
+                && $normalized['link'] === ''
+                && !$hasExplicitImage
+            ) {
+                continue;
+            }
+
+            $services[] = $normalized;
+
+            if (count($services) >= 24) {
+                break;
+            }
+        }
+
+        if (empty($services)) {
+            foreach ($baseItems as $index => $baseItem) {
+                if (!is_array($baseItem)) {
+                    continue;
+                }
+                $defaultItem = is_array($defaultItems[$index] ?? null)
+                    ? $defaultItems[$index]
+                    : ['title' => '', 'description' => '', 'link' => '', 'image' => 'assets/static_img/pupillar.jpeg'];
+                $services[] = [
+                    'title' => self::sanitizeString((string) ($baseItem['title'] ?? ($defaultItem['title'] ?? '')), 255, ''),
+                    'description' => self::sanitizeString((string) ($baseItem['description'] ?? ($defaultItem['description'] ?? '')), 5000, ''),
+                    'link' => self::sanitizeString((string) ($baseItem['link'] ?? ($defaultItem['link'] ?? '')), 2048, ''),
+                    'image' => self::sanitizeString((string) ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg'), 2048, 'assets/static_img/pupillar.jpeg'),
+                ];
+            }
+        }
+
+        if (empty($services)) {
+            $services = $defaultItems;
+        }
+
+        return $services;
     }
 
     private static function normalizeSeals(mixed $input, array $base, array $defaults): array
