@@ -168,6 +168,7 @@ class EventsCmsContent
                 ? $baseItems[$index]
                 : [
                     'title' => '',
+                    'event_head' => '',
                     'summary' => '',
                     'content' => '',
                     'image' => '',
@@ -181,6 +182,7 @@ class EventsCmsContent
 
             $normalized = [
                 'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
+                'event_head' => self::sanitizeString((string) ($item['event_head'] ?? ($baseItem['event_head'] ?? '')), 255, ''),
                 'summary' => self::sanitizeString((string) ($item['summary'] ?? ($baseItem['summary'] ?? '')), 3000, ''),
                 'content' => self::sanitizeString((string) ($item['content'] ?? ($baseItem['content'] ?? '')), 20000, ''),
                 'image' => self::sanitizeString((string) ($item['image'] ?? ($baseItem['image'] ?? '')), 2048, ''),
