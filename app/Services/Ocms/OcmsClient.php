@@ -22,6 +22,12 @@ class OcmsClient
         return $this->baseUrl !== '' && $this->apiKey !== '';
     }
 
+    public function setTimeout(int $seconds): self
+    {
+        $this->timeout = $seconds;
+        return $this;
+    }
+
     public function get(string $path, array $query = []): array
     {
         $url = $this->baseUrl.'/'.ltrim($path, '/');
