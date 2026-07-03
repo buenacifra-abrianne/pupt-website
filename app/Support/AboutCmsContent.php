@@ -391,42 +391,6 @@ class AboutCmsContent
                 ],
                 'officials_note' => 'For the latest officeholders and contact details, refer to current campus announcements and office directories.',
             ],
-            'strategic-development-plan' => [
-                'slug' => 'strategic-development-plan',
-                'number' => '07',
-                'label' => 'Strategic Development Plan',
-                'visible_in_contents' => '1',
-                'summary' => 'Review the long-term priorities that shape campus growth and improvement.',
-                'image' => self::DEFAULT_CARD_IMAGE,
-                'lead' => 'The campus strategic development plan aligns academic priorities, student support, facilities, and partnerships toward sustainable institutional growth.',
-                'development_priorities' => [
-                    [
-                        'title' => 'Instructional Excellence',
-                        'body' => 'Continue improving program delivery, learning outcomes, and faculty support systems.',
-                    ],
-                    [
-                        'title' => 'Student Success',
-                        'body' => 'Expand services that improve access, retention, wellbeing, and holistic student development.',
-                    ],
-                    [
-                        'title' => 'Infrastructure and Digital Readiness',
-                        'body' => 'Upgrade classrooms, laboratories, connectivity, and campus systems that support learning and operations.',
-                    ],
-                    [
-                        'title' => 'Research and Community Engagement',
-                        'body' => 'Strengthen initiatives that connect scholarship with community needs and industry collaboration.',
-                    ],
-                    [
-                        'title' => 'Good Governance',
-                        'body' => 'Promote data-informed planning, transparent processes, and continuous quality improvement.',
-                    ],
-                ],
-                'plan_principles' => [
-                    'Set measurable targets for instruction, services, and campus operations.',
-                    'Use feedback and evidence to improve policies, programs, and resource allocation.',
-                    'Build partnerships that extend learning opportunities and community impact.',
-                ],
-            ],
         ],
     ];
 

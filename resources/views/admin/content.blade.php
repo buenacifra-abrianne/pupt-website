@@ -247,14 +247,21 @@
                     ])
                 @elseif($tabKey === 'research_extension')
                     @php
-                        $researchPreviewHtml = view('public.research', [
-                            'researchCms' => $researchLive,
-                            'cmsPreview' => true,
-                        ])->render();
+                        $researchPreviewPages = [
+                            'overview' => view('public.research', [
+                                'researchCms' => $researchLive,
+                                'cmsPreview' => true,
+                            ])->render(),
+                            'strategic-development-plan' => view('public.research_sdp', [
+                                'researchCms' => $researchLive,
+                                'sdp' => $researchLive['strategic_development_plan'] ?? \App\Support\ResearchCmsContent::defaults()['strategic_development_plan'],
+                                'cmsPreview' => true,
+                            ])->render(),
+                        ];
                     @endphp
 
                     @include('partials.research_cms_preview_editor', [
-                        'researchPreviewHtml' => $researchPreviewHtml,
+                        'researchPreviewPages' => $researchPreviewPages,
                         'researchEditorData' => $researchLive,
                         'researchEditorFormClass' => 'cms-save-form',
                         'researchEditorSubmitRoute' => route('admin.content.save'),

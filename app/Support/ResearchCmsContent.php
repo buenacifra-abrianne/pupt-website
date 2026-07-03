@@ -25,6 +25,37 @@ class ResearchCmsContent
                 'image' => 'assets/static_img/pupillar.jpeg',
             ],
         ],
+        'strategic_development_plan' => [
+            'label' => 'Strategic Development Plan',
+            'lead' => 'The campus strategic development plan aligns academic priorities, student support, facilities, and partnerships toward sustainable institutional growth.',
+            'development_priorities' => [
+                [
+                    'title' => 'Instructional Excellence',
+                    'body' => 'Continue improving program delivery, learning outcomes, and faculty support systems.',
+                ],
+                [
+                    'title' => 'Student Success',
+                    'body' => 'Expand services that improve access, retention, wellbeing, and holistic student development.',
+                ],
+                [
+                    'title' => 'Infrastructure and Digital Readiness',
+                    'body' => 'Upgrade classrooms, laboratories, connectivity, and campus systems that support learning and operations.',
+                ],
+                [
+                    'title' => 'Research and Community Engagement',
+                    'body' => 'Strengthen initiatives that connect scholarship with community needs and industry collaboration.',
+                ],
+                [
+                    'title' => 'Good Governance',
+                    'body' => 'Promote data-informed planning, transparent processes, and continuous quality improvement.',
+                ],
+            ],
+            'plan_principles' => [
+                'Set measurable targets for instruction, services, and campus operations.',
+                'Use feedback and evidence to improve policies, programs, and resource allocation.',
+                'Build partnerships that extend learning opportunities and community impact.',
+            ],
+        ],
     ];
 
     public static function defaults(): array
@@ -67,6 +98,7 @@ class ResearchCmsContent
         return self::normalize([
             'page' => $base['page'] ?? self::defaults()['page'],
             'cards' => is_array($cardsInput) ? $cardsInput : [],
+            'strategic_development_plan' => $base['strategic_development_plan'] ?? self::defaults()['strategic_development_plan'],
         ], $base);
     }
 
@@ -92,6 +124,9 @@ class ResearchCmsContent
         $cardsSource = array_key_exists('cards', $source)
             ? ($source['cards'] ?? [])
             : ($base['cards'] ?? $defaults['cards']);
+        $sdpSource = is_array($source['strategic_development_plan'] ?? null)
+            ? $source['strategic_development_plan']
+            : (is_array($base['strategic_development_plan'] ?? null) ? $base['strategic_development_plan'] : $defaults['strategic_development_plan']);
 
         return [
             'page' => self::normalizePage(
@@ -104,6 +139,11 @@ class ResearchCmsContent
                 is_array($base['cards'] ?? null) ? $base['cards'] : $defaults['cards'],
                 $defaults['cards']
             ),
+            'strategic_development_plan' => self::normalizeSdp(
+                is_array($sdpSource) ? $sdpSource : [],
+                is_array($base['strategic_development_plan'] ?? null) ? $base['strategic_development_plan'] : $defaults['strategic_development_plan'],
+                $defaults['strategic_development_plan']
+            ),
         ];
     }
 
@@ -114,6 +154,50 @@ class ResearchCmsContent
             'title' => self::pickString($source, $base, $defaults, 'title'),
             'description' => self::pickString($source, $base, $defaults, 'description', 5000),
             'hero_image' => self::pickOptionalString($source, $base, $defaults, 'hero_image', 2048),
+        ];
+    }
+
+    private static function normalizeSdp(array $source, array $base, array $defaults): array
+    {
+        $prioritiesSource = array_key_exists('development_priorities', $source)
+            ? ($source['development_priorities'] ?? [])
+            : ($base['development_priorities'] ?? $defaults['development_priorities']);
+
+        $priorities = [];
+        foreach ((is_array($prioritiesSource) ? array_values($prioritiesSource) : []) as $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+            $title = trim(HtmlEntities::decode((string) ($item['title'] ?? '')));
+            $body = trim((string) ($item['body'] ?? ''));
+            if ($title === '' && $body === '') {
+                continue;
+            }
+            $priorities[] = [
+                'title' => mb_substr($title, 0, 255),
+                'body' => mb_substr($body, 0, 5000),
+            ];
+            if (count($priorities) >= 24) {
+                break;
+            }
+        }
+
+        $principlesSource = array_key_exists('plan_principles', $source)
+            ? ($source['plan_principles'] ?? [])
+            : ($base['plan_principles'] ?? $defaults['plan_principles']);
+        $principles = [];
+        foreach ((is_array($principlesSource) ? array_values($principlesSource) : []) as $item) {
+            $text = trim(HtmlEntities::decode((string) $item));
+            if ($text !== '') {
+                $principles[] = mb_substr($text, 0, 500);
+            }
+        }
+
+        return [
+            'label' => self::pickString($source, $base, $defaults, 'label'),
+            'lead' => self::pickString($source, $base, $defaults, 'lead', 5000),
+            'development_priorities' => $priorities !== [] ? $priorities : ($base['development_priorities'] ?? $defaults['development_priorities']),
+            'plan_principles' => $principles !== [] ? $principles : ($base['plan_principles'] ?? $defaults['plan_principles']),
         ];
     }
 
