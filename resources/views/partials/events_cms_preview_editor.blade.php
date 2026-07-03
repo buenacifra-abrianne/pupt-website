@@ -193,6 +193,11 @@
                                             <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
                                         </div>
 
+                                        <div class="form-group">
+                                            <label>Event Head</label>
+                                            <input type="text" name="events[cards][{{ $index }}][event_head]" maxlength="255" value="{{ $card['event_head'] ?? '' }}">
+                                        </div>
+
                                         <div class="events-cms-form-grid">
                                             <div class="form-group">
                                                 <label>Category</label>
@@ -322,6 +327,11 @@
                                             <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
                                         </div>
 
+                                        <div class="form-group">
+                                            <label>Event Head</label>
+                                            <input type="text" name="events[cards][{{ $index }}][event_head]" maxlength="255" value="{{ $card['event_head'] ?? '' }}">
+                                        </div>
+
                                         <div class="events-cms-form-grid">
                                             <div class="form-group">
                                                 <label>Category</label>
@@ -428,6 +438,11 @@
                             <div class="form-group">
                                 <label>Event Title</label>
                                 <input type="text" name="events[cards][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Event Head</label>
+                                <input type="text" name="events[cards][__INDEX__][event_head]" maxlength="255" value="">
                             </div>
 
                             <div class="events-cms-form-grid">
