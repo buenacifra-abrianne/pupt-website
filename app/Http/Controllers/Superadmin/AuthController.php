@@ -333,6 +333,42 @@ return back()->withErrors([
         return back()->with('profile_password_success', 'Password changed successfully.');
     }
 
+    public function updateLocalPassword(Request $request)
+    {
+        $request->validate([
+            'new_password' => [
+                'required',
+                'confirmed',
+                \Illuminate\Validation\Rules\Password::min(8)
+                    ->mixedCase()
+                    ->letters()
+                    ->numbers()
+                    ->symbols(),
+            ],
+        ]);
+
+        [$user, $idColumn] = $this->resolveSessionUser();
+
+        if (!$user) {
+            return back()->with('error', 'Session expired. Please login again.');
+        }
+
+        DB::table('users')
+            ->where($idColumn, data_get($user, $idColumn))
+            ->update([
+                'password' => password_hash((string) $request->input('new_password'), PASSWORD_BCRYPT),
+            ]);
+
+        AuditLog::record(
+            'UPDATED',
+            'ACCOUNT',
+            'User updated local fallback password.',
+            (int) data_get($user, $idColumn)
+        );
+
+        return back()->with('success', 'Local backup password has been set successfully.');
+    }
+
     private function resolveSessionUser(): array
     {
         $userId = (int) session('user_id', 0);

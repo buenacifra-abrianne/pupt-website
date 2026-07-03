@@ -50,9 +50,7 @@ use App\Http\Controllers\Public\DiplomaProgramsController;
 use App\Http\Controllers\Public\StudentCalendarController;
 use App\Http\Controllers\Public\UniversityCalendarController;
 
-Route::get('/', function () {
-    return view('public.index'); // <-- ito yung index blade mo
-})->name('public.landing');
+Route::get('/', [App\Http\Controllers\PublicController::class, 'index'])->name('public.landing');
 
 Route::get('/home/callback', function () {
     return view('public.home_callback');
@@ -106,6 +104,10 @@ Route::post('/profile/update', [AuthController::class, 'updateProfile'])
 Route::post('/profile/password', [AuthController::class, 'updatePassword'])
     ->middleware('superadmin.auth')
     ->name('profile.password.update');
+
+Route::post('/profile/local-password', [AuthController::class, 'updateLocalPassword'])
+    ->middleware('superadmin.auth')
+    ->name('profile.local-password.update');
 
 Route::middleware('superadmin.auth')->group(function () {
     Route::post('/cms/terms/accept', [CmsTermsController::class, 'accept'])->name('cms.terms.accept');

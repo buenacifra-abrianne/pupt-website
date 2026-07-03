@@ -500,6 +500,10 @@
                     <i class="fas fa-user"></i>
                     <span>View Profile</span>
                 </button>
+                <button type="button" class="profile-dropdown-item" onclick="openLocalPasswordModal()">
+                    <i class="fas fa-lock"></i>
+                    <span>Set Local Password</span>
+                </button>
                 <form method="POST" action="{{ route('oneportal.logout') }}">
                     @csrf
                     <button type="submit" class="profile-dropdown-item">
@@ -514,6 +518,7 @@
 
 <x-app.toast />
 <x-app.terms-modal />
+@include('partials.local_password_modal')
 <x-calendar-assets />
 <script>
 (() => {
