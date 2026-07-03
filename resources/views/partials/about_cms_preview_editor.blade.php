@@ -989,6 +989,38 @@
             </section>
 
             @php
+                $citizensCharterEditor = $aboutSections['citizens-charter'] ?? [];
+            @endphp
+            <section class="about-cms-editor-panel" data-about-editor-panel="citizens-charter" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="citizens-charter">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="form-group">
+                        <label>Citizen's Charter Lead</label>
+                        <textarea name="about[sections][citizens-charter][lead]" rows="3" maxlength="4000">{{ $citizensCharterEditor['lead'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Citizen's Charter Body</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'about[sections][citizens-charter][body_text]',
+                            'value' => $citizensCharterEditor['body_text'] ?? '',
+                            'placeholder' => 'Write the Citizen\'s Charter content...',
+                        ])
+                    </div>
+
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Citizen\'s Charter') }}</button>
+                    </div>
+                </form>
+            </section>
+
+            @php
                 $officialsEditor = $aboutSections['campus-officials'] ?? [];
             @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="campus-officials" hidden>

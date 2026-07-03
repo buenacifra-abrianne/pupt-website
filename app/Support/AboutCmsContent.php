@@ -391,6 +391,16 @@ class AboutCmsContent
                 ],
                 'officials_note' => 'For the latest officeholders and contact details, refer to current campus announcements and office directories.',
             ],
+            'citizens-charter' => [
+                'slug' => 'citizens-charter',
+                'number' => '07',
+                'label' => 'Citizen\'s Charter',
+                'visible_in_contents' => '1',
+                'summary' => 'View our Citizen\'s Charter for transparency and efficiency.',
+                'image' => self::DEFAULT_CARD_IMAGE,
+                'lead' => 'The Citizen\'s Charter outlines the standard processes and requirements for the services we provide.',
+                'body_text' => 'Content for Citizen\'s Charter will be updated soon.',
+            ],
         ],
     ];
 
@@ -622,6 +632,10 @@ class AboutCmsContent
                     $base['plan_principles'] ?? $defaults['plan_principles'],
                     $defaults['plan_principles']
                 ),
+            ]),
+            'citizens-charter' => array_merge($section, [
+                'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
+                'body_text' => self::pickString($source, $base, $defaults, 'body_text', 12000),
             ]),
             default => $section,
         };

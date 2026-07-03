@@ -533,7 +533,7 @@
                                 </button>
                             @endif
 
-                             @if($selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'campus-officials')
+                             @if($selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'campus-officials' && $selectedSlug !== 'citizens-charter')
                                 <div class="about-detail-heading">
                                     <div class="about-detail-heading-copy">
                                         <h2>{{ $selectedSection['label'] ?? '' }}</h2>
