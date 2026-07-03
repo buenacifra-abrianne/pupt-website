@@ -24,17 +24,25 @@
 
 <div class="research-cms-workspace">
     <div class="research-cms-preview-shell">
-        <div class="research-cms-preview-head">
-            <div>
-                <span class="research-cms-eyebrow">Research &amp; Extension CMS</span>
-                <h3>Live website preview</h3>
-                <p>Click the highlighted sections inside the preview to edit the page or contents.</p>
-            </div>
-
-            <div class="research-cms-preview-nav">
-                <button type="button" class="research-cms-preview-nav-btn is-active" data-research-preview-page="overview">Overview</button>
-                <button type="button" class="research-cms-preview-nav-btn" data-research-preview-page="strategic-development-plan">Strategic Development Plan</button>
-            </div>
+        <div class="research-cms-preview-nav" role="tablist" aria-label="Research preview sections">
+            <button
+                type="button"
+                class="research-cms-preview-nav-btn is-active"
+                data-research-preview-page="overview"
+                role="tab"
+                aria-selected="true"
+            >
+                Overview
+            </button>
+            <button
+                type="button"
+                class="research-cms-preview-nav-btn"
+                data-research-preview-page="strategic-development-plan"
+                role="tab"
+                aria-selected="false"
+            >
+                Strategic Development Plan
+            </button>
         </div>
 
         <div class="research-cms-preview-frame-shell">
@@ -163,21 +171,21 @@
                             <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="{{ $index }}">
                                 <div class="research-cms-card-editor-head" data-research-card-editor-head>
                                     <div>
-                                        <h4>Content {{ $loop->iteration }}</h4>
+                                        <h4>Service {{ $loop->iteration }}</h4>
                                     </div>
                                 </div>
 
                                 <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-research-image-field>
 
                                 <div class="form-group">
-                                    <label>Upload Content Image</label>
+                                    <label>Upload Service Image</label>
                                     <div class="research-cms-image-dropzone-shell">
-                                        <div class="research-cms-image-dropzone" data-research-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload content image">
+                                        <div class="research-cms-image-dropzone" data-research-dropzone-for="{{ $cardInputId }}" role="button" tabindex="0" aria-label="Upload service image">
                                             <span class="research-cms-image-dropzone-preview-column">
                                                 <span class="research-cms-image-dropzone-media">
                                                     <img
                                                         src="{{ $cardPreview }}"
-                                                        alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Research content preview' }}"
+                                                        alt="{{ ($card['title'] ?? '') !== '' ? $card['title'] : 'Research service preview' }}"
                                                         class="research-cms-image-dropzone-preview"
                                                         data-research-preview-for="{{ $cardInputId }}"
                                                         data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
@@ -186,14 +194,14 @@
                                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                     </button>
                                                 </span>
-                                                <span class="research-cms-image-dropzone-label">Content {{ $index + 1 }}</span>
+                                                <span class="research-cms-image-dropzone-label">Service {{ $index + 1 }}</span>
                                             </span>
                                             <span class="research-cms-image-dropzone-upload">
                                                 <span class="research-cms-image-dropzone-icon">
                                                     <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                                 </span>
                                                 <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                <span class="research-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this content.</span>
+                                                <span class="research-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this service.</span>
                                                 <span class="research-cms-image-dropzone-upload-button">Select image</span>
                                                 <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                             </span>
@@ -218,7 +226,7 @@
                                     @include('partials.rich_text_editor', [
                                         'name' => 'research[cards]['.$index.'][description]',
                                         'value' => $card['description'] ?? '',
-                                        'placeholder' => 'Write the content description...',
+                                        'placeholder' => 'Write the service description...',
                                     ])
                                 </div>
 
@@ -234,21 +242,21 @@
                         <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="__INDEX__">
                             <div class="research-cms-card-editor-head" data-research-card-editor-head>
                                 <div>
-                                    <h4>Content __NUMBER__</h4>
+                                    <h4>Service __NUMBER__</h4>
                                 </div>
                             </div>
 
                             <input type="hidden" name="research[cards][__INDEX__][image]" value="" data-research-image-field>
 
                             <div class="form-group">
-                                <label>Upload Content Image</label>
+                                <label>Upload Service Image</label>
                                 <div class="research-cms-image-dropzone-shell">
-                                    <div class="research-cms-image-dropzone" data-research-dropzone-for="{{ $idPrefix }}-research-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload content image">
+                                    <div class="research-cms-image-dropzone" data-research-dropzone-for="{{ $idPrefix }}-research-card-image-__INDEX__" role="button" tabindex="0" aria-label="Upload service image">
                                         <span class="research-cms-image-dropzone-preview-column">
                                             <span class="research-cms-image-dropzone-media">
                                                 <img
                                                     src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                                    alt="Research content preview"
+                                                    alt="Research service preview"
                                                     class="research-cms-image-dropzone-preview"
                                                     data-research-preview-for="{{ $idPrefix }}-research-card-image-__INDEX__"
                                                     data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
@@ -257,14 +265,14 @@
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
-                                            <span class="research-cms-image-dropzone-label">Content __INDEX__</span>
+                                            <span class="research-cms-image-dropzone-label">Service __INDEX__</span>
                                         </span>
                                         <span class="research-cms-image-dropzone-upload">
                                             <span class="research-cms-image-dropzone-icon">
                                                 <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                             </span>
                                             <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                            <span class="research-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this content.</span>
+                                            <span class="research-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this service.</span>
                                             <span class="research-cms-image-dropzone-upload-button">Select image</span>
                                             <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $idPrefix }}-research-card-image-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                         </span>
@@ -289,7 +297,7 @@
                                 @include('partials.rich_text_editor', [
                                     'name' => 'research[cards][__INDEX__][description]',
                                     'value' => '',
-                                    'placeholder' => 'Write the content description...',
+                                    'placeholder' => 'Write the service description...',
                                 ])
                             </div>
 
@@ -303,7 +311,7 @@
                     <div class="research-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Contents') }}
+                            {{ $submitLabel('Services') }}
                         </button>
                     </div>
                 </form>
@@ -966,7 +974,7 @@
 
             if (modalDescription) {
                 if (sectionKey === 'cards') {
-                    modalDescription.textContent = 'Update this content item shown in the contents strip.';
+                    modalDescription.textContent = 'Update this service item shown in the services strip.';
                 } else if (sectionKey === 'strategic-development-plan-header') {
                     modalDescription.textContent = 'Update the Strategic Development Plan label and intro text.';
                 } else if (sectionKey === 'strategic-development-plan') {
@@ -1155,7 +1163,7 @@
                     event.preventDefault();
                     event.stopPropagation();
                     const cardIndex = addCard();
-                    openEditor('cards', 'Add content', { cardIndex });
+                    openEditor('cards', 'Add service', { cardIndex });
                     return;
                 }
 
@@ -1165,7 +1173,7 @@
                     event.stopPropagation();
                     const card = editCardTrigger.closest('[data-research-card-index]');
                     const cardIndex = card?.getAttribute('data-research-card-index') ?? null;
-                    openEditor('cards', 'Edit content', { cardIndex });
+                    openEditor('cards', 'Edit service', { cardIndex });
                     return;
                 }
 
@@ -1276,7 +1284,7 @@
                 const sectionKey = data.section || '';
                 const labelMap = {
                     'page': 'Page Header',
-                    'cards': 'Contents',
+                    'cards': 'Services',
                     'strategic-development-plan-header': 'Strategic Development Plan Header',
                     'strategic-development-plan': 'Development Priorities',
                 };
@@ -1365,11 +1373,11 @@
                 const dropzoneTitle = editor.querySelector('.research-cms-image-dropzone-label');
 
                 if (headTitle) {
-                    headTitle.textContent = `Content ${displayNumber}`;
+                    headTitle.textContent = `Service ${displayNumber}`;
                 }
 
                 if (dropzoneTitle) {
-                    dropzoneTitle.textContent = `Content ${displayNumber}`;
+                    dropzoneTitle.textContent = `Service ${displayNumber}`;
                 }
             });
         };
@@ -1620,7 +1628,7 @@
             }
 
             if (dropzoneTitle) {
-                dropzoneTitle.textContent = `Content ${index + 1}`;
+                dropzoneTitle.textContent = `Service ${index + 1}`;
             }
 
             cardStack.appendChild(fragment);
@@ -1810,52 +1818,36 @@
 </script>
 
 <style>
-    .research-cms-preview-head {
-        display: flex !important;
-        justify-content: space-between;
-        align-items: flex-end;
-        gap: 16px;
-        flex-wrap: wrap;
-        padding-bottom: 12px;
-    }
-
     .research-cms-preview-nav {
         display: flex;
-        gap: 6px;
         flex-wrap: wrap;
-        align-items: center;
+        gap: 8px;
+        align-content: flex-start;
+        margin-bottom: 18px;
     }
 
     .research-cms-preview-nav-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        padding: 8px 18px;
-        border: 1px solid rgba(127, 17, 19, 0.16);
-        border-radius: 999px;
-        background: transparent;
+        border: 1px solid #d7c5bd;
+        background: #fff8f5;
         color: #5c0000;
+        border-radius: 999px;
+        padding: 8px 12px;
+        cursor: pointer;
+        font: inherit;
         font-size: 0.82rem;
         font-weight: 600;
-        letter-spacing: 0.02em;
-        cursor: pointer;
-        transition: background 0.15s, color 0.15s, border-color 0.15s;
-        white-space: nowrap;
     }
 
-    .research-cms-preview-nav-btn:hover {
-        background: rgba(127, 17, 19, 0.06);
-        border-color: rgba(127, 17, 19, 0.28);
+    .research-cms-preview-nav-btn:hover,
+    .research-cms-preview-nav-btn:focus-visible {
+        outline: none;
     }
 
     .research-cms-preview-nav-btn.is-active {
-        background: #7f1113;
-        border-color: #7f1113;
-        color: #fff8f1;
+        background: #800000;
+        border-color: #800000;
+        color: #fff;
     }
 
-    .research-cms-preview-nav-btn.is-active:hover {
-        background: #9a1517;
-        border-color: #9a1517;
-    }
+
 </style>

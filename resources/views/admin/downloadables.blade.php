@@ -81,6 +81,15 @@
         </div>
 
         <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+            <div style="display:flex; gap: 8px;">
+                <select id="sortOption" onchange="runSearch()" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
+                    <option value="date_desc">Date Uploaded (Newest)</option>
+                    <option value="date_asc">Date Uploaded (Oldest)</option>
+                    <option value="name_asc">Name (A-Z)</option>
+                    <option value="name_desc">Name (Z-A)</option>
+                </select>
+            </div>
+            
             <div class="search-bar" style="margin-left:auto;">
                 <i class="fas fa-search"></i>
                 <input type="text" id="globalSearch" placeholder="Search campus memoranda...">
@@ -90,72 +99,89 @@
         <div class="card">
             <div class="card-header">
                 <h3 class="card-title">Campus Memorandum</h3>
-                <!-- <button class="btn btn-primary" type="button" onclick="openDownloadableModal(true)">
+                <button class="btn btn-primary" type="button" onclick="openDownloadableModal(true)">
                     <i class="fas fa-plus"></i> New Downloadable
-                </button> -->
+                </button>
             </div>
 
             <div id="downloadablesList">
-                @forelse($downloadables as $row)
-                    @php
-                        $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
-                    @endphp
+                @forelse($groupedDownloadables as $year => $items)
+                    <details class="year-folder" open style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
+                        <summary style="padding: 12px 16px; background: #f8f9fa; font-weight: bold; cursor: pointer; border-radius: 8px 8px 0 0; list-style: none; display: flex; align-items: center;">
+                            <i class="fas fa-folder-open" style="margin-right: 8px; color: #f0c85a;"></i> 
+                            {{ $year }}
+                        </summary>
+                        <div class="year-content" style="padding: 16px;">
+                            @foreach($items as $row)
+                                @php
+                                    $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
+                                @endphp
 
-                    <div class="announcement-item"
-                        data-search="{{ e(strtolower(($row->title ?? '') . ' ' . ($row->description ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
-                        style="margin-bottom: 16px;">
+                                <div class="announcement-item downloadable-item"
+                                    data-search="{{ e(strtolower(($row->title ?? '') . ' ' . ($row->description ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
+                                    data-name="{{ strtolower($row->title ?? '') }}"
+                                    data-date="{{ strtotime($row->created_at) }}"
+                                    style="margin-bottom: 16px; transition: background 0.3s; padding: 16px; border-radius: 8px; border: 1px solid #eee; background: {{ $row->is_read ? '#ffffff' : '#f0f4f8' }}; box-shadow: {{ $row->is_read ? 'none' : '0 2px 4px rgba(0,0,0,0.05)' }};">
 
-                            <div class="announcement-header">
-                                <div class="title-row">
-                                    <h3 class="announcement-title">{{ e($row->title) }}</h3>
+                                    <div class="announcement-header">
+                                        <div class="title-row" style="display:flex; justify-content:space-between; width:100%;">
+                                            <h3 class="announcement-title" style="margin: 0; color: {{ $row->is_read ? '#555' : '#111' }}; {{ !$row->is_read ? 'font-weight: 700;' : '' }}">
+                                                {{ e($row->title) }}
+                                                @if(!$row->is_read)
+                                                    <span class="badge" style="background: #e11d48; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; vertical-align: top; margin-left: 4px;">NEW</span>
+                                                @endif
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    @if(!empty($row->description))
+                                        <div class="announcement-description rich-text-content" style="margin-top: 8px; color: {{ $row->is_read ? '#666' : '#333' }};">
+                                            {!! \App\Support\RichText::sanitize($row->description) !!}
+                                        </div>
+                                    @endif
+
+                                    <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px; margin-top: 12px; font-size: 0.9em; color: #777;">
+                                        <span>
+                                            <i class="fas fa-file"></i>
+                                            File: {{ e($row->original_filename) }}
+                                        </span>
+                                        <span>
+                                            <i class="fas fa-calendar"></i>
+                                            Added: {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}
+                                        </span>
+                                    </div>
+
+                                    <div class="announcement-actions" style="margin-top: 12px;">
+                                        <button class="btn btn-sm btn-primary"
+                                            type="button"
+                                            onclick='editDownloadable(
+                                                {{ (int) $row->downloadable_id }},
+                                                @json($row->title),
+                                                @json($row->description),
+                                                @json($row->original_filename)
+                                            )'>
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+
+                                        <button class="btn btn-sm btn-delete"
+                                            type="button"
+                                            onclick="deleteDownloadable({{ (int) $row->downloadable_id }})">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+
+                                        <a href="{{ $fileUrl }}"
+                                            class="btn btn-sm btn-view-icon"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            onclick="markAsRead(this, {{ (int) $row->downloadable_id }})"
+                                            title="Open file">
+                                            <i class="fas fa-eye"></i> View
+                                        </a>
+                                    </div>
                                 </div>
-                            </div>
-
-                        @if(!empty($row->description))
-                            <div class="announcement-description rich-text-content">
-                                {!! \App\Support\RichText::sanitize($row->description) !!}
-                            </div>
-                        @endif
-
-                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px;">
-                            <span>
-                                <i class="fas fa-file"></i>
-                                File: {{ e($row->original_filename) }}
-                            </span>
-
-                            <span>
-                                <i class="fas fa-calendar"></i>
-                                Added: {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}
-                            </span>
+                            @endforeach
                         </div>
-
-                        <div class="announcement-actions">
-                            <button class="btn btn-sm btn-primary"
-                                type="button"
-                                onclick='editDownloadable(
-                                    {{ (int) $row->downloadable_id }},
-                                    @json($row->title),
-                                    @json($row->description),
-                                    @json($row->original_filename)
-                                )'>
-                                <i class="fas fa-edit"></i> Edit
-                            </button>
-
-                            <button class="btn btn-sm btn-delete"
-                                type="button"
-                                onclick="deleteDownloadable({{ (int) $row->downloadable_id }})">
-                                <i class="fas fa-trash"></i>
-                            </button>
-
-                            <a href="{{ $fileUrl }}"
-                                class="btn btn-sm btn-view-icon"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                title="Open file">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    </div>
+                    </details>
                 @empty
                     <div style="padding: 18px; opacity: .75;">No campus memoranda yet.</div>
                 @endforelse
@@ -418,14 +444,75 @@
     });
 
     const searchInput = document.getElementById('globalSearch');
+    const sortSelect = document.getElementById('sortOption');
 
     function runSearch() {
         const q = (searchInput.value || '').trim().toLowerCase();
+        const sortVal = sortSelect ? sortSelect.value : 'date_desc';
 
-        document.querySelectorAll('#downloadablesList .announcement-item').forEach(item => {
-            const hay = item.getAttribute('data-search') || '';
-            item.style.display = hay.includes(q) ? '' : 'none';
+        document.querySelectorAll('.year-folder').forEach(folder => {
+            const container = folder.querySelector('.year-content');
+            if (!container) return;
+
+            let items = Array.from(container.querySelectorAll('.downloadable-item'));
+            let hasVisible = false;
+
+            items.forEach(item => {
+                const hay = item.getAttribute('data-search') || '';
+                const match = hay.includes(q);
+                item.style.display = match ? '' : 'none';
+                if (match) hasVisible = true;
+            });
+
+            folder.style.display = hasVisible ? '' : 'none';
+
+            // Sorting
+            items.sort((a, b) => {
+                if (sortVal === 'date_desc') {
+                    return parseInt(b.getAttribute('data-date')) - parseInt(a.getAttribute('data-date'));
+                } else if (sortVal === 'date_asc') {
+                    return parseInt(a.getAttribute('data-date')) - parseInt(b.getAttribute('data-date'));
+                } else if (sortVal === 'name_asc') {
+                    return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name'));
+                } else if (sortVal === 'name_desc') {
+                    return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name'));
+                }
+                return 0;
+            });
+
+            items.forEach(item => container.appendChild(item));
         });
+    }
+
+    async function markAsRead(btn, id) {
+        try {
+            await fetch("{{ route('admin.downloadables.markRead') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({ id })
+            });
+            
+            // Update UI dynamically
+            const item = btn.closest('.downloadable-item');
+            if (item) {
+                item.style.background = '#ffffff';
+                item.style.boxShadow = 'none';
+                const title = item.querySelector('.announcement-title');
+                if (title) {
+                    title.style.color = '#555';
+                    title.style.fontWeight = 'normal';
+                    const badge = title.querySelector('.badge');
+                    if (badge) badge.remove();
+                }
+            }
+        } catch (err) {
+            console.error('Error marking as read:', err);
+        }
     }
 
     searchInput.addEventListener('input', runSearch);

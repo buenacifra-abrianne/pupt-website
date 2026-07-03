@@ -105,17 +105,17 @@
             <div>
                 <div class="students-contents-inner">
                     <div class="students-contents-head">
-                        <p class="section-tag">Contents</p>
+                        <p class="section-tag">Services</p>
                     </div>
 
-                    <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Research and Extension contents">
+                    <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Research and Extension services">
                         @if($cmsPreview)
-                            <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add content">
+                            <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add service">
                                 <div class="students-card-inner">
                                     <div class="students-card-front students-card-front-add">
                                         <div class="students-card-add-inner">
                                             <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                            <p class="students-card-add-label">Add Content</p>
+                                            <p class="students-card-add-label">Add Service</p>
                                         </div>
                                     </div>
                                 </div>
@@ -133,7 +133,7 @@
                                 <article
                                     class="students-card"
                                     data-cms-edit-trigger="cards"
-                                    data-cms-section-label="Research Contents"
+                                    data-cms-section-label="Research Services"
                                     data-research-card-index="{{ $loop->index }}"
                                 >
                             @else
@@ -144,24 +144,24 @@
                             @endif
                                 @if($cmsPreview)
                                     <div class="cms-preview-card-actions" aria-label="Card actions">
-                                        <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit content" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'research content' }}">
+                                        <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit service" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'research service' }}">
                                             Edit
                                         </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete content" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research content' }}">
+                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete service" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research service' }}">
                                             Delete
                                         </button>
                                     </div>
                                 @endif
                                 <div class="students-card-inner">
                                     <div class="students-card-front">
-                                        <img src="{{ \App\Support\ResearchCmsContent::resolveImagePath($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research content' }}">
+                                        <img src="{{ \App\Support\ResearchCmsContent::resolveImagePath($cardImage !== '' ? $cardImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $cardTitle !== '' ? $cardTitle : 'Research service' }}">
                                         <div class="students-card-copy">
-                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Content' }}</h3>
+                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Service' }}</h3>
                                         </div>
                                     </div>
                                     <div class="students-card-back">
                                         <div class="students-card-overlay-copy">
-                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Content' }}</h3>
+                                            <h3>{{ $cardTitle !== '' ? $cardTitle : 'Service' }}</h3>
                                             <div class="students-card-description">{!! \App\Support\RichText::sanitize($card['description'] ?? '') !!}</div>
                                         </div>
                                         <span class="students-card-action">{{ $cardLink !== '' ? 'Open link' : 'Update soon' }}</span>
@@ -178,15 +178,15 @@
                                     <div class="students-card-front">
                                         <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Research placeholder">
                                         <div class="students-card-copy">
-                                            <h3>No content yet</h3>
+                                            <h3>No services yet</h3>
                                         </div>
                                     </div>
                                     <div class="students-card-back">
                                         <div class="students-card-overlay-copy">
-                                            <h3>No content yet</h3>
-                                            <p>Add content from CMS to show research and extension links here.</p>
+                                            <h3>No services yet</h3>
+                                            <p>Add services from CMS to show research and extension links here.</p>
                                         </div>
-                                        <span class="students-card-action">Add content</span>
+                                        <span class="students-card-action">Add service</span>
                                     </div>
                                 </div>
                             </article>

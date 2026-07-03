@@ -169,6 +169,7 @@ Route::prefix('staff')
 
         // Downloadables
         Route::get('/downloadables', [StaffDownloadableController::class, 'index'])->name('downloadables');
+        Route::post('/downloadables/mark-read', [StaffDownloadableController::class, 'markAsRead'])->name('downloadables.markRead');
         Route::post('/downloadables/request-create', [StaffDownloadableController::class, 'requestCreate'])->name('downloadables.requestCreate');
         Route::post('/downloadables/request-update', [StaffDownloadableController::class, 'requestUpdate'])->name('downloadables.requestUpdate');
         Route::post('/downloadables/request-delete', [StaffDownloadableController::class, 'requestDelete'])->name('downloadables.requestDelete');
@@ -231,9 +232,8 @@ Route::prefix('admin')
             ->name('approvals.destroy');
 
         Route::get('/downloadables', [AdminDownloadableController::class, 'index'])->name('downloadables');
-
+        Route::post('/downloadables/mark-read', [AdminDownloadableController::class, 'markAsRead'])->name('downloadables.markRead');
         Route::post('/downloadables/save', [AdminDownloadableController::class, 'save'])->name('downloadables.save');
-
         Route::post('/downloadables/delete', [AdminDownloadableController::class, 'delete'])->name('downloadables.delete');
     });
 
@@ -343,9 +343,8 @@ Route::prefix('superadmin')->group(function () {
         // Downloadables
 
          Route::get('/downloadables', [SuperadminDownloadableController::class, 'index'])->name('superadmin.downloadables');
-
+        Route::post('/downloadables/mark-read', [SuperadminDownloadableController::class, 'markAsRead'])->name('superadmin.downloadables.markRead');
         Route::post('/downloadables/save', [SuperadminDownloadableController::class, 'save'])->name('superadmin.downloadables.save');
-
         Route::post('/downloadables/delete', [SuperadminDownloadableController::class, 'delete'])->name('superadmin.downloadables.delete');
     });
 
