@@ -49,15 +49,11 @@ class DownloadableController extends Controller
             ->toArray();
 
         foreach ($downloadables as $downloadable) {
-            $downloadable->year = date('Y', strtotime($downloadable->created_at));
             $downloadable->is_read = in_array($downloadable->downloadable_id, $readDownloadableIds);
         }
 
-        $groupedDownloadables = $downloadables->groupBy('year');
-
         return view('superadmin.downloadables', [
-            'groupedDownloadables' => $groupedDownloadables,
-            'downloadables' => $downloadables, // keep this for JS if needed
+            'downloadables' => $downloadables,
         ]);
     }
 
