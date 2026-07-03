@@ -469,6 +469,10 @@ function initWidgetDock() {
         transition-delay: 0.07s;
       }
 
+      .widget-dock.is-open .widget-dock-action:nth-child(3) {
+        transition-delay: 0.12s;
+      }
+
       .widget-dock-action.is-active,
       .widget-dock-fab.is-open {
         background: #8b0000;
@@ -620,6 +624,11 @@ function initWidgetDock() {
           <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
         </svg>
       </button>
+      <button type="button" class="widget-dock-action" data-widget-action="home" title="Go to Landing Page" aria-label="Go to Landing Page" tabindex="-1">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+        </svg>
+      </button>
     </div>
     <button type="button" class="widget-dock-fab" title="Open widgets" aria-label="Open widgets" aria-expanded="false">
       <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -638,6 +647,7 @@ function initWidgetDock() {
 
   const launcher = dock.querySelector(".widget-dock-fab");
   const chatAction = dock.querySelector('[data-widget-action="chat"]');
+  const homeAction = dock.querySelector('[data-widget-action="home"]');
   const chatButtonIcon = `
     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
       <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
@@ -667,6 +677,7 @@ function initWidgetDock() {
     launcher.classList.toggle("is-open", isOpen);
     document.body.classList.toggle("widget-dock-open", isOpen);
     chatAction.tabIndex = isOpen ? 0 : -1;
+    homeAction.tabIndex = isOpen ? 0 : -1;
     launcher.setAttribute("aria-expanded", isOpen ? "true" : "false");
     launcher.setAttribute("aria-label", isOpen ? "Close widgets" : "Open widgets");
     launcher.title = isOpen ? "Close widgets" : "Open widgets";
@@ -712,6 +723,10 @@ function initWidgetDock() {
 
     ensureChatIframe();
     setChatOpenState(!widget.classList.contains("is-open"));
+  });
+
+  homeAction.addEventListener("click", () => {
+    window.location.href = "/";
   });
 
   document.addEventListener("pointerdown", (event) => {
