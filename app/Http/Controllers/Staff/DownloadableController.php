@@ -79,21 +79,17 @@ class DownloadableController extends Controller
             ->toArray();
 
         foreach ($downloadables as $downloadable) {
-            $downloadable->year = date('Y', strtotime($downloadable->created_at));
             $downloadable->is_read = in_array($downloadable->downloadable_id, $readDownloadableIds);
         }
 
-        $groupedDownloadables = $downloadables->groupBy('year');
-
-        return view('staff.downloadables', compact(
-            'groupedDownloadables',
-            'downloadables',
-            'isFacultyPro',
-            'myRequests',
-            'myApprovedDownloadables',
-            'email',
-            'name'
-        ));
+        return view('staff.downloadables', [
+            'isFacultyPro' => $isFacultyPro,
+            'downloadables' => $downloadables,
+            'myRequests' => $myRequests,
+            'myApprovedDownloadables' => $myApprovedDownloadables,
+            'email' => $email,
+            'name' => $name,
+        ]);
     }
 
     public function markAsRead(Request $request)

@@ -117,66 +117,56 @@
             </div>
 
             <div id="downloadablesList">
-                @forelse($groupedDownloadables as $year => $items)
-                    <details class="year-folder" open style="margin-bottom: 20px; border: 1px solid #ddd; border-radius: 8px;">
-                        <summary style="padding: 12px 16px; background: #f8f9fa; font-weight: bold; cursor: pointer; border-radius: 8px 8px 0 0; list-style: none; display: flex; align-items: center;">
-                            <i class="fas fa-folder-open" style="margin-right: 8px; color: #f0c85a;"></i> 
-                            {{ $year }}
-                        </summary>
-                        <div class="year-content" style="padding: 16px;">
-                            @foreach($items as $row)
-                                @php
-                                    $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
-                                @endphp
+                @forelse($downloadables as $row)
+                    @php
+                        $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
+                    @endphp
 
-                                <div class="announcement-item downloadable-item"
-                                    data-search="{{ e(strtolower(($row->title ?? '') . ' ' . ($row->description ?? '') . ' ' . ($row->category ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
-                                    data-name="{{ strtolower($row->title ?? '') }}"
-                                    data-date="{{ strtotime($row->created_at) }}"
-                                    style="margin-bottom: 16px; transition: background 0.3s; padding: 16px; border-radius: 8px; border: 1px solid #eee; background: {{ $row->is_read ? '#ffffff' : '#f0f4f8' }}; box-shadow: {{ $row->is_read ? 'none' : '0 2px 4px rgba(0,0,0,0.05)' }};">
+                    <div class="announcement-item downloadable-item"
+                        data-search="{{ e(strtolower(($row->title ?? '') . ' ' . ($row->description ?? '') . ' ' . ($row->category ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
+                        data-name="{{ strtolower($row->title ?? '') }}"
+                        data-date="{{ strtotime($row->created_at) }}"
+                        style="margin-bottom: 16px; transition: background 0.3s; padding: 16px; border-radius: 8px; border: 1px solid #eee; background: {{ $row->is_read ? '#ffffff' : '#f0f4f8' }}; box-shadow: {{ $row->is_read ? 'none' : '0 2px 4px rgba(0,0,0,0.05)' }};">
 
-                                    <div class="announcement-header">
-                                        <div class="title-row" style="display:flex; justify-content:space-between; width:100%;">
-                                            <h3 class="announcement-title" style="margin: 0; color: {{ $row->is_read ? '#555' : '#111' }}; {{ !$row->is_read ? 'font-weight: 700;' : '' }}">
-                                                {{ e($row->title) }}
-                                                @if(!$row->is_read)
-                                                    <span class="badge" style="background: #e11d48; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; vertical-align: top; margin-left: 4px;">NEW</span>
-                                                @endif
-                                            </h3>
-                                        </div>
-                                    </div>
-
-                                    @if(!empty($row->description))
-                                        <div class="announcement-description rich-text-content" style="margin-top: 8px; color: {{ $row->is_read ? '#666' : '#333' }};">
-                                            {!! \App\Support\RichText::sanitize($row->description) !!}
-                                        </div>
+                        <div class="announcement-header">
+                            <div class="title-row" style="display:flex; justify-content:space-between; width:100%;">
+                                <h3 class="announcement-title" style="margin: 0; color: {{ $row->is_read ? '#555' : '#111' }}; {{ !$row->is_read ? 'font-weight: 700;' : '' }}">
+                                    {{ e($row->title) }}
+                                    @if(!$row->is_read)
+                                        <span class="badge" style="background: #e11d48; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; vertical-align: top; margin-left: 4px;">NEW</span>
                                     @endif
-
-                                    <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px; margin-top: 12px; font-size: 0.9em; color: #777;">
-                                        <span>
-                                            <i class="fas fa-file"></i>
-                                            File: {{ e($row->original_filename) }}
-                                        </span>
-                                        <span>
-                                            <i class="fas fa-calendar"></i>
-                                            Added: {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}
-                                        </span>
-                                    </div>
-
-                                    <div class="announcement-actions" style="margin-top: 12px;">
-                                        <a href="{{ $fileUrl }}"
-                                            class="btn btn-sm btn-primary"
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            onclick="markAsRead(this, {{ (int) $row->downloadable_id }})"
-                                            title="Open file">
-                                            <i class="fas fa-eye"></i> View Memorandum
-                                        </a>
-                                    </div>
-                                </div>
-                            @endforeach
+                                </h3>
+                            </div>
                         </div>
-                    </details>
+
+                        @if(!empty($row->description))
+                            <div class="announcement-description rich-text-content" style="margin-top: 8px; color: {{ $row->is_read ? '#666' : '#333' }};">
+                                {!! \App\Support\RichText::sanitize($row->description) !!}
+                            </div>
+                        @endif
+
+                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px; margin-top: 12px; font-size: 0.9em; color: #777;">
+                            <span>
+                                <i class="fas fa-file"></i>
+                                File: {{ e($row->original_filename) }}
+                            </span>
+                            <span>
+                                <i class="fas fa-calendar"></i>
+                                Added: {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}
+                            </span>
+                        </div>
+
+                        <div class="announcement-actions" style="margin-top: 12px;">
+                            <a href="{{ $fileUrl }}"
+                                class="btn btn-sm btn-primary"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                onclick="markAsRead(this, {{ (int) $row->downloadable_id }})"
+                                title="Open file">
+                                <i class="fas fa-eye"></i> View Memorandum
+                            </a>
+                        </div>
+                    </div>
                 @empty
                     <div style="padding: 18px; opacity: .75;">No campus memoranda yet.</div>
                 @endforelse
@@ -445,21 +435,15 @@
         const q = (searchInput.value || '').trim().toLowerCase();
         const sortVal = sortSelect ? sortSelect.value : 'date_desc';
 
-        document.querySelectorAll('.year-folder').forEach(folder => {
-            const container = folder.querySelector('.year-content');
-            if (!container) return;
-
+        const container = document.getElementById('downloadablesList');
+        if (container) {
             let items = Array.from(container.querySelectorAll('.downloadable-item'));
-            let hasVisible = false;
 
             items.forEach(item => {
                 const hay = item.getAttribute('data-search') || '';
                 const match = hay.includes(q);
                 item.style.display = match ? '' : 'none';
-                if (match) hasVisible = true;
             });
-
-            folder.style.display = hasVisible ? '' : 'none';
 
             // Sorting
             items.sort((a, b) => {
@@ -476,7 +460,7 @@
             });
 
             items.forEach(item => container.appendChild(item));
-        });
+        }
     }
 
     async function markAsRead(btn, id) {
