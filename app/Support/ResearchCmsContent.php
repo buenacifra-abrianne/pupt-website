@@ -24,6 +24,12 @@ class ResearchCmsContent
                 'link' => '/research',
                 'image' => 'assets/static_img/pupillar.jpeg',
             ],
+            [
+                'title' => 'Strategic Development Plan',
+                'description' => 'Discover the campus strategic development plan aligning academic priorities and growth.',
+                'link' => '/research/strategic-development-plan',
+                'image' => 'assets/static_img/pupillar.jpeg',
+            ],
         ],
         'strategic_development_plan' => [
             'label' => 'Strategic Development Plan',
