@@ -2210,18 +2210,23 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-dialog {
-        width: min(1080px, calc(100vw - 20px));
-        max-width: min(1080px, calc(100vw - 20px));
+        width: min(740px, calc(100vw - 20px));
+        max-width: min(740px, calc(100vw - 20px));
         overflow-x: visible;
         overflow-y: auto;
-        border-radius: 28px;
-        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
-        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
     }
 
     .about-cms-modal.is-official-card-focus .about-cms-modal-dialog {
-        width: min(900px, calc(100vw - 20px));
-        max-width: min(900px, calc(100vw - 20px));
+        width: min(680px, calc(100vw - 20px));
+        max-width: min(680px, calc(100vw - 20px));
+    }
+
+    .about-cms-modal.is-card-focus[data-about-active-panel="logo-and-symbols"] .about-cms-modal-dialog {
+        width: min(1020px, calc(100vw - 20px));
+        max-width: min(1020px, calc(100vw - 20px));
     }
 
     .about-cms-modal.is-chart-focus .about-cms-modal-dialog {
@@ -2232,11 +2237,9 @@
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
         display: grid;
         gap: 16px;
-        padding: 20px;
+        padding: 0;
         overflow: visible;
-        background:
-            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
-            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
+        background: transparent;
     }
 
     .about-cms-editor-panel.is-card-focus form {
@@ -2271,6 +2274,7 @@
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active {
+        position: relative;
         padding: 20px;
         max-width: 100%;
         width: 100%;
@@ -2302,6 +2306,12 @@
         max-width: 700px;
         margin: 0 auto;
         padding-top: 6px;
+    }
+
+    .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active > .about-cms-modal-footer {
+        max-width: 100%;
+        margin: 18px 0 0;
+        padding-top: 0;
     }
 
     .about-cms-modal.is-chart-focus .about-cms-modal-header p {
@@ -2546,6 +2556,61 @@
         const ABOUT_PREVIEW_STORAGE_KEY = `cms:about-preview-route:${window.location.pathname}`;
         const ABOUT_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-about-preview-page';
         let currentAboutPreviewRoute = 'overview';
+        const aboutModalChromePlacements = new WeakMap();
+
+        function rememberAboutModalChromePlacement(element) {
+            if (!element || aboutModalChromePlacements.has(element)) {
+                return;
+            }
+
+            aboutModalChromePlacements.set(element, {
+                parent: element.parentNode,
+                nextSibling: element.nextSibling,
+            });
+        }
+
+        function restoreAboutModalChrome(modal) {
+            if (!modal) {
+                return;
+            }
+
+            modal.querySelectorAll('[data-about-modal-relocated="true"]').forEach((element) => {
+                const placement = aboutModalChromePlacements.get(element);
+                if (!placement?.parent) {
+                    return;
+                }
+
+                if (placement.nextSibling && placement.nextSibling.parentNode === placement.parent) {
+                    placement.parent.insertBefore(element, placement.nextSibling);
+                } else {
+                    placement.parent.appendChild(element);
+                }
+
+                element.removeAttribute('data-about-modal-relocated');
+            });
+        }
+
+        function placeAboutCardModalChrome(modal, activeCard) {
+            if (!modal || !activeCard) {
+                return;
+            }
+
+            const closeButton = modal.querySelector('.about-cms-modal-close');
+            const activePanel = activeCard.closest('[data-about-editor-panel]');
+            const footer = activePanel?.querySelector('.about-cms-modal-footer');
+
+            if (closeButton && !activeCard.contains(closeButton)) {
+                rememberAboutModalChromePlacement(closeButton);
+                activeCard.prepend(closeButton);
+                closeButton.setAttribute('data-about-modal-relocated', 'true');
+            }
+
+            if (footer && !activeCard.contains(footer)) {
+                rememberAboutModalChromePlacement(footer);
+                activeCard.appendChild(footer);
+                footer.setAttribute('data-about-modal-relocated', 'true');
+            }
+        }
 
         function getStoredAboutPreviewRoute() {
             try {
@@ -2945,6 +3010,8 @@
             modal.hidden = false;
             document.body.style.overflow = 'hidden';
             document.body.classList.add('cms-editor-modal-open');
+            restoreAboutModalChrome(modal);
+            modal.dataset.aboutActivePanel = sectionKey;
             modal.classList.remove('is-official-card-focus');
             modal.classList.toggle('is-chart-focus', isChartFocus);
 
@@ -2987,6 +3054,10 @@
                         focusScope = setActiveSealEditor(options.sealIndex ?? '', panel, isCardFocus) || panel;
                     }
 
+                    if (isCardFocus && focusScope?.classList?.contains('about-cms-card-editor')) {
+                        placeAboutCardModalChrome(modal, focusScope);
+                    }
+
                     if (typeof window.initializeRichTextEditors === 'function') {
                         window.initializeRichTextEditors(panel);
                     }
@@ -3009,6 +3080,8 @@
             }
 
             modal.hidden = true;
+            restoreAboutModalChrome(modal);
+            delete modal.dataset.aboutActivePanel;
             modal.classList.remove('is-card-focus');
             modal.classList.remove('is-official-card-focus');
             modal.classList.remove('is-chart-focus');
