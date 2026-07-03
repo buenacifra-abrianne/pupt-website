@@ -19,3 +19,7 @@ Schedule::command('sync:botpress')
 Schedule::command('database-backups:run-scheduled')
     ->dailyAt('02:30')
     ->withoutOverlapping();
+
+Schedule::command('faculty:sync-cache')
+    ->everySixHours()
+    ->withoutOverlapping();

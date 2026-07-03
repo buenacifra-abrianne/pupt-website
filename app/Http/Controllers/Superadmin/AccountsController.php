@@ -109,7 +109,11 @@ class AccountsController extends Controller
             ];
         });
 
-        $facultyDirectory = $facultyDirectoryService->getActiveFacultyForDropdown();
+        $facultyDirectoryResponse = $facultyDirectoryService->getActiveFacultyForDropdown();
+        $facultyDirectory = $facultyDirectoryResponse['data'] ?? [];
+        $isFacultyCached = $facultyDirectoryResponse['is_cached'] ?? false;
+        $facultyCacheTimestamp = $facultyDirectoryResponse['cached_at'] ?? null;
+        
         $ocmsDirectory = $ocmsAdminDirectoryService->getActiveAdminsForDropdown();
 
         $combinedDirectory = collect(array_merge($facultyDirectory, $ocmsDirectory))
@@ -122,7 +126,7 @@ class AccountsController extends Controller
             ->map(function ($group) {
                 $items = collect($group)->values();
 
-                $primary = $items->firstWhere('source', 'FLSS')
+                $primary = $items->firstWhere(function($item) { return str_starts_with($item['source'] ?? '', 'FLSS'); })
                     ?? $items->firstWhere('source', 'OCMS')
                     ?? $items->first();
 
@@ -148,6 +152,8 @@ class AccountsController extends Controller
             'usersJson' => $mapped->toJson(),
             'rolesJson' => $roles->toJson(),
             'facultyDirectoryJson' => json_encode($combinedDirectory),
+            'isFacultyCached' => $isFacultyCached,
+            'facultyCacheTimestamp' => $facultyCacheTimestamp,
         ]);
     }
 

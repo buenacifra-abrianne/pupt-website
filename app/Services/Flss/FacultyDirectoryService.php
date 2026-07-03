@@ -14,14 +14,17 @@ class FacultyDirectoryService
     {
         if (!$this->client->configured()) {
             Log::warning('FLSS is not configured yet: missing base URL or API key.');
-            return [];
+            return ['data' => [], 'is_cached' => false, 'cached_at' => null];
         }
 
         try {
+            // Apply 3 second timeout for web requests
+            $this->client->setTimeout(3);
+            
             $payload = $this->client->get('/api/v1/faculties');
             $faculties = collect($payload['faculties'] ?? []);
 
-            return $faculties
+            $data = $faculties
                 ->filter(function ($faculty) {
                     return strtoupper(trim((string) ($faculty['status'] ?? ''))) === 'ACTIVE';
                 })
@@ -59,12 +62,56 @@ class FacultyDirectoryService
                 ])
                 ->values()
                 ->all();
+                
+            return ['data' => $data, 'is_cached' => false, 'cached_at' => null];
+            
         } catch (\Throwable $e) {
-            Log::error('FLSS faculty fetch failed', [
+            Log::error('FLSS faculty fetch failed, falling back to local cache', [
                 'message' => $e->getMessage(),
             ]);
 
-            return [];
+            return $this->getFallbackFromCache();
+        }
+    }
+    
+    protected function getFallbackFromCache(): array
+    {
+        try {
+            $cached = \Illuminate\Support\Facades\DB::table('faculty_cache')
+                ->where('status', 'Active')
+                ->orderBy('first_name')
+                ->orderBy('last_name')
+                ->orderBy('middle_name')
+                ->get();
+                
+            if ($cached->isEmpty()) {
+                return ['data' => [], 'is_cached' => true, 'cached_at' => null];
+            }
+            
+            $data = $cached->map(function ($faculty) {
+                return [
+                    'id' => $faculty->faculty_id,
+                    'faculty_code' => $faculty->faculty_code,
+                    'first_name' => $faculty->first_name,
+                    'middle_name' => $faculty->middle_name,
+                    'last_name' => $faculty->last_name,
+                    'suffix' => $faculty->suffix,
+                    'email' => strtolower(trim((string)$faculty->email)),
+                    'status' => $faculty->status,
+                    'label' => $faculty->label,
+                    'source' => 'FLSS (Cached)',
+                ];
+            })->all();
+            
+            $firstRecord = $cached->first();
+            $cachedAt = $firstRecord->updated_at ?? null;
+            
+            return ['data' => $data, 'is_cached' => true, 'cached_at' => $cachedAt];
+        } catch (\Throwable $e) {
+            Log::error('Failed to read from faculty_cache', [
+                'message' => $e->getMessage(),
+            ]);
+            return ['data' => [], 'is_cached' => true, 'cached_at' => null];
         }
     }
 }
