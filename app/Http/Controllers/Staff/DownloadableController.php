@@ -73,7 +73,20 @@ class DownloadableController extends Controller
                 ->get();
         }
 
+        $readDownloadableIds = DB::table('downloadable_user_reads')
+            ->where('user_id', $userId)
+            ->pluck('downloadable_id')
+            ->toArray();
+
+        foreach ($downloadables as $downloadable) {
+            $downloadable->year = date('Y', strtotime($downloadable->created_at));
+            $downloadable->is_read = in_array($downloadable->downloadable_id, $readDownloadableIds);
+        }
+
+        $groupedDownloadables = $downloadables->groupBy('year');
+
         return view('staff.downloadables', compact(
+            'groupedDownloadables',
             'downloadables',
             'isFacultyPro',
             'myRequests',
@@ -81,6 +94,21 @@ class DownloadableController extends Controller
             'email',
             'name'
         ));
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $id = $request->input('id');
+        $userId = session('user_id');
+
+        if ($id && $userId) {
+            DB::table('downloadable_user_reads')->updateOrInsert(
+                ['downloadable_id' => $id, 'user_id' => $userId],
+                ['created_at' => now(), 'updated_at' => now()]
+            );
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     public function requestCreate(Request $request)

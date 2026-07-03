@@ -35,13 +35,45 @@ class DownloadableController extends Controller
         AuditLog::record($action, 'DOWNLOADABLE', $description, $targetId);
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $userId = session('user_id');
+
         $downloadables = DB::table('downloadables')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('admin.downloadables', compact('downloadables'));
+        $readDownloadableIds = DB::table('downloadable_user_reads')
+            ->where('user_id', $userId)
+            ->pluck('downloadable_id')
+            ->toArray();
+
+        foreach ($downloadables as $downloadable) {
+            $downloadable->year = date('Y', strtotime($downloadable->created_at));
+            $downloadable->is_read = in_array($downloadable->downloadable_id, $readDownloadableIds);
+        }
+
+        $groupedDownloadables = $downloadables->groupBy('year');
+
+        return view('admin.downloadables', [
+            'groupedDownloadables' => $groupedDownloadables,
+            'downloadables' => $downloadables, // keep this for JS if needed
+        ]);
+    }
+
+    public function markAsRead(Request $request)
+    {
+        $id = $request->input('id');
+        $userId = session('user_id');
+
+        if ($id && $userId) {
+            DB::table('downloadable_user_reads')->updateOrInsert(
+                ['downloadable_id' => $id, 'user_id' => $userId],
+                ['created_at' => now(), 'updated_at' => now()]
+            );
+        }
+
+        return response()->json(['ok' => true]);
     }
 
     public function save(Request $request)
