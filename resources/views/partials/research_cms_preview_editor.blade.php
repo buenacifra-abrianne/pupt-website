@@ -3,6 +3,8 @@
     $researchEditorData = \App\Support\ResearchCmsContent::fromInput($researchEditorData ?? [], null);
     $pageEditor = $researchEditorData['page'] ?? $researchDefaults['page'];
     $cardsEditor = $researchEditorData['cards'] ?? $researchDefaults['cards'];
+    $sdpEditor = $researchEditorData['strategic_development_plan'] ?? $researchDefaults['strategic_development_plan'];
+    $researchPreviewPages = $researchPreviewPages ?? ['overview' => ($researchPreviewHtml ?? '')];
     $formClass = $researchEditorFormClass ?? 'cms-save-form';
     $submitRoute = $researchEditorSubmitRoute;
     $submitMode = $researchEditorSubmitMode ?? 'save';
@@ -27,6 +29,11 @@
                 <span class="research-cms-eyebrow">Research &amp; Extension CMS</span>
                 <h3>Live website preview</h3>
                 <p>Click the highlighted sections inside the preview to edit the page or contents.</p>
+            </div>
+
+            <div class="research-cms-preview-nav">
+                <button type="button" class="research-cms-preview-nav-btn is-active" data-research-preview-page="overview">Overview</button>
+                <button type="button" class="research-cms-preview-nav-btn" data-research-preview-page="strategic-development-plan">Strategic Development Plan</button>
             </div>
         </div>
 
@@ -301,12 +308,113 @@
                     </div>
                 </form>
             </section>
+            <section class="research-cms-editor-panel" data-research-editor-panel="strategic-development-plan-header" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="research_extension">
+                    <input type="hidden" name="section_key" value="strategic_development_plan">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="form-group">
+                        <label>Section Label</label>
+                        <input type="text" name="research[strategic_development_plan][label]" maxlength="255" value="{{ $sdpEditor['label'] ?? 'Strategic Development Plan' }}">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Lead Text</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'research[strategic_development_plan][lead]',
+                            'value' => $sdpEditor['lead'] ?? '',
+                            'placeholder' => 'Write the strategic development plan intro text...',
+                        ])
+                    </div>
+
+                    <div class="research-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Strategic Development Plan Header') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="research-cms-editor-panel" data-research-editor-panel="strategic-development-plan" hidden data-research-sdp-panel>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-research-sdp-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="research_extension">
+                    <input type="hidden" name="section_key" value="strategic_development_plan">
+                    <input type="hidden" name="research_sdp_version" value="0" data-research-sdp-version>
+                    <input type="hidden" name="research_active_sdp_index" value="" data-research-active-sdp-index>
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="research-cms-card-stack" data-research-sdp-stack>
+                        @foreach($sdpEditor['development_priorities'] ?? [] as $index => $priority)
+                            <article class="research-cms-card-editor" data-research-sdp-editor data-research-sdp-index="{{ $index }}">
+                                <div class="research-cms-card-editor-head" data-research-sdp-editor-head>
+                                    <div>
+                                        <h4>Priority {{ $loop->iteration }}</h4>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="research[strategic_development_plan][development_priorities][{{ $index }}][title]" maxlength="255" value="{{ $priority['title'] ?? '' }}">
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Body</label>
+                                    @include('partials.rich_text_editor', [
+                                        'name' => 'research[strategic_development_plan][development_priorities]['.$index.'][body]',
+                                        'value' => $priority['body'] ?? '',
+                                        'placeholder' => 'Describe this development priority...',
+                                    ])
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-research-sdp-template>
+                        <article class="research-cms-card-editor" data-research-sdp-editor data-research-sdp-index="__INDEX__">
+                            <div class="research-cms-card-editor-head" data-research-sdp-editor-head>
+                                <div>
+                                    <h4>Priority __NUMBER__</h4>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="research[strategic_development_plan][development_priorities][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Body</label>
+                                @include('partials.rich_text_editor', [
+                                    'name' => 'research[strategic_development_plan][development_priorities][__INDEX__][body]',
+                                    'value' => '',
+                                    'placeholder' => 'Describe this development priority...',
+                                ])
+                            </div>
+                        </article>
+                    </template>
+
+                    <div class="research-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Development Priorities') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
         </div>
     </div>
 </div>
 
-<script type="application/json" data-research-preview-json>
-{!! json_encode($researchPreviewHtml, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
+<script type="application/json" data-research-preview-pages-json>
+{!! json_encode($researchPreviewPages, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
 </script>
 
 @include('partials.rich_text_editor_assets')
@@ -779,17 +887,34 @@
         }
 
         const RESEARCH_PREVIEW_MIN_LOADING_MS = 1500;
-        const previewScript = document.querySelector('[data-research-preview-json]');
-        const previewHtml = previewScript ? JSON.parse(previewScript.textContent || '""') : '';
+        const previewScript = document.querySelector('[data-research-preview-pages-json]');
+        const previewPages = previewScript ? JSON.parse(previewScript.textContent || '{}') : {};
+        let currentPreviewPage = 'overview';
         const modal = document.querySelector('[data-research-editor-modal]');
         const modalTitle = modal?.querySelector('#{{ $idPrefix }}-modal-title');
         const modalDescription = modal?.querySelector('[data-research-editor-description]');
         const panels = Array.from(document.querySelectorAll('[data-research-editor-panel]'));
         const frames = Array.from(document.querySelectorAll('[data-research-preview-frame]'));
+        const previewNavBtns = Array.from(document.querySelectorAll('[data-research-preview-page]'));
 
         if (!modal || !frames.length) {
             return;
         }
+
+        const getPreviewHtml = (page) => {
+            return typeof previewPages[page] === 'string' ? previewPages[page]
+                : (typeof previewPages['overview'] === 'string' ? previewPages['overview'] : '');
+        };
+
+        previewNavBtns.forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const page = btn.getAttribute('data-research-preview-page') || 'overview';
+                if (page === currentPreviewPage) return;
+                currentPreviewPage = page;
+                previewNavBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
+                frames.forEach((frame) => loadFrame(frame));
+            });
+        });
 
         const closeEditor = () => {
             modal.querySelectorAll('[data-research-card-editor][data-research-unsaved="1"]').forEach((editor) => {
@@ -840,9 +965,15 @@
             }
 
             if (modalDescription) {
-                modalDescription.textContent = sectionKey === 'cards'
-                    ? 'Update this content item shown in the contents strip.'
-                    : 'Update the page header section, title, and description.';
+                if (sectionKey === 'cards') {
+                    modalDescription.textContent = 'Update this content item shown in the contents strip.';
+                } else if (sectionKey === 'strategic-development-plan-header') {
+                    modalDescription.textContent = 'Update the Strategic Development Plan label and intro text.';
+                } else if (sectionKey === 'strategic-development-plan') {
+                    modalDescription.textContent = 'Edit, add, or remove development priority items.';
+                } else {
+                    modalDescription.textContent = 'Update the page header section, title, and description.';
+                }
             }
 
             modal.hidden = false;
@@ -1112,10 +1243,11 @@
 
         const loadFrame = (frame) => {
             setResearchPreviewLoading(frame, true);
+            const html = getPreviewHtml(currentPreviewPage);
             if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                window.applyCmsPreviewFrameContent(frame, typeof previewHtml === 'string' ? previewHtml : '');
+                window.applyCmsPreviewFrameContent(frame, html);
             } else {
-                frame.srcdoc = typeof previewHtml === 'string' ? previewHtml : '';
+                frame.srcdoc = html;
             }
         };
 
@@ -1130,16 +1262,43 @@
 
         window.addEventListener('message', (event) => {
             const data = event.data || {};
-            if (!data || data.type !== 'cms-research-preview-height') {
+            if (!data || typeof data.type !== 'string') return;
+
+            if (data.type === 'cms-research-preview-height') {
+                const targetFrame = frames.find((frame) => frame.contentWindow === event.source);
+                if (targetFrame) {
+                    syncResearchPreviewHeight(targetFrame, data.height);
+                }
                 return;
             }
 
-            const targetFrame = frames.find((frame) => frame.contentWindow === event.source);
-            if (!targetFrame) {
+            if (data.type === 'cms-research-edit') {
+                const sectionKey = data.section || '';
+                const labelMap = {
+                    'page': 'Page Header',
+                    'cards': 'Contents',
+                    'strategic-development-plan-header': 'Strategic Development Plan Header',
+                    'strategic-development-plan': 'Development Priorities',
+                };
+                openEditor(sectionKey, labelMap[sectionKey] || 'Edit section', {});
                 return;
             }
 
-            syncResearchPreviewHeight(targetFrame, data.height);
+            if (data.type === 'cms-research-sdp-priority-add') {
+                const index = addSdpPriority();
+                openEditor('strategic-development-plan', 'Add Priority', { sdpIndex: index });
+                return;
+            }
+
+            if (data.type === 'cms-research-sdp-priority-edit') {
+                openEditor('strategic-development-plan', 'Edit Priority', { sdpIndex: data.index !== '' ? Number(data.index) : null });
+                return;
+            }
+
+            if (data.type === 'cms-research-sdp-priority-delete') {
+                void confirmDeleteSdpPriority(data.index !== '' ? Number(data.index) : null, data.label || '');
+                return;
+            }
         });
 
         document.querySelectorAll('[data-close-research-editor]').forEach((trigger) => {
@@ -1486,6 +1645,87 @@
             }
         });
 
+        // --- SDP Priority Management ---
+        const sdpTemplate = modal.querySelector('[data-research-sdp-template]');
+        const sdpStack = modal.querySelector('[data-research-sdp-stack]');
+        const sdpVersionInput = modal.querySelector('[data-research-sdp-version]');
+        const activeSdpIndexInput = modal.querySelector('[data-research-active-sdp-index]');
+
+        const bumpSdpVersion = () => {
+            if (sdpVersionInput) {
+                sdpVersionInput.value = String(Date.now());
+            }
+        };
+
+        const relabelSdpPriorities = () => {
+            const editors = Array.from(sdpStack?.querySelectorAll('[data-research-sdp-editor]') ?? []);
+            editors.forEach((editor, index) => {
+                const headTitle = editor.querySelector('[data-research-sdp-editor-head] h4');
+                if (headTitle) headTitle.textContent = `Priority ${index + 1}`;
+            });
+        };
+
+        const setActiveSdpEditor = (sdpIndex = null) => {
+            const editors = Array.from(sdpStack?.querySelectorAll('[data-research-sdp-editor]') ?? []);
+            if (!editors.length) {
+                if (activeSdpIndexInput) activeSdpIndexInput.value = '';
+                return;
+            }
+            let targetEditor = null;
+            if (sdpIndex !== null && sdpIndex !== undefined) {
+                targetEditor = editors.find((e) => e.getAttribute('data-research-sdp-index') === String(sdpIndex)) || null;
+            }
+            if (!targetEditor) targetEditor = editors[0] || null;
+            editors.forEach((e) => e.classList.toggle('is-active', e === targetEditor));
+            if (activeSdpIndexInput) {
+                activeSdpIndexInput.value = targetEditor?.getAttribute('data-research-sdp-index') || '';
+            }
+        };
+
+        const nextSdpIndex = () => {
+            const indexes = Array.from(sdpStack?.querySelectorAll('[data-research-sdp-editor]') ?? [])
+                .map((e) => Number(e.getAttribute('data-research-sdp-index') || '0'))
+                .filter((v) => Number.isFinite(v));
+            return indexes.length ? Math.max(...indexes) + 1 : 0;
+        };
+
+        const addSdpPriority = () => {
+            if (!sdpTemplate || !sdpStack) return null;
+            const index = nextSdpIndex();
+            const fragment = sdpTemplate.content.cloneNode(true);
+            fragment.querySelectorAll('[name]').forEach((field) => {
+                field.name = field.name.replace(/__INDEX__/g, String(index));
+            });
+            fragment.querySelectorAll('[data-research-sdp-index]').forEach((el) => {
+                el.setAttribute('data-research-sdp-index', String(index));
+            });
+            const editor = fragment.querySelector('[data-research-sdp-editor]');
+            if (editor) editor.setAttribute('data-research-sdp-unsaved', '1');
+            const headTitle = fragment.querySelector('[data-research-sdp-editor-head] h4');
+            if (headTitle) headTitle.textContent = `Priority ${index + 1}`;
+            sdpStack.appendChild(fragment);
+            if (typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(sdpStack);
+            }
+            bumpSdpVersion();
+            relabelSdpPriorities();
+            setActiveSdpEditor(index);
+            return index;
+        };
+
+        const confirmDeleteSdpPriority = async (sdpIndex, label) => {
+            if (sdpIndex === null || sdpIndex === undefined) return;
+            const displayLabel = label || `Priority ${sdpIndex + 1}`;
+            if (!window.confirm(`Delete "${displayLabel}"? This cannot be undone.`)) return;
+            const editor = sdpStack?.querySelector(`[data-research-sdp-editor][data-research-sdp-index="${sdpIndex}"]`);
+            if (editor) {
+                editor.remove();
+                bumpSdpVersion();
+                relabelSdpPriorities();
+                setActiveSdpEditor();
+            }
+        };
+
         document.querySelectorAll('.{{ $formClass }}').forEach((form) => {
             form.addEventListener('submit', () => {
                 if (typeof window.syncRichTextEditors === 'function') {
@@ -1563,6 +1803,59 @@
         setActiveCardEditor();
         initResearchImageDropzones(modal);
         bindResearchCardsDirtyTracking();
+        relabelSdpPriorities();
+        setActiveSdpEditor();
         window.__researchCmsPreviewEditorReady = true;
     })();
 </script>
+
+<style>
+    .research-cms-preview-head {
+        display: flex !important;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 16px;
+        flex-wrap: wrap;
+        padding-bottom: 12px;
+    }
+
+    .research-cms-preview-nav {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .research-cms-preview-nav-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 18px;
+        border: 1px solid rgba(127, 17, 19, 0.16);
+        border-radius: 999px;
+        background: transparent;
+        color: #5c0000;
+        font-size: 0.82rem;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s, border-color 0.15s;
+        white-space: nowrap;
+    }
+
+    .research-cms-preview-nav-btn:hover {
+        background: rgba(127, 17, 19, 0.06);
+        border-color: rgba(127, 17, 19, 0.28);
+    }
+
+    .research-cms-preview-nav-btn.is-active {
+        background: #7f1113;
+        border-color: #7f1113;
+        color: #fff8f1;
+    }
+
+    .research-cms-preview-nav-btn.is-active:hover {
+        background: #9a1517;
+        border-color: #9a1517;
+    }
+</style>

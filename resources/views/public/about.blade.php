@@ -519,13 +519,13 @@
                     @else
 
                         <article
-                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan' ? ' cms-preview-editable' : '' }}"
-                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan')
+                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
                             @endif
                         >
-                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'strategic-development-plan')
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols')
                                 <button type="button" class="cms-preview-chip" data-cms-edit-trigger="{{ $selectedSlug }}" aria-label="Edit {{ $selectedSection['label'] }}">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
@@ -533,7 +533,7 @@
                                 </button>
                             @endif
 
-                             @if($selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'campus-officials' && $selectedSlug !== 'strategic-development-plan')
+                             @if($selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'campus-officials')
                                 <div class="about-detail-heading">
                                     <div class="about-detail-heading-copy">
                                         <h2>{{ $selectedSection['label'] ?? '' }}</h2>
@@ -1210,87 +1210,6 @@
                                 })();
                                 </script>
 
-                                @elseif($selectedSlug === 'strategic-development-plan')
-                                <div
-                                    class="sdp-page-header reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-                                    @if($cmsPreview)
-                                        data-cms-section="strategic-development-plan-header"
-                                        data-cms-section-label="{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}"
-                                    @endif
-                                >
-                                    @if($cmsPreview)
-                                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="strategic-development-plan-header" aria-label="Edit {{ $selectedSection['label'] ?? 'Strategic Development Plan' }}">
-                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                                            </svg>
-                                        </button>
-                                    @endif
-
-                                    <div @if($cmsPreview) data-cms-boundary class="cms-preview-boundary-edge" @endif>
-                                        @php
-                                            $sdpHeaderDescription = trim((string) (($selectedSection['lead'] ?? '') !== '' ? ($selectedSection['lead'] ?? '') : ($selectedSection['summary'] ?? '')));
-                                            $sdpHeaderDescriptionHtml = trim($sdpHeaderDescription) !== strip_tags($sdpHeaderDescription)
-                                                ? \App\Support\RichText::sanitize($sdpHeaderDescription)
-                                                : nl2br(e($sdpHeaderDescription));
-                                        @endphp
-                                        <div class="sdp-page-header-inner">
-                                            <div class="sdp-page-header-copy">
-                                                <p class="sdp-page-header-eyebrow">Strategic Planning</p>
-                                                <h2 class="sdp-page-title">{{ $selectedSection['label'] ?? 'Strategic Development Plan' }}</h2>
-                                                <div class="sdp-page-subtitle rich-text-content">{!! $sdpHeaderDescriptionHtml !!}</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                    <div class="sdp-block-header reveal">
-                                        <span class="ls-block-kicker">Development Priorities</span>
-                                        <h3 class="ls-block-title">Highlighted focus areas driving the campus forward</h3>
-                                    </div>
-                                    <div class="sdp-priorities-grid">
-                                        @if($cmsPreview)
-                                            <article
-                                                class="sdp-priority-card sdp-priority-card--add reveal"
-                                                data-about-plan-priority-add
-                                                tabindex="0"
-                                                role="button"
-                                                aria-label="Add a new strategic development priority"
-                                            >
-                                                <div class="sdp-priority-add-inner">
-                                                    <span class="sdp-priority-add-plus" aria-hidden="true">+</span>
-                                                    <p class="sdp-priority-add-label">Add Priority</p>
-                                                </div>
-                                            </article>
-                                        @endif
-                                        @foreach($selectedSection['development_priorities'] ?? [] as $priority)
-                                            @php
-                                                $num = str_pad((string) $loop->iteration, 2, '0', STR_PAD_LEFT);
-                                                $priorityBody = (string) ($priority['body'] ?? '');
-                                                $priorityBodyHtml = trim($priorityBody) !== strip_tags($priorityBody)
-                                                    ? \App\Support\RichText::sanitize($priorityBody)
-                                                    : nl2br(e($priorityBody));
-                                            @endphp
-                                            <article class="sdp-priority-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' cms-preview-editable-card' : '' }}"
-                                                @if($cmsPreview)
-                                                    data-about-plan-priority-card
-                                                    data-about-plan-priority-index="{{ $loop->index }}"
-                                                    data-about-plan-priority-label="{{ $priority['title'] ?? ('Priority Card ' . $loop->iteration) }}"
-                                                    data-about-plan-priority-route="strategic-development-plan"
-                                                @endif>
-                                                @if($cmsPreview)
-                                                    <div class="cms-preview-card-actions" aria-label="Strategic development priority actions">
-                                                        <button type="button" class="cms-preview-card-action" data-about-plan-priority-edit>Edit</button>
-                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-plan-priority-delete>Delete</button>
-                                                    </div>
-                                                @endif
-                                                <div class="sdp-priority-card-accent" aria-hidden="true"></div>
-                                                <div class="sdp-priority-header">
-                                                    <span class="sdp-priority-index">{{ $num }}</span>
-                                                    <h4 class="sdp-priority-title">{{ $priority['title'] ?? '' }}</h4>
-                                                </div>
-                                                <div class="sdp-priority-body rich-text-content">{!! $priorityBodyHtml !!}</div>
-                                            </article>
-                                        @endforeach
-                                    </div>
                                   @endif
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}

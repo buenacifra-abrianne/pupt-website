@@ -72,6 +72,7 @@ Route::get('/students/downloadable-forms', [StudentsController::class, 'download
 Route::get('/students/document-requests', [StudentsController::class, 'documentRequests'])->name('public.students.document-requests');
 Route::get('/events', [EventsController::class, 'index'])->name('public.events');
 Route::get('/research', [ResearchController::class, 'index'])->name('public.research');
+Route::get('/research/strategic-development-plan', [ResearchController::class, 'strategicPlan'])->name('public.research.strategic-development-plan');
 Route::get('/feedback', [FeedbackController::class, 'index'])->name('public.feedback');
 Route::post('/feedback', [FeedbackController::class, 'store'])->name('public.feedback.submit');
 

@@ -12,6 +12,27 @@ class ResearchController extends Controller
 {
     public function index(Request $request)
     {
+        $researchCms = $this->loadResearchCms();
+
+        return view('public.research', [
+            'researchCms' => $researchCms,
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
+    public function strategicPlan(Request $request)
+    {
+        $researchCms = $this->loadResearchCms();
+
+        return view('public.research_sdp', [
+            'researchCms' => $researchCms,
+            'sdp' => $researchCms['strategic_development_plan'] ?? ResearchCmsContent::defaults()['strategic_development_plan'],
+            'cmsPreview' => $request->boolean('cms_preview'),
+        ]);
+    }
+
+    private function loadResearchCms(): array
+    {
         $researchCms = ResearchCmsContent::defaults();
 
         if (Schema::hasTable('cms_contents')) {
@@ -24,9 +45,6 @@ class ResearchController extends Controller
             }
         }
 
-        return view('public.research', [
-            'researchCms' => $researchCms,
-            'cmsPreview' => $request->boolean('cms_preview'),
-        ]);
+        return $researchCms;
     }
 }
