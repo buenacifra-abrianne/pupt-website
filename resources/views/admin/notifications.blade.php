@@ -65,6 +65,9 @@
                 <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link active">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
+                    @if(($unreadNotificationCount ?? 0) > 0)
+                        <span class="unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : $unreadNotificationCount }}</span>
+                    @endif
                 </a>
             </li>
 
@@ -283,6 +286,20 @@
 
         if (item) item.classList.remove('unread');
         btn.disabled = true;
+        
+        document.querySelectorAll('.unread-notifications-badge').forEach(badge => {
+            let text = badge.innerText;
+            let current = text === '99+' ? 100 : parseInt(text, 10);
+            if (!isNaN(current)) {
+                current--;
+                if (current <= 0) {
+                    badge.style.display = 'none';
+                } else {
+                    badge.innerText = current > 99 ? '99+' : current;
+                }
+            }
+        });
+
         showToast(response.message || "Notification marked as read.", 'success', 'Success');
       } catch (err) {
         showToast("Mark as read failed: " + err.message, 'error');

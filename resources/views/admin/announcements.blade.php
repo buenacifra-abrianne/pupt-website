@@ -63,6 +63,9 @@
                 <a href="{{ route('admin.notifications') ?? '#' }}" class="nav-link">
                     <i class="fas fa-bell"></i>
                     <span>Notifications</span>
+                    @if(($unreadNotificationCount ?? 0) > 0)
+                        <span class="unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : $unreadNotificationCount }}</span>
+                    @endif
                 </a>
             </li>
 
