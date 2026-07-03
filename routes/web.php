@@ -243,6 +243,12 @@ Route::prefix('admin')
 Route::prefix('superadmin')->group(function () {
     Route::get('/login', [AuthController::class, 'show'])->name('superadmin.login');
     Route::post('/login', [AuthController::class, 'login'])->name('superadmin.login.submit');
+    
+    // MFA Routes
+    Route::get('/login/mfa/setup', [\App\Http\Controllers\Superadmin\MfaController::class, 'setup'])->name('superadmin.mfa.setup');
+    Route::get('/login/mfa/challenge', [\App\Http\Controllers\Superadmin\MfaController::class, 'challenge'])->name('superadmin.mfa.challenge');
+    Route::post('/login/mfa/verify', [\App\Http\Controllers\Superadmin\MfaController::class, 'verify'])->name('superadmin.mfa.verify');
+
     Route::post('/logout', [AuthController::class, 'logout'])->name('superadmin.logout');
 
     Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])->group(function () {

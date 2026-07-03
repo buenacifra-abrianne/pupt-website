@@ -56,42 +56,54 @@ class AuthController extends Controller
             ->where($idColumn, data_get($user, $idColumn))
             ->update($updates);
 
-$dbRole = $this->normalizeDbRole((string) ($user->role_code ?? $user->role ?? ''));
+        $userId = (int) ($user->user_id ?? $user->id ?? 0);
+        session(['mfa_pending_user_id' => $userId]);
 
-$userId = (int) ($user->user_id ?? $user->id ?? 0);
+        if (empty($user->mfa_secret)) {
+            return redirect()->route('superadmin.mfa.setup');
+        }
 
-$assignedRoles = [];
-if (Schema::hasTable('user_roles') && $userId > 0) {
-    $assignedRoles = DB::table('user_roles')
-        ->where('user_id', $userId)
-        ->orderByDesc('is_primary')
-        ->orderBy('id')
-        ->pluck('role_code')
-        ->map(function ($role) {
-            return strtoupper(trim((string) $role));
-        })
-        ->values()
-        ->all();
-}
+        return redirect()->route('superadmin.mfa.challenge');
+    }
 
-if (empty($assignedRoles) && !empty($dbRole)) {
-    $assignedRoles = [$dbRole];
-}
+    public function completeLogin($user)
+    {
+        $dbRole = $this->normalizeDbRole((string) ($user->role_code ?? $user->role ?? ''));
+        $userId = (int) ($user->user_id ?? $user->id ?? 0);
 
-session([
-    'user_logged_in' => true,
-    'user_id' => $userId,
-    'user_email' => $user->email ?? '',
-    'user_first_name' => $user->first_name ?? '',
-    'user_middle_name' => $user->middle_name ?? '',
-    'user_last_name'  => $user->last_name ?? '',
-    'user_suffix' => $user->suffix ?? '',
-    'user_role' => $dbRole ?? '',
-    'user_roles' => $assignedRoles,
-    'user_name' => $user->name ?? '',
-    'user_profile_picture' => $user->profile_picture ?? '',
-    'terms_accepted' => false,
-]);
+        $assignedRoles = [];
+        if (Schema::hasTable('user_roles') && $userId > 0) {
+            $assignedRoles = DB::table('user_roles')
+                ->where('user_id', $userId)
+                ->orderByDesc('is_primary')
+                ->orderBy('id')
+                ->pluck('role_code')
+                ->map(function ($role) {
+                    return strtoupper(trim((string) $role));
+                })
+                ->values()
+                ->all();
+        }
+
+        if (empty($assignedRoles) && !empty($dbRole)) {
+            $assignedRoles = [$dbRole];
+        }
+
+        session([
+            'user_logged_in' => true,
+            'user_id' => $userId,
+            'user_email' => $user->email ?? '',
+            'user_first_name' => $user->first_name ?? '',
+            'user_middle_name' => $user->middle_name ?? '',
+            'user_last_name'  => $user->last_name ?? '',
+            'user_suffix' => $user->suffix ?? '',
+            'user_role' => $dbRole ?? '',
+            'user_roles' => $assignedRoles,
+            'user_name' => $user->name ?? '',
+            'user_profile_picture' => $user->profile_picture ?? '',
+            'terms_accepted' => false,
+        ]);
+        session()->forget('mfa_pending_user_id');
 
         AuditLog::record(
             'LOGIN',
@@ -105,39 +117,39 @@ session([
         );
 
         if ($dbRole === 'SUPERADMIN') {
-    return redirect()->route('superadmin.dashboard');
-}
+            return redirect()->route('superadmin.dashboard');
+        }
 
-if ($dbRole === 'ADMIN') {
-    return redirect()->route('admin.dashboard');
-}
+        if ($dbRole === 'ADMIN') {
+            return redirect()->route('admin.dashboard');
+        }
 
-if (
-    $dbRole === 'REGISTRAR' ||
-    $dbRole === 'HAP' ||
-    $dbRole === 'STUDENT_SERVICES' ||
-    $dbRole === 'RESEARCH_EXTENSION' ||
-    $dbRole === 'FACULTY' ||
-    $dbRole === 'FACULTY_PRO' ||
-    $dbRole === 'DENTAL' ||
-    $dbRole === 'GUIDANCE' ||
-    $dbRole === 'CLINIC' ||
-    $dbRole === 'ACCREDITATION' ||
-    $dbRole === 'ADMISSIONS' ||
-    $dbRole === 'LIBRARY' ||
-    $dbRole === 'OJT' ||
-    $dbRole === 'CWTS' ||
-    $dbRole === 'DIRECTOR_OFFICE' ||
-    $dbRole === 'ADMINISTRATION'
-) {
-    return redirect()->route('staff.dashboard');
-}
+        if (
+            $dbRole === 'REGISTRAR' ||
+            $dbRole === 'HAP' ||
+            $dbRole === 'STUDENT_SERVICES' ||
+            $dbRole === 'RESEARCH_EXTENSION' ||
+            $dbRole === 'FACULTY' ||
+            $dbRole === 'FACULTY_PRO' ||
+            $dbRole === 'DENTAL' ||
+            $dbRole === 'GUIDANCE' ||
+            $dbRole === 'CLINIC' ||
+            $dbRole === 'ACCREDITATION' ||
+            $dbRole === 'ADMISSIONS' ||
+            $dbRole === 'LIBRARY' ||
+            $dbRole === 'OJT' ||
+            $dbRole === 'CWTS' ||
+            $dbRole === 'DIRECTOR_OFFICE' ||
+            $dbRole === 'ADMINISTRATION'
+        ) {
+            return redirect()->route('staff.dashboard');
+        }
 
-$request->session()->flush();
+        session()->flush();
 
-return back()->withErrors([
-    'login' => 'Unauthorized role: ' . $dbRole
-])->withInput();
+        return redirect()->route('superadmin.login')->withErrors([
+            'login' => 'Unauthorized role: ' . $dbRole
+        ])->withInput();
     }
 
     public function logout(Request $request)
