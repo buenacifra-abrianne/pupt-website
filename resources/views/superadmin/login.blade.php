@@ -51,16 +51,6 @@
                                 </div>
                             </div>
 
-                            <div class="form-group">
-                                <label for="password" class="sr-only">Password</label>
-                                <div class="input-wrapper">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-width="1.8" stroke="currentColor" class="input-icon" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V8.25a4.5 4.5 0 1 0-9 0v2.25" />
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 10.5h13.5a1.5 1.5 0 0 1 1.5 1.5v7.5a1.5 1.5 0 0 1-1.5 1.5H5.25a1.5 1.5 0 0 1-1.5-1.5V12a1.5 1.5 0 0 1 1.5-1.5Z" />
-                                    </svg>
-                                    <input type="password" id="password" name="password" placeholder="Password" required>
-                                </div>
-                            </div>
 
                             @if(session('logged_out'))
                                 <div class="logout-message">
@@ -68,7 +58,7 @@
                                 </div>
                             @endif
 
-                            <button type="submit" name="login_submit" class="login-btn">LOGIN</button>
+                            <button type="submit" name="login_submit" class="login-btn">NEXT</button>
                         </form>
 
                         <p class="sis-tools"><strong>CMS Tools</strong> (Dashboard, Announcements &amp; News, Content Management, Notifications, Approvals, Accounts, Audit Logs, Analytics)</p>

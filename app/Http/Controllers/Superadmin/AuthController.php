@@ -22,12 +22,11 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => ['required', 'string'],
-            'password' => ['required', 'string'],
         ]);
 
         $user = $this->findUserByEmail((string) $request->email);
 
-        if (!$user || !$this->passwordMatches((string) $request->password, (string) ($user->password ?? ''))) {
+        if (!$user) {
             AuditLog::record(
                 'SECURITY',
                 'SECURITY',
@@ -36,21 +35,15 @@ class AuthController extends Controller
                 ['user_name' => 'Unknown']
             );
             return back()
-                ->withErrors(['login' => 'Invalid email or password'])
+                ->withErrors(['login' => 'Invalid login attempt'])
                 ->withInput();
         }
 
-        // Auto-upgrade legacy plain-text passwords to hashed passwords after successful login.
-        $storedPassword = (string) ($user->password ?? '');
         $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
         $updates = [
             'last_login_at' => now(),
         ];
-
-        if ($storedPassword !== '' && hash_equals($storedPassword, (string) $request->password)) {
-            $updates['password'] = Hash::make((string) $request->password);
-        }
 
         DB::table('users')
             ->where($idColumn, data_get($user, $idColumn))
@@ -345,41 +338,6 @@ class AuthController extends Controller
         return back()->with('profile_password_success', 'Password changed successfully.');
     }
 
-    public function updateLocalPassword(Request $request)
-    {
-        $request->validate([
-            'new_password' => [
-                'required',
-                'confirmed',
-                \Illuminate\Validation\Rules\Password::min(8)
-                    ->mixedCase()
-                    ->letters()
-                    ->numbers()
-                    ->symbols(),
-            ],
-        ]);
-
-        [$user, $idColumn] = $this->resolveSessionUser();
-
-        if (!$user) {
-            return back()->with('error', 'Session expired. Please login again.');
-        }
-
-        DB::table('users')
-            ->where($idColumn, data_get($user, $idColumn))
-            ->update([
-                'password' => password_hash((string) $request->input('new_password'), PASSWORD_BCRYPT),
-            ]);
-
-        AuditLog::record(
-            'UPDATED',
-            'ACCOUNT',
-            'User updated local fallback password.',
-            (int) data_get($user, $idColumn)
-        );
-
-        return back()->with('success', 'Local backup password has been set successfully.');
-    }
 
     private function resolveSessionUser(): array
     {

@@ -105,9 +105,6 @@ Route::post('/profile/password', [AuthController::class, 'updatePassword'])
     ->middleware('superadmin.auth')
     ->name('profile.password.update');
 
-Route::post('/profile/local-password', [AuthController::class, 'updateLocalPassword'])
-    ->middleware('superadmin.auth')
-    ->name('profile.local-password.update');
 
 Route::middleware('superadmin.auth')->group(function () {
     Route::post('/cms/terms/accept', [CmsTermsController::class, 'accept'])->name('cms.terms.accept');
