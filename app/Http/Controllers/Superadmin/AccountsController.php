@@ -114,7 +114,10 @@ class AccountsController extends Controller
         $isFacultyCached = $facultyDirectoryResponse['is_cached'] ?? false;
         $facultyCacheTimestamp = $facultyDirectoryResponse['cached_at'] ?? null;
         
-        $ocmsDirectory = $ocmsAdminDirectoryService->getActiveAdminsForDropdown();
+        $ocmsDirectoryResponse = $ocmsAdminDirectoryService->getActiveAdminsForDropdown();
+        $ocmsDirectory = $ocmsDirectoryResponse['data'] ?? [];
+        $isAdminCached = $ocmsDirectoryResponse['is_cached'] ?? false;
+        $adminCacheTimestamp = $ocmsDirectoryResponse['cached_at'] ?? null;
 
         $combinedDirectory = collect(array_merge($facultyDirectory, $ocmsDirectory))
             ->filter(function ($person) {
@@ -127,7 +130,7 @@ class AccountsController extends Controller
                 $items = collect($group)->values();
 
                 $primary = $items->firstWhere(function($item) { return str_starts_with($item['source'] ?? '', 'FLSS'); })
-                    ?? $items->firstWhere('source', 'OCMS')
+                    ?? $items->firstWhere(function($item) { return str_starts_with($item['source'] ?? '', 'OCMS'); })
                     ?? $items->first();
 
                 $sources = $items->pluck('source')
@@ -154,6 +157,8 @@ class AccountsController extends Controller
             'facultyDirectoryJson' => json_encode($combinedDirectory),
             'isFacultyCached' => $isFacultyCached,
             'facultyCacheTimestamp' => $facultyCacheTimestamp,
+            'isAdminCached' => $isAdminCached,
+            'adminCacheTimestamp' => $adminCacheTimestamp,
         ]);
     }
 

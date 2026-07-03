@@ -23,3 +23,7 @@ Schedule::command('database-backups:run-scheduled')
 Schedule::command('faculty:sync-cache')
     ->everySixHours()
     ->withoutOverlapping();
+
+Schedule::command('admin:sync-cache')
+    ->everySixHours()
+    ->withoutOverlapping();
