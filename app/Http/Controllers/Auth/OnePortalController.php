@@ -318,6 +318,14 @@ class OnePortalController extends Controller
         (int) session('user_id', 0)
     );
 
+    $isIdpOnline = \Illuminate\Support\Facades\Cache::remember('idp_health_status', 300, function () {
+        return \App\Services\IdpHealthChecker::check();
+    });
+
+    if (!$isIdpOnline) {
+        return $this->buildLoggedOutRedirect($request, 'You have been logged out locally (Central Login system is currently offline).');
+    }
+
     if (in_array($logoutMode, ['get', 'front_channel', 'idp_get'], true)) {
         return $this->handleIdpGetLogout($request, $accessToken);
     }
