@@ -975,6 +975,170 @@
             </section>
 
             @php
+                $citizensCharterEditor = $aboutSections['citizens-charter'] ?? [];
+            @endphp
+            <section class="about-cms-editor-panel" data-about-editor-panel="citizens-charter" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="citizens-charter">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="form-group">
+                        <label>Citizen's Charter Lead</label>
+                        <textarea name="about[sections][citizens-charter][lead]" rows="3" maxlength="4000">{{ $citizensCharterEditor['lead'] ?? '' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Citizen's Charter Body</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'about[sections][citizens-charter][body_text]',
+                            'value' => $citizensCharterEditor['body_text'] ?? '',
+                            'placeholder' => 'Write the Citizen\'s Charter content...',
+                        ])
+                    </div>
+
+                    <h4 style="margin-top: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Services</h4>
+
+                    <div class="about-cms-card-stack" data-about-services-list>
+                        @foreach($citizensCharterEditor['services'] ?? [] as $index => $service)
+                            @php
+                                $serviceImageInputId = $idPrefix.'-about-service-image-file-'.$index;
+                                $serviceImageFieldId = $idPrefix.'-about-service-image-'.$index;
+                                $serviceImageValue = (string) ($service['image'] ?? '');
+                                $serviceImagePreview = \App\Support\AboutCmsContent::resolveImagePath($serviceImageValue !== '' ? $serviceImageValue : null, 'assets/static_img/pupillar.jpeg');
+                            @endphp
+                            <article class="about-cms-card-editor" data-about-service-editor data-about-service-index="{{ $index }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4 data-about-service-heading>Service {{ $loop->iteration }}</h4>
+                                </div>
+                                <div class="form-group">
+                                    <label>Upload Service Image</label>
+                                    <div class="about-cms-image-dropzone-shell">
+                                        <input type="hidden" id="{{ $serviceImageFieldId }}" name="about[sections][citizens-charter][services][{{ $index }}][image]" value="{{ $serviceImageValue }}" data-about-image-field>
+                                        <input
+                                            type="file"
+                                            id="{{ $serviceImageInputId }}"
+                                            name="about[sections][citizens-charter][services][{{ $index }}][image_file]"
+                                            class="about-cms-image-dropzone-input"
+                                            accept="image/*"
+                                            data-about-image-field-id="{{ $serviceImageFieldId }}"
+                                        >
+                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $serviceImageInputId }}" tabindex="0" role="button" aria-label="Upload service image">
+                                            <span class="about-cms-image-dropzone-preview-column">
+                                                <span class="about-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $serviceImagePreview }}"
+                                                        alt="Service image preview"
+                                                        class="about-cms-image-dropzone-preview"
+                                                        data-about-preview-for="{{ $serviceImageInputId }}"
+                                                        data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    >
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $serviceImageInputId }}" aria-label="Delete image" title="Delete image" {{ $serviceImageValue === '' ? 'hidden' : '' }}>
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload">
+                                                <span class="about-cms-image-dropzone-icon">
+                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                                </span>
+                                                <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this service.</span>
+                                                <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $serviceImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="about[sections][citizens-charter][services][{{ $index }}][title]" maxlength="255" value="{{ $service['title'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="about[sections][citizens-charter][services][{{ $index }}][description]" rows="3" maxlength="5000">{{ $service['description'] ?? '' }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link</label>
+                                    <input type="text" name="about[sections][citizens-charter][services][{{ $index }}][link]" maxlength="2048" value="{{ $service['link'] ?? '' }}" placeholder="https://...">
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-about-service-template>
+                        <article class="about-cms-card-editor" data-about-service-editor data-about-service-index="__INDEX__">
+                            <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                <h4 data-about-service-heading>Service __NUMBER__</h4>
+                            </div>
+                            <div class="form-group">
+                                <label>Upload Service Image</label>
+                                <div class="about-cms-image-dropzone-shell">
+                                    <input type="hidden" id="{{ $idPrefix }}-about-service-image-__INDEX__" name="about[sections][citizens-charter][services][__INDEX__][image]" value="" data-about-image-field>
+                                    <input
+                                        type="file"
+                                        id="{{ $idPrefix }}-about-service-image-file-__INDEX__"
+                                        name="about[sections][citizens-charter][services][__INDEX__][image_file]"
+                                        class="about-cms-image-dropzone-input"
+                                        accept="image/*"
+                                        data-about-image-field-id="{{ $idPrefix }}-about-service-image-__INDEX__"
+                                    >
+                                    <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" tabindex="0" role="button" aria-label="Upload service image">
+                                        <span class="about-cms-image-dropzone-preview-column">
+                                            <span class="about-cms-image-dropzone-media">
+                                                <img
+                                                    src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    alt="Service image preview"
+                                                    class="about-cms-image-dropzone-preview"
+                                                    data-about-preview-for="{{ $idPrefix }}-about-service-image-file-__INDEX__"
+                                                    data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                >
+                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
+                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                </button>
+                                            </span>
+                                        </span>
+                                        <span class="about-cms-image-dropzone-upload">
+                                            <span class="about-cms-image-dropzone-icon">
+                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this service.</span>
+                                            <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="about[sections][citizens-charter][services][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="about[sections][citizens-charter][services][__INDEX__][description]" rows="3" maxlength="5000"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Link</label>
+                                <input type="text" name="about[sections][citizens-charter][services][__INDEX__][link]" maxlength="2048" value="" placeholder="https://...">
+                            </div>
+                        </article>
+                    </template>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-outline-primary" data-about-service-add>+ Add Service</button>
+                    </div>
+
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Citizen\'s Charter') }}</button>
+                    </div>
+                </form>
+            </section>
+
+            @php
                 $officialsEditor = $aboutSections['campus-officials'] ?? [];
             @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="campus-officials" hidden>
@@ -5139,6 +5303,24 @@
         initSealsEditor();
         initPlanPrioritiesEditor();
         initStrategicGoalsEditor();
+
+        const initServicesEditor = () => {
+            const servicesList = document.querySelector('[data-about-services-list]');
+            const servicesTemplate = document.querySelector('[data-about-service-template]');
+            const addBtn = document.querySelector('[data-about-service-add]');
+            if (servicesList && servicesTemplate && addBtn) {
+                addBtn.addEventListener('click', () => {
+                    const newIndex = servicesList.querySelectorAll('[data-about-service-editor]').length;
+                    const html = document.createElement('div');
+                    html.appendChild(servicesTemplate.content.cloneNode(true));
+                    html.innerHTML = html.innerHTML.replace(/__INDEX__/g, newIndex).replace(/__NUMBER__/g, newIndex + 1);
+                    const editor = html.firstElementChild;
+                    servicesList.appendChild(editor);
+                    initAboutImageDropzones(editor);
+                });
+            }
+        };
+        initServicesEditor();
 
         const frame = document.querySelector('[data-about-preview-frame]');
         if (frame) {
