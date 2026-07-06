@@ -7,6 +7,14 @@
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/services.css') }}?v={{ filemtime(public_path('assets/css/services.css')) }}">
     <link rel="icon" type="image/png" href="../assets/static_img/logo.png" sizes="32x32">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:title" content="Polytechnic University of the Philippines - Taguig Campus" />
+    <meta property="og:description" content="Welcome to the PUP Taguig Campus Website" />
+    <meta property="og:image" content="{{ asset('assets/static_img/logo.png') }}" />
+
 </head>
 <body>
     <!-- Header -->

@@ -69,7 +69,8 @@ trait CmsPreviewHandler
             if ($sectionKey === 'overview') {
                 $html = view('public.about', ['aboutCms' => $aboutLive, 'cmsPreview' => true])->render();
             } else {
-                $html = view('public.about', ['aboutCms' => $aboutLive, 'cmsPreview' => true])->render();
+                $selectedSection = $aboutLive['sections'][$sectionKey] ?? null;
+                $html = view('public.about', ['aboutCms' => $aboutLive, 'cmsPreview' => true, 'selectedSection' => $selectedSection])->render();
             }
         }
 

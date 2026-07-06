@@ -13,6 +13,14 @@
             --landing-bg-image: url("{{ asset('assets/static_img/bg_landing_page.jpg') }}");
         }
     </style>
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="{{ url()->current() }}" />
+    <meta property="og:title" content="Polytechnic University of the Philippines - Taguig Campus" />
+    <meta property="og:description" content="Welcome to the PUP Taguig Campus Website" />
+    <meta property="og:image" content="{{ asset('assets/static_img/logo.png') }}" />
+
 </head>
 <body>
 
