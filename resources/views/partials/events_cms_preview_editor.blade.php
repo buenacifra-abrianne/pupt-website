@@ -163,7 +163,10 @@
                                                                 data-events-preview-for="{{ $cardInputId }}"
                                                                 data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                             >
-                                                            <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <button type="button" class="events-cms-image-dropzone-edit" data-events-edit-image-for="{{ $cardInputId }}" aria-label="Edit image" title="Edit image">
+                                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                            </button>
+                                                    <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
                                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                             </button>
                                                         </span>
@@ -297,7 +300,10 @@
                                                                 data-events-preview-for="{{ $cardInputId }}"
                                                                 data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                             >
-                                                            <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                            <button type="button" class="events-cms-image-dropzone-edit" data-events-edit-image-for="{{ $cardInputId }}" aria-label="Edit image" title="Edit image">
+                                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                            </button>
+                                                    <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
                                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                             </button>
                                                         </span>
@@ -410,7 +416,10 @@
                                                     data-events-preview-for="{{ $idPrefix }}-events-card-image-__INDEX__"
                                                     data-events-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                 >
-                                                <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $idPrefix }}-events-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                <button type="button" class="events-cms-image-dropzone-edit" data-events-edit-image-for="{{ $idPrefix }}-events-card-image-__INDEX__" aria-label="Edit image" title="Edit image">
+                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                </button>
+                                                    <button type="button" class="events-cms-image-dropzone-remove" data-events-clear-image-for="{{ $idPrefix }}-events-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
@@ -1075,7 +1084,54 @@
         display: none;
     }
 
-    .events-cms-image-dropzone-remove {
+    
+    
+
+    
+
+    
+
+    
+
+
+    .events-cms-image-dropzone-edit {
+        position: absolute;
+        top: 60px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(26, 115, 232, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #1a73e8;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(26, 115, 232, 0.12);
+        backdrop-filter: blur(6px);
+        z-index: 10;
+        transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    
+
+    .events-cms-image-dropzone-edit:hover {
+        background: #1a73e8;
+        color: #ffffff;
+    }
+
+    
+
+    .events-cms-image-dropzone-edit[hidden] {
+        display: none !important;
+    }
+
+.events-cms-image-dropzone-remove {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -1111,8 +1167,29 @@
         }
     }
 
+    
     @media (max-width: 640px) {
-        .events-cms-image-dropzone-remove {
+        .events-cms-image-dropzone-edit {
+            top: 54px;
+            right: 12px;
+            padding: 0;
+            height: 36px;
+        }
+
+        
+    }
+
+@media (max-width: 640px) {
+        
+    
+
+    
+
+    
+
+    
+
+.events-cms-image-dropzone-remove {
             top: 12px;
             right: 12px;
         }
@@ -1810,6 +1887,8 @@
                     || document.querySelector(`[data-events-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-events-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-events-clear-image-for="${input.id}"]`);
+                const editButton = scope.querySelector(`[data-events-edit-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-events-edit-image-for="${input.id}"]`);
                 const imageField = input.closest('[data-events-card-editor]')?.querySelector('[data-events-image-field]') || null;
 
                 if (!label || !fileNameEl) {
@@ -1827,6 +1906,7 @@
 
                     const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
                     removeButton.hidden = !hasImage;
+                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
                 };
 
                 const prepareImageFile = async (file) => {
@@ -1845,6 +1925,39 @@
 
                     return editedFile;
                 };
+                if (typeof editButton !== 'undefined' && editButton) {
+                    editButton.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let file = input.files && input.files[0];
+                        if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
+                            try {
+                                const res = await fetch(previewEl.src);
+                                const blob = await res.blob();
+                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } catch(err) {
+                                console.error("Could not fetch image to edit", err);
+                            }
+                        }
+                        
+                        if (file && window.CmsImageEditor) {
+                            const editedFile = await window.CmsImageEditor.editFile(file, {
+                                input,
+                                previewElement: previewEl,
+                            });
+                            
+                            if (editedFile && editedFile !== file) {
+                                window.CmsImageEditor.setInputFile(input, editedFile);
+                                if (typeof applyFile === 'function') {
+                                    applyFile(editedFile);
+                                }
+                            }
+                        }
+                    });
+                }
+
 
                 const applyFile = (file) => {
                     if (!file) {

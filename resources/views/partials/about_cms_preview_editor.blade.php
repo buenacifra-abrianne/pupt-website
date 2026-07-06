@@ -119,7 +119,10 @@
                                             data-about-preview-for="{{ $aboutHeroInputId }}"
                                             data-about-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
                                         >
-                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $aboutHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutHeroInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -188,7 +191,10 @@
                                             data-about-preview-for="{{ $aboutStoryImageInputId }}"
                                             data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                         >
-                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutStoryImageInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $aboutStoryImageInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutStoryImageInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -283,6 +289,9 @@
                                                         data-about-preview-for="{{ $sectionImageInputId }}"
                                                         data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                     >
+                                                    <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $sectionImageInputId }}" aria-label="Edit image" title="Edit image">
+                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                    </button>
                                                     <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $sectionImageInputId }}" aria-label="Delete image" title="Delete image">
                                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                     </button>
@@ -783,6 +792,9 @@
                                                         data-about-preview-for="{{ $sealInputId }}"
                                                         data-about-default-src="{{ \App\Support\AboutCmsContent::resolveImagePath($sealFallbackImage, 'assets/static_img/logo.png') }}"
                                                     >
+                                                    <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $sealInputId }}" aria-label="Edit image" title="Edit image" {{ $sealImageValue === '' ? 'hidden' : '' }}>
+                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                    </button>
                                                     <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $sealInputId }}" aria-label="Delete image" title="Delete image" {{ $sealImageValue === '' ? 'hidden' : '' }}>
                                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                     </button>
@@ -891,7 +903,10 @@
                                                     data-about-preview-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__"
                                                     data-about-default-src="{{ asset('assets/static_img/logo.png') }}"
                                                 >
-                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
+                                                <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__" aria-label="Edit image" title="Edit image" hidden>
+                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-seal-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
@@ -1036,6 +1051,9 @@
                                                         data-about-preview-for="{{ $serviceImageInputId }}"
                                                         data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                     >
+                                                    <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $serviceImageInputId }}" aria-label="Edit image" title="Edit image" {{ $serviceImageValue === '' ? 'hidden' : '' }}>
+                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                    </button>
                                                     <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $serviceImageInputId }}" aria-label="Delete image" title="Delete image" {{ $serviceImageValue === '' ? 'hidden' : '' }}>
                                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                     </button>
@@ -1096,7 +1114,10 @@
                                                     data-about-preview-for="{{ $idPrefix }}-about-service-image-file-__INDEX__"
                                                     data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                 >
-                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
+                                                <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" aria-label="Edit image" title="Edit image" hidden>
+                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
@@ -1183,7 +1204,10 @@
                                             data-about-preview-for="{{ $officialChartInputId }}"
                                             data-about-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
                                         >
-                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $officialChartInputId }}" aria-label="Delete image" title="Delete image" {{ $officialChartValue === '' ? 'hidden' : '' }}>
+                                        <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $officialChartInputId }}" aria-label="Edit image" title="Edit image" {{ $officialChartValue === '' ? 'hidden' : '' }}>
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $officialChartInputId }}" aria-label="Delete image" title="Delete image" {{ $officialChartValue === '' ? 'hidden' : '' }}>
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -1236,6 +1260,9 @@
                                                         data-about-preview-for="{{ $officialImageInputId }}"
                                                         data-about-default-src="{{ asset('assets/static_img/temporary_profile.png') }}"
                                                     >
+                                                    <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $officialImageInputId }}" aria-label="Edit image" title="Edit image" {{ $officialImageValue === '' ? 'hidden' : '' }}>
+                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                    </button>
                                                     <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $officialImageInputId }}" aria-label="Delete image" title="Delete image" {{ $officialImageValue === '' ? 'hidden' : '' }}>
                                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                     </button>
@@ -1325,7 +1352,10 @@
                                                     data-about-preview-for="{{ $idPrefix }}-about-official-image-file-__INDEX__"
                                                     data-about-default-src="{{ asset('assets/static_img/temporary_profile.png') }}"
                                                 >
-                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-official-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
+                                                <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $idPrefix }}-about-official-image-file-__INDEX__" aria-label="Edit image" title="Edit image" hidden>
+                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-official-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
@@ -1562,6 +1592,20 @@
         font: inherit;
         font-size: 0.82rem;
         font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .about-cms-preview-nav-btn:not(.is-active):hover {
+        background: #fff8f5;
+        border-color: #f0c85a;
+        color: #f0c85a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(240, 200, 90, 0.15);
+    }
+
+    .about-cms-preview-nav-btn.is-active:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(128, 0, 0, 0.25);
     }
 
     .about-cms-preview-nav-btn.is-active {
@@ -2220,7 +2264,54 @@
         display: none;
     }
 
-    .about-cms-image-dropzone-remove {
+    
+    
+
+    
+
+    
+
+    
+
+
+    .about-cms-image-dropzone-edit {
+        position: absolute;
+        top: 60px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(26, 115, 232, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #1a73e8;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(26, 115, 232, 0.12);
+        backdrop-filter: blur(6px);
+        z-index: 10;
+        transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    
+
+    .about-cms-image-dropzone-edit:hover {
+        background: #1a73e8;
+        color: #ffffff;
+    }
+
+    
+
+    .about-cms-image-dropzone-edit[hidden] {
+        display: none !important;
+    }
+
+.about-cms-image-dropzone-remove {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -2228,9 +2319,9 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        min-width: 40px;
+        width: 40px;
         height: 40px;
-        padding: 0 12px;
+        padding: 0;
         border: 1px solid rgba(127, 17, 19, 0.14);
         border-radius: 999px;
         background: rgba(255, 253, 250, 0.94);
@@ -2242,13 +2333,7 @@
         backdrop-filter: blur(6px);
     }
 
-    .about-cms-image-dropzone-remove::after {
-        content: "Delete image";
-        font-size: 0.72rem;
-        font-weight: 700;
-        letter-spacing: 0.02em;
-        white-space: nowrap;
-    }
+    
 
     .about-cms-image-dropzone-remove:hover {
         background: #7f1113;
@@ -2265,17 +2350,36 @@
         }
     }
 
+    
     @media (max-width: 640px) {
-        .about-cms-image-dropzone-remove {
-            top: 12px;
+        .about-cms-image-dropzone-edit {
+            top: 54px;
             right: 12px;
-            padding: 0 10px;
+            padding: 0;
             height: 36px;
         }
 
-        .about-cms-image-dropzone-remove::after {
-            content: "Delete";
+        
+    }
+
+@media (max-width: 640px) {
+        
+    
+
+    
+
+    
+
+    
+
+.about-cms-image-dropzone-remove {
+            top: 12px;
+            right: 12px;
+            padding: 0;
+            height: 36px;
         }
+
+        
     }
 
     .about-cms-image-dropzone-remove[hidden] {
@@ -2588,7 +2692,16 @@
         }
     }
 
-    .about-cms-modal.is-chart-focus .about-cms-image-dropzone-remove {
+    .about-cms-modal.is-chart-focus 
+    
+
+    
+
+    
+
+    
+
+.about-cms-image-dropzone-remove {
         top: 16px;
         right: 16px;
     }
@@ -4941,6 +5054,8 @@
                     || document.querySelector(`[data-about-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-about-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-about-clear-image-for="${input.id}"]`);
+                const editButton = scope.querySelector(`[data-about-edit-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-about-edit-image-for="${input.id}"]`);
                 const imageField = input.dataset.aboutImageFieldId
                     ? document.getElementById(input.dataset.aboutImageFieldId)
                     : (input.closest('[data-about-contents-editor]')?.querySelector('[data-about-image-field]') || null);
@@ -4970,6 +5085,7 @@
 
                     const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
                     removeButton.hidden = !hasImage;
+                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
                 };
 
                 const prepareImageFile = async (file) => {
@@ -4988,6 +5104,39 @@
 
                     return editedFile;
                 };
+                if (typeof editButton !== 'undefined' && editButton) {
+                    editButton.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let file = input.files && input.files[0];
+                        if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
+                            try {
+                                const res = await fetch(previewEl.src);
+                                const blob = await res.blob();
+                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } catch(err) {
+                                console.error("Could not fetch image to edit", err);
+                            }
+                        }
+                        
+                        if (file && window.CmsImageEditor) {
+                            const editedFile = await window.CmsImageEditor.editFile(file, {
+                                input,
+                                previewElement: previewEl,
+                            });
+                            
+                            if (editedFile && editedFile !== file) {
+                                window.CmsImageEditor.setInputFile(input, editedFile);
+                                if (typeof applyFile === 'function') {
+                                    applyFile(editedFile);
+                                }
+                            }
+                        }
+                    });
+                }
+
 
                 const applyFile = (file) => {
                     if (!file) {

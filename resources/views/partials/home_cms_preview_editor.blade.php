@@ -111,7 +111,11 @@
                                             data-home-carousel-preview-for="{{ $slideInputId }}"
                                             data-home-carousel-default-src="{{ asset($defaultSlideImage) }}"
                                         >
-                                        <button
+                                        
+                                        <button type="button" class="home-cms-carousel-edit" data-home-carousel-edit-for="{{ $slideInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+<button
                                             type="button"
                                             class="home-cms-carousel-remove"
                                             data-home-carousel-clear-for="{{ $slideInputId }}"
@@ -549,6 +553,20 @@
         font: inherit;
         font-size: 0.82rem;
         font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .home-cms-preview-nav-btn:not(.is-active):hover {
+        background: #fff8f5;
+        border-color: #f0c85a;
+        color: #f0c85a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(240, 200, 90, 0.15);
+    }
+
+    .home-cms-preview-nav-btn.is-active:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(128, 0, 0, 0.25);
     }
 
     .home-cms-preview-nav-btn.is-active {
@@ -903,7 +921,42 @@
         box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
     }
 
-    .home-cms-carousel-remove {
+    
+    .home-cms-carousel-edit {
+        position: absolute;
+        top: 60px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(26, 115, 232, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #1a73e8;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(26, 115, 232, 0.12);
+        backdrop-filter: blur(6px);
+        z-index: 10;
+        transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    .home-cms-carousel-edit:hover {
+        background: #1a73e8;
+        color: #ffffff;
+    }
+
+    
+
+    .home-cms-carousel-edit[hidden] {
+        display: none !important;
+    }
+
+.home-cms-carousel-remove {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -1133,6 +1186,8 @@
                     || document.querySelector(`[data-home-carousel-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-home-carousel-clear-for="${input.id}"]`)
                     || document.querySelector(`[data-home-carousel-clear-for="${input.id}"]`);
+                const editButton = scope.querySelector(`[data-home-carousel-edit-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-carousel-edit-for="${input.id}"]`);
                 const imageField = input.closest('.carousel-manager-item')?.querySelector('[data-home-carousel-image-field]') || null;
 
                 if (!dropzone || !fileNameEl || !previewEl) {
@@ -1150,6 +1205,7 @@
 
                     const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
                     removeButton.hidden = !hasImage;
+                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
                 };
 
                 const prepareImageFile = async (file) => {
@@ -1168,6 +1224,39 @@
 
                     return editedFile;
                 };
+                if (typeof editButton !== 'undefined' && editButton) {
+                    editButton.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let file = input.files && input.files[0];
+                        if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
+                            try {
+                                const res = await fetch(previewEl.src);
+                                const blob = await res.blob();
+                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } catch(err) {
+                                console.error("Could not fetch image to edit", err);
+                            }
+                        }
+                        
+                        if (file && window.CmsImageEditor) {
+                            const editedFile = await window.CmsImageEditor.editFile(file, {
+                                input,
+                                previewElement: previewEl,
+                            });
+                            
+                            if (editedFile && editedFile !== file) {
+                                window.CmsImageEditor.setInputFile(input, editedFile);
+                                if (typeof applyFile === 'function') {
+                                    applyFile(editedFile);
+                                }
+                            }
+                        }
+                    });
+                }
+
 
                 const applyFile = (file) => {
                     if (!file) {
@@ -1266,6 +1355,7 @@
 
                     const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
                     removeButton.hidden = !hasImage;
+                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
                 };
 
                 const prepareImageFile = async (file) => {
@@ -1284,6 +1374,39 @@
 
                     return editedFile;
                 };
+                if (typeof editButton !== 'undefined' && editButton) {
+                    editButton.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let file = input.files && input.files[0];
+                        if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
+                            try {
+                                const res = await fetch(previewEl.src);
+                                const blob = await res.blob();
+                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } catch(err) {
+                                console.error("Could not fetch image to edit", err);
+                            }
+                        }
+                        
+                        if (file && window.CmsImageEditor) {
+                            const editedFile = await window.CmsImageEditor.editFile(file, {
+                                input,
+                                previewElement: previewEl,
+                            });
+                            
+                            if (editedFile && editedFile !== file) {
+                                window.CmsImageEditor.setInputFile(input, editedFile);
+                                if (typeof applyFile === 'function') {
+                                    applyFile(editedFile);
+                                }
+                            }
+                        }
+                    });
+                }
+
 
                 const applyFile = (file) => {
                     if (!file) {

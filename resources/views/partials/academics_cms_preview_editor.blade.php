@@ -100,7 +100,10 @@
                                             data-academics-preview-for="{{ $academicsHeroInputId }}"
                                             data-academics-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
                                         >
-                                        <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $academicsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $academicsHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $academicsHeroInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -206,7 +209,10 @@
                                                             data-academics-preview-for="{{ $itemInputId }}"
                                                             data-academics-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                         >
-                                                        <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $itemInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $itemInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $itemInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -433,6 +439,20 @@
         font: inherit;
         font-size: 0.82rem;
         font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .academics-cms-preview-nav-btn:not(.is-active):hover {
+        background: #fff8f5;
+        border-color: #f0c85a;
+        color: #f0c85a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(240, 200, 90, 0.15);
+    }
+
+    .academics-cms-preview-nav-btn.is-active:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(128, 0, 0, 0.25);
     }
 
     .academics-cms-preview-nav-btn:hover,
@@ -753,7 +773,54 @@
         z-index: 3;
     }
 
-    .academics-cms-image-dropzone-remove {
+    
+    
+
+    
+
+    
+
+    
+
+
+    .academics-cms-image-dropzone-edit {
+        position: absolute;
+        top: 60px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(26, 115, 232, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #1a73e8;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(26, 115, 232, 0.12);
+        backdrop-filter: blur(6px);
+        z-index: 10;
+        transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    
+
+    .academics-cms-image-dropzone-edit:hover {
+        background: #1a73e8;
+        color: #ffffff;
+    }
+
+    
+
+    .academics-cms-image-dropzone-edit[hidden] {
+        display: none !important;
+    }
+
+.academics-cms-image-dropzone-remove {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -789,8 +856,29 @@
         }
     }
 
+    
     @media (max-width: 640px) {
-        .academics-cms-image-dropzone-remove {
+        .academics-cms-image-dropzone-edit {
+            top: 54px;
+            right: 12px;
+            padding: 0;
+            height: 36px;
+        }
+
+        
+    }
+
+@media (max-width: 640px) {
+        
+    
+
+    
+
+    
+
+    
+
+.academics-cms-image-dropzone-remove {
             top: 12px;
             right: 12px;
         }
@@ -1568,6 +1656,7 @@
 
             const hasImage = Boolean((parts.imageField?.value || '').trim() !== '' || (parts.input.files && parts.input.files[0]));
             parts.removeButton.hidden = !hasImage;
+                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
         }
 
         async function prepareAcademicsImageFile(input, file) {

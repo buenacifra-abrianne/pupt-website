@@ -112,7 +112,10 @@
                                             data-students-preview-for="{{ $studentsHeroInputId }}"
                                             data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
                                         >
-                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $studentsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $studentsHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $studentsHeroInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -241,6 +244,9 @@
                                                         data-students-preview-for="{{ $cardInputId }}"
                                                         data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                     >
+                                                    <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $cardInputId }}" aria-label="Edit image" title="Edit image">
+                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                    </button>
                                                     <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
                                                         <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                     </button>
@@ -320,7 +326,10 @@
                                                     data-students-preview-for="{{ $idPrefix }}-students-card-image-__INDEX__"
                                                     data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                 >
-                                                <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
+                                                <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $idPrefix }}-students-card-image-__INDEX__" aria-label="Edit image" title="Edit image">
+                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $idPrefix }}-students-card-image-__INDEX__" aria-label="Delete image" title="Delete image">
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
@@ -411,7 +420,10 @@
                                 <span class="students-cms-image-dropzone-preview-column">
                                     <span class="students-cms-image-dropzone-media">
                                         <img src="{{ $admissionsHeroPreview }}" alt="Admissions hero image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $admissionsHeroInputId }}" data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}">
-                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $admissionsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $admissionsHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $admissionsHeroInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -487,7 +499,10 @@
                                 <span class="students-cms-image-dropzone-preview-column">
                                     <span class="students-cms-image-dropzone-media">
                                         <img src="{{ $admissionsInstructionsImagePreview }}" alt="Step by step process preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $admissionsInstructionsImageInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $admissionsInstructionsImageInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $admissionsInstructionsImageInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $admissionsInstructionsImageInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -592,7 +607,10 @@
                                                 <span class="students-cms-image-dropzone-preview-column">
                                                     <span class="students-cms-image-dropzone-media">
                                                         <img src="{{ $personPreview }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $personInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $personInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $personInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $personInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -687,7 +705,10 @@
                                                 <span class="students-cms-image-dropzone-preview-column">
                                                     <span class="students-cms-image-dropzone-media">
                                                         <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $qrInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -712,7 +733,10 @@
                                                 <span class="students-cms-image-dropzone-preview-column">
                                                     <span class="students-cms-image-dropzone-media">
                                                         <img src="{{ $qrFlyerPreview }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrFlyerInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $qrFlyerInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -845,7 +869,10 @@
                                 <span class="students-cms-image-dropzone-preview-column">
                                     <span class="students-cms-image-dropzone-media">
                                         <img src="{{ $documentRequestsHeroPreview }}" alt="Document requests hero image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $documentRequestsHeroInputId }}" data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}">
-                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $documentRequestsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $documentRequestsHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $documentRequestsHeroInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -922,7 +949,10 @@
                                                 <span class="students-cms-image-dropzone-preview-column">
                                                     <span class="students-cms-image-dropzone-media">
                                                         <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $qrInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -947,7 +977,10 @@
                                                 <span class="students-cms-image-dropzone-preview-column">
                                                     <span class="students-cms-image-dropzone-media">
                                                         <img src="{{ $qrFlyerPreview }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrFlyerInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $qrFlyerInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -1023,7 +1056,10 @@
                                 <span class="students-cms-image-dropzone-preview-column">
                                     <span class="students-cms-image-dropzone-media">
                                         <img src="{{ $formsHeroPreview }}" alt="Downloadable forms hero image preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $formsHeroInputId }}" data-students-default-src="{{ asset('assets/static_img/about_header_image.png') }}">
-                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $formsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $formsHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $formsHeroInputId }}" aria-label="Delete image" title="Delete image">
                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                         </button>
                                     </span>
@@ -1168,7 +1204,10 @@
                                                             data-students-preview-for="{{ $orgInputId }}"
                                                             data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                                         >
-                                                        <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $orgInputId }}" aria-label="Delete image" title="Delete image">
+                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $orgInputId }}" aria-label="Edit image" title="Edit image">
+                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                        </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $orgInputId }}" aria-label="Delete image" title="Delete image">
                                                             <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                         </button>
                                                     </span>
@@ -1270,6 +1309,20 @@
         font: inherit;
         font-size: 0.82rem;
         font-weight: 600;
+        transition: all 0.2s ease;
+    }
+
+    .students-cms-preview-nav-btn:not(.is-active):hover {
+        background: #fff8f5;
+        border-color: #f0c85a;
+        color: #f0c85a;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(240, 200, 90, 0.15);
+    }
+
+    .students-cms-preview-nav-btn.is-active:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(128, 0, 0, 0.25);
     }
 
     .students-cms-preview-nav-btn:hover,
@@ -1661,7 +1714,54 @@
         display: none;
     }
 
-    .students-cms-image-dropzone-remove {
+    
+    
+
+    
+
+    
+
+    
+
+
+    .students-cms-image-dropzone-edit {
+        position: absolute;
+        top: 60px;
+        right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 1px solid rgba(26, 115, 232, 0.14);
+        border-radius: 999px;
+        background: rgba(255, 253, 250, 0.94);
+        color: #1a73e8;
+        font: inherit;
+        font-size: 0.95rem;
+        cursor: pointer;
+        box-shadow: 0 10px 22px rgba(26, 115, 232, 0.12);
+        backdrop-filter: blur(6px);
+        z-index: 10;
+        transition: opacity 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    
+
+    .students-cms-image-dropzone-edit:hover {
+        background: #1a73e8;
+        color: #ffffff;
+    }
+
+    
+
+    .students-cms-image-dropzone-edit[hidden] {
+        display: none !important;
+    }
+
+.students-cms-image-dropzone-remove {
         position: absolute;
         top: 12px;
         right: 12px;
@@ -1697,8 +1797,29 @@
         }
     }
 
+    
     @media (max-width: 640px) {
-        .students-cms-image-dropzone-remove {
+        .students-cms-image-dropzone-edit {
+            top: 54px;
+            right: 12px;
+            padding: 0;
+            height: 36px;
+        }
+
+        
+    }
+
+@media (max-width: 640px) {
+        
+    
+
+    
+
+    
+
+    
+
+.students-cms-image-dropzone-remove {
             top: 12px;
             right: 12px;
         }
@@ -2596,6 +2717,8 @@
                     || document.querySelector(`[data-students-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-students-clear-image-for="${input.id}"]`)
                     || document.querySelector(`[data-students-clear-image-for="${input.id}"]`);
+                const editButton = scope.querySelector(`[data-students-edit-image-for="${input.id}"]`)
+                    || document.querySelector(`[data-students-edit-image-for="${input.id}"]`);
                 const imageField = input.dataset.studentsImageFieldId
                     ? document.getElementById(input.dataset.studentsImageFieldId)
                     : (input.closest('[data-students-card-editor]')?.querySelector('[data-students-image-field]') || null);
@@ -2615,6 +2738,7 @@
 
                     const hasImage = Boolean((imageField?.value || '').trim() !== '' || (input.files && input.files[0]));
                     removeButton.hidden = !hasImage;
+                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
 
                     if (input.dataset.studentsRequireFileOnEmpty === '1') {
                         input.required = !hasImage;
@@ -2637,6 +2761,39 @@
 
                     return editedFile;
                 };
+                if (typeof editButton !== 'undefined' && editButton) {
+                    editButton.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        let file = input.files && input.files[0];
+                        if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
+                            try {
+                                const res = await fetch(previewEl.src);
+                                const blob = await res.blob();
+                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } catch(err) {
+                                console.error("Could not fetch image to edit", err);
+                            }
+                        }
+                        
+                        if (file && window.CmsImageEditor) {
+                            const editedFile = await window.CmsImageEditor.editFile(file, {
+                                input,
+                                previewElement: previewEl,
+                            });
+                            
+                            if (editedFile && editedFile !== file) {
+                                window.CmsImageEditor.setInputFile(input, editedFile);
+                                if (typeof applyFile === 'function') {
+                                    applyFile(editedFile);
+                                }
+                            }
+                        }
+                    });
+                }
+
 
                 const applyFile = (file) => {
                     if (!file) {
@@ -2879,7 +3036,10 @@
                                     <span class="students-cms-image-dropzone-preview-column">
                                         <span class="students-cms-image-dropzone-media">
                                             <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
+                                            <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="${inputId}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </span>
@@ -2953,7 +3113,10 @@
                                     <span class="students-cms-image-dropzone-preview-column">
                                         <span class="students-cms-image-dropzone-media">
                                             <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
+                                            <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="${inputId}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </span>
@@ -2978,7 +3141,10 @@
                                     <span class="students-cms-image-dropzone-preview-column">
                                         <span class="students-cms-image-dropzone-media">
                                             <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${flyerInputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${flyerInputId}" aria-label="Delete image" title="Delete image">
+                                            <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="${flyerInputId}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${flyerInputId}" aria-label="Delete image" title="Delete image">
                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </span>
@@ -3029,7 +3195,10 @@
                                     <span class="students-cms-image-dropzone-preview-column">
                                         <span class="students-cms-image-dropzone-media">
                                             <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
+                                            <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="${inputId}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${inputId}" aria-label="Delete image" title="Delete image">
                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </span>
@@ -3054,7 +3223,10 @@
                                     <span class="students-cms-image-dropzone-preview-column">
                                         <span class="students-cms-image-dropzone-media">
                                             <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${flyerInputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                            <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${flyerInputId}" aria-label="Delete image" title="Delete image">
+                                            <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="${flyerInputId}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="${flyerInputId}" aria-label="Delete image" title="Delete image">
                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </span>

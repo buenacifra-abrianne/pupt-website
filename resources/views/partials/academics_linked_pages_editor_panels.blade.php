@@ -151,7 +151,10 @@
                                                     data-academics-preview-for="{{ $cardInputId }}"
                                                     data-academics-default-src="{{ asset($pageFallback) }}"
                                                 >
-                                                <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
+                                                <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $cardInputId }}" aria-label="Edit image" title="Edit image">
+                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                </button>
+                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $cardInputId }}" aria-label="Delete image" title="Delete image">
                                                     <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                                 </button>
                                             </span>
@@ -253,7 +256,10 @@
                                                 data-academics-preview-for="__DROPZONE_ID__"
                                                 data-academics-default-src="{{ asset($pageFallback) }}"
                                             >
-                                            <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="__DROPZONE_ID__" aria-label="Delete image" title="Delete image">
+                                            <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="__DROPZONE_ID__" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="__DROPZONE_ID__" aria-label="Delete image" title="Delete image">
                                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                                             </button>
                                         </span>
@@ -925,7 +931,10 @@
                                 data-academics-preview-for="{{ $calendarHeroInputId }}"
                                 data-academics-default-src="{{ asset('assets/static_img/campus_photo.jpg') }}"
                             >
-                            <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $calendarHeroInputId }}" aria-label="Delete image" title="Delete image">
+                            <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $calendarHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                            </button>
+                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $calendarHeroInputId }}" aria-label="Delete image" title="Delete image">
                                 <i class="fas fa-trash-alt" aria-hidden="true"></i>
                             </button>
                         </span>
