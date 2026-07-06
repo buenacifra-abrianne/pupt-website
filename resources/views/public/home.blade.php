@@ -353,6 +353,9 @@
                   <figure class="campus-tour-facility-slide{{ $loop->first ? ' is-active' : '' }}" data-campus-tour-slide>
                     <div class="campus-tour-facility-image-shell">
                       <img src="{{ $facilityImage }}" alt="{{ $facilityName !== '' ? e($facilityName) : 'Campus facility '.$loop->iteration }}">
+                      <button type="button" class="campus-tour-facility-expand" data-facility-expand title="View full screen" aria-label="View full screen">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+                      </button>
                     </div>
                     <figcaption class="campus-tour-facility-name">
                       {{ $facilityName !== '' ? e($facilityName) : 'Facility '.$loop->iteration }}
@@ -372,6 +375,19 @@
         </article>
       </div>
     </section>
+
+    <div class="facility-modal-overlay" id="facilityModalOverlay" aria-hidden="true">
+      <div class="facility-modal-card" role="dialog" aria-modal="true" aria-label="Facility Full View">
+        <button class="facility-modal-close" type="button" aria-label="Close full view">&times;</button>
+        <div class="facility-modal-content">
+          <button type="button" class="facility-modal-arrow facility-modal-arrow-prev" id="facilityModalPrev" aria-label="Previous facility">&#10094;</button>
+          <img src="" alt="" id="facilityModalImage">
+          <button type="button" class="facility-modal-arrow facility-modal-arrow-next" id="facilityModalNext" aria-label="Next facility">&#10095;</button>
+        </div>
+        <h3 class="facility-modal-title" id="facilityModalTitle"></h3>
+        <div class="facility-modal-dots" id="facilityModalDots"></div>
+      </div>
+    </div>
 
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
       <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">
@@ -480,6 +496,99 @@
           startAutoSlide();
           carousel.addEventListener('mouseenter', stopAutoSlide);
           carousel.addEventListener('mouseleave', startAutoSlide);
+        } else {
+          // If only 1 slide, define dummy start/stop so openFacilityModal doesn't crash
+          window.startAutoSlide = () => {};
+          window.stopAutoSlide = () => {};
+        }
+
+        const facilityModalOverlay = document.getElementById('facilityModalOverlay');
+        const facilityModalImage = document.getElementById('facilityModalImage');
+        const facilityModalTitle = document.getElementById('facilityModalTitle');
+        const facilityModalDots = document.getElementById('facilityModalDots');
+        const facilityModalClose = document.querySelector('.facility-modal-close');
+        const facilityModalPrev = document.getElementById('facilityModalPrev');
+        const facilityModalNext = document.getElementById('facilityModalNext');
+
+        const updateModalDots = () => {
+          if (!facilityModalDots) return;
+          facilityModalDots.innerHTML = '';
+          slides.forEach((_, idx) => {
+            const dot = document.createElement('button');
+            dot.className = 'facility-modal-dot' + (idx === current ? ' is-active' : '');
+            dot.setAttribute('aria-label', 'Go to slide ' + (idx + 1));
+            dot.addEventListener('click', (e) => {
+              e.stopPropagation();
+              show(idx);
+              openFacilityModal();
+            });
+            facilityModalDots.appendChild(dot);
+          });
+        };
+
+        const openFacilityModal = () => {
+          if (typeof stopAutoSlide === 'function') stopAutoSlide();
+          const activeSlide = slides[current];
+          const img = activeSlide.querySelector('img');
+          const caption = activeSlide.querySelector('figcaption');
+          
+          if (img && facilityModalImage) {
+            facilityModalImage.src = img.src;
+            facilityModalImage.alt = img.alt;
+          }
+          if (caption && facilityModalTitle) {
+            facilityModalTitle.textContent = caption.textContent.trim();
+          }
+          
+          updateModalDots();
+
+          if (facilityModalOverlay) {
+            facilityModalOverlay.classList.add('show');
+            facilityModalOverlay.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('modal-open');
+          }
+        };
+
+        const closeFacilityModal = () => {
+          if (facilityModalOverlay) {
+            facilityModalOverlay.classList.remove('show');
+            facilityModalOverlay.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('modal-open');
+          }
+          if (typeof startAutoSlide === 'function') startAutoSlide();
+        };
+
+        slides.forEach((slide) => {
+          const expandBtn = slide.querySelector('[data-facility-expand]');
+          expandBtn?.addEventListener('click', (e) => {
+            e.stopPropagation();
+            openFacilityModal();
+          });
+        });
+
+        facilityModalClose?.addEventListener('click', closeFacilityModal);
+        facilityModalOverlay?.addEventListener('click', (e) => {
+          if (e.target === facilityModalOverlay || e.target.classList.contains('facility-modal-card')) {
+            closeFacilityModal();
+          }
+        });
+
+        facilityModalPrev?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          show(current - 1);
+          openFacilityModal();
+        });
+
+        facilityModalNext?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          show(current + 1);
+          openFacilityModal();
+        });
+        
+        // Disable next/prev in modal if only 1 slide
+        if (slides.length <= 1) {
+            if (facilityModalPrev) facilityModalPrev.style.display = 'none';
+            if (facilityModalNext) facilityModalNext.style.display = 'none';
         }
       });
     });
