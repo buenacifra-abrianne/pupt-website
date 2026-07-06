@@ -93,7 +93,7 @@
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Campus Memorandum</h1>
-            <p class="page-subtitle">Manage downloadable files for the portal</p>
+            <p class="page-subtitle">This page provides downloadable Campus Memorandum.</p>
         </div>
 
         <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">

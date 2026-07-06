@@ -99,10 +99,7 @@
     </script>
 
     <main class="main-content">
-        <div class="page-header">
-            <h1 class="page-title">Content Management</h1>
-            <p class="page-subtitle">Role-based content editing. Every change is sent to admin pending approvals.</p>
-        </div>
+
         <nav class="tab-navigation" aria-label="CMS content sections">
             <ul class="tab-navigation-list" role="tablist">
                 @foreach(($tabDefs ?? []) as $tabKey => $tabDef)
@@ -220,12 +217,7 @@
                 <div class="cms-staff-review-shell">
                     @if($tabKey === 'home')
                         @php
-                            $homePreviewHtml = view('public.home', [
-                                'homeCms' => $homeLive,
-                                'news' => $homePreviewNews ?? collect(),
-                                'announcements' => $homePreviewAnnouncements ?? collect(),
-                                'cmsPreview' => true,
-                            ])->render();
+                            $homePreviewHtml = '';
                         @endphp
 
                         @include('partials.home_cms_preview_editor', [
@@ -252,16 +244,7 @@
                     @elseif($tabKey === 'academics')
                         @php
                             $academicsPreviewData = $academicsLive;
-                            $academicsPreviewPages = [
-                                'overview' => view('public.academics', [
-                                    'academicsCms' => $academicsLive,
-                                    'cmsPreview' => true,
-                                ])->render(),
-                                'degree-programs' => view('public.degreeprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
-                                'diploma-programs' => view('public.diplomaprograms', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
-                                'pup-iapply' => view('public.pupiapply', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
-                                'university-calendar' => view('public.universitycalendar', ['cmsPreview' => true, 'academicsCms' => $academicsPreviewData])->render(),
-                            ];
+                            $academicsPreviewPages = [];
                         @endphp
 
                         @include('partials.academics_cms_preview_editor', [
@@ -276,24 +259,7 @@
                         ])
                     @elseif($tabKey === 'students')
                         @php
-                            $studentsPreviewPages = [
-                                'overview' => view('public.students', [
-                                    'studentsCms' => $studentsLive,
-                                    'cmsPreview' => true,
-                                ])->render(),
-                                'admissions' => view('public.student_admissions', [
-                                    'studentsCms' => $studentsLive,
-                                    'cmsPreview' => true,
-                                ])->render(),
-                                'downloadable-forms' => view('public.student_downloadable_forms', [
-                                    'studentsCms' => $studentsLive,
-                                    'cmsPreview' => true,
-                                ])->render(),
-                                'document-requests' => view('public.student_document_requests', [
-                                    'studentsCms' => $studentsLive,
-                                    'cmsPreview' => true,
-                                ])->render(),
-                            ];
+                            $studentsPreviewPages = [];
                         @endphp
 
                         @include('partials.students_cms_preview_editor', [
@@ -308,17 +274,7 @@
                         ])
                     @elseif($tabKey === 'research_extension')
                         @php
-                            $researchPreviewPages = [
-                                'overview' => view('public.research', [
-                                    'researchCms' => $researchLive,
-                                    'cmsPreview' => true,
-                                ])->render(),
-                                'strategic-development-plan' => view('public.research_sdp', [
-                                    'researchCms' => $researchLive,
-                                    'sdp' => $researchLive['strategic_development_plan'] ?? \App\Support\ResearchCmsContent::defaults()['strategic_development_plan'],
-                                    'cmsPreview' => true,
-                                ])->render(),
-                            ];
+                            $researchPreviewPages = [];
                         @endphp
 
                         @include('partials.research_cms_preview_editor', [
@@ -333,10 +289,7 @@
                         ])
                     @elseif($tabKey === 'events')
                         @php
-                            $eventsPreviewHtml = view('public.events', [
-                                'eventsCms' => $eventsLive,
-                                'cmsPreview' => true,
-                            ])->render();
+                            $eventsPreviewHtml = '';
                         @endphp
 
                         @include('partials.events_cms_preview_editor', [

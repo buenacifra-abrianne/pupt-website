@@ -894,7 +894,7 @@
             return;
         }
 
-        const RESEARCH_PREVIEW_MIN_LOADING_MS = 1500;
+        const RESEARCH_PREVIEW_MIN_LOADING_MS = 800;
         const previewScript = document.querySelector('[data-research-preview-pages-json]');
         const previewPages = previewScript ? JSON.parse(previewScript.textContent || '{}') : {};
         let currentPreviewPage = 'overview';
@@ -909,9 +909,38 @@
             return;
         }
 
-        const getPreviewHtml = (page) => {
-            return typeof previewPages[page] === 'string' ? previewPages[page]
-                : (typeof previewPages['overview'] === 'string' ? previewPages['overview'] : '');
+        window.__researchPreviewCache = window.__researchPreviewCache || {};
+
+        const loadFrame = (frame) => {
+            const page = currentPreviewPage;
+            setResearchPreviewLoading(frame, true);
+            const applyHtml = (html) => {
+                if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                    window.applyCmsPreviewFrameContent(frame, html);
+                } else {
+                    frame.srcdoc = html;
+                }
+            };
+
+            if (window.__researchPreviewCache[page]) {
+                applyHtml(window.__researchPreviewCache[page]);
+                return;
+            }
+
+            const prefix = window.location.pathname.startsWith('/superadmin') ? '/superadmin' : (window.location.pathname.startsWith('/admin') ? '/admin' : '/staff');
+            const previewUrl = `${prefix}/content/preview/research_extension/${page}`;
+
+            fetch(previewUrl)
+                .then(response => response.text())
+                .then(previewHtml => {
+                    window.__researchPreviewCache[page] = previewHtml;
+                    if (currentPreviewPage === page) {
+                        applyHtml(previewHtml);
+                    }
+                })
+                .catch(error => {
+                    applyHtml('<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                });
         };
 
         previewNavBtns.forEach((btn) => {
@@ -1247,16 +1276,6 @@
             }
 
             schedule();
-        };
-
-        const loadFrame = (frame) => {
-            setResearchPreviewLoading(frame, true);
-            const html = getPreviewHtml(currentPreviewPage);
-            if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                window.applyCmsPreviewFrameContent(frame, html);
-            } else {
-                frame.srcdoc = html;
-            }
         };
 
         frames.forEach((frame) => {

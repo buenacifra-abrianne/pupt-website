@@ -963,7 +963,7 @@
             return;
         }
 
-        const ACADEMICS_PREVIEW_MIN_LOADING_MS = 1500;
+        const ACADEMICS_PREVIEW_MIN_LOADING_MS = 800;
         let academicsPreviewFitFrame = null;
         const ACADEMICS_PREVIEW_STORAGE_KEY = `cms:academics-preview-route:${window.location.pathname}`;
         const ACADEMICS_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-academics-preview-page';
@@ -1288,11 +1288,10 @@
             });
         }
 
+        window.__academicsPreviewCache = window.__academicsPreviewCache || {};
+
         function loadAcademicsPreview(frame, options = {}) {
-            const payloads = getAcademicsPreviewPayloads();
-            const targetKey = options.routeKey && payloads[options.routeKey]
-                ? options.routeKey
-                : currentAcademicsPreviewRoute;
+            const targetKey = options.routeKey || currentAcademicsPreviewRoute || 'overview';
             const shouldForceReload = options.forceReload === true;
             const explicitSessionId = options.sessionId;
 
@@ -1315,21 +1314,42 @@
             storeAcademicsPreviewRoute(targetKey);
             syncAcademicsPreviewNav(targetKey);
             setAcademicsPreviewLoading(frame, true);
-            const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
 
-            try {
-                if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                    window.applyCmsPreviewFrameContent(frame, previewHtml);
-                } else {
-                    frame.srcdoc = previewHtml;
+            const applyHtml = (html) => {
+                try {
+                    if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                        window.applyCmsPreviewFrameContent(frame, html);
+                    } else {
+                        frame.srcdoc = html;
+                    }
+                } catch (_) {
+                    if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                        window.applyCmsPreviewFrameContent(frame, '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                    } else {
+                        frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
+                    }
                 }
-            } catch (_) {
-                if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                    window.applyCmsPreviewFrameContent(frame, '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
-                } else {
-                    frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
-                }
+            };
+
+            if (!shouldForceReload && window.__academicsPreviewCache[targetKey]) {
+                applyHtml(window.__academicsPreviewCache[targetKey]);
+                return;
             }
+
+            const prefix = window.location.pathname.startsWith('/superadmin') ? '/superadmin' : (window.location.pathname.startsWith('/admin') ? '/admin' : '/staff');
+            const previewUrl = `${prefix}/content/preview/academics/${targetKey}`;
+
+            fetch(previewUrl)
+                .then(response => response.text())
+                .then(previewHtml => {
+                    window.__academicsPreviewCache[targetKey] = previewHtml;
+                    if (currentAcademicsPreviewRoute === targetKey) {
+                        applyHtml(previewHtml);
+                    }
+                })
+                .catch(error => {
+                    applyHtml('<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                });
         }
 
         function scheduleFitAllAcademicsPreviews() {

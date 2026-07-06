@@ -1,8 +1,5 @@
 <div class="page-header backup-page-header" style="margin-top: 5px;">
-    <div>
-        <h1 class="page-title"><i class="fas fa-database" style="color: #D4AF37;"></i> Database Backup</h1>
-        <p class="page-subtitle">Create and manage database backups.</p>
-    </div>
+    <div></div>
     <div class="backup-tab-actions">
         <form method="POST" action="{{ route('superadmin.database-backups.store') }}">
             @csrf

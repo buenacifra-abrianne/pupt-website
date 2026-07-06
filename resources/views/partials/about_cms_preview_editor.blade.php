@@ -39,20 +39,6 @@
         return '';
     };
 
-    $aboutPreviewPages = [
-        'overview' => view('public.about', [
-            'aboutCms' => $aboutPreviewData,
-            'cmsPreview' => true,
-        ])->render(),
-    ];
-
-    foreach ($aboutPreviewSections as $slug => $sectionData) {
-        $aboutPreviewPages[$slug] = view('public.about', [
-            'aboutCms' => $aboutPreviewData,
-            'selectedSection' => $sectionData,
-            'cmsPreview' => true,
-        ])->render();
-    }
 @endphp
 
 <div class="about-cms-workspace">
@@ -1346,9 +1332,7 @@
     </div>
 </div>
 
-<script type="application/json" data-about-preview-pages>
-{!! json_encode($aboutPreviewPages, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) !!}
-</script>
+
 
 @include('partials.rich_text_editor_assets')
 
@@ -2551,7 +2535,7 @@
             return;
         }
 
-        const ABOUT_PREVIEW_MIN_LOADING_MS = 1500;
+        const ABOUT_PREVIEW_MIN_LOADING_MS = 800;
         let aboutPreviewFitFrame = null;
         const ABOUT_PREVIEW_STORAGE_KEY = `cms:about-preview-route:${window.location.pathname}`;
         const ABOUT_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-about-preview-page';
@@ -2929,10 +2913,11 @@
             });
         }
 
+        window.__aboutPreviewCache = window.__aboutPreviewCache || {};
+
         function loadAboutPreviewPage(routeKey, options = {}) {
             const frame = document.querySelector('[data-about-preview-frame]');
-            const payloads = getAboutPreviewPayloads();
-            const targetKey = routeKey && payloads[routeKey] ? routeKey : 'overview';
+            const targetKey = routeKey || 'overview';
             const shouldForceReload = options.forceReload === true;
             const explicitSessionId = options.sessionId;
 
@@ -2953,16 +2938,38 @@
             currentAboutPreviewRoute = targetKey;
             storeAboutPreviewRoute(targetKey);
             setAboutPreviewLoading(frame, true);
-            const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
-            if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                window.applyCmsPreviewFrameContent(frame, previewHtml);
-            } else {
-                frame.srcdoc = previewHtml;
-            }
 
             document.querySelectorAll('[data-about-preview-page]').forEach((btn) => {
                 btn.classList.toggle('is-active', btn.getAttribute('data-about-preview-page') === targetKey);
             });
+
+            const applyHtml = (html) => {
+                if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                    window.applyCmsPreviewFrameContent(frame, html);
+                } else {
+                    frame.srcdoc = html;
+                }
+            };
+
+            if (!shouldForceReload && window.__aboutPreviewCache[targetKey]) {
+                applyHtml(window.__aboutPreviewCache[targetKey]);
+                return;
+            }
+
+            const prefix = window.location.pathname.startsWith('/superadmin') ? '/superadmin' : (window.location.pathname.startsWith('/admin') ? '/admin' : '/staff');
+            const previewUrl = `${prefix}/content/preview/about/${targetKey}`;
+
+            fetch(previewUrl)
+                .then(response => response.text())
+                .then(previewHtml => {
+                    window.__aboutPreviewCache[targetKey] = previewHtml;
+                    if (currentAboutPreviewRoute === targetKey) {
+                        applyHtml(previewHtml);
+                    }
+                })
+                .catch(error => {
+                    applyHtml('<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                });
         }
 
         function resolveAboutEditorRoute(sectionKey, providedRoute = '') {

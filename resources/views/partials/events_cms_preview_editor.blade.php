@@ -1263,7 +1263,7 @@
             return;
         }
 
-        const EVENTS_PREVIEW_MIN_LOADING_MS = 1500;
+        const EVENTS_PREVIEW_MIN_LOADING_MS = 800;
         let eventsPreviewFitFrame = null;
 
         function syncEditorsInScope(scope) {
@@ -1519,13 +1519,13 @@
             });
         }
 
-        function loadEventsPreview(frame, options = {}) {
-            const payloads = document.querySelectorAll('[data-events-preview-json]');
-            const frameIndex = Array.from(document.querySelectorAll('[data-events-preview-frame]')).indexOf(frame);
-            const payload = payloads[frameIndex] || payloads[0];
-            const explicitSessionId = options.sessionId;
+        window.__eventsPreviewCache = window.__eventsPreviewCache || {};
 
-            if (!payload || !frame) {
+        function loadEventsPreview(frame, options = {}) {
+            const explicitSessionId = options.sessionId;
+            const targetKey = 'overview';
+
+            if (!frame) {
                 return;
             }
 
@@ -1535,20 +1535,31 @@
 
             setEventsPreviewLoading(frame, true);
 
-            try {
-                const previewHtml = JSON.parse(payload.textContent || '""');
+            const applyHtml = (html) => {
                 if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                    window.applyCmsPreviewFrameContent(frame, previewHtml);
+                    window.applyCmsPreviewFrameContent(frame, html);
                 } else {
-                    frame.srcdoc = previewHtml;
+                    frame.srcdoc = html;
                 }
-            } catch (_) {
-                if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                    window.applyCmsPreviewFrameContent(frame, '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
-                } else {
-                    frame.srcdoc = '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
-                }
+            };
+
+            if (window.__eventsPreviewCache[targetKey]) {
+                applyHtml(window.__eventsPreviewCache[targetKey]);
+                return;
             }
+
+            const prefix = window.location.pathname.startsWith('/superadmin') ? '/superadmin' : (window.location.pathname.startsWith('/admin') ? '/admin' : '/staff');
+            const previewUrl = `${prefix}/content/preview/events/${targetKey}`;
+
+            fetch(previewUrl)
+                .then(response => response.text())
+                .then(previewHtml => {
+                    window.__eventsPreviewCache[targetKey] = previewHtml;
+                    applyHtml(previewHtml);
+                })
+                .catch(error => {
+                    applyHtml('<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                });
         }
 
         function scheduleFitAllEventsPreviews() {

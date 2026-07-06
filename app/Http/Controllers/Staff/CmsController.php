@@ -23,6 +23,8 @@ use Illuminate\Validation\Rule;
 
 class CmsController extends Controller
 {
+    use \App\Support\CmsPreviewHandler;
+
     public function index()
     {
         $roles = session('user_roles', [session('user_role')]);

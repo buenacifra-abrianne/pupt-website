@@ -126,6 +126,7 @@ Route::prefix('staff')
 
         Route::get('/content', [StaffCmsController::class, 'index'])->name('content');
         Route::post('/content/request-edit', [StaffCmsController::class, 'requestEdit'])->name('content.requestEdit');
+        Route::get('/content/preview/{tabKey}/{sectionKey}', [StaffCmsController::class, 'preview'])->name('content.preview');
 
         Route::delete('/requests/{id}', [StaffAnnouncementController::class, 'deleteRequestOnly'])
             ->name('requests.delete');
@@ -191,6 +192,7 @@ Route::prefix('admin')
 
         Route::get('/content', [AdminCmsController::class, 'page'])->name('content');
         Route::post('/content/save', [AdminCmsController::class, 'save'])->name('content.save');
+        Route::get('/content/preview/{tabKey}/{sectionKey}', [AdminCmsController::class, 'preview'])->name('content.preview');
 
         Route::get('/notifications', [AdminNotificationController::class, 'page'])->name('notifications');
 
@@ -253,6 +255,7 @@ Route::prefix('superadmin')->group(function () {
 
         Route::get('/content', [CmsController::class, 'page'])->name('superadmin.content');
         Route::post('/content/save', [CmsController::class, 'save'])->name('superadmin.content.save');
+        Route::get('/content/preview/{tabKey}/{sectionKey}', [CmsController::class, 'preview'])->name('superadmin.content.preview');
 
         Route::get('/notifications', [NotificationController::class, 'page'])->name('superadmin.notifications');
 

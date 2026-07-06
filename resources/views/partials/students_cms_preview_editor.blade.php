@@ -1833,7 +1833,7 @@
             return;
         }
 
-        const STUDENTS_PREVIEW_MIN_LOADING_MS = 1500;
+        const STUDENTS_PREVIEW_MIN_LOADING_MS = 800;
         const STUDENTS_PREVIEW_STORAGE_KEY = `cms:students-preview-route:${window.location.pathname}`;
         const STUDENTS_PREVIEW_LEGACY_STORAGE_KEY = '{{ $idPrefix }}-active-students-preview-page';
         let currentStudentsPreviewRoute = 'overview';
@@ -2286,11 +2286,10 @@
             schedule();
         };
 
+        window.__studentsPreviewCache = window.__studentsPreviewCache || {};
+
         const loadFrame = (frame, options = {}) => {
-            const payloads = getStudentsPreviewPayloads();
-            const targetKey = options.routeKey && payloads[options.routeKey]
-                ? options.routeKey
-                : currentStudentsPreviewRoute;
+            const targetKey = options.routeKey || currentStudentsPreviewRoute || 'overview';
             const shouldForceReload = options.forceReload === true;
 
             if (!frame) {
@@ -2309,13 +2308,34 @@
             storeStudentsPreviewRoute(targetKey);
             syncStudentsPreviewNav(targetKey);
             setStudentsPreviewLoading(frame, true);
-            const previewHtml = payloads[targetKey] || payloads.overview || '<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>';
 
-            if (typeof window.applyCmsPreviewFrameContent === 'function') {
-                window.applyCmsPreviewFrameContent(frame, typeof previewHtml === 'string' ? previewHtml : '');
-            } else {
-                frame.srcdoc = typeof previewHtml === 'string' ? previewHtml : '';
+            const applyHtml = (html) => {
+                if (typeof window.applyCmsPreviewFrameContent === 'function') {
+                    window.applyCmsPreviewFrameContent(frame, typeof html === 'string' ? html : '');
+                } else {
+                    frame.srcdoc = typeof html === 'string' ? html : '';
+                }
+            };
+
+            if (!shouldForceReload && window.__studentsPreviewCache[targetKey]) {
+                applyHtml(window.__studentsPreviewCache[targetKey]);
+                return;
             }
+
+            const prefix = window.location.pathname.startsWith('/superadmin') ? '/superadmin' : (window.location.pathname.startsWith('/admin') ? '/admin' : '/staff');
+            const previewUrl = `${prefix}/content/preview/students/${targetKey}`;
+
+            fetch(previewUrl)
+                .then(response => response.text())
+                .then(previewHtml => {
+                    window.__studentsPreviewCache[targetKey] = previewHtml;
+                    if (currentStudentsPreviewRoute === targetKey) {
+                        applyHtml(previewHtml);
+                    }
+                })
+                .catch(error => {
+                    applyHtml('<!DOCTYPE html><html><body><p>Preview could not be loaded.</p></body></html>');
+                });
         };
 
         frames.forEach((frame) => {

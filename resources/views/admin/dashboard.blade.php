@@ -80,10 +80,7 @@
         <!-- ========================= -->
         <div id="dashboardTab" class="top-tab-content active">
 
-            <div class="page-header">
-                <h1 class="page-title">Dashboard Overview</h1>
-                <p class="page-subtitle">Welcome back! Here's what's happening with your systems today.</p>
-            </div>
+
 
             <!-- Stats Cards -->
             <div class="stats-grid">

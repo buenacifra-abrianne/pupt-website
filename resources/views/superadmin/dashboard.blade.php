@@ -109,10 +109,7 @@
         <!-- ========================= -->
         <div id="dashboardTab" class="top-tab-content active">
 
-            <div class="page-header">
-                <h1 class="page-title">Dashboard Overview</h1>
-                <p class="page-subtitle">Welcome back! Here's what's happening with your systems today.</p>
-            </div>
+
 
             <!-- Stats Cards -->
             <div class="stats-grid">
@@ -326,13 +323,7 @@
         <!-- ========================= -->
         <div id="analyticsTab" class="top-tab-content">
 
-            <!-- Analytics & Reporting Section -->
-            <div class="page-header" style="margin-top: 5px;">
-                <h1 class="page-title"><i class="fas fa-chart-line" style="color: #D4AF37;"></i> Analytics & Reporting</h1>
-                <div class="breadcrumb" style="margin-top: -1px;">
-                    <a href="#">Home</a> <span>/</span> <span>Analytics</span>
-                </div>
-            </div>
+
 
             <!-- Date Range Selector -->
             <div class="date-range-bar">
