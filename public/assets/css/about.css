@@ -7807,3 +7807,77 @@ body.pup-dark-mode .dp-contact-cta:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ============================================================
+   PHILOSOPHY INTRO
+   ============================================================ */
+.philosophy-intro-text {
+  width: 100%;
+  padding: 0 var(--about-page-gutter);
+  margin: 60px auto 40px;
+}
+
+.philosophy-intro-text-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px 44px;
+  border-left: 4px solid var(--about-maroon);
+  position: relative;
+  overflow: hidden;
+  background: var(--about-surface);
+  border-radius: 16px;
+  box-shadow: var(--about-shadow);
+}
+
+.philosophy-intro-text-inner::before {
+  content: "\201C";
+  position: absolute;
+  top: -18px;
+  left: 28px;
+  font-size: 9rem;
+  font-weight: 900;
+  color: var(--about-maroon);
+  opacity: 0.07;
+  line-height: 1;
+  pointer-events: none;
+  font-family: "Poppins", sans-serif;
+}
+
+.philosophy-intro-text-inner p {
+  color: var(--about-muted);
+  font-size: 0.97rem;
+  line-height: 1.85;
+  margin: 0 0 18px;
+}
+
+.philosophy-intro-text-inner p:last-child { margin-bottom: 0; }
+
+.philosophy-intro-text-inner strong:not([style*="color"]),
+.philosophy-intro-text-inner b:not([style*="color"]) {
+  color: var(--about-maroon-deep);
+  font-weight: 700;
+}
+
+.philosophy-intro-rich-copy {
+  color: var(--about-muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.philosophy-intro-rich-copy p,
+.philosophy-intro-rich-copy div,
+.philosophy-intro-rich-copy li {
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.philosophy-intro-rich-copy p,
+.philosophy-intro-rich-copy div {
+  margin: 0 0 0.45rem;
+}
+
+.philosophy-intro-rich-copy p:last-child,
+.philosophy-intro-rich-copy div:last-child {
+  margin-bottom: 0;
+}
