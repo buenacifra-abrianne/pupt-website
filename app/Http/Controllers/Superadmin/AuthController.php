@@ -39,13 +39,7 @@ class AuthController extends Controller
                 ->withInput();
         }
 
-        if (app()->environment('local')) {
-            if (!$request->filled('password') || !\Illuminate\Support\Facades\Hash::check($request->password, $user->password)) {
-                return back()
-                    ->withErrors(['login' => 'Invalid login attempt'])
-                    ->withInput();
-            }
-        }
+
 
         $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
@@ -60,9 +54,7 @@ class AuthController extends Controller
         $userId = (int) ($user->user_id ?? $user->id ?? 0);
         session(['mfa_pending_user_id' => $userId]);
 
-        if (app()->environment('local')) {
-            return $this->completeLogin($user);
-        }
+
 
         if (empty($user->mfa_secret)) {
             return redirect()->route('superadmin.mfa.setup');
