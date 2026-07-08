@@ -491,11 +491,11 @@
                 $admissionsInstructionsImageFieldId = $idPrefix.'-students-admissions-instructions-image-field';
                 $admissionsInstructionsImagePreview = \App\Support\StudentsCmsContent::resolveImagePath($admissionsInstructions['image'] ?? null, 'assets/static_img/pupillar.jpeg');
             @endphp
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions_header" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_instructions_header">
+                    <input type="hidden" name="section_key" value="admissions_instructions">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -521,24 +521,6 @@
                             'counterMode' => 'limit',
                         ])
                     </div>
-
-                    <div class="students-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Instructions Header') }}
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions_media" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_instructions_media">
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
 
                     <input type="hidden" id="{{ $admissionsInstructionsImageFieldId }}" name="students[pages][admissions][instructions][image]" value="{{ $admissionsInstructions['image'] ?? '' }}" data-students-image-field>
                     <div class="form-group">
@@ -572,7 +554,7 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Instructions Media') }}
+                            {{ $submitLabel('Admissions Instructions') }}
                         </button>
                     </div>
                 </form>
@@ -743,145 +725,7 @@
                 </form>
             </section>
 
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes_header" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_qr_codes_header">
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
 
-                    <div class="students-cms-form-grid">
-                        <div class="form-group">
-                            <label>QR Section Tag</label>
-                            <input type="text" name="students[pages][admissions][qr_codes][tag]" maxlength="120" value="{{ $admissionsQrCodes['tag'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>QR Section Title</label>
-                            <input type="text" name="students[pages][admissions][qr_codes][title]" maxlength="255" value="{{ $admissionsQrCodes['title'] ?? '' }}">
-                        </div>
-                    </div>
-                    
-                    <div class="students-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('QR Codes Header') }}
-                        </button>
-                    </div>
-                </form>
-            </section>
-
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes_items" hidden>
-                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
-                    @csrf
-                    <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_qr_codes_items">
-                    @if($requestId > 0)
-                        <input type="hidden" name="request_id" value="{{ $requestId }}">
-                    @endif
-
-                    <div class="students-cms-repeatable" data-students-repeatable="admissions-qr">
-                        <div class="students-cms-repeatable-head">
-                            <h4>QR Codes</h4>
-                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-qr">Add QR Code</button>
-                        </div>
-                        <div data-students-repeatable-list="admissions-qr">
-                            @foreach(($admissionsQrCodes['items'] ?? []) as $index => $item)
-                                @php
-                                    $qrInputId = $idPrefix.'-students-admissions-qr-'.$index;
-                                    $qrFieldId = $idPrefix.'-students-admissions-qr-field-'.$index;
-                                    $qrPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                                    $qrHasImage = trim((string) ($item['image'] ?? '')) !== '';
-                                    $qrFlyerInputId = $idPrefix.'-students-admissions-qr-flyer-'.$index;
-                                    $qrFlyerFieldId = $idPrefix.'-students-admissions-qr-flyer-field-'.$index;
-                                    $qrFlyerPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['flyer_image'] ?? null, 'assets/static_img/pupillar.jpeg');
-                                @endphp
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
-                                    <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
-                                    <div class="form-group">
-                                        <label>Upload QR Code Image</label>
-                                        <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrInputId }}" role="button" tabindex="0" aria-label="Upload QR code image">
-                                                <span class="students-cms-image-dropzone-preview-column">
-                                                    <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $qrPreview }}" alt="QR code preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $qrInputId }}" aria-label="Edit image" title="Edit image">
-                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrInputId }}" aria-label="Delete image" title="Delete image">
-                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    </span>
-                                                    <span class="students-cms-image-dropzone-label">QR Code</span>
-                                                </span>
-                                                <span class="students-cms-image-dropzone-upload">
-                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                    <span class="students-cms-image-dropzone-upload-copy">Upload a QR code image for applicants.</span>
-                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <input id="{{ $qrInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][image_file]" accept="image/*" data-students-image-field-id="{{ $qrFieldId }}" data-students-require-file-on-empty="1" @if(!$qrHasImage) required @endif>
-                                    </div>
-                                    <input type="hidden" id="{{ $qrFlyerFieldId }}" name="students[pages][admissions][qr_codes][items][{{ $index }}][flyer_image]" value="{{ $item['flyer_image'] ?? '' }}" data-students-image-field>
-                                    <div class="form-group">
-                                        <label>Upload Step by Step Process Image</label>
-                                        <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $qrFlyerInputId }}" role="button" tabindex="0" aria-label="Upload flyer or step by step image">
-                                                <span class="students-cms-image-dropzone-preview-column">
-                                                    <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $qrFlyerPreview }}" alt="Flyer preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $qrFlyerInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
-                                                        <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $qrFlyerInputId }}" aria-label="Edit image" title="Edit image">
-                                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    <button type="button" class="students-cms-image-dropzone-remove" data-students-clear-image-for="{{ $qrFlyerInputId }}" aria-label="Delete image" title="Delete image">
-                                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                        </button>
-                                                    </span>
-                                                    <span class="students-cms-image-dropzone-label">Step by Step process</span>
-                                                </span>
-                                                <span class="students-cms-image-dropzone-upload">
-                                                    <span class="students-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
-                                                    <span class="students-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                    <span class="students-cms-image-dropzone-upload-copy">Upload the companion step by step process image.</span>
-                                                    <span class="students-cms-image-dropzone-upload-button">Select image</span>
-                                                    <span class="students-cms-image-dropzone-file" data-students-file-name-for="{{ $qrFlyerInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <input id="{{ $qrFlyerInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][qr_codes][items][{{ $index }}][flyer_image_file]" accept="image/*" data-students-image-field-id="{{ $qrFlyerFieldId }}">
-                                    </div>
-                                    <div class="students-cms-form-grid">
-                                        <div class="form-group">
-                                            <label>Title</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Description</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][description]" maxlength="50" value="{{ $item['description'] ?? '' }}">
-                                        </div>
-                                        <div class="form-group">
-                                            <label>Link</label>
-                                            <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
-                                </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    <div class="students-cms-modal-footer">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Admissions QR Codes') }}
-                        </button>
-                    </div>
-                </form>
-            </section>
 
             <section class="students-cms-editor-panel" data-students-editor-panel="admissions_links" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
@@ -2242,12 +2086,9 @@
                     cards: 'Manage the public cards shown in the student contents strip.',
                     cards_header: 'Update the heading, title, and supporting copy above the student cards.',
                     admissions_hero: 'Update the admissions subpage header and intro copy.',
-                    admissions_instructions_header: 'Update the admissions instructions header and intro copy.',
-                    admissions_instructions_media: 'Update the admissions instructions step-by-step image.',
+                    admissions_instructions: 'Update the admissions instructions section.',
                     admissions_contact_offices: 'Manage the admissions contact offices.',
                     admissions_contact_persons: 'Manage the admissions contact person profiles.',
-                    admissions_qr_codes_header: 'Update the heading and title above the admissions QR codes.',
-                    admissions_qr_codes_items: 'Manage the admissions QR codes section.',
                     admissions_links: 'Update the heading and title above the admissions links.',
                     admissions_form_links: 'Manage the application and form links.',
                     document_requests_hero: 'Update the document requests subpage header and intro copy.',

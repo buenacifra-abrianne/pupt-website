@@ -63,7 +63,7 @@ class CmsController extends Controller
                 'description', 'carousel', 'updates', 'campus_tour_video', 'campus_tour_facilities', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
                 'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
                 'page', 'cards_header', 'cards', 'organizations',
-                'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_instructions_header', 'admissions_instructions_media', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_qr_codes', 'admissions_qr_codes_header', 'admissions_qr_codes_items', 'admissions_links', 'admissions_form_links',
+                'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_links', 'admissions_form_links',
                 'document_requests_hero', 'document_requests_qr_codes', 'document_requests_qr_codes_header', 'document_requests_qr_codes_items',
                 'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links', 'downloadable_forms_items',
                 'degree-programs-hero', 'degree-programs-info', 'degree-programs-cards', 'degree-programs-contact',

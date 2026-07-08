@@ -95,45 +95,28 @@
 
     @if($isAdmissionsPage)
         <section
-            class="student-page-section"
-            style="padding-bottom: 0;"
+            class="student-page-section{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+            @if($cmsPreview && $instructionsSectionKey !== '')
+                data-cms-section="{{ $instructionsSectionKey }}"
+                data-cms-section-label="Admissions Instructions"
+            @endif
         >
-            <div
-                class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
-                @if($cmsPreview && $instructionsSectionKey !== '')
-                    data-cms-section="{{ $instructionsSectionKey }}_header"
-                    data-cms-section-label="Admissions Instructions Header"
-                @endif
-            >
-                <div data-cms-boundary class="cms-preview-boundary-full">
-                    <div class="student-page-section-head">
-                        <p class="section-tag">{{ $instructions['tag'] ?? '' }}</p>
-                        <h2>{{ $instructions['title'] ?? '' }}</h2>
-                    </div>
-                    <div class="students-rich-copy student-page-rich">
-                        {!! \App\Support\RichText::sanitize($instructions['body'] ?? '') !!}
-                    </div>
+            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div class="student-page-section-head">
+                    <p class="section-tag">{{ $instructions['tag'] ?? '' }}</p>
+                    <h2>{{ $instructions['title'] ?? '' }}</h2>
                 </div>
-            </div>
-            
-            <div
-                class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
-                style="margin-top: 30px;"
-                @if($cmsPreview && $instructionsSectionKey !== '')
-                    data-cms-section="{{ $instructionsSectionKey }}_media"
-                    data-cms-section-label="Admissions Instructions Media"
-                @endif
-            >
-                <div data-cms-boundary class="cms-preview-boundary-full">
-                    @php
-                        $instructionsImage = trim((string) ($instructions['image'] ?? ''));
-                    @endphp
-                    @if($instructionsImage !== '')
-                        <figure class="student-application-guide-image">
-                            <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($instructionsImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $instructions['title'] ?? 'Application Guide' }} step by step process">
-                        </figure>
-                    @endif
+                <div class="students-rich-copy student-page-rich">
+                    {!! \App\Support\RichText::sanitize($instructions['body'] ?? '') !!}
                 </div>
+                @php
+                    $instructionsImage = trim((string) ($instructions['image'] ?? ''));
+                @endphp
+                @if($instructionsImage !== '')
+                    <figure class="student-application-guide-image">
+                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($instructionsImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $instructions['title'] ?? 'Application Guide' }} step by step process">
+                    </figure>
+                @endif
             </div>
         </section>
                 @php
@@ -307,7 +290,7 @@
         </div>
     @endif
 
-    @if($isAdmissionsPage || $isDocumentRequestsPage)
+    @if($isDocumentRequestsPage)
         <section
             class="student-page-section"
             style="padding-bottom: 0;"
@@ -316,7 +299,7 @@
                 class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
                 @if($cmsPreview && $qrSectionKey !== '')
                     data-cms-section="{{ $qrSectionKey }}_header"
-                    data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions QR Codes Header' : 'Document Requests QR Codes Header' }}"
+                    data-cms-section-label="Document Requests QR Codes Header"
                 @endif
             >
                 <div data-cms-boundary class="cms-preview-boundary-full">
@@ -332,7 +315,7 @@
                 style="margin-top: 30px;"
                 @if($cmsPreview && $qrSectionKey !== '')
                     data-cms-section="{{ $qrSectionKey }}_items"
-                    data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions QR Codes' : 'Document Requests QR Codes' }}"
+                    data-cms-section-label="Document Requests QR Codes"
                 @endif
             >
                 <div data-cms-boundary class="cms-preview-boundary-full">
