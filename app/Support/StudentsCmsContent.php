@@ -619,6 +619,46 @@ class StudentsCmsContent
                     'description',
                     5000
                 ),
+                'offices_tag' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'offices_tag',
+                    120
+                ),
+                'offices_title' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'offices_title'
+                ),
+                'offices_description' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'offices_description',
+                    5000
+                ),
+                'persons_tag' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'persons_tag',
+                    120
+                ),
+                'persons_title' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'persons_title'
+                ),
+                'persons_description' => self::pickString(
+                    is_array($source['contact'] ?? null) ? $source['contact'] : [],
+                    $baseContact,
+                    $defaults['contact'],
+                    'persons_description',
+                    5000
+                ),
                 'offices' => self::normalizeAdmissionsContactOffices(
                     data_get($source, 'contact.offices', data_get($baseContact, 'offices', [])),
                     data_get($baseContact, 'offices', []),
