@@ -41,43 +41,6 @@ class AcademicsCmsContent
         'intro' => [
             'body' => '<p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p><p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p><p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>',
         ],
-        'features' => [
-            'tag' => 'What we offer',
-            'title' => '',
-            'description' => '',
-            'items' => [
-                [
-                    'tag' => 'QUALITY',
-                    'title' => 'Academic Excellence',
-                    'description' => '<p>Being one of the reputable universities in the country, we always make it to a point that the education given to our students meets the standards of quality and excellence.</p>',
-                    'wide' => false,
-                ],
-                [
-                    'tag' => 'RELEVANT',
-                    'title' => 'Responsive Learning',
-                    'description' => '<p>The University, through its various programs, equips its students with learning and skills that are significant and responsive, enabling students to be competitive and very resourceful.</p>',
-                    'wide' => false,
-                ],
-                [
-                    'tag' => 'FLEXIBLE',
-                    'title' => 'Accessible Study Paths',
-                    'description' => "<p>Programs that adapt to a student's living condition, especially for the working class. Our Open University and distance learning method goes beyond the physical restrictions of a campus.</p>",
-                    'wide' => false,
-                ],
-                [
-                    'tag' => 'ACCREDITED',
-                    'title' => 'Recognized Standards',
-                    'description' => '<p>Most of our academic courses are accredited by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).</p>',
-                    'wide' => false,
-                ],
-                [
-                    'tag' => 'AFFORDABLE',
-                    'title' => 'Low-Cost Education',
-                    'description' => '<p>Practicality without sacrificing quality in education. Having the lowest tuition and fees among universities in the Philippines, one can enroll for less than PHP 500 per semester in an undergraduate program.</p>',
-                    'wide' => true,
-                ],
-            ],
-        ],
         'pages' => [
             'degree-programs' => [
                 'hero' => [
@@ -356,11 +319,7 @@ class AcademicsCmsContent
                 is_array($base['intro'] ?? null) ? $base['intro'] : $defaults['intro'],
                 $defaults['intro']
             ),
-            'features' => self::normalizeFeatures(
-                is_array($source['features'] ?? null) ? $source['features'] : [],
-                is_array($base['features'] ?? null) ? $base['features'] : $defaults['features'],
-                $defaults['features']
-            ),
+
             'pages' => self::normalizePages(
                 is_array($source['pages'] ?? null) ? $source['pages'] : [],
                 is_array($base['pages'] ?? null) ? $base['pages'] : $defaults['pages'],
@@ -396,27 +355,6 @@ class AcademicsCmsContent
         ];
     }
 
-    private static function normalizeFeatures(array $source, array $base, array $defaults): array
-    {
-        $fallbackTag = (string) ($source['eyebrow'] ?? ($base['eyebrow'] ?? ($defaults['eyebrow'] ?? '')));
-
-        return [
-            'tag' => self::pickString(
-                ['tag' => ($source['tag'] ?? $fallbackTag)],
-                ['tag' => ($base['tag'] ?? ($base['eyebrow'] ?? ($defaults['tag'] ?? '')))],
-                ['tag' => ($defaults['tag'] ?? ($defaults['eyebrow'] ?? ''))],
-                'tag',
-                120
-            ),
-            'title' => self::pickString($source, $base, $defaults, 'title'),
-            'description' => self::pickString($source, $base, $defaults, 'description', 12000),
-            'items' => self::normalizeFeatureItems(
-                $source['items'] ?? [],
-                $base['items'] ?? $defaults['items'],
-                $defaults['items']
-            ),
-        ];
-    }
 
     private static function normalizeContentsItems(mixed $input, array $base, array $defaults): array
     {
@@ -465,118 +403,6 @@ class AcademicsCmsContent
         return $items;
     }
 
-    private static function normalizeFeatureItems(mixed $input, array $base, array $defaults): array
-    {
-        $sourceItems = is_array($input) ? array_values($input) : [];
-        $baseItems = array_values(is_array($base) ? $base : []);
-        $defaultItems = array_values(is_array($defaults) ? $defaults : []);
-        $itemsSource = $sourceItems !== [] ? $sourceItems : $baseItems;
-        $items = [];
-
-        foreach ($itemsSource as $index => $source) {
-            if (!is_array($source)) {
-                continue;
-            }
-
-            $defaultItem = is_array($defaultItems[$index] ?? null)
-                ? $defaultItems[$index]
-                : ['tag' => '', 'title' => '', 'description' => '', 'body' => '', 'wide' => false];
-            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
-            $sourceLegacyBody = self::splitLegacyFeatureBody($source['body'] ?? null);
-            $baseLegacyBody = self::splitLegacyFeatureBody($baseItem['body'] ?? null);
-            $defaultLegacyBody = self::splitLegacyFeatureBody($defaultItem['body'] ?? null);
-            $sourceUsesLegacyShape = !array_key_exists('tag', $source) && !array_key_exists('description', $source) && array_key_exists('body', $source);
-            $baseUsesLegacyShape = !array_key_exists('tag', $baseItem) && !array_key_exists('description', $baseItem) && array_key_exists('body', $baseItem);
-
-            $normalized = [
-                'tag' => self::pickString(
-                    ['tag' => $source['tag'] ?? ($sourceUsesLegacyShape ? ($source['title'] ?? '') : '')],
-                    ['tag' => $baseItem['tag'] ?? ($baseUsesLegacyShape ? ($baseItem['title'] ?? '') : '')],
-                    ['tag' => $defaultItem['tag'] ?? ($defaultItem['title'] ?? '')],
-                    'tag',
-                    120
-                ),
-                'title' => self::pickString(
-                    ['title' => $sourceUsesLegacyShape ? ($sourceLegacyBody['title'] ?? '') : ($source['title'] ?? '')],
-                    ['title' => $baseUsesLegacyShape ? ($baseLegacyBody['title'] ?? '') : ($baseItem['title'] ?? '')],
-                    ['title' => $defaultItem['title'] ?? ($defaultLegacyBody['title'] ?? '')],
-                    'title'
-                ),
-                'description' => self::pickString(
-                    ['description' => $source['description'] ?? ($sourceLegacyBody['description'] ?? '')],
-                    ['description' => $baseItem['description'] ?? ($baseLegacyBody['description'] ?? '')],
-                    ['description' => $defaultItem['description'] ?? ($defaultLegacyBody['description'] ?? '')],
-                    'description',
-                    12000
-                ),
-                'body' => self::pickString(
-                    ['body' => $source['description'] ?? ($sourceLegacyBody['description'] ?? ($source['body'] ?? ''))],
-                    ['body' => $baseItem['description'] ?? ($baseLegacyBody['description'] ?? ($baseItem['body'] ?? ''))],
-                    ['body' => $defaultItem['description'] ?? ($defaultLegacyBody['description'] ?? ($defaultItem['body'] ?? ''))],
-                    'body',
-                    12000
-                ),
-                'wide' => filter_var(
-                    $source['wide'] ?? ($baseItem['wide'] ?? ($defaultItem['wide'] ?? false)),
-                    FILTER_VALIDATE_BOOL,
-                    FILTER_NULL_ON_FAILURE
-                ) ?? (bool) ($defaultItem['wide'] ?? false),
-            ];
-
-            if (
-                trim($normalized['tag']) === ''
-                && trim($normalized['title']) === ''
-                && trim($normalized['description']) === ''
-                && trim($normalized['body']) === ''
-            ) {
-                continue;
-            }
-
-            $items[] = $normalized;
-
-            if (count($items) >= 24) {
-                break;
-            }
-        }
-
-        return $items;
-    }
-
-    /**
-     * Older feature cards stored the content tag in title and the card title as the
-     * first bold phrase inside body. Keep those cards readable after the schema split.
-     *
-     * @return array{title: string, description: string}
-     */
-    private static function splitLegacyFeatureBody(mixed $body): array
-    {
-        $body = trim((string) $body);
-        if ($body === '') {
-            return ['title' => '', 'description' => ''];
-        }
-
-        if (preg_match('/^\s*<p>\s*<(?:strong|b)[^>]*>(.*?)<\/(?:strong|b)>\s*(.*?)<\/p>\s*$/is', $body, $matches)) {
-            $title = trim(html_entity_decode(strip_tags($matches[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-            $rest = trim($matches[2]);
-
-            return [
-                'title' => $title,
-                'description' => $rest === '' ? '' : '<p>'.$rest.'</p>',
-            ];
-        }
-
-        if (preg_match('/^\s*<(?:strong|b)[^>]*>(.*?)<\/(?:strong|b)>\s*(.*)$/is', $body, $matches)) {
-            $title = trim(html_entity_decode(strip_tags($matches[1]), ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-            $rest = trim($matches[2]);
-
-            return [
-                'title' => $title,
-                'description' => $rest,
-            ];
-        }
-
-        return ['title' => '', 'description' => $body];
-    }
 
     private static function normalizePages(array $source, array $base, array $defaults): array
     {

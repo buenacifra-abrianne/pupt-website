@@ -151,6 +151,15 @@
                     </div>
                 </section>
 
+                <section class="philosophy-intro-text reveal">
+                    <div class="philosophy-intro-text-inner philosophy-intro-rich-copy">
+                        <p class="section-tag layout-kicker" style="margin-bottom: 24px;">PUP-T Philosophy</p>
+                        <p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p>
+                        <p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p>
+                        <p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>
+                    </div>
+                </section>
+
                 <section class="contents-strip reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
                     <div>
                     <div class="contents-strip-head layout-inset">
