@@ -74,6 +74,12 @@
                     </span>
                 </div>
             </div>
+
+            @if (!($isIdpOnline ?? true))
+                <div class="landing-alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; border-left: 4px solid #856404; padding: 12px; margin-top: 20px;">
+                    <strong>Notice:</strong> The unified login system is currently unreachable. We have automatically routed you to our local backup login. Please use your local backup credentials.
+                </div>
+            @endif
         </section>
 
         <section class="landing-actions" aria-label="Landing actions">
@@ -105,12 +111,6 @@
                 </div>
             @endif
 
-            @if (!($isIdpOnline ?? true))
-                <div class="landing-alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; border-left: 4px solid #856404; padding: 12px; margin-bottom: 20px;">
-                    <strong>Notice:</strong> The unified login system is currently unreachable. We have automatically routed you to our local backup login. Please use your local backup credentials.
-                </div>
-            @endif
-
             <div class="button-container">
                 @if ($isIdpOnline ?? true)
                     <a href="{{ rtrim(config('services.idp.base_url'), '/') . '/api/v1/auth/authorize?client_id=' . urlencode(config('services.idp.client_id')) }}" class="portal-button portal-button--primary">
@@ -132,7 +132,7 @@
                             </svg>
                         </span>
                         <span class="text">
-                            <strong>Login via Local Backup</strong>
+                            <strong>Emergency Login</strong>
                             <small>Emergency local authentication</small>
                         </span>
                     </a>
