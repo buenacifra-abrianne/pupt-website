@@ -85,13 +85,13 @@
 
         <!-- Tab Navigation -->
         <div class="tab-navigation cms-tab-style">
-            <button class="tab-btn active" onclick="switchTab('announcements', this)">
-                <i class="fas fa-bullhorn"></i>
-                Announcements
-            </button>
-            <button class="tab-btn" onclick="switchTab('news', this)">
+            <button class="tab-btn active" onclick="switchTab('news', this)">
                 <i class="fas fa-newspaper"></i>
                 News
+            </button>
+            <button class="tab-btn" onclick="switchTab('announcements', this)">
+                <i class="fas fa-bullhorn"></i>
+                Announcements
             </button>
             <div class="search-bar">
                 <i class="fas fa-search"></i>
@@ -100,7 +100,7 @@
         </div>
 
         <!-- Announcements Tab -->
-        <div id="announcements" class="tab-content active">
+        <div id="announcements" class="tab-content">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage Announcements</h3>
@@ -207,7 +207,7 @@
         </div>
 
         <!-- News Tab -->
-        <div id="news" class="tab-content">
+        <div id="news" class="tab-content active">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage News</h3>
@@ -233,15 +233,98 @@
                     </div>
                 </div>
 
+                <div class="events-cms-card-group-head" style="margin-bottom: 14px;">
+                    <div>
+                        <h4 style="margin: 0; color: #5c0000; font-size: 1rem;">Active News</h4>
+                        <p style="margin: 6px 0 0; color: #7c6660; font-size: 0.88rem;">These are visible on the public page.</p>
+                    </div>
+                </div>
+
                 <div class="news-grid">
                     <button type="button" class="news-card news-card-create" data-static-card="1" onclick="openNewsModal(true)">
                         <span class="news-card-create-icon">+</span>
-                        <span class="news-card-create-title">Create Event Card</span>
-                        <span class="news-card-create-text">Add a new event or news post.</span>
+                        <span class="news-card-create-title">Create News Article</span>
+                        <span class="news-card-create-text">Add a new news post.</span>
                     </button>
 
-                    @foreach($news_list as $news)
+                    @foreach($active_news as $news)
                         <div class="news-card"
+                            data-news-id="{{ (int) $news->news_id }}"
+                            data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location.' '.(($news->is_featured ?? false) ? ' featured' : '').' '.(($news->is_hidden_from_public ?? false) ? ' hidden' : ''))) }}">
+
+                            <label class="news-card-select" aria-label="Select {{ e(\App\Support\PlainText::normalize($news->title ?? '')) }}">
+                                <input type="checkbox" class="news-select-checkbox" value="{{ (int) $news->news_id }}">
+                                <span></span>
+                            </label>
+
+                            <div class="news-image">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
+                            </div>
+
+                            <div class="news-content">
+                                <div class="news-card-badges">
+                                    <span class="news-category">{{ e($news->category) }}</span>
+                                    @if(($hasNewsFeaturedColumn ?? false) && ($news->is_featured ?? false))
+                                        <span class="news-flag-badge news-flag-badge-featured">Featured</span>
+                                    @endif
+                                    @if(($hasNewsHiddenColumn ?? false) && ($news->is_hidden_from_public ?? false))
+                                        <span class="news-flag-badge news-flag-badge-hidden">Hidden</span>
+                                    @endif
+                                </div>
+                                <h3 class="news-title">{{ e(\App\Support\PlainText::normalize($news->title ?? '')) }}</h3>
+
+                                <div class="news-meta">
+                                    <span><i class="fas fa-map-marker-alt"></i> {{ e($news->location) }}</span>
+                                </div>
+
+                                <div class="news-actions">
+                                    <button type="button" class="btn btn-sm btn-primary"
+                                        onclick='editNews(
+                                            @json($news->news_id),
+                                            @json(\App\Support\PlainText::normalize($news->title ?? '')),
+                                            @json($news->content),
+                                            @json($news->category),
+                                            @json($news->location),
+                                            @json($news->link ?? ""),
+                                            @json($news->image_path ?? ""),
+                                            @json(\App\Support\NewsImage::url($news->image_path) ?? ""),
+                                            @json((bool) ($news->is_featured ?? false)),
+                                            @json((bool) ($news->is_hidden_from_public ?? false))
+                                        )'>
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-delete"
+                                        onclick="deleteNews({{ (int)$news->news_id }})">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                    <button type="button" class="btn btn-sm btn-view-icon" title="View"
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")))'>
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="events-cms-card-group-head" style="margin-top: 30px; margin-bottom: 14px;">
+                    <div>
+                        <h4 style="margin: 0; color: #5c0000; font-size: 1rem;">Expired News</h4>
+                        <p style="margin: 6px 0 0; color: #7c6660; font-size: 0.88rem;">These stay saved in CMS but are hidden from the public view.</p>
+                    </div>
+                </div>
+
+                <div class="news-grid" style="margin-bottom: 40px;">
+                    @if(isset($expired_news) && $expired_news->isEmpty())
+                        <div class="events-cms-card-empty" style="grid-column: 1 / -1; padding: 14px 16px; border: 1px dashed rgba(127, 17, 19, 0.14); border-radius: 16px; background: rgba(255, 250, 244, 0.7); color: #7c6660; font-size: 0.9rem;">
+                            No expired news.
+                        </div>
+                    @endif
+                    @foreach($expired_news as $news)
+                        <div class="news-card" style="opacity: 0.85;"
                             data-news-id="{{ (int) $news->news_id }}"
                             data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location.' '.(($news->is_featured ?? false) ? ' featured' : '').' '.(($news->is_hidden_from_public ?? false) ? ' hidden' : ''))) }}">
 
