@@ -77,13 +77,13 @@
 
         <!-- Tab Navigation -->
         <div class="tab-navigation cms-tab-style">
-            <button class="tab-btn active" onclick="switchTab('announcements', this)">
-                <i class="fas fa-bullhorn"></i>
-                Announcements
-            </button>
-            <button class="tab-btn" onclick="switchTab('news', this)">
+            <button class="tab-btn active" onclick="switchTab('news', this)">
                 <i class="fas fa-newspaper"></i>
                 News
+            </button>
+            <button class="tab-btn" onclick="switchTab('announcements', this)">
+                <i class="fas fa-bullhorn"></i>
+                Announcements
             </button>
             <button class="tab-btn" onclick="switchTab('pending-requests', this)">
                 <i class="fas fa-clock"></i>
@@ -96,7 +96,7 @@
         </div>
 
         <!-- Announcements Tab -->
-        <div id="announcements" class="tab-content active">
+        <div id="announcements" class="tab-content">
             <div class="card">
                 <div class="card-header">
                     <h3 class="card-title">Manage Announcements</h3>
@@ -220,7 +220,7 @@
         </div>
 
         <!-- News Tab -->
-<div id="news" class="tab-content">
+        <div id="news" class="tab-content active">
     <div class="card">
         <div class="card-header">
             <h3 class="card-title">Manage News</h3>

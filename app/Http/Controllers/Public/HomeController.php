@@ -48,6 +48,7 @@ class HomeController extends Controller
 
         // News: APPROVED only
         $news = collect();
+        $oneMonthAgo = now()->subMonth();
         if (Schema::hasTable('news')) {
             $news = DB::table('news')
                 ->select('news_id','title','content', 'link', 'category','location','image_path','priority','date_published','created_at')
@@ -57,6 +58,12 @@ class HomeController extends Controller
                         $inner->whereNull('is_hidden_from_public')
                             ->orWhere('is_hidden_from_public', 0);
                     });
+                })
+                ->where(function($query) use ($oneMonthAgo) {
+                    $query->where('date_published', '>=', $oneMonthAgo)
+                          ->orWhere(function($q) use ($oneMonthAgo) {
+                              $q->whereNull('date_published')->where('created_at', '>=', $oneMonthAgo);
+                          });
                 })
                 ->orderByRaw("
                     CASE 

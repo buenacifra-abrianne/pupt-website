@@ -76,9 +76,22 @@ class AnnouncementController extends Controller
                 return $news;
             });
 
+        $oneMonthAgo = now()->subMonth();
+
+        $active_news = $news_list->filter(function($news) use ($oneMonthAgo) {
+            $date = \Carbon\Carbon::parse($news->date_published ?? $news->created_at);
+            return $date >= $oneMonthAgo;
+        })->values();
+
+        $expired_news = $news_list->filter(function($news) use ($oneMonthAgo) {
+            $date = \Carbon\Carbon::parse($news->date_published ?? $news->created_at);
+            return $date < $oneMonthAgo;
+        })->values();
+
         return view('admin.announcements', compact(
             'announcements',
-            'news_list',
+            'active_news',
+            'expired_news',
             'hasAnnouncementLinkColumn',
             'hasNewsLinkColumn',
             'hasNewsFeaturedColumn',
