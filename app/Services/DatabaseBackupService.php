@@ -102,13 +102,21 @@ class DatabaseBackupService
         $keepLast = max(0, $keepLast);
         $deleted = 0;
 
-        $backups = Backup::query()
-            ->orderByDesc('created_at')
-            ->orderByDesc('id')
-            ->skip($keepLast)
-            ->get();
+        if ($keepLast === 0) {
+            $backupsToDelete = Backup::all();
+        } else {
+            $keepIds = Backup::query()
+                ->orderByDesc('created_at')
+                ->orderByDesc('id')
+                ->limit($keepLast)
+                ->pluck('id');
 
-        foreach ($backups as $backup) {
+            $backupsToDelete = Backup::query()
+                ->whereNotIn('id', $keepIds)
+                ->get();
+        }
+
+        foreach ($backupsToDelete as $backup) {
             $this->deleteBackup($backup, $userId);
             $deleted++;
         }
