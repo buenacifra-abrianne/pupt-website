@@ -39,6 +39,37 @@
     };
 @endphp
 
+<style>
+    .students-link-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .students-link-row .form-control {
+        flex: 1;
+    }
+
+    .students-link-paste {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #d7dbe2;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+    }
+
+    .students-link-paste:hover {
+        background: #eef2f7;
+        color: #1f2937;
+    }
+</style>
+
 <div class="students-cms-workspace">
     <div class="students-cms-preview-shell">
         <div class="students-cms-preview-nav" role="tablist" aria-label="Students preview sections">
@@ -793,18 +824,36 @@
 
                     <div class="students-cms-form-grid">
                         <div class="form-group">
-                            <label>Links Tag</label>
+                            <label>Tag</label>
                             <input type="text" name="students[pages][admissions][links][tag]" maxlength="120" value="{{ $admissionsLinks['tag'] ?? '' }}" required>
                         </div>
                         <div class="form-group">
-                            <label>Links Title</label>
+                            <label>Title</label>
                             <input type="text" name="students[pages][admissions][links][title]" maxlength="255" value="{{ $admissionsLinks['title'] ?? '' }}" required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Links Description</label>
+                        <label>Description</label>
                         <textarea name="students[pages][admissions][links][description]" rows="2" required>{{ $admissionsLinks['description'] ?? '' }}</textarea>
                     </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Admissions Links') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_form_links" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_form_links">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-links">
                         <div class="students-cms-repeatable-head">
@@ -821,9 +870,11 @@
                                         </div>
                                         <div class="form-group">
                                             <label>URL</label>
-                                            <div style="display: flex; gap: 8px;">
-                                                <input type="text" style="flex: 1;" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" required>
-                                                <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL"><i class="fas fa-paste"></i> Paste</button>
+                                            <div class="students-link-row">
+                                                <input type="text" class="form-control" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" required>
+                                                <button type="button" class="students-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                                    <i class="fas fa-paste"></i>
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
@@ -1118,6 +1169,24 @@
                         <label>Description</label>
                         <textarea name="students[pages][downloadable-forms][links][description]" rows="2" required>{{ $formsLinks['description'] ?? '' }}</textarea>
                     </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Downloadables Links') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="downloadable_forms_items" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="downloadable_forms_items">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-repeatable" data-students-repeatable="forms-links">
                         <div class="students-cms-repeatable-head">
@@ -2089,10 +2158,12 @@
                     admissions_contact: 'Manage the admissions contact offices and contact person profiles.',
                     admissions_qr_codes: 'Manage the admissions QR codes section.',
                     admissions_links: 'Manage the admissions links section.',
+                    admissions_form_links: 'Manage the application and form links.',
                     document_requests_hero: 'Update the document requests subpage header and intro copy.',
                     document_requests_qr_codes: 'Manage the document requests QR codes section.',
                     downloadable_forms_hero: 'Update the downloadables subpage header and intro copy.',
                     downloadable_forms_links: 'Manage the downloadables links section.',
+                    downloadable_forms_items: 'Manage the downloadable form links.',
                 };
                 modalDescription.textContent = sectionDescriptions[sectionKey] || 'Update the selected student section.';
             }
@@ -2996,9 +3067,11 @@
                         </div>
                         <div class="form-group">
                             <label>URL</label>
-                            <div style="display: flex; gap: 8px;">
-                                <input type="text" style="flex: 1;" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="" required>
-                                <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL"><i class="fas fa-paste"></i> Paste</button>
+                            <div class="students-link-row">
+                                <input type="text" class="form-control" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="" required>
+                                <button type="button" class="students-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                    <i class="fas fa-paste"></i>
+                                </button>
                             </div>
                         </div>
                     </div>

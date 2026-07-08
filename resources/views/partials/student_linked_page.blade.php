@@ -454,44 +454,61 @@
     @endif
 
     @if($isAdmissionsPage || $isDownloadablesPage)
-        <section
-            class="student-page-section{{ $cmsPreview && $linksSectionKey !== '' ? ' cms-preview-editable' : '' }}"
-            @if($cmsPreview && $linksSectionKey !== '')
-                data-cms-section="{{ $linksSectionKey }}"
-                data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions Links' : 'Downloadables Links' }}"
-            @endif
-        >
-            <div data-cms-boundary class="cms-preview-boundary-full">
-                <div class="student-page-section-head">
-                    <p class="section-tag">{{ $links['tag'] ?? '' }}</p>
-                    <h2>{{ $links['title'] ?? '' }}</h2>
-                    @if(trim((string) ($links['description'] ?? '')) !== '')
-                        <p>{{ $links['description'] }}</p>
-                    @endif
+        @php
+            $linksItemsSectionKey = $isAdmissionsPage ? 'admissions_form_links' : ($isDownloadablesPage ? 'downloadable_forms_items' : '');
+        @endphp
+        <section class="student-page-section" style="padding-bottom: 0;">
+            <div
+                class="{{ $cmsPreview && $linksSectionKey !== '' ? 'cms-preview-editable' : '' }}"
+                @if($cmsPreview && $linksSectionKey !== '')
+                    data-cms-section="{{ $linksSectionKey }}"
+                    data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions Links' : 'Downloadables Links' }}"
+                @endif
+            >
+                <div data-cms-boundary class="cms-preview-boundary-full">
+                    <div class="student-page-section-head">
+                        <p class="section-tag">{{ $links['tag'] ?? '' }}</p>
+                        <h2>{{ $links['title'] ?? '' }}</h2>
+                        @if(trim((string) ($links['description'] ?? '')) !== '')
+                            <p>{{ $links['description'] }}</p>
+                        @endif
+                    </div>
                 </div>
+            </div>
+        </section>
 
-                <div class="student-link-list">
-                    @forelse(($links['items'] ?? []) as $link)
-                        @php
-                            $href = trim((string) ($link['href'] ?? ''));
-                            $isExternal = preg_match('/^https?:\/\//i', $href) === 1;
-                        @endphp
-                        <a
-                            href="{{ $href !== '' ? $href : '#' }}"
-                            class="student-link-row"
-                            @if($isExternal && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
-                        >
-                            <span>
-                                <strong>{{ $link['label'] ?? 'Link' }}</strong>
-                                @if(trim((string) ($link['description'] ?? '')) !== '')
-                                    <small>{{ $link['description'] }}</small>
-                                @endif
-                            </span>
-                            <em>Open</em>
-                        </a>
-                    @empty
-                        <p class="student-page-empty">No links have been added yet.</p>
-                    @endforelse
+        <section class="student-page-section" style="padding-top: 20px;">
+            <div
+                class="{{ $cmsPreview && $linksItemsSectionKey !== '' ? 'cms-preview-editable' : '' }}"
+                @if($cmsPreview && $linksItemsSectionKey !== '')
+                    data-cms-section="{{ $linksItemsSectionKey }}"
+                    data-cms-section-label="{{ $isAdmissionsPage ? 'Application & Form Links' : 'Downloadable Form Links' }}"
+                @endif
+            >
+                <div data-cms-boundary class="cms-preview-boundary-full">
+                    <div class="student-link-list">
+                        @forelse(($links['items'] ?? []) as $link)
+                            @php
+                                $href = trim((string) ($link['href'] ?? ''));
+                                $isExternal = preg_match('/^https?:\/\//i', $href) === 1;
+                            @endphp
+                            <a
+                                href="{{ $href !== '' ? $href : '#' }}"
+                                class="student-link-row"
+                                @if($isExternal && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
+                            >
+                                <span>
+                                    <strong>{{ $link['label'] ?? 'Link' }}</strong>
+                                    @if(trim((string) ($link['description'] ?? '')) !== '')
+                                        <small>{{ $link['description'] }}</small>
+                                    @endif
+                                </span>
+                                <em>Open</em>
+                            </a>
+                        @empty
+                            <p class="student-page-empty">No links have been added yet.</p>
+                        @endforelse
+                    </div>
                 </div>
             </div>
         </section>
