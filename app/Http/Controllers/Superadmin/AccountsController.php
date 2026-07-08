@@ -73,42 +73,6 @@ class AccountsController extends Controller
                 ->groupBy('user_id');
         }
 
-        $mapped = $rows->map(function ($u) use ($rolesByUser) {
-            $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
-
-            $roleCodes = $userRoleRows->pluck('role_code')
-                ->map(fn($r) => (string) $r)
-                ->values()
-                ->all();
-
-            if (empty($roleCodes) && !empty($u->role_code)) {
-                $roleCodes = [(string) $u->role_code];
-            }
-
-            $fullName = trim((string) $u->first_name . ' ' . (string) $u->last_name);
-            if ($fullName === '') {
-                $fullName = (string) ($u->email ?? 'User');
-            }
-
-            return [
-                'id'    => (int) $u->user_id,
-                'fn'    => (string) $u->first_name,
-                'ln'    => (string) $u->last_name,
-                'em'    => (string) $u->email,
-                'rl'    => (string) ($roleCodes[0] ?? $u->role_code ?? ''),
-                'roles' => $roleCodes,
-                'st'    => (string) $u->status,
-                'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
-                'av'    => 'av-0',
-                'avatar_url' => Avatar::resolveUrl((string) ($u->profile_picture ?? '')),
-                'avatar_initials' => Avatar::initials(
-                    $fullName,
-                    (string) $u->first_name,
-                    (string) $u->last_name
-                ),
-            ];
-        });
-
         $facultyDirectoryResponse = $facultyDirectoryService->getActiveFacultyForDropdown();
         $facultyDirectory = $facultyDirectoryResponse['data'] ?? [];
         $isFacultyCached = $facultyDirectoryResponse['is_cached'] ?? false;
@@ -150,6 +114,67 @@ class AccountsController extends Controller
             ])
             ->values()
             ->all();
+
+        $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+
+        $mapped = $rows->map(function ($u) use ($rolesByUser, $combinedDirectory, $pk) {
+            $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
+
+            $roleCodes = $userRoleRows->pluck('role_code')
+                ->map(fn($r) => (string) $r)
+                ->values()
+                ->all();
+
+            if (empty($roleCodes) && !empty($u->role_code)) {
+                $roleCodes = [(string) $u->role_code];
+            }
+
+            $userFirstName = strtolower(trim((string) $u->first_name));
+            $userLastName = strtolower(trim((string) $u->last_name));
+            $currentEmail = strtolower(trim((string) $u->email));
+
+            if ($userFirstName !== '' && $userLastName !== '') {
+                $matchedPerson = collect($combinedDirectory)->first(function ($person) use ($userFirstName, $userLastName) {
+                    return strtolower(trim((string) ($person['first_name'] ?? ''))) === $userFirstName
+                        && strtolower(trim((string) ($person['last_name'] ?? ''))) === $userLastName;
+                });
+
+                if ($matchedPerson && !empty($matchedPerson['email'])) {
+                    $dirEmail = strtolower(trim($matchedPerson['email']));
+                    if ($dirEmail !== $currentEmail) {
+                        $emailExists = DB::table('users')->where('email', $dirEmail)->where($pk, '!=', $u->user_id)->exists();
+                        if (!$emailExists) {
+                            DB::table('users')->where($pk, $u->user_id)->update(['email' => $dirEmail]);
+                            $currentEmail = $dirEmail;
+                            $u->email = $dirEmail;
+                        }
+                    }
+                }
+            }
+
+            $fullName = trim((string) $u->first_name . ' ' . (string) $u->last_name);
+            if ($fullName === '') {
+                $fullName = (string) ($u->email ?? 'User');
+            }
+
+            return [
+                'id'    => (int) $u->user_id,
+                'fn'    => (string) $u->first_name,
+                'ln'    => (string) $u->last_name,
+                'em'    => $currentEmail,
+                'rl'    => (string) ($roleCodes[0] ?? $u->role_code ?? ''),
+                'roles' => $roleCodes,
+                'st'    => (string) $u->status,
+                'll'    => $u->last_login_at ? (string) $u->last_login_at : 'Never',
+                'av'    => 'av-0',
+                'avatar_url' => Avatar::resolveUrl((string) ($u->profile_picture ?? '')),
+                'avatar_initials' => Avatar::initials(
+                    $fullName,
+                    (string) $u->first_name,
+                    (string) $u->last_name
+                ),
+            ];
+        });
 
         return view('superadmin.accounts', [
             'usersJson' => $mapped->toJson(),
