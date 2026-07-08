@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Support;
 
@@ -172,7 +172,7 @@ class AcademicsCmsContent
                     'image' => '',
                     'visual_title' => 'Ready to Apply?',
                     'visual_body' => 'Enable applicants to register for University college admission evaluation and entrance exams online.',
-                    'cta_label' => 'Apply Now ↗',
+                    'cta_label' => 'Apply Now Γåù',
                     'cta_href' => 'https://iapply.pup.edu.ph/signin',
                 ],
                 'schedule' => [
@@ -240,7 +240,7 @@ class AcademicsCmsContent
                         ['label' => '2nd Semester', 'value' => 'January - May 2025', 'href' => ''],
                         ['label' => 'Summer', 'value' => 'June - July 2025', 'href' => ''],
                         ['label' => 'Issued By', 'value' => 'Office of the University Registrar', 'href' => ''],
-                        ['label' => 'Official Source', 'value' => 'pup.edu.ph →', 'href' => 'https://www.pup.edu.ph'],
+                        ['label' => 'Official Source', 'value' => 'pup.edu.ph ΓåÆ', 'href' => 'https://www.pup.edu.ph'],
                     ],
                 ],
                 'calendar' => [
@@ -396,6 +396,27 @@ class AcademicsCmsContent
         ];
     }
 
+    private static function normalizeFeatures(array $source, array $base, array $defaults): array
+    {
+        $fallbackTag = (string) ($source['eyebrow'] ?? ($base['eyebrow'] ?? ($defaults['eyebrow'] ?? '')));
+
+        return [
+            'tag' => self::pickString(
+                ['tag' => ($source['tag'] ?? $fallbackTag)],
+                ['tag' => ($base['tag'] ?? ($base['eyebrow'] ?? ($defaults['tag'] ?? '')))],
+                ['tag' => ($defaults['tag'] ?? ($defaults['eyebrow'] ?? ''))],
+                'tag',
+                120
+            ),
+            'title' => self::pickString($source, $base, $defaults, 'title'),
+            'description' => self::pickString($source, $base, $defaults, 'description', 12000),
+            'items' => self::normalizeFeatureItems(
+                $source['items'] ?? [],
+                $base['items'] ?? $defaults['items'],
+                $defaults['items']
+            ),
+        ];
+    }
 
     private static function normalizeContentsItems(mixed $input, array $base, array $defaults): array
     {
@@ -442,29 +463,6 @@ class AcademicsCmsContent
         }
 
         return $items;
-    }
-
-
-    private static function normalizeFeatures(array $source, array $base, array $defaults): array
-    {
-        $fallbackTag = (string) ($source['eyebrow'] ?? ($base['eyebrow'] ?? ($defaults['eyebrow'] ?? '')));
-
-        return [
-            'tag' => self::pickString(
-                ['tag' => ($source['tag'] ?? $fallbackTag)],
-                ['tag' => ($base['tag'] ?? ($base['eyebrow'] ?? ($defaults['tag'] ?? '')))],
-                ['tag' => ($defaults['tag'] ?? ($defaults['eyebrow'] ?? ''))],
-                'tag',
-                120
-            ),
-            'title' => self::pickString($source, $base, $defaults, 'title'),
-            'description' => self::pickString($source, $base, $defaults, 'description', 12000),
-            'items' => self::normalizeFeatureItems(
-                $source['items'] ?? [],
-                $base['items'] ?? $defaults['items'],
-                $defaults['items']
-            ),
-        ];
     }
 
     private static function normalizeFeatureItems(mixed $input, array $base, array $defaults): array

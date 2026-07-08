@@ -1,8 +1,9 @@
-@php
+﻿@php
     $academicsDefaults = \App\Support\AcademicsCmsContent::defaults();
     $academicsEditorData = \App\Support\AcademicsCmsContent::fromInput($academicsEditorData ?? [], null);
     $heroEditor = $academicsEditorData['hero'] ?? $academicsDefaults['hero'];
     $contentsEditor = $academicsEditorData['contents'] ?? $academicsDefaults['contents'];
+    $introEditor = $academicsEditorData['intro'] ?? $academicsDefaults['intro'];
     $featuresEditor = $academicsEditorData['features'] ?? $academicsDefaults['features'];
     $formClass = $academicsEditorFormClass ?? 'cms-save-form';
     $submitRoute = $academicsEditorSubmitRoute;
@@ -265,6 +266,30 @@
                 </div>
             </section>
 
+            <section class="academics-cms-editor-panel" data-academics-editor-panel="intro" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="academics">
+                    <input type="hidden" name="section_key" value="intro">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="form-group">
+                        <label>Intro Copy</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'academics[intro][body]',
+                            'value' => $introEditor['body'] ?? '',
+                            'placeholder' => 'Write the main academics introduction...',
+                        ])
+                    </div>
+
+                    <div class="academics-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Academics Intro') }}</button>
+                    </div>
+                </form>
+            </section>
+
             <section class="academics-cms-editor-panel" data-academics-editor-panel="features" hidden>
                 <div data-academics-features-section-shell>
                     <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
@@ -292,6 +317,8 @@
                                 'name' => 'academics[features][description]',
                                 'value' => $featuresEditor['description'] ?? '',
                                 'placeholder' => 'Write the description for the What We Offer section...',
+                                'characterLimit' => 100,
+                                'counterMode' => 'limit',
                             ])
                         </div>
 
@@ -348,6 +375,8 @@
                                             'name' => 'academics[features][items]['.$index.'][description]',
                                             'value' => $item['description'] ?? ($item['body'] ?? ''),
                                             'placeholder' => 'Write the supporting copy for this offer card...',
+                                            'characterLimit' => 100,
+                                            'counterMode' => 'limit',
                                         ])
                                     </div>
                                 </article>
@@ -360,10 +389,6 @@
                     </form>
                 </div>
             </section>
-
-
-
-
 
             @include('partials.academics_linked_pages_editor_panels')
         </div>

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -23,11 +23,10 @@
         $academicsCms = \App\Support\AcademicsCmsContent::fromInput($academicsCms ?? [], null);
         $heroSection = $academicsCms['hero'] ?? [];
         $contentsSection = $academicsCms['contents'] ?? [];
-
+        $introSection = $academicsCms['intro'] ?? [];
         $featuresSection = $academicsCms['features'] ?? [];
         $contentsItems = $contentsSection['items'] ?? [];
         $featureItems = $featuresSection['items'] ?? [];
-
     @endphp
 
     @unless($cmsPreview)
@@ -140,8 +139,27 @@
             </div>
         </section>
 
+        <section
+            class="academic-intro-text reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+            @if($cmsPreview)
+                data-cms-section="intro"
+                data-cms-section-label="Academics Intro"
+            @endif
+        >
+            @if($cmsPreview)
+                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="intro" aria-label="Edit Academics Intro">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                    </svg>
+                </button>
+            @endif
 
-
+            <div data-cms-boundary class="cms-preview-boundary-full">
+                <div class="academic-intro-text-inner academic-intro-rich-copy">
+                    {!! \App\Support\RichText::sanitize($introSection['body'] ?? '') !!}
+                </div>
+            </div>
+        </section>
 
         <section
             class="academic-features reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
@@ -164,10 +182,10 @@
                 </div>
 
                 <div class="academic-features-inner layout-inset">
-                        <div class="academic-features-grid">
+                        <div class="academic-features-grid{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}">
                             @foreach($featureItems as $item)
                                 <div
-                                    class="academic-feature-card{{ !empty($item['wide']) ? ' academic-feature-card--wide' : '' }}"
+                                    class="academic-feature-card{{ !empty($item['wide']) ? ' academic-feature-card--wide' : '' }} cards_information"
                                     @if($cmsPreview)
                                         data-academics-feature-card
                                         data-academics-feature-index="{{ $loop->index }}"
