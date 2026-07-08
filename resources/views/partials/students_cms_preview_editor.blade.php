@@ -755,7 +755,7 @@
                                     </div>
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
-                                            <label>Label</label>
+                                            <label>Title</label>
                                             <input type="text" name="students[pages][admissions][qr_codes][items][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
                                         </div>
                                         <div class="form-group">
@@ -808,7 +808,7 @@
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-links">
                         <div class="students-cms-repeatable-head">
-                            <h4>Editable Links</h4>
+                            <h4>Application & Form Links</h4>
                             <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-links">Add Link</button>
                         </div>
                         <div data-students-repeatable-list="admissions-links">
@@ -821,7 +821,10 @@
                                         </div>
                                         <div class="form-group">
                                             <label>URL</label>
-                                            <input type="text" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" required>
+                                            <div style="display: flex; gap: 8px;">
+                                                <input type="text" style="flex: 1;" name="students[pages][admissions][links][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" required>
+                                                <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL"><i class="fas fa-paste"></i> Paste</button>
+                                            </div>
                                         </div>
                                     </div>
                                     <div class="form-group">
@@ -1102,17 +1105,17 @@
 
                     <div class="students-cms-form-grid">
                         <div class="form-group">
-                            <label>Links Tag</label>
+                            <label>Tag</label>
                             <input type="text" name="students[pages][downloadable-forms][links][tag]" maxlength="120" value="{{ $formsLinks['tag'] ?? '' }}" required>
                         </div>
                         <div class="form-group">
-                            <label>Links Title</label>
+                            <label>Title</label>
                             <input type="text" name="students[pages][downloadable-forms][links][title]" maxlength="255" value="{{ $formsLinks['title'] ?? '' }}" required>
                         </div>
                     </div>
 
                     <div class="form-group">
-                        <label>Links Description</label>
+                        <label>Description</label>
                         <textarea name="students[pages][downloadable-forms][links][description]" rows="2" required>{{ $formsLinks['description'] ?? '' }}</textarea>
                     </div>
 
@@ -2993,7 +2996,10 @@
                         </div>
                         <div class="form-group">
                             <label>URL</label>
-                            <input type="text" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="" required>
+                            <div style="display: flex; gap: 8px;">
+                                <input type="text" style="flex: 1;" name="students[pages][admissions][links][items][${index}][href]" maxlength="2048" value="" required>
+                                <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL"><i class="fas fa-paste"></i> Paste</button>
+                            </div>
                         </div>
                     </div>
                     <div class="form-group">
