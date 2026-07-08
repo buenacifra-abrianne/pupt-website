@@ -491,11 +491,11 @@
                 $admissionsInstructionsImageFieldId = $idPrefix.'-students-admissions-instructions-image-field';
                 $admissionsInstructionsImagePreview = \App\Support\StudentsCmsContent::resolveImagePath($admissionsInstructions['image'] ?? null, 'assets/static_img/pupillar.jpeg');
             @endphp
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions_header" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_instructions">
+                    <input type="hidden" name="section_key" value="admissions_instructions_header">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -521,6 +521,24 @@
                             'counterMode' => 'limit',
                         ])
                     </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Instructions Header') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_instructions_media" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_instructions_media">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <input type="hidden" id="{{ $admissionsInstructionsImageFieldId }}" name="students[pages][admissions][instructions][image]" value="{{ $admissionsInstructions['image'] ?? '' }}" data-students-image-field>
                     <div class="form-group">
@@ -554,7 +572,7 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Admissions Instructions') }}
+                            {{ $submitLabel('Instructions Media') }}
                         </button>
                     </div>
                 </form>
@@ -564,11 +582,11 @@
                 $admissionsContactOfficeCount = count($admissionsContactOffices);
                 $admissionsContactPersonCount = count($admissionsContactPersons);
             @endphp
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_contact" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_contact_offices" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_contact">
+                    <input type="hidden" name="section_key" value="admissions_contact_offices">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -615,6 +633,40 @@
                                 </div>
                             @endforeach
                         </div>
+                    </div>
+
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('Contact Offices') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_contact_persons" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_contact_persons">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Contact Tag</label>
+                            <input type="text" name="students[pages][admissions][contact][tag]" maxlength="120" value="{{ $admissionsContact['tag'] ?? '' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Contact Title</label>
+                            <input type="text" name="students[pages][admissions][contact][title]" maxlength="255" value="{{ $admissionsContact['title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Contact Description</label>
+                        <textarea name="students[pages][admissions][contact][description]" rows="2">{{ $admissionsContact['description'] ?? '' }}</textarea>
                     </div>
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-persons">
@@ -685,17 +737,17 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Admissions Contact') }}
+                            {{ $submitLabel('Contact Persons') }}
                         </button>
                     </div>
                 </form>
             </section>
 
-            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes_header" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="admissions_qr_codes">
+                    <input type="hidden" name="section_key" value="admissions_qr_codes_header">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -710,6 +762,24 @@
                             <input type="text" name="students[pages][admissions][qr_codes][title]" maxlength="255" value="{{ $admissionsQrCodes['title'] ?? '' }}">
                         </div>
                     </div>
+                    
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('QR Codes Header') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="admissions_qr_codes_items" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="admissions_qr_codes_items">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-qr">
                         <div class="students-cms-repeatable-head">
@@ -958,11 +1028,11 @@
                 </form>
             </section>
 
-            <section class="students-cms-editor-panel" data-students-editor-panel="document_requests_qr_codes" hidden>
+            <section class="students-cms-editor-panel" data-students-editor-panel="document_requests_qr_codes_header" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
                     @csrf
                     <input type="hidden" name="tab_key" value="students">
-                    <input type="hidden" name="section_key" value="document_requests_qr_codes">
+                    <input type="hidden" name="section_key" value="document_requests_qr_codes_header">
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
@@ -977,6 +1047,24 @@
                             <input type="text" name="students[pages][document-requests][qr_codes][title]" maxlength="255" value="{{ $documentRequestsQrCodes['title'] ?? '' }}">
                         </div>
                     </div>
+                    
+                    <div class="students-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
+                            {{ $submitLabel('QR Codes Header') }}
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="students-cms-editor-panel" data-students-editor-panel="document_requests_qr_codes_items" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-students-linked-page-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="students">
+                    <input type="hidden" name="section_key" value="document_requests_qr_codes_items">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
 
                     <div class="students-cms-repeatable" data-students-repeatable="document-requests-qr">
                         <div class="students-cms-repeatable-head">
@@ -2154,13 +2242,17 @@
                     cards: 'Manage the public cards shown in the student contents strip.',
                     cards_header: 'Update the heading, title, and supporting copy above the student cards.',
                     admissions_hero: 'Update the admissions subpage header and intro copy.',
-                    admissions_instructions: 'Update the admissions application instructions section.',
-                    admissions_contact: 'Manage the admissions contact offices and contact person profiles.',
-                    admissions_qr_codes: 'Manage the admissions QR codes section.',
-                    admissions_links: 'Manage the admissions links section.',
+                    admissions_instructions_header: 'Update the admissions instructions header and intro copy.',
+                    admissions_instructions_media: 'Update the admissions instructions step-by-step image.',
+                    admissions_contact_offices: 'Manage the admissions contact offices.',
+                    admissions_contact_persons: 'Manage the admissions contact person profiles.',
+                    admissions_qr_codes_header: 'Update the heading and title above the admissions QR codes.',
+                    admissions_qr_codes_items: 'Manage the admissions QR codes section.',
+                    admissions_links: 'Update the heading and title above the admissions links.',
                     admissions_form_links: 'Manage the application and form links.',
                     document_requests_hero: 'Update the document requests subpage header and intro copy.',
-                    document_requests_qr_codes: 'Manage the document requests QR codes section.',
+                    document_requests_qr_codes_header: 'Update the heading and title above the document requests QR codes.',
+                    document_requests_qr_codes_items: 'Manage the document requests QR codes section.',
                     downloadable_forms_hero: 'Update the downloadables subpage header and intro copy.',
                     downloadable_forms_links: 'Manage the downloadables links section.',
                     downloadable_forms_items: 'Manage the downloadable form links.',

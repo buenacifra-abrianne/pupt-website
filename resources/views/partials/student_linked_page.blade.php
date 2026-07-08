@@ -95,29 +95,47 @@
 
     @if($isAdmissionsPage)
         <section
-            class="student-page-section{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-            @if($cmsPreview && $instructionsSectionKey !== '')
-                data-cms-section="{{ $instructionsSectionKey }}"
-                data-cms-section-label="Admissions Instructions"
-            @endif
+            class="student-page-section"
+            style="padding-bottom: 0;"
         >
-            <div data-cms-boundary class="cms-preview-boundary-full">
-                <div class="student-page-section-head">
-                    <p class="section-tag">{{ $instructions['tag'] ?? '' }}</p>
-                    <h2>{{ $instructions['title'] ?? '' }}</h2>
-                </div>
-                <div class="students-rich-copy student-page-rich">
-                    {!! \App\Support\RichText::sanitize($instructions['body'] ?? '') !!}
-                </div>
-                @php
-                    $instructionsImage = trim((string) ($instructions['image'] ?? ''));
-                @endphp
-                @if($instructionsImage !== '')
-                    <figure class="student-application-guide-image">
-                        <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($instructionsImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $instructions['title'] ?? 'Application Guide' }} step by step process">
-                    </figure>
+            <div
+                class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
+                @if($cmsPreview && $instructionsSectionKey !== '')
+                    data-cms-section="{{ $instructionsSectionKey }}_header"
+                    data-cms-section-label="Admissions Instructions Header"
                 @endif
-
+            >
+                <div data-cms-boundary class="cms-preview-boundary-full">
+                    <div class="student-page-section-head">
+                        <p class="section-tag">{{ $instructions['tag'] ?? '' }}</p>
+                        <h2>{{ $instructions['title'] ?? '' }}</h2>
+                    </div>
+                    <div class="students-rich-copy student-page-rich">
+                        {!! \App\Support\RichText::sanitize($instructions['body'] ?? '') !!}
+                    </div>
+                </div>
+            </div>
+            
+            <div
+                class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
+                style="margin-top: 30px;"
+                @if($cmsPreview && $instructionsSectionKey !== '')
+                    data-cms-section="{{ $instructionsSectionKey }}_media"
+                    data-cms-section-label="Admissions Instructions Media"
+                @endif
+            >
+                <div data-cms-boundary class="cms-preview-boundary-full">
+                    @php
+                        $instructionsImage = trim((string) ($instructions['image'] ?? ''));
+                    @endphp
+                    @if($instructionsImage !== '')
+                        <figure class="student-application-guide-image">
+                            <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($instructionsImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $instructions['title'] ?? 'Application Guide' }} step by step process">
+                        </figure>
+                    @endif
+                </div>
+            </div>
+        </section>
                 @php
                     $admissionsContact = is_array($pageData['contact'] ?? null) ? $pageData['contact'] : [];
                     $admissionsContactOffices = is_array($admissionsContact['offices'] ?? null) ? $admissionsContact['offices'] : [];
@@ -127,124 +145,140 @@
                     <div class="student-admissions-contact">
                         <div class="student-admissions-contact-grid">
                             @if($admissionsContactOffices !== [])
-                                <div class="student-admissions-contact-panel student-admissions-contact-panel--offices">
-                                    <div class="student-admissions-contact-panel-head">
-                                        <span class="student-admissions-contact-panel-icon" aria-hidden="true">
-                                            <svg viewBox="0 0 24 24" fill="none">
-                                                <path d="M6.5 10.2c1.2 2.5 3.5 4.8 6 6l1.9-1.9c.2-.2.5-.3.7-.2 1.1.4 2.2.7 3.4.8.4 0 .7.3.7.7v3.1c0 .4-.3.8-.8.8C10.9 19.5 4.5 13.1 3.2 3.8c0-.4.3-.8.8-.8h3.1c.4 0 .7.3.7.7.1 1.2.4 2.3.8 3.4.1.2 0 .5-.2.7L6.5 10.2Z" fill="currentColor"/>
-                                            </svg>
-                                        </span>
-                                        <div>
-                                            <p>{{ $admissionsContact['tag'] ?? 'Contact Us' }}</p>
-                                            <h4>{{ $admissionsContact['title'] ?? 'Admissions contact details' }}</h4>
-                                        </div>
-                                    </div>
-                                    @if(trim((string) ($admissionsContact['description'] ?? '')) !== '')
-                                        <p class="student-admissions-contact-summary">{{ $admissionsContact['description'] }}</p>
+                                <div
+                                    class="student-admissions-contact-panel student-admissions-contact-panel--offices{{ $cmsPreview && $pageKey === 'admissions' ? ' cms-preview-editable' : '' }}"
+                                    @if($cmsPreview && $pageKey === 'admissions')
+                                        data-cms-section="admissions_contact_offices"
+                                        data-cms-section-label="Admissions Contact Offices"
                                     @endif
-                                    <div class="student-admissions-contact-items">
-                                        @foreach($admissionsContactOffices as $office)
-                                            @php
-                                                $officeLabel = trim((string) ($office['label'] ?? ''));
-                                                $officeValue = trim((string) ($office['value'] ?? ''));
-                                                $officeHref = trim((string) ($office['href'] ?? ''));
-                                            @endphp
-                                            @if($officeHref !== '')
-                                                <a href="{{ $officeHref }}" class="student-admissions-contact-item" aria-label="{{ $officeLabel }} {{ $officeValue }}">
-                                                    <span class="student-admissions-contact-item-icon" aria-hidden="true">
-                                                        <svg viewBox="0 0 24 24" fill="none">
-                                                            <path d="M6.5 10.2c1.2 2.5 3.5 4.8 6 6l1.9-1.9c.2-.2.5-.3.7-.2 1.1.4 2.2.7 3.4.8.4 0 .7.3.7.7v3.1c0 .4-.3.8-.8.8C10.9 19.5 4.5 13.1 3.2 3.8c0-.4.3-.8.8-.8h3.1c.4 0 .7.3.7.7.1 1.2.4 2.3.8 3.4.1.2 0 .5-.2.7L6.5 10.2Z" fill="currentColor"/>
-                                                        </svg>
-                                                    </span>
-                                                    <div class="student-admissions-contact-item-copy">
-                                                        <strong>{{ $officeLabel }}</strong>
-                                                        <span>{{ $officeValue }}</span>
+                                >
+                                    <div data-cms-boundary class="cms-preview-boundary-full">
+                                        <div class="student-admissions-contact-panel-head">
+                                            <span class="student-admissions-contact-panel-icon" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none">
+                                                    <path d="M6.5 10.2c1.2 2.5 3.5 4.8 6 6l1.9-1.9c.2-.2.5-.3.7-.2 1.1.4 2.2.7 3.4.8.4 0 .7.3.7.7v3.1c0 .4-.3.8-.8.8C10.9 19.5 4.5 13.1 3.2 3.8c0-.4.3-.8.8-.8h3.1c.4 0 .7.3.7.7.1 1.2.4 2.3.8 3.4.1.2 0 .5-.2.7L6.5 10.2Z" fill="currentColor"/>
+                                                </svg>
+                                            </span>
+                                            <div>
+                                                <p>{{ $admissionsContact['tag'] ?? 'Contact Us' }}</p>
+                                                <h4>{{ $admissionsContact['title'] ?? 'Admissions contact details' }}</h4>
+                                            </div>
+                                        </div>
+                                        @if(trim((string) ($admissionsContact['description'] ?? '')) !== '')
+                                            <p class="student-admissions-contact-summary">{{ $admissionsContact['description'] }}</p>
+                                        @endif
+                                        <div class="student-admissions-contact-items">
+                                            @foreach($admissionsContactOffices as $office)
+                                                @php
+                                                    $officeLabel = trim((string) ($office['label'] ?? ''));
+                                                    $officeValue = trim((string) ($office['value'] ?? ''));
+                                                    $officeHref = trim((string) ($office['href'] ?? ''));
+                                                @endphp
+                                                @if($officeHref !== '')
+                                                    <a href="{{ $officeHref }}" class="student-admissions-contact-item" aria-label="{{ $officeLabel }} {{ $officeValue }}">
+                                                        <span class="student-admissions-contact-item-icon" aria-hidden="true">
+                                                            <svg viewBox="0 0 24 24" fill="none">
+                                                                <path d="M6.5 10.2c1.2 2.5 3.5 4.8 6 6l1.9-1.9c.2-.2.5-.3.7-.2 1.1.4 2.2.7 3.4.8.4 0 .7.3.7.7v3.1c0 .4-.3.8-.8.8C10.9 19.5 4.5 13.1 3.2 3.8c0-.4.3-.8.8-.8h3.1c.4 0 .7.3.7.7.1 1.2.4 2.3.8 3.4.1.2 0 .5-.2.7L6.5 10.2Z" fill="currentColor"/>
+                                                            </svg>
+                                                        </span>
+                                                        <div class="student-admissions-contact-item-copy">
+                                                            <strong>{{ $officeLabel }}</strong>
+                                                            <span>{{ $officeValue }}</span>
+                                                        </div>
+                                                        <span class="student-admissions-contact-arrow" aria-hidden="true">
+                                                            <svg viewBox="0 0 24 24" fill="none">
+                                                                <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
+                                                        </span>
+                                                    </a>
+                                                @else
+                                                    <div class="student-admissions-contact-item">
+                                                        <span class="student-admissions-contact-item-icon" aria-hidden="true">
+                                                            <svg viewBox="0 0 24 24" fill="none">
+                                                                <path d="M6.5 10.2c1.2 2.5 3.5 4.8 6 6l1.9-1.9c.2-.2.5-.3.7-.2 1.1.4 2.2.7 3.4.8.4 0 .7.3.7.7v3.1c0 .4-.3.8-.8.8C10.9 19.5 4.5 13.1 3.2 3.8c0-.4.3-.8.8-.8h3.1c.4 0 .7.3.7.7.1 1.2.4 2.3.8 3.4.1.2 0 .5-.2.7L6.5 10.2Z" fill="currentColor"/>
+                                                            </svg>
+                                                        </span>
+                                                        <div class="student-admissions-contact-item-copy">
+                                                            <strong>{{ $officeLabel }}</strong>
+                                                            <span>{{ $officeValue }}</span>
+                                                        </div>
+                                                        <span class="student-admissions-contact-arrow" aria-hidden="true">
+                                                            <svg viewBox="0 0 24 24" fill="none">
+                                                                <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+                                                            </svg>
+                                                        </span>
                                                     </div>
-                                                    <span class="student-admissions-contact-arrow" aria-hidden="true">
-                                                        <svg viewBox="0 0 24 24" fill="none">
-                                                            <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                    </span>
-                                                </a>
-                                            @else
-                                                <div class="student-admissions-contact-item">
-                                                    <span class="student-admissions-contact-item-icon" aria-hidden="true">
-                                                        <svg viewBox="0 0 24 24" fill="none">
-                                                            <path d="M6.5 10.2c1.2 2.5 3.5 4.8 6 6l1.9-1.9c.2-.2.5-.3.7-.2 1.1.4 2.2.7 3.4.8.4 0 .7.3.7.7v3.1c0 .4-.3.8-.8.8C10.9 19.5 4.5 13.1 3.2 3.8c0-.4.3-.8.8-.8h3.1c.4 0 .7.3.7.7.1 1.2.4 2.3.8 3.4.1.2 0 .5-.2.7L6.5 10.2Z" fill="currentColor"/>
-                                                        </svg>
-                                                    </span>
-                                                    <div class="student-admissions-contact-item-copy">
-                                                        <strong>{{ $officeLabel }}</strong>
-                                                        <span>{{ $officeValue }}</span>
-                                                    </div>
-                                                    <span class="student-admissions-contact-arrow" aria-hidden="true">
-                                                        <svg viewBox="0 0 24 24" fill="none">
-                                                            <path d="m9 5 7 7-7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
-                                                        </svg>
-                                                    </span>
-                                                </div>
-                                            @endif
-                                        @endforeach
+                                                @endif
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             @endif
 
                             @if($admissionsContactPersons !== [])
-                                <div class="student-admissions-contact-panel student-admissions-contact-panel--people">
-                                    <div class="student-admissions-contact-panel-head">
-                                        <span class="student-admissions-contact-panel-icon student-admissions-contact-panel-icon--person" aria-hidden="true">
-                                            <svg viewBox="0 0 24 24" fill="none">
-                                                <path d="M12 12.2a4.1 4.1 0 1 0-4.1-4.1A4.1 4.1 0 0 0 12 12.2Zm0 1.8c-4.1 0-7.6 2.5-8.4 6.1a1 1 0 0 0 1 .9h14.8a1 1 0 0 0 1-.9c-.8-3.6-4.3-6.1-8.4-6.1Z" fill="currentColor"/>
-                                            </svg>
-                                        </span>
-                                        <div>
-                                            <p>{{ $admissionsContact['tag'] ?? 'Contact Person' }}</p>
-                                            <h4>{{ $admissionsContact['title'] ?? 'Admissions contact details' }}</h4>
-                                        </div>
-                                    </div>
-                                    @if(trim((string) ($admissionsContact['description'] ?? '')) !== '')
-                                        <p class="student-admissions-contact-summary">{{ $admissionsContact['description'] }}</p>
+                                <div
+                                    class="student-admissions-contact-panel student-admissions-contact-panel--people{{ $cmsPreview && $pageKey === 'admissions' ? ' cms-preview-editable' : '' }}"
+                                    @if($cmsPreview && $pageKey === 'admissions')
+                                        data-cms-section="admissions_contact_persons"
+                                        data-cms-section-label="Admissions Contact Persons"
                                     @endif
-                                    <div class="student-admissions-person-grid">
-                                        @foreach($admissionsContactPersons as $person)
-                                            @php
-                                                $personName = trim((string) ($person['name'] ?? ''));
-                                                $personRole = trim((string) ($person['role'] ?? ''));
-                                                $personEmail = trim((string) ($person['email'] ?? ''));
-                                                $personHref = trim((string) ($person['href'] ?? ''));
-                                                $personImage = trim((string) ($person['image'] ?? ''));
-                                                $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/pupillar.jpeg') : '';
-                                                $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/pupillar.jpeg');
-                                                $personModalEmailHref = $personHref !== '' ? $personHref : ($personEmail !== '' ? 'mailto:'.$personEmail : '');
-                                            @endphp
-                                            <button
-                                                type="button"
-                                                class="student-admissions-person student-admissions-person-trigger"
-                                                data-student-admissions-person-trigger
-                                                data-person-name="{{ e($personName) }}"
-                                                data-person-role="{{ e($personRole) }}"
-                                                data-person-email="{{ e($personEmail) }}"
-                                                data-person-href="{{ e($personModalEmailHref) }}"
-                                                data-person-image="{{ e($personModalImageSrc) }}"
-                                                aria-label="Open profile for {{ e($personName !== '' ? $personName : 'contact person') }}"
-                                            >
-                                                <span class="student-admissions-person-avatar" aria-hidden="true">
-                                                    @if($personImageSrc !== '')
-                                                        <img src="{{ $personImageSrc }}" alt="">
-                                                    @else
-                                                        <svg viewBox="0 0 24 24" fill="none">
-                                                            <path d="M12 12.2a4.1 4.1 0 1 0-4.1-4.1A4.1 4.1 0 0 0 12 12.2Zm0 1.8c-4.1 0-7.6 2.5-8.4 6.1a1 1 0 0 0 1 .9h14.8a1 1 0 0 0 1-.9c-.8-3.6-4.3-6.1-8.4-6.1Z" fill="currentColor"/>
-                                                        </svg>
-                                                    @endif
-                                                </span>
-                                                <div class="student-admissions-person-copy">
-                                                    <strong>{{ $personName }}</strong>
-                                                    <span>{{ $personRole }}</span>
-                                                </div>
-                                                <div class="student-admissions-person-divider" aria-hidden="true"></div>
-                                                <span class="student-admissions-person-email">{{ $personEmail }}</span>
-                                            </button>
-                                        @endforeach
+                                >
+                                    <div data-cms-boundary class="cms-preview-boundary-full">
+                                        <div class="student-admissions-contact-panel-head">
+                                            <span class="student-admissions-contact-panel-icon student-admissions-contact-panel-icon--person" aria-hidden="true">
+                                                <svg viewBox="0 0 24 24" fill="none">
+                                                    <path d="M12 12.2a4.1 4.1 0 1 0-4.1-4.1A4.1 4.1 0 0 0 12 12.2Zm0 1.8c-4.1 0-7.6 2.5-8.4 6.1a1 1 0 0 0 1 .9h14.8a1 1 0 0 0 1-.9c-.8-3.6-4.3-6.1-8.4-6.1Z" fill="currentColor"/>
+                                                </svg>
+                                            </span>
+                                            <div>
+                                                <p>{{ $admissionsContact['tag'] ?? 'Contact Person' }}</p>
+                                                <h4>{{ $admissionsContact['title'] ?? 'Admissions contact details' }}</h4>
+                                            </div>
+                                        </div>
+                                        @if(trim((string) ($admissionsContact['description'] ?? '')) !== '')
+                                            <p class="student-admissions-contact-summary">{{ $admissionsContact['description'] }}</p>
+                                        @endif
+                                        <div class="student-admissions-person-grid">
+                                            @foreach($admissionsContactPersons as $person)
+                                                @php
+                                                    $personName = trim((string) ($person['name'] ?? ''));
+                                                    $personRole = trim((string) ($person['role'] ?? ''));
+                                                    $personEmail = trim((string) ($person['email'] ?? ''));
+                                                    $personHref = trim((string) ($person['href'] ?? ''));
+                                                    $personImage = trim((string) ($person['image'] ?? ''));
+                                                    $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/pupillar.jpeg') : '';
+                                                    $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/pupillar.jpeg');
+                                                    $personModalEmailHref = $personHref !== '' ? $personHref : ($personEmail !== '' ? 'mailto:'.$personEmail : '');
+                                                @endphp
+                                                <button
+                                                    type="button"
+                                                    class="student-admissions-person student-admissions-person-trigger"
+                                                    data-student-admissions-person-trigger
+                                                    data-person-name="{{ e($personName) }}"
+                                                    data-person-role="{{ e($personRole) }}"
+                                                    data-person-email="{{ e($personEmail) }}"
+                                                    data-person-href="{{ e($personModalEmailHref) }}"
+                                                    data-person-image="{{ e($personModalImageSrc) }}"
+                                                    aria-label="Open profile for {{ e($personName !== '' ? $personName : 'contact person') }}"
+                                                >
+                                                    <span class="student-admissions-person-avatar" aria-hidden="true">
+                                                        @if($personImageSrc !== '')
+                                                            <img src="{{ $personImageSrc }}" alt="">
+                                                        @else
+                                                            <svg viewBox="0 0 24 24" fill="none">
+                                                                <path d="M12 12.2a4.1 4.1 0 1 0-4.1-4.1A4.1 4.1 0 0 0 12 12.2Zm0 1.8c-4.1 0-7.6 2.5-8.4 6.1a1 1 0 0 0 1 .9h14.8a1 1 0 0 0 1-.9c-.8-3.6-4.3-6.1-8.4-6.1Z" fill="currentColor"/>
+                                                            </svg>
+                                                        @endif
+                                                    </span>
+                                                    <div class="student-admissions-person-copy">
+                                                        <strong>{{ $personName }}</strong>
+                                                        <span>{{ $personRole }}</span>
+                                                    </div>
+                                                    <div class="student-admissions-person-divider" aria-hidden="true"></div>
+                                                    <span class="student-admissions-person-email">{{ $personEmail }}</span>
+                                                </button>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
                             @endif
@@ -275,18 +309,34 @@
 
     @if($isAdmissionsPage || $isDocumentRequestsPage)
         <section
-            class="student-page-section{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-            @if($cmsPreview && $qrSectionKey !== '')
-                data-cms-section="{{ $qrSectionKey }}"
-                data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions QR Codes' : 'Document Requests QR Codes' }}"
-            @endif
+            class="student-page-section"
+            style="padding-bottom: 0;"
         >
-            <div data-cms-boundary class="cms-preview-boundary-full">
-                <div class="student-page-section-head">
-                    <p class="section-tag">{{ $qrCodes['tag'] ?? '' }}</p>
-                    <h2>{{ $qrCodes['title'] ?? '' }}</h2>
+            <div
+                class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
+                @if($cmsPreview && $qrSectionKey !== '')
+                    data-cms-section="{{ $qrSectionKey }}_header"
+                    data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions QR Codes Header' : 'Document Requests QR Codes Header' }}"
+                @endif
+            >
+                <div data-cms-boundary class="cms-preview-boundary-full">
+                    <div class="student-page-section-head">
+                        <p class="section-tag">{{ $qrCodes['tag'] ?? '' }}</p>
+                        <h2>{{ $qrCodes['title'] ?? '' }}</h2>
+                    </div>
                 </div>
-                <div class="student-qr-grid">
+            </div>
+
+            <div
+                class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
+                style="margin-top: 30px;"
+                @if($cmsPreview && $qrSectionKey !== '')
+                    data-cms-section="{{ $qrSectionKey }}_items"
+                    data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions QR Codes' : 'Document Requests QR Codes' }}"
+                @endif
+            >
+                <div data-cms-boundary class="cms-preview-boundary-full">
+                    <div class="student-qr-grid">
                     @forelse(($qrCodes['items'] ?? []) as $qrCode)
                         @php
                             $qrImage = trim((string) ($qrCode['image'] ?? ''));
@@ -322,7 +372,8 @@
                     @endforelse
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
         <div class="student-qr-modal" id="studentQrModal" aria-hidden="true">
             <div class="student-qr-modal-backdrop" data-student-qr-close></div>
