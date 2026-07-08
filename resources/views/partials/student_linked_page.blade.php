@@ -491,7 +491,7 @@
         @php
             $linksItemsSectionKey = $isAdmissionsPage ? 'admissions_form_links' : ($isDownloadablesPage ? 'downloadable_forms_items' : '');
         @endphp
-        <section class="student-page-section" style="padding-bottom: 0;">
+        <section class="student-page-section">
             <div
                 class="{{ $cmsPreview && $linksSectionKey !== '' ? 'cms-preview-editable' : '' }}"
                 @if($cmsPreview && $linksSectionKey !== '')
@@ -509,9 +509,7 @@
                     </div>
                 </div>
             </div>
-        </section>
 
-        <section class="student-page-section" style="padding-top: 20px;">
             <div
                 class="{{ $cmsPreview && $linksItemsSectionKey !== '' ? 'cms-preview-editable' : '' }}"
                 @if($cmsPreview && $linksItemsSectionKey !== '')
