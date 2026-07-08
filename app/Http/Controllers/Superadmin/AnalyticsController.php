@@ -41,28 +41,72 @@ class AnalyticsController extends Controller
 
     public function exportExcel(Request $request)
     {
-        $filename = 'analytics_report_'.now()->format('Ymd_His').'.csv';
+        $filename = 'analytics_report_'.now()->format('Ymd_His').'.xlsx';
         $payload = $this->decodeExportPayload($request);
         $report = $this->buildExportReport($request, $payload);
 
-        header('Content-Type: text/csv');
-        header('Content-Disposition: attachment; filename="'.$filename.'"');
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Analytics Report');
 
-        $output = fopen('php://output', 'w');
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '7F1113'],
+            ],
+        ];
 
-        fputcsv($output, ['PUP Taguig Website Analytics Report']);
-        fputcsv($output, ['Date Range', ($report['start'] !== '' ? $report['start'] : 'All Dates').' to '.($report['end'] !== '' ? $report['end'] : 'All Dates')]);
-        fputcsv($output, ['Generated', $report['generatedAt']]);
-        fputcsv($output, []);
+        $zebraStyle = [
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'F8EFE8'],
+            ],
+        ];
+        
+        $sheet->setCellValue('A1', 'Metric');
+        $sheet->setCellValue('B1', 'Value');
+        $sheet->setCellValue('C1', 'Details');
+        
+        $sheet->getStyle('A1:C1')->applyFromArray($headerStyle);
+        $sheet->freezePane('A2');
+        
+        $rowNum = 2;
+        
+        $addSection = function($title, $data) use ($sheet, &$rowNum, $zebraStyle) {
+            $sheet->setCellValue('A' . $rowNum, $title);
+            $sheet->getStyle('A' . $rowNum)->getFont()->setBold(true);
+            $rowNum++;
+            
+            foreach ($data as $row) {
+                $sheet->setCellValue('A' . $rowNum, $row[0] ?? '');
+                $sheet->setCellValue('B' . $rowNum, $row[1] ?? '');
+                $sheet->setCellValue('C' . $rowNum, $row[2] ?? '');
+                
+                if ($rowNum % 2 === 0) {
+                    $sheet->getStyle('A' . $rowNum . ':C' . $rowNum)->applyFromArray($zebraStyle);
+                }
+                $rowNum++;
+            }
+            $rowNum++;
+        };
+        
+        $addSection('Report Info', [
+            ['Date Range', ($report['start'] !== '' ? $report['start'] : 'All Dates').' to '.($report['end'] !== '' ? $report['end'] : 'All Dates')],
+            ['Generated', $report['generatedAt']]
+        ]);
 
-        $this->writeCsvMetricSection($output, 'Part 1: Monitoring Overview', [
+        $addSection('Part 1: Monitoring Overview', [
             ['Total Visitors', $report['data']['total_visitors']],
             ['Avg. Session Duration', $report['data']['avg_duration']],
             ['Bounce Rate', $report['data']['bounce_rate']],
             ['Total Uploads', data_get($report, 'uploads.total_uploads', $report['data']['total_uploads'] ?? 0)],
         ]);
 
-        $this->writeCsvMetricSection($output, 'Part 2: User Engagement', [
+        $addSection('Part 2: User Engagement', [
             ['Sessions', $report['data']['sessions']],
             ['Page views', $report['data']['pageviews']],
             ['Pages / Session', $report['data']['pages_per_session']],
@@ -80,58 +124,67 @@ class AnalyticsController extends Controller
         $feedbackRows[] = ['Satisfactory', number_format((int) data_get($feedback, 'satisfactory', 0))];
         $feedbackRows[] = ['Unsatisfactory', number_format((int) data_get($feedback, 'unsatisfactory', 0))];
         $feedbackRows[] = ['Total Responses', number_format((int) data_get($feedback, 'total_responses', 0))];
-        $this->writeCsvMetricSection($output, 'Part 3: Feedback Result', $feedbackRows);
+        $addSection('Part 3: Feedback Result', $feedbackRows);
 
-        fputcsv($output, ['Part 4: Upload Percentage']);
-        fputcsv($output, ['Uploader Role', 'Uploads', 'Percentage']);
+        $uploadRolesRows = [];
+        $uploadRolesRows[] = ['Uploader Role', 'Uploads', 'Percentage'];
         $uploadRoles = data_get($report, 'uploads.roles', []);
         if ($uploadRoles === []) {
-            fputcsv($output, ['No role upload data found.', '', '']);
+            $uploadRolesRows[] = ['No role upload data found.', '', ''];
         } else {
-            foreach ($uploadRoles as $row) {
-                fputcsv($output, [
-                    data_get($row, 'role', 'Unknown'),
-                    number_format((int) data_get($row, 'count', 0)),
-                    number_format((float) data_get($row, 'percentage', 0), 2).'%',
-                ]);
+            foreach ($uploadRoles as $r) {
+                $uploadRolesRows[] = [
+                    data_get($r, 'role', 'Unknown'),
+                    number_format((int) data_get($r, 'count', 0)),
+                    number_format((float) data_get($r, 'percentage', 0), 2).'%'
+                ];
             }
         }
-        fputcsv($output, []);
-        fputcsv($output, ['Upload Source', 'Uploads']);
+        $addSection('Part 4: Upload Percentage by Role', $uploadRolesRows);
+
+        $uploadSourcesRows = [];
+        $uploadSourcesRows[] = ['Upload Source', 'Uploads'];
         $uploadSources = data_get($report, 'uploads.sources', []);
         if ($uploadSources === []) {
-            fputcsv($output, ['No uploads found.', '']);
+            $uploadSourcesRows[] = ['No uploads found.', ''];
         } else {
-            foreach ($uploadSources as $row) {
-                fputcsv($output, [
-                    data_get($row, 'source', 'Uploads'),
-                    number_format((int) data_get($row, 'count', 0)),
-                ]);
+            foreach ($uploadSources as $r) {
+                $uploadSourcesRows[] = [
+                    data_get($r, 'source', 'Uploads'),
+                    number_format((int) data_get($r, 'count', 0))
+                ];
             }
         }
-        fputcsv($output, []);
+        $addSection('Part 4: Upload Percentage by Source', $uploadSourcesRows);
 
-        $this->writeCsvMetricSection($output, 'Part 5: Announcement Reach', [
+        $addSection('Part 5: Announcement Reach', [
             ['Views', number_format((int) data_get($report, 'announcementReach.views', 0))],
             ['Unique Viewers', number_format((int) data_get($report, 'announcementReach.unique_viewers', 0))],
             ['Clicks', number_format((int) data_get($report, 'announcementReach.clicks', 0))],
             ['CTR', number_format((float) data_get($report, 'announcementReach.ctr_pct', 0), 2).'%'],
         ]);
 
-        $this->writeCsvMetricSection($output, 'Part 6: Server Health', [
+        $serverHealthRows = [
             ['Server Status', data_get($report, 'serverHealth.status', 'Unavailable')],
             ['CPU Usage', data_get($report, 'serverHealth.cpu_usage', '--')],
             ['Memory Usage', data_get($report, 'serverHealth.memory_usage', '--')],
             ['Last Updated', data_get($report, 'serverHealth.last_updated', '--')],
-        ]);
-
+        ];
         if ((string) data_get($report, 'serverHealth.status', 'Unavailable') === 'Unavailable') {
-            fputcsv($output, ['Note', data_get($report, 'serverHealth.message', 'Server health data is temporarily unavailable.')]);
-            fputcsv($output, []);
+            $serverHealthRows[] = ['Note', data_get($report, 'serverHealth.message', 'Server health data is temporarily unavailable.')];
+        }
+        $addSection('Part 6: Server Health', $serverHealthRows);
+
+        foreach (range('A', 'C') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
         }
 
-        fclose($output);
-        exit;
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
     }
 
     public function exportPdf(Request $request)

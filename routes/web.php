@@ -265,6 +265,7 @@ Route::prefix('superadmin')->group(function () {
         Route::get('/accounts', [AccountsController::class, 'index'])->name('superadmin.accounts');
 
         Route::get('/audit', [AuditController::class, 'index'])->name('superadmin.audit');
+        Route::post('/audit/export', [AuditController::class, 'exportExcel'])->name('superadmin.audit.export');
 
         Route::get('/database-backups', [DatabaseBackupController::class, 'index'])
             ->name('superadmin.database-backups.index');

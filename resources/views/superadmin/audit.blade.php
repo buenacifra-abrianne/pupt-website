@@ -113,7 +113,7 @@
                 <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
                     <span style="font-size:13px;color:#888;" id="lastUpdated">Last updated: just now</span>
                     <button class="action-btn" onclick="handleRefresh()"><i class="fas fa-rotate-right"></i> Refresh</button>
-                    <button class="export-btn" onclick="exportCSV()"><i class="fas fa-file-csv"></i> Export CSV</button>
+                    <button class="export-btn" onclick="exportExcel()"><i class="fas fa-file-excel"></i> Export Excel</button>
                 </div>
             </div>
 
@@ -651,29 +651,32 @@ function csvEscape(v) {
     return `"${raw.replaceAll('"', '""')}"`;
 }
 
-function exportCSV() {
+function exportExcel() {
     const f = filtered();
     if (!f.length) {
-        showPageToast('No logs to export.', 'warning', 'Export CSV');
+        showPageToast('No logs to export.', 'warning', 'Export Excel');
         return;
     }
-    const headers = ['#', 'User', 'Role', 'Action', 'Module', 'Description', 'IP Address', 'Timestamp'];
-    const rows = f.map((l, i) => [
-        i + 1,
-        csvEscape(l.user),
-        csvEscape(l.role),
-        csvEscape(l.action),
-        csvEscape(l.module),
-        csvEscape(l.desc),
-        csvEscape(l.ip),
-        csvEscape(l.ts),
-    ]);
-    const csv = [headers, ...rows].map((r) => r.join(',')).join('\n');
-    const a = document.createElement('a');
-    a.href = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
-    a.download = `audit_trail_${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    showPageToast('CSV export started.', 'success', 'Export CSV');
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = "{{ route('superadmin.audit.export') }}";
+    
+    const token = document.createElement('input');
+    token.type = 'hidden';
+    token.name = '_token';
+    token.value = "{{ csrf_token() }}";
+    form.appendChild(token);
+
+    const payload = document.createElement('input');
+    payload.type = 'hidden';
+    payload.name = 'payload';
+    payload.value = JSON.stringify(f);
+    form.appendChild(payload);
+
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+    showPageToast('Excel export started.', 'success', 'Export Excel');
 }
 
 function handleRefresh() {

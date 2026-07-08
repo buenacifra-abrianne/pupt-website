@@ -178,4 +178,83 @@ class AuditController extends Controller
 
         return $columns[0] ?? 'id';
     }
+
+    public function exportExcel(\Illuminate\Http\Request $request)
+    {
+        $payload = json_decode((string) $request->input('payload', ''), true);
+        if (!is_array($payload)) {
+            $payload = [];
+        }
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Audit Trail');
+
+        $headers = ['#', 'User', 'Role', 'Action', 'Module', 'Description', 'IP Address', 'Timestamp'];
+        $colIndex = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($colIndex . '1', $header);
+            $colIndex++;
+        }
+
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '7F1113'],
+            ],
+        ];
+
+        $zebraStyle = [
+            'fill' => [
+                'fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'F8EFE8'],
+            ],
+        ];
+
+        $sheet->getStyle('A1:H1')->applyFromArray($headerStyle);
+        $sheet->freezePane('A2');
+
+        $rowNum = 2;
+        foreach ($payload as $idx => $log) {
+            $sheet->setCellValue('A' . $rowNum, $idx + 1);
+            $sheet->setCellValue('B' . $rowNum, $log['user'] ?? '');
+            $sheet->setCellValue('C' . $rowNum, $log['role'] ?? '');
+            $sheet->setCellValue('D' . $rowNum, $log['action'] ?? '');
+            $sheet->setCellValue('E' . $rowNum, $log['module'] ?? '');
+            $sheet->setCellValue('F' . $rowNum, $log['desc'] ?? '');
+            $sheet->setCellValue('G' . $rowNum, $log['ip'] ?? '');
+            
+            // Handle timestamp cleanly
+            $ts = $log['ts'] ?? '';
+            if ($ts !== '') {
+                try {
+                    $ts = \Carbon\Carbon::parse($ts)->format('Y-m-d H:i:s');
+                } catch (\Throwable $e) {}
+            }
+            $sheet->setCellValue('H' . $rowNum, $ts);
+
+            if ($rowNum % 2 === 0) {
+                $sheet->getStyle('A' . $rowNum . ':H' . $rowNum)->applyFromArray($zebraStyle);
+            }
+
+            $rowNum++;
+        }
+
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $filename = 'audit_trail_' . now()->format('Y-m-d') . '.xlsx';
+
+        return response()->streamDownload(function () use ($spreadsheet) {
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
 }
