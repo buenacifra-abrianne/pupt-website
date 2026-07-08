@@ -75,11 +75,6 @@
                 </div>
             </div>
 
-            @if (!($isIdpOnline ?? true))
-                <div class="landing-alert" style="background-color: #fff3cd; color: #856404; border-color: #ffeeba; border-left: 4px solid #856404; padding: 12px; margin-top: 20px;">
-                    <strong>Notice:</strong> The unified login system is currently unreachable. We have automatically routed you to our local backup login. Please use your local backup credentials.
-                </div>
-            @endif
         </section>
 
         <section class="landing-actions" aria-label="Landing actions">
@@ -133,7 +128,7 @@
                         </span>
                         <span class="text">
                             <strong>Emergency Login</strong>
-                            <small>Emergency local authentication</small>
+                            <small>The unified login system is currently unreachable. We have automatically routed you to our local backup login. Please use your local backup credentials.</small>
                         </span>
                     </a>
                 @endif
