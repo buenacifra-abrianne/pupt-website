@@ -576,17 +576,17 @@
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Contact Tag</label>
-                            <input type="text" name="students[pages][admissions][contact][tag]" maxlength="120" value="{{ $admissionsContact['tag'] ?? '' }}">
+                            <input type="text" name="students[pages][admissions][contact][offices_tag]" maxlength="120" value="{{ $admissionsContact['offices_tag'] ?? ($admissionsContact['tag'] ?? '') }}">
                         </div>
                         <div class="form-group">
                             <label>Contact Title</label>
-                            <input type="text" name="students[pages][admissions][contact][title]" maxlength="255" value="{{ $admissionsContact['title'] ?? '' }}">
+                            <input type="text" name="students[pages][admissions][contact][offices_title]" maxlength="255" value="{{ $admissionsContact['offices_title'] ?? ($admissionsContact['title'] ?? '') }}">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Contact Description</label>
-                        <textarea name="students[pages][admissions][contact][description]" rows="2">{{ $admissionsContact['description'] ?? '' }}</textarea>
+                        <textarea name="students[pages][admissions][contact][offices_description]" rows="2">{{ $admissionsContact['offices_description'] ?? ($admissionsContact['description'] ?? '') }}</textarea>
                     </div>
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-offices">
@@ -638,17 +638,17 @@
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Contact Tag</label>
-                            <input type="text" name="students[pages][admissions][contact][tag]" maxlength="120" value="{{ $admissionsContact['tag'] ?? '' }}">
+                            <input type="text" name="students[pages][admissions][contact][persons_tag]" maxlength="120" value="{{ $admissionsContact['persons_tag'] ?? ($admissionsContact['tag'] ?? '') }}">
                         </div>
                         <div class="form-group">
                             <label>Contact Title</label>
-                            <input type="text" name="students[pages][admissions][contact][title]" maxlength="255" value="{{ $admissionsContact['title'] ?? '' }}">
+                            <input type="text" name="students[pages][admissions][contact][persons_title]" maxlength="255" value="{{ $admissionsContact['persons_title'] ?? ($admissionsContact['title'] ?? '') }}">
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Contact Description</label>
-                        <textarea name="students[pages][admissions][contact][description]" rows="2">{{ $admissionsContact['description'] ?? '' }}</textarea>
+                        <textarea name="students[pages][admissions][contact][persons_description]" rows="2">{{ $admissionsContact['persons_description'] ?? ($admissionsContact['description'] ?? '') }}</textarea>
                     </div>
 
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-persons">

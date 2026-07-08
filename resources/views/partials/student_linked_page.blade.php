@@ -143,12 +143,12 @@
                                                 </svg>
                                             </span>
                                             <div>
-                                                <p>{{ $admissionsContact['tag'] ?? 'Contact Us' }}</p>
-                                                <h4>{{ $admissionsContact['title'] ?? 'Admissions contact details' }}</h4>
+                                                <p>{{ $admissionsContact['offices_tag'] ?? ($admissionsContact['tag'] ?? 'Contact Us') }}</p>
+                                                <h4>{{ $admissionsContact['offices_title'] ?? ($admissionsContact['title'] ?? 'Admissions contact details') }}</h4>
                                             </div>
                                         </div>
-                                        @if(trim((string) ($admissionsContact['description'] ?? '')) !== '')
-                                            <p class="student-admissions-contact-summary">{{ $admissionsContact['description'] }}</p>
+                                        @if(trim((string) ($admissionsContact['offices_description'] ?? ($admissionsContact['description'] ?? ''))) !== '')
+                                            <p class="student-admissions-contact-summary">{{ $admissionsContact['offices_description'] ?? ($admissionsContact['description'] ?? '') }}</p>
                                         @endif
                                         <div class="student-admissions-contact-items">
                                             @foreach($admissionsContactOffices as $office)
@@ -214,12 +214,12 @@
                                                 </svg>
                                             </span>
                                             <div>
-                                                <p>{{ $admissionsContact['tag'] ?? 'Contact Person' }}</p>
-                                                <h4>{{ $admissionsContact['title'] ?? 'Admissions contact details' }}</h4>
+                                                <p>{{ $admissionsContact['persons_tag'] ?? ($admissionsContact['tag'] ?? 'Contact Person') }}</p>
+                                                <h4>{{ $admissionsContact['persons_title'] ?? ($admissionsContact['title'] ?? 'Admissions contact details') }}</h4>
                                             </div>
                                         </div>
-                                        @if(trim((string) ($admissionsContact['description'] ?? '')) !== '')
-                                            <p class="student-admissions-contact-summary">{{ $admissionsContact['description'] }}</p>
+                                        @if(trim((string) ($admissionsContact['persons_description'] ?? ($admissionsContact['description'] ?? ''))) !== '')
+                                            <p class="student-admissions-contact-summary">{{ $admissionsContact['persons_description'] ?? ($admissionsContact['description'] ?? '') }}</p>
                                         @endif
                                         <div class="student-admissions-person-grid">
                                             @foreach($admissionsContactPersons as $person)
