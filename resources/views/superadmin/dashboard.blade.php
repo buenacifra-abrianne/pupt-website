@@ -357,7 +357,7 @@
                 </button>
 
                 <button class="btn btn-secondary btn-sm" onclick="exportAnalytics('excel')">
-                <i class="fas fa-file-excel"></i> Export CSV
+                <i class="fas fa-file-excel"></i> Export Excel
                 </button>
                 </div>
             </div>
