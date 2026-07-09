@@ -2776,28 +2776,12 @@
                         let file = input.files && input.files[0];
                         if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
                             try {
-                                const dbPath = typeof imageField !== 'undefined' && imageField ? imageField.value : null;
-                                if (dbPath) {
-                                    const res = await fetch(`/cms/proxy-image?path=${encodeURIComponent(dbPath)}`);
-                                    if (!res.ok) throw new Error("Proxy fetch failed");
-                                    const blob = await res.blob();
-                                    file = new File([blob], 'image.jpg', { type: blob.type || 'image/jpeg' });
-                                } else {
-                                    throw new Error("No db path available");
-                                }
-                            } catch (err) {
-                                console.warn("Proxy failed, using canvas fallback", err);
-                                try {
-                                    const canvas = document.createElement('canvas');
-                                    canvas.width = previewEl.naturalWidth || previewEl.width || 800;
-                                    canvas.height = previewEl.naturalHeight || previewEl.height || 600;
-                                    const ctx = canvas.getContext('2d');
-                                    ctx.drawImage(previewEl, 0, 0, canvas.width, canvas.height);
-                                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
-                                    if (blob) file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
-                                } catch (canvasErr) {
-                                    console.error("Canvas fallback also failed", canvasErr);
-                                }
+                                const res = await fetch(previewEl.src);
+                                const blob = await res.blob();
+                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } catch(err) {
+                                console.error("Could not fetch image to edit", err);
                             }
                         }
                         
