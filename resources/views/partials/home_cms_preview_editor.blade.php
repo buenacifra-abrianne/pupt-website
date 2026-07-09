@@ -1251,23 +1251,21 @@
                         let file = input.files && input.files[0];
                         if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
                             try {
-                                const res = await fetch(previewEl.src, { cache: 'no-cache' });
-                                if (!res.ok) throw new Error("Fetch failed");
-                                const blob = await res.blob();
-                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
-                                file = new File([blob], `image.${ext}`, { type: blob.type });
-                            } catch(err) {
-                                console.warn("Fetch failed, trying canvas fallback", err);
+                                const canvas = document.createElement('canvas');
+                                canvas.width = previewEl.naturalWidth || previewEl.width || 800;
+                                canvas.height = previewEl.naturalHeight || previewEl.height || 600;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(previewEl, 0, 0, canvas.width, canvas.height);
+                                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
+                                if (blob) file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+                            } catch (err) {
+                                console.warn("Canvas failed, using fetch fallback", err);
                                 try {
-                                    const canvas = document.createElement('canvas');
-                                    canvas.width = previewEl.naturalWidth || previewEl.width || 800;
-                                    canvas.height = previewEl.naturalHeight || previewEl.height || 600;
-                                    const ctx = canvas.getContext('2d');
-                                    ctx.drawImage(previewEl, 0, 0, canvas.width, canvas.height);
-                                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
-                                    if (blob) file = new File([blob], 'image.jpg', { type: blob.type });
-                                } catch (canvasErr) {
-                                    console.error("Canvas fallback also failed", canvasErr);
+                                    const res = await fetch(previewEl.src, { cache: 'no-cache' });
+                                    const blob = await res.blob();
+                                    file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+                                } catch(fetchErr) {
+                                    console.error("Fetch fallback also failed", fetchErr);
                                 }
                             }
                         }
@@ -1415,23 +1413,21 @@
                         let file = input.files && input.files[0];
                         if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
                             try {
-                                const res = await fetch(previewEl.src, { cache: 'no-cache' });
-                                if (!res.ok) throw new Error("Fetch failed");
-                                const blob = await res.blob();
-                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
-                                file = new File([blob], `image.${ext}`, { type: blob.type });
-                            } catch(err) {
-                                console.warn("Fetch failed, trying canvas fallback", err);
+                                const canvas = document.createElement('canvas');
+                                canvas.width = previewEl.naturalWidth || previewEl.width || 800;
+                                canvas.height = previewEl.naturalHeight || previewEl.height || 600;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(previewEl, 0, 0, canvas.width, canvas.height);
+                                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
+                                if (blob) file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+                            } catch (err) {
+                                console.warn("Canvas failed, using fetch fallback", err);
                                 try {
-                                    const canvas = document.createElement('canvas');
-                                    canvas.width = previewEl.naturalWidth || previewEl.width || 800;
-                                    canvas.height = previewEl.naturalHeight || previewEl.height || 600;
-                                    const ctx = canvas.getContext('2d');
-                                    ctx.drawImage(previewEl, 0, 0, canvas.width, canvas.height);
-                                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
-                                    if (blob) file = new File([blob], 'image.jpg', { type: blob.type });
-                                } catch (canvasErr) {
-                                    console.error("Canvas fallback also failed", canvasErr);
+                                    const res = await fetch(previewEl.src, { cache: 'no-cache' });
+                                    const blob = await res.blob();
+                                    file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+                                } catch(fetchErr) {
+                                    console.error("Fetch fallback also failed", fetchErr);
                                 }
                             }
                         }
