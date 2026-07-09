@@ -251,13 +251,6 @@
             radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.05), transparent 45%),
             linear-gradient(160deg, #0f172a 0%, #141b2d 100%) !important;
         color: #f8fafc !important;
-        
-        /* Override unified button and icon theme colors for dark mode */
-        --cms-btn-maroon: #1e293b;
-        --cms-btn-maroon-dark: #0f172a;
-        --cms-icon-primary: #3b82f6;
-        --cms-icon-danger: #ef4444;
-        --admin-primary: #3b82f6;
     }
 
     body.pup-dark-mode .sidebar {
@@ -273,24 +266,7 @@
     body.pup-dark-mode .nav-link:hover,
     body.pup-dark-mode .nav-link.active {
         background: rgba(240, 200, 90, 0.12) !important;
-        border-left: 4px solid #f0c85a !important; /* Force the border to appear */
-    }
-
-    body.pup-dark-mode .top-tab-btn {
-        background: rgba(30, 41, 59, 0.9) !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        color: #94a3b8 !important;
-    }
-
-    body.pup-dark-mode .top-tab-btn:hover {
-        color: #f8fafc !important;
-        border-color: #facc15 !important;
-    }
-
-    body.pup-dark-mode .top-tab-btn.active {
-        background: #1c2438 !important;
-        border-color: #facc15 !important;
-        color: #facc15 !important;
+        border-left-color: #f0c85a !important;
     }
 
     body.pup-dark-mode .user-profile:hover {
