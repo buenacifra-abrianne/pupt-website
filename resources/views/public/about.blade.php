@@ -1264,7 +1264,15 @@
                             </div>
                         </section>
 
-
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
 
                         <section
                             class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
