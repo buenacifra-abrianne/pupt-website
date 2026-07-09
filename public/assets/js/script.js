@@ -417,6 +417,18 @@ function initWidgetDock() {
         transform: translateY(0) scale(1);
       }
 
+      @keyframes fab-glow-ring {
+        0%   { box-shadow: var(--widget-fab-shadow), 0 0 0 0   rgba(177, 24, 28, 0.6); }
+        55%  { box-shadow: 0 20px 40px rgba(77,9,11,0.5),     0 0 0 10px rgba(177, 24, 28, 0); }
+        100% { box-shadow: 0 20px 40px rgba(77,9,11,0.5),     0 0 0 0   rgba(177, 24, 28, 0); }
+      }
+
+      @keyframes fab-ripple {
+        0%   { transform: scale(0);   opacity: 0.5; }
+        80%  { transform: scale(2.6); opacity: 0;   }
+        100% { transform: scale(2.6); opacity: 0;   }
+      }
+
       .widget-dock-fab,
       .widget-dock-action {
         width: var(--widget-fab-size);
@@ -434,10 +446,31 @@ function initWidgetDock() {
         box-shadow: var(--widget-fab-shadow);
         cursor: pointer;
         pointer-events: auto;
+        position: relative;
+        overflow: hidden;
         transition:
-          transform 0.22s ease,
-          box-shadow 0.22s ease,
+          transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+          box-shadow 0.25s ease,
+          background 0.2s ease,
           opacity 0.22s ease;
+      }
+
+      /* Ripple pseudo-element */
+      .widget-dock-fab::after,
+      .widget-dock-action::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.32);
+        transform: scale(0);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .widget-dock-fab:active::after,
+      .widget-dock.is-open .widget-dock-action:active::after {
+        animation: fab-ripple 0.44s ease forwards;
       }
 
       .widget-dock-fab {
@@ -446,14 +479,14 @@ function initWidgetDock() {
       }
 
       .widget-dock-action {
-        position: relative;
         z-index: 2;
         opacity: 0;
         transform: translateY(10px) scale(0.92);
         transition:
-          transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+          transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
           opacity 0.22s ease,
-          box-shadow 0.22s ease;
+          box-shadow 0.25s ease,
+          background 0.2s ease;
       }
 
       .widget-dock.is-open .widget-dock-action {
@@ -482,13 +515,26 @@ function initWidgetDock() {
           0 14px 32px rgba(77, 9, 11, 0.35);
       }
 
+      /* Unified hover: scale + lift + brighter background + deeper shadow.
+         No keyframe animations — identical effect can be applied via JS
+         for the third-party accessibility button.
+         NOTE: .widget-dock.is-open .widget-dock-action has specificity (0,0,3,0),
+         so hover must use .widget-dock.is-open prefix to reach (0,0,4,0) and win. */
       .widget-dock-fab:hover,
       .widget-dock-fab:focus-visible,
-      .widget-dock-action:hover,
-      .widget-dock-action:focus-visible {
-        transform: translateY(-4px);
-        box-shadow: 0 18px 36px rgba(77, 9, 11, 0.42);
+      .widget-dock.is-open .widget-dock-action:hover,
+      .widget-dock.is-open .widget-dock-action:focus-visible {
+        transform: translateY(-6px) scale(1.1);
+        background: #b01e22;
+        box-shadow: 0 20px 40px rgba(77, 9, 11, 0.5);
         outline: none;
+        animation: fab-glow-ring 0.65s ease forwards;
+      }
+
+      .widget-dock-fab:active,
+      .widget-dock.is-open .widget-dock-action:active {
+        transform: translateY(-2px) scale(0.96);
+        transition-duration: 0.1s;
       }
 
       .widget-dock-fab svg,
@@ -590,6 +636,12 @@ function initWidgetDock() {
         .widget-dock-action:hover,
         .widget-dock-action:focus-visible {
           transform: none;
+          box-shadow: var(--widget-fab-shadow);
+          background: var(--widget-fab-bg);
+        }
+        .widget-dock-fab:active,
+        .widget-dock-action:active {
+          transform: scale(0.93);
         }
       }
     `;
@@ -694,6 +746,116 @@ function initWidgetDock() {
     chatAction.innerHTML = isOpen ? closeButtonIcon : chatButtonIcon;
   };
 
+  /* ── Accessibility FAB hover ─────────────────────────────────────────────
+     Values match the unified .widget-dock-action:hover CSS exactly.
+     Glow ring and ripple are simulated via JS since this is a third-party
+     button — CSS keyframe animations cannot be applied inline.
+  ───────────────────────────────────────────────────────────────────────── */
+  const ACC_FAB_TRANSITION     = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, background 0.2s ease, opacity 0.22s ease';
+  const ACC_FAB_HOVER_TRANSFORM  = 'translateY(-6px) scale(1.1)';
+  const ACC_FAB_ACTIVE_TRANSFORM = 'translateY(-2px) scale(0.96)';
+  const ACC_FAB_HOVER_BG       = '#b01e22';
+  const ACC_FAB_DEFAULT_BG     = '#8d0d10';
+  const ACC_FAB_HOVER_SHADOW   = '0 20px 40px rgba(77,9,11,0.5)';
+  const ACC_FAB_DEFAULT_SHADOW  = '0 14px 32px rgba(77,9,11,0.35)';
+
+  let accHoverBound = null;
+
+  /* Simulate the CSS fab-ripple keyframe by injecting a fixed-position
+     element over the button — works without overflow:hidden on the button. */
+  const spawnAccRipple = (btn) => {
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height);
+    const el = document.createElement('span');
+    Object.assign(el.style, {
+      position:     'fixed',
+      left:         rect.left + 'px',
+      top:          rect.top  + 'px',
+      width:        size + 'px',
+      height:       size + 'px',
+      borderRadius: '50%',
+      background:   'rgba(255,255,255,0.32)',
+      transform:    'scale(0)',
+      opacity:      '0.5',
+      pointerEvents:'none',
+      zIndex:       '2147483647',
+      transition:   'transform 0.44s ease, opacity 0.44s ease',
+    });
+    document.body.appendChild(el);
+    requestAnimationFrame(() => {
+      el.style.transform = 'scale(2.6)';
+      el.style.opacity   = '0';
+    });
+    setTimeout(() => el.remove(), 460);
+  };
+
+  /* Simulate the CSS fab-glow-ring keyframe via sequential box-shadow changes. */
+  const spawnAccGlowRing = (btn) => {
+    // Step 1 — ring appears at 0px spread
+    btn.style.setProperty('box-shadow',
+      `${ACC_FAB_HOVER_SHADOW}, 0 0 0 0 rgba(177,24,28,0.6)`, 'important');
+    // Step 2 — ring expands to 10px, fades
+    setTimeout(() => {
+      if (!btn.matches(':hover')) return;
+      btn.style.setProperty('box-shadow',
+        `${ACC_FAB_HOVER_SHADOW}, 0 0 0 10px rgba(177,24,28,0)`, 'important');
+    }, 360);
+    // Step 3 — ring collapses back (matches forwards keyframe end-state)
+    setTimeout(() => {
+      if (!btn.matches(':hover')) return;
+      btn.style.setProperty('box-shadow', ACC_FAB_HOVER_SHADOW, 'important');
+    }, 650);
+  };
+
+  const bindAccHover = (btn) => {
+    if (!btn || btn === accHoverBound) return;
+    accHoverBound = btn;
+
+    // Stamp the identical baseline immediately — inline !important beats
+    // any third-party widget CSS.
+    btn.style.setProperty('background',    ACC_FAB_DEFAULT_BG,    'important');
+    btn.style.setProperty('box-shadow',    ACC_FAB_DEFAULT_SHADOW, 'important');
+    btn.style.setProperty('transition',    ACC_FAB_TRANSITION,    'important');
+    btn.style.setProperty('border-radius', '999px',               'important');
+
+    const isTouch = window.matchMedia('(hover:none),(pointer:coarse)').matches;
+
+    btn.addEventListener('mouseenter', () => {
+      if (isTouch) return;
+      btn.style.setProperty('transform',  ACC_FAB_HOVER_TRANSFORM, 'important');
+      btn.style.setProperty('background', ACC_FAB_HOVER_BG,        'important');
+      spawnAccGlowRing(btn);
+    });
+
+    btn.addEventListener('mouseleave', () => {
+      btn.style.setProperty('transform',  '',                     'important');
+      btn.style.setProperty('background', ACC_FAB_DEFAULT_BG,    'important');
+      btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
+    });
+
+    btn.addEventListener('mousedown', () => {
+      btn.style.setProperty('transform', ACC_FAB_ACTIVE_TRANSFORM, 'important');
+      spawnAccRipple(btn);
+    });
+
+    btn.addEventListener('mouseup', () => {
+      btn.style.setProperty('transform', isTouch ? '' : ACC_FAB_HOVER_TRANSFORM, 'important');
+    });
+
+    btn.addEventListener('focus', () => {
+      if (isTouch) return;
+      btn.style.setProperty('transform',  ACC_FAB_HOVER_TRANSFORM, 'important');
+      btn.style.setProperty('background', ACC_FAB_HOVER_BG,        'important');
+      spawnAccGlowRing(btn);
+    });
+
+    btn.addEventListener('blur', () => {
+      btn.style.setProperty('transform',  '',                     'important');
+      btn.style.setProperty('background', ACC_FAB_DEFAULT_BG,    'important');
+      btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
+    });
+  };
+
   const syncAccessibilityToggle = () => {
     const accessibilityToggle = document.querySelector(".acc-container .acc-toggle-btn");
     const accessibilityPanel =
@@ -705,6 +867,7 @@ function initWidgetDock() {
     if (accessibilityToggle) {
       accessibilityToggle.setAttribute("aria-label", "Accessibility Options");
       accessibilityToggle.title = "Accessibility Options";
+      bindAccHover(accessibilityToggle);
     }
 
     accessibilityPanel?.classList.add("widget-dock-accessibility-panel");

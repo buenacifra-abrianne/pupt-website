@@ -43,11 +43,12 @@
     border: none !important;
     border-radius: 50% !important;
     padding: 0 !important;
-    background: var(--widget-fab-bg) !important;
     color: #fffaf4 !important;
-    font-size: 1.65rem !important;
-    box-shadow: var(--widget-fab-shadow) !important;
+    font-size: 1.05rem !important;
     cursor: pointer !important;
+    /* Only transition opacity/visibility here.
+       transform, box-shadow, background transitions are set by JS bindAccHover
+       so they can match the other FABs exactly without !important conflicts. */
     transition: opacity 0.22s ease, visibility 0.22s ease !important;
     z-index: 999 !important;
 }
@@ -56,7 +57,7 @@ body.has-widget-dock .acc-container .acc-toggle-btn {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    transform: none !important;
+    /* No transform:none here — it would block hover animation via higher specificity */
 }
 
 body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
@@ -65,7 +66,7 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    transform: none !important;
+    /* Allow hover transform — do NOT force transform: none here */
     z-index: var(--widget-accessibility-fab-z) !important;
 }
 
