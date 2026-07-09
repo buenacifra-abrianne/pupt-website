@@ -1227,85 +1227,6 @@
                                 })();
                                 </script>
 
-                                @elseif($selectedSlug === 'citizens-charter')
-                                    @if(!empty($selectedSection['lead']))
-                                        <div class="about-detail-intro" style="margin-top: 30px;">
-                                            <p class="about-lead">{{ $selectedSection['lead'] }}</p>
-                                        </div>
-                                    @endif
-                                    @if(!empty($selectedSection['body_text']))
-                                        <div class="about-detail-text">
-                                            {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
-                                        </div>
-                                    @endif
-
-                                    <div class="students-grid" style="margin-top: 40px;">
-                                        @if($cmsPreview)
-                                            <button
-                                                type="button"
-                                                class="students-card students-card--add"
-                                                data-about-service-add
-                                                aria-label="Add service"
-                                            >
-                                                <div class="students-card-inner">
-                                                    <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                                    <span class="students-card-label">Add Service</span>
-                                                    <span class="students-card-tag">CMS Action</span>
-                                                </div>
-                                            </button>
-                                        @endif
-
-                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
-                                            @php
-                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
-                                                $serviceImage = trim((string) ($service['image'] ?? ''));
-                                                $serviceLink = trim((string) ($service['link'] ?? ''));
-                                            @endphp
-
-                                            @if($cmsPreview)
-                                                <article
-                                                    class="students-card cms-preview-editable"
-                                                    data-cms-section="citizens-charter"
-                                                    data-cms-section-label="Citizen's Charter"
-                                                    data-cms-editable-type="card"
-                                                    data-cms-editable-index="{{ $index }}"
-                                                    data-cms-trigger-edit="citizens-charter"
-                                                >
-                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
-                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
-                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
-                                                    </div>
-                                            @elseif($serviceLink !== '')
-                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
-                                            @else
-                                                <article class="students-card">
-                                            @endif
-
-                                            <div class="students-card-inner">
-                                                <div class="students-card-front">
-                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
-                                                    <div class="students-card-copy">
-                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
-                                                    </div>
-                                                </div>
-                                                <div class="students-card-back">
-                                                    <div class="students-card-overlay-copy">
-                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
-                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
-                                                    </div>
-                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
-                                                </div>
-                                            </div>
-
-                                            @if($cmsPreview)
-                                                </article>
-                                            @elseif($serviceLink !== '')
-                                                </a>
-                                            @else
-                                                </article>
-                                            @endif
-                                        @endforeach
-                                    </div>
                                   @endif
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
@@ -2345,45 +2266,6 @@
                             type: 'cms-about-contents-card-delete',
                             slug: card?.getAttribute('data-about-contents-slug') || '',
                             label: card?.getAttribute('data-about-contents-label') || 'About card',
-                        }, '*');
-                        return;
-                    }
-
-                    const addServiceCardTrigger = event.target.closest('[data-about-service-add]');
-                    if (addServiceCardTrigger) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        window.parent?.postMessage({
-                            type: 'cms-about-service-card-add',
-                            route: 'citizens-charter',
-                            label: 'Add Citizen\'s Charter service',
-                        }, '*');
-                        return;
-                    }
-
-                    const editServiceCardTrigger = event.target.closest('[data-about-service-edit]');
-                    if (editServiceCardTrigger) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        const card = editServiceCardTrigger.closest('.students-card');
-                        window.parent?.postMessage({
-                            type: 'cms-about-service-card-edit',
-                            index: card?.getAttribute('data-cms-editable-index') || '',
-                            label: 'Edit Citizen\'s Charter service',
-                            route: 'citizens-charter',
-                        }, '*');
-                        return;
-                    }
-
-                    const deleteServiceCardTrigger = event.target.closest('[data-about-service-delete]');
-                    if (deleteServiceCardTrigger) {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        const card = deleteServiceCardTrigger.closest('.students-card');
-                        window.parent?.postMessage({
-                            type: 'cms-about-service-card-delete',
-                            index: card?.getAttribute('data-cms-editable-index') || '',
-                            label: 'Citizen\'s Charter service',
                         }, '*');
                         return;
                     }

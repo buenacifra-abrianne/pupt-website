@@ -1077,11 +1077,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Description</label>
-                                    @include('partials.rich_text_editor', [
-                                        'name' => 'about[sections][citizens-charter][services]['.$index.'][description]',
-                                        'value' => $service['description'] ?? '',
-                                        'placeholder' => 'Write the service description...',
-                                    ])
+                                    <textarea name="about[sections][citizens-charter][services][{{ $index }}][description]" rows="3" maxlength="5000">{{ $service['description'] ?? '' }}</textarea>
                                 </div>
                                 <div class="form-group">
                                     <label>Link</label>
@@ -1144,11 +1140,7 @@
                             </div>
                             <div class="form-group">
                                 <label>Description</label>
-                                @include('partials.rich_text_editor', [
-                                    'name' => 'about[sections][citizens-charter][services][__INDEX__][description]',
-                                    'value' => '',
-                                    'placeholder' => 'Write the service description...',
-                                ])
+                                <textarea name="about[sections][citizens-charter][services][__INDEX__][description]" rows="3" maxlength="5000"></textarea>
                             </div>
                             <div class="form-group">
                                 <label>Link</label>
@@ -3315,8 +3307,7 @@
                 const isPlanPriorityFocus = sectionKey === 'strategic-development-plan' && String(options.planPriorityIndex ?? '').trim() !== '';
                 const isOfficialCardFocus = sectionKey === 'campus-officials' && !isChartFocus && String(options.officialIndex ?? '').trim() !== '';
                 const isSealCardFocus = sectionKey === 'logo-and-symbols' && String(options.sealIndex ?? '').trim() !== '';
-                const isServiceCardFocus = sectionKey === 'citizens-charter' && String(options.serviceIndex ?? '').trim() !== '';
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus || isServiceCardFocus;
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -3345,8 +3336,6 @@
                         focusScope = setActiveOfficialEditor(options.officialIndex ?? '', panel) || panel;
                     } else if (sectionKey === 'logo-and-symbols') {
                         focusScope = setActiveSealEditor(options.sealIndex ?? '', panel, isCardFocus) || panel;
-                    } else if (sectionKey === 'citizens-charter') {
-                        focusScope = setActiveServiceEditor(options.serviceIndex ?? '', panel) || panel;
                     }
 
                     if (isCardFocus && focusScope?.classList?.contains('about-cms-card-editor')) {
@@ -3524,33 +3513,6 @@
                 openAboutEditor('logo-and-symbols', data.label ? `Edit ${data.label}` : 'Edit seal', {
                     sealIndex: data.index || '',
                     route: data.route || 'logo-and-symbols',
-                });
-                return;
-            }
-
-            if (data.type === 'cms-about-service-card-add') {
-                const addBtn = document.querySelector('[data-about-service-add]');
-                if (addBtn) addBtn.click();
-                
-                const editors = document.querySelectorAll('[data-about-service-editor]');
-                const nextIndex = editors.length ? editors[editors.length - 1].getAttribute('data-about-service-index') : '';
-                
-                openAboutEditor('citizens-charter', data.label || 'Add service', {
-                    serviceIndex: nextIndex,
-                    route: data.route || 'citizens-charter',
-                });
-                return;
-            }
-
-            if (data.type === 'cms-about-service-card-delete') {
-                confirmDeleteServiceCard(data.index || '', data.label || '');
-                return;
-            }
-
-            if (data.type === 'cms-about-service-card-edit') {
-                openAboutEditor('citizens-charter', data.label ? `Edit ${data.label}` : 'Edit service', {
-                    serviceIndex: data.index || '',
-                    route: data.route || 'citizens-charter',
                 });
                 return;
             }
@@ -5452,119 +5414,6 @@
             if (options.submit !== false) {
                 submitSealsForm();
             }
-        };
-
-        const deleteServiceByIndex = (index) => {
-            const normalizedIndex = String(index ?? '').trim();
-            const editors = Array.from(document.querySelectorAll('[data-about-service-editor]'));
-            const targetEditor = editors.find((ed) => ed.getAttribute('data-about-service-index') === normalizedIndex);
-            
-            if (!targetEditor) {
-                return false;
-            }
-
-            targetEditor.remove();
-            
-            // Re-index remaining editors
-            const remainingEditors = document.querySelectorAll('[data-about-service-editor]');
-            remainingEditors.forEach((editor, i) => {
-                editor.setAttribute('data-about-service-index', String(i));
-                const heading = editor.querySelector('[data-about-service-heading]');
-                if (heading) heading.textContent = `Service ${i + 1}`;
-                
-                editor.querySelectorAll('input, textarea, select').forEach(el => {
-                    if (el.name) {
-                        el.name = el.name.replace(/services\]\[\d+\]/g, `services][${i}]`);
-                    }
-                    if (el.id && el.id.includes('-about-service-image-')) {
-                        el.id = el.id.replace(/-about-service-image-(file-)?\d+/g, `-about-service-image-$1${i}`);
-                    }
-                });
-                
-                editor.querySelectorAll('[data-about-image-field-id]').forEach(el => {
-                    const attr = el.getAttribute('data-about-image-field-id');
-                    if (attr) {
-                        el.setAttribute('data-about-image-field-id', attr.replace(/-about-service-image-\d+/g, `-about-service-image-${i}`));
-                    }
-                });
-                
-                ['data-about-preview-for', 'data-about-edit-image-for', 'data-about-clear-image-for', 'data-about-file-name-for', 'data-about-dropzone-for'].forEach(attrName => {
-                    editor.querySelectorAll(`[${attrName}]`).forEach(el => {
-                        const attr = el.getAttribute(attrName);
-                        if (attr) {
-                            el.setAttribute(attrName, attr.replace(/-about-service-image-(file-)?\d+/g, `-about-service-image-$1${i}`));
-                        }
-                    });
-                });
-            });
-
-            return true;
-        };
-
-        const confirmDeleteServiceCard = async (index, label, options = {}) => {
-            const normalizedIndex = String(index ?? '').trim();
-            if (normalizedIndex === '') {
-                return;
-            }
-
-            let confirmed = false;
-            const promptLabel = label || `Service ${Number(normalizedIndex) + 1}`;
-
-            if (typeof window.confirmAction === 'function') {
-                confirmed = await window.confirmAction({
-                    title: 'Delete Service Card',
-                    message: `Do you want to delete "${promptLabel}" from Citizen's Charter?`,
-                    confirmText: 'Delete',
-                    tone: 'danger',
-                });
-            } else {
-                confirmed = window.confirm(`Do you want to delete "${promptLabel}" from Citizen's Charter?`);
-            }
-
-            if (!confirmed) {
-                return;
-            }
-
-            const deleted = deleteServiceByIndex(normalizedIndex);
-            if (!deleted) {
-                return;
-            }
-
-            if (options.submit !== false) {
-                const form = document.querySelector('[data-about-editor-panel="citizens-charter"] form');
-                if (form) {
-                    if (typeof window.triggerAboutFormSubmit === 'function') {
-                        window.triggerAboutFormSubmit(form);
-                    } else {
-                        form.submit();
-                    }
-                }
-            }
-        };
-
-        const setActiveServiceEditor = (index = '', panel = document) => {
-            const editors = Array.from(panel.querySelectorAll('[data-about-service-editor]'));
-
-            if (!editors.length) {
-                return null;
-            }
-
-            const normalizedIndex = String(index ?? '').trim();
-            let targetEditor = null;
-
-            if (normalizedIndex !== '') {
-                targetEditor = editors.find((editor) => editor.getAttribute('data-about-service-index') === normalizedIndex) || null;
-            }
-
-            editors.forEach((editor) => {
-                const isActive = editor === targetEditor;
-                editor.classList.toggle('is-active', isActive);
-                if (isActive) {
-                    editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }
-            });
-
-            return targetEditor;
         };
 
         document.querySelectorAll('form.{{ $formClass }}').forEach((form) => {
