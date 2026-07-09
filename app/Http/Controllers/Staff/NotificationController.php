@@ -19,7 +19,7 @@ class NotificationController extends Controller
         $q = $request->get('q', '');
         $typeFilter = $request->get('type', 'ALL');
         $statusFilter = $request->get('status', 'ALL');
-        $rangeFilter = $request->get('range', '30D');
+        $rangeFilter = $request->get('range', 'ALL');
 
         $statsRow = DB::table('notifications as n')
             ->leftJoin('notification_reads as nr', function ($join) use ($userId) {

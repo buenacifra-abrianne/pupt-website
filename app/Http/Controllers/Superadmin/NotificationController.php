@@ -18,7 +18,7 @@ class NotificationController extends Controller
 
         $typeFilter = strtoupper(trim($request->query('type', 'ALL')));
         $statusFilter = strtoupper(trim($request->query('status', 'ALL')));
-        $rangeFilter = strtoupper(trim($request->query('range', '7D')));
+        $rangeFilter = strtoupper(trim($request->query('range', 'ALL')));
         $q = trim((string) $request->query('q', ''));
 
         $statsRow = DB::table('notifications as n')
