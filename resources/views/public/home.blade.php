@@ -382,12 +382,16 @@
     <div class="facility-modal-overlay" id="facilityModalOverlay" aria-hidden="true">
       <div class="facility-modal-card" role="dialog" aria-modal="true" aria-label="Facility Full View">
         <button class="facility-modal-close" type="button" aria-label="Close full view">&times;</button>
+
+        <div class="facility-modal-header">
+          <h2 class="facility-modal-title" id="facilityModalTitle"></h2>
+        </div>
+
         <div class="facility-modal-content">
           <button type="button" class="facility-modal-arrow facility-modal-arrow-prev" id="facilityModalPrev" aria-label="Previous facility">&#10094;</button>
           <img src="" alt="" id="facilityModalImage">
           <button type="button" class="facility-modal-arrow facility-modal-arrow-next" id="facilityModalNext" aria-label="Next facility">&#10095;</button>
         </div>
-        <h3 class="facility-modal-title" id="facilityModalTitle"></h3>
         <div class="facility-modal-dots" id="facilityModalDots"></div>
       </div>
     </div>
