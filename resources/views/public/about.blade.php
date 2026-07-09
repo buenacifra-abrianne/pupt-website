@@ -6,7 +6,6 @@
     <title>About - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/students.css') }}?v={{ filemtime(public_path('assets/css/students.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
@@ -1240,18 +1239,20 @@
                                         </div>
                                     @endif
 
-                                    <nav class="students-cards" aria-label="Citizen's Charter Services" style="margin-top: 40px;">
+                                    <div class="students-grid" style="margin-top: 40px;">
                                         @if($cmsPreview)
-                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add service">
+                                            <button
+                                                type="button"
+                                                class="students-card students-card--add"
+                                                data-about-service-add
+                                                aria-label="Add service"
+                                            >
                                                 <div class="students-card-inner">
-                                                    <div class="students-card-front students-card-front-add">
-                                                        <div class="students-card-add-inner">
-                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                                            <p class="students-card-add-label">Add Service</p>
-                                                        </div>
-                                                    </div>
+                                                    <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                    <span class="students-card-label">Add Service</span>
+                                                    <span class="students-card-tag">CMS Action</span>
                                                 </div>
-                                            </article>
+                                            </button>
                                         @endif
 
                                         @foreach($selectedSection['services'] ?? [] as $index => $service)
@@ -1304,7 +1305,7 @@
                                                 </article>
                                             @endif
                                         @endforeach
-                                    </nav>
+                                    </div>
                                   @endif
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
