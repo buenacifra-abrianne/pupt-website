@@ -218,43 +218,49 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="home-cms-campus-tour-video-shell">
-                        <label class="home-dropzone home-campus-tour-video-dropzone" for="{{ $campusTourVideoId }}">
-                            <span class="dropzone-label">University AVP Video</span>
-                            <span class="dropzone-file-name" data-home-campus-tour-video-name data-empty-text="Upload MP4, WebM, or MOV video">Upload MP4, WebM, or MOV video</span>
-                            <span class="home-cms-campus-tour-video-preview-wrap">
-                                <video
-                                    class="home-cms-campus-tour-video-preview"
-                                    data-home-campus-tour-video-preview
-                                    controls
-                                    playsinline
-                                    preload="metadata"
-                                    @if($campusTourVideoUrl) src="{{ $campusTourVideoUrl }}" @endif
-                                    @if(!$campusTourVideoUrl) hidden @endif
-                                ></video>
-                                <span class="home-cms-campus-tour-video-empty" data-home-campus-tour-video-empty @if($campusTourVideoUrl) hidden @endif>No AVP video uploaded yet.</span>
-                                <button
-                                    type="button"
-                                    class="home-cms-carousel-remove"
-                                    data-home-campus-tour-video-clear
-                                    aria-label="Delete AVP video"
-                                    title="Delete video"
-                                    @if(!$campusTourVideoUrl) hidden @endif
-                                >
-                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                </button>
-                            </span>
-                        </label>
+                    <div class="home-cms-campus-tour-video-shell form-group">
+                        <label>University AVP Video</label>
+
                         <input
                             id="{{ $campusTourVideoId }}"
-                            class="home-dropzone-input"
                             type="file"
                             name="home[campus_tour][avp_video_file]"
                             accept="video/mp4,video/webm,video/quicktime"
                             data-home-campus-tour-video-input
                             data-max-bytes="{{ $campusTourVideoMaxBytes }}"
+                            hidden
                         >
-                        <p class="home-cms-helper-text">Maximum file size allowed: {{ $campusTourVideoMaxMb }}MB.</p>
+
+                        <div class="image-preview-wrap">
+                            <div data-home-campus-tour-video-empty @if($campusTourVideoUrl) hidden @endif>
+                                <div class="image-empty-state">
+                                    <i class="fas fa-video"></i>
+                                    <span data-home-campus-tour-video-name data-empty-text="Upload MP4, WebM, or MOV video">Upload MP4, WebM, or MOV video</span>
+                                </div>
+                            </div>
+
+                            <video
+                                class="image-preview"
+                                data-home-campus-tour-video-preview
+                                controls
+                                playsinline
+                                preload="metadata"
+                                @if($campusTourVideoUrl) src="{{ $campusTourVideoUrl }}" @else hidden @endif
+                            ></video>
+
+                            <div class="image-preview-actions">
+                                <button type="button" class="btn btn-sm btn-primary" onclick="document.getElementById('{{ $campusTourVideoId }}').click()">
+                                    <i class="fas fa-plus"></i> Upload Video
+                                </button>
+
+                                <span data-home-campus-tour-video-clear @if(!$campusTourVideoUrl) hidden @endif>
+                                    <button type="button" class="btn btn-sm btn-warning" aria-label="Delete AVP video" title="Delete video">
+                                        <i class="fas fa-trash-alt" aria-hidden="true"></i> Remove Video
+                                    </button>
+                                </span>
+                            </div>
+                        </div>
+                        <p class="home-cms-helper-text" style="margin-top: 6px;">Maximum file size allowed: {{ $campusTourVideoMaxMb }}MB.</p>
                     </div>
 
                     <div class="home-cms-modal-footer">
