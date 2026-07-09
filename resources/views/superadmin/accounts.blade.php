@@ -253,9 +253,9 @@
         <label>CMS Access Status <span class="req">*</span></label>
         <select id="f-st">
             <option value="">Select Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
-            <option>Suspended</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Suspended">Suspended</option>
         </select>
     </div>
 
