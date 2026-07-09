@@ -1435,7 +1435,18 @@
   // fill fields
   form.querySelector('[name="title"]').value = title || '';
   setRichTextEditorValue(form.querySelector('[name="content"]'), content || '');
-  form.querySelector('[name="priority"]').value = priority || 'MEDIUM';
+  const pElem = form.querySelector('[name="priority"]');
+  if (pElem) {
+      let pFound = -1;
+      const pVal = String(priority || 'MEDIUM').trim().toLowerCase();
+      for (let i = 0; i < pElem.options.length; i++) {
+          if (pElem.options[i].value.toLowerCase() === pVal || pElem.options[i].text.toLowerCase() === pVal) {
+              pFound = i; break;
+          }
+      }
+      pElem.selectedIndex = pFound !== -1 ? pFound : 1;
+      pElem.dispatchEvent(new Event('change'));
+  }
   form.querySelector('[name="link"]').value = link || '';
 
   // ✅ always attach request_id so backend UPDATES same request (no duplicates)

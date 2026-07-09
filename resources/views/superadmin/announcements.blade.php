@@ -740,8 +740,31 @@
         if (linkInput) {
             linkInput.value = link || '';
         }
-        form.querySelector('[name="priority"]').value = priority;
-        form.querySelector('[name="status"]').value = status;
+        const pElem = form.querySelector('[name="priority"]');
+        if (pElem) {
+            let pFound = -1;
+            const pVal = String(priority || '').trim().toLowerCase();
+            for (let i = 0; i < pElem.options.length; i++) {
+                if (pElem.options[i].value.toLowerCase() === pVal || pElem.options[i].text.toLowerCase() === pVal) {
+                    pFound = i; break;
+                }
+            }
+            pElem.selectedIndex = pFound !== -1 ? pFound : 1;
+            pElem.dispatchEvent(new Event('change'));
+        }
+
+        const sElem = form.querySelector('[name="status"]');
+        if (sElem) {
+            let sFound = -1;
+            const sVal = String(status || '').trim().toLowerCase();
+            for (let i = 0; i < sElem.options.length; i++) {
+                if (sElem.options[i].value.toLowerCase() === sVal || sElem.options[i].text.toLowerCase() === sVal) {
+                    sFound = i; break;
+                }
+            }
+            sElem.selectedIndex = sFound !== -1 ? sFound : 0;
+            sElem.dispatchEvent(new Event('change'));
+        }
 
         let idInput = document.getElementById('edit_announcement_id');
         if (!idInput) {
