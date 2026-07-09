@@ -56,54 +56,47 @@ class AppServiceProvider extends ServiceProvider
                     ->whereNull('nd.user_id')
                     ->whereNull('nr.user_id');
 
-                $base->where(function ($scope) use ($userId, $role) {
-                    if ($role === 'SUPERADMIN') {
-                        $scope->where(function ($q) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['SUPERADMIN'])
-                              ->whereNull('n.target_user_id');
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['SUPERADMIN'])
-                              ->where('n.target_user_id', $userId);
-                        })->orWhere(function ($q) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                              ->whereNull('n.target_user_id');
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                              ->where('n.target_user_id', $userId);
-                        })->orWhere(function ($q) {
-                            $q->whereNull('n.target_role')
-                              ->whereNull('n.target_user_id');
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereNull('n.target_role')
-                              ->where('n.target_user_id', $userId);
-                        });
-                    } elseif ($role === 'ADMIN') {
-                        $scope->where(function ($q) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                              ->whereNull('n.target_user_id');
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                              ->where('n.target_user_id', $userId);
-                        })->orWhere(function ($q) {
-                            $q->whereNull('n.target_role')
-                              ->whereNull('n.target_user_id');
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereNull('n.target_role')
-                              ->where('n.target_user_id', $userId);
-                        });
-                    } else { // STAFF
-                        $scope->where(function ($q) use ($userId) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['STAFF'])
-                              ->where('n.target_user_id', $userId);
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                              ->where('n.target_user_id', $userId);
-                        })->orWhere(function ($q) use ($userId) {
-                            $q->whereNull('n.target_role')
-                              ->where('n.target_user_id', $userId);
-                        });
-                    }
+                $currentRole = strtoupper(trim((string) (session('user_role') ?? session('role', ''))));
+
+                $base->where(function ($q) use ($userId, $currentRole) {
+                    $q->where('n.target_user_id', $userId)
+                      ->orWhereExists(function ($sub) use ($userId) {
+                          $sub->select(DB::raw(1))
+                              ->from('notification_reads as nr2')
+                              ->whereColumn('nr2.notification_id', 'n.notification_id')
+                              ->where('nr2.user_id', $userId);
+                      })
+                      ->orWhereExists(function ($sub) use ($userId) {
+                          $sub->select(DB::raw(1))
+                              ->from('notification_dismissed as nd2')
+                              ->whereColumn('nd2.notification_id', 'n.notification_id')
+                              ->where('nd2.user_id', $userId);
+                      });
+
+                    $q->orWhere(function ($broadcast) use ($currentRole) {
+                        $broadcast->whereNull('n.target_user_id');
+                        if ($currentRole === 'SUPERADMIN') {
+                            $broadcast->whereIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN']);
+                        } elseif ($currentRole === 'ADMIN') {
+                            $broadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN']);
+                        } elseif ($currentRole === 'STAFF') {
+                            $broadcast->whereRaw('UPPER(n.target_role) = ?', ['STAFF']);
+                        }
+                        $broadcast->orWhereNull('n.target_role');
+                    });
                 });
+
+                if ($currentRole === 'STAFF') {
+                    $base->where(function ($filter) {
+                        $filter->whereNotIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN'])
+                               ->orWhereNull('n.target_role');
+                    });
+                } elseif ($currentRole === 'ADMIN') {
+                    $base->where(function ($filter) {
+                        $filter->whereRaw('UPPER(n.target_role) != ?', ['SUPERADMIN'])
+                               ->orWhereNull('n.target_role');
+                    });
+                }
 
                 $unreadNotificationCount = (int) $base->count();
             }
