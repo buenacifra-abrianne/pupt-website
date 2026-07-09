@@ -2356,11 +2356,11 @@ body.modal-open {
 }
 
 .facility-modal-arrow-prev {
-  left: -24px;
+  left: 40px;
 }
 
 .facility-modal-arrow-next {
-  right: -24px;
+  right: 40px;
 }
 
 .facility-modal-title {
@@ -2401,10 +2401,10 @@ body.modal-open {
 
 @media (max-width: 768px) {
   .facility-modal-arrow-prev {
-    left: 10px;
+    left: 20px;
   }
   .facility-modal-arrow-next {
-    right: 10px;
+    right: 20px;
   }
 }
 
