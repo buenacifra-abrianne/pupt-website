@@ -110,6 +110,10 @@ Route::middleware('superadmin.auth')->group(function () {
     Route::post('/cms/terms/accept', [CmsTermsController::class, 'accept'])->name('cms.terms.accept');
     Route::get('/cms/terms/blocked', [CmsTermsController::class, 'blocked'])->name('cms.terms.blocked');
     
+    Route::get('/cms-check-update', function () {
+        return response()->json(['last_updated' => \Illuminate\Support\Facades\Cache::get('cms_last_updated', 0)]);
+    })->name('cms.check_update');
+    
     Route::get('/cms/proxy-image', function (\Illuminate\Http\Request $request) {
         $path = $request->query('path');
         if (!$path) abort(400);
@@ -128,7 +132,7 @@ Route::middleware('superadmin.auth')->group(function () {
 // Staff Login
 Route::prefix('staff')
     ->name('staff.')
-    ->middleware(['superadmin.auth', 'check.idp', 'nonsuperadmin.role', 'cms.terms.accepted'])
+    ->middleware(['superadmin.auth', 'check.idp', 'nonsuperadmin.role', 'cms.terms.accepted', \App\Http\Middleware\TrackCmsChanges::class])
     ->group(function () {
 
         Route::get('/dashboard', [StaffDashboardController::class, 'index'])->name('dashboard');
@@ -194,7 +198,7 @@ Route::prefix('staff')
 // Admin Login
 Route::prefix('admin')
     ->name('admin.')
-    ->middleware(['superadmin.auth', 'check.idp', 'nonsuperadmin.role', 'cms.terms.accepted'])
+    ->middleware(['superadmin.auth', 'check.idp', 'nonsuperadmin.role', 'cms.terms.accepted', \App\Http\Middleware\TrackCmsChanges::class])
     ->group(function () {
 
         Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
@@ -264,7 +268,7 @@ Route::prefix('superadmin')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('superadmin.logout');
 
-    Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])->group(function () {
+    Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted', \App\Http\Middleware\TrackCmsChanges::class])->group(function () {
 
         Route::get('/dashboard', [DashboardController::class, 'index'])->name('superadmin.dashboard');
 
