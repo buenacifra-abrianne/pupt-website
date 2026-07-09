@@ -2268,8 +2268,9 @@ body.modal-open {
 .facility-modal-card {
   position: relative;
   width: min(1000px, 95vw);
-  max-height: min(90vh, 850px);
-  overflow: auto;
+  height: 85vh;
+  max-height: 850px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2278,6 +2279,11 @@ body.modal-open {
   background: linear-gradient(180deg, rgba(255, 252, 248, 0.98) 0%, rgba(247, 239, 232, 0.96) 100%);
   border: 1px solid rgba(127, 17, 19, 0.12);
   box-shadow: 0 34px 64px rgba(32, 8, 8, 0.28);
+}
+
+.facility-modal-header {
+  padding: 30px 50px 15px;
+  width: 100%;
 }
 
 .facility-modal-close {
@@ -2309,17 +2315,20 @@ body.modal-open {
 .facility-modal-content {
   position: relative;
   width: 100%;
+  flex: 1;
+  min-height: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 0 24px 24px;
 }
 
 .facility-modal-content img {
-  max-width: 100%;
-  max-height: 80vh;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .facility-modal-arrow {
@@ -2355,10 +2364,11 @@ body.modal-open {
 }
 
 .facility-modal-title {
-  color: #fff;
-  margin: 20px 0 16px;
-  font-size: 1.25rem;
-  font-weight: 600;
+  color: var(--home-maroon);
+  margin: 0;
+  font-size: clamp(1.6rem, 3vw, 2.2rem);
+  font-weight: 800;
+  line-height: 1.1;
   text-align: center;
   font-family: "Poppins", sans-serif;
 }
@@ -2368,7 +2378,7 @@ body.modal-open {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 10px;
+  padding-bottom: 20px;
 }
 
 .facility-modal-dot {
