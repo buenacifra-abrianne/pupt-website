@@ -194,12 +194,31 @@
     @endif
 
     {{-- Page Numbers --}}
-    @for ($i = 1; $i <= $notifications->lastPage(); $i++)
+    @php
+        $start = max($notifications->currentPage() - 2, 1);
+        $end = min($notifications->currentPage() + 2, $notifications->lastPage());
+    @endphp
+
+    @if($start > 1)
+        <a class="page-number" href="{{ $notifications->appends(request()->query())->url(1) }}">1</a>
+        @if($start > 2)
+            <span class="page-number disabled" style="pointer-events:none;">...</span>
+        @endif
+    @endif
+
+    @for ($i = $start; $i <= $end; $i++)
         <a class="page-number {{ $notifications->currentPage() == $i ? 'active' : '' }}"
            href="{{ $notifications->appends(request()->query())->url($i) }}">
             {{ $i }}
         </a>
     @endfor
+
+    @if($end < $notifications->lastPage())
+        @if($end < $notifications->lastPage() - 1)
+            <span class="page-number disabled" style="pointer-events:none;">...</span>
+        @endif
+        <a class="page-number" href="{{ $notifications->appends(request()->query())->url($notifications->lastPage()) }}">{{ $notifications->lastPage() }}</a>
+    @endif
 
     {{-- Next --}}
     @if ($notifications->hasMorePages())
