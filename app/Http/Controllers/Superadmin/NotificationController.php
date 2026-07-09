@@ -176,6 +176,17 @@ class NotificationController extends Controller
         $request->validate(['id' => ['required', 'integer']]);
         $id = (int) $request->id;
 
+        $canAccess = DB::table('notifications as n')
+            ->where('n.notification_id', $id)
+            ->where(function ($scope) use ($userId) {
+                $this->applySuperadminAudienceScope($scope, $userId);
+            })
+            ->exists();
+
+        if (!$canAccess) {
+            return response()->json(['ok' => false, 'error' => 'Unauthorized or notification not found'], 403);
+        }
+
         $alreadyRead = DB::table('notification_reads')
             ->where('notification_id', $id)
             ->where('user_id', $userId)
@@ -252,6 +263,17 @@ class NotificationController extends Controller
         $request->validate(['id' => ['required', 'integer']]);
         $id = (int) $request->id;
 
+        $canAccess = DB::table('notifications as n')
+            ->where('n.notification_id', $id)
+            ->where(function ($scope) use ($userId) {
+                $this->applySuperadminAudienceScope($scope, $userId);
+            })
+            ->exists();
+
+        if (!$canAccess) {
+            return response()->json(['ok' => false, 'error' => 'Unauthorized or notification not found'], 403);
+        }
+
         $alreadyDismissed = DB::table('notification_dismissed')
             ->where('notification_id', $id)
             ->where('user_id', $userId)
@@ -297,24 +319,49 @@ class NotificationController extends Controller
 
     private function applySuperadminAudienceScope(Builder $query, int $userId): void
     {
-        $query->where(function ($superadminBroadcast) {
-            $superadminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['SUPERADMIN'])
-                ->whereNull('n.target_user_id');
-        })->orWhere(function ($superadminDirect) use ($userId) {
-            $superadminDirect->whereRaw('UPPER(n.target_role) = ?', ['SUPERADMIN'])
-                ->where('n.target_user_id', $userId);
-        })->orWhere(function ($adminBroadcast) {
-            $adminBroadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                ->whereNull('n.target_user_id');
-        })->orWhere(function ($adminDirect) use ($userId) {
-            $adminDirect->whereRaw('UPPER(n.target_role) = ?', ['ADMIN'])
-                ->where('n.target_user_id', $userId);
-        })->orWhere(function ($legacyBroadcast) {
-            $legacyBroadcast->whereNull('n.target_role')
-                ->whereNull('n.target_user_id');
-        })->orWhere(function ($legacyDirect) use ($userId) {
-            $legacyDirect->whereNull('n.target_role')
-                ->where('n.target_user_id', $userId);
+        $currentRole = strtoupper(trim((string) session('user_role')));
+
+        $query->where(function ($q) use ($userId, $currentRole) {
+            // Strictly bound to the user directly or via historical interaction
+            $q->where('n.target_user_id', $userId)
+              ->orWhereExists(function ($sub) use ($userId) {
+                  $sub->select(DB::raw(1))
+                      ->from('notification_reads as nr2')
+                      ->whereColumn('nr2.notification_id', 'n.notification_id')
+                      ->where('nr2.user_id', $userId);
+              })
+              ->orWhereExists(function ($sub) use ($userId) {
+                  $sub->select(DB::raw(1))
+                      ->from('notification_dismissed as nd2')
+                      ->whereColumn('nd2.notification_id', 'n.notification_id')
+                      ->where('nd2.user_id', $userId);
+              });
+
+            // Or it's a broadcast to their current role
+            $q->orWhere(function ($broadcast) use ($currentRole) {
+                $broadcast->whereNull('n.target_user_id');
+                if ($currentRole === 'SUPERADMIN') {
+                    $broadcast->whereIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN']);
+                } elseif ($currentRole === 'ADMIN') {
+                    $broadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN']);
+                } elseif ($currentRole === 'STAFF') {
+                    $broadcast->whereRaw('UPPER(n.target_role) = ?', ['STAFF']);
+                }
+                $broadcast->orWhereNull('n.target_role'); // Legacy broadcasts
+            });
         });
+
+        // Conditional Notification Rendering: Hide sensitive historical notifications if demoted
+        if ($currentRole === 'STAFF') {
+            $query->where(function ($filter) {
+                $filter->whereNotIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN'])
+                       ->orWhereNull('n.target_role');
+            });
+        } elseif ($currentRole === 'ADMIN') {
+            $query->where(function ($filter) {
+                $filter->whereRaw('UPPER(n.target_role) != ?', ['SUPERADMIN'])
+                       ->orWhereNull('n.target_role');
+            });
+        }
     }
 }
