@@ -315,6 +315,15 @@
                                         >
                                         <button
                                             type="button"
+                                            class="home-cms-carousel-edit"
+                                            data-home-campus-tour-facility-edit-for="{{ $facilityInputId }}"
+                                            aria-label="Edit facility image {{ $index + 1 }}"
+                                            title="Edit image"
+                                        >
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                        <button
+                                            type="button"
                                             class="home-cms-carousel-remove"
                                             data-home-campus-tour-facility-clear-for="{{ $facilityInputId }}"
                                             aria-label="Delete facility image {{ $index + 1 }}"
@@ -361,6 +370,16 @@
                                         data-home-campus-tour-facility-preview-for="__INPUT_ID__"
                                         data-home-campus-tour-facility-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
                                     >
+                                    <button
+                                        type="button"
+                                        class="home-cms-carousel-edit"
+                                        data-home-campus-tour-facility-edit-for="__INPUT_ID__"
+                                        aria-label="Edit facility image __NUMBER__"
+                                        title="Edit image"
+                                        hidden
+                                    >
+                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                    </button>
                                     <button
                                         type="button"
                                         class="home-cms-carousel-remove"
@@ -1338,6 +1357,8 @@
                     || document.querySelector(`[data-home-campus-tour-facility-preview-for="${input.id}"]`);
                 const removeButton = scope.querySelector(`[data-home-campus-tour-facility-clear-for="${input.id}"]`)
                     || document.querySelector(`[data-home-campus-tour-facility-clear-for="${input.id}"]`);
+                const editButton = scope.querySelector(`[data-home-campus-tour-facility-edit-for="${input.id}"]`)
+                    || document.querySelector(`[data-home-campus-tour-facility-edit-for="${input.id}"]`);
                 const imageField = input.closest('.campus-tour-manager-item')?.querySelector('[data-home-campus-tour-facility-image-field]') || null;
 
                 if (!dropzone || !fileNameEl || !previewEl) {
