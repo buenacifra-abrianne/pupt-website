@@ -102,6 +102,145 @@
                     >About</a>
                     <span>&gt;</span>
                     <strong>{{ $selectedSection['label'] }}</strong>
+                @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                 @else
                     <strong>About</strong>
                 @endif
@@ -179,6 +318,145 @@
                                     data-about-contents-slug="{{ $section['slug'] }}"
                                     data-about-contents-label="{{ $section['label'] }}"
                                 >
+                            @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                             @else
                                 <a
                                     href="{{ route('public.about.section', ['section' => $section['slug'], 'cms_preview' => $cmsPreview ? 1 : null]) }}"
@@ -212,6 +490,145 @@
                                 </div>
                             @if($cmsPreview)
                                 </article>
+                            @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                             @else
                                 </a>
                             @endif
@@ -293,6 +710,145 @@
                                                                 <div class="history-timeline-copy rich-text-content">
                                                                     {!! \App\Support\RichText::sanitize($timelineBody) !!}
                                                                 </div>
+                                                            @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                                                             @else
                                                                 <div class="history-timeline-preview rich-text-content">
                                                                     {!! \App\Support\RichText::sanitize($timelineBody) !!}
@@ -381,6 +937,145 @@
                                                     </div>
                                                 </div>
                                             </div>
+                                        @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                                         @else
                                             <div class="about-vision-content reveal delay-200">
                                                 <div class="about-vision-row about-vision-row--vision">
@@ -534,10 +1229,149 @@
                                 </article>
                             </div>
                         </section>
+                    @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                     @else
 
                         <article
-                            class="{{ $selectedSlug === 'citizens-charter' ? 'students-contents-strip' : 'about-section-card' }} reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' ? ' cms-preview-editable' : '' }}"
+                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' ? ' cms-preview-editable' : '' }}"
                             @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
@@ -559,9 +1393,7 @@
                                 </div>
                             @endif
 
-                            @if($selectedSlug !== 'citizens-charter')
-                                <div class="about-detail-body">
-                            @endif
+                            <div class="about-detail-body">
                                     @if($selectedSlug === 'logo-and-symbols')
                                         @php
                                             $sealCards = array_values($selectedSection['seals'] ?? []);
@@ -720,6 +1552,145 @@
                                                                         <li>
                                                                             @if($linkUrl !== '')
                                                                                 <a href="{{ $linkUrl }}" target="_blank" rel="noopener noreferrer">{{ $linkLabel !== '' ? $linkLabel : $linkUrl }}</a>
+                                                                            @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                                                                             @else
                                                                                 <span>{{ $linkLabel }}</span>
                                                                             @endif
@@ -918,6 +1889,145 @@
                                         @if($cmsPreview)
                                             data-about-campus-officials-chart-edit
                                             aria-label="Edit organizational structure image"
+                                        @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                                         @else
                                             data-campus-officials-chart-zoom
                                             aria-label="Zoom organizational structure image"
@@ -978,6 +2088,145 @@
                                                             alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
                                                             class="official-portrait-img"
                                                         >
+                                                    @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                                                     @else
                                                         <img
                                                             src="{{ asset('assets/static_img/temporary_profile.png') }}"
@@ -999,6 +2248,145 @@
                                                                 alt="{{ $officialGroup['title'] ?? 'Campus official' }}"
                                                                 class="official-back-img"
                                                             >
+                                                        @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
                                                         @else
                                                             <img
                                                                 src="{{ asset('assets/static_img/temporary_profile.png') }}"
@@ -1284,6 +2672,110 @@
                                                     </div>
                                             @elseif($serviceLink !== '')
                                                 <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
                                             @else
                                                 <article class="students-card">
                                             @endif
@@ -1312,13 +2804,185 @@
                                                 </article>
                                             @endif
                                         @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @elseif($selectedSlug === 'citizens-charter')
+                        </section>
+                        <section
+                            class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter"
+                                data-cms-section-label="Citizen's Charter Header"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter" aria-label="Edit Citizen's Charter">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <section class="carousel-section">
+                                    <div class="carousel full-carousel">
+                                        <div class="carousel-stage">
+                                            <div class="carousel-slide active">
+                                                <div class="carousel-split" aria-hidden="true">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($selectedSection['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}" alt="" class="carousel-half carousel-half-left">
+                                                </div>
+                                                <div class="carousel-caption">
+                                                    <h2>{{ strtoupper((string) ($selectedSection['title'] ?? 'Citizen\'s Charter')) }}</h2>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </section>
+                            </div>
+                        </section>
+
+                        <section class="academic-shell page-shell">
+                            <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
+                                <a href="{{ route('public.home') }}">Home</a>
+                                <span>&gt;</span>
+                                <a href="{{ route('public.about') }}">About</a>
+                                <span>&gt;</span>
+                                <strong>{{ $selectedSection['title'] ?? 'Citizen\'s Charter' }}</strong>
+                            </nav>
+                        </section>
+
+                        <section
+                            class="students-contents-strip reveal{{ $cmsPreview ? ' active cms-preview-editable' : '' }}"
+                            @if($cmsPreview)
+                                data-cms-section="citizens-charter-cards"
+                                data-cms-section-label="Citizen's Charter Cards"
+                            @endif
+                        >
+                            <div data-cms-boundary class="cms-preview-boundary-full">
+                                <div class="students-contents-head layout-inset">
+                                            <p class="section-tag">CONTENTS</p>
+                                            <h2>{{ trim((string) ($selectedSection['title'] ?? '')) !== '' ? (string) $selectedSection['title'] : "Citizen's Charter" }}</h2>
+                                            @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                                <div class="students-contents-description students-rich-copy"><p>{{ $selectedSection['lead'] }}</p></div>
+                                            @endif
+                                            @if(!empty($selectedSection['body_text']))
+                                                <div class="students-contents-description students-rich-copy">
+                                                    {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                                </div>
+                                            @endif
+                                </div>
+
+                                <div>
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Citizen's Charter Services">
+                                        @if($cmsPreview)
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add services">
+                                                <div class="students-card-inner">
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Services</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </article>
+                                        @endif
+
+                                        @foreach($selectedSection['services'] ?? [] as $index => $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceImage = trim((string) ($service['image'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                            @endphp
+
+                                            @if($cmsPreview)
+                                                <article
+                                                    class="students-card cms-preview-editable"
+                                                    data-cms-section="citizens-charter"
+                                                    data-cms-section-label="Citizen's Charter"
+                                                    data-cms-editable-type="card"
+                                                    data-cms-editable-index="{{ $index }}"
+                                                    data-cms-trigger-edit="citizens-charter"
+                                                >
+                                                    <div class="cms-preview-card-actions" aria-label="Card actions">
+                                                        <button type="button" class="cms-preview-card-action" data-about-service-edit aria-label="Edit service">Edit</button>
+                                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-about-service-delete aria-label="Delete service">Delete</button>
+                                                    </div>
+                                            @elseif($serviceLink !== '')
+                                                <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer" class="students-card">
+                                            @else
+                                                <article class="students-card">
+                                            @endif
+
+                                            <div class="students-card-inner">
+                                                <div class="students-card-front">
+                                                    <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($serviceImage !== '' ? $serviceImage : null, 'assets/static_img/pupillar.jpeg') }}" alt="Service image">
+                                                    <div class="students-card-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                    </div>
+                                                </div>
+                                                <div class="students-card-back">
+                                                    <div class="students-card-overlay-copy">
+                                                        <h3>{{ $serviceTitle !== '' ? $serviceTitle : 'Service' }}</h3>
+                                                        <div class="students-card-description">{!! \App\Support\RichText::sanitize($service['description'] ?? '') !!}</div>
+                                                    </div>
+                                                    <span class="students-card-action">{{ $serviceLink !== '' ? 'Open link' : 'Update soon' }}</span>
+                                                </div>
+                                            </div>
+
+                                            @if($cmsPreview)
+                                                </article>
+                                            @elseif($serviceLink !== '')
+                                                </a>
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+                        <section style="display:none">
+
+                                            @else
+                                                </article>
+                                            @endif
+                                        @endforeach
                                             </nav>
                                         </div>
                                     </div>
                                   @endif
-                            @if($selectedSlug !== 'citizens-charter')
-                                </div>{{-- end .about-detail-body --}}
-                            @endif
+                            </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
                     @endif
@@ -2475,3 +4139,4 @@
     <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
 </body>
 </html>
+
