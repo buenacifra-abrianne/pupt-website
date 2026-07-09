@@ -537,6 +537,10 @@
 @include('partials.rich_text_editor_assets')
 
 <style>
+    [hidden] {
+        display: none !important;
+    }
+
     .home-cms-workspace {
         --home-preview-width: 1520px;
         --home-preview-height: 1800px;
