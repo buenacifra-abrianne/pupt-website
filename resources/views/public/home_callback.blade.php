@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="2;url={{ route('public.home') }}">
     <title>Loading Homepage - PUP Taguig</title>
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <style>
@@ -169,9 +168,60 @@
     </div>
 
     <script>
-        window.setTimeout(function () {
-            window.location.href = @json(route('public.home'));
+        const targetUrl = @json(route('public.home'));
+        const indexUrl = @json(route('public.landing'));
+        let isRedirecting = false;
+
+        // Redirect logic using replace to avoid history stacking
+        let redirectTimer = window.setTimeout(function () {
+            if (!isRedirecting) {
+                isRedirecting = true;
+                window.location.replace(targetUrl);
+            }
         }, 900);
+
+        // Fallback safety mechanism
+        let fallbackTimer = window.setTimeout(function () {
+            if (!isRedirecting) {
+                isRedirecting = true;
+                const loader = document.querySelector('.loader');
+                if (loader) loader.style.display = 'none';
+                
+                const callbackText = document.querySelector('.callback-text');
+                if (callbackText) callbackText.innerText = 'Connection Timeout';
+                
+                const subtext = document.querySelector('.subtext');
+                if (subtext) subtext.innerText = 'Unable to load homepage. Returning to index...';
+                
+                window.location.replace(indexUrl + '?error=timeout');
+            }
+        }, 5000);
+
+        // Page Lifecycle Reset for Back Navigation
+        function resetAndRedirect() {
+            isRedirecting = false;
+            
+            const loader = document.querySelector('.loader');
+            if (loader) loader.style.display = 'block';
+            
+            const callbackText = document.querySelector('.callback-text');
+            if (callbackText) callbackText.innerText = 'Loading Homepage';
+            
+            const subtext = document.querySelector('.subtext');
+            if (subtext) subtext.innerText = 'Taking you to the official campus website.';
+            
+            window.location.replace(targetUrl);
+        }
+
+        window.addEventListener('pageshow', function (event) {
+            if (event.persisted) {
+                resetAndRedirect();
+            }
+        });
+
+        window.addEventListener('popstate', function () {
+            resetAndRedirect();
+        });
     </script>
 </body>
 </html>
