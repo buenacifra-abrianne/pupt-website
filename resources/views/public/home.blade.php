@@ -338,8 +338,11 @@
             </div>
           @endif
 
-          <div class="campus-tour-card-head">
+          <div class="campus-tour-card-head" style="display: flex; justify-content: space-between; align-items: center;">
             <h3>Campus Facilities</h3>
+            @if($campusFacilities->isNotEmpty())
+              <button type="button" class="view-gallery-btn" data-facility-view-gallery>View Gallery</button>
+            @endif
           </div>
 
           @if($campusFacilities->isNotEmpty())
@@ -564,6 +567,12 @@
             e.stopPropagation();
             openFacilityModal();
           });
+        });
+
+        const viewGalleryBtn = document.querySelector('[data-facility-view-gallery]');
+        viewGalleryBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          openFacilityModal();
         });
 
         facilityModalClose?.addEventListener('click', closeFacilityModal);
