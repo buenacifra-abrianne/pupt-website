@@ -6,6 +6,7 @@
     <title>About - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/students.css') }}?v={{ filemtime(public_path('assets/css/students.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
@@ -536,7 +537,7 @@
                     @else
 
                         <article
-                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' ? ' cms-preview-editable' : '' }}"
+                            class="{{ $selectedSlug === 'citizens-charter' ? 'students-contents-strip' : 'about-section-card' }} reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' ? ' cms-preview-editable' : '' }}"
                             @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
@@ -558,7 +559,9 @@
                                 </div>
                             @endif
 
+                            @if($selectedSlug !== 'citizens-charter')
                                 <div class="about-detail-body">
+                            @endif
                                     @if($selectedSlug === 'logo-and-symbols')
                                         @php
                                             $sealCards = array_values($selectedSection['seals'] ?? []);
@@ -1228,31 +1231,35 @@
                                 </script>
 
                                 @elseif($selectedSlug === 'citizens-charter')
-                                    @if(!empty($selectedSection['lead']))
-                                        <div class="about-detail-intro" style="margin-top: 30px;">
-                                            <p class="about-lead">{{ $selectedSection['lead'] }}</p>
-                                        </div>
-                                    @endif
-                                    @if(!empty($selectedSection['body_text']))
-                                        <div class="about-detail-text">
-                                            {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
-                                        </div>
-                                    @endif
+                                    <div class="students-contents-head layout-inset" style="padding-top: 30px;">
+                                        <p class="section-tag">CONTENTS</p>
+                                        <h2>{{ $selectedSection['title'] ?? "Citizen's Charter" }}</h2>
+                                        @if(!empty($selectedSection['lead']))
+                                            <div class="students-contents-description students-rich-copy">
+                                                <p>{{ $selectedSection['lead'] }}</p>
+                                            </div>
+                                        @endif
+                                        @if(!empty($selectedSection['body_text']))
+                                            <div class="students-contents-description students-rich-copy">
+                                                {!! \App\Support\RichText::sanitize($selectedSection['body_text'] ?? '') !!}
+                                            </div>
+                                        @endif
+                                    </div>
 
-                                    <div class="students-grid" style="margin-top: 40px;">
+                                    <div>
+                                        <div class="students-contents-inner">
+                                            <nav class="students-cards" aria-label="Citizen's Charter Services">
                                         @if($cmsPreview)
-                                            <button
-                                                type="button"
-                                                class="students-card students-card--add"
-                                                data-about-service-add
-                                                aria-label="Add service"
-                                            >
+                                            <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add service">
                                                 <div class="students-card-inner">
-                                                    <span class="students-card-add-plus" aria-hidden="true">+</span>
-                                                    <span class="students-card-label">Add Service</span>
-                                                    <span class="students-card-tag">CMS Action</span>
+                                                    <div class="students-card-front students-card-front-add">
+                                                        <div class="students-card-add-inner">
+                                                            <span class="students-card-add-plus" aria-hidden="true">+</span>
+                                                            <p class="students-card-add-label">Add Service</p>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </button>
+                                            </article>
                                         @endif
 
                                         @foreach($selectedSection['services'] ?? [] as $index => $service)
@@ -1305,9 +1312,13 @@
                                                 </article>
                                             @endif
                                         @endforeach
+                                            </nav>
+                                        </div>
                                     </div>
                                   @endif
+                            @if($selectedSlug !== 'citizens-charter')
                                 </div>{{-- end .about-detail-body --}}
+                            @endif
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
                     @endif
