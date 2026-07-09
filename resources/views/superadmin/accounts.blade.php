@@ -253,9 +253,9 @@
         <label>CMS Access Status <span class="req">*</span></label>
         <select id="f-st">
             <option value="">Select Status</option>
-            <option>Active</option>
-            <option>Inactive</option>
-            <option>Suspended</option>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Suspended">Suspended</option>
         </select>
     </div>
 
@@ -783,6 +783,7 @@ function openAdd(){
   openM('userModal');
 }
 function openEdit(id){
+  clrForm();
   editId = id;
   const u = users.find(x => x.id === id);
   if(!u) return;
@@ -790,7 +791,12 @@ function openEdit(id){
   document.getElementById('f-fn').value = u.fn || '';
   document.getElementById('f-ln').value = u.ln || '';
   document.getElementById('f-em').value = u.em || '';
-  document.getElementById('f-st').value = u.st || 'Active';
+
+  let stVal = String(u.st || 'Active').trim();
+  stVal = stVal.charAt(0).toUpperCase() + stVal.slice(1).toLowerCase();
+  const stElem = document.getElementById('f-st');
+  stElem.value = stVal;
+  if (!stElem.value) stElem.value = 'Active';
 
   selectedRoles = Array.isArray(u.roles) && u.roles.length
     ? [...u.roles]
@@ -1028,7 +1034,15 @@ function doConfirm(id, action){
 }
 
 function openM(id){ const m=document.getElementById(id); if(m)m.classList.add('active'); }
-function closeM(id){ const m=document.getElementById(id); if(m)m.classList.remove('active'); }
+function closeM(id){ 
+  const m=document.getElementById(id); 
+  if(m){
+    m.classList.remove('active');
+    if(id === 'userModal') {
+      setTimeout(() => { clrForm(); editId = null; }, 300);
+    }
+  } 
+}
 
 window.addEventListener('click',e=>{
   document.querySelectorAll('.modal').forEach(m=>{
