@@ -1251,9 +1251,10 @@
                         let file = input.files && input.files[0];
                         if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
                             try {
-                                const res = await fetch(previewEl.src);
+                                const url = new URL(previewEl.src, window.location.origin);
+                                const res = await fetch(url.pathname + url.search);
                                 const blob = await res.blob();
-                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                const ext = url.pathname.split('.').pop() || 'jpg';
                                 file = new File([blob], `image.${ext}`, { type: blob.type });
                             } catch(err) {
                                 console.error("Could not fetch image to edit", err);
@@ -1403,9 +1404,10 @@
                         let file = input.files && input.files[0];
                         if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
                             try {
-                                const res = await fetch(previewEl.src);
+                                const url = new URL(previewEl.src, window.location.origin);
+                                const res = await fetch(url.pathname + url.search);
                                 const blob = await res.blob();
-                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                const ext = url.pathname.split('.').pop() || 'jpg';
                                 file = new File([blob], `image.${ext}`, { type: blob.type });
                             } catch(err) {
                                 console.error("Could not fetch image to edit", err);
