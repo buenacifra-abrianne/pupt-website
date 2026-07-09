@@ -559,9 +559,7 @@
                                 </div>
                             @endif
 
-                            @if($selectedSlug !== 'citizens-charter')
                                 <div class="about-detail-body">
-                            @endif
                                     @if($selectedSlug === 'logo-and-symbols')
                                         @php
                                             $sealCards = array_values($selectedSection['seals'] ?? []);
@@ -1246,9 +1244,8 @@
                                         @endif
                                     </div>
 
-                                    <div>
-                                        <div class="students-contents-inner">
-                                            <nav class="students-cards" aria-label="Citizen's Charter Services">
+                                    <div class="students-contents-inner">
+                                        <nav class="students-cards" aria-label="Citizen's Charter Services">
                                         @if($cmsPreview)
                                             <article class="students-card students-card-add" data-about-service-add tabindex="0" role="button" aria-label="Add service">
                                                 <div class="students-card-inner">
@@ -1312,13 +1309,10 @@
                                                 </article>
                                             @endif
                                         @endforeach
-                                            </nav>
-                                        </div>
+                                        </nav>
                                     </div>
                                   @endif
-                            @if($selectedSlug !== 'citizens-charter')
                                 </div>{{-- end .about-detail-body --}}
-                            @endif
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
                     @endif
