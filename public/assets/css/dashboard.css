@@ -22,32 +22,24 @@
     --admin-shadow: 0 18px 40px rgba(35, 5, 5, 0.08);
     --admin-bg-radial: radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.18), transparent 45%);
     --admin-bg-linear: linear-gradient(160deg, #fff8f3 0%, #f7f3ef 40%, #efe7e1 100%);
-    
-    /* Navigation Backgrounds */
-    --admin-nav-bg-start: var(--admin-primary);
-    --admin-nav-bg-end: var(--admin-primary-dark);
 }
 
 @media (prefers-color-scheme: dark) {
     :root {
-        --admin-primary: #991b1b; /* Red for buttons/badges only */
-        --admin-primary-dark: #7f1d1d;
-        --admin-accent: #facc15; /* Yellow for highlights */
+        --admin-primary: #f87171; /* Brighter red for dark mode contrast */
+        --admin-primary-dark: #ef4444;
+        --admin-accent: #facc15;
         --admin-ink: #f8fafc;
         --admin-soft-ink: #94a3b8;
         --admin-panel: #1e293b;
         --admin-panel-soft: #0f172a;
         --admin-panel-warm: #334155;
-        --admin-panel-gradient: linear-gradient(135deg, #1e293b 0%, #171f32 100%);
-        --admin-panel-gradient-soft: linear-gradient(135deg, #171f32 0%, #0f172a 100%);
-        --admin-panel-border: rgba(255, 255, 255, 0.05);
-        --admin-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
-        --admin-bg-radial: radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.05), transparent 45%);
-        --admin-bg-linear: linear-gradient(160deg, #0f172a 0%, #141b2d 100%);
-        
-        /* Navigation Backgrounds (Dark Navy/Slate) */
-        --admin-nav-bg-start: #1c2438;
-        --admin-nav-bg-end: #141b2d;
+        --admin-panel-gradient: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        --admin-panel-gradient-soft: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+        --admin-panel-border: rgba(255, 255, 255, 0.1);
+        --admin-shadow: 0 18px 40px rgba(0, 0, 0, 0.4);
+        --admin-bg-radial: radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.1), transparent 45%);
+        --admin-bg-linear: linear-gradient(160deg, #0f172a 0%, #1e293b 100%);
     }
 }
 
@@ -63,7 +55,7 @@ body {
     top: 0;
     height: 100vh;
     width: 280px;
-    background: linear-gradient(180deg, var(--admin-nav-bg-start) 0%, var(--admin-nav-bg-end) 100%);
+    background: linear-gradient(180deg, var(--admin-primary) 0%, var(--admin-primary-dark) 100%);
     padding: 20px 0;
     transition: 0.3s;
     z-index: 1000;
@@ -156,7 +148,7 @@ left: 280px;
 top: 0;
 right: 0;
 height: 70px;
-background: linear-gradient(120deg, var(--admin-nav-bg-end) 0%, var(--admin-nav-bg-start) 100%);
+background: linear-gradient(120deg, var(--admin-primary-dark) 0%, var(--admin-primary) 100%);
 display: flex;
 align-items: center;
 justify-content: space-between;
