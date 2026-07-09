@@ -761,8 +761,7 @@ function initWidgetDock() {
 
   let accHoverBound = null;
 
-  /* Simulate the CSS fab-ripple keyframe by injecting a fixed-position
-     element over the button — works without overflow:hidden on the button. */
+  /* Spawn a ripple using the Web Animations API instantly! */
   const spawnAccRipple = (btn) => {
     const rect = btn.getBoundingClientRect();
     const size = Math.max(rect.width, rect.height);
@@ -775,35 +774,40 @@ function initWidgetDock() {
       height:       size + 'px',
       borderRadius: '50%',
       background:   'rgba(255,255,255,0.32)',
-      transform:    'scale(0)',
-      opacity:      '0.5',
       pointerEvents:'none',
       zIndex:       '2147483647',
-      transition:   'transform 0.44s ease, opacity 0.44s ease',
     });
     document.body.appendChild(el);
-    requestAnimationFrame(() => {
-      el.style.transform = 'scale(2.6)';
-      el.style.opacity   = '0';
+
+    el.animate([
+      { transform: 'scale(0)', opacity: 0.5 },
+      { transform: 'scale(2.6)', opacity: 0 }
+    ], {
+      duration: 440,
+      easing: 'ease-out',
+      fill: 'forwards'
     });
-    setTimeout(() => el.remove(), 460);
+
+    setTimeout(() => el.remove(), 500);
   };
 
-  /* Simulate the CSS fab-glow-ring keyframe via sequential box-shadow changes. */
+  /* Trigger the glow ring instantly by temporarily bypassing box-shadow transition */
   const spawnAccGlowRing = (btn) => {
-    // Step 1 — ring appears at 0px spread
-    btn.style.setProperty('box-shadow',
-      `${ACC_FAB_HOVER_SHADOW}, 0 0 0 0 rgba(177,24,28,0.6)`, 'important');
-    // Step 2 — ring expands to 10px, fades
+    // Remove box-shadow transition for instant onset
+    btn.style.setProperty('transition', 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease, opacity 0.22s ease', 'important');
+    btn.style.setProperty('box-shadow', `${ACC_FAB_HOVER_SHADOW}, 0 0 0 0 rgba(177,24,28,0.6)`, 'important');
+
     setTimeout(() => {
-      if (!btn.matches(':hover')) return;
-      btn.style.setProperty('box-shadow',
-        `${ACC_FAB_HOVER_SHADOW}, 0 0 0 10px rgba(177,24,28,0)`, 'important');
-    }, 360);
-    // Step 3 — ring collapses back (matches forwards keyframe end-state)
+      if (!btn.matches(':hover') && document.activeElement !== btn) return;
+      // Enable box-shadow transition for smooth expansion and fade
+      btn.style.setProperty('transition', 'box-shadow 0.3s ease-out, transform 0.25s cubic-bezier(0.34,1.56,0.64,1), background 0.2s ease, opacity 0.22s ease', 'important');
+      btn.style.setProperty('box-shadow', `${ACC_FAB_HOVER_SHADOW}, 0 0 0 10px rgba(177,24,28,0)`, 'important');
+    }, 50);
+
     setTimeout(() => {
-      if (!btn.matches(':hover')) return;
+      if (!btn.matches(':hover') && document.activeElement !== btn) return;
       btn.style.setProperty('box-shadow', ACC_FAB_HOVER_SHADOW, 'important');
+      btn.style.setProperty('transition', ACC_FAB_TRANSITION, 'important');
     }, 650);
   };
 
@@ -811,8 +815,6 @@ function initWidgetDock() {
     if (!btn || btn === accHoverBound) return;
     accHoverBound = btn;
 
-    // Stamp the identical baseline immediately — inline !important beats
-    // any third-party widget CSS.
     btn.style.setProperty('background',    ACC_FAB_DEFAULT_BG,    'important');
     btn.style.setProperty('box-shadow',    ACC_FAB_DEFAULT_SHADOW, 'important');
     btn.style.setProperty('transition',    ACC_FAB_TRANSITION,    'important');
@@ -831,6 +833,7 @@ function initWidgetDock() {
       btn.style.setProperty('transform',  '',                     'important');
       btn.style.setProperty('background', ACC_FAB_DEFAULT_BG,    'important');
       btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
+      btn.style.setProperty('animation',  'none',                 'important');
     });
 
     btn.addEventListener('mousedown', () => {
@@ -853,6 +856,7 @@ function initWidgetDock() {
       btn.style.setProperty('transform',  '',                     'important');
       btn.style.setProperty('background', ACC_FAB_DEFAULT_BG,    'important');
       btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
+      btn.style.setProperty('animation',  'none',                 'important');
     });
   };
 
