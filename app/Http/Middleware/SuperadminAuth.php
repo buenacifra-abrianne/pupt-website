@@ -26,6 +26,12 @@ class SuperadminAuth
             return redirect()->route('public.landing');
         }
 
-        return $next($request);
+        $response = $next($request);
+
+        // Add Cache-Control headers to prevent Back button caching for all authenticated routes
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0, post-check=0, pre-check=0');
+        $response->headers->set('Pragma', 'no-cache');
+
+        return $response;
     }
 }
