@@ -990,7 +990,7 @@ body.home-carousel-redesign .indicator.active {
 .campus-tour-facility-image-shell img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center center;
   display: block;
 }
@@ -2326,7 +2326,7 @@ body.modal-open {
 .facility-modal-content img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }

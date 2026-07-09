@@ -943,7 +943,7 @@
     .slide-preview {
         width: 100%;
         height: 150px;
-        object-fit: cover;
+        object-fit: contain;
         border-radius: 14px;
         display: block;
         background: #f1e7dd;
