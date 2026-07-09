@@ -8,20 +8,4 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
-    
-    /* Dark Mode Reference Colors */
-    --color-dark-bg: #0f172a;          /* Main Background */
-    --color-dark-surface: #1e293b;     /* Card/Sidebar Background */
-    --color-dark-surface-hover: #334155; /* Hover state for surface */
-    --color-dark-border: #334155;      /* Borders/Dividers */
-    
-    /* Accents */
-    --color-accent-yellow: #facc15;    /* Top Logins/Active states */
-    --color-accent-red: #991b1b;       /* Generate Report Button/Badges */
-    --color-accent-green: #10b981;     /* Security status */
-    --color-accent-blue: #3b82f6;      /* Info icons/links */
-    
-    /* Text */
-    --color-dark-text: #f8fafc;        /* Primary Text */
-    --color-dark-text-muted: #94a3b8;  /* Secondary/Muted Text */
 }

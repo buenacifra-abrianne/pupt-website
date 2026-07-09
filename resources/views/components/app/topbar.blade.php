@@ -248,49 +248,31 @@
 
     body.pup-dark-mode {
         background:
+<<<<<<< HEAD
+            radial-gradient(circle at 12% 12%, rgba(224, 128, 128, 0.16), transparent 42%),
+            linear-gradient(160deg, #14080a 0%, #1c0d10 45%, #281316 100%) !important;
+        color: #f6ebeb !important;
+=======
             radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.05), transparent 45%),
             linear-gradient(160deg, #0f172a 0%, #141b2d 100%) !important;
         color: #f8fafc !important;
-        
-        /* Override unified button and icon theme colors for dark mode */
-        --cms-btn-maroon: #1e293b;
-        --cms-btn-maroon-dark: #0f172a;
-        --cms-icon-primary: #3b82f6;
-        --cms-icon-danger: #ef4444;
-        --admin-primary: #3b82f6;
+>>>>>>> parent of 539f45c (Merge branch 'main' of https://github.com/buenacifra-abrianne/laravel)
     }
 
     body.pup-dark-mode .sidebar {
-        background: linear-gradient(180deg, #1c2438 0%, #141b2d 100%) !important;
-        box-shadow: 12px 0 28px rgba(0, 0, 0, 0.5) !important;
+        background: linear-gradient(180deg, #2a0c10 0%, #3f1015 55%, #25070b 100%) !important;
+        box-shadow: 12px 0 28px rgba(0, 0, 0, 0.36) !important;
     }
 
     body.pup-dark-mode .topbar {
-        background: linear-gradient(120deg, #141b2d 0%, #1c2438 100%) !important;
+        background: linear-gradient(120deg, #3d1014 0%, #2a090d 100%) !important;
         box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3) !important;
     }
 
     body.pup-dark-mode .nav-link:hover,
     body.pup-dark-mode .nav-link.active {
         background: rgba(240, 200, 90, 0.12) !important;
-        border-left: 4px solid #f0c85a !important; /* Force the border to appear */
-    }
-
-    body.pup-dark-mode .top-tab-btn {
-        background: rgba(30, 41, 59, 0.9) !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        color: #94a3b8 !important;
-    }
-
-    body.pup-dark-mode .top-tab-btn:hover {
-        color: #f8fafc !important;
-        border-color: #facc15 !important;
-    }
-
-    body.pup-dark-mode .top-tab-btn.active {
-        background: #1c2438 !important;
-        border-color: #facc15 !important;
-        color: #facc15 !important;
+        border-left-color: #f0c85a !important;
     }
 
     body.pup-dark-mode .user-profile:hover {
@@ -304,10 +286,10 @@
     body.pup-dark-mode .dropdown-menu,
     body.pup-dark-mode .menu-panel,
     body.pup-dark-mode .popover {
-        background: #1e293b !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.4) !important;
-        color: #f8fafc !important;
+        background: #241215 !important;
+        border-color: rgba(240, 200, 90, 0.14) !important;
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28) !important;
+        color: #f6ebeb !important;
     }
 
     body.pup-dark-mode .profile-dropdown-item,
@@ -329,9 +311,9 @@
     body.pup-dark-mode input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
     body.pup-dark-mode select,
     body.pup-dark-mode textarea {
-        background: rgba(30, 41, 59, 0.9) !important;
-        border-color: rgba(255, 255, 255, 0.1) !important;
-        color: #f8fafc !important;
+        background: rgba(48, 22, 26, 0.92) !important;
+        border-color: rgba(240, 200, 90, 0.18) !important;
+        color: #f6ebeb !important;
     }
 
     body.pup-dark-mode input::placeholder,
@@ -366,10 +348,10 @@
     body.pup-dark-mode .top-tabs,
     body.pup-dark-mode .stats-row .stat-card,
     body.pup-dark-mode .stats-grid .stat-card {
-        background: linear-gradient(180deg, #1e293b 0%, #171f32 100%) !important;
-        border-color: rgba(255, 255, 255, 0.05) !important;
-        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.3) !important;
-        color: #f8fafc !important;
+        background: linear-gradient(180deg, rgba(39, 17, 20, 0.96) 0%, rgba(29, 12, 15, 0.98) 100%) !important;
+        border-color: rgba(224, 128, 128, 0.14) !important;
+        box-shadow: 0 18px 36px rgba(0, 0, 0, 0.24) !important;
+        color: #f6ebeb !important;
     }
 
     body.pup-dark-mode .card-header,
@@ -459,15 +441,15 @@
     body.pup-dark-mode .table-row,
     body.pup-dark-mode .notification-item,
     body.pup-dark-mode .announcement-item {
-        border-color: rgba(255, 255, 255, 0.05) !important;
+        border-color: rgba(224, 128, 128, 0.12) !important;
     }
 
     body.pup-dark-mode ::-webkit-scrollbar-track {
-        background: #0f172a;
+        background: #18090c;
     }
 
     body.pup-dark-mode ::-webkit-scrollbar-thumb {
-        background: #334155;
+        background: rgba(224, 128, 128, 0.48);
     }
 
     body.pup-dark-mode ::-webkit-scrollbar-thumb:hover {
