@@ -333,10 +333,11 @@ class OnePortalController extends Controller
     $idpRedirectUrl = $this->revokeIdpTokens($request, $accessToken, $refreshToken);
 
     if ($idpRedirectUrl) {
-        return $this->clearLocalSession(
-            $request,
-            redirect()->away($idpRedirectUrl)
-        );
+        $response = $request->expectsJson()
+            ? response()->json(['redirect' => $idpRedirectUrl])
+            : redirect()->away($idpRedirectUrl);
+
+        return $this->clearLocalSession($request, $response);
     }
 
     return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
@@ -393,6 +394,11 @@ class OnePortalController extends Controller
 
     private function buildLoggedOutRedirect(Request $request, ?string $message = null): Response
     {
+        if ($request->expectsJson()) {
+            $response = response()->json(['redirect' => route('public.landing')]);
+            return $this->clearLocalSession($request, $response);
+        }
+
         $response = redirect()->route('public.landing');
 
         if ($message !== null && $message !== '') {
@@ -511,10 +517,11 @@ class OnePortalController extends Controller
             return $this->buildLoggedOutRedirect($request, 'You have been logged out.');
         }
 
-        return $this->clearLocalSession(
-            $request,
-            redirect()->away($logoutUrl)
-        );
+        $response = $request->expectsJson()
+            ? response()->json(['redirect' => $logoutUrl])
+            : redirect()->away($logoutUrl);
+
+        return $this->clearLocalSession($request, $response);
     }
 
     private function buildFrontChannelIdpLogoutUrl(?string $accessToken = null): ?string

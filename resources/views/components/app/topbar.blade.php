@@ -780,14 +780,19 @@
     async function handleCmsLogout(e, form) {
         e.preventDefault();
         try {
-            await fetch(form.action, {
+            const res = await fetch(form.action, {
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
                     'Accept': 'application/json'
                 }
             });
-            window.location.replace("{{ route('public.landing') ?? '/' }}");
+            const data = await res.json();
+            if (data && data.redirect) {
+                window.location.replace(data.redirect);
+            } else {
+                window.location.replace("{{ route('public.landing') ?? '/' }}");
+            }
         } catch(err) {
             console.error('Logout error:', err);
             form.submit();
