@@ -2267,39 +2267,43 @@ body.modal-open {
 
 .facility-modal-card {
   position: relative;
-  width: 95vw;
-  max-width: 1400px;
-  height: 90vh;
+  width: min(1000px, 95vw);
+  max-height: min(90vh, 850px);
+  overflow: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  background: rgba(20, 10, 10, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.4);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+  justify-content: flex-start;
+  border-radius: 30px;
+  background: linear-gradient(180deg, rgba(255, 252, 248, 0.98) 0%, rgba(247, 239, 232, 0.96) 100%);
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  box-shadow: 0 34px 64px rgba(32, 8, 8, 0.28);
 }
 
 .facility-modal-close {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  width: 44px;
-  height: 44px;
+  top: 20px;
+  right: 20px;
+  width: 54px;
+  height: 54px;
   border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  font-size: 2rem;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(127, 17, 19, 0.08) 0%, rgba(127, 17, 19, 0.14) 100%);
+  color: var(--home-maroon);
+  font-size: 1.9rem;
   line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: background 0.18s ease;
+  transition: transform 0.18s ease, background 0.18s ease, color 0.18s ease;
   z-index: 10;
 }
 
 .facility-modal-close:hover {
-  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-1px);
+  background: rgba(127, 17, 19, 0.16);
+  color: #7f1113;
 }
 
 .facility-modal-content {
@@ -2371,7 +2375,7 @@ body.modal-open {
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  border: 2px solid #fff;
+  border: 2px solid rgba(127, 17, 19, 0.3);
   background: transparent;
   padding: 0;
   cursor: pointer;
@@ -2380,9 +2384,9 @@ body.modal-open {
 
 .facility-modal-dot.is-active {
   width: 32px;
-  background: #fff;
+  background: var(--home-maroon);
   border-radius: 8px;
-  border-color: #fff;
+  border-color: var(--home-maroon);
 }
 
 @media (max-width: 768px) {
