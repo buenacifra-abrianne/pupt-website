@@ -248,9 +248,15 @@
 
     body.pup-dark-mode {
         background:
+<<<<<<< HEAD
             radial-gradient(circle at 12% 12%, rgba(224, 128, 128, 0.16), transparent 42%),
             linear-gradient(160deg, #14080a 0%, #1c0d10 45%, #281316 100%) !important;
         color: #f6ebeb !important;
+=======
+            radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.05), transparent 45%),
+            linear-gradient(160deg, #0f172a 0%, #141b2d 100%) !important;
+        color: #f8fafc !important;
+>>>>>>> parent of 539f45c (Merge branch 'main' of https://github.com/buenacifra-abrianne/laravel)
     }
 
     body.pup-dark-mode .sidebar {

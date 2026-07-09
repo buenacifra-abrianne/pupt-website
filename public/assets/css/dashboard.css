@@ -20,6 +20,38 @@
     --admin-panel-gradient-soft: linear-gradient(135deg, rgba(255, 253, 249, 0.98) 0%, rgba(248, 239, 230, 0.92) 58%, rgba(241, 226, 211, 0.88) 100%);
     --admin-panel-border: rgba(139, 0, 0, 0.1);
     --admin-shadow: 0 18px 40px rgba(35, 5, 5, 0.08);
+<<<<<<< HEAD
+=======
+    --admin-bg-radial: radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.18), transparent 45%);
+    --admin-bg-linear: linear-gradient(160deg, #fff8f3 0%, #f7f3ef 40%, #efe7e1 100%);
+    
+    /* Navigation Backgrounds */
+    --admin-nav-bg-start: var(--admin-primary);
+    --admin-nav-bg-end: var(--admin-primary-dark);
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --admin-primary: #991b1b; /* Red for buttons/badges only */
+        --admin-primary-dark: #7f1d1d;
+        --admin-accent: #facc15; /* Yellow for highlights */
+        --admin-ink: #f8fafc;
+        --admin-soft-ink: #94a3b8;
+        --admin-panel: #1e293b;
+        --admin-panel-soft: #0f172a;
+        --admin-panel-warm: #334155;
+        --admin-panel-gradient: linear-gradient(135deg, #1e293b 0%, #171f32 100%);
+        --admin-panel-gradient-soft: linear-gradient(135deg, #171f32 0%, #0f172a 100%);
+        --admin-panel-border: rgba(255, 255, 255, 0.05);
+        --admin-shadow: 0 18px 40px rgba(0, 0, 0, 0.5);
+        --admin-bg-radial: radial-gradient(circle at 12% 12%, rgba(240, 200, 90, 0.05), transparent 45%);
+        --admin-bg-linear: linear-gradient(160deg, #0f172a 0%, #141b2d 100%);
+        
+        /* Navigation Backgrounds (Dark Navy/Slate) */
+        --admin-nav-bg-start: #1c2438;
+        --admin-nav-bg-end: #141b2d;
+    }
+>>>>>>> parent of 539f45c (Merge branch 'main' of https://github.com/buenacifra-abrianne/laravel)
 }
 
 body {
