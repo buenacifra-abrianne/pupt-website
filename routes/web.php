@@ -109,6 +109,20 @@ Route::post('/profile/password', [AuthController::class, 'updatePassword'])
 Route::middleware('superadmin.auth')->group(function () {
     Route::post('/cms/terms/accept', [CmsTermsController::class, 'accept'])->name('cms.terms.accept');
     Route::get('/cms/terms/blocked', [CmsTermsController::class, 'blocked'])->name('cms.terms.blocked');
+    
+    Route::get('/cms/proxy-image', function (\Illuminate\Http\Request $request) {
+        $path = $request->query('path');
+        if (!$path) abort(400);
+        $disk = config('filesystems.default');
+        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($path)) {
+            abort(404);
+        }
+        $mime = \Illuminate\Support\Facades\Storage::disk($disk)->mimeType($path);
+        $contents = \Illuminate\Support\Facades\Storage::disk($disk)->get($path);
+        return response($contents)
+            ->header('Content-Type', $mime)
+            ->header('Access-Control-Allow-Origin', '*');
+    })->name('cms.proxy-image');
 });
 
 // Staff Login
