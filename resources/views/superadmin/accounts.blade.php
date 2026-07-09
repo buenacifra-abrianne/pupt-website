@@ -748,7 +748,9 @@ function clrForm(){
   document.getElementById('facultySelect').value = '';
   document.getElementById('facultySearch').value = '';
   ['f-fn','f-ln','f-em'].forEach(x => document.getElementById(x).value='');
-  document.getElementById('f-st').value='Active';
+  const stElemClr = document.getElementById('f-st');
+  stElemClr.value = 'Active';
+  stElemClr.dispatchEvent(new Event('change'));
   selectedRoles = [];
   renderRoleChips();
 
@@ -792,11 +794,17 @@ function openEdit(id){
   document.getElementById('f-ln').value = u.ln || '';
   document.getElementById('f-em').value = u.em || '';
 
-  let stVal = String(u.st || 'Active').trim();
-  stVal = stVal.charAt(0).toUpperCase() + stVal.slice(1).toLowerCase();
+  let stVal = String(u.st || 'Active').trim().toLowerCase();
   const stElem = document.getElementById('f-st');
-  stElem.value = stVal;
-  if (!stElem.value) stElem.value = 'Active';
+  let foundIndex = -1;
+  for (let i = 0; i < stElem.options.length; i++) {
+    if (stElem.options[i].value.toLowerCase() === stVal || stElem.options[i].text.toLowerCase() === stVal) {
+      foundIndex = i;
+      break;
+    }
+  }
+  stElem.selectedIndex = foundIndex !== -1 ? foundIndex : 1;
+  stElem.dispatchEvent(new Event('change'));
 
   selectedRoles = Array.isArray(u.roles) && u.roles.length
     ? [...u.roles]
