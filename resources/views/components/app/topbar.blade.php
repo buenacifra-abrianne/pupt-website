@@ -500,7 +500,7 @@
                     <i class="fas fa-user"></i>
                     <span>View Profile</span>
                 </button>
-                <form method="POST" action="{{ route('oneportal.logout') }}">
+                <form method="POST" action="{{ route('oneportal.logout') }}" onsubmit="handleCmsLogout(event, this)">
                     @csrf
                     <button type="submit" class="profile-dropdown-item">
                         <i class="fa-solid fa-right-from-bracket"></i>
@@ -774,4 +774,23 @@
     script.dataset.accessibleWebWidget = 'true';
     document.body.appendChild(script);
 })();
+</script>
+
+<script>
+    async function handleCmsLogout(e, form) {
+        e.preventDefault();
+        try {
+            await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': form.querySelector('input[name="_token"]').value,
+                    'Accept': 'application/json'
+                }
+            });
+            window.location.replace("{{ route('public.landing') ?? '/' }}");
+        } catch(err) {
+            console.error('Logout error:', err);
+            form.submit();
+        }
+    }
 </script>
