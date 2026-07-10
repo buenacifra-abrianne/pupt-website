@@ -449,6 +449,82 @@
     body.pup-dark-mode ::-webkit-scrollbar-thumb:hover {
         background: rgba(240, 200, 90, 0.6);
     }
+
+    /* Redesigned Custom Checkbox (Global) */
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #800000;
+        border-radius: 5px;
+        background-color: #fff;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
+        margin: 0;
+        box-sizing: border-box;
+        flex-shrink: 0;
+    }
+
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
+        background-color: #800000;
+        border-color: #800000;
+    }
+
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked::after {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 9px;
+        border: solid #ffffff;
+        border-width: 0 2.5px 2.5px 0;
+        transform: rotate(45deg);
+        left: 4.5px;
+        top: 1px;
+    }
+
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
+        border-color: #a30000;
+        box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
+    }
+
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
+        box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.2);
+        border-color: #a30000;
+    }
+
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):disabled {
+        background-color: #f3f3f3;
+        border-color: #d3d3d3;
+        cursor: not-allowed;
+    }
+
+    /* Dark Mode Checkbox Styles */
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
+        border-color: #f0c85a;
+        background-color: rgba(48, 22, 26, 0.92);
+    }
+
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
+        background-color: #800000;
+        border-color: #800000;
+    }
+
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
+        border-color: #ffd978;
+        box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.15);
+    }
+
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
+        box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.25);
+        border-color: #ffd978;
+    }
 </style>
 
 <script>

@@ -160,11 +160,51 @@
     }
 
     .cms-terms-agree input[type="checkbox"] {
+        -webkit-appearance: none;
+        appearance: none;
         width: 20px;
         height: 20px;
+        border: 2px solid var(--cms-terms-maroon);
+        border-radius: 6px;
+        background-color: #fff;
+        outline: none;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        vertical-align: middle;
         margin-top: 1px;
-        accent-color: var(--cms-terms-maroon);
         flex: 0 0 auto;
+        box-sizing: border-box;
+    }
+
+    .cms-terms-agree input[type="checkbox"]:checked {
+        background-color: var(--cms-terms-maroon);
+        border-color: var(--cms-terms-maroon);
+    }
+
+    .cms-terms-agree input[type="checkbox"]:checked::after {
+        content: "";
+        position: absolute;
+        width: 5px;
+        height: 10px;
+        border: solid #ffffff;
+        border-width: 0 2.5px 2.5px 0;
+        transform: rotate(45deg);
+        left: 5px;
+        top: 1px;
+    }
+
+    .cms-terms-agree input[type="checkbox"]:hover {
+        border-color: var(--cms-terms-maroon-deep);
+        box-shadow: 0 0 0 4px rgba(127, 0, 0, 0.12);
+    }
+
+    .cms-terms-agree input[type="checkbox"]:focus-visible {
+        box-shadow: 0 0 0 4px rgba(127, 0, 0, 0.2);
+        border-color: var(--cms-terms-maroon-deep);
     }
 
     .cms-terms-agree span {
