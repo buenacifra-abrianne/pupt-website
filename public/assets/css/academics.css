@@ -4668,3 +4668,29 @@ body.pup-dark-mode .iapply-checklist li {
     gap: 12px;
   }
 }
+
+/* UC Schedule Container */
+.uc-schedule-container {
+  display: flex;
+  flex-wrap: wrap;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(247, 239, 232, 0.88) 100%);
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  box-shadow: 0 4px 18px rgba(79, 9, 12, 0.07);
+  overflow: hidden;
+}
+.uc-schedule-cell {
+  flex: 1 1 200px;
+  padding: 24px;
+  border-right: 1px solid rgba(127, 17, 19, 0.12);
+}
+.uc-schedule-cell:last-child {
+  border-right: none;
+}
+body.pup-dark-mode .uc-schedule-container {
+  background: linear-gradient(180deg, rgba(30, 12, 15, 0.98) 0%, rgba(22, 8, 10, 0.9) 100%);
+  border-color: rgba(200, 80, 80, 0.16);
+}
+body.pup-dark-mode .uc-schedule-cell {
+  border-color: rgba(200, 80, 80, 0.16);
+}

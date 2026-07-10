@@ -1,0 +1,1 @@
+<?php file_put_contents('heights.txt', file_get_contents('php://input')); ?>

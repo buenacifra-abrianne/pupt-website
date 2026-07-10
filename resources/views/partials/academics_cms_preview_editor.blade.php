@@ -377,6 +377,26 @@
 @include('partials.rich_text_editor_assets')
 
 <style>
+    .academics-link-paste {
+        width: 42px;
+        height: 42px;
+        flex: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+        border: 1px solid #dce0e4;
+        border-radius: 6px;
+        color: #4b5563;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
+    }
+    .academics-link-paste:hover {
+        background: #eef2f7;
+        border-color: #cdd4d9;
+        color: #1f2937;
+    }
     .academics-cms-workspace {
         --academics-preview-width: 1520px;
         --academics-preview-height: 1800px;
@@ -1182,38 +1202,31 @@
             }
 
             const main = doc.querySelector('.main-content');
-            const scope = main instanceof HTMLElement ? main : doc.body;
-
-            if (!(scope instanceof HTMLElement)) {
-                return 0;
+            if (!main) {
+                return Math.max(1, doc.body.scrollHeight || 0);
             }
 
-            if (currentAcademicsPreviewRoute === 'university-calendar') {
-                const calendarCard = doc.querySelector('.uc-calendar-official-card');
-                const calendarSection = calendarCard?.closest('.contents-strip');
-                const heroSection = doc.querySelector('.uc-hero-b');
-                const breadcrumbShell = doc.querySelector('.academic-shell');
-                const candidates = [breadcrumbShell, heroSection, calendarSection, calendarCard]
-                    .filter((element) => element instanceof HTMLElement && isAcademicsPreviewMeasuredElement(element));
-                const routeBottom = candidates.reduce((maxBottom, element) => {
-                    return Math.max(maxBottom, getAcademicsPreviewElementBottom(element));
-                }, 0);
+            let maxBottom = 0;
+            const children = Array.from(main.children);
+            
+            if (children.length === 0) {
+                return Math.max(1, doc.body.scrollHeight || 0);
+            }
 
-                if (routeBottom > 0) {
-                    return Math.max(1, Math.ceil(routeBottom));
+            for (const child of children) {
+                const rect = child.getBoundingClientRect();
+                const bottom = rect.bottom + (doc.defaultView.scrollY || 0);
+                if (bottom > maxBottom) {
+                    maxBottom = bottom;
                 }
             }
 
-            const visibleElements = Array.from(scope.children)
-                .filter((element) => isAcademicsPreviewMeasuredElement(element));
+            const mainStyle = doc.defaultView.getComputedStyle(main);
+            const paddingBottom = parseFloat(mainStyle.paddingBottom) || 0;
+            const marginBottom = parseFloat(mainStyle.marginBottom) || 0;
 
-            const contentBottom = visibleElements.reduce((maxBottom, element) => {
-                return Math.max(maxBottom, getAcademicsPreviewElementBottom(element));
-            }, 0);
-
-            const fallbackHeight = Math.max(scope.scrollHeight || 0, scope.offsetHeight || 0);
-
-            return Math.max(1, Math.ceil(contentBottom || fallbackHeight));
+            const finalHeight = maxBottom + paddingBottom + marginBottom;
+            return Math.max(1, Math.ceil(finalHeight));
         }
 
         function syncAcademicsPreviewHeight(frame, nextHeight) {

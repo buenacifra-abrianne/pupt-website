@@ -916,92 +916,19 @@
             <input type="hidden" name="request_id" value="{{ $requestId }}">
         @endif
 
-        <input type="hidden" id="{{ $calendarHeroFieldId }}" name="academics[pages][university-calendar][hero][image]" value="{{ $calendarHero['image'] ?? '' }}">
+
 
         <div class="form-group">
-            <label>Upload Hero Image</label>
-            <div class="academics-cms-image-dropzone-shell">
-                <div class="academics-cms-image-dropzone cms-image-dropzone-hero" data-academics-dropzone-for="{{ $calendarHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
-                    <span class="academics-cms-image-dropzone-preview-column">
-                        <span class="academics-cms-image-dropzone-media">
-                            <img
-                                src="{{ $calendarHeroPreview }}"
-                                alt="University Calendar hero preview"
-                                class="academics-cms-image-dropzone-preview"
-                                data-academics-preview-for="{{ $calendarHeroInputId }}"
-                                data-academics-default-src="{{ asset('assets/static_img/campus_photo.jpg') }}"
-                            >
-                            <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $calendarHeroInputId }}" aria-label="Edit image" title="Edit image">
-                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                            </button>
-                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $calendarHeroInputId }}" aria-label="Delete image" title="Delete image">
-                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                            </button>
-                        </span>
-                        <span class="academics-cms-image-dropzone-label">University Calendar</span>
-                    </span>
-                    <span class="academics-cms-image-dropzone-upload">
-                        <span class="academics-cms-image-dropzone-icon">
-                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
-                        </span>
-                        <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                        <span class="academics-cms-image-dropzone-upload-copy">Your image preview updates instantly while you edit this section.</span>
-                        <span class="academics-cms-image-dropzone-upload-button">Select image</span>
-                        <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $calendarHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                        <input
-                            id="{{ $calendarHeroInputId }}"
-                            class="academics-cms-image-dropzone-input"
-                            type="file"
-                            name="academics[pages][university-calendar][hero][image_file]"
-                            accept="image/*"
-                            data-academics-image-field-id="{{ $calendarHeroFieldId }}"
-                        >
-                    </span>
-                </div>
-            </div>
-        </div>
-
-        <div class="academics-cms-form-grid">
-            <div class="form-group">
-                <label>Section Tag</label>
-                <input type="text" name="academics[pages][university-calendar][hero][tag]" maxlength="120" value="{{ $calendarHero['tag'] ?? '' }}">
-            </div>
-            <div class="form-group">
-                <label>Hero Title</label>
-                <input type="text" name="academics[pages][university-calendar][hero][title]" maxlength="255" value="{{ $calendarHero['title'] ?? '' }}">
-            </div>
+            <label>Title</label>
+            <input type="text" name="academics[pages][university-calendar][hero][title]" maxlength="255" value="{{ $calendarHero['title'] ?? '' }}">
         </div>
 
         <div class="form-group">
-            <label>Subtitle</label>
-            <input type="text" name="academics[pages][university-calendar][hero][subtitle]" maxlength="255" value="{{ $calendarHero['subtitle'] ?? '' }}">
-        </div>
-
-        <div class="form-group">
-            <label>Hero Description</label>
+            <label>Description</label>
             <div class="academics-cms-textarea-field" data-academics-char-limit="500">
                 <textarea name="academics[pages][university-calendar][hero][body]" rows="4" maxlength="500" data-academics-char-input>{{ $calendarHero['body'] ?? '' }}</textarea>
                 <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/500</div>
             </div>
-        </div>
-
-        <div class="form-group">
-            <label>List Title</label>
-            <input type="text" name="academics[pages][university-calendar][hero][list_title]" maxlength="255" value="{{ $calendarHero['list_title'] ?? '' }}">
-        </div>
-
-        <div class="academics-cms-card-stack">
-            @foreach(($calendarHero['list_items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor">
-                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>List Item {{ $loop->iteration }}</h4>
-                    </div>
-                    <div class="form-group">
-                        <label>Item Text</label>
-                        <input type="text" name="academics[pages][university-calendar][hero][list_items][{{ $index }}]" maxlength="255" value="{{ $item }}">
-                    </div>
-                </article>
-            @endforeach
         </div>
 
         <div class="academics-cms-modal-footer">
@@ -1019,39 +946,36 @@
             <input type="hidden" name="request_id" value="{{ $requestId }}">
         @endif
 
-        <div class="academics-cms-form-grid">
-            <div class="form-group">
-                <label>Section Tag</label>
-                <input type="text" name="academics[pages][university-calendar][info][tag]" maxlength="120" value="{{ $calendarInfo['tag'] ?? '' }}">
-            </div>
-            <div class="form-group">
-                <label>Section Title</label>
-                <input type="text" name="academics[pages][university-calendar][info][title]" maxlength="255" value="{{ $calendarInfo['title'] ?? '' }}">
+        <div class="form-group">
+            <label>Academic Year Start Date</label>
+            <input type="date" name="academics[pages][university-calendar][info][ay_start_date]" value="{{ $calendarInfo['ay_start_date'] ?? '' }}">
+        </div>
+
+        <div class="form-group">
+            <label>1st Semester</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="date" class="form-control" name="academics[pages][university-calendar][info][sem1_start]" value="{{ $calendarInfo['sem1_start'] ?? '' }}">
+                <span>to</span>
+                <input type="date" class="form-control" name="academics[pages][university-calendar][info][sem1_end]" value="{{ $calendarInfo['sem1_end'] ?? '' }}">
             </div>
         </div>
 
-        <div class="academics-cms-card-stack">
-            @foreach(($calendarInfo['items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor">
-                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>Info Item {{ $loop->iteration }}</h4>
-                    </div>
-                    <div class="academics-cms-form-grid">
-                        <div class="form-group">
-                            <label>Label</label>
-                            <input type="text" name="academics[pages][university-calendar][info][items][{{ $index }}][label]" maxlength="120" value="{{ $item['label'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Value</label>
-                            <input type="text" name="academics[pages][university-calendar][info][items][{{ $index }}][value]" maxlength="2048" value="{{ $item['value'] ?? '' }}">
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>Optional Link</label>
-                        <input type="text" name="academics[pages][university-calendar][info][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
-                    </div>
-                </article>
-            @endforeach
+        <div class="form-group">
+            <label>2nd Semester</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="date" class="form-control" name="academics[pages][university-calendar][info][sem2_start]" value="{{ $calendarInfo['sem2_start'] ?? '' }}">
+                <span>to</span>
+                <input type="date" class="form-control" name="academics[pages][university-calendar][info][sem2_end]" value="{{ $calendarInfo['sem2_end'] ?? '' }}">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Summer Semester</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <input type="date" class="form-control" name="academics[pages][university-calendar][info][summer_start]" value="{{ $calendarInfo['summer_start'] ?? '' }}">
+                <span>to</span>
+                <input type="date" class="form-control" name="academics[pages][university-calendar][info][summer_end]" value="{{ $calendarInfo['summer_end'] ?? '' }}">
+            </div>
         </div>
 
         <div class="academics-cms-modal-footer">
@@ -1081,19 +1005,13 @@
         </div>
 
         <div class="form-group">
-            <label>PDF URL or Path</label>
-            <input type="text" name="academics[pages][university-calendar][calendar][pdf_url]" maxlength="2048" value="{{ $calendarSection['pdf_url'] ?? '' }}">
-        </div>
-
-        <div class="form-group">
-            <label>Upload Calendar PDF</label>
-            @php
-                $calendarPdfPreview = \App\Support\DownloadableFile::url($calendarSection['pdf_url'] ?? null, 'assets/static_img/university_calendar.pdf');
-            @endphp
-            @if($calendarPdfPreview)
-                <p><a href="{{ $calendarPdfPreview }}" target="_blank" rel="noopener">View current calendar PDF</a></p>
-            @endif
-            <input type="file" name="academics[pages][university-calendar][calendar][pdf_file]" accept="application/pdf,.pdf">
+            <label>Link</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" name="academics[pages][university-calendar][calendar][pdf_url]" maxlength="2048" value="{{ $calendarSection['pdf_url'] ?? '' }}">
+                <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                    <i class="fas fa-paste"></i>
+                </button>
+            </div>
         </div>
 
         <div class="form-group">
