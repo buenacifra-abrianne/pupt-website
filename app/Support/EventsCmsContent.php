@@ -204,6 +204,10 @@ class EventsCmsContent
                 continue;
             }
 
+            if ($normalized['featured'] && self::isExpiredCard($normalized, now()->toDateString())) {
+                $normalized['featured'] = false;
+            }
+
             if ($normalized['featured']) {
                 if ($featuredAlreadyAssigned) {
                     $normalized['featured'] = false;
