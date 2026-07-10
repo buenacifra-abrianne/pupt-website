@@ -151,12 +151,41 @@
                     </div>
                 </section>
 
-                <section class="philosophy-intro-text reveal">
-                    <div class="philosophy-intro-text-inner philosophy-intro-rich-copy">
-                        <p class="section-tag layout-kicker" style="margin-bottom: 24px;">PUP-T Philosophy</p>
-                        <p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p>
-                        <p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p>
-                        <p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>
+                <section
+                    class="philosophy-intro-text reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                    @if($cmsPreview)
+                        data-cms-section="philosophy"
+                        data-cms-section-label="Philosophy"
+                    @endif
+                >
+                    @if($cmsPreview)
+                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="philosophy" aria-label="Edit Philosophy">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                            </svg>
+                        </button>
+                    @endif
+
+                    <div
+                        class="philosophy-intro-text-inner philosophy-intro-rich-copy{{ $cmsPreview ? ' cms-preview-boundary-edge' : '' }}"
+                        @if($cmsPreview)
+                            data-cms-boundary
+                        @endif
+                    >
+                        <p class="section-tag layout-kicker" style="margin-bottom: 24px;">{{ $overview['philosophy_tag'] ?? 'PUP-T Philosophy' }}</p>
+                        @php
+                            $philosophyDescription = (string) ($overview['philosophy_description'] ?? '');
+                            $philosophyDescriptionHtml = trim($philosophyDescription) !== strip_tags($philosophyDescription)
+                                ? \App\Support\RichText::sanitize($philosophyDescription)
+                                : nl2br(e($philosophyDescription));
+                        @endphp
+                        @if($philosophyDescriptionHtml !== '')
+                            {!! $philosophyDescriptionHtml !!}
+                        @else
+                            <p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p>
+                            <p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p>
+                            <p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>
+                        @endif
                     </div>
                 </section>
 
@@ -1373,6 +1402,7 @@
             }
 
             .about-intro,
+            .philosophy-intro-text,
             .contents-strip,
             .history-story,
             .about-section-card {
@@ -1440,6 +1470,12 @@
             .history-story--vision .about-vision-content--cms,
             .history-story--vision .about-vision-extension-grid {
                 margin-bottom: 0 !important;
+            }
+
+            .philosophy-intro-text.cms-preview-editable {
+                --cms-preview-outline-offset: 8px;
+                --cms-preview-chip-top-offset: 50%;
+                --cms-preview-chip-right-offset: 8px;
             }
 
             .about-values-band.cms-preview-editable {
@@ -1851,6 +1887,7 @@
             @media (max-width: 768px) {
                 .hero-shell,
                 .about-intro,
+                .philosophy-intro-text,
                 .contents-strip,
                 .history-story,
                 .about-section-card,
