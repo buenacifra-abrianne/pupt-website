@@ -43,12 +43,13 @@
     border: none !important;
     border-radius: 50% !important;
     padding: 0 !important;
-    background: var(--widget-fab-bg) !important;
     color: #fffaf4 !important;
-    font-size: 1.65rem !important;
-    box-shadow: var(--widget-fab-shadow) !important;
+    font-size: 1.05rem !important;
     cursor: pointer !important;
-    transition: opacity 0.22s ease, visibility 0.22s ease !important;
+    background: #8d0d10 !important;
+    box-shadow: 0 14px 32px rgba(77, 9, 11, 0.35) !important;
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, background 0.2s ease, opacity 0.22s ease, visibility 0.22s ease !important;
+    overflow: hidden !important;
     z-index: 999 !important;
 }
 
@@ -56,7 +57,7 @@ body.has-widget-dock .acc-container .acc-toggle-btn {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
-    transform: none !important;
+    /* No transform:none here — it would block hover animation via higher specificity */
 }
 
 body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
@@ -65,7 +66,7 @@ body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn {
     opacity: 1 !important;
     visibility: visible !important;
     pointer-events: auto !important;
-    transform: none !important;
+    /* Allow hover transform — do NOT force transform: none here */
     z-index: var(--widget-accessibility-fab-z) !important;
 }
 
@@ -131,7 +132,6 @@ body.has-widget-dock .acc-container .widget-dock-accessibility-panel [class*="fo
     z-index: 1 !important;
 }
 
-.acc-container .acc-toggle-btn:hover,
 .acc-container .acc-header button:hover,
 .acc-container .acc-footer-reset:hover,
 .acc-container .acc-btn.acc-selected:hover,
@@ -139,26 +139,6 @@ body.has-widget-dock .acc-container .widget-dock-accessibility-panel [class*="fo
 .acc-container .acc-lang-item.selected:hover,
 .acc-container .acc-text-scale-btn.active:hover {
     background: var(--acc-maroon-dark) !important;
-}
-
-.acc-container .acc-toggle-btn:hover {
-    background: var(--widget-fab-bg) !important;
-    transform: none !important;
-    box-shadow: var(--widget-fab-shadow) !important;
-}
-
-body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:hover {
-    background: var(--widget-fab-bg) !important;
-    transform: none !important;
-    box-shadow: var(--widget-fab-shadow) !important;
-}
-
-body.has-widget-dock.widget-dock-open .acc-container .acc-toggle-btn:focus-visible {
-    background: var(--widget-fab-bg) !important;
-    transform: none !important;
-    box-shadow:
-        0 0 0 3px var(--acc-maroon-soft),
-        var(--widget-fab-shadow) !important;
 }
 
 .acc-container .acc-toggle-icon,
