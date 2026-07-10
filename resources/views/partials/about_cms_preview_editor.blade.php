@@ -451,7 +451,12 @@
                                     </div>
                                     <div class="form-group">
                                         <label>Title</label>
-                                        <input type="text" name="about[sections][history][timeline][{{ $index }}][title]" maxlength="255" value="{{ $milestone['title'] ?? '' }}">
+                                        <div class="about-cms-history-title-wrap">
+                                            <label>
+                                                <span>Event / Milestone</span>
+                                                <input type="text" name="about[sections][history][timeline][{{ $index }}][title]" maxlength="255" value="{{ $milestone['title'] ?? '' }}">
+                                            </label>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -1918,7 +1923,8 @@
         min-width: 0;
     }
 
-    .about-cms-history-date-fields label {
+    .about-cms-history-date-fields label,
+    .about-cms-history-title-wrap label {
         display: grid;
         gap: 6px;
         min-height: 0;
@@ -1939,7 +1945,7 @@
         padding-top: 0;
     }
 
-    .about-cms-history-meta-grid > .form-group:not([data-about-history-date-group]) > input {
+    .about-cms-history-meta-grid > .form-group:not([data-about-history-date-group]) input {
         min-height: 54px;
     }
 
