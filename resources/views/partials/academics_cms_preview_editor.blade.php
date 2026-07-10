@@ -1591,6 +1591,9 @@
             const removeButton = findAcademicsDropzoneElement(dropzone, 'data-academics-clear-image-for', inputId)
                 || findAcademicsDropzoneElement(scope, 'data-academics-clear-image-for', inputId)
                 || findAcademicsDropzoneElement(document, 'data-academics-clear-image-for', inputId);
+            const editButton = findAcademicsDropzoneElement(dropzone, 'data-academics-edit-image-for', inputId)
+                || findAcademicsDropzoneElement(scope, 'data-academics-edit-image-for', inputId)
+                || findAcademicsDropzoneElement(document, 'data-academics-edit-image-for', inputId);
             const imageField = input.dataset.academicsImageFieldId
                 ? document.getElementById(input.dataset.academicsImageFieldId)
                 : (
@@ -1609,6 +1612,7 @@
                 fileNameEl,
                 previewEl,
                 removeButton,
+                editButton,
                 imageField,
                 previewSection,
                 previewCardIndex,
@@ -1631,7 +1635,9 @@
 
             const hasImage = Boolean((parts.imageField?.value || '').trim() !== '' || (parts.input.files && parts.input.files[0]));
             parts.removeButton.hidden = !hasImage;
-                    if (typeof editButton !== 'undefined' && editButton) editButton.hidden = !hasImage;
+            if (parts.editButton) {
+                parts.editButton.hidden = !hasImage;
+            }
         }
 
         async function prepareAcademicsImageFile(input, file) {
@@ -1791,6 +1797,54 @@
                     event.preventDefault();
                     event.stopPropagation();
                     clearAcademicsDropzoneInput(input);
+                    return;
+                }
+
+                const editButton = event.target.closest('[data-academics-edit-image-for]');
+                if (editButton) {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    const inputId = editButton.getAttribute('data-academics-edit-image-for');
+                    const input = document.getElementById(inputId);
+                    if (!input) return;
+
+                    const parts = resolveAcademicsDropzone(input);
+                    let file = input.files && input.files[0];
+                    if (!file && parts.previewEl && parts.previewEl.src && parts.previewEl.src !== parts.defaultSrc) {
+                        try {
+                            const dbPath = parts.imageField ? parts.imageField.value : null;
+                            if (dbPath) {
+                                const res = await fetch(`/cms/proxy-image?path=${encodeURIComponent(dbPath)}`);
+                                if (!res.ok) throw new Error("Proxy fetch failed");
+                                const blob = await res.blob();
+                                const ext = dbPath.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                            } else {
+                                throw new Error("No db path available");
+                            }
+                        } catch(err) {
+                            console.warn("Proxy failed, using canvas fallback", err);
+                            try {
+                                const canvas = document.createElement('canvas');
+                                canvas.width = parts.previewEl.naturalWidth || parts.previewEl.width || 800;
+                                canvas.height = parts.previewEl.naturalHeight || parts.previewEl.height || 600;
+                                const ctx = canvas.getContext('2d');
+                                ctx.drawImage(parts.previewEl, 0, 0, canvas.width, canvas.height);
+                                const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
+                                if (blob) file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+                            } catch (canvasErr) {
+                                console.error("Canvas fallback also failed", canvasErr);
+                            }
+                        }
+                    }
+
+                    (async () => {
+                        const editedFile = await prepareAcademicsImageFile(input, file);
+                        if (editedFile && editedFile !== file) {
+                            applyAcademicsDropzoneFile(input, editedFile);
+                        }
+                    })();
                     return;
                 }
 

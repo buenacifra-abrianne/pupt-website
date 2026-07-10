@@ -1614,10 +1614,9 @@
         inset: 0;
         z-index: 1200;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         padding: 14px;
-        overflow-y: auto;
     }
 
     .about-cms-modal-backdrop {
@@ -1631,7 +1630,10 @@
         position: relative;
         z-index: 1;
         width: min(1320px, calc(100vw - 24px));
-        margin: 30px auto;
+        margin: 0;
+        max-height: calc(100vh - 40px);
+        display: flex;
+        flex-direction: column;
         overflow: hidden;
         border-radius: 28px;
         background:
@@ -1655,14 +1657,17 @@
     }
 
     .about-cms-modal-header {
+        flex: 0 0 auto;
         padding: 24px 30px 14px;
         border-bottom: 1px solid #f0e2d9;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(255, 246, 238, 0.75) 100%);
     }
 
     .about-cms-modal-panels {
+        flex: 1 1 auto;
         padding: 24px 30px 30px;
         max-width: 100%;
+        overflow-y: auto;
         overflow-x: hidden;
     }
 
@@ -5185,12 +5190,29 @@
                         let file = input.files && input.files[0];
                         if (!file && previewEl && previewEl.src && previewEl.src !== defaultSrc) {
                             try {
-                                const res = await fetch(previewEl.src);
-                                const blob = await res.blob();
-                                const ext = previewEl.src.split('.').pop().split(/#|\?/)[0] || 'jpg';
-                                file = new File([blob], `image.${ext}`, { type: blob.type });
+                                const dbPath = typeof imageField !== 'undefined' && imageField ? imageField.value : null;
+                                if (dbPath) {
+                                    const res = await fetch(`/cms/proxy-image?path=${encodeURIComponent(dbPath)}`);
+                                    if (!res.ok) throw new Error("Proxy fetch failed");
+                                    const blob = await res.blob();
+                                    const ext = dbPath.split('.').pop().split(/#|\?/)[0] || 'jpg';
+                                    file = new File([blob], `image.${ext}`, { type: blob.type });
+                                } else {
+                                    throw new Error("No db path available");
+                                }
                             } catch(err) {
-                                console.error("Could not fetch image to edit", err);
+                                console.warn("Proxy failed, using canvas fallback", err);
+                                try {
+                                    const canvas = document.createElement('canvas');
+                                    canvas.width = previewEl.naturalWidth || previewEl.width || 800;
+                                    canvas.height = previewEl.naturalHeight || previewEl.height || 600;
+                                    const ctx = canvas.getContext('2d');
+                                    ctx.drawImage(previewEl, 0, 0, canvas.width, canvas.height);
+                                    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 1.0));
+                                    if (blob) file = new File([blob], 'image.jpg', { type: 'image/jpeg' });
+                                } catch (canvasErr) {
+                                    console.error("Canvas fallback also failed", canvasErr);
+                                }
                             }
                         }
                         
