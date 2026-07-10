@@ -1024,6 +1024,7 @@
             '[data-about-plan-priorities-version], ' +
             '[data-about-strategic-goals-version], ' +
             '[data-about-core-values-version], ' +
+            '[data-about-services-version], ' +
             '[data-academics-contents-version], ' +
             '[data-academics-features-version], ' +
             '[data-students-cards-version], ' +

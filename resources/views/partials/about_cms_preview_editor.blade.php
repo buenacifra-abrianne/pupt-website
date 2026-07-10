@@ -1024,82 +1024,35 @@
                     @csrf
                     <input type="hidden" name="tab_key" value="about">
                     <input type="hidden" name="section_key" value="citizens-charter">
+                    <input type="hidden" name="about_services_version" value="0" data-about-services-version>
                     @if($requestId > 0)
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
                     <div class="form-group">
-                        <label>Citizen's Charter Lead</label>
+                        <label>Title</label>
+                        <input type="text" name="about[sections][citizens-charter][label]" maxlength="255" value="{{ $citizensCharterEditor['label'] ?? '' }}">
+                    </div>
+
+
+
+                    <div class="form-group">
+                        <label>Description</label>
                         <textarea name="about[sections][citizens-charter][lead]" rows="3" maxlength="4000">{{ $citizensCharterEditor['lead'] ?? '' }}</textarea>
                     </div>
 
-                    <div class="form-group">
-                        <label>Citizen's Charter Body</label>
-                        @include('partials.rich_text_editor', [
-                            'name' => 'about[sections][citizens-charter][body_text]',
-                            'value' => $citizensCharterEditor['body_text'] ?? '',
-                            'placeholder' => 'Write the Citizen\'s Charter content...',
-                        ])
-                    </div>
 
-                    <h4 style="margin-top: 30px; border-bottom: 1px solid var(--border-color); padding-bottom: 10px;">Services</h4>
+
+
 
                     <div class="about-cms-card-stack" data-about-services-list>
                         @foreach($citizensCharterEditor['services'] ?? [] as $index => $service)
-                            @php
-                                $serviceImageInputId = $idPrefix.'-about-service-image-file-'.$index;
-                                $serviceImageFieldId = $idPrefix.'-about-service-image-'.$index;
-                                $serviceImageValue = (string) ($service['image'] ?? '');
-                                $serviceImagePreview = \App\Support\AboutCmsContent::resolveImagePath($serviceImageValue !== '' ? $serviceImageValue : null, 'assets/static_img/pupillar.jpeg');
-                            @endphp
                             <article class="about-cms-card-editor" data-about-service-editor data-about-service-index="{{ $index }}">
                                 <div class="about-cms-card-editor-head" data-about-card-editor-head>
-                                    <h4 data-about-service-heading>Service {{ $loop->iteration }}</h4>
+                                    <h4 data-about-service-heading>Office {{ $loop->iteration }}</h4>
                                 </div>
                                 <div class="form-group">
-                                    <label>Upload Service Image</label>
-                                    <div class="about-cms-image-dropzone-shell">
-                                        <input type="hidden" id="{{ $serviceImageFieldId }}" name="about[sections][citizens-charter][services][{{ $index }}][image]" value="{{ $serviceImageValue }}" data-about-image-field>
-                                        <input
-                                            type="file"
-                                            id="{{ $serviceImageInputId }}"
-                                            name="about[sections][citizens-charter][services][{{ $index }}][image_file]"
-                                            class="about-cms-image-dropzone-input"
-                                            accept="image/*"
-                                            data-about-image-field-id="{{ $serviceImageFieldId }}"
-                                        >
-                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $serviceImageInputId }}" tabindex="0" role="button" aria-label="Upload service image">
-                                            <span class="about-cms-image-dropzone-preview-column">
-                                                <span class="about-cms-image-dropzone-media">
-                                                    <img
-                                                        src="{{ $serviceImagePreview }}"
-                                                        alt="Service image preview"
-                                                        class="about-cms-image-dropzone-preview"
-                                                        data-about-preview-for="{{ $serviceImageInputId }}"
-                                                        data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                                    >
-                                                    <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $serviceImageInputId }}" aria-label="Edit image" title="Edit image" {{ $serviceImageValue === '' ? 'hidden' : '' }}>
-                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                                    </button>
-                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $serviceImageInputId }}" aria-label="Delete image" title="Delete image" {{ $serviceImageValue === '' ? 'hidden' : '' }}>
-                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                    </button>
-                                                </span>
-                                            </span>
-                                            <span class="about-cms-image-dropzone-upload">
-                                                <span class="about-cms-image-dropzone-icon">
-                                                    <i class="fas fa-arrow-up" aria-hidden="true"></i>
-                                                </span>
-                                                <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                                <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this service.</span>
-                                                <span class="about-cms-image-dropzone-upload-button">Select image</span>
-                                                <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $serviceImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="form-group">
-                                    <label>Title</label>
+                                    <label>Department (Title)</label>
                                     <input type="text" name="about[sections][citizens-charter][services][{{ $index }}][title]" maxlength="255" value="{{ $service['title'] ?? '' }}">
                                 </div>
                                 <div class="form-group">
@@ -1108,7 +1061,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Link</label>
-                                    <input type="text" name="about[sections][citizens-charter][services][{{ $index }}][link]" maxlength="2048" value="{{ $service['link'] ?? '' }}" placeholder="https://...">
+                                    <div class="about-link-row">
+                                        <input type="text" name="about[sections][citizens-charter][services][{{ $index }}][link]" maxlength="2048" value="{{ $service['link'] ?? '' }}" placeholder="https://...">
+                                        <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
@@ -1117,52 +1075,10 @@
                     <template data-about-service-template>
                         <article class="about-cms-card-editor" data-about-service-editor data-about-service-index="__INDEX__">
                             <div class="about-cms-card-editor-head" data-about-card-editor-head>
-                                <h4 data-about-service-heading>Service __NUMBER__</h4>
+                                <h4 data-about-service-heading>Office __NUMBER__</h4>
                             </div>
                             <div class="form-group">
-                                <label>Upload Service Image</label>
-                                <div class="about-cms-image-dropzone-shell">
-                                    <input type="hidden" id="{{ $idPrefix }}-about-service-image-__INDEX__" name="about[sections][citizens-charter][services][__INDEX__][image]" value="" data-about-image-field>
-                                    <input
-                                        type="file"
-                                        id="{{ $idPrefix }}-about-service-image-file-__INDEX__"
-                                        name="about[sections][citizens-charter][services][__INDEX__][image_file]"
-                                        class="about-cms-image-dropzone-input"
-                                        accept="image/*"
-                                        data-about-image-field-id="{{ $idPrefix }}-about-service-image-__INDEX__"
-                                    >
-                                    <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" tabindex="0" role="button" aria-label="Upload service image">
-                                        <span class="about-cms-image-dropzone-preview-column">
-                                            <span class="about-cms-image-dropzone-media">
-                                                <img
-                                                    src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                                    alt="Service image preview"
-                                                    class="about-cms-image-dropzone-preview"
-                                                    data-about-preview-for="{{ $idPrefix }}-about-service-image-file-__INDEX__"
-                                                    data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                                >
-                                                <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" aria-label="Edit image" title="Edit image" hidden>
-                                                    <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                                </button>
-                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" aria-label="Delete image" title="Delete image" hidden>
-                                                    <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                                </button>
-                                            </span>
-                                        </span>
-                                        <span class="about-cms-image-dropzone-upload">
-                                            <span class="about-cms-image-dropzone-icon">
-                                                <i class="fas fa-arrow-up" aria-hidden="true"></i>
-                                            </span>
-                                            <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                            <span class="about-cms-image-dropzone-upload-copy">Preview updates instantly while you edit this service.</span>
-                                            <span class="about-cms-image-dropzone-upload-button">Select image</span>
-                                            <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $idPrefix }}-about-service-image-file-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <label>Title</label>
+                                <label>Department (Title)</label>
                                 <input type="text" name="about[sections][citizens-charter][services][__INDEX__][title]" maxlength="255" value="">
                             </div>
                             <div class="form-group">
@@ -1171,13 +1087,18 @@
                             </div>
                             <div class="form-group">
                                 <label>Link</label>
-                                <input type="text" name="about[sections][citizens-charter][services][__INDEX__][link]" maxlength="2048" value="" placeholder="https://...">
+                                <div class="about-link-row">
+                                    <input type="text" name="about[sections][citizens-charter][services][__INDEX__][link]" maxlength="2048" value="" placeholder="https://...">
+                                    <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                        <i class="fas fa-paste"></i>
+                                    </button>
+                                </div>
                             </div>
                         </article>
                     </template>
 
-                    <div style="margin-top: 10px;">
-                        <button type="button" class="btn btn-outline-primary" data-about-service-add>+ Add Service</button>
+                    <div style="margin-top: 10px;" data-about-service-add-wrapper>
+                        <button type="button" class="btn btn-outline-primary" data-about-service-add>+ Add Office</button>
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -2543,9 +2464,50 @@
         max-width: 980px;
     }
 
+    /* Service card focus */
+    .about-cms-modal.is-service-card-focus .about-cms-editor-panel[data-about-editor-panel="citizens-charter"] > form > .form-group:nth-of-type(1),
+    .about-cms-modal.is-service-card-focus .about-cms-editor-panel[data-about-editor-panel="citizens-charter"] > form > .form-group:nth-of-type(2),
+    .about-cms-modal.is-service-card-focus .about-cms-editor-panel[data-about-editor-panel="citizens-charter"] [data-about-service-add-wrapper] {
+        display: none !important;
+    }
+
+    /* Service header focus */
+    .about-cms-modal.is-service-header-focus .about-cms-editor-panel[data-about-editor-panel="citizens-charter"] > form > h4,
+    .about-cms-modal.is-service-header-focus .about-cms-editor-panel[data-about-editor-panel="citizens-charter"] > form > .about-cms-card-stack,
+    .about-cms-modal.is-service-header-focus .about-cms-editor-panel[data-about-editor-panel="citizens-charter"] [data-about-service-add-wrapper] {
+        display: none !important;
+    }
+
     .about-cms-editor-panel.is-card-focus .about-cms-card-stack {
         gap: 0;
         overflow: visible;
+    }
+
+    .about-link-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .about-link-row input {
+        flex: 1;
+    }
+    .about-link-paste {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #d7dbe2;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .about-link-paste:hover {
+        background: #eef2f7;
+        color: #1f2937;
     }
 
     .about-cms-editor-panel.is-card-focus [data-about-card-panel-meta],
@@ -3335,13 +3297,17 @@
                 const isPlanPriorityFocus = sectionKey === 'strategic-development-plan' && String(options.planPriorityIndex ?? '').trim() !== '';
                 const isOfficialCardFocus = sectionKey === 'campus-officials' && !isChartFocus && String(options.officialIndex ?? '').trim() !== '';
                 const isSealCardFocus = sectionKey === 'logo-and-symbols' && String(options.sealIndex ?? '').trim() !== '';
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus;
+                const isServiceCardFocus = sectionKey === 'citizens-charter' && String(options.serviceIndex ?? '').trim() !== '';
+                const isServiceHeaderFocus = sectionKey === 'citizens-charter' && options.headerFocus === true;
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus || isServiceCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
                 if (isActive) {
                     modal.classList.toggle('is-card-focus', isCardFocus);
                     modal.classList.toggle('is-official-card-focus', sectionKey === 'campus-officials' && isCardFocus);
+                    modal.classList.toggle('is-service-card-focus', isServiceCardFocus);
+                    modal.classList.toggle('is-service-header-focus', isServiceHeaderFocus);
                     if (title) {
                         title.textContent = label || 'Edit about section';
                     }
@@ -3364,6 +3330,8 @@
                         focusScope = setActiveOfficialEditor(options.officialIndex ?? '', panel) || panel;
                     } else if (sectionKey === 'logo-and-symbols') {
                         focusScope = setActiveSealEditor(options.sealIndex ?? '', panel, isCardFocus) || panel;
+                    } else if (sectionKey === 'citizens-charter') {
+                        focusScope = setActiveServiceEditor(options.serviceIndex ?? '', panel) || panel;
                     }
 
                     if (isCardFocus && focusScope?.classList?.contains('about-cms-card-editor')) {
@@ -3396,6 +3364,8 @@
             delete modal.dataset.aboutActivePanel;
             modal.classList.remove('is-card-focus');
             modal.classList.remove('is-official-card-focus');
+            modal.classList.remove('is-service-card-focus');
+            modal.classList.remove('is-service-header-focus');
             modal.classList.remove('is-chart-focus');
             const description = modal.querySelector('[data-about-editor-description]');
             if (description) {
@@ -3413,8 +3383,42 @@
             }
 
             if (data.type === 'cms-about-edit') {
-                openAboutEditor(data.section || '', data.label || 'Edit about section', {
+                let section = data.section || '';
+                let isHeaderFocus = false;
+                if (section === 'citizens-charter-header') {
+                    section = 'citizens-charter';
+                    isHeaderFocus = true;
+                }
+                openAboutEditor(section, data.label || 'Edit about section', {
                     route: data.route || '',
+                    headerFocus: isHeaderFocus,
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-service-card-add') {
+                const editor = addServiceEditor({
+                    title: '',
+                    description: '',
+                    link: '',
+                }, true);
+                const nextIndex = editor?.getAttribute('data-about-service-index') || '';
+                openAboutEditor('citizens-charter', data.label || 'Add Office', {
+                    serviceIndex: nextIndex,
+                    route: 'citizens-charter',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-service-card-delete') {
+                confirmDeleteServiceCard(data.index !== undefined && data.index !== null ? data.index : '', data.label || '');
+                return;
+            }
+
+            if (data.type === 'cms-about-service-card-edit') {
+                openAboutEditor('citizens-charter', data.label ? `Edit ${data.label}` : 'Edit Office', {
+                    serviceIndex: data.index !== undefined && data.index !== null ? data.index : '',
+                    route: 'citizens-charter',
                 });
                 return;
             }
@@ -5531,19 +5535,153 @@
         initPlanPrioritiesEditor();
         initStrategicGoalsEditor();
 
+        const setActiveServiceEditor = (index = '', scope = document) => {
+            const editors = Array.from(scope.querySelectorAll('[data-about-service-editor]'));
+
+            if (!editors.length) {
+                return null;
+            }
+
+            const normalizedIndex = String(index ?? '').trim();
+            let targetEditor = null;
+
+            if (normalizedIndex !== '') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-about-service-index') === normalizedIndex) || null;
+            }
+
+            if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.classList.toggle('is-disabled', targetEditor ? !isActive : false);
+                editor.hidden = targetEditor ? !isActive : false;
+            });
+
+            return targetEditor;
+        };
+
+        const submitCitizensCharterForm = () => {
+            const panel = document.querySelector('[data-about-editor-panel="citizens-charter"]');
+            const form = panel?.querySelector('form');
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.submit();
+                }
+            }
+        };
+
+        const confirmDeleteServiceCard = async (index, label, options = {}) => {
+            const normalizedIndex = String(index ?? '').trim();
+            if (normalizedIndex === '') {
+                return;
+            }
+
+            let confirmed = false;
+            const promptLabel = label || `Office ${Number(normalizedIndex) + 1}`;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Office Card',
+                    message: `Do you want to delete "${promptLabel}" from Citizen's Charter?`,
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}" from Citizen's Charter?`);
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const servicesList = document.querySelector('[data-about-services-list]');
+            const targetEditor = servicesList?.querySelector(`[data-about-service-editor][data-about-service-index="${normalizedIndex}"]`);
+            if (targetEditor) {
+                targetEditor.remove();
+                relabelServiceEditors();
+                bumpServicesVersion();
+
+                if (options.submit !== false) {
+                    submitCitizensCharterForm();
+                }
+            }
+        };
+
+        const relabelServiceEditors = () => {
+            const servicesList = document.querySelector('[data-about-services-list]');
+            if (!servicesList) return;
+            const editors = servicesList.querySelectorAll('[data-about-service-editor]');
+            editors.forEach((editor, newIndex) => {
+                editor.setAttribute('data-about-service-index', newIndex);
+                const heading = editor.querySelector('[data-about-service-heading]');
+                if (heading) {
+                    heading.textContent = `Office ${newIndex + 1}`;
+                }
+                editor.querySelectorAll('input, textarea').forEach((input) => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        input.setAttribute('name', name.replace(/\[services\]\[\d+\]/, `[services][${newIndex}]`));
+                    }
+                });
+            });
+        };
+
+        const bumpServicesVersion = () => {
+            const servicesForm = document.querySelector('[data-about-editor-panel="citizens-charter"] form');
+            const servicesVersionInput = servicesForm?.querySelector('[data-about-services-version]');
+            if (servicesVersionInput) {
+                servicesVersionInput.value = String(Date.now());
+            }
+            const frame = document.querySelector('[data-about-preview-frame]');
+            if (frame && typeof queueAboutPreviewSettledSync === 'function') {
+                queueAboutPreviewSettledSync(frame);
+            }
+        };
+
+        const addServiceEditor = (data = {}, focus = false) => {
+            const servicesList = document.querySelector('[data-about-services-list]');
+            const servicesTemplate = document.querySelector('[data-about-service-template]');
+            if (!servicesList || !servicesTemplate) return null;
+
+            const newIndex = servicesList.querySelectorAll('[data-about-service-editor]').length;
+            const html = document.createElement('div');
+            html.appendChild(servicesTemplate.content.cloneNode(true));
+            html.innerHTML = html.innerHTML.replace(/__INDEX__/g, newIndex).replace(/__NUMBER__/g, newIndex + 1);
+            const editor = html.firstElementChild;
+            servicesList.appendChild(editor);
+
+            if (data.title) {
+                const titleInput = editor.querySelector('input[name*="[title]"]');
+                if (titleInput) titleInput.value = data.title;
+            }
+            if (data.description) {
+                const descInput = editor.querySelector('textarea[name*="[description]"]');
+                if (descInput) descInput.value = data.description;
+            }
+            if (data.link) {
+                const linkInput = editor.querySelector('input[name*="[link]"]');
+                if (linkInput) linkInput.value = data.link;
+            }
+
+            if (focus) {
+                setActiveServiceEditor(newIndex, servicesList.closest('[data-about-editor-panel]'));
+            }
+
+            return editor;
+        };
+
         const initServicesEditor = () => {
             const servicesList = document.querySelector('[data-about-services-list]');
             const servicesTemplate = document.querySelector('[data-about-service-template]');
             const addBtn = document.querySelector('[data-about-service-add]');
             if (servicesList && servicesTemplate && addBtn) {
                 addBtn.addEventListener('click', () => {
-                    const newIndex = servicesList.querySelectorAll('[data-about-service-editor]').length;
-                    const html = document.createElement('div');
-                    html.appendChild(servicesTemplate.content.cloneNode(true));
-                    html.innerHTML = html.innerHTML.replace(/__INDEX__/g, newIndex).replace(/__NUMBER__/g, newIndex + 1);
-                    const editor = html.firstElementChild;
-                    servicesList.appendChild(editor);
-                    initAboutImageDropzones(editor);
+                    addServiceEditor({}, false);
                 });
             }
         };
