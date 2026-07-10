@@ -496,25 +496,35 @@
         align-items: center;
         justify-content: center;
         padding: 16px;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .academics-cms-modal::-webkit-scrollbar,
+    .academics-cms-modal-dialog::-webkit-scrollbar,
+    .academics-cms-modal-panels::-webkit-scrollbar {
+        display: none;
     }
 
     .academics-cms-modal-backdrop {
         position: absolute;
         inset: 0;
-        background: rgba(25, 16, 12, 0.54);
-        backdrop-filter: blur(6px);
+        background: rgba(25, 16, 12, 0.6);
+        backdrop-filter: blur(8px);
     }
 
     .academics-cms-modal-dialog {
         position: relative;
         z-index: 1;
         width: min(1080px, calc(100vw - 32px));
+        margin: 0 auto;
         max-height: calc(100vh - 32px);
-        margin: 0;
         overflow: auto;
         border-radius: 24px;
-        background: #fffdfc;
-        box-shadow: 0 28px 80px rgba(25, 16, 12, 0.28);
+        scrollbar-width: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow: 0 16px 34px rgba(92, 12, 6, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(127, 17, 19, 0.12);
     }
 
     .academics-cms-modal-close {
@@ -560,6 +570,7 @@
 
     .academics-cms-modal-panels {
         padding: 22px 24px 24px;
+        scrollbar-width: none;
     }
 
     .academics-cms-form-grid {
@@ -913,18 +924,16 @@
     }
 
     .academics-cms-modal.is-card-focus .academics-cms-modal-dialog {
-        width: min(760px, calc(100vw - 24px));
-        max-width: min(760px, calc(100vw - 24px));
-        border-radius: 30px;
-        background: linear-gradient(180deg, #fffdfa 0%, #fff7ef 100%);
-        box-shadow: 0 30px 70px rgba(45, 8, 5, 0.2);
+        width: min(640px, calc(100vw - 24px));
+        max-width: min(640px, calc(100vw - 24px));
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: linear-gradient(145deg, #ffffff 0%, #fffbfa 100%);
+        box-shadow: 0 40px 100px rgba(45, 8, 5, 0.12), inset 0 0 0 1px rgba(212, 175, 55, 0.12);
     }
 
     .academics-cms-modal.is-card-focus .academics-cms-modal-panels {
         padding: 18px;
-        background:
-            radial-gradient(circle at top right, rgba(212, 175, 55, 0.14), transparent 34%),
-            linear-gradient(180deg, #fffaf6 0%, #fffdfc 100%);
     }
 
     .academics-cms-editor-panel.is-card-focus form {
@@ -947,13 +956,9 @@
 
     .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active {
         padding: 22px;
-        border: 1px solid rgba(127, 17, 19, 0.12);
-        border-radius: 24px;
-        background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
-        box-shadow:
-            0 16px 34px rgba(92, 12, 6, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        border: none;
+        background: transparent;
+        box-shadow: none;
     }
 
     .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .form-group + .form-group {

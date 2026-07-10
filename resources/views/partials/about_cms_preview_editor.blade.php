@@ -1617,29 +1617,37 @@
         align-items: center;
         justify-content: center;
         padding: 14px;
+        overflow-y: auto;
+        scrollbar-width: none;
+    }
+
+    .about-cms-modal::-webkit-scrollbar,
+    .about-cms-modal-dialog::-webkit-scrollbar,
+    .about-cms-modal-panels::-webkit-scrollbar {
+        display: none;
     }
 
     .about-cms-modal-backdrop {
         position: absolute;
         inset: 0;
-        background: rgba(25, 16, 12, 0.54);
-        backdrop-filter: blur(6px);
+        background: rgba(25, 16, 12, 0.6);
+        backdrop-filter: blur(8px);
     }
 
     .about-cms-modal-dialog {
         position: relative;
         z-index: 1;
         width: min(1320px, calc(100vw - 24px));
-        margin: 0;
+        margin: 0 auto;
         max-height: calc(100vh - 40px);
         display: flex;
         flex-direction: column;
         overflow: hidden;
-        border-radius: 28px;
-        background:
-            radial-gradient(circle at top right, rgba(212, 175, 55, 0.15), transparent 34%),
-            linear-gradient(180deg, #fffefc 0%, #fff6ef 100%);
-        box-shadow: 0 36px 100px rgba(25, 16, 12, 0.32);
+        border-radius: 24px;
+        scrollbar-width: none;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
+        box-shadow: 0 16px 34px rgba(92, 12, 6, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(127, 17, 19, 0.12);
     }
 
     .about-cms-modal-close {
@@ -1669,6 +1677,7 @@
         max-width: 100%;
         overflow-y: auto;
         overflow-x: hidden;
+        scrollbar-width: none;
     }
 
     .about-cms-form-grid {
@@ -2415,14 +2424,12 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-dialog {
-        width: min(740px, calc(100vw - 20px));
-        max-width: min(740px, calc(100vw - 20px));
-        overflow-x: visible;
-        overflow-y: visible;
-        border-radius: 0;
-        background: transparent;
-        box-shadow: none;
-        margin: 40px auto;
+        width: min(640px, calc(100vw - 20px));
+        max-width: min(640px, calc(100vw - 20px));
+        border-radius: 32px;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background: linear-gradient(145deg, #ffffff 0%, #fffbfa 100%);
+        box-shadow: 0 40px 100px rgba(45, 8, 5, 0.12), inset 0 0 0 1px rgba(212, 175, 55, 0.12);
     }
 
     .about-cms-modal.is-official-card-focus .about-cms-modal-dialog {
@@ -2444,8 +2451,6 @@
         display: grid;
         gap: 16px;
         padding: 0;
-        overflow: visible;
-        background: transparent;
     }
 
     .about-cms-editor-panel.is-card-focus form {
@@ -2527,13 +2532,9 @@
         width: 100%;
         margin: 0 auto;
         overflow: visible;
-        border: 1px solid rgba(127, 17, 19, 0.12);
-        border-radius: 24px;
-        background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.99) 0%, rgba(255, 250, 245, 0.98) 100%);
-        box-shadow:
-            0 16px 34px rgba(92, 12, 6, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        border: none;
+        background: transparent;
+        box-shadow: none;
     }
 
     .about-cms-editor-panel[data-about-editor-panel="logo-and-symbols"].is-card-focus .about-cms-card-editor.is-active {
@@ -2814,59 +2815,9 @@
         let currentAboutPreviewRoute = 'overview';
         const aboutModalChromePlacements = new WeakMap();
 
-        function rememberAboutModalChromePlacement(element) {
-            if (!element || aboutModalChromePlacements.has(element)) {
-                return;
-            }
-
-            aboutModalChromePlacements.set(element, {
-                parent: element.parentNode,
-                nextSibling: element.nextSibling,
-            });
-        }
-
-        function restoreAboutModalChrome(modal) {
-            if (!modal) {
-                return;
-            }
-
-            modal.querySelectorAll('[data-about-modal-relocated="true"]').forEach((element) => {
-                const placement = aboutModalChromePlacements.get(element);
-                if (!placement?.parent) {
-                    return;
-                }
-
-                if (placement.nextSibling && placement.nextSibling.parentNode === placement.parent) {
-                    placement.parent.insertBefore(element, placement.nextSibling);
-                } else {
-                    placement.parent.appendChild(element);
-                }
-
-                element.removeAttribute('data-about-modal-relocated');
-            });
-        }
-
-        function placeAboutCardModalChrome(modal, activeCard) {
-            if (!modal || !activeCard) {
-                return;
-            }
-
-            const closeButton = modal.querySelector('.about-cms-modal-close');
-            const activePanel = activeCard.closest('[data-about-editor-panel]');
-            const footer = activePanel?.querySelector('.about-cms-modal-footer');
-
-            if (closeButton && !activeCard.contains(closeButton)) {
-                rememberAboutModalChromePlacement(closeButton);
-                activeCard.prepend(closeButton);
-                closeButton.setAttribute('data-about-modal-relocated', 'true');
-            }
-
-            if (footer && !activeCard.contains(footer)) {
-                rememberAboutModalChromePlacement(footer);
-                activeCard.appendChild(footer);
-                footer.setAttribute('data-about-modal-relocated', 'true');
-            }
-        }
+        function rememberAboutModalChromePlacement(element) {}
+        function restoreAboutModalChrome(modal) {}
+        function placeAboutCardModalChrome(modal, activeCard) {}
 
         function getStoredAboutPreviewRoute() {
             try {
