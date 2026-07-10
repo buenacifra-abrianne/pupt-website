@@ -382,11 +382,11 @@
       }
 
       window.__cmsSessionRedirectPending = true;
-      window.cmsToast('Your session has expired! Please log in again.', 'error', 'Session Expired', 2200);
+      window.cmsToast('Your session has expired! Redirecting to landing page in 5s...', 'error', 'Session Expired', 5000);
 
       window.setTimeout(() => {
         window.location.assign(redirectUrl || '{{ route('public.landing') }}');
-      }, 1400);
+      }, 5000);
     };
 
     window.cmsResolveRequestError = function ({ response, json, raw, fallbackMessage } = {}) {

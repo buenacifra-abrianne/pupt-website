@@ -1634,8 +1634,22 @@
             const previewUrl = `${prefix}/content/preview/events/${targetKey}`;
 
             fetch(previewUrl)
-                .then(response => response.text())
-                .then(previewHtml => {
+                .then(async response => {
+                    const previewHtml = await response.text();
+                    let json = null;
+                    try { json = JSON.parse(previewHtml); } catch (_) {}
+
+                    if (!response.ok || (json && json.session_expired)) {
+                        const failure = typeof window.cmsResolveRequestError === 'function'
+                            ? window.cmsResolveRequestError({ response, json, raw: previewHtml })
+                            : null;
+
+                        if (failure?.sessionExpired && typeof window.handleSessionExpired === 'function') {
+                            window.handleSessionExpired(failure.redirect);
+                            return;
+                        }
+                    }
+
                     window.__eventsPreviewCache[targetKey] = previewHtml;
                     applyHtml(previewHtml);
                 })
