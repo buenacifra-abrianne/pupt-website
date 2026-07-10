@@ -71,7 +71,7 @@ class CmsController extends Controller
         $data = $request->validate([
             'tab_key' => ['required', Rule::in($allowedTabs)],
             'section_key' => ['nullable', Rule::in(array_merge([
-                'description', 'carousel', 'updates', 'campus_tour_video', 'campus_tour_facilities', 'quick_links', 'feedback', 'hero', 'intro', 'contents',
+                'description', 'carousel', 'updates', 'campus_tour_video', 'campus_tour_facilities', 'quick_links', 'feedback', 'hero', 'intro', 'contents', 'philosophy',
                 'vision-mission-header', 'vision-statement', 'mission-statement', 'vision-mission-statements', 'strategic-goals', 'core-values', 'features',
                 'page', 'cards_header', 'cards', 'organizations',
                 'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_links', 'admissions_form_links',
@@ -90,6 +90,7 @@ class CmsController extends Controller
             'home_feedback_questions_version' => ['nullable'],
             'home_active_feedback_question_index' => ['nullable'],
             'about_intro_version' => ['nullable'],
+            'about_philosophy_version' => ['nullable'],
             'about_contents_version' => ['nullable'],
             'about_active_contents_slug' => ['nullable', 'string'],
             'about_history_version' => ['nullable'],
@@ -1654,6 +1655,9 @@ class CmsController extends Controller
             ],
             'intro' => [
                 'overview' => array_intersect_key($overview, array_flip(['story_tag', 'story_title', 'story_description', 'story_image'])),
+            ],
+            'philosophy' => [
+                'overview' => array_intersect_key($overview, array_flip(['philosophy_tag', 'philosophy_description'])),
             ],
             'contents' => [
                 'overview' => array_intersect_key($overview, array_flip(['contents_tag', 'contents_title'])),

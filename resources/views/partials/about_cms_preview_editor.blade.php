@@ -246,6 +246,31 @@
                     </div>
                 </form>
             </section>
+            <section class="about-cms-editor-panel" data-about-editor-panel="philosophy" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-about-philosophy-form>
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="philosophy">
+                    <input type="hidden" name="about_philosophy_version" value="0" data-about-philosophy-version>
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+
+                    <div class="form-group">
+                        <label>Philosophy Content</label>
+                        @include('partials.rich_text_editor', [
+                            'name' => 'about[overview][philosophy_description]',
+                            'value' => $overviewEditor['philosophy_description'] ?? '',
+                            'placeholder' => 'Write the campus philosophy content...',
+                        ])
+                    </div>
+
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Philosophy') }}</button>
+                    </div>
+                </form>
+            </section>
 
             <section class="about-cms-editor-panel" data-about-editor-panel="contents" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-about-contents-form>
@@ -1666,9 +1691,10 @@
         inset: 0;
         z-index: 1200;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
         padding: 14px;
+        overflow-y: auto;
     }
 
     .about-cms-modal-backdrop {
@@ -1682,10 +1708,8 @@
         position: relative;
         z-index: 1;
         width: min(1320px, calc(100vw - 24px));
-        max-height: calc(100vh - 24px);
-        margin: 0;
-        overflow-x: hidden;
-        overflow-y: auto;
+        margin: 30px auto;
+        overflow: hidden;
         border-radius: 28px;
         background:
             radial-gradient(circle at top right, rgba(212, 175, 55, 0.15), transparent 34%),
@@ -2458,17 +2482,18 @@
     }
 
     .about-cms-modal.is-card-focus {
-        align-items: center !important;
+        align-items: flex-start !important;
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-dialog {
         width: min(740px, calc(100vw - 20px));
         max-width: min(740px, calc(100vw - 20px));
         overflow-x: visible;
-        overflow-y: auto;
+        overflow-y: visible;
         border-radius: 0;
         background: transparent;
         box-shadow: none;
+        margin: 40px auto;
     }
 
     .about-cms-modal.is-official-card-focus .about-cms-modal-dialog {
@@ -3255,7 +3280,7 @@
                 return route;
             }
 
-            if (sectionKey === 'hero' || sectionKey === 'intro' || sectionKey === 'contents') {
+            if (sectionKey === 'hero' || sectionKey === 'intro' || sectionKey === 'contents' || sectionKey === 'philosophy') {
                 return 'overview';
             }
 
@@ -3557,6 +3582,8 @@
         const activeContentsSlugInput = document.querySelector('[data-about-active-contents-slug]');
         const introForm = document.querySelector('[data-about-intro-form]');
         const introVersionInput = document.querySelector('[data-about-intro-version]');
+        const philosophyForm = document.querySelector('[data-about-philosophy-form]');
+        const philosophyVersionInput = document.querySelector('[data-about-philosophy-version]');
         const historyForm = document.querySelector('[data-about-history-form]');
         const historyVersionInput = document.querySelector('[data-about-history-version]');
         const activeHistoryIndexInput = document.querySelector('[data-about-active-history-index]');
@@ -3586,6 +3613,12 @@
         const bumpIntroVersion = () => {
             if (introVersionInput) {
                 introVersionInput.value = String(Date.now());
+            }
+        };
+
+        const bumpPhilosophyVersion = () => {
+            if (philosophyVersionInput) {
+                philosophyVersionInput.value = String(Date.now());
             }
         };
 
@@ -4072,6 +4105,39 @@
             introForm.addEventListener('click', (event) => {
                 if (event.target.closest('.rich-editor-toolbar button')) {
                     window.setTimeout(bumpIntroVersion, 0);
+                }
+            });
+        };
+
+        const bindPhilosophyDirtyTracking = () => {
+            if (!philosophyForm || philosophyForm.dataset.aboutDirtyTrackingBound === '1') {
+                return;
+            }
+
+            philosophyForm.dataset.aboutDirtyTrackingBound = '1';
+
+            const markDirty = (event) => {
+                const target = event.target;
+                if (target instanceof HTMLElement && target.closest('.rich-editor-surface')) {
+                    bumpPhilosophyVersion();
+                    return;
+                }
+
+                if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target instanceof HTMLSelectElement) {
+                    const type = (target.type || '').toLowerCase();
+                    if (type === 'hidden' || type === 'submit' || type === 'button' || type === 'reset') {
+                        return;
+                    }
+                }
+
+                bumpPhilosophyVersion();
+            };
+
+            philosophyForm.addEventListener('input', markDirty);
+            philosophyForm.addEventListener('change', markDirty);
+            philosophyForm.addEventListener('click', (event) => {
+                if (event.target.closest('.rich-editor-toolbar button')) {
+                    window.setTimeout(bumpPhilosophyVersion, 0);
                 }
             });
         };
@@ -5431,6 +5497,15 @@
                 }, true);
             }
 
+            if (form.matches('[data-about-philosophy-form]')) {
+                form.addEventListener('submit', () => {
+                    if (typeof window.syncRichTextEditors === 'function') {
+                        window.syncRichTextEditors(form);
+                    }
+                    bumpPhilosophyVersion();
+                }, true);
+            }
+
             if (form.matches('[data-about-history-form]')) {
                 form.addEventListener('submit', () => {
                     form.querySelectorAll('[data-about-history-date-group]').forEach(syncAboutHistoryDateGroup);
@@ -5551,6 +5626,7 @@
             window.initializeRichTextEditors(document);
         }
         bindAboutIntroDirtyTracking();
+        bindPhilosophyDirtyTracking();
         bindAboutContentsDirtyTracking();
         bindAboutHistoryDirtyTracking();
         bindCoreValuesDirtyTracking();
