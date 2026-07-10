@@ -166,6 +166,29 @@ class AboutCmsContentTest extends TestCase
         $this->assertSame('https://example.com/a', $seal['links'][0]['url']);
     }
 
+    public function test_empty_services_in_citizens_charter_can_be_saved(): void
+    {
+        $base = $this->storedDefaults();
+
+        // Create an input where the citizens-charter section is present but services is empty.
+        $input = [
+            'sections' => [
+                'citizens-charter' => [
+                    'label' => "Citizen's Charter",
+                    'lead' => 'Updated lead description',
+                    'services' => [],
+                ],
+            ],
+        ];
+
+        $content = AboutCmsContent::encode(AboutCmsContent::fromInput($input, $base));
+
+        $this->assertNotSame($base, $content);
+        $result = AboutCmsContent::fromStored($content)['sections']['citizens-charter'];
+        $this->assertSame('Updated lead description', $result['lead']);
+        $this->assertSame([], $result['services']);
+    }
+
     private function storedDefaults(): string
     {
         return AboutCmsContent::encode(AboutCmsContent::defaults());

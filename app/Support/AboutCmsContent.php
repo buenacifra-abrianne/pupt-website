@@ -644,7 +644,8 @@ class AboutCmsContent
                 'services' => self::normalizeServices(
                     $source['services'] ?? [],
                     $base['services'] ?? $defaults['services'],
-                    $defaults['services']
+                    $defaults['services'],
+                    array_key_exists('label', $source) || array_key_exists('lead', $source) || array_key_exists('services', $source)
                 ),
             ]),
             default => $section,
@@ -754,7 +755,7 @@ class AboutCmsContent
         return $items;
     }
 
-    private static function normalizeServices(mixed $input, array $base, array $defaults): array
+    private static function normalizeServices(mixed $input, array $base, array $defaults, bool $isUpdating = false): array
     {
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = is_array($base) ? array_values($base) : [];
@@ -802,7 +803,7 @@ class AboutCmsContent
             }
         }
 
-        if (empty($services)) {
+        if (empty($services) && !$isUpdating) {
             foreach ($baseItems as $index => $baseItem) {
                 if (!is_array($baseItem)) {
                     continue;
@@ -819,7 +820,7 @@ class AboutCmsContent
             }
         }
 
-        if (empty($services)) {
+        if (empty($services) && !$isUpdating) {
             $services = $defaultItems;
         }
 
