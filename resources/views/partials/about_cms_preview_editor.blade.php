@@ -776,9 +776,6 @@
                         </div>
                     </article>
 
-                    <div class="about-cms-inline-actions">
-                        <button type="button" class="btn btn-outline-secondary" data-about-seal-add-editor>+ Add Seal</button>
-                    </div>
 
                     <div class="about-cms-card-stack" data-about-seals-list>
                         @foreach($logoSeals as $index => $seal)
