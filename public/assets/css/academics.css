@@ -1888,6 +1888,11 @@ pup-footer .footer { margin-top: 0; }
   max-width: 760px;
 }
 
+.dp-program-hero {
+  border-top: 2px solid #f2c94c;
+  border-bottom: 2px solid #f2c94c;
+}
+
 .dp-program-hero .iapply-hero-body {
   max-width: 980px;
 }
