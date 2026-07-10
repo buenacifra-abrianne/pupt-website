@@ -82,7 +82,12 @@
                     </div>
                     <div class="form-group">
                         <label>Higher Education Accreditation PDF URL</label>
-                        <input type="text" name="academics[pages][{{ $pageKey }}][cards][higher_education_pdf_url]" maxlength="2048" value="{{ $cardsData['higher_education_pdf_url'] ?? '' }}">
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" name="academics[pages][{{ $pageKey }}][cards][higher_education_pdf_url]" maxlength="2048" value="{{ $cardsData['higher_education_pdf_url'] ?? '' }}">
+                            <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                <i class="fas fa-paste"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -189,7 +194,12 @@
                                 </div>
                                 <div class="form-group">
                                     <label>Link</label>
-                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                    <div style="display: flex; gap: 8px;">
+                                        <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                        <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="form-group">
                                     <label>Accreditation Level</label>
@@ -294,7 +304,12 @@
                             </div>
                             <div class="form-group">
                                 <label>Link</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][href]" maxlength="2048" value="#">
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][cards][items][__INDEX__][href]" maxlength="2048" value="#">
+                                    <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                        <i class="fas fa-paste"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Accreditation Level</label>
@@ -405,8 +420,13 @@
                         </div>
                         <div class="academics-cms-form-grid">
                             <div class="form-group">
-                                <label>Link</label>
-                                <input type="text" name="academics[pages][{{ $pageKey }}][contact][rows][{{ $index }}][href]" maxlength="2048" value="{{ $row['href'] ?? '' }}">
+                                <label>Link/Destination (optional)</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="text" name="academics[pages][{{ $pageKey }}][contact][rows][{{ $index }}][href]" maxlength="2048" value="{{ $row['href'] ?? '' }}">
+                                    <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                        <i class="fas fa-paste"></i>
+                                    </button>
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>Tone</label>
@@ -426,8 +446,13 @@
                     <input type="text" name="academics[pages][{{ $pageKey }}][contact][cta_label]" maxlength="120" value="{{ $contactData['cta_label'] ?? '' }}">
                 </div>
                 <div class="form-group">
-                    <label>CTA Link</label>
-                    <input type="text" name="academics[pages][{{ $pageKey }}][contact][cta_href]" maxlength="2048" value="{{ $contactData['cta_href'] ?? '' }}">
+                    <label>CTA Button Link</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" name="academics[pages][{{ $pageKey }}][contact][cta_href]" maxlength="2048" value="{{ $contactData['cta_href'] ?? '' }}">
+                        <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                            <i class="fas fa-paste"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -486,48 +511,6 @@
             </div>
         </div>
 
-        <div class="form-group">
-            <label>List Title</label>
-            <input type="text" name="academics[pages][pup-iapply][hero][list_title]" maxlength="255" value="{{ $iapplyHero['list_title'] ?? '' }}">
-        </div>
-
-        <div class="academics-cms-card-stack">
-            @foreach(($iapplyHero['list_items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor is-active">
-                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>Benefit {{ $loop->iteration }}</h4>
-                    </div>
-                    <div class="form-group">
-                        <label>Benefit Text</label>
-                        <input type="text" name="academics[pages][pup-iapply][hero][list_items][{{ $index }}]" maxlength="255" value="{{ $item }}">
-                    </div>
-                </article>
-            @endforeach
-        </div>
-
-        <div class="academics-cms-form-grid">
-            <div class="form-group">
-                <label>Visual Title</label>
-                <input type="text" name="academics[pages][pup-iapply][hero][visual_title]" maxlength="255" value="{{ $iapplyHero['visual_title'] ?? '' }}">
-            </div>
-            <div class="form-group">
-                <label>CTA Label</label>
-                <input type="text" name="academics[pages][pup-iapply][hero][cta_label]" maxlength="120" value="{{ $iapplyHero['cta_label'] ?? '' }}">
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Visual Description</label>
-            <div class="academics-cms-textarea-field" data-academics-char-limit="255">
-                <textarea name="academics[pages][pup-iapply][hero][visual_body]" rows="4" maxlength="255" data-academics-char-input>{{ $iapplyHero['visual_body'] ?? '' }}</textarea>
-                <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/255</div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>CTA Link</label>
-            <input type="text" name="academics[pages][pup-iapply][hero][cta_href]" maxlength="2048" value="{{ $iapplyHero['cta_href'] ?? '' }}">
-        </div>
 
         <div class="academics-cms-modal-footer">
             <button type="submit" class="btn btn-primary">{{ $submitLabel('PUP iApply Hero') }}</button>
@@ -752,31 +735,38 @@
             };
         @endphp
 
-        <div data-academics-page-card-section-shell>
-            <div class="form-group">
-                <label>Section Title</label>
-                <input type="text" name="academics[pages][pup-iapply][schedule][title]" maxlength="255" value="{{ $scheduleEditorTitle }}">
-            </div>
+
+
+        <div class="form-group">
+            <h3 style="font-size: 1rem; font-weight: 700; color: var(--maroon, #6b0000); margin: 0 0 16px 0; padding-bottom: 10px; border-bottom: 2px solid var(--gold, #f5c518);">Schedule &amp; Key Dates</h3>
         </div>
 
-        <div class="academics-cms-card-stack" data-academics-card-stack="pup-iapply-schedule">
-            @foreach($scheduleItems as $index => $item)
-                <article class="academics-cms-card-editor is-active" data-academics-page-card-editor="pup-iapply-schedule" data-academics-page-card-index="{{ $index }}">
-                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>{{ $scheduleItemLabels[$index] ?? 'Date' }}</h4>
-                    </div>
-                    <div class="form-group">
-                        <label>{{ $scheduleItemLabels[$index] ?? 'Date' }}</label>
-                        <input type="date" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][value]" value="{{ $normalizeScheduleDateInput($item['value'] ?? '') }}">
-                    </div>
-                    @if($index === 2)
-                        <div class="form-group">
-                            <label>Link</label>
-                            <input type="text" name="academics[pages][pup-iapply][schedule][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}" placeholder="https://...">
-                        </div>
-                    @endif
-                </article>
-            @endforeach
+        <div class="form-group">
+            <label>Online Application Date</label>
+            <input type="date" name="academics[pages][pup-iapply][schedule][items][0][value]" value="{{ $normalizeScheduleDateInput($scheduleItems[0]['value'] ?? '') }}">
+            <input type="hidden" name="academics[pages][pup-iapply][schedule][items][0][label]" value="Online Application">
+        </div>
+
+        <div class="form-group">
+            <label>Last Day of Issuance Date</label>
+            <input type="date" name="academics[pages][pup-iapply][schedule][items][1][value]" value="{{ $normalizeScheduleDateInput($scheduleItems[1]['value'] ?? '') }}">
+            <input type="hidden" name="academics[pages][pup-iapply][schedule][items][1][label]" value="Last Day of Issuance">
+        </div>
+
+        <div class="form-group">
+            <label>Evaluation Result Date</label>
+            <input type="date" name="academics[pages][pup-iapply][schedule][items][2][value]" value="{{ $normalizeScheduleDateInput($scheduleItems[2]['value'] ?? '') }}">
+            <input type="hidden" name="academics[pages][pup-iapply][schedule][items][2][label]" value="Evaluation Result">
+        </div>
+
+        <div class="form-group">
+            <label>Evaluation Result</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" name="academics[pages][pup-iapply][schedule][items][2][href]" maxlength="2048" value="{{ $scheduleItems[2]['href'] ?? '' }}" placeholder="https://...">
+                <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                    <i class="fas fa-paste"></i>
+                </button>
+            </div>
         </div>
 
         <div class="academics-cms-modal-footer">
@@ -815,7 +805,12 @@
 
         <div class="form-group">
             <label>Video URL</label>
-            <input type="text" name="academics[pages][pup-iapply][guide][video_url]" maxlength="2048" value="{{ $iapplyGuide['video_url'] ?? '' }}">
+            <div style="display: flex; gap: 8px;">
+                <input type="text" name="academics[pages][pup-iapply][guide][video_url]" maxlength="2048" value="{{ $iapplyGuide['video_url'] ?? '' }}">
+                <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                    <i class="fas fa-paste"></i>
+                </button>
+            </div>
         </div>
 
         <div class="academics-cms-modal-footer">
@@ -833,72 +828,50 @@
             <input type="hidden" name="request_id" value="{{ $requestId }}">
         @endif
 
-        <div class="academics-cms-form-grid">
-            <div class="form-group">
-                <label>Section Tag</label>
-                <input type="text" name="academics[pages][pup-iapply][reminders][tag]" maxlength="120" value="{{ $iapplyReminders['tag'] ?? '' }}">
-            </div>
-            <div class="form-group">
-                <label>Section Title</label>
-                <input type="text" name="academics[pages][pup-iapply][reminders][title]" maxlength="255" value="{{ $iapplyReminders['title'] ?? '' }}">
-            </div>
+        @php
+            $oldRemindersHtml = '';
+            if (!empty($iapplyReminders['notice_items']) && is_array($iapplyReminders['notice_items'])) {
+                $oldRemindersHtml = '<ul>';
+                foreach ($iapplyReminders['notice_items'] as $item) {
+                    if (trim((string)$item) !== '') $oldRemindersHtml .= '<li>' . htmlspecialchars($item) . '</li>';
+                }
+                $oldRemindersHtml .= '</ul>';
+            }
+            $editorRemindersValue = $iapplyReminders['reminders_html'] ?? $oldRemindersHtml;
+
+            $oldStepsHtml = '';
+            $legacySteps = is_array($iapplyReminders['steps'] ?? null) ? $iapplyReminders['steps'] : (is_array($iapplyReminders['checklist_items'] ?? null) ? $iapplyReminders['checklist_items'] : []);
+            if (!empty($legacySteps)) {
+                $oldStepsHtml = '<ol>';
+                foreach ($legacySteps as $item) {
+                    if (trim((string)$item) !== '') $oldStepsHtml .= '<li>' . htmlspecialchars($item) . '</li>';
+                }
+                $oldStepsHtml .= '</ol>';
+            }
+            $editorStepsValue = $iapplyReminders['steps_html'] ?? $oldStepsHtml;
+        @endphp
+
+        <div class="form-group">
+            <label>Title</label>
+            <input type="text" name="academics[pages][pup-iapply][reminders][title]" maxlength="255" value="{{ $iapplyReminders['title'] ?? '' }}">
         </div>
 
         <div class="form-group">
-            <label>Notice Title</label>
-            <input type="text" name="academics[pages][pup-iapply][reminders][notice_title]" maxlength="255" value="{{ $iapplyReminders['notice_title'] ?? '' }}">
-        </div>
-
-        <div class="academics-cms-card-stack">
-            @foreach(($iapplyReminders['notice_items'] ?? []) as $index => $item)
-                <article class="academics-cms-card-editor is-active">
-                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>Reminder {{ $loop->iteration }}</h4>
-                    </div>
-                    <div class="form-group">
-                        <label>Reminder Text</label>
-                        <div class="academics-cms-textarea-field" data-academics-char-limit="255">
-                            <textarea name="academics[pages][pup-iapply][reminders][notice_items][{{ $index }}]" rows="3" maxlength="255" data-academics-char-input>{{ $item }}</textarea>
-                            <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/255</div>
-                        </div>
-                    </div>
-                </article>
-            @endforeach
-        </div>
-
-        <div class="form-group">
-            <label>Body Copy</label>
+            <label>Reminders</label>
             @include('partials.rich_text_editor', [
-                'name' => 'academics[pages][pup-iapply][reminders][body_html]',
-                'value' => $iapplyReminders['body_html'] ?? '',
-                'placeholder' => 'Write the reminder body copy...',
+                'name' => 'academics[pages][pup-iapply][reminders][reminders_html]',
+                'value' => $editorRemindersValue,
+                'placeholder' => 'Write the reminders here...',
             ])
         </div>
 
-        @php
-            $iapplyStepItems = array_values(
-                is_array($iapplyReminders['steps'] ?? null)
-                    ? $iapplyReminders['steps']
-                    : (is_array($iapplyReminders['checklist_items'] ?? null) ? $iapplyReminders['checklist_items'] : [])
-            );
-            $iapplyStepItems = array_slice(array_pad($iapplyStepItems, 5, ''), 0, 5);
-        @endphp
-
-        <div class="academics-cms-card-stack">
-            @foreach($iapplyStepItems as $index => $item)
-                <article class="academics-cms-card-editor is-active">
-                    <div class="academics-cms-card-editor-head" data-academics-card-editor-head>
-                        <h4>Step {{ $loop->iteration }}</h4>
-                    </div>
-                    <div class="form-group">
-                        <label>Step Description</label>
-                        <div class="academics-cms-textarea-field" data-academics-char-limit="255">
-                            <textarea name="academics[pages][pup-iapply][reminders][steps][{{ $index }}]" rows="3" maxlength="255" data-academics-char-input>{{ $item }}</textarea>
-                            <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/255</div>
-                        </div>
-                    </div>
-                </article>
-            @endforeach
+        <div class="form-group">
+            <label>Steps</label>
+            @include('partials.rich_text_editor', [
+                'name' => 'academics[pages][pup-iapply][reminders][steps_html]',
+                'value' => $editorStepsValue,
+                'placeholder' => 'Write the steps here...',
+            ])
         </div>
 
         <div class="academics-cms-modal-footer">

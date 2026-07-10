@@ -77,25 +77,6 @@
                     <a href="#iapply-requirements" class="iapply-secondary-btn">View Requirements</a>
                 </div>
             </div>
-
-            <div class="iapply-hero-panel">
-                <div class="iapply-hero-panel-head">
-                    <span class="iapply-logo-icon">i</span>
-                    <h3>{{ $hero['visual_title'] ?? '' }}</h3>
-                </div>
-                <p>{{ $hero['visual_body'] ?? '' }}</p>
-
-                <div class="iapply-hero-desc">
-                    <p>{{ $hero['list_title'] ?? '' }}</p>
-                    <ul>
-                        @foreach(($hero['list_items'] ?? []) as $item)
-                            @if(trim((string) $item) !== '')
-                                <li>{{ $item }}</li>
-                            @endif
-                        @endforeach
-                    </ul>
-                </div>
-            </div>
         </div>
     </div>
 </section>
@@ -115,7 +96,7 @@
                     <h2>{{ $schedule['title'] ?? '' }}</h2>
                 </div>
 
-                <div class="iapply-schedule-grid reveal delay-100">
+                <div class="uc-schedule-container reveal delay-100">
                     @foreach($scheduleItems as $index => $item)
                         @php
                             $itemLabel = $scheduleItemLabels[$index] ?? trim((string) ($item['label'] ?? ''));
@@ -124,7 +105,7 @@
                             $itemDisplayValue = $formatScheduleDateDisplay($itemValue);
                         @endphp
                         <article
-                            class="iapply-schedule-box{{ $itemHref !== '' && $index === 2 ? ' iapply-schedule-box--with-action' : '' }}"
+                            class="uc-schedule-cell{{ $itemHref !== '' && $index === 2 ? ' iapply-schedule-box--with-action' : '' }}"
                             @if($cmsPreview)
                                 data-academics-schedule-card
                                 data-academics-schedule-card-index="{{ $index }}"
@@ -216,32 +197,21 @@
         <div data-cms-boundary class="cms-preview-boundary-full">
             <div>
                 <div class="iapply-section-heading">
-                    <span class="section-tag">{{ $reminders['tag'] ?? '' }}</span>
+                    <span class="section-tag">{{ $reminders['tag'] ?? 'BEFORE YOU APPLY' }}</span>
                     <h2>{{ $reminders['title'] ?? '' }}</h2>
                 </div>
 
                 <div class="iapply-notice">
-                    <p class="iapply-notice-title">{{ $reminders['notice_title'] ?? '' }}</p>
-                    <ul>
-                        @foreach(($reminders['notice_items'] ?? []) as $item)
-                            @if(trim((string) $item) !== '')
-                                <li>{{ $item }}</li>
-                            @endif
-                        @endforeach
-                    </ul>
+                    <p class="iapply-notice-title">REMINDERS</p>
+                    <div class="academic-rich-copy">
+                        {!! \App\Support\RichText::sanitize($reminders['reminders_html'] ?? '') !!}
+                    </div>
                 </div>
 
-                <div class="academic-rich-copy">
-                    {!! \App\Support\RichText::sanitize($reminders['body_html'] ?? '') !!}
+                <p class="mt-4" style="font-size: 0.92rem; font-weight: 600; color: var(--maroon);">Step by Step Process</p>
+                <div class="academic-rich-copy mt-2">
+                    {!! str_replace('<ol>', '<ol class="iapply-checklist">', \App\Support\RichText::sanitize($reminders['steps_html'] ?? '')) !!}
                 </div>
-
-                <ol class="iapply-checklist">
-                    @foreach($iapplySteps as $item)
-                        @if(trim((string) $item) !== '')
-                            <li>{{ $item }}</li>
-                        @endif
-                    @endforeach
-                </ol>
             </div>
         </div>
     </section>
