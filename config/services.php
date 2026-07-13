@@ -74,7 +74,8 @@ return [
 
     'ocms' => [
         'base_url' => env('OCMS_API_BASE_URL'),
-        'api_key' => env('OCMS_API_KEY'),
+        'token' => env('OCMS_API_KEY'),
+        'system_key' => env('OCMS_SYSTEM_KEY'),
         'timeout' => env('OCMS_API_TIMEOUT', 15),
     ],
 
