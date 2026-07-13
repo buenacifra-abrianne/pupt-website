@@ -625,6 +625,8 @@ class AcademicsCmsContent
             'notice_title' => self::pickString($source, $base, $defaults, 'notice_title'),
             'notice_items' => self::normalizeFixedStringList($noticeSource, $noticeBase, $noticeDefaults, 3, 2048),
             'body_html' => self::pickString($source, $base, $defaults, 'body_html', 20000),
+            'reminders_html' => self::pickString($source, $base, $defaults, 'reminders_html', 20000),
+            'steps_html' => self::pickString($source, $base, $defaults, 'steps_html', 20000),
             'steps' => $steps,
             'checklist_items' => $steps,
         ];

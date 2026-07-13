@@ -24,10 +24,8 @@
             align-items: center;
             justify-content: center;
             background:
-                radial-gradient(circle at 50% 58%, rgba(255, 120, 70, 0.35) 0%, rgba(255, 120, 70, 0.12) 18%, rgba(255, 120, 70, 0) 34%),
-                radial-gradient(circle at 20% 80%, rgba(255, 110, 60, 0.18) 0%, rgba(255, 110, 60, 0) 28%),
-                radial-gradient(circle at 80% 25%, rgba(255, 90, 40, 0.12) 0%, rgba(255, 90, 40, 0) 22%),
-                linear-gradient(135deg, #5b130d 0%, #8c1d12 28%, #c92714 58%, #8f2119 82%, #521712 100%);
+                radial-gradient(circle at 82% 14%, rgba(243, 196, 90, 0.26), transparent 38%),
+                linear-gradient(180deg, #a11d23 0%, #7f1113 54%, #4f090c 100%);
             position: relative;
         }
 

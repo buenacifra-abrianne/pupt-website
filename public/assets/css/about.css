@@ -7881,3 +7881,418 @@ body.pup-dark-mode .dp-contact-cta:hover {
 .philosophy-intro-rich-copy div:last-child {
   margin-bottom: 0;
 }
+
+/* ============================================================
+   CITIZEN'S CHARTER — charter-* components
+   ============================================================ */
+
+.charter-hero {
+  padding: 52px 30px 46px;
+  background:
+    linear-gradient(120deg, rgba(79, 9, 12, 0.94) 0%, rgba(127, 17, 19, 0.9) 52%, rgba(38, 13, 12, 0.96) 100%),
+    radial-gradient(circle at 84% 18%, rgba(215, 170, 67, 0.28), transparent 30%);
+  overflow: hidden;
+  border-radius: 28px;
+  margin-bottom: clamp(24px, 3.2vw, 34px);
+  position: relative;
+  box-shadow: 0 20px 42px rgba(79, 9, 12, 0.12);
+}
+
+.charter-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 54px 54px;
+  opacity: 0.12;
+  pointer-events: none;
+}
+
+.charter-hero.cms-preview-editable {
+  cursor: pointer;
+}
+
+.charter-hero.cms-preview-editable::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px dashed rgba(242, 201, 76, 0.95);
+  border-radius: inherit;
+  pointer-events: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 2;
+}
+
+.charter-hero.cms-preview-editable:hover::after,
+.charter-hero.cms-preview-editable:focus-within::after {
+  border-color: rgba(255, 220, 92, 1);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+    0 0 0 4px rgba(242, 201, 76, 0.12);
+}
+
+.charter-hero-top {
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.charter-hero-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(255, 241, 231, 0.6);
+  margin-bottom: 12px;
+}
+
+.charter-hero h1 {
+  font-size: clamp(2rem, 4.5vw, 3.2rem);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #fffaf4;
+  line-height: 1.05;
+  margin: 0 0 14px;
+}
+
+.charter-hero-sub {
+  color: #f3c45a;
+  font-size: clamp(1rem, 2vw, 1.32rem);
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.charter-hero-desc {
+  font-size: 0.9rem;
+  line-height: 1.75;
+  color: rgba(255, 241, 231, 0.7);
+  max-width: 760px;
+  margin: 0;
+}
+
+.charter-intro-section {
+  max-width: 960px;
+  margin: 0 auto 40px;
+  padding: 30px 34px;
+  border-left: 4px solid var(--about-maroon, #7f1113);
+  background: var(--about-surface, #fffaf4);
+  border-radius: 16px;
+  box-shadow: var(--about-shadow, 0 10px 30px rgba(0,0,0,0.05));
+}
+
+.charter-lead-text {
+  color: var(--about-maroon-deep, #5c0000);
+  font-size: 1.1rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 16px;
+}
+
+.charter-body-rich-text {
+  color: var(--about-muted, #555);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.charter-grid-stack {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 340px;
+  gap: 20px;
+  justify-content: start;
+  margin-top: 30px;
+  overflow-x: auto;
+  padding: 4px 2px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(127, 17, 19, 0.24) transparent;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-x;
+  scroll-snap-type: x mandatory;
+}
+
+.charter-card {
+  position: relative;
+  isolation: isolate;
+  height: 460px;
+  border-radius: 22px;
+  overflow: hidden;
+  background: #f5f0eb;
+  border: 1px solid rgba(127, 17, 19, 0.12);
+  box-shadow: 0 0 0 5px rgba(255,255,255,0.22);
+  transition: transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease;
+  scroll-snap-align: start;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  text-decoration: none;
+}
+
+.charter-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(127, 17, 19, 0.28);
+  box-shadow: 0 18px 28px rgba(79, 9, 12, 0.2);
+}
+
+.charter-card.cms-preview-editable-card {
+  cursor: pointer;
+}
+
+.charter-card.cms-preview-editable-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px dashed rgba(242, 201, 76, 0.95);
+  border-radius: inherit;
+  pointer-events: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  z-index: 10;
+}
+
+.charter-card.cms-preview-editable-card:hover::after,
+.charter-card.cms-preview-editable-card:focus-visible::after {
+  border-color: rgba(255, 220, 92, 1);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.24),
+    0 0 0 4px rgba(242, 201, 76, 0.12);
+}
+
+.charter-card-actions {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 6px;
+  z-index: 5;
+}
+
+.charter-card-seal-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  padding: 24px;
+  background: linear-gradient(160deg, #fff 0%, #f7ece0 100%);
+}
+
+.charter-card-seal {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(127, 17, 19, 0.15));
+  transition: transform 0.45s ease;
+}
+
+
+
+.charter-card-copy {
+  position: relative;
+  min-height: 64px;
+  padding: 10px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--about-maroon, #7f1113);
+  z-index: 2;
+  gap: 6px;
+}
+
+.charter-card-title {
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(0.78rem, 2.5vw, 0.95rem);
+  font-weight: 800;
+  color: #fffaf4;
+  margin: 0;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.charter-card-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(255,255,255,0.18);
+  color: #fffaf4 !important;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.72rem;
+  text-decoration: none;
+  border: 1px solid rgba(255,255,255,0.3);
+  transition: background 0.2s;
+  position: relative;
+  z-index: 1;
+  align-self: center;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: background 0.2s, opacity 0.4s ease, transform 0.42s ease;
+}
+
+.charter-card-link-btn:hover {
+  background: rgba(255,255,255,0.3);
+}
+
+/* === Charter card hover back overlay === */
+.charter-card-back {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 18px 16px 20px;
+  box-sizing: border-box;
+  background:
+    radial-gradient(circle at 72% 28%, rgba(161, 29, 35, 0.24) 0%, rgba(161, 29, 35, 0.12) 18%, transparent 42%),
+    linear-gradient(180deg, rgba(161, 29, 35, 0.96) 0%, rgba(127, 17, 19, 0.94) 52%, rgba(63, 7, 11, 0.98) 100%);
+  color: #fffaf4;
+  opacity: 0;
+  transform: translateY(100%);
+  transition: transform 0.62s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.48s ease;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.charter-card-back::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, transparent 38%, rgba(63,7,11,0.22) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.charter-card-overlay-copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  opacity: 0;
+  transform: translateY(18px);
+  transition: opacity 0.4s ease, transform 0.42s ease;
+}
+
+.charter-card-overlay-copy h3 {
+  margin: 0;
+  color: #fffaf4;
+  font-size: clamp(0.8rem, 2.5vw, 1rem);
+  font-weight: 800;
+  line-height: 1.25;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.charter-card-overlay-copy p {
+  margin: 0;
+  color: rgba(255,250,244,0.82);
+  font-size: clamp(0.72rem, 2.2vw, 0.86rem);
+  line-height: 1.55;
+  text-align: center;
+  text-wrap: balance;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  display: -webkit-box;
+  -webkit-line-clamp: 14;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Hover triggers */
+.charter-card:hover .charter-card-back,
+.charter-card:focus-visible .charter-card-back {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.charter-card:hover .charter-card-overlay-copy,
+.charter-card:hover .charter-card-link-btn,
+.charter-card:focus-visible .charter-card-overlay-copy,
+.charter-card:focus-visible .charter-card-link-btn {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.charter-card:hover .charter-card-seal {
+  transform: scale(1.06);
+}
+
+.charter-btn-edit,
+.charter-btn-delete {
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+  font-family: "Poppins", sans-serif;
+}
+
+.charter-btn-edit {
+  background: var(--about-maroon, #7f1113);
+  color: #fff !important;
+}
+
+.charter-btn-edit:hover {
+  background: var(--about-maroon-deep, #5c0000);
+}
+
+.charter-btn-delete {
+  background: var(--about-maroon-deep, #5c0000);
+  color: #fff !important;
+}
+
+.charter-btn-delete:hover {
+  background: #400000;
+}
+
+
+
+
+.charter-add-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 2px dashed rgba(127, 17, 19, 0.24);
+  border-radius: 22px;
+  background: rgba(254, 251, 248, 0.6);
+  cursor: pointer;
+  padding: 30px 24px;
+  height: 460px;
+  scroll-snap-align: start;
+  transition: background-color 0.24s, border-color 0.24s;
+}
+
+.charter-add-card:hover {
+  background: rgba(254, 251, 248, 0.98);
+  border-color: rgba(127, 17, 19, 0.6);
+}
+
+.charter-add-plus {
+  font-size: 2.8rem;
+  color: var(--about-maroon, #7f1113);
+  font-weight: 300;
+  margin-bottom: 6px;
+  line-height: 1;
+}
+
+.charter-add-label {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  color: var(--about-maroon, #7f1113);
+  font-size: 0.95rem;
+}
+

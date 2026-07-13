@@ -60,63 +60,21 @@
         data-cms-section-label="{{ $pageTitle }} Hero"
     @endif
 >
-    <div class="iapply-hero-content dp-program-hero-content">
-        <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
-        <h1>{{ $hero['title'] ?? '' }}</h1>
-        <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>
-        @if(trim((string) ($hero['body'] ?? '')) !== '')
-            <div class="iapply-hero-body academic-rich-copy">
-                {!! \App\Support\RichText::sanitize($hero['body'] ?? '') !!}
-            </div>
-        @endif
+    <div data-cms-boundary class="cms-preview-boundary-full">
+        <div class="iapply-hero-content dp-program-hero-content">
+            <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
+            <h1>{{ $hero['title'] ?? '' }}</h1>
+            <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>
+            @if(trim((string) ($hero['body'] ?? '')) !== '')
+                <div class="iapply-hero-body academic-rich-copy">
+                    {!! \App\Support\RichText::sanitize($hero['body'] ?? '') !!}
+                </div>
+            @endif
+        </div>
     </div>
 </section>
 
-@if($infoRows !== [])
-    <section
-        class="iapply-schedule-strip dp-program-info{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-        @if($cmsPreview)
-            data-cms-section="{{ $pageKey }}-info"
-            data-cms-section-label="{{ $pageTitle }} Info"
-        @endif
-    >
-        <div data-cms-boundary class="cms-preview-boundary-full">
-            <div class="iapply-schedule-inner">
-                <div class="iapply-schedule-head reveal">
-                    <span class="section-tag">{{ $info['tag'] ?? '' }}</span>
-                    <h2>{{ $info['title'] ?? '' }}</h2>
-                </div>
 
-                <div class="iapply-schedule-grid reveal delay-100">
-                    @foreach($infoRows as $row)
-                        @php
-                            $rowLabel = trim((string) ($row['label'] ?? ''));
-                            $rowValue = trim((string) ($row['value'] ?? ''));
-                            $rowHref = trim((string) ($row['href'] ?? ''));
-                        @endphp
-                        <article class="iapply-schedule-box">
-                            <span class="iapply-schedule-box-label">{{ $rowLabel !== '' ? $rowLabel : 'Info' }}</span>
-                            @if($rowHref !== '')
-                                <a
-                                    class="iapply-schedule-box-value"
-                                    href="{{ $rowHref }}"
-                                    @if(!$cmsPreview && preg_match('/^https?:\/\//i', $rowHref) === 1)
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    @endif
-                                >
-                                    {{ $rowValue !== '' ? $rowValue : $rowHref }}
-                                </a>
-                            @else
-                                <span class="iapply-schedule-box-value">{{ $rowValue !== '' ? $rowValue : 'Not specified' }}</span>
-                            @endif
-                        </article>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-    </section>
-@endif
 
 <section class="contents-strip dp-programs-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
     <div class="contents-strip-inner">

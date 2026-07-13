@@ -377,3 +377,4 @@ Route::prefix('superadmin')->group(function () {
 Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])
     ->get('/api/analytics/server-health', AnalyticsServerHealthController::class)
     ->name('superadmin.analytics.serverHealth');
+Route::post('/debug-height', function(\Illuminate\Http\Request $req) { file_put_contents(public_path('heights.txt'), $req->getContent()); return 'ok'; });

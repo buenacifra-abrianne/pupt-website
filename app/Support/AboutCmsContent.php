@@ -402,14 +402,7 @@ class AboutCmsContent
                 'image' => self::DEFAULT_CARD_IMAGE,
                 'lead' => 'The Citizen\'s Charter outlines the standard processes and requirements for the services we provide.',
                 'body_text' => 'Content for Citizen\'s Charter will be updated soon.',
-                'services' => [
-                    [
-                        'title' => 'Sample Service',
-                        'description' => 'Description for this service.',
-                        'link' => '',
-                        'image' => 'assets/static_img/pupillar.jpeg',
-                    ],
-                ],
+                'services' => [],
             ],
         ],
     ];
@@ -651,7 +644,8 @@ class AboutCmsContent
                 'services' => self::normalizeServices(
                     $source['services'] ?? [],
                     $base['services'] ?? $defaults['services'],
-                    $defaults['services']
+                    $defaults['services'],
+                    array_key_exists('label', $source) || array_key_exists('lead', $source) || array_key_exists('services', $source)
                 ),
             ]),
             default => $section,
@@ -761,7 +755,7 @@ class AboutCmsContent
         return $items;
     }
 
-    private static function normalizeServices(mixed $input, array $base, array $defaults): array
+    private static function normalizeServices(mixed $input, array $base, array $defaults, bool $isUpdating = false): array
     {
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = is_array($base) ? array_values($base) : [];
@@ -778,10 +772,15 @@ class AboutCmsContent
                 : ['title' => '', 'description' => '', 'link' => '', 'image' => 'assets/static_img/pupillar.jpeg'];
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
+            $rawLink = self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, '');
+            if ($rawLink !== '' && !preg_match('/^https?:\/\//i', $rawLink)) {
+                $rawLink = 'https://' . $rawLink;
+            }
+
             $normalized = [
                 'title' => self::sanitizeString((string) ($item['title'] ?? ($baseItem['title'] ?? '')), 255, ''),
                 'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
-                'link' => self::sanitizeString((string) ($item['link'] ?? ($baseItem['link'] ?? '')), 2048, ''),
+                'link' => $rawLink,
                 'image' => array_key_exists('image', $item)
                     ? self::sanitizeOptionalString((string) $item['image'], 2048)
                     : self::sanitizeString((string) ($baseItem['image'] ?? 'assets/static_img/pupillar.jpeg'), 2048, 'assets/static_img/pupillar.jpeg'),
@@ -804,7 +803,7 @@ class AboutCmsContent
             }
         }
 
-        if (empty($services)) {
+        if (empty($services) && !$isUpdating) {
             foreach ($baseItems as $index => $baseItem) {
                 if (!is_array($baseItem)) {
                     continue;
@@ -821,7 +820,7 @@ class AboutCmsContent
             }
         }
 
-        if (empty($services)) {
+        if (empty($services) && !$isUpdating) {
             $services = $defaultItems;
         }
 

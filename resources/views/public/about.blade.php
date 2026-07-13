@@ -565,13 +565,13 @@
                     @else
 
                         <article
-                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' ? ' cms-preview-editable' : '' }}"
-                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols')
+                            class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'citizens-charter' ? ' cms-preview-editable' : '' }}"
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'citizens-charter')
                                 data-cms-section="{{ $selectedSlug }}"
                                 data-cms-section-label="{{ $selectedSection['label'] }}"
                             @endif
                         >
-                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols')
+                            @if($cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'citizens-charter')
                                 <button type="button" class="cms-preview-chip" data-cms-edit-trigger="{{ $selectedSlug }}" aria-label="Edit {{ $selectedSection['label'] }}">
                                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                                         <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
@@ -921,7 +921,107 @@
                                         @endforeach
                                         </div>
 
+                                @elseif($selectedSlug === 'citizens-charter')
+                                    <div class="charter-hero reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                                        @if($cmsPreview)
+                                            data-cms-section="citizens-charter-header"
+                                            data-cms-section-label="Citizen's Charter Header"
+                                        @endif
+                                    >
+                                        @if($cmsPreview)
+                                            <button type="button" class="cms-preview-chip" data-cms-edit-trigger="citizens-charter-header" aria-label="Edit Citizen's Charter Header">
+                                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                    <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                                </svg>
+                                            </button>
+                                        @endif
+                                        <div class="charter-hero-top">
+                                            <p class="charter-hero-tag">PUP TAGUIG BRANCH</p>
+                                            <h1>{{ $selectedSection['label'] ?? "Citizen's Charter" }}</h1>
+                                            <p class="charter-hero-desc">{{ $selectedSection['lead'] ?? '' }}</p>
+                                        </div>
                                     </div>
+
+                                    <div class="charter-grid-stack">
+                                        @if($cmsPreview)
+                                            <button
+                                                type="button"
+                                                class="charter-add-card reveal"
+                                                data-about-service-card-add
+                                                aria-label="Add Office"
+                                            >
+                                                <span class="charter-add-plus" aria-hidden="true">+</span>
+                                                <span class="charter-add-label">Add Office</span>
+                                            </button>
+                                        @endif
+                                        @foreach($selectedSection['services'] ?? [] as $service)
+                                            @php
+                                                $serviceTitle = trim((string) ($service['title'] ?? ''));
+                                                $serviceDesc = trim((string) ($service['description'] ?? ''));
+                                                $serviceLink = trim((string) ($service['link'] ?? ''));
+                                                // Ensure external links always have a protocol
+                                                if ($serviceLink !== '' && !preg_match('/^https?:\/\//i', $serviceLink)) {
+                                                    $serviceLink = 'https://' . $serviceLink;
+                                                }
+                                            @endphp
+                                            @if($cmsPreview)
+                                                {{-- CMS mode: article card with Edit/Delete, no hover overlay --}}
+                                                <article class="charter-card reveal cms-preview-editable-card"
+                                                    data-about-section-card
+                                                    data-about-section-card-section="citizens-charter"
+                                                    data-about-section-card-index="{{ $loop->index }}"
+                                                    data-about-section-card-label="{{ $serviceTitle !== '' ? $serviceTitle : ('Office ' . $loop->iteration) }}"
+                                                    data-about-section-card-route="citizens-charter"
+                                                >
+                                                    <div class="charter-card-actions" aria-label="Office actions">
+                                                        <button type="button" class="charter-btn-edit" data-about-section-card-edit>Edit</button>
+                                                        <button type="button" class="charter-btn-delete" data-about-section-card-delete>Delete</button>
+                                                    </div>
+                                                    <div class="charter-card-seal-wrap">
+                                                        <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Seal" class="charter-card-seal">
+                                                    </div>
+                                                    <div class="charter-card-copy">
+                                                        <h3 class="charter-card-title">{{ $serviceTitle !== '' ? $serviceTitle : ('Office ' . $loop->iteration) }}</h3>
+                                                    </div>
+                                                </article>
+                                            @else
+                                                {{-- Public view: entire card is an external link with hover overlay --}}
+                                                @if($serviceLink !== '')
+                                                    <a href="{{ $serviceLink }}" target="_blank" rel="noopener noreferrer"
+                                                        class="charter-card reveal"
+                                                        aria-label="{{ $serviceTitle !== '' ? $serviceTitle : ('Office ' . $loop->iteration) }}"
+                                                    >
+                                                @else
+                                                    <div class="charter-card reveal">
+                                                @endif
+                                                        <div class="charter-card-seal-wrap">
+                                                            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Seal" class="charter-card-seal">
+                                                        </div>
+                                                        <div class="charter-card-copy">
+                                                            <h3 class="charter-card-title">{{ $serviceTitle !== '' ? $serviceTitle : ('Office ' . $loop->iteration) }}</h3>
+                                                        </div>
+                                                        {{-- Hover overlay with description --}}
+                                                        <div class="charter-card-back">
+                                                            <div class="charter-card-overlay-copy">
+                                                                <h3>{{ $serviceTitle !== '' ? $serviceTitle : ('Office ' . $loop->iteration) }}</h3>
+                                                                @if($serviceDesc !== '')
+                                                                    <p>{{ $serviceDesc }}</p>
+                                                                @endif
+                                                            </div>
+                                                            @if($serviceLink !== '')
+                                                                <span class="charter-card-link-btn">
+                                                                    View Charter
+                                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+                                                                </span>
+                                                            @endif
+                                                        </div>
+                                                @if($serviceLink !== '')
+                                                    </a>
+                                                @else
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        @endforeach
                                     </div>
 
                                 @elseif($selectedSlug === 'campus-officials')
@@ -2147,12 +2247,12 @@
                             return;
                         }
 
-                        if (section === 'logo-and-symbols') {
+                        if (section === 'citizens-charter') {
                             window.parent?.postMessage({
-                                type: 'cms-about-seal-card-edit',
+                                type: 'cms-about-service-card-edit',
                                 index: index,
                                 label: label,
-                                route: route || 'logo-and-symbols',
+                                route: route || 'citizens-charter',
                             }, '*');
                             return;
                         }
@@ -2187,6 +2287,16 @@
                             }, '*');
                             return;
                         }
+
+                        if (section === 'citizens-charter') {
+                            window.parent?.postMessage({
+                                type: 'cms-about-service-card-delete',
+                                index: index,
+                                label: label,
+                                route: route || 'citizens-charter',
+                            }, '*');
+                            return;
+                        }
                     }
 
                     const sectionCard = event.target.closest('[data-about-section-card]');
@@ -2215,6 +2325,30 @@
                             }, '*');
                             return;
                         }
+
+                        if (section === 'citizens-charter') {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            window.parent?.postMessage({
+                                type: 'cms-about-service-card-edit',
+                                index: sectionCard.getAttribute('data-about-section-card-index') || '',
+                                label: sectionCard.getAttribute('data-about-section-card-label') || 'Office',
+                                route: sectionCard.getAttribute('data-about-section-card-route') || 'citizens-charter',
+                            }, '*');
+                            return;
+                        }
+                    }
+
+                    const addServiceCardTrigger = event.target.closest('[data-about-service-card-add]');
+                    if (addServiceCardTrigger) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        window.parent?.postMessage({
+                            type: 'cms-about-service-card-add',
+                            route: 'citizens-charter',
+                            label: 'Add Office',
+                        }, '*');
+                        return;
                     }
 
                     const addOfficialCardTrigger = event.target.closest('[data-about-official-card-add]');

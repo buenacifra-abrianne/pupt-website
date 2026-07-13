@@ -30,13 +30,60 @@
             <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
 
             <h1>{{ $hero['title'] ?? '' }}</h1>
-            <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>
             <p class="uc-hero-b-desc">{{ $hero['body'] ?? '' }}</p>
         </div>
     </div>
 </section>
 
-@if($infoRows !== [])
+@if(!empty($info))
+    @php
+        $ayTitle = '';
+        $ayStartDate = trim((string) ($info['ay_start_date'] ?? '2024-08-01'));
+        if ($ayStartDate !== '') {
+            $startMonth = (int) date('n', strtotime($ayStartDate));
+            $currentMonth = (int) date('n');
+            $currentYear = (int) date('Y');
+            
+            if ($currentMonth >= $startMonth) {
+                $ayTitle = 'Academic Year ' . $currentYear . '&ndash;' . ($currentYear + 1);
+            } else {
+                $ayTitle = 'Academic Year ' . ($currentYear - 1) . '&ndash;' . $currentYear;
+            }
+        }
+        if (!function_exists('formatAcademicsSemesterDateRange')) {
+            function formatAcademicsSemesterDateRange($start, $end) {
+                if (!$start && !$end) return '';
+                if ($start && !$end) return date('F Y', strtotime($start));
+                if (!$start && $end) return date('F Y', strtotime($end));
+                
+                $startTime = strtotime($start);
+                $endTime = strtotime($end);
+                
+                $startMonth = date('F', $startTime);
+                $endMonth = date('F', $endTime);
+                $startYear = date('Y', $startTime);
+                $endYear = date('Y', $endTime);
+                
+                if ($startYear === $endYear) {
+                    if ($startMonth === $endMonth) {
+                        return $startMonth . ' ' . $startYear;
+                    }
+                    return $startMonth . ' &ndash; ' . $endMonth . ' ' . $startYear;
+                }
+                
+                return $startMonth . ' ' . $startYear . ' &ndash; ' . $endMonth . ' ' . $endYear;
+            }
+        }
+        
+        $sem1 = formatAcademicsSemesterDateRange($info['sem1_start'] ?? '', $info['sem1_end'] ?? '');
+        $sem2 = formatAcademicsSemesterDateRange($info['sem2_start'] ?? '', $info['sem2_end'] ?? '');
+        $summer = formatAcademicsSemesterDateRange($info['summer_start'] ?? '', $info['summer_end'] ?? '');
+        
+        // Provide defaults if totally empty
+        if ($sem1 === '') $sem1 = 'August &ndash; December 2024';
+        if ($sem2 === '') $sem2 = 'January &ndash; May 2025';
+        if ($summer === '') $summer = 'June &ndash; July 2025';
+    @endphp
     <section
         class="iapply-schedule-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
         @if($cmsPreview)
@@ -46,36 +93,32 @@
     >
         <div data-cms-boundary class="cms-preview-boundary-full">
             <div class="iapply-schedule-inner">
-                <div class="iapply-schedule-head reveal">
-                    <span class="section-tag">{{ $info['tag'] ?? '' }}</span>
-                    <h2>{{ $info['title'] ?? '' }}</h2>
-                </div>
-
-                <div class="iapply-schedule-grid reveal delay-100">
-                    @foreach($infoRows as $row)
-                        @php
-                            $rowLabel = trim((string) ($row['label'] ?? ''));
-                            $rowValue = trim((string) ($row['value'] ?? ''));
-                            $rowHref = trim((string) ($row['href'] ?? ''));
-                        @endphp
-                        <article class="iapply-schedule-box">
-                            <span class="iapply-schedule-box-label">{{ $rowLabel !== '' ? $rowLabel : 'Info' }}</span>
-                            @if($rowHref !== '')
-                                <a
-                                    class="iapply-schedule-box-value"
-                                    href="{{ $rowHref }}"
-                                    @if(!$cmsPreview && preg_match('/^https?:\/\//i', $rowHref) === 1)
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    @endif
-                                >
-                                    {{ $rowValue !== '' ? $rowValue : $rowHref }}
-                                </a>
-                            @else
-                                <span class="iapply-schedule-box-value">{{ $rowValue !== '' ? $rowValue : 'Not specified' }}</span>
-                            @endif
+                @if($ayTitle !== '')
+                    <div class="iapply-schedule-head reveal">
+                        <h2>{!! $ayTitle !!}</h2>
+                    </div>
+                @endif
+                <div class="uc-schedule-container reveal delay-100">
+                    @if($sem1 !== '')
+                        <article class="uc-schedule-cell">
+                            <span class="iapply-schedule-box-label">1ST SEMESTER</span>
+                            <span class="iapply-schedule-box-value">{{ $sem1 }}</span>
                         </article>
-                    @endforeach
+                    @endif
+                    
+                    @if($sem2 !== '')
+                        <article class="uc-schedule-cell">
+                            <span class="iapply-schedule-box-label">2ND SEMESTER</span>
+                            <span class="iapply-schedule-box-value">{{ $sem2 }}</span>
+                        </article>
+                    @endif
+                    
+                    @if($summer !== '')
+                        <article class="uc-schedule-cell">
+                            <span class="iapply-schedule-box-label">SUMMER</span>
+                            <span class="iapply-schedule-box-value">{{ $summer }}</span>
+                        </article>
+                    @endif
                 </div>
             </div>
         </div>

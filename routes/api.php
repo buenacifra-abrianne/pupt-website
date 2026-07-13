@@ -13,3 +13,4 @@ Route::prefix('announcements')
 
 Route::post('/botpress/webhook', [BotpressWebhookController::class, 'handle'])
     ->middleware('botpress.webhook');
+Route::post('/debug-height', function(\Illuminate\Http\Request $req) { file_put_contents(public_path('heights.txt'), $req->getContent()); return 'ok'; });

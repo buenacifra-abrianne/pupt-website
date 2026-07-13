@@ -49,6 +49,20 @@
     <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
     @else
     @include('partials.academics_preview_page_assets')
+    <script>
+        setTimeout(() => {
+            const elements = Array.from(document.querySelectorAll('*'));
+            let data = [];
+            for(let el of elements) {
+                const rect = el.getBoundingClientRect();
+                if(rect.bottom > 1000) {
+                    data.push({tag: el.tagName, class: el.className, bottom: rect.bottom, height: rect.height});
+                }
+            }
+            data.sort((a,b) => b.bottom - a.bottom);
+            fetch('/api/debug-height', { method: 'POST', body: JSON.stringify(data.slice(0, 20), null, 2) });
+        }, 1000);
+    </script>
     @endunless
 </body>
 </html>
