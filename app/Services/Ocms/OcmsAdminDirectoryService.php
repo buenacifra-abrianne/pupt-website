@@ -18,9 +18,7 @@ class OcmsAdminDirectoryService
         }
 
         try {
-            // Apply 3 second timeout for web requests
-            $this->client->setTimeout(3);
-            
+            // Use configured timeout for web requests
             $payload = $this->client->get('/external/admins/options');
 
             $rawAdmins = $payload['data']

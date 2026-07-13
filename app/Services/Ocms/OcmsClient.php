@@ -7,19 +7,21 @@ use Illuminate\Support\Facades\Http;
 class OcmsClient
 {
     protected string $baseUrl;
-    protected string $apiKey;
+    protected string $token;
+    protected string $systemKey;
     protected int $timeout;
 
     public function __construct()
     {
         $this->baseUrl = rtrim((string) config('services.ocms.base_url'), '/');
-        $this->apiKey = (string) config('services.ocms.api_key');
+        $this->token = (string) config('services.ocms.token');
+        $this->systemKey = (string) config('services.ocms.system_key');
         $this->timeout = (int) config('services.ocms.timeout', 15);
     }
 
     public function configured(): bool
     {
-        return $this->baseUrl !== '' && $this->apiKey !== '';
+        return $this->baseUrl !== '' && $this->token !== '';
     }
 
     public function setTimeout(int $seconds): self
@@ -35,7 +37,8 @@ class OcmsClient
         $response = Http::timeout($this->timeout)
             ->withHeaders([
                 'Accept' => 'application/json',
-                'X-External-Api-Key' => $this->apiKey,
+                'Authorization' => 'Bearer ' . $this->token,
+                'X-External-System' => $this->systemKey,
             ])
             ->get($url, $query);
 
