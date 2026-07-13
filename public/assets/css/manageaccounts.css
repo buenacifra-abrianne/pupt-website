@@ -19,7 +19,7 @@ body {
     top: 0;
     height: 100vh;
     width: 280px;
-    background: #800000;
+    background: #660000;
     padding: 20px 0;
     transition: 0.3s;
     z-index: 1000;
@@ -111,7 +111,7 @@ left: 280px;
 top: 0;
 right: 0;
 height: 70px;
-background: #800000;
+background: #660000;
 display: flex;
 align-items: center;
 justify-content: space-between;
@@ -228,7 +228,7 @@ align-items: center;
 justify-content: center;
 color: #fff;
 font-weight: bold;
-box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+box-shadow: var(--dm-glow);
 }
 
 .user-info {
@@ -302,7 +302,7 @@ text-align: left;
 .profile-dropdown-item i {
 width: 16px;
 text-align: center;
-color: #800000;
+color: #660000;
 }
 
 .profile-dropdown-item:hover {
@@ -326,7 +326,7 @@ background: #f8f1f1;
 }
 
 .page-title {
-    color: #800000;
+    color: #660000;
     font-size: 26px;
     font-weight: 700;
 }
@@ -358,7 +358,7 @@ background: #f8f1f1;
 
 .stat-card:hover {
     transform: translateY(-3px);
-    box-shadow: 0 6px 18px rgba(128, 0, 0, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 .stat-icon {
@@ -372,7 +372,7 @@ background: #f8f1f1;
     flex-shrink: 0;
 }
 
-.si-total    { background: rgba(128, 0, 0, 0.08);    color: #800000; }
+.si-total    { background: rgba(128, 0, 0, 0.08);    color: #660000; }
 .si-active   { background: rgba(40, 167, 69, 0.1);   color: #28a745; }
 .si-inactive { background: rgba(108, 117, 125, 0.1); color: #6c757d; }
 .si-pending  { background: rgba(255, 193, 7, 0.1);   color: #d68910; }
@@ -381,7 +381,7 @@ background: #f8f1f1;
 .stat-val {
     font-size: 26px;
     font-weight: 700;
-    color: #800000;
+    color: #660000;
     line-height: 1;
 }
 
@@ -412,7 +412,7 @@ background: #f8f1f1;
 }
 
 .card-title {
-    color: #800000;
+    color: #660000;
     font-size: 17px;
     font-weight: 700;
     display: flex;
@@ -447,13 +447,13 @@ background: #f8f1f1;
 
 .tab-btn:hover {
     border-color: #D4AF37;
-    color: #800000;
+    color: #660000;
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, #800000, #5c0000);
+    background: linear-gradient(135deg, #660000, #5c0000);
     color: #fff;
-    border-color: #800000;
+    border-color: #660000;
 }
 
 .count-pill {
@@ -461,7 +461,7 @@ background: #f8f1f1;
     border-radius: 10px;
     font-size: 11px;
     background: rgba(128, 0, 0, 0.1);
-    color: #800000;
+    color: #660000;
 }
 
 .tab-btn.active .count-pill {
@@ -519,12 +519,12 @@ background: #f8f1f1;
 
 .filter-field:focus-within {
     border-color: #d4af37;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.18);
+    box-shadow: var(--dm-glow);
     transform: translateY(-1px);
 }
 
 .filter-field:focus-within i {
-    color: #800000;
+    color: #660000;
 }
 
 .filter-bar{
@@ -573,7 +573,7 @@ table {
 }
 
 thead {
-    background: linear-gradient(135deg, #800000, #6a0000);
+    background: linear-gradient(135deg, #660000, #6a0000);
 }
 
 thead th {
@@ -625,7 +625,7 @@ tbody td {
     background: #8e2f2f;
     border: 3px solid #d4af37;
     outline: 1px solid #ffffff;
-    box-shadow: 0 0 0 1px rgba(128, 0, 0, 0.18), 0 4px 10px rgba(128, 0, 0, 0.15);
+    box-shadow: var(--dm-glow);
     overflow: hidden;
 }
 
@@ -688,7 +688,7 @@ tbody td {
 
 .r-admin {
   background: rgba(128, 0, 0, 0.10);
-  color: #800000;
+  color: #660000;
 }
 
 .r-registrar {
@@ -818,7 +818,7 @@ tbody td {
 .bi-activate:hover { background: #28a745; color: #fff; }
 
 .action-btn {
-    background: linear-gradient(135deg, #800000, #5c0000);
+    background: linear-gradient(135deg, #660000, #5c0000);
     color: #fff;
     border: none;
     padding: 10px 20px;
@@ -840,8 +840,8 @@ tbody td {
 
 .btn-outline {
     background: transparent;
-    color: #800000;
-    border: 2px solid #800000;
+    color: #660000;
+    border: 2px solid #660000;
     padding: 9px 18px;
     border-radius: 8px;
     cursor: pointer;
@@ -855,7 +855,7 @@ tbody td {
 }
 
 .btn-outline:hover {
-    background: #800000;
+    background: #660000;
     color: #fff;
 }
 
@@ -898,9 +898,9 @@ tbody td {
 
 .pbtn:hover,
 .pbtn.active {
-    background: #800000;
+    background: #660000;
     color: #fff;
-    border-color: #800000;
+    border-color: #660000;
 }
 
 /* Modal */
@@ -958,7 +958,7 @@ tbody td {
 }
 
 .mhead h2 {
-    color: #800000;
+    color: #660000;
     font-size: 18px;
     font-weight: 700;
     margin: 0;
@@ -984,7 +984,7 @@ tbody td {
 
 .cbtn:hover {
     background: rgba(128, 0, 0, 0.1);
-    color: #800000;
+    color: #660000;
     transform: rotate(90deg);
 }
 
@@ -1085,7 +1085,7 @@ tbody td {
 .vname {
     font-size: 18px;
     font-weight: 700;
-    color: #800000;
+    color: #660000;
 }
 
 .vsub {
@@ -1210,7 +1210,7 @@ tbody td {
 }
 
 #userModal .mhead {
-    background: #800000;
+    background: #660000;
     color: #fff;
     border-bottom: 0;
     padding: 14px 18px;
@@ -1311,9 +1311,9 @@ tbody td {
 }
 
 #userModal .mfoot .action-btn {
-    background: #800000 !important;
+    background: #660000 !important;
     color: #fff !important;
-    border: 1px solid #800000 !important;
+    border: 1px solid #660000 !important;
 }
 
 #userModal .mfoot .action-btn:hover {
@@ -1410,7 +1410,7 @@ tbody td {
     height: 60px;
     border: none;
     border-radius: 50%;
-    background: #800000;
+    background: #660000;
     color: #fff;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
     display: inline-flex;
@@ -1431,19 +1431,19 @@ tbody td {
 
 .floating-voice-btn.listening {
     background: #fff;
-    color: #800000;
-    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
+    color: #660000;
+    box-shadow: var(--dm-glow);
 }
 
 /* Final CMS UI refresh for Manage CMS Access */
 :root {
-    --cms-primary: #8b0000;
+    --cms-primary: #660000;
     --cms-primary-deep: #650000;
     --cms-accent: #f0c85a;
     --cms-ink: #412b2b;
     --cms-muted: #7a6464;
-    --cms-border: rgba(139, 0, 0, 0.12);
-    --cms-soft-border: rgba(139, 0, 0, 0.08);
+    --cms-border: rgba(102, 0, 0, 0.12);
+    --cms-soft-border: rgba(102, 0, 0, 0.08);
     --cms-panel: linear-gradient(135deg, rgba(255, 253, 249, 0.98) 0%, rgba(247, 239, 230, 0.96) 56%, rgba(239, 221, 204, 0.9) 100%);
     --cms-panel-soft: linear-gradient(180deg, #ffffff 0%, #fcf7f2 100%);
     --cms-shadow: 0 18px 40px rgba(35, 5, 5, 0.08);
@@ -1501,7 +1501,7 @@ body {
 
 .stat-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 22px 36px rgba(79, 9, 12, 0.14);
+    box-shadow: var(--dm-glow);
 }
 
 .stat-icon {
@@ -1549,7 +1549,7 @@ table, thead, tbody, tfoot, tr, th, td {
 
 .sidebar {
     
-    box-shadow: 12px 0 28px rgba(38, 5, 5, 0.22);
+    box-shadow: var(--dm-glow);
 }
 
 
@@ -1570,7 +1570,7 @@ table, thead, tbody, tfoot, tr, th, td {
 
 .topbar {
     background: linear-gradient(120deg, #7b0303 0%, #5a0000 100%);
-    box-shadow: 0 12px 26px rgba(38, 5, 5, 0.2);
+    box-shadow: var(--dm-glow);
 }
 
 .card-header {
@@ -1578,7 +1578,7 @@ table, thead, tbody, tfoot, tr, th, td {
     gap: 16px;
     margin-bottom: 22px;
     padding-bottom: 18px;
-    border-bottom: 1px solid rgba(139, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(102, 0, 0, 0.1);
 }
 
 .card-title {
@@ -1595,20 +1595,20 @@ table, thead, tbody, tfoot, tr, th, td {
     padding: 0 18px;
     border-radius: 14px;
     background: linear-gradient(135deg, var(--cms-primary) 0%, var(--cms-primary-deep) 100%);
-    box-shadow: 0 14px 24px rgba(92, 12, 6, 0.16);
+    box-shadow: var(--dm-glow);
 }
 
 .action-btn:hover {
     background: linear-gradient(135deg, #a10d0d 0%, #720000 100%);
     color: #fff;
-    box-shadow: 0 18px 28px rgba(92, 12, 6, 0.22);
+    box-shadow: var(--dm-glow);
 }
 
 .btn-outline {
     min-height: 44px;
     padding: 0 16px;
     border-radius: 14px;
-    border-color: rgba(139, 0, 0, 0.24);
+    border-color: rgba(102, 0, 0, 0.24);
     color: var(--cms-primary);
     background: rgba(255, 255, 255, 0.76);
 }
@@ -1628,7 +1628,7 @@ table, thead, tbody, tfoot, tr, th, td {
 .filter-field {
     min-height: 50px;
     padding: 0 14px;
-    border: 1px solid rgba(139, 0, 0, 0.12);
+    border: 1px solid rgba(102, 0, 0, 0.12);
     border-radius: 16px;
     background: rgba(255, 255, 255, 0.92);
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
@@ -1714,7 +1714,7 @@ table, thead, tbody, tfoot, tr, th, td {
 .table-wrap {
     overflow: hidden;
     border-radius: 22px;
-    border: 1px solid rgba(139, 0, 0, 0.1);
+    border: 1px solid rgba(102, 0, 0, 0.1);
     background: rgba(255, 255, 255, 0.85);
 }
 
@@ -1734,7 +1734,7 @@ thead th {
 }
 
 tbody tr {
-    border-bottom-color: rgba(139, 0, 0, 0.06);
+    border-bottom-color: rgba(102, 0, 0, 0.06);
 }
 
 tbody tr:hover {
@@ -1752,7 +1752,7 @@ tbody td {
 
 .avatar {
     border-width: 2px;
-    box-shadow: 0 8px 16px rgba(128, 0, 0, 0.14);
+    box-shadow: var(--dm-glow);
 }
 
 .uname {
@@ -1784,7 +1784,7 @@ tbody td {
 .pagination {
     margin-top: 22px;
     padding-top: 18px;
-    border-top: 1px solid rgba(139, 0, 0, 0.08);
+    border-top: 1px solid rgba(102, 0, 0, 0.08);
 }
 
 .page-info {
@@ -1812,7 +1812,7 @@ tbody td {
 
 .pbtn {
     border-radius: 10px;
-    border-color: rgba(139, 0, 0, 0.14);
+    border-color: rgba(102, 0, 0, 0.14);
     background: rgba(255, 255, 255, 0.92);
 }
 
@@ -1828,15 +1828,15 @@ tbody td {
 }
 
 .mbox {
-    border: 1px solid rgba(139, 0, 0, 0.12);
+    border: 1px solid rgba(102, 0, 0, 0.12);
     border-radius: 24px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(251, 246, 241, 0.96) 100%);
-    box-shadow: 0 28px 60px rgba(25, 4, 4, 0.22);
+    box-shadow: var(--dm-glow);
 }
 
 .mhead {
     padding: 20px 24px;
-    border-bottom: 1px solid rgba(139, 0, 0, 0.08);
+    border-bottom: 1px solid rgba(102, 0, 0, 0.08);
     background: rgba(255, 255, 255, 0.9);
 }
 
@@ -1850,7 +1850,7 @@ tbody td {
 
 .mfoot {
     padding: 18px 24px 22px;
-    border-top: 1px solid rgba(139, 0, 0, 0.08);
+    border-top: 1px solid rgba(102, 0, 0, 0.08);
     background: rgba(255, 255, 255, 0.72);
 }
 
@@ -1865,7 +1865,7 @@ tbody td {
 .fg select,
 .fg textarea {
     min-height: 46px;
-    border: 1px solid rgba(139, 0, 0, 0.14);
+    border: 1px solid rgba(102, 0, 0, 0.14);
     border-radius: 14px;
     background: rgba(255, 255, 255, 0.95);
     padding: 12px 14px;
@@ -1885,9 +1885,9 @@ tbody td {
 
 .searchable-dropdown {
     top: calc(100% + 8px);
-    border: 1px solid rgba(139, 0, 0, 0.12);
+    border: 1px solid rgba(102, 0, 0, 0.12);
     border-radius: 16px;
-    box-shadow: 0 20px 38px rgba(31, 7, 7, 0.14);
+    box-shadow: var(--dm-glow);
 }
 
 .searchable-option {
@@ -1901,7 +1901,7 @@ tbody td {
 
 .role-chips-wrap {
     min-height: 46px;
-    border: 1px dashed rgba(139, 0, 0, 0.18);
+    border: 1px dashed rgba(102, 0, 0, 0.18);
     border-radius: 14px;
     padding: 8px;
     background: rgba(255, 255, 255, 0.86);
@@ -1917,8 +1917,8 @@ tbody td {
 
 .vhead {
     padding: 22px 24px;
-    background: linear-gradient(135deg, rgba(139, 0, 0, 0.06), rgba(240, 200, 90, 0.12));
-    border-bottom: 1px solid rgba(139, 0, 0, 0.08);
+    background: linear-gradient(135deg, rgba(102, 0, 0, 0.06), rgba(240, 200, 90, 0.12));
+    border-bottom: 1px solid rgba(102, 0, 0, 0.08);
 }
 
 .vgrid {
@@ -2091,5 +2091,8 @@ body.pup-dark-mode .pbtn {
 }
 
 body.pup-dark-mode .vhead {
-    background: linear-gradient(135deg, rgba(139, 0, 0, 0.3), rgba(240, 200, 90, 0.15)) !important;
+    background: linear-gradient(135deg, rgba(102, 0, 0, 0.3), rgba(240, 200, 90, 0.15)) !important;
 }
+
+
+

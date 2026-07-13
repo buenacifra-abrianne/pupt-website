@@ -6,7 +6,7 @@
   --uc-line: rgba(127, 17, 19, 0.12);
   --uc-surface: rgba(255, 252, 247, 0.96);
   --uc-surface-strong: rgba(255, 248, 239, 0.96);
-  --uc-maroon: #7f1113;
+  --uc-maroon: var(--dm-accent-hover);
   --uc-maroon-deep: #4f090c;
   --uc-gold: #f2c94c;
   --uc-gold-deep: #d7aa43;
@@ -211,7 +211,7 @@ body {
 .construction-button.is-primary {
   background: linear-gradient(135deg, var(--uc-gold) 0%, var(--uc-gold-deep) 100%);
   color: #2d1606;
-  box-shadow: 0 12px 24px rgba(215, 170, 67, 0.24);
+  box-shadow: var(--dm-glow);
 }
 
 .construction-button.is-secondary {
@@ -392,3 +392,5 @@ body.scroll-up .reveal:not(.active) {
     grid-template-columns: 1fr;
   }
 }
+
+

@@ -9,7 +9,7 @@
 .user-avatar {
     border: 3px solid var(--cms-avatar-ring) !important;
     outline: 1px solid #ffffff !important;
-    box-shadow: 0 0 0 1px var(--cms-avatar-shadow), 0 4px 12px rgba(128, 0, 0, 0.15) !important;
+    box-shadow: var(--dm-glow);
     overflow: hidden;
 }
 
@@ -17,7 +17,7 @@
     background: var(--cms-avatar-bg);
     border: 3px solid var(--cms-avatar-ring);
     outline: 1px solid #ffffff;
-    box-shadow: 0 0 0 1px var(--cms-avatar-shadow), 0 4px 10px rgba(128, 0, 0, 0.15);
+    box-shadow: var(--dm-glow);
     overflow: hidden;
 }
 
@@ -50,3 +50,5 @@
 .av-5 {
     background: var(--cms-avatar-bg) !important;
 }
+
+

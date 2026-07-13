@@ -19,7 +19,7 @@ body {
     top: 0;
     height: 100vh;
     width: 280px;
-    background: #800000;
+    background: #660000;
     padding: 20px 0;
     transition: 0.3s;
     z-index: 1000;
@@ -111,7 +111,7 @@ body {
     top: 0;
     right: 0;
     height: 70px;
-    background: #800000;
+    background: #660000;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -228,7 +228,7 @@ body {
     justify-content: center;
     color: #fff;
     font-weight: bold;
-    box-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+    box-shadow: var(--dm-glow);
 }
 
 .user-info {
@@ -263,7 +263,7 @@ body {
 }
 
 .page-title {
-    color: #800000;
+    color: #660000;
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 5px;
@@ -310,17 +310,17 @@ body {
 }
 
 .stat-icon.maroon {
-    background: linear-gradient(135deg, #800000 0%, #a00000 100%);
+    background: linear-gradient(135deg, #660000 0%, #a00000 100%);
 }
 
 .stat-icon.yellow {
     background: linear-gradient(135deg, #FFD700 0%, #ffed4e 100%);
-    color: #800000;
+    color: #660000;
 }
 
 .stat-info h3 {
     font-size: 24px;
-    color: #800000;
+    color: #660000;
     margin-bottom: 5px;
 }
 
@@ -384,11 +384,11 @@ body {
 
 .tab-btn:hover {
     background: rgba(128, 0, 0, 0.05);
-    color: #800000;
+    color: #660000;
 }
 
 .tab-btn.active {
-    color: #800000;
+    color: #660000;
     border-bottom-color: #D4AF37;
     background: white;
 }
@@ -422,7 +422,7 @@ body {
 
 .card-title {
     font-size: 18px;
-    color: #800000;
+    color: #660000;
     display: flex;
     align-items: center;
     gap: 12px;
@@ -452,7 +452,7 @@ body {
 
 .form-group label i {
     margin-right: 6px;
-    color: #800000;
+    color: #660000;
 }
 
 .form-group input[type="text"],
@@ -486,7 +486,7 @@ body {
 .form-group select:focus {
     border-color: #D4AF37;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 .form-group textarea {
@@ -508,7 +508,7 @@ body {
 
 /* Buttons */
 .action-btn {
-    background: linear-gradient(135deg, #800000 0%, #600000 100%);
+    background: linear-gradient(135deg, #660000 0%, #600000 100%);
     color: white;
     border: none;
     padding: 12px 28px;
@@ -525,13 +525,13 @@ body {
 
 .action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(128, 0, 0, 0.3);
+    box-shadow: var(--dm-glow);
 }
 
 .btn-outline {
     background: white;
-    color: #800000;
-    border: 2px solid #800000;
+    color: #660000;
+    border: 2px solid #660000;
     padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
@@ -545,7 +545,7 @@ body {
 }
 
 .btn-outline:hover {
-    background: #800000;
+    background: #660000;
     color: white;
 }
 
@@ -738,7 +738,7 @@ body {
 
 .image-editor label i {
     margin-right: 6px;
-    color: #800000;
+    color: #660000;
 }
 
 .image-preview-container {
@@ -841,7 +841,7 @@ body {
 .section-title {
     font-size: 16px;
     font-weight: 600;
-    color: #800000;
+    color: #660000;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -862,7 +862,7 @@ body {
 
 .sidebar-content-item:hover {
     border-color: #D4AF37;
-    box-shadow: 0 2px 10px rgba(128, 0, 0, 0.08);
+    box-shadow: var(--dm-glow);
 }
 
 .sidebar-item-header {
@@ -877,7 +877,7 @@ body {
 .sidebar-item-header label {
     margin-bottom: 0;
     font-weight: 600;
-    color: #800000;
+    color: #660000;
     flex: 1;
 }
 
@@ -901,7 +901,7 @@ body {
 .sidebar-content-item textarea:focus {
     border-color: #D4AF37;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 /* Portal Items */
@@ -916,7 +916,7 @@ body {
 
 .portal-item:hover {
     border-color: #D4AF37;
-    box-shadow: 0 2px 12px rgba(128, 0, 0, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 .portal-content {
@@ -944,7 +944,7 @@ body {
 
 .portal-image-section label i {
     margin-right: 6px;
-    color: #800000;
+    color: #660000;
 }
 
 .portal-field-header {
@@ -997,7 +997,7 @@ body {
 
 .carousel-image-item:hover {
     border-color: #D4AF37;
-    box-shadow: 0 2px 12px rgba(128, 0, 0, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 .carousel-image-preview {
@@ -1169,7 +1169,7 @@ body {
 .events-search-bar input:focus {
     border-color: #D4AF37;
     outline: none;
-    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 .events-table {
@@ -1179,7 +1179,7 @@ body {
 }
 
 .events-table thead {
-    background: #800000;
+    background: #660000;
     color: white;
 }
 
@@ -1216,7 +1216,7 @@ body {
 
 .event-item:hover {
     border-color: #D4AF37;
-    box-shadow: 0 2px 12px rgba(128, 0, 0, 0.1);
+    box-shadow: var(--dm-glow);
 }
 
 .event-content-wrapper {
@@ -1244,7 +1244,7 @@ body {
 
 .event-image-section label i {
     margin-right: 6px;
-    color: #800000;
+    color: #660000;
 }
 
 .event-field-header {
@@ -1365,7 +1365,7 @@ body {
 }
 
 .modal-header h3 {
-    color: #800000;
+    color: #660000;
     font-size: 20px;
 }
 
@@ -1384,7 +1384,7 @@ body {
 }
 
 .close-modal:hover {
-    color: #800000;
+    color: #660000;
     transform: rotate(90deg);
 }
 
@@ -1771,7 +1771,7 @@ body {
     height: 60px;
     border: none;
     border-radius: 50%;
-    background: #800000;
+    background: #660000;
     color: #fff;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
     display: inline-flex;
@@ -1792,6 +1792,8 @@ body {
 
 .floating-voice-btn.listening {
     background: #fff;
-    color: #800000;
-    box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12); 
+    color: #660000;
+    box-shadow: var(--dm-glow); 
 }
+
+

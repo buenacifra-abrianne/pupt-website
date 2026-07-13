@@ -72,7 +72,7 @@
   border: 1px solid rgba(127, 17, 19, 0.1);
   border-radius: 16px;
   background: rgba(255, 250, 244, 0.72);
-  box-shadow: 0 8px 24px rgba(79, 9, 12, 0.08);
+  box-shadow: var(--dm-glow);
 }
 
 .alphabetical-card-selector button {
@@ -84,9 +84,9 @@
   padding: 0 14px;
   border: 1px solid rgba(127, 17, 19, 0.22);
   border-radius: 12px;
-  background: #8b171b;
+  background: #660000;
   color: #fff;
-  box-shadow: 0 8px 18px rgba(79, 9, 12, 0.14);
+  box-shadow: var(--dm-glow);
   font: 700 1rem/1 "Poppins", sans-serif;
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
@@ -105,9 +105,9 @@
 
 .alphabetical-card-selector button:hover,
 .alphabetical-card-selector button:focus-visible {
-  background: #6f1014;
-  border-color: #6f1014;
-  box-shadow: 0 10px 22px rgba(79, 9, 12, 0.22);
+  background: #660000;
+  border-color: #660000;
+  box-shadow: var(--dm-glow);
   transform: translateY(-2px);
   outline: none;
 }
@@ -115,12 +115,12 @@
 .alphabetical-card-selector button[aria-current="page"] {
   background: #4f090c;
   border-color: #4f090c;
-  box-shadow: 0 0 0 3px rgba(127, 17, 19, 0.16);
+  box-shadow: var(--dm-glow);
 }
 
 body.pup-dark-mode .alphabetical-card-selector button {
   border-color: rgba(255, 255, 255, 0.18);
-  background: #a5262b;
+  background: #660000;
   color: #fff;
 }
 
@@ -185,3 +185,7 @@ body.pup-dark-mode .alphabetical-card-selector button[aria-current="page"] {
     transition: none;
   }
 }
+
+
+
+

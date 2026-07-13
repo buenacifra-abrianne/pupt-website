@@ -7,10 +7,10 @@
 }
 
 :root {
-    --primary-color: #8B0000;
+    --primary-color: #660000;
     --primary-dark: #660000;
-    --maroon-light: #a11d23;
-    --maroon-medium: #7f1113;
+    --maroon-light: var(--dm-accent);
+    --maroon-medium: var(--dm-accent-hover);
     --maroon-dark: #3f070b;
     --maroon-gradient-vertical: linear-gradient(180deg, var(--maroon-light) 0%, var(--maroon-medium) 52%, var(--maroon-dark) 100%);
     --maroon-gradient-deep: linear-gradient(180deg, #8f171d 0%, #690f12 50%, #2f0508 100%);
@@ -116,7 +116,7 @@ body {
 
 .nav-menu li:hover,
 .nav-menu li:has(a.active) {
-    background: #7f1113;
+    background: var(--dm-accent-hover);
     box-shadow: inset 0 -3px 0 rgba(255, 250, 244, 0.14);
 }
 
@@ -1542,3 +1542,6 @@ body.scroll-up .reveal:not(.active) {
     text-align: center;
   }
 }
+
+
+

@@ -386,7 +386,7 @@ function initWidgetDock() {
         --widget-fab-gap: clamp(10px, 1.5vw, 12px);
         --widget-edge-offset: clamp(14px, 2.5vw, 24px);
         --widget-expanded-gap: 16px;
-        --widget-fab-bg: #8d0d10;
+        --widget-fab-bg: #660000;
         --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
         position: fixed;
         right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px));
@@ -525,7 +525,7 @@ function initWidgetDock() {
       .widget-dock.is-open .widget-dock-action:hover,
       .widget-dock.is-open .widget-dock-action:focus-visible {
         transform: translateY(-6px) scale(1.1);
-        background: #b01e22;
+        background: #660000;
         box-shadow: 0 20px 40px rgba(77, 9, 11, 0.5);
         outline: none;
         animation: fab-glow-ring 0.65s ease forwards;
@@ -754,8 +754,8 @@ function initWidgetDock() {
   const ACC_FAB_TRANSITION     = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, background 0.2s ease, opacity 0.22s ease';
   const ACC_FAB_HOVER_TRANSFORM  = 'translateY(-6px) scale(1.1)';
   const ACC_FAB_ACTIVE_TRANSFORM = 'translateY(-2px) scale(0.96)';
-  const ACC_FAB_HOVER_BG       = '#b01e22';
-  const ACC_FAB_DEFAULT_BG     = '#8d0d10';
+  const ACC_FAB_HOVER_BG       = '#660000';
+  const ACC_FAB_DEFAULT_BG     = '#660000';
   const ACC_FAB_HOVER_SHADOW   = '0 20px 40px rgba(77,9,11,0.5)';
   const ACC_FAB_DEFAULT_SHADOW  = '0 14px 32px rgba(77,9,11,0.35)';
 
@@ -2203,3 +2203,4 @@ if (document.readyState === "loading") {
 } else {
   initAlphabeticalCardPages();
 }
+

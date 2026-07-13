@@ -19,7 +19,7 @@ left: 0;
 top: 0;
 width: 260px;
 height: 100vh;
-background: #800000;
+background: #660000;
 color: white;
 overflow-y: auto;
 transition: transform 0.3s ease;
@@ -75,7 +75,7 @@ top: 0;
 left: 260px;
 right: 0;
 height: 60px;
-background: #800000;
+background: #660000;
 color: white;
 display: flex;
 align-items: center;
@@ -143,7 +143,7 @@ position: absolute;
 top: -5px;
 right: -8px;
 background: #FFD700;
-color: #800000;
+color: #660000;
 font-size: 10px;
 padding: 2px 5px;
 border-radius: 10px;
@@ -165,7 +165,7 @@ background: #FFD700;
 display: flex;
 align-items: center;
 justify-content: center;
-color: #800000;
+color: #660000;
 font-weight: bold;
 }
 
@@ -182,7 +182,7 @@ margin-bottom: 30px;
 }
 
 .page-header h1 {
-color: #800000;
+color: #660000;
 font-size: 28px;
 margin-bottom: 10px;
 }
@@ -195,7 +195,7 @@ font-size: 14px;
 }
 
 .breadcrumb a {
-color: #800000;
+color: #660000;
 text-decoration: none;
 }
 
@@ -276,7 +276,7 @@ font-size: 20px;
 }
 
 .stat-icon.primary {
-background: #800000;
+background: #660000;
 color: #FFD700;
 }
 
@@ -298,7 +298,7 @@ color: white;
 .stat-card .value {
 font-size: 32px;
 font-weight: bold;
-color: #800000;
+color: #660000;
 margin-bottom: 10px;
 }
 
@@ -327,7 +327,7 @@ overflow: hidden;
 }
 
 .card-header {
-background: #800000;
+background: #660000;
 color: white;
 padding: 15px 20px;
 display: flex;
@@ -365,7 +365,7 @@ border-radius: 8px;
 display: flex;
 align-items: center;
 justify-content: center;
-color: #800000;
+color: #660000;
 font-size: 18px;
 border: 2px dashed #ddd;
 }
@@ -394,11 +394,11 @@ gap: 8px;
 }
 
 .tab-btn:hover {
-color: #800000;
+color: #660000;
 }
 
 .tab-btn.active {
-color: #800000;
+color: #660000;
 font-weight: 600;
 }
 
@@ -440,7 +440,7 @@ gap: 8px;
 }
 
 .btn-primary {
-background: #800000;
+background: #660000;
 color: white;
 }
 
@@ -450,7 +450,7 @@ background: #a00000;
 
 .btn-secondary {
 background: #FFD700;
-color: #800000;
+color: #660000;
 }
 
 .btn-secondary:hover {
@@ -469,7 +469,7 @@ border-collapse: collapse;
 }
 
 .data-table thead {
-background: #800000;
+background: #660000;
 color: white;
 }
 
@@ -497,7 +497,7 @@ font-size: 14px;
 }
 
 .progress-label span:first-child {
-color: #800000;
+color: #660000;
 font-weight: 600;
 }
 
@@ -511,7 +511,7 @@ overflow: hidden;
 
 .progress-fill {
 height: 100%;
-background: linear-gradient(90deg, #800000 0%, #FFD700 100%);
+background: linear-gradient(90deg, #660000 0%, #FFD700 100%);
 border-radius: 10px;
 transition: width 0.5s ease;
 }
@@ -551,12 +551,12 @@ display: flex;
 align-items: center;
 justify-content: center;
 font-size: 20px;
-background: #800000;
+background: #660000;
 color: #FFD700;
 }
 
 .metric-details h4 {
-color: #800000;
+color: #660000;
 margin-bottom: 5px;
 }
 
@@ -568,7 +568,7 @@ color: #666;
 .metric-value {
 font-size: 24px;
 font-weight: bold;
-color: #800000;
+color: #660000;
 }
 
 /* Top Pages List */
@@ -591,7 +591,7 @@ border-bottom: none;
 .page-rank {
 width: 30px;
 height: 30px;
-background: #800000;
+background: #660000;
 color: #FFD700;
 border-radius: 50%;
 display: flex;
@@ -607,7 +607,7 @@ margin-left: 15px;
 }
 
 .page-info h4 {
-color: #800000;
+color: #660000;
 font-size: 14px;
 margin-bottom: 3px;
 }
@@ -624,7 +624,7 @@ text-align: right;
 .page-views {
 font-size: 18px;
 font-weight: bold;
-color: #800000;
+color: #660000;
 }
 
 .page-percentage {
@@ -656,7 +656,7 @@ margin-bottom: 10px;
 .chatbot-metric .value {
 font-size: 24px;
 font-weight: bold;
-color: #800000;
+color: #660000;
 }
 
 /* Response Time Chart */
@@ -670,7 +670,7 @@ margin-top: 20px;
 
 .response-bar {
 flex: 1;
-background: linear-gradient(to top, #800000, #FFD700);
+background: linear-gradient(to top, #660000, #FFD700);
 border-radius: 5px 5px 0 0;
 position: relative;
 transition: all 0.3s;
@@ -697,7 +697,7 @@ left: 50%;
 transform: translateX(-50%);
 font-size: 12px;
 font-weight: bold;
-color: #800000;
+color: #660000;
 }
 
 /* Export Options */
@@ -745,3 +745,5 @@ gap: 10px;
     align-items: stretch;
 }
 }
+
+

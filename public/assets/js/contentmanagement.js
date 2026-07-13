@@ -573,7 +573,7 @@ async function loadFeaturedEvents() {
       return `
         <div class="event-row" style="display:flex; gap:12px; align-items:flex-start; padding:12px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;">
           <div style="flex:1;">
-            <div style="font-weight:700; color:#800000;">${escapeHtml(item.title || "")}</div>
+            <div style="font-weight:700; color:#660000;">${escapeHtml(item.title || "")}</div>
             <div style="font-size:13px; color:#555;">${escapeHtml(item.event_date || "")}</div>
             <div style="font-size:13px; color:#777;">📍 ${escapeHtml(item.location || "")}</div>
             <div style="margin-top:8px; display:flex; gap:8px; flex-wrap:wrap;">
@@ -1550,3 +1550,4 @@ window.loadFeaturedEvents = loadFeaturedEvents;
 window.enablePickFeaturedMode = enablePickFeaturedMode;
 window.featureEvent = featureEvent;
 window.unsetFeatured = unsetFeatured;
+

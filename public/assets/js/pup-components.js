@@ -260,12 +260,12 @@ class PUPHeader extends HTMLElement {
       ...existingOptions,
       theme: {
         ...(existingOptions.theme || {}),
-        primaryColor: "#800000",
+        primaryColor: "#660000",
         primaryColorLight: "#a11d23",
         primaryColorDark: "#5c0000",
         hoverColor: "#a11d23",
         activeColor: "#5c0000",
-        focusRingColor: "#800000",
+        focusRingColor: "#660000",
       },
     };
 
@@ -319,7 +319,7 @@ class PUPHeader extends HTMLElement {
           </div>
         </div>
         <div id="pup-dm-toggle"
-             style="background:${isDark ? "#800000" : "rgba(128,0,0,0.2)"};">
+             style="background:${isDark ? "#660000" : "rgba(128,0,0,0.2)"};">
           <div id="pup-dm-thumb" class="${isDark ? "on" : ""}"></div>
         </div>
       `;
@@ -327,7 +327,7 @@ class PUPHeader extends HTMLElement {
       const _updateToggleUI = (dark) => {
         const toggle = document.getElementById("pup-dm-toggle");
         const thumb  = document.getElementById("pup-dm-thumb");
-        if (toggle) toggle.style.background = dark ? "#800000" : "rgba(128,0,0,0.2)";
+        if (toggle) toggle.style.background = dark ? "#660000" : "rgba(128,0,0,0.2)";
         if (thumb)  thumb.classList.toggle("on", dark);
         row.setAttribute("aria-pressed", String(dark));
         row.setAttribute("aria-label", dark ? "Disable dark mode" : "Enable dark mode");
@@ -1214,3 +1214,5 @@ class PUPFooter extends HTMLElement {
 // Register (only once)
 if (!customElements.get("pup-header")) customElements.define("pup-header", PUPHeader);
 if (!customElements.get("pup-footer")) customElements.define("pup-footer", PUPFooter);
+
+
