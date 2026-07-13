@@ -74,7 +74,6 @@
                     @endphp
                     <div class="sdp-page-header-inner">
                         <div class="sdp-page-header-copy">
-                            <p class="sdp-page-header-eyebrow">Strategic Planning</p>
                             <h1 class="sdp-page-title">{{ $sdp['label'] ?? 'Strategic Development Plan' }}</h1>
                             <div class="sdp-page-subtitle rich-text-content">{!! $sdpHeaderDescriptionHtml !!}</div>
                         </div>
@@ -170,8 +169,17 @@
                 transform: none !important;
             }
 
+            .research-page-shell {
+                padding-left: clamp(16px, 3vw, 48px) !important;
+                padding-right: clamp(16px, 3vw, 48px) !important;
+                padding-top: clamp(12px, 1.5vw, 24px) !important;
+                padding-bottom: clamp(16px, 2vw, 32px) !important;
+                box-sizing: border-box;
+            }
+
             .sdp-page-header.cms-preview-editable,
             .sdp-priorities-shell.cms-preview-editable {
+
                 --cms-preview-outline-offset: 12px;
                 --cms-preview-chip-top-offset: 50%;
                 --cms-preview-chip-right-offset: 12px;
@@ -199,20 +207,24 @@
                 margin: 0;
             }
 
-            .cms-preview-editable > [data-cms-boundary]::after {
+            /* The outline goes on the OUTER editable element using ::before
+               so it is never clipped by overflow:hidden on the card */
+            .sdp-page-header.cms-preview-editable::before,
+            .sdp-priorities-shell.cms-preview-editable::before {
                 content: "";
                 position: absolute;
                 inset: 0;
-                z-index: 2;
+                z-index: 10;
                 box-sizing: border-box;
                 pointer-events: none;
                 border: 2px dashed rgba(242, 201, 76, 0.95);
-                border-radius: 24px;
-                box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.22);
+                border-radius: inherit;
+                box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.18) inset;
             }
 
-            .cms-preview-editable > [data-cms-boundary].cms-preview-boundary-edge::after {
-                inset: var(--cms-preview-outline-offset);
+            /* Disable the old child ::after outline */
+            .cms-preview-editable > [data-cms-boundary]::after {
+                display: none !important;
             }
 
             .cms-preview-editable > * {
@@ -220,30 +232,10 @@
                 z-index: 1;
             }
 
-            .cms-preview-chip {
-                position: absolute;
-                top: var(--cms-preview-chip-top-offset, 50%);
-                right: calc(var(--cms-preview-chip-right-offset, 12px) + var(--cms-preview-outline-offset, 12px));
-                left: auto;
-                transform: translateY(-50%);
-                z-index: 9;
-                border: none;
-                border-radius: 12px;
-                width: 44px;
-                min-width: 44px;
-                height: 44px;
-                padding: 0;
-                background: rgba(127, 17, 19, 0.96);
-                color: #fffaf4;
-                display: none !important;
-                align-items: center;
-                justify-content: center;
-                box-shadow: 0 14px 28px rgba(32, 8, 8, 0.22);
-            }
 
-            .cms-preview-editable:hover .cms-preview-chip,
-            .cms-preview-editable:focus-within .cms-preview-chip {
-                display: inline-flex !important;
+            /* Edit chip hidden — not used in this system */
+            .cms-preview-chip {
+                display: none !important;
             }
 
             .cms-preview-chip:hover {
@@ -336,8 +328,13 @@
                 z-index: 2;
                 box-sizing: border-box;
                 pointer-events: none;
-                border: 2px dashed rgba(242, 201, 76, 0.95);
+                border: 2px dashed transparent;
                 border-radius: inherit;
+                transition: border-color 0.18s;
+            }
+
+            .sdp-priority-card.cms-preview-editable-card:hover::after {
+                border-color: rgba(242, 201, 76, 0.95);
             }
 
             @media (max-width: 768px) {

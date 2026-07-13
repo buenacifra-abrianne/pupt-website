@@ -44,7 +44,7 @@ class AnnouncementController extends Controller
         $hasNewsFeaturedColumn = Schema::hasColumn('news', 'is_featured');
         $hasNewsHiddenColumn = Schema::hasColumn('news', 'is_hidden_from_public');
 
-        $announcements = DB::table('announcements as a')
+        $announcements_all = DB::table('announcements as a')
             ->leftJoin('users as u', 'a.created_by', '=', 'u.user_id')
             ->select(
                 'a.*',
@@ -88,8 +88,19 @@ class AnnouncementController extends Controller
             return $date < $oneMonthAgo;
         })->values();
 
+        $active_announcements = $announcements_all->filter(function($ann) use ($oneMonthAgo) {
+            $date = \Carbon\Carbon::parse($ann->date_published ?? $ann->created_at);
+            return $date >= $oneMonthAgo;
+        })->values();
+
+        $expired_announcements = $announcements_all->filter(function($ann) use ($oneMonthAgo) {
+            $date = \Carbon\Carbon::parse($ann->date_published ?? $ann->created_at);
+            return $date < $oneMonthAgo;
+        })->values();
+
         return view('admin.announcements', compact(
-            'announcements',
+            'active_announcements',
+            'expired_announcements',
             'active_news',
             'expired_news',
             'hasAnnouncementLinkColumn',

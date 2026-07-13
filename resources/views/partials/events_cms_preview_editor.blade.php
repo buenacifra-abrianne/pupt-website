@@ -74,15 +74,9 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
-                    <div class="events-cms-form-grid">
-                        <div class="form-group">
-                            <label>Eyebrow</label>
-                            <input type="text" name="events[page][eyebrow]" maxlength="120" value="{{ $pageEditor['eyebrow'] ?? '' }}">
-                        </div>
-                        <div class="form-group">
-                            <label>Page Title</label>
-                            <input type="text" name="events[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
-                        </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="events[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
                     </div>
 
                     <div class="form-group">

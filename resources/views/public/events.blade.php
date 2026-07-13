@@ -133,7 +133,6 @@
                 @endif
 
                 <div data-cms-boundary class="cms-preview-boundary-edge">
-                    <p class="ne-page-kicker layout-kicker">{{ $pageSection['eyebrow'] ?? 'Campus Calendar' }}</p>
                     <h1 class="ne-page-title">{{ $plainText($pageSection['title'] ?? 'Events') }}</h1>
                     <div class="ne-page-copy ne-rich-copy">
                         {!! \App\Support\RichText::sanitize($pageSection['description'] ?? '') !!}

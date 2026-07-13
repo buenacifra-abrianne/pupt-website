@@ -173,11 +173,7 @@
                                 $cardPreview = \App\Support\ResearchCmsContent::resolveImagePath($card['image'] ?? null, 'assets/static_img/pupillar.jpeg');
                             @endphp
                             <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="{{ $index }}">
-                                <div class="research-cms-card-editor-head" data-research-card-editor-head>
-                                    <div>
-                                        <h4>Service {{ $loop->iteration }}</h4>
-                                    </div>
-                                </div>
+
 
                                 <input type="hidden" name="research[cards][{{ $index }}][image]" value="{{ $card['image'] ?? '' }}" data-research-image-field>
 
@@ -239,7 +235,12 @@
 
                                 <div class="form-group">
                                     <label>Link</label>
-                                    <input type="text" name="research[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
+                                    <div class="research-link-row">
+                                        <input type="text" name="research[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}" placeholder="https://">
+                                        <button type="button" class="research-link-paste" aria-label="Paste link" title="Paste link">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
@@ -247,11 +248,7 @@
 
                     <template data-research-card-template>
                         <article class="research-cms-card-editor" data-research-card-editor data-research-card-index="__INDEX__">
-                            <div class="research-cms-card-editor-head" data-research-card-editor-head>
-                                <div>
-                                    <h4>Service __NUMBER__</h4>
-                                </div>
-                            </div>
+
 
                             <input type="hidden" name="research[cards][__INDEX__][image]" value="" data-research-image-field>
 
@@ -313,7 +310,12 @@
 
                             <div class="form-group">
                                 <label>Link</label>
-                                <input type="text" name="research[cards][__INDEX__][link]" maxlength="2048" value="">
+                                <div class="research-link-row">
+                                    <input type="text" name="research[cards][__INDEX__][link]" maxlength="2048" value="" placeholder="https://">
+                                    <button type="button" class="research-link-paste" aria-label="Paste link" title="Paste link">
+                                        <i class="fas fa-paste"></i>
+                                    </button>
+                                </div>
                             </div>
                         </article>
                     </template>
@@ -438,6 +440,32 @@
 @include('partials.rich_text_editor_assets')
 
 <style>
+    .research-link-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .research-link-row input {
+        flex: 1;
+    }
+    .research-link-paste {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #d7dbe2;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .research-link-paste:hover {
+        background: #eef2f7;
+        color: #1f2937;
+    }
     .research-cms-workspace {
         --research-preview-width: 1520px;
         --research-preview-height: 1800px;
@@ -977,6 +1005,16 @@
             justify-content: flex-start;
         }
     }
+
+    /* Hide the "Priority N" heading inside the SDP card editor — the modal title already says Edit/Add Priority */
+    [data-research-editor-panel="strategic-development-plan"] .research-cms-card-editor-head {
+        display: none;
+    }
+
+    /* SDP section spacing inside CMS */
+    [data-research-editor-panel="strategic-development-plan"] .research-cms-card-editor.is-active {
+        padding: 18px;
+    }
 </style>
 
 <script>
@@ -1062,6 +1100,9 @@
             modal.querySelectorAll('[data-research-card-editor][data-research-unsaved="1"]').forEach((editor) => {
                 editor.remove();
             });
+            modal.querySelectorAll('[data-research-sdp-editor][data-research-sdp-unsaved="1"]').forEach((editor) => {
+                editor.remove();
+            });
             relabelCards();
             setActiveCardEditor();
             modal.hidden = true;
@@ -1073,6 +1114,9 @@
                 panel.classList.remove('is-card-focus');
             });
         };
+
+
+
 
         const focusCardEditor = (cardIndex) => {
             if (cardIndex === null || cardIndex === undefined) {
@@ -1129,6 +1173,16 @@
             if (sectionKey === 'cards') {
                 setActiveCardEditor(options.cardIndex ?? null);
                 window.setTimeout(() => focusCardEditor(options.cardIndex ?? null), 40);
+            }
+
+            if (sectionKey === 'strategic-development-plan') {
+                const sdpIdx = options.sdpIndex !== null && options.sdpIndex !== undefined ? options.sdpIndex : null;
+                setActiveSdpEditor(sdpIdx);
+                // Focus the title input of the active editor
+                window.setTimeout(() => {
+                    const activeEditor = sdpStack?.querySelector('[data-research-sdp-editor].is-active');
+                    activeEditor?.querySelector('input, textarea')?.focus();
+                }, 40);
             }
         };
 
@@ -1821,11 +1875,27 @@
             return index;
         };
 
-        modal.addEventListener('click', (event) => {
+        modal.addEventListener('click', async (event) => {
             const addTrigger = event.target.closest('[data-add-research-card]');
             if (addTrigger) {
                 event.preventDefault();
                 addCard();
+                return;
+            }
+
+            const pasteBtn = event.target.closest('.research-link-paste, [data-research-paste-link-for]');
+            if (pasteBtn) {
+                event.preventDefault();
+                const targetId = pasteBtn.getAttribute('data-research-paste-link-for');
+                const input = targetId ? document.getElementById(targetId) : pasteBtn.previousElementSibling;
+                if (input && navigator.clipboard) {
+                    try {
+                        const text = await navigator.clipboard.readText();
+                        if (text) {
+                            input.value = text;
+                        }
+                    } catch (err) {}
+                }
                 return;
             }
         });
@@ -1876,6 +1946,15 @@
 
         const addSdpPriority = () => {
             if (!sdpTemplate || !sdpStack) return null;
+
+            // Prevent duplicate: if there is already an unsaved (new) priority, don't add another
+            const existingUnsaved = sdpStack.querySelector('[data-research-sdp-editor][data-research-sdp-unsaved="1"]');
+            if (existingUnsaved) {
+                const existingIndex = existingUnsaved.getAttribute('data-research-sdp-index');
+                setActiveSdpEditor(existingIndex !== null ? Number(existingIndex) : null);
+                return existingIndex !== null ? Number(existingIndex) : null;
+            }
+
             const index = nextSdpIndex();
             const fragment = sdpTemplate.content.cloneNode(true);
             fragment.querySelectorAll('[name]').forEach((field) => {

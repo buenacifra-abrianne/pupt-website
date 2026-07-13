@@ -63,6 +63,13 @@
                     </div>
                 </div>
 
+                <div class="events-cms-card-group-head" style="margin-bottom: 14px;">
+                    <div>
+                        <h4 style="margin: 0; color: #5c0000; font-size: 1rem;">Active Announcements</h4>
+                        <p style="margin: 6px 0 0; color: #7c6660; font-size: 0.88rem;">These are currently visible on the public page.</p>
+                    </div>
+                </div>
+
                 <div id="announcementsList" class="announcement-grid">
                     <button type="button" class="announcement-item announcement-card-create" data-static-card="1" onclick="openAnnouncementModal(true)">
                         <span class="announcement-card-create-icon">+</span>
@@ -70,7 +77,7 @@
                         <span class="announcement-card-create-text">Add a new campus advisory or announcement.</span>
                     </button>
 
-                    @foreach($announcements as $row)
+                    @foreach($active_announcements as $row)
                         @php
                             $db_status = strtoupper(trim($row->status));
                             $is_disabled = ($db_status === 'DISABLED');
@@ -143,6 +150,88 @@
                                     <i class="fas fa-eye"></i>
                                 </button>
 
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="events-cms-card-group-head" style="margin-top: 30px; margin-bottom: 14px;">
+                    <div>
+                        <h4 style="margin: 0; color: #5c0000; font-size: 1rem;">Expired Announcements</h4>
+                        <p style="margin: 6px 0 0; color: #7c6660; font-size: 0.88rem;">These stay saved in CMS but are over 1 month old.</p>
+                    </div>
+                </div>
+
+                <div class="announcement-grid" style="margin-bottom: 40px;">
+                    @if(isset($expired_announcements) && $expired_announcements->isEmpty())
+                        <div class="events-cms-card-empty" style="grid-column: 1 / -1; padding: 14px 16px; border: 1px dashed rgba(127, 17, 19, 0.14); border-radius: 16px; background: rgba(255, 250, 244, 0.7); color: #7c6660; font-size: 0.9rem;">
+                            No expired announcements.
+                        </div>
+                    @endif
+                    @foreach($expired_announcements as $row)
+                        @php
+                            $db_status = strtoupper(trim($row->status));
+                            $is_disabled = ($db_status === 'DISABLED');
+                        @endphp
+
+                        <div class="announcement-item {{ $is_disabled ? 'disabled' : '' }} {{ strtolower($row->priority) }}-priority" style="opacity: 0.85;"
+                            data-announcement-id="{{ (int) $row->announcement_id }}"
+                            data-search="{{ e(strtolower($row->title.' '.$row->content.' '.($row->link ?? '').' '.$row->priority.' '.$row->status.' '.($row->created_by ?? ''))) }}">
+
+                            <label class="news-card-select announcement-card-select" aria-label="Select {{ e(\App\Support\PlainText::normalize($row->title ?? '')) }}">
+                                <input type="checkbox" class="announcement-select-checkbox" value="{{ (int) $row->announcement_id }}">
+                                <span></span>
+                            </label>
+
+                            <div class="announcement-header">
+                                <div class="title-row">
+                                    <h3 class="announcement-title">{{ e(\App\Support\PlainText::normalize($row->title ?? '')) }}</h3>
+                                    <span class="priority-badge priority-{{ strtolower($row->priority) }}">
+                                        {{ ucfirst(strtolower($row->priority)) }} Priority
+                                    </span>
+                                    <span style="background: #e2e8f0; color: #64748b; font-size: 0.72rem; font-weight: 600; padding: 2px 8px; border-radius: 20px; letter-spacing: 0.04em;">EXPIRED</span>
+                                </div>
+                            </div>
+
+                            <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($row->content) !!}</div>
+
+                            <div class="announcement-meta">
+                                <span>
+                                    <i class="fas fa-calendar"></i>
+                                    Published:
+                                    {{ $row->date_published ? \Carbon\Carbon::parse($row->date_published)->format('M d, Y') : \Carbon\Carbon::parse($row->created_at)->format('M d, Y') }}
+                                </span>
+
+                                <span>
+                                    <i class="fas fa-user"></i>
+                                    By: {{ e(trim((string) ($row->created_by_name ?? '')) !== '' ? $row->created_by_name : 'Unknown') }}
+                                </span>
+                            </div>
+
+                            <div class="announcement-actions">
+                                <button class="btn btn-sm btn-primary"
+                                    onclick='editAnnouncement(
+                                        {{ (int) $row->announcement_id }},
+                                        @json(\App\Support\PlainText::normalize($row->title ?? '')),
+                                        @json($row->content),
+                                        @json($row->link ?? ""),
+                                        @json($row->priority),
+                                        @json($row->status)
+                                    )'>
+                                    <i class="fas fa-edit"></i> Edit
+                                </button>
+
+                                <button class="btn btn-sm btn-delete"
+                                    type="button"
+                                    onclick="deleteAnnouncement({{ (int)$row->announcement_id }})"
+                                    title="Delete Announcement">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+
+                                <button class="btn btn-sm btn-view-icon" type="button" title="View"
+                                    onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($row->title ?? "")), @json($row->content), @json($row->link ?? null))'>
+                                    <i class="fas fa-eye"></i>
+                                </button>
                             </div>
                         </div>
                     @endforeach

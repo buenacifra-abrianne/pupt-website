@@ -2362,16 +2362,23 @@
     }
 
     .about-cms-textarea-field {
-        display: grid;
-        gap: 8px;
+        position: relative;
+        display: block;
+    }
+
+    .about-cms-textarea-field textarea {
+        padding-bottom: 24px;
     }
 
     .about-cms-char-counter {
-        justify-self: end;
+        position: absolute;
+        bottom: 12px;
+        right: 12px;
         color: #8a7a73;
         font-size: 0.78rem;
         font-weight: 700;
         line-height: 1;
+        pointer-events: none;
     }
 
     .about-cms-char-counter.is-limit {
@@ -2453,9 +2460,9 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
-        display: grid;
-        gap: 16px;
-        padding: 0;
+        display: block;
+        padding: 18px;
+        overflow: visible;
     }
 
     .about-cms-editor-panel.is-card-focus form {
@@ -2532,7 +2539,7 @@
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active {
         position: relative;
-        padding: 20px;
+        padding: 22px;
         max-width: 100%;
         width: 100%;
         margin: 0 auto;
@@ -2559,12 +2566,14 @@
         max-width: 700px;
         margin: 0 auto;
         padding-top: 6px;
+        padding-right: 22px;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active > .about-cms-modal-footer {
         max-width: 100%;
         margin: 18px 0 0;
         padding-top: 0;
+        padding-right: 0;
     }
 
     .about-cms-modal.is-chart-focus .about-cms-modal-header p {
@@ -2741,8 +2750,8 @@
     }
 
     .about-cms-modal.is-card-focus .about-cms-modal-close {
-        top: 12px;
-        right: 12px;
+        top: 14px;
+        right: 14px;
         width: 40px;
         height: 40px;
         border-radius: 12px;
