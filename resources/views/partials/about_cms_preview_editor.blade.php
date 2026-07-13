@@ -79,7 +79,6 @@
         <button type="button" class="about-cms-modal-close" data-close-about-editor aria-label="Close editor">&times;</button>
 
         <div class="about-cms-modal-header">
-            <span class="about-cms-side-kicker">About Section</span>
             <h3 id="{{ $idPrefix }}-modal-title">Edit about section</h3>
             <p data-about-editor-description>Select a section from the preview to start editing.</p>
         </div>
@@ -106,53 +105,55 @@
                     <input type="hidden" id="{{ $aboutHeroFieldId }}" name="about[overview][hero_image]" value="{{ $aboutCombinedHeaderImage }}">
                     <input type="hidden" id="{{ $aboutSectionHeaderFieldId }}" name="about[overview][section_header_image]" value="{{ $aboutCombinedHeaderImage }}">
 
-                    <div class="form-group">
-                        <label>Upload Header Image</label>
-                        <div class="about-cms-image-dropzone-shell">
-                            <div class="about-cms-image-dropzone cms-image-dropzone-hero" data-about-dropzone-for="{{ $aboutHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
-                                <span class="about-cms-image-dropzone-preview-column">
-                                    <span class="about-cms-image-dropzone-media">
-                                        <img
-                                            src="{{ $aboutHeroPreview }}"
-                                            alt="About hero image preview"
-                                            class="about-cms-image-dropzone-preview"
-                                            data-about-preview-for="{{ $aboutHeroInputId }}"
-                                            data-about-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
-                                        >
-                                        <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $aboutHeroInputId }}" aria-label="Edit image" title="Edit image">
-                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                        </button>
-                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutHeroInputId }}" aria-label="Delete image" title="Delete image">
-                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                        </button>
+                    <div class="about-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
+                            <div class="about-cms-image-dropzone-shell">
+                                <div class="about-cms-image-dropzone cms-image-dropzone-hero" data-about-dropzone-for="{{ $aboutHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
+                                    <span class="about-cms-image-dropzone-preview-column">
+                                        <span class="about-cms-image-dropzone-media">
+                                            <img
+                                                src="{{ $aboutHeroPreview }}"
+                                                alt="About hero image preview"
+                                                class="about-cms-image-dropzone-preview"
+                                                data-about-preview-for="{{ $aboutHeroInputId }}"
+                                                data-about-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
+                                            >
+                                            <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $aboutHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $aboutHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="about-cms-image-dropzone-label">Header Image</span>
                                     </span>
-                                    <span class="about-cms-image-dropzone-label">Header Image</span>
-                                </span>
-                                <span class="about-cms-image-dropzone-upload">
-                                    <span class="about-cms-image-dropzone-icon">
-                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    <span class="about-cms-image-dropzone-upload">
+                                        <span class="about-cms-image-dropzone-icon">
+                                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                        </span>
+                                        <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="about-cms-image-dropzone-upload-copy">This one image is used for both the main hero and the section header.</span>
+                                        <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $aboutHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                     </span>
-                                    <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                    <span class="about-cms-image-dropzone-upload-copy">This one image is used for both the main hero and the section header.</span>
-                                    <span class="about-cms-image-dropzone-upload-button">Select image</span>
-                                    <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $aboutHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                </span>
+                                </div>
                             </div>
+                            <input
+                                id="{{ $aboutHeroInputId }}"
+                                class="about-cms-image-dropzone-input"
+                                type="file"
+                                name="about[overview][hero_image_file]"
+                                accept="image/*"
+                                data-about-image-field-id="{{ $aboutHeroFieldId }}"
+                                data-about-sync-image-field-id="{{ $aboutSectionHeaderFieldId }}"
+                            >
                         </div>
-                        <input
-                            id="{{ $aboutHeroInputId }}"
-                            class="about-cms-image-dropzone-input"
-                            type="file"
-                            name="about[overview][hero_image_file]"
-                            accept="image/*"
-                            data-about-image-field-id="{{ $aboutHeroFieldId }}"
-                            data-about-sync-image-field-id="{{ $aboutSectionHeaderFieldId }}"
-                        >
-                    </div>
 
-                    <div class="form-group" data-about-card-panel-meta>
-                        <label>Overview Hero Title</label>
-                        <input type="text" name="about[overview][hero_title_default]" maxlength="255" value="{{ $overviewEditor['hero_title_default'] ?? '' }}">
+                        <div class="form-group" data-about-card-panel-meta>
+                            <label>Title</label>
+                            <input type="text" name="about[overview][hero_title_default]" maxlength="255" value="{{ $overviewEditor['hero_title_default'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -1894,6 +1895,10 @@
         box-sizing: border-box;
     }
 
+    .about-cms-card-editor .form-group {
+        margin-bottom: 12px;
+    }
+
     .about-cms-card-editor[data-about-official-editor] {
         width: 100%;
     }
@@ -2542,7 +2547,7 @@
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .form-group + .form-group {
-        margin-top: 14px;
+        margin-top: 0;
     }
 
     .about-cms-editor-panel.is-card-focus .about-cms-card-editor.is-active .about-cms-form-grid > .form-group + .form-group {

@@ -75,7 +75,6 @@
         <button type="button" class="home-cms-modal-close" data-close-home-editor aria-label="Close editor">&times;</button>
 
         <div class="home-cms-modal-header">
-            <span class="home-cms-side-kicker">Homepage Section</span>
             <h3 id="{{ $idPrefix }}-modal-title">Edit homepage section</h3>
             <p data-home-editor-description>Select a section from the preview to start editing.</p>
         </div>
@@ -749,6 +748,10 @@
         display: none;
     }
 
+    .home-cms-card-editor .form-group {
+        margin-bottom: 12px;
+    }
+
     .home-cms-card-editor.is-active {
         display: block;
     }
@@ -1116,7 +1119,11 @@
     }
 
     .home-cms-editor-panel.is-card-focus .home-cms-card-editor.is-active .form-group + .form-group {
-        margin-top: 10px;
+        margin-top: 0;
+    }
+
+    .home-cms-editor-panel.is-card-focus .home-cms-modal-footer {
+        padding-right: 22px;
     }
 
     .home-cms-modal.is-card-focus .home-cms-modal-close {

@@ -60,7 +60,6 @@
         <button type="button" class="events-cms-modal-close" data-close-events-editor aria-label="Close editor">&times;</button>
 
         <div class="events-cms-modal-header">
-            <span class="events-cms-side-kicker">Events Section</span>
             <h3 id="{{ $idPrefix }}-modal-title">Edit events section</h3>
             <p data-events-editor-description>Select a highlighted section from the preview to edit it.</p>
         </div>
@@ -806,6 +805,10 @@
         box-shadow: 0 8px 22px rgba(92, 12, 6, 0.05);
     }
 
+    .events-cms-card-editor .form-group {
+        margin-bottom: 12px;
+    }
+
     .events-cms-card-editor[hidden] {
         display: none !important;
     }
@@ -1284,7 +1287,11 @@
     .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected .form-group + .form-group,
     .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected .events-cms-form-grid + .form-group,
     .events-cms-editor-panel.is-card-focus .events-cms-card-editor.is-selected .form-group + .events-cms-form-grid {
-        margin-top: 14px;
+        margin-top: 0;
+    }
+
+    .events-cms-editor-panel.is-card-focus .events-cms-modal-footer {
+        padding-right: 22px;
     }
 
     .events-cms-modal.is-card-focus .events-cms-modal-close {

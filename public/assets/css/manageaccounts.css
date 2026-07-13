@@ -908,7 +908,8 @@ tbody td {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(8px);
     z-index: 2000;
     align-items: center;
     justify-content: center;
@@ -921,12 +922,22 @@ tbody td {
 
 .mbox {
     background: #fff;
-    border-radius: 14px;
+    border-radius: 16px;
     width: 100%;
     max-width: 640px;
     max-height: 90vh;
     overflow-y: auto;
-    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.25);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: scale(0.95) translateY(-20px);
+    opacity: 0;
+    animation: modalFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes modalFadeIn {
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
 }
 
 .mbox.sm {
@@ -934,15 +945,15 @@ tbody td {
 }
 
 .mhead {
-    padding: 20px 25px;
-    border-bottom: 2px solid rgba(212, 175, 55, 0.2);
+    padding: 24px 30px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
     justify-content: space-between;
     align-items: center;
     position: sticky;
     top: 0;
-    background: #fff;
-    border-radius: 14px 14px 0 0;
+    background: linear-gradient(to bottom, #ffffff, #fcfcfc);
+    border-radius: 16px 16px 0 0;
     z-index: 1;
 }
 
@@ -957,30 +968,38 @@ tbody td {
 }
 
 .cbtn {
-    background: none;
+    background: transparent;
     border: none;
-    font-size: 22px;
-    color: #aaa;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #666;
     cursor: pointer;
-    transition: 0.2s;
-    padding: 4px;
-    line-height: 1;
+    transition: all 0.2s ease;
 }
 
 .cbtn:hover {
+    background: rgba(128, 0, 0, 0.1);
     color: #800000;
+    transform: rotate(90deg);
 }
 
 .mbody {
-    padding: 25px;
+    padding: 30px;
 }
 
 .mfoot {
-    padding: 18px 25px;
-    border-top: 1px solid #f0f0f0;
+    padding: 24px 30px;
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
+    gap: 12px;
+    background: #fdfdfd;
+    border-radius: 0 0 16px 16px;
 }
 
 /* Form Groups */
@@ -1529,34 +1548,13 @@ table, thead, tbody, tfoot, tr, th, td {
 }
 
 .sidebar {
-    padding-bottom: 92px;
+    
     box-shadow: 12px 0 28px rgba(38, 5, 5, 0.22);
 }
 
-.sidebar::before {
-    content: "";
-    position: absolute;
-    left: 18px;
-    right: 18px;
-    bottom: 52px;
-    height: 1px;
-    background: rgba(255, 255, 255, 0.18);
-}
 
-.sidebar::after {
-    content: "Mula Sa'yo, Para sa Bayan";
-    position: absolute;
-    left: 16px;
-    right: 16px;
-    bottom: 18px;
-    text-align: center;
-    color: #f7dfd0;
-    font-size: 0.9rem;
-    font-weight: 700;
-    font-style: italic;
-    letter-spacing: 0.04em;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
-}
+
+
 
 .sidebar.collapsed::before,
 .sidebar.collapsed::after {

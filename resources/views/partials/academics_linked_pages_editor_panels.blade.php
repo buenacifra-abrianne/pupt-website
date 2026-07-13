@@ -28,16 +28,17 @@
             @if($requestId > 0)
                 <input type="hidden" name="request_id" value="{{ $requestId }}">
             @endif
-            <div class="academics-cms-form-grid">
-                <div class="form-group">
-                    <label>Section Tag</label>
-                    <input type="text" name="academics[pages][{{ $pageKey }}][hero][tag]" maxlength="120" value="{{ $heroData['tag'] ?? '' }}">
+            <div class="academics-cms-card-editor is-active">
+                <div class="academics-cms-form-grid">
+                    <div class="form-group">
+                        <label>Section Tag</label>
+                        <input type="text" name="academics[pages][{{ $pageKey }}][hero][tag]" maxlength="120" value="{{ $heroData['tag'] ?? '' }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="academics[pages][{{ $pageKey }}][hero][title]" maxlength="255" value="{{ $heroData['title'] ?? '' }}">
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Hero Title</label>
-                    <input type="text" name="academics[pages][{{ $pageKey }}][hero][title]" maxlength="255" value="{{ $heroData['title'] ?? '' }}">
-                </div>
-            </div>
 
             <div class="form-group">
                 <label>Subtitle</label>
@@ -45,7 +46,7 @@
             </div>
 
             <div class="form-group">
-                <label>Hero Description</label>
+                <label>Description</label>
                 @include('partials.rich_text_editor', [
                     'name' => 'academics[pages]['.$pageKey.'][hero][body]',
                     'value' => $heroData['body'] ?? '',
@@ -53,6 +54,7 @@
                     'characterLimit' => 500,
                     'counterMode' => 'limit',
                 ])
+            </div>
             </div>
 
             <div class="academics-cms-modal-footer">
@@ -487,16 +489,17 @@
             <input type="hidden" name="request_id" value="{{ $requestId }}">
         @endif
 
-        <div class="academics-cms-form-grid">
-            <div class="form-group">
-                <label>Section Tag</label>
-                <input type="text" name="academics[pages][pup-iapply][hero][tag]" maxlength="120" value="{{ $iapplyHero['tag'] ?? '' }}">
+        <div class="academics-cms-card-editor is-active">
+            <div class="academics-cms-form-grid">
+                <div class="form-group">
+                    <label>Section Tag</label>
+                    <input type="text" name="academics[pages][pup-iapply][hero][tag]" maxlength="120" value="{{ $iapplyHero['tag'] ?? '' }}">
+                </div>
+                <div class="form-group">
+                    <label>Title</label>
+                    <input type="text" name="academics[pages][pup-iapply][hero][title]" maxlength="255" value="{{ $iapplyHero['title'] ?? '' }}">
+                </div>
             </div>
-            <div class="form-group">
-                <label>Hero Title</label>
-                <input type="text" name="academics[pages][pup-iapply][hero][title]" maxlength="255" value="{{ $iapplyHero['title'] ?? '' }}">
-            </div>
-        </div>
 
         <div class="form-group">
             <label>Subtitle</label>
@@ -504,11 +507,12 @@
         </div>
 
         <div class="form-group">
-            <label>Hero Description</label>
+            <label>Description</label>
             <div class="academics-cms-textarea-field" data-academics-char-limit="1000">
                 <textarea name="academics[pages][pup-iapply][hero][body]" rows="5" maxlength="1000" data-academics-char-input>{{ $iapplyHero['body'] ?? '' }}</textarea>
                 <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/1000</div>
             </div>
+        </div>
         </div>
 
 
@@ -891,10 +895,11 @@
 
 
 
-        <div class="form-group">
-            <label>Title</label>
-            <input type="text" name="academics[pages][university-calendar][hero][title]" maxlength="255" value="{{ $calendarHero['title'] ?? '' }}">
-        </div>
+        <div class="academics-cms-card-editor is-active">
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" name="academics[pages][university-calendar][hero][title]" maxlength="255" value="{{ $calendarHero['title'] ?? '' }}">
+            </div>
 
         <div class="form-group">
             <label>Description</label>
@@ -902,6 +907,7 @@
                 <textarea name="academics[pages][university-calendar][hero][body]" rows="4" maxlength="500" data-academics-char-input>{{ $calendarHero['body'] ?? '' }}</textarea>
                 <div class="academics-cms-char-counter" data-academics-char-counter aria-live="polite">0/500</div>
             </div>
+        </div>
         </div>
 
         <div class="academics-cms-modal-footer">

@@ -2429,6 +2429,10 @@ body.modal-open {
   pointer-events: auto;
 }
 
+.advisory-modal-overlay.show .advisory-modal-card {
+  transform: scale(1) translateY(0);
+}
+
 .advisory-modal-card {
   position: relative;
   width: min(820px, 100%);
@@ -2438,6 +2442,8 @@ body.modal-open {
   background: linear-gradient(180deg, rgba(255, 252, 248, 0.98) 0%, rgba(247, 239, 232, 0.96) 100%);
   border: 1px solid rgba(127, 17, 19, 0.12);
   box-shadow: 0 34px 64px rgba(32, 8, 8, 0.28);
+  transform: scale(0.95) translateY(-20px);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .advisory-modal-card.has-media {

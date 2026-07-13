@@ -108,7 +108,6 @@
         <button type="button" class="students-cms-modal-close" data-close-students-editor aria-label="Close editor">&times;</button>
 
         <div class="students-cms-modal-header">
-            <span class="students-cms-side-kicker">Students Section</span>
             <h3 id="{{ $idPrefix }}-modal-title">Edit students section</h3>
             <p data-students-editor-description>Select a highlighted section from the preview to edit it.</p>
         </div>
@@ -130,8 +129,9 @@
 
                     <input type="hidden" id="{{ $studentsHeroFieldId }}" name="students[page][hero_image]" value="{{ $pageEditor['hero_image'] ?? '' }}">
 
-                    <div class="form-group">
-                        <label>Upload Hero Image</label>
+                    <div class="students-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
                         <div class="students-cms-image-dropzone-shell">
                             <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $studentsHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
                                 <span class="students-cms-image-dropzone-preview-column">
@@ -173,9 +173,10 @@
                         >
                     </div>
 
-                    <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="students[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="students[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -249,10 +250,6 @@
                             @endphp
                             <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="{{ $index }}">
                                 <div class="students-cms-card-editor-head" data-students-card-editor-head>
-                                    <div>
-                                        <h4>Service Card {{ $loop->iteration }}</h4>
-                                        <span>{{ $card['title'] ?? '' }}</span>
-                                    </div>
                                     @unless($isProtectedStudentCard)
                                         <button type="button" class="btn students-cms-delete-card" data-remove-students-card>
                                             Delete Service
@@ -324,7 +321,12 @@
 
                                 <div class="form-group">
                                     <label>Link</label>
-                                    <input type="text" name="students[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
+                                    <div class="students-link-row">
+                                        <input type="text" name="students[cards][{{ $index }}][link]" maxlength="2048" value="{{ $card['link'] ?? '' }}">
+                                        <button type="button" class="students-link-paste" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(text => this.previousElementSibling.value = text).catch(err => console.error('Failed to read clipboard contents: ', err))">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </article>
                         @endforeach
@@ -333,10 +335,6 @@
                     <template data-students-card-template>
                         <article class="students-cms-card-editor" data-students-card-editor data-students-card-index="__INDEX__">
                             <div class="students-cms-card-editor-head" data-students-card-editor-head>
-                                <div>
-                                    <h4>Service Card __NUMBER__</h4>
-                                    <span></span>
-                                </div>
                                 <button type="button" class="btn students-cms-delete-card" data-remove-students-card>
                                     Delete Service
                                 </button>
@@ -406,7 +404,12 @@
 
                             <div class="form-group">
                                 <label>Link</label>
-                                <input type="text" name="students[cards][__INDEX__][link]" maxlength="2048" value="">
+                                <div class="students-link-row">
+                                    <input type="text" name="students[cards][__INDEX__][link]" maxlength="2048" value="">
+                                    <button type="button" class="students-link-paste" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(text => this.previousElementSibling.value = text).catch(err => console.error('Failed to read clipboard contents: ', err))">
+                                        <i class="fas fa-paste"></i>
+                                    </button>
+                                </div>
                             </div>
                         </article>
                     </template>
@@ -444,8 +447,9 @@
 
                     <input type="hidden" id="{{ $admissionsHeroFieldId }}" name="students[pages][admissions][hero][image]" value="{{ $admissionsHero['image'] ?? '' }}">
 
-                    <div class="form-group">
-                        <label>Upload Hero Image</label>
+                    <div class="students-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
                         <div class="students-cms-image-dropzone-shell">
                             <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $admissionsHeroInputId }}" role="button" tabindex="0" aria-label="Upload admissions hero image">
                                 <span class="students-cms-image-dropzone-preview-column">
@@ -472,9 +476,10 @@
                         <input id="{{ $admissionsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $admissionsHeroFieldId }}">
                     </div>
 
-                    <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="students[pages][admissions][hero][title]" maxlength="255" value="{{ $admissionsHero['title'] ?? '' }}">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="students[pages][admissions][hero][title]" maxlength="255" value="{{ $admissionsHero['title'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -830,8 +835,9 @@
 
                     <input type="hidden" id="{{ $documentRequestsHeroFieldId }}" name="students[pages][document-requests][hero][image]" value="{{ $documentRequestsHero['image'] ?? '' }}">
 
-                    <div class="form-group">
-                        <label>Upload Hero Image</label>
+                    <div class="students-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
                         <div class="students-cms-image-dropzone-shell">
                             <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $documentRequestsHeroInputId }}" role="button" tabindex="0" aria-label="Upload document requests hero image">
                                 <span class="students-cms-image-dropzone-preview-column">
@@ -858,9 +864,10 @@
                         <input id="{{ $documentRequestsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][document-requests][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $documentRequestsHeroFieldId }}">
                     </div>
 
-                    <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="students[pages][document-requests][hero][title]" maxlength="255" value="{{ $documentRequestsHero['title'] ?? '' }}">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="students[pages][document-requests][hero][title]" maxlength="255" value="{{ $documentRequestsHero['title'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -1035,8 +1042,9 @@
 
                     <input type="hidden" id="{{ $formsHeroFieldId }}" name="students[pages][downloadable-forms][hero][image]" value="{{ $formsHero['image'] ?? '' }}">
 
-                    <div class="form-group">
-                        <label>Upload Hero Image</label>
+                    <div class="students-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
                         <div class="students-cms-image-dropzone-shell">
                             <div class="students-cms-image-dropzone cms-image-dropzone-hero" data-students-dropzone-for="{{ $formsHeroInputId }}" role="button" tabindex="0" aria-label="Upload downloadable forms hero image">
                                 <span class="students-cms-image-dropzone-preview-column">
@@ -1063,9 +1071,10 @@
                         <input id="{{ $formsHeroInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][downloadable-forms][hero][image_file]" accept="image/*" data-students-image-field-id="{{ $formsHeroFieldId }}">
                     </div>
 
-                    <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="students[pages][downloadable-forms][hero][title]" maxlength="255" value="{{ $formsHeroTitleValue }}">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="students[pages][downloadable-forms][hero][title]" maxlength="255" value="{{ $formsHeroTitleValue }}">
+                        </div>
                     </div>
 
                     <div class="students-cms-modal-footer">
@@ -1494,6 +1503,10 @@
         display: none;
     }
 
+    .students-cms-card-editor .form-group {
+        margin-bottom: 12px;
+    }
+
     .students-cms-card-editor.is-active {
         display: block;
     }
@@ -1515,6 +1528,33 @@
     .students-cms-card-editor-head span {
         color: #8a7a73;
         font-size: 0.8rem;
+    }
+
+    .students-link-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .students-link-row input {
+        flex: 1;
+    }
+    .students-link-paste {
+        width: 42px;
+        height: 42px;
+        border: 1px solid #d7dbe2;
+        border-radius: 10px;
+        background: #f8fafc;
+        color: #475569;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    .students-link-paste:hover {
+        background: #eef2f7;
+        color: #1f2937;
     }
 
     .students-cms-section-divider {
@@ -1917,7 +1957,11 @@
     }
 
     .students-cms-editor-panel.is-card-focus .students-cms-card-editor.is-active .form-group + .form-group {
-        margin-top: 14px;
+        margin-top: 0;
+    }
+
+    .students-cms-editor-panel.is-card-focus .students-cms-modal-footer {
+        padding-right: 22px;
     }
 
     .students-cms-modal.is-card-focus .students-cms-modal-close {

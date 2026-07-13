@@ -1,0 +1,70 @@
+/* Submenu Styles */
+.submenu {
+    display: none;
+    list-style: none;
+    padding-left: 0;
+    margin: 0;
+    background: rgba(0, 0, 0, 0.15); /* Slightly darker background for submenu area */
+}
+
+.submenu-link {
+    display: block;
+    padding: 10px 20px 10px 55px; /* Indent to align with text, allowing space for the line */
+    color: rgba(255, 255, 255, 0.9) !important; /* Force white text */
+    text-decoration: none !important; /* Remove underline */
+    font-size: 14px;
+    transition: 0.3s;
+    position: relative;
+    font-weight: 500;
+}
+
+/* The vertical connecting line */
+.submenu-link::before {
+    content: '';
+    position: absolute;
+    left: 31px; /* Align with the center of the icon above */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.submenu-link:hover, .submenu-link.active {
+    color: #fff !important;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.submenu-link.active::before, .submenu-link:hover::before {
+    background: var(--admin-accent, #f0c85a); /* Highlight line on hover/active */
+}
+
+/* To push chevron to the right */
+.nav-item.has-submenu > .nav-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-item.has-submenu > .nav-link span {
+    flex: 1; /* Take remaining space */
+}
+
+.submenu-icon {
+    font-size: 12px !important;
+    width: auto !important;
+    transition: transform 0.3s ease;
+    margin-left: auto;
+}
+
+.nav-item.has-submenu.expanded .submenu-icon {
+    transform: rotate(180deg);
+}
+
+/* Expanded state background */
+.nav-item.has-submenu.expanded {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.sidebar.collapsed .submenu {
+    display: none !important; /* Hide submenu when sidebar is collapsed */
+}

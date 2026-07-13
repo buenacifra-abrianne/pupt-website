@@ -66,7 +66,6 @@
         <button type="button" class="research-cms-modal-close" data-close-research-editor aria-label="Close editor">&times;</button>
 
         <div class="research-cms-modal-header">
-            <span class="research-cms-side-kicker">Research &amp; Extension Section</span>
             <h3 id="{{ $idPrefix }}-modal-title">Edit research and extension section</h3>
             <p data-research-editor-description>Select a highlighted section from the preview to edit it.</p>
         </div>
@@ -88,61 +87,63 @@
 
                     <input type="hidden" id="{{ $researchHeroFieldId }}" name="research[page][hero_image]" value="{{ $pageEditor['hero_image'] ?? '' }}">
 
-                    <div class="form-group">
-                        <label>Upload Hero Image</label>
-                        <div class="research-cms-image-dropzone-shell">
-                            <div class="research-cms-image-dropzone cms-image-dropzone-hero" data-research-dropzone-for="{{ $researchHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
-                                <span class="research-cms-image-dropzone-preview-column">
-                                    <span class="research-cms-image-dropzone-media">
-                                        <img
-                                            src="{{ $researchHeroPreview }}"
-                                            alt="Research hero image preview"
-                                            class="research-cms-image-dropzone-preview"
-                                            data-research-preview-for="{{ $researchHeroInputId }}"
-                                            data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
-                                        >
-                                        <button type="button" class="research-cms-image-dropzone-edit" data-research-edit-image-for="{{ $researchHeroInputId }}" aria-label="Edit image" title="Edit image">
-                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                        </button>
-                                                    <button type="button" class="research-cms-image-dropzone-remove" data-research-clear-image-for="{{ $researchHeroInputId }}" aria-label="Delete image" title="Delete image">
-                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                        </button>
+                    <div class="research-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
+                            <div class="research-cms-image-dropzone-shell">
+                                <div class="research-cms-image-dropzone cms-image-dropzone-hero" data-research-dropzone-for="{{ $researchHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
+                                    <span class="research-cms-image-dropzone-preview-column">
+                                        <span class="research-cms-image-dropzone-media">
+                                            <img
+                                                src="{{ $researchHeroPreview }}"
+                                                alt="Research hero image preview"
+                                                class="research-cms-image-dropzone-preview"
+                                                data-research-preview-for="{{ $researchHeroInputId }}"
+                                                data-research-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                            >
+                                            <button type="button" class="research-cms-image-dropzone-edit" data-research-edit-image-for="{{ $researchHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                        <button type="button" class="research-cms-image-dropzone-remove" data-research-clear-image-for="{{ $researchHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="research-cms-image-dropzone-label">Hero Image</span>
                                     </span>
-                                    <span class="research-cms-image-dropzone-label">Hero Image</span>
-                                </span>
-                                <span class="research-cms-image-dropzone-upload">
-                                    <span class="research-cms-image-dropzone-icon">
-                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    <span class="research-cms-image-dropzone-upload">
+                                        <span class="research-cms-image-dropzone-icon">
+                                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                        </span>
+                                        <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="research-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
+                                        <span class="research-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $researchHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                     </span>
-                                    <span class="research-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                    <span class="research-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
-                                    <span class="research-cms-image-dropzone-upload-button">Select image</span>
-                                    <span class="research-cms-image-dropzone-file" data-research-file-name-for="{{ $researchHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                </span>
+                                </div>
                             </div>
+                            <input
+                                id="{{ $researchHeroInputId }}"
+                                class="research-cms-image-dropzone-input"
+                                type="file"
+                                name="research[page][hero_image_file]"
+                                accept="image/*"
+                                data-research-image-field-id="{{ $researchHeroFieldId }}"
+                            >
                         </div>
-                        <input
-                            id="{{ $researchHeroInputId }}"
-                            class="research-cms-image-dropzone-input"
-                            type="file"
-                            name="research[page][hero_image_file]"
-                            accept="image/*"
-                            data-research-image-field-id="{{ $researchHeroFieldId }}"
-                        >
-                    </div>
 
-                    <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="research[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
-                    </div>
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="research[page][title]" maxlength="255" value="{{ $pageEditor['title'] ?? '' }}">
+                        </div>
 
-                    <div class="form-group">
-                        <label>Hero Description</label>
-                        @include('partials.rich_text_editor', [
-                            'name' => 'research[page][description]',
-                            'value' => $pageEditor['description'] ?? '',
-                            'placeholder' => 'Write the research and extension page description...',
-                        ])
+                        <div class="form-group">
+                            <label>Description</label>
+                            @include('partials.rich_text_editor', [
+                                'name' => 'research[page][description]',
+                                'value' => $pageEditor['description'] ?? '',
+                                'placeholder' => 'Write the research and extension page description...',
+                            ])
+                        </div>
                     </div>
 
                     <div class="research-cms-modal-footer">
@@ -614,6 +615,10 @@
         display: none;
     }
 
+    .research-cms-card-editor .form-group {
+        margin-bottom: 12px;
+    }
+
     .research-cms-card-editor.is-active {
         display: block;
     }
@@ -925,7 +930,11 @@
     }
 
     .research-cms-editor-panel.is-card-focus .research-cms-card-editor.is-active .form-group + .form-group {
-        margin-top: 14px;
+        margin-top: 0;
+    }
+
+    .research-cms-editor-panel.is-card-focus .research-cms-modal-footer {
+        padding-right: 22px;
     }
 
     .research-cms-modal.is-card-focus .research-cms-modal-close {

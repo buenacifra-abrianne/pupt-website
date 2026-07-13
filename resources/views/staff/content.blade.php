@@ -37,50 +37,7 @@
     @include('partials.cms_preview_compat_assets')
 </head>
 <body>
-    <nav class="sidebar" id="sidebar">
-        <div class="logo-section">
-            <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" class="logo">
-            <div class="logo-text">
-                Hello,<br>
-                {{ session('user_first_name') ? e(session('user_first_name')) : 'Admin' }}!
-            </div>
-        </div>
-        <ul class="nav-menu">
-            <li class="nav-item">
-                <a href="{{ route('staff.dashboard') }}" class="nav-link">
-                    <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('staff.announcements') }}" class="nav-link">
-                    <i class="fas fa-bullhorn"></i>
-                    <span>News & Announcements</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('staff.content') }}" class="nav-link active">
-                    <i class="fas fa-file-alt"></i>
-                    <span>Content Management</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('staff.downloadables') }}" class="nav-link">
-                    <i class="fas fa-download"></i>
-                    <span>Campus Memorandum</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('staff.notifications') }}" class="nav-link">
-                    <i class="fas fa-bell"></i>
-                    <span>Notifications</span>
-                    @if(($unreadNotificationCount ?? 0) > 0)
-                        <span class="unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : $unreadNotificationCount }}</span>
-                    @endif
-                </a>
-            </li>
-        </ul>
-    </nav>
+    <x-app.sidebar />
 
     <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />
 
@@ -1408,7 +1365,7 @@
 
         if (window.__cmsEntryLoading) {
             const entrySessionId = showCmsPreviewLoading();
-            window.setTimeout(() => hideCmsPreviewLoading(entrySessionId), 2500);
+            window.setTimeout(() => hideCmsPreviewLoading(entrySessionId), 1000);
         }
 
         window.addEventListener('cms:preview-loading', (event) => {
@@ -1419,7 +1376,8 @@
             hideCmsPreviewLoading(event.detail?.sessionId);
         });
 
-        const saved = localStorage.getItem('activeStaffCmsTab');
+        const urlParams = new URLSearchParams(window.location.search);
+        const saved = urlParams.get('tab') || localStorage.getItem('activeStaffCmsTab');
         if (saved) {
             const btn = Array.from(document.querySelectorAll('.cms-tab-btn'))
                 .find((el) => el.dataset.tabKey === saved);

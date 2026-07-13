@@ -64,7 +64,6 @@
         <button type="button" class="academics-cms-modal-close" data-close-academics-editor aria-label="Close editor">&times;</button>
 
         <div class="academics-cms-modal-header">
-            <span class="academics-cms-side-kicker">Academics Section</span>
             <h3 id="{{ $idPrefix }}-modal-title">Edit academics section</h3>
             <p data-academics-editor-description>Select a highlighted section from the preview to edit it.</p>
         </div>
@@ -86,52 +85,54 @@
 
                     <input type="hidden" id="{{ $academicsHeroFieldId }}" name="academics[hero][image]" value="{{ $heroEditor['image'] ?? '' }}">
 
-                    <div class="form-group">
-                        <label>Upload Hero Image</label>
-                        <div class="academics-cms-image-dropzone-shell">
-                            <div class="academics-cms-image-dropzone cms-image-dropzone-hero" data-academics-dropzone-for="{{ $academicsHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
-                                <span class="academics-cms-image-dropzone-preview-column">
-                                    <span class="academics-cms-image-dropzone-media">
-                                        <img
-                                            src="{{ $academicsHeroPreview }}"
-                                            alt="Academics hero image preview"
-                                            class="academics-cms-image-dropzone-preview"
-                                            data-academics-preview-for="{{ $academicsHeroInputId }}"
-                                            data-academics-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
+                    <div class="academics-cms-card-editor is-active">
+                        <div class="form-group">
+                            <label>Upload Image</label>
+                            <div class="academics-cms-image-dropzone-shell">
+                                <div class="academics-cms-image-dropzone cms-image-dropzone-hero" data-academics-dropzone-for="{{ $academicsHeroInputId }}" role="button" tabindex="0" aria-label="Upload hero image">
+                                    <span class="academics-cms-image-dropzone-preview-column">
+                                        <span class="academics-cms-image-dropzone-media">
+                                            <img
+                                                src="{{ $academicsHeroPreview }}"
+                                                alt="Academics hero image preview"
+                                                class="academics-cms-image-dropzone-preview"
+                                                data-academics-preview-for="{{ $academicsHeroInputId }}"
+                                                data-academics-default-src="{{ asset('assets/static_img/about_header_image.png') }}"
+                                            >
+                                            <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $academicsHeroInputId }}" aria-label="Edit image" title="Edit image">
+                                                <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                            </button>
+                                                        <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $academicsHeroInputId }}" aria-label="Delete image" title="Delete image">
+                                                <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                            </button>
+                                        </span>
+                                        <span class="academics-cms-image-dropzone-label">Hero Image</span>
+                                    </span>
+                                    <span class="academics-cms-image-dropzone-upload">
+                                        <span class="academics-cms-image-dropzone-icon">
+                                            <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                        </span>
+                                        <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                        <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
+                                        <span class="academics-cms-image-dropzone-upload-button">Select image</span>
+                                        <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        <input
+                                            id="{{ $academicsHeroInputId }}"
+                                            class="academics-cms-image-dropzone-input"
+                                            type="file"
+                                            name="academics[hero][image_file]"
+                                            accept="image/*"
+                                            data-academics-image-field-id="{{ $academicsHeroFieldId }}"
                                         >
-                                        <button type="button" class="academics-cms-image-dropzone-edit" data-academics-edit-image-for="{{ $academicsHeroInputId }}" aria-label="Edit image" title="Edit image">
-                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
-                                        </button>
-                                                    <button type="button" class="academics-cms-image-dropzone-remove" data-academics-clear-image-for="{{ $academicsHeroInputId }}" aria-label="Delete image" title="Delete image">
-                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
-                                        </button>
                                     </span>
-                                    <span class="academics-cms-image-dropzone-label">Hero Image</span>
-                                </span>
-                                <span class="academics-cms-image-dropzone-upload">
-                                    <span class="academics-cms-image-dropzone-icon">
-                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
-                                    </span>
-                                    <span class="academics-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
-                                    <span class="academics-cms-image-dropzone-upload-copy">Your hero image preview updates instantly while you edit this section.</span>
-                                    <span class="academics-cms-image-dropzone-upload-button">Select image</span>
-                                    <span class="academics-cms-image-dropzone-file" data-academics-file-name-for="{{ $academicsHeroInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
-                                    <input
-                                        id="{{ $academicsHeroInputId }}"
-                                        class="academics-cms-image-dropzone-input"
-                                        type="file"
-                                        name="academics[hero][image_file]"
-                                        accept="image/*"
-                                        data-academics-image-field-id="{{ $academicsHeroFieldId }}"
-                                    >
-                                </span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label>Hero Title</label>
-                        <input type="text" name="academics[hero][title]" maxlength="255" value="{{ $heroEditor['title'] ?? '' }}">
+                        <div class="form-group">
+                            <label>Title</label>
+                            <input type="text" name="academics[hero][title]" maxlength="255" value="{{ $heroEditor['title'] ?? '' }}">
+                        </div>
                     </div>
 
                     <div class="academics-cms-modal-footer">
@@ -612,6 +613,10 @@
         display: none;
     }
 
+    .academics-cms-card-editor .form-group {
+        margin-bottom: 12px;
+    }
+
     .academics-cms-card-editor.is-active {
         display: block;
     }
@@ -982,7 +987,11 @@
     }
 
     .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .form-group + .form-group {
-        margin-top: 14px;
+        margin-top: 0;
+    }
+
+    .academics-cms-editor-panel.is-card-focus .academics-cms-modal-footer {
+        padding-right: 22px;
     }
 
     .academics-cms-editor-panel.is-card-focus .academics-cms-card-editor.is-active .academics-cms-form-grid {
