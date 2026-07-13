@@ -1,12 +1,14 @@
 :root {
+  --theme-maroon: #8b0000;
+  --theme-maroon-rgb: 139, 0, 0;
   --dm-bg: #0d0506;
   --dm-surface: #14080a;
   --dm-surface-elevated: #1a0a0d;
   --dm-border: rgba(128, 0, 0, 0.15);
   --dm-text-primary: #ffffff;
   --dm-text-secondary: #cccccc;
-  --dm-accent: #660000;
-  --dm-accent-hover: #660000;
+  --dm-accent: var(--theme-maroon);
+  --dm-accent-hover: var(--theme-maroon);
   --dm-glow: 0 4px 24px rgba(122, 21, 21, 0.25);
   --dm-gradient: linear-gradient(135deg, #1f080a 0%, #140506 100%);
 }
@@ -21,8 +23,10 @@
 }
 
 :root {
-  --primary-color: #660000;
-  --primary-dark: #660000;
+  --theme-maroon: #8b0000;
+  --theme-maroon-rgb: 139, 0, 0;
+  --primary-color: var(--theme-maroon);
+  --primary-dark: var(--theme-maroon);
   --maroon-light: var(--dm-accent);
   --maroon-medium: var(--dm-accent-hover);
   --maroon-dark: #3f070b;
@@ -522,7 +526,7 @@ body.nav-open .scroll-nav-button {
     right: 15px;
     top: 20px;
     z-index: 1001;
-    color: #660000;
+    color: var(--theme-maroon);
   }
 
   .header-top {
@@ -904,6 +908,8 @@ pup-header .nav-overlay {
 
 @media (max-width: 900px) {
   :root {
+  --theme-maroon: #8b0000;
+  --theme-maroon-rgb: 139, 0, 0;
     --layout-page-gutter: 12px;
   }
 
@@ -1243,6 +1249,8 @@ pup-header .nav-overlay {
 
 @media (max-width: 480px) {
   :root {
+  --theme-maroon: #8b0000;
+  --theme-maroon-rgb: 139, 0, 0;
     --layout-page-gutter: 10px;
   }
 
@@ -1351,3 +1359,106 @@ pup-header .nav-overlay {
 
 
 
+
+
+
+/* Dark Mode Overrides for Theme Colors */
+body.pup-dark-mode {
+  --theme-maroon: #660000;
+  --theme-maroon-rgb: 102, 0, 0;
+}
+
+/* --- COMPREHENSIVE DARK MODE OVERRIDES FOR ALL MODULES --- */
+body.pup-dark-mode .hero-shell,
+body.pup-dark-mode .uc-hero-b,
+body.pup-dark-mode .dp-program-hero,
+body.pup-dark-mode .iapply-hero,
+body.pup-dark-mode .ne-hero-shell,
+body.pup-dark-mode .students-hero,
+body.pup-dark-mode .research-hero,
+body.pup-dark-mode .carousel-section,
+body.pup-dark-mode .carousel-slide,
+body.pup-dark-mode .carousel-track,
+body.pup-dark-mode .iapply-schedule-strip,
+body.pup-dark-mode .uc-schedule-container {
+    background: var(--dm-surface-elevated, #1a0a0d) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+    box-shadow: none !important;
+}
+
+body.pup-dark-mode .carousel-content,
+body.pup-dark-mode .uc-hero-b-desc,
+body.pup-dark-mode .uc-hero-b-top {
+    background: transparent !important;
+}
+
+body.pup-dark-mode .uc-calendar-official-card,
+body.pup-dark-mode .contents-card,
+body.pup-dark-mode .academic-feature-card,
+body.pup-dark-mode .cards_information,
+body.pup-dark-mode .students-card,
+body.pup-dark-mode .research-card,
+body.pup-dark-mode .research-story-card,
+body.pup-dark-mode .students-card-inner,
+body.pup-dark-mode .students-card-front,
+body.pup-dark-mode .students-card-back,
+body.pup-dark-mode .ne-card,
+body.pup-dark-mode .ne-modal-card,
+body.pup-dark-mode .ne-event-item,
+body.pup-dark-mode .ne-events-section,
+body.pup-dark-mode #featuredEventMount.ne-featured {
+    background: var(--dm-surface-elevated, #1a0a0d) !important;
+    border-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+body.pup-dark-mode .uc-calendar-embed {
+    background: var(--dm-surface, #14080a) !important;
+}
+
+body.pup-dark-mode .uc-calendar-official-head h3,
+body.pup-dark-mode .uc-calendar-official-head p,
+body.pup-dark-mode .contents-card h3,
+body.pup-dark-mode .cards_information h3,
+body.pup-dark-mode .ne-card-title,
+body.pup-dark-mode .ne-event-name,
+body.pup-dark-mode .ne-events-header h2,
+body.pup-dark-mode .iapply-schedule-box-label,
+body.pup-dark-mode .iapply-schedule-box-value,
+body.pup-dark-mode .iapply-hero-tag {
+    color: var(--dm-text-primary, #ffffff) !important;
+}
+
+body.pup-dark-mode .uc-calendar-official-head p {
+    color: var(--dm-text-secondary, #cccccc) !important;
+}
+
+body.pup-dark-mode .contents-card p,
+body.pup-dark-mode .cards_information p,
+body.pup-dark-mode .ne-card-desc,
+body.pup-dark-mode .ne-event-date,
+body.pup-dark-mode .uc-hero-b-desc {
+    color: var(--dm-text-secondary, #cccccc) !important;
+}
+
+body.pup-dark-mode .uc-calendar-actions .apply-now-btn,
+body.pup-dark-mode .uc-calendar-actions .uc-btn-outline,
+body.pup-dark-mode .contents-card-action,
+body.pup-dark-mode .academic-feature-card .btn,
+body.pup-dark-mode .ne-card-loc {
+    background: var(--dm-accent, #660000) !important;
+    color: var(--dm-text-primary, #ffffff) !important;
+    border-color: rgba(255,255,255,0.1) !important;
+}
+
+body.pup-dark-mode .uc-calendar-actions .apply-now-btn:hover,
+body.pup-dark-mode .uc-calendar-actions .uc-btn-outline:hover,
+body.pup-dark-mode .contents-card-action:hover {
+    background: var(--dm-accent-hover, #4d0000) !important;
+}
+
+body.pup-dark-mode .uc-hero-b::before,
+body.pup-dark-mode .dp-program-hero::before,
+body.pup-dark-mode .iapply-hero::before,
+body.pup-dark-mode .carousel-slide::before {
+    display: none !important;
+}

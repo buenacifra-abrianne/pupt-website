@@ -7,8 +7,8 @@
 }
 
 :root {
-    --primary-color: #660000;
-    --primary-dark: #660000;
+    --primary-color: var(--theme-maroon);
+    --primary-dark: var(--theme-maroon);
     --maroon-light: var(--dm-accent);
     --maroon-medium: var(--dm-accent-hover);
     --maroon-dark: #3f070b;
@@ -1542,6 +1542,7 @@ body.scroll-up .reveal:not(.active) {
     text-align: center;
   }
 }
+
 
 
 

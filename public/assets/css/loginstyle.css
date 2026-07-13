@@ -14,7 +14,7 @@ body {
 }
 
 :root {
-    --primary-color: #660000;
+    --primary-color: var(--theme-maroon);
     --primary-dark: #650000;
     --accent-color: #f0c85a;
     --text-dark: #451414;
@@ -392,6 +392,7 @@ body {
         margin-top: 14px;
     }
 }
+
 
 
 

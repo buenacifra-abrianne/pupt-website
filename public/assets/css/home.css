@@ -495,7 +495,7 @@ body {
 .hero-actions-row .hero-secondary {
   min-width: 220px;
   border: 1px solid var(--dm-accent-hover);
-  background: linear-gradient(135deg, #660000 0%, #6b0b0f 100%);
+  background: linear-gradient(135deg, var(--theme-maroon) 0%, #6b0b0f 100%);
   color: #fffaf4;
   font-weight: 700;
   box-shadow: var(--dm-glow);
@@ -1482,8 +1482,8 @@ body.home-carousel-redesign .indicator.active {
   padding: 16px 14px 18px;
   box-sizing: border-box;
   background:
-    radial-gradient(circle at 72% 28%, rgba(102, 0, 0, 0.24) 0%, rgba(102, 0, 0, 0.12) 18%, transparent 42%),
-    linear-gradient(180deg, rgba(102, 0, 0, 0.96) 0%, rgba(127, 17, 19, 0.94) 52%, rgba(63, 7, 11, 0.98) 100%);
+    radial-gradient(circle at 72% 28%, rgba(var(--theme-maroon-rgb), 0.24) 0%, rgba(var(--theme-maroon-rgb), 0.12) 18%, transparent 42%),
+    linear-gradient(180deg, rgba(var(--theme-maroon-rgb), 0.96) 0%, rgba(127, 17, 19, 0.94) 52%, rgba(63, 7, 11, 0.98) 100%);
   color: #fffaf4;
   opacity: 0;
   transform: translateY(100%);
@@ -1904,7 +1904,7 @@ body.home-carousel-redesign .indicator.active {
   padding: 20px 18px 22px;
   box-sizing: border-box;
   background:
-    radial-gradient(circle at 72% 28%, rgba(102, 0, 0, 0.24) 0%, rgba(102, 0, 0, 0.12) 18%, transparent 42%),
+    radial-gradient(circle at 72% 28%, rgba(var(--theme-maroon-rgb), 0.24) 0%, rgba(var(--theme-maroon-rgb), 0.12) 18%, transparent 42%),
     var(--home-maroon-gradient);
   color: #fffaf4;
   opacity: 0;
@@ -2340,7 +2340,7 @@ body.modal-open {
   border: none;
   border-radius: 50%;
   background: #ffffff;
-  color: #660000;
+  color: var(--theme-maroon);
   font-size: 1.5rem;
   display: flex;
   align-items: center;
@@ -2416,7 +2416,7 @@ body.modal-open {
   justify-content: center;
   padding: 24px;
   background:
-    radial-gradient(circle at top, rgba(102, 0, 0, 0.16) 0%, rgba(28, 8, 10, 0.48) 38%, rgba(18, 3, 4, 0.72) 100%);
+    radial-gradient(circle at top, rgba(var(--theme-maroon-rgb), 0.16) 0%, rgba(28, 8, 10, 0.48) 38%, rgba(18, 3, 4, 0.72) 100%);
   backdrop-filter: blur(12px);
   opacity: 0;
   pointer-events: none;
@@ -4196,5 +4196,6 @@ body.pup-dark-mode .facility-modal-title {
 body.pup-dark-mode .campus-tour-empty {
   color: var(--dm-text-secondary) !important;
 }
+
 
 

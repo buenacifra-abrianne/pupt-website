@@ -84,7 +84,7 @@
   padding: 0 14px;
   border: 1px solid rgba(127, 17, 19, 0.22);
   border-radius: 12px;
-  background: #660000;
+  background: var(--theme-maroon);
   color: #fff;
   box-shadow: var(--dm-glow);
   font: 700 1rem/1 "Poppins", sans-serif;
@@ -105,8 +105,8 @@
 
 .alphabetical-card-selector button:hover,
 .alphabetical-card-selector button:focus-visible {
-  background: #660000;
-  border-color: #660000;
+  background: var(--theme-maroon);
+  border-color: var(--theme-maroon);
   box-shadow: var(--dm-glow);
   transform: translateY(-2px);
   outline: none;
@@ -120,7 +120,7 @@
 
 body.pup-dark-mode .alphabetical-card-selector button {
   border-color: rgba(255, 255, 255, 0.18);
-  background: #660000;
+  background: var(--theme-maroon);
   color: #fff;
 }
 
@@ -185,6 +185,7 @@ body.pup-dark-mode .alphabetical-card-selector button[aria-current="page"] {
     transition: none;
   }
 }
+
 
 
 

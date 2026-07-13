@@ -19,7 +19,7 @@ body {
     top: 0;
     height: 100vh;
     width: 280px;
-    background: #660000;
+    background: var(--theme-maroon);
     padding: 20px 0;
     transition: 0.3s;
     z-index: 1000;
@@ -79,8 +79,8 @@ body {
 }
 
 .nav-link:hover, .nav-link.active {
-    background: #660000;
-    border-left: 4px solid #660000;
+    background: var(--theme-maroon);
+    border-left: 4px solid var(--theme-maroon);
 }
 
 .nav-link:hover span,
@@ -111,7 +111,7 @@ body {
     top: 0;
     right: 0;
     height: 70px;
-    background: #660000;
+    background: var(--theme-maroon);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -263,7 +263,7 @@ body {
 }
 
 .page-title {
-    color: #660000;
+    color: var(--theme-maroon);
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 5px;
@@ -310,17 +310,17 @@ body {
 }
 
 .stat-icon.maroon {
-    background: linear-gradient(135deg, #660000 0%, #a00000 100%);
+    background: linear-gradient(135deg, var(--theme-maroon) 0%, #a00000 100%);
 }
 
 .stat-icon.yellow {
     background: linear-gradient(135deg, #FFD700 0%, #ffed4e 100%);
-    color: #660000;
+    color: var(--theme-maroon);
 }
 
 .stat-info h3 {
     font-size: 24px;
-    color: #660000;
+    color: var(--theme-maroon);
     margin-bottom: 5px;
 }
 
@@ -384,11 +384,11 @@ body {
 
 .tab-btn:hover {
     background: rgba(128, 0, 0, 0.05);
-    color: #660000;
+    color: var(--theme-maroon);
 }
 
 .tab-btn.active {
-    color: #660000;
+    color: var(--theme-maroon);
     border-bottom-color: #D4AF37;
     background: white;
 }
@@ -422,7 +422,7 @@ body {
 
 .card-title {
     font-size: 18px;
-    color: #660000;
+    color: var(--theme-maroon);
     display: flex;
     align-items: center;
     gap: 12px;
@@ -452,7 +452,7 @@ body {
 
 .form-group label i {
     margin-right: 6px;
-    color: #660000;
+    color: var(--theme-maroon);
 }
 
 .form-group input[type="text"],
@@ -508,7 +508,7 @@ body {
 
 /* Buttons */
 .action-btn {
-    background: linear-gradient(135deg, #660000 0%, #600000 100%);
+    background: linear-gradient(135deg, var(--theme-maroon) 0%, #600000 100%);
     color: white;
     border: none;
     padding: 12px 28px;
@@ -530,8 +530,8 @@ body {
 
 .btn-outline {
     background: white;
-    color: #660000;
-    border: 2px solid #660000;
+    color: var(--theme-maroon);
+    border: 2px solid var(--theme-maroon);
     padding: 12px 24px;
     border-radius: 8px;
     cursor: pointer;
@@ -545,7 +545,7 @@ body {
 }
 
 .btn-outline:hover {
-    background: #660000;
+    background: var(--theme-maroon);
     color: white;
 }
 
@@ -738,7 +738,7 @@ body {
 
 .image-editor label i {
     margin-right: 6px;
-    color: #660000;
+    color: var(--theme-maroon);
 }
 
 .image-preview-container {
@@ -841,7 +841,7 @@ body {
 .section-title {
     font-size: 16px;
     font-weight: 600;
-    color: #660000;
+    color: var(--theme-maroon);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -877,7 +877,7 @@ body {
 .sidebar-item-header label {
     margin-bottom: 0;
     font-weight: 600;
-    color: #660000;
+    color: var(--theme-maroon);
     flex: 1;
 }
 
@@ -944,7 +944,7 @@ body {
 
 .portal-image-section label i {
     margin-right: 6px;
-    color: #660000;
+    color: var(--theme-maroon);
 }
 
 .portal-field-header {
@@ -1179,7 +1179,7 @@ body {
 }
 
 .events-table thead {
-    background: #660000;
+    background: var(--theme-maroon);
     color: white;
 }
 
@@ -1244,7 +1244,7 @@ body {
 
 .event-image-section label i {
     margin-right: 6px;
-    color: #660000;
+    color: var(--theme-maroon);
 }
 
 .event-field-header {
@@ -1365,7 +1365,7 @@ body {
 }
 
 .modal-header h3 {
-    color: #660000;
+    color: var(--theme-maroon);
     font-size: 20px;
 }
 
@@ -1384,7 +1384,7 @@ body {
 }
 
 .close-modal:hover {
-    color: #660000;
+    color: var(--theme-maroon);
     transform: rotate(90deg);
 }
 
@@ -1771,7 +1771,7 @@ body {
     height: 60px;
     border: none;
     border-radius: 50%;
-    background: #660000;
+    background: var(--theme-maroon);
     color: #fff;
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
     display: inline-flex;
@@ -1792,8 +1792,9 @@ body {
 
 .floating-voice-btn.listening {
     background: #fff;
-    color: #660000;
+    color: var(--theme-maroon);
     box-shadow: var(--dm-glow); 
 }
+
 
 

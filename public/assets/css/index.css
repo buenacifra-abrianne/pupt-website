@@ -12,7 +12,7 @@
     --landing-line: rgba(127, 17, 19, 0.12);
     --landing-surface: #fffaf6;
     --landing-surface-soft: #f8efe8;
-    --landing-maroon-light: #660000;
+    --landing-maroon-light: var(--theme-maroon);
     --landing-maroon: #7f1113;
     --landing-maroon-deep: #4f090c;
     --landing-gold: #f3c45a;
@@ -721,6 +721,7 @@ body {
         animation: none !important;
     }
 }
+
 
 
 

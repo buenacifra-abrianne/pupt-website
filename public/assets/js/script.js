@@ -815,7 +815,6 @@ function initWidgetDock() {
     if (!btn || btn === accHoverBound) return;
     accHoverBound = btn;
 
-    btn.style.setProperty('background',    ACC_FAB_DEFAULT_BG,    'important');
     btn.style.setProperty('box-shadow',    ACC_FAB_DEFAULT_SHADOW, 'important');
     btn.style.setProperty('transition',    ACC_FAB_TRANSITION,    'important');
     btn.style.setProperty('border-radius', '999px',               'important');
@@ -825,13 +824,13 @@ function initWidgetDock() {
     btn.addEventListener('mouseenter', () => {
       if (isTouch) return;
       btn.style.setProperty('transform',  ACC_FAB_HOVER_TRANSFORM, 'important');
-      btn.style.setProperty('background', ACC_FAB_HOVER_BG,        'important');
+
       spawnAccGlowRing(btn);
     });
 
     btn.addEventListener('mouseleave', () => {
       btn.style.setProperty('transform',  '',                     'important');
-      btn.style.setProperty('background', ACC_FAB_DEFAULT_BG,    'important');
+
       btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
       btn.style.setProperty('animation',  'none',                 'important');
     });
@@ -848,13 +847,13 @@ function initWidgetDock() {
     btn.addEventListener('focus', () => {
       if (isTouch) return;
       btn.style.setProperty('transform',  ACC_FAB_HOVER_TRANSFORM, 'important');
-      btn.style.setProperty('background', ACC_FAB_HOVER_BG,        'important');
+
       spawnAccGlowRing(btn);
     });
 
     btn.addEventListener('blur', () => {
       btn.style.setProperty('transform',  '',                     'important');
-      btn.style.setProperty('background', ACC_FAB_DEFAULT_BG,    'important');
+
       btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
       btn.style.setProperty('animation',  'none',                 'important');
     });
@@ -2203,4 +2202,5 @@ if (document.readyState === "loading") {
 } else {
   initAlphabeticalCardPages();
 }
+
 

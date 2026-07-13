@@ -1,5 +1,5 @@
 :root {
-    --acc-maroon: #660000;
+    --acc-maroon: var(--theme-maroon);
     --acc-maroon-dark: #5c0000;
     --acc-maroon-soft: rgba(128, 0, 0, 0.14);
     --widget-fab-size: clamp(54px, 6vw, 62px);
@@ -11,7 +11,7 @@
     --widget-panel-width: clamp(472px, 30vw, 540px);
     --widget-panel-height: clamp(880px, 88vh, 1000px);
     --widget-panel-safe-bottom: calc(var(--widget-edge-offset) + var(--fab-stack-height) + var(--widget-panel-gap) + env(safe-area-inset-bottom, 0px));
-    --widget-fab-bg: linear-gradient(135deg, var(--dm-accent-hover) 0%, var(--dm-accent) 100%);
+    --widget-fab-bg: var(--theme-maroon);
     --widget-fab-shadow: 0 14px 32px rgba(77, 9, 11, 0.35);
     --widget-controls-z: 2147483600;
     --widget-accessibility-fab-z: 2147483500;
@@ -632,7 +632,7 @@ body.pup-dark-mode .acc-container [class*="menu"]:not(.nav-menu),
 body.pup-dark-mode .acc-container [class*="body"],
 body.pup-dark-mode .acc-container [class*="content"] {
   background: var(--dm-surface-elevated) !important;
-  border-color: rgba(102, 0, 0, 0.18) !important;
+  border-color: rgba(var(--theme-maroon-rgb), 0.18) !important;
   color: var(--dm-text-primary) !important;
 }
 
@@ -647,14 +647,14 @@ body.pup-dark-mode .acc-container .acc-btn:not(.acc-selected):not([aria-pressed=
 body.pup-dark-mode .acc-container [class*="btn"]:not(.acc-selected):not([aria-pressed="true"]):not(.acc-toggle-btn) {
   background: var(--dm-border) !important;
   color: var(--dm-text-secondary) !important;
-  border: 1px solid rgba(102, 0, 0, 0.2) !important;
+  border: 1px solid rgba(var(--theme-maroon-rgb), 0.2) !important;
 }
 
 body.pup-dark-mode .acc-container .acc-btn:not(.acc-selected):not([aria-pressed="true"]):hover,
 body.pup-dark-mode .acc-container [class*="btn"]:not(.acc-selected):not([aria-pressed="true"]):not(.acc-toggle-btn):hover {
   background: var(--dm-border) !important;
   color: var(--dm-text-secondary) !important;
-  border-color: rgba(102, 0, 0, 0.38) !important;
+  border-color: rgba(var(--theme-maroon-rgb), 0.38) !important;
 }
 
 body.pup-dark-mode .acc-container .acc-btn:not(.acc-selected):not([aria-pressed="true"]) svg,
@@ -668,7 +668,7 @@ body.pup-dark-mode .acc-container [class*="scale"],
 body.pup-dark-mode .acc-container [class*="font-size"],
 body.pup-dark-mode .acc-container [class*="text-size"] {
   background: var(--dm-border) !important;
-  border: 1px solid rgba(102, 0, 0, 0.2) !important;
+  border: 1px solid rgba(var(--theme-maroon-rgb), 0.2) !important;
   color: var(--dm-text-primary) !important;
   border-radius: 12px !important;
 }
@@ -697,8 +697,8 @@ body.pup-dark-mode .acc-container input[type="range"] {
 body.pup-dark-mode .acc-container .acc-btn:not(.acc-selected):not([aria-pressed="true"]):focus,
 body.pup-dark-mode .acc-container .acc-btn:not(.acc-selected):not([aria-pressed="true"]):focus-visible {
   outline: none !important;
-  border-color: rgba(102, 0, 0, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(102, 0, 0, 0.28) !important;
+  border-color: rgba(var(--theme-maroon-rgb), 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(var(--theme-maroon-rgb), 0.28) !important;
 }
 
 body.pup-dark-mode .acc-container .acc-btn {
@@ -720,7 +720,7 @@ body.pup-dark-mode .acc-container [class*="reset"]:hover {
 body.pup-dark-mode .acc-container .acc-footer,
 body.pup-dark-mode .acc-container [class*="footer"] {
   background: var(--dm-bg) !important;
-  border-top: 1px solid rgba(102, 0, 0, 0.14) !important;
+  border-top: 1px solid rgba(var(--theme-maroon-rgb), 0.14) !important;
   color: var(--dm-text-secondary) !important;
 }
 
@@ -729,7 +729,7 @@ body.pup-dark-mode .acc-container [class*="lang-toggle"],
 body.pup-dark-mode .acc-container [class*="lang"] select {
   background: var(--dm-border) !important;
   color: var(--dm-text-secondary) !important;
-  border-color: rgba(102, 0, 0, 0.2) !important;
+  border-color: rgba(var(--theme-maroon-rgb), 0.2) !important;
 }
 
 body.pup-dark-mode .acc-container [class*="brand"],
@@ -740,7 +740,7 @@ body.pup-dark-mode .acc-container [class*="attribution"] {
 
 body.pup-dark-mode .acc-container .acc-header {
   background: linear-gradient(135deg, var(--dm-accent-hover) 0%, #5c0d0f 100%) !important;
-  border-bottom: 1px solid rgba(102, 0, 0, 0.2) !important;
+  border-bottom: 1px solid rgba(var(--theme-maroon-rgb), 0.2) !important;
   display: flex !important;
   align-items: center !important;
   justify-content: flex-start !important;
@@ -754,12 +754,12 @@ body.pup-dark-mode .acc-container ::-webkit-scrollbar-track {
 }
 
 body.pup-dark-mode .acc-container ::-webkit-scrollbar-thumb {
-  background: rgba(102, 0, 0, 0.3) !important;
+  background: rgba(var(--theme-maroon-rgb), 0.3) !important;
   border-radius: 4px !important;
 }
 
 body.pup-dark-mode .acc-container ::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 0, 0, 0.5) !important;
+  background: rgba(var(--theme-maroon-rgb), 0.5) !important;
 }
 
 body.pup-dark-mode .acc-container .acc-btn:not(.acc-selected):not([aria-pressed="true"]) .acc-label,
@@ -871,7 +871,7 @@ body.pup-dark-mode .acc-container [class*="lang-dropdown"],
 body.pup-dark-mode .acc-container [class*="language-panel"],
 body.pup-dark-mode .acc-container [class*="language-list"] {
   background: var(--dm-surface-elevated) !important;
-  border-color: rgba(102, 0, 0, 0.18) !important;
+  border-color: rgba(var(--theme-maroon-rgb), 0.18) !important;
   color: var(--dm-text-primary) !important;
 }
 
@@ -888,7 +888,7 @@ body.pup-dark-mode .acc-container [class*="language-search"],
 body.pup-dark-mode .acc-container [class*="lang"] input[type="text"],
 body.pup-dark-mode .acc-container [class*="lang"] input[type="search"] {
   background: var(--dm-border) !important;
-  border: 1px solid rgba(102, 0, 0, 0.24) !important;
+  border: 1px solid rgba(var(--theme-maroon-rgb), 0.24) !important;
   color: var(--dm-text-primary) !important;
   border-radius: 10px !important;
 }
@@ -902,8 +902,8 @@ body.pup-dark-mode .acc-container [class*="lang"] input::placeholder {
 body.pup-dark-mode .acc-container #acc-lang-search:focus,
 body.pup-dark-mode .acc-container [class*="lang"] input:focus {
   outline: none !important;
-  border-color: rgba(102, 0, 0, 0.5) !important;
-  box-shadow: 0 0 0 3px rgba(102, 0, 0, 0.2) !important;
+  border-color: rgba(var(--theme-maroon-rgb), 0.5) !important;
+  box-shadow: 0 0 0 3px rgba(var(--theme-maroon-rgb), 0.2) !important;
 }
 
 body.pup-dark-mode .acc-container .acc-lang-item,
@@ -913,13 +913,13 @@ body.pup-dark-mode .acc-container [class*="lang-option"],
 body.pup-dark-mode .acc-container [class*="language-option"] {
   background: transparent !important;
   color: var(--dm-text-secondary) !important;
-  border-bottom: 1px solid rgba(102, 0, 0, 0.08) !important;
+  border-bottom: 1px solid rgba(var(--theme-maroon-rgb), 0.08) !important;
 }
 
 body.pup-dark-mode .acc-container .acc-lang-item:hover,
 body.pup-dark-mode .acc-container [class*="lang-item"]:hover,
 body.pup-dark-mode .acc-container [class*="language-item"]:hover {
-  background: rgba(102, 0, 0, 0.1) !important;
+  background: rgba(var(--theme-maroon-rgb), 0.1) !important;
   color: var(--dm-text-primary) !important;
 }
 
@@ -957,7 +957,7 @@ body.pup-dark-mode .acc-container [class*="language"] ::-webkit-scrollbar-track 
 
 body.pup-dark-mode .acc-container [class*="lang"] ::-webkit-scrollbar-thumb,
 body.pup-dark-mode .acc-container [class*="language"] ::-webkit-scrollbar-thumb {
-  background: rgba(102, 0, 0, 0.3) !important;
+  background: rgba(var(--theme-maroon-rgb), 0.3) !important;
   border-radius: 4px !important;
 }
 
@@ -1080,4 +1080,47 @@ body.pup-dark-mode .carousel-next:hover {
     color: #ffffff !important;
 }
 
+
+
+
+
+/* --- FAB LIGHT/DARK MODE EXPLICIT FIXES --- */
+
+/* LIGHT MODE: Lighter Maroon background, White icons */
+:root {
+    --widget-fab-bg: #a21a23 !important;
+}
+
+.acc-container .acc-toggle-btn,
+.widget-dock-action,
+.widget-dock-fab {
+    background: #a21a23 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+.acc-container .acc-toggle-btn svg,
+.widget-dock-action svg,
+.widget-dock-fab svg,
+.acc-container .acc-toggle-icon svg {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+}
+
+/* DARK MODE: Dark Maroon background, White icons */
+body.pup-dark-mode .acc-container .acc-toggle-btn,
+body.pup-dark-mode .widget-dock-action,
+body.pup-dark-mode .widget-dock-fab {
+    background: #5a0000 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+body.pup-dark-mode .acc-container .acc-toggle-btn svg,
+body.pup-dark-mode .widget-dock-action svg,
+body.pup-dark-mode .widget-dock-fab svg,
+body.pup-dark-mode .acc-container .acc-toggle-icon svg {
+    fill: #ffffff !important;
+    color: #ffffff !important;
+}
 

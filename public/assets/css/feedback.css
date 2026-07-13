@@ -241,7 +241,7 @@
   border: 1px solid rgba(164, 20, 20, 0.2);
   border-radius: 18px;
   background: linear-gradient(180deg, #fff4f4 0%, #ffe8e8 100%);
-  color: #660000;
+  color: var(--theme-maroon);
   font-size: 0.95rem;
   font-weight: 700;
   box-shadow: var(--dm-glow);
@@ -659,6 +659,7 @@
     font-size: 1.4rem;
   }
 }
+
 
 
 

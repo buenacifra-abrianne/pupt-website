@@ -844,7 +844,7 @@ a.student-admissions-contact-item {
 
 body.pup-dark-mode .student-admissions-contact-panel {
   background: linear-gradient(180deg, rgba(34, 5, 7, 0.98) 0%, rgba(20, 3, 4, 0.98) 100%);
-  border-color: rgba(102, 0, 0, 0.14);
+  border-color: rgba(var(--theme-maroon-rgb), 0.14);
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
 }
 
@@ -854,7 +854,7 @@ body.pup-dark-mode .student-admissions-person-copy span {
 }
 
 body.pup-dark-mode .student-admissions-contact-item {
-  border-bottom-color: rgba(102, 0, 0, 0.14);
+  border-bottom-color: rgba(var(--theme-maroon-rgb), 0.14);
 }
 
 body.pup-dark-mode .student-admissions-contact-item-copy strong,
@@ -870,7 +870,7 @@ body.pup-dark-mode .student-admissions-contact-arrow {
 
 body.pup-dark-mode .student-admissions-person {
   background: linear-gradient(180deg, rgba(44, 7, 9, 0.96) 0%, rgba(30, 4, 6, 0.98) 100%);
-  border-color: rgba(102, 0, 0, 0.14);
+  border-color: rgba(var(--theme-maroon-rgb), 0.14);
 }
 
 body.pup-dark-mode .student-admissions-person-avatar {
@@ -879,7 +879,7 @@ body.pup-dark-mode .student-admissions-person-avatar {
 }
 
 body.pup-dark-mode .student-admissions-person-divider {
-  background: rgba(102, 0, 0, 0.16);
+  background: rgba(var(--theme-maroon-rgb), 0.16);
 }
 
 body.pup-dark-mode .student-admissions-contact-item:hover .student-admissions-contact-arrow,
@@ -1811,8 +1811,8 @@ body.pup-dark-mode .academic-breadcrumb strong {
   padding: 20px 18px 22px;
   box-sizing: border-box;
   background:
-    radial-gradient(circle at 72% 28%, rgba(102, 0, 0, 0.24) 0%, rgba(102, 0, 0, 0.12) 18%, transparent 42%),
-    linear-gradient(180deg, rgba(102, 0, 0, 0.96) 0%, rgba(127, 17, 19, 0.94) 52%, rgba(63, 7, 11, 0.98) 100%);
+    radial-gradient(circle at 72% 28%, rgba(var(--theme-maroon-rgb), 0.24) 0%, rgba(var(--theme-maroon-rgb), 0.12) 18%, transparent 42%),
+    linear-gradient(180deg, rgba(var(--theme-maroon-rgb), 0.96) 0%, rgba(127, 17, 19, 0.94) 52%, rgba(63, 7, 11, 0.98) 100%);
   color: #fffaf4;
   opacity: 0;
   transform: translateY(100%);
@@ -1944,7 +1944,7 @@ body.pup-dark-mode .students-contents-description {
 }
 
 body.pup-dark-mode .students-cards::-webkit-scrollbar-thumb {
-  background: rgba(102, 0, 0, 0.28);
+  background: rgba(var(--theme-maroon-rgb), 0.28);
 }
 
 body.pup-dark-mode .students-card {
@@ -2236,11 +2236,11 @@ body.pup-dark-mode .students-card-action {
 /* ── Dark Mode ── */
 body.pup-dark-mode .students-org-card {
   background: linear-gradient(180deg, rgba(26, 10, 12, 0.98) 0%, rgba(18, 8, 10, 0.96) 100%);
-  border-color: rgba(102, 0, 0, 0.12);
+  border-color: rgba(var(--theme-maroon-rgb), 0.12);
 }
 
 body.pup-dark-mode .students-org-card:hover {
-  border-color: rgba(102, 0, 0, 0.12);
+  border-color: rgba(var(--theme-maroon-rgb), 0.12);
   box-shadow: var(--dm-glow);
 }
 
@@ -2249,7 +2249,7 @@ body.pup-dark-mode .students-org-img-wrap {
 }
 
 body.pup-dark-mode .students-org-copy {
-  border-top-color: rgba(102, 0, 0, 0.3);
+  border-top-color: rgba(var(--theme-maroon-rgb), 0.3);
 }
 
 body.pup-dark-mode .students-org-copy h3 {
@@ -2333,6 +2333,7 @@ a.students-org-card {
   pointer-events: auto;
   user-select: auto;
 }
+
 
 
 
