@@ -5,167 +5,237 @@
 @once
 <style id="cms-terms-modal-style">
     :root {
-        --cms-terms-maroon: #7f0000;
-        --cms-terms-maroon-deep: #4f0000;
-        --cms-terms-gold: #efbf53;
-        --cms-terms-ink: #2d1f1f;
-        --cms-terms-shell: #fffdf9;
+        --cms-terms-maroon: #7b1113;
+        --cms-terms-maroon-deep: #5a090a;
+        --cms-terms-gold: #f4d03f;
+        --cms-terms-ink: #111827;
+        --cms-terms-text: #4b5563;
+        --cms-terms-bg: #ffffff;
+        --cms-terms-surface: #fdfbf7;
+        --cms-terms-border: rgba(123, 17, 19, 0.1);
+        --cms-terms-ring: rgba(123, 17, 19, 0.25);
     }
-
+    
     body.cms-terms-locked {
         overflow: hidden;
     }
 
     body.cms-terms-locked > *:not(#cmsTermsOverlay) {
-        filter: blur(6px);
+        filter: blur(8px) grayscale(20%);
         pointer-events: none;
         user-select: none;
-        transition: filter 0.24s ease;
+        transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .cms-terms-overlay {
         position: fixed;
         inset: 0;
-        background:
-            radial-gradient(circle at 18% 18%, rgba(239, 191, 83, 0.18), transparent 32%),
-            linear-gradient(145deg, rgba(39, 9, 9, 0.74), rgba(14, 12, 16, 0.7));
-        backdrop-filter: blur(8px);
-        -webkit-backdrop-filter: blur(8px);
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         display: none;
         align-items: center;
         justify-content: center;
-        z-index: 3000;
-        padding: 18px;
+        z-index: 9999;
+        padding: 24px;
+        opacity: 0;
+        transition: opacity 0.4s ease;
     }
 
     .cms-terms-overlay.is-open {
         display: flex;
+        opacity: 1;
+        animation: overlayFadeIn 0.4s ease forwards;
+    }
+
+    @keyframes overlayFadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
     .cms-terms-modal {
-        width: min(820px, calc(100vw - 28px));
-        background:
-            linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 250, 244, 0.98));
-        border-radius: 22px;
+        width: 100%;
+        max-width: 600px;
+        max-height: calc(100vh - 80px);
+        margin: 40px auto;
+        background: var(--cms-terms-bg);
+        border-radius: 24px;
         overflow: hidden;
-        box-shadow:
-            0 28px 70px rgba(11, 16, 22, 0.34),
-            0 8px 22px rgba(127, 0, 0, 0.16);
-        border: 1px solid rgba(127, 0, 0, 0.12);
+        box-shadow: 
+            0 25px 50px -12px rgba(0, 0, 0, 0.25),
+            0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+            0 0 40px rgba(123, 17, 19, 0.08);
+        border: 1px solid var(--cms-terms-border);
+        transform: scale(0.95) translateY(20px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        display: flex;
+        flex-direction: column;
+    }
+
+    .cms-terms-overlay.is-open .cms-terms-modal {
+        transform: scale(1) translateY(0);
+        opacity: 1;
     }
 
     .cms-terms-header {
         position: relative;
-        padding: 28px 28px 24px;
-        color: #fff;
-        color: #fff;
-        background:
-            radial-gradient(circle at top left, rgba(255, 218, 125, 0.26), transparent 35%),
-            linear-gradient(135deg, #8f0000 0%, #6f0000 48%, #410000 100%);
+        padding: 40px 40px 24px;
+        background: linear-gradient(145deg, var(--cms-terms-surface), #ffffff);
+        border-bottom: 1px solid var(--cms-terms-border);
+        text-align: center;
+    }
+    
+    .cms-terms-header-icon {
+        width: 64px;
+        height: 64px;
+        background: linear-gradient(135deg, rgba(123, 17, 19, 0.05), rgba(244, 208, 63, 0.15));
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 24px;
+        color: var(--cms-terms-maroon);
+        box-shadow: 0 8px 16px rgba(123, 17, 19, 0.06), inset 0 2px 4px rgba(255, 255, 255, 0.8);
+        border: 1px solid rgba(123, 17, 19, 0.08);
+        transform: rotate(-3deg);
+        transition: transform 0.3s ease;
+    }
+    
+    .cms-terms-modal:hover .cms-terms-header-icon {
+        transform: rotate(0deg) scale(1.05);
     }
 
-    .cms-terms-header::after {
-        content: "";
-        position: absolute;
-        inset: auto 0 0;
-        height: 1px;
-        background: linear-gradient(90deg, rgba(255, 255, 255, 0.22), rgba(255, 218, 125, 0.64), rgba(255, 255, 255, 0.1));
+    .cms-terms-header-icon svg {
+        width: 32px;
+        height: 32px;
     }
 
     .cms-terms-kicker {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        padding: 7px 12px;
+        gap: 6px;
+        padding: 6px 14px;
         border-radius: 999px;
         font-size: 11px;
         line-height: 1;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
         font-weight: 700;
-        color: rgba(255, 248, 232, 0.92);
-        background: rgba(255, 255, 255, 0.12);
-        border: 1px solid rgba(255, 255, 255, 0.16);
-        margin-bottom: 14px;
-    }
-
-    .cms-terms-kicker::before {
-        content: "";
-        width: 7px;
-        height: 7px;
-        border-radius: 999px;
-        background: var(--cms-terms-gold);
-        box-shadow: 0 0 0 4px rgba(239, 191, 83, 0.16);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--cms-terms-maroon);
+        background: rgba(123, 17, 19, 0.06);
+        border: 1px solid rgba(123, 17, 19, 0.1);
+        margin-bottom: 16px;
     }
 
     .cms-terms-title {
         margin: 0;
-        font-size: 30px;
-        line-height: 1.05;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        max-width: 12ch;
+        font-size: 28px;
+        line-height: 1.2;
+        font-weight: 800;
+        color: var(--cms-terms-ink);
+        letter-spacing: -0.02em;
     }
 
     .cms-terms-subtitle {
-        margin: 10px 0 0;
-        max-width: 520px;
-        color: rgba(255, 246, 239, 0.9);
-        font-size: 14px;
-        line-height: 1.55;
+        margin: 12px auto 0;
+        color: var(--cms-terms-text);
+        font-size: 15px;
+        line-height: 1.5;
+        max-width: 480px;
+    }
+
+    #cmsTermsForm {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-height: 0;
     }
 
     .cms-terms-body {
-        padding: 28px 28px 22px;
-        border-bottom: 1px solid rgba(127, 0, 0, 0.1);
-        color: var(--cms-terms-ink);
-        font-size: 16px;
-        line-height: 1.6;
-        background:
-            radial-gradient(circle at top right, rgba(239, 191, 83, 0.08), transparent 28%),
-            linear-gradient(180deg, rgba(255, 255, 255, 0.76), rgba(255, 248, 241, 0.92));
+        padding: 32px 40px;
+        color: var(--cms-terms-text);
+        font-size: 15px;
+        line-height: 1.7;
+        flex-grow: 1;
+        overflow-y: auto;
+        background: radial-gradient(circle at top right, rgba(244, 208, 63, 0.05), transparent 28%), linear-gradient(180deg, #ffffff, var(--cms-terms-surface));
+    }
+    
+    .cms-terms-body::-webkit-scrollbar {
+        width: 6px;
+    }
+    .cms-terms-body::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .cms-terms-body::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.1);
+        border-radius: 10px;
+    }
+    .cms-terms-body:hover::-webkit-scrollbar-thumb {
+        background-color: rgba(0, 0, 0, 0.2);
     }
 
     .cms-terms-body p {
-        margin: 0 0 14px;
+        margin: 0 0 16px;
+    }
+    
+    .cms-terms-body p:last-child {
+        margin-bottom: 0;
     }
 
     .cms-terms-body strong {
-        font-weight: 700;
+        font-weight: 600;
+        color: var(--cms-terms-ink);
     }
 
-    .cms-terms-body a,
-    .cms-terms-agree a {
-        color: #800000;
+    .cms-terms-body a {
+        color: var(--cms-terms-maroon);
+        font-weight: 600;
         text-decoration: none;
+        border-bottom: 1px solid transparent;
+        transition: all 0.2s ease;
     }
 
-    .cms-terms-body a:hover,
-    .cms-terms-agree a:hover {
+    .cms-terms-body a:hover {
         color: var(--cms-terms-maroon-deep);
-        text-decoration: none;
+        border-bottom-color: var(--cms-terms-maroon-deep);
+    }
+
+    .cms-terms-consent-box {
+        padding: 24px 0 0;
+        margin-top: 24px;
+        border-top: 1px solid var(--cms-terms-border);
     }
 
     .cms-terms-agree {
         display: flex;
-        align-items: flex-start;
-        gap: 12px;
-        margin-top: 22px;
-        padding: 16px 18px;
-        border-radius: 18px;
-        background: linear-gradient(135deg, rgba(127, 0, 0, 0.05), rgba(239, 191, 83, 0.08));
-        border: 1px solid rgba(127, 0, 0, 0.08);
-        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.78);
+        align-items: center;
+        gap: 16px;
+        padding: 20px 24px;
+        border-radius: 16px;
+        background: var(--cms-terms-surface);
+        border: 1px solid var(--cms-terms-border);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.02), inset 0 0 0 1px rgba(255,255,255,0.5);
         font-size: 15px;
+        color: var(--cms-terms-ink);
+        cursor: pointer;
+        transition: all 0.2s ease;
+        white-space: nowrap;
+    }
+    
+    .cms-terms-agree:hover {
+        background: rgba(123, 17, 19, 0.02);
+        border-color: rgba(123, 17, 19, 0.2);
     }
 
     .cms-terms-agree input[type="checkbox"] {
         -webkit-appearance: none;
         appearance: none;
-        width: 20px;
-        height: 20px;
-        border: 2px solid var(--cms-terms-maroon);
-        border-radius: 6px;
+        width: 24px;
+        height: 24px;
+        border: 2px solid rgba(123, 17, 19, 0.3);
+        border-radius: 8px;
         background-color: #fff;
         outline: none;
         cursor: pointer;
@@ -174,166 +244,191 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        vertical-align: middle;
-        margin-top: 1px;
+        margin-top: 2px;
         flex: 0 0 auto;
-        box-sizing: border-box;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05) inset;
     }
 
     .cms-terms-agree input[type="checkbox"]:checked {
         background-color: var(--cms-terms-maroon);
         border-color: var(--cms-terms-maroon);
+        box-shadow: 0 4px 12px rgba(123, 17, 19, 0.2);
     }
 
     .cms-terms-agree input[type="checkbox"]:checked::after {
         content: "";
         position: absolute;
-        width: 5px;
-        height: 10px;
+        width: 6px;
+        height: 12px;
         border: solid #ffffff;
         border-width: 0 2.5px 2.5px 0;
         transform: rotate(45deg);
-        left: 5px;
-        top: 1px;
+        left: 7px;
+        top: 2px;
+        animation: checkmarkIn 0.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
     }
-
-    .cms-terms-agree input[type="checkbox"]:hover {
-        border-color: var(--cms-terms-maroon-deep);
-        box-shadow: 0 0 0 4px rgba(127, 0, 0, 0.12);
+    
+    @keyframes checkmarkIn {
+        0% { opacity: 0; transform: rotate(45deg) scale(0.5); }
+        100% { opacity: 1; transform: rotate(45deg) scale(1); }
     }
 
     .cms-terms-agree input[type="checkbox"]:focus-visible {
-        box-shadow: 0 0 0 4px rgba(127, 0, 0, 0.2);
-        border-color: var(--cms-terms-maroon-deep);
+        box-shadow: 0 0 0 4px var(--cms-terms-ring);
+        border-color: var(--cms-terms-maroon);
     }
 
     .cms-terms-agree span {
-        line-height: 1.55;
+        line-height: 1.6;
+        white-space: normal;
+    }
+    
+    .cms-terms-agree a {
+        color: var(--cms-terms-maroon);
+        font-weight: 600;
+        text-decoration: none;
+        position: relative;
+    }
+    
+    .cms-terms-agree a::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 100%;
+        height: 1px;
+        background-color: currentColor;
+        transform: scaleX(0);
+        transform-origin: right;
+        transition: transform 0.3s ease;
+    }
+    
+    .cms-terms-agree a:hover::after {
+        transform: scaleX(1);
+        transform-origin: left;
     }
 
     .cms-terms-footer {
         display: flex;
+        align-items: center;
         justify-content: flex-end;
-        gap: 12px;
-        padding: 20px 28px 26px;
-        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.88));
+        gap: 16px;
+        padding: 24px 40px;
+        background: #f9fafb;
+        border-top: 1px solid var(--cms-terms-border);
     }
 
     .cms-terms-btn {
-        min-width: 132px;
-        border: 1px solid transparent;
-        border-radius: 14px;
-        padding: 13px 22px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 140px;
+        border-radius: 12px;
+        padding: 14px 28px;
         font-size: 15px;
-        line-height: 1;
+        line-height: 1.2;
         font-weight: 600;
         cursor: pointer;
-        box-shadow: 0 10px 22px rgba(127, 0, 0, 0.08);
-        transition:
-            transform 0.18s ease,
-            box-shadow 0.18s ease,
-            background-color 0.18s ease,
-            border-color 0.18s ease,
-            color 0.18s ease;
-    }
-
-    .cms-terms-btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 14px 28px rgba(127, 0, 0, 0.12);
+        transition: all 0.2s ease;
+        outline: none;
     }
 
     .cms-terms-btn-cancel {
-        background: rgba(255, 255, 255, 0.92);
-        border-color: rgba(127, 0, 0, 0.22);
-        color: var(--cms-terms-maroon);
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--cms-terms-text);
     }
 
     .cms-terms-btn-cancel:hover {
-        background: rgba(127, 0, 0, 0.06);
-        border-color: rgba(127, 0, 0, 0.32);
-        color: var(--cms-terms-maroon-deep);
+        background: rgba(0, 0, 0, 0.05);
+        color: var(--cms-terms-ink);
+    }
+    
+    .cms-terms-btn-cancel:focus-visible {
+        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
     }
 
     .cms-terms-btn-continue {
-        background: linear-gradient(135deg, #990000, #5e0000);
-        border-color: rgba(94, 0, 0, 0.9);
-        color: #fff;
+        background: var(--cms-terms-maroon);
+        border: 1px solid transparent;
+        color: #ffffff;
+        box-shadow: 0 4px 14px rgba(123, 17, 19, 0.25);
     }
 
-    .cms-terms-btn-continue:hover {
-        background: linear-gradient(135deg, #ad0d0d, #5a0000);
-        border-color: rgba(90, 0, 0, 0.96);
+    .cms-terms-btn-continue:hover:not(:disabled) {
+        background: var(--cms-terms-maroon-deep);
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(123, 17, 19, 0.3);
+    }
+    
+    .cms-terms-btn-continue:active:not(:disabled) {
+        transform: translateY(1px);
+        box-shadow: 0 2px 8px rgba(123, 17, 19, 0.2);
     }
 
     .cms-terms-btn-continue:disabled {
         cursor: not-allowed;
-        opacity: 1;
-        transform: none;
+        background: #e5e7eb;
+        color: #9ca3af;
         box-shadow: none;
-        background: linear-gradient(135deg, #d1aaaa, #c09191);
-        border-color: #c09191;
-        color: #fff;
+        transform: none;
+    }
+    
+    .cms-terms-btn-continue:focus-visible {
+        box-shadow: 0 0 0 3px var(--cms-terms-ring);
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 640px) {
+        .cms-terms-overlay {
+            padding: 16px;
+        }
+
         .cms-terms-modal {
-            border-radius: 18px;
+            border-radius: 20px;
+            max-height: calc(100vh - 32px);
         }
 
         .cms-terms-header {
-            padding: 22px 20px 20px;
+            padding: 32px 24px 24px;
         }
-
-        .cms-terms-kicker {
-            margin-bottom: 12px;
+        
+        .cms-terms-header-icon {
+            width: 56px;
+            height: 56px;
+            margin-bottom: 20px;
         }
 
         .cms-terms-title {
-            font-size: 24px;
-            max-width: none;
+            font-size: 26px;
         }
 
         .cms-terms-subtitle {
-            font-size: 13px;
+            font-size: 15px;
         }
 
         .cms-terms-body {
-            padding: 22px 20px 18px;
-            font-size: 14px;
+            padding: 24px;
+            font-size: 15px;
+        }
+        
+        .cms-terms-consent-box {
+            padding: 0 24px 24px;
         }
 
         .cms-terms-agree {
-            font-size: 14px;
-            padding: 14px 14px;
-        }
-
-        .cms-terms-btn {
-            font-size: 14px;
-            min-width: 112px;
-            padding: 12px 18px;
-        }
-
-        .cms-terms-footer {
-            padding: 18px 20px 22px;
-        }
-    }
-
-    @media (max-width: 560px) {
-        .cms-terms-overlay {
-            align-items: flex-end;
-            padding: 12px;
-        }
-
-        .cms-terms-modal {
-            width: 100%;
+            padding: 16px 20px;
+            gap: 12px;
         }
 
         .cms-terms-footer {
             flex-direction: column-reverse;
+            padding: 20px 24px;
+            gap: 12px;
         }
 
         .cms-terms-btn {
             width: 100%;
+            padding: 14px 24px;
         }
     }
 </style>
@@ -347,10 +442,15 @@
 >
     <div class="cms-terms-modal" role="dialog" aria-modal="true" aria-labelledby="cmsTermsTitle">
         <div class="cms-terms-header">
-            <div class="cms-terms-kicker">Access Requirement</div>
-            <h2 class="cms-terms-title" id="cmsTermsTitle">Terms and Conditions</h2>
+            <div class="cms-terms-header-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                </svg>
+            </div>
+            <div class="cms-terms-kicker">Data Privacy Notice</div>
+            <h2 class="cms-terms-title" id="cmsTermsTitle">Terms & Conditions</h2>
             <p class="cms-terms-subtitle">
-                Review the data privacy notice below before continuing to the CMS.
+                Please review our data privacy notice before proceeding to the Content Management System.
             </p>
         </div>
 
@@ -358,34 +458,46 @@
             @csrf
             <div class="cms-terms-body">
                 <p>
-                    By clicking <strong>"I Agree"</strong>, you consent to the collection, use, and processing of your personal
-                    data for legitimate purposes related to this service.
+                    By proceeding, you consent to the collection, use, and processing of your personal data for legitimate purposes related to this academic service.
                 </p>
 
                 <p>
-                    Your information will be handled in accordance with our
-                    <strong>
-                        <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">
-                            Privacy Policy
-                        </a>
-                    </strong>
-                    and in compliance with the <strong>Data Privacy Act of 2012</strong>.
+                    We value your privacy. Your information will be handled strictly in accordance with our 
+                    <a href="https://www.pup.edu.ph/privacy/" target="_blank" rel="noopener noreferrer">Privacy Policy</a> 
+                    and in full compliance with the <strong>Data Privacy Act of 2012</strong>.
                 </p>
 
-                <label class="cms-terms-agree" for="cmsTermsAgree">
-                    <input id="cmsTermsAgree" type="checkbox" name="agree_terms" value="1">
-                    <span>
-                        I Agree and acknowledge the
-                        <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">
-                            <strong>Terms and Conditions</strong>
-                        </a>
-                    </span>
-                </label>
+                <p>
+                    <strong>1. Scope of Use</strong><br>
+                    Access to the Content Management System (CMS) is restricted to authorized personnel only. You agree to use the system solely for its intended academic and administrative functions. Any unauthorized use, distribution, or modification of the system's content or structure is strictly prohibited and may result in disciplinary action.
+                </p>
+
+                <p>
+                    <strong>2. Data Confidentiality</strong><br>
+                    You are responsible for maintaining the confidentiality of any student, faculty, or institutional data you access through this CMS. You agree not to disclose, share, or misuse any sensitive information in violation of institutional policies and national data privacy laws.
+                </p>
+
+                <p>
+                    <strong>3. Account Security</strong><br>
+                    Your account credentials must remain confidential. You are solely responsible for all activities that occur under your account. If you suspect any unauthorized access or security breach, you must immediately report it to the system administrators.
+                </p>
+
+                <p>
+                    <strong>4. Content Responsibility</strong><br>
+                    Any content you create, upload, or publish using this CMS must adhere to the university's standards of conduct. You shall not upload malicious software, defamatory materials, or any content that infringes upon intellectual property rights.
+                </p>
+
+                <div class="cms-terms-consent-box">
+                    <label class="cms-terms-agree" for="cmsTermsAgree">
+                        <input id="cmsTermsAgree" type="checkbox" name="agree_terms" value="1">
+                        <span>I have read, understood, and agree to the <a href="https://www.pup.edu.ph/terms/" target="_blank" rel="noopener noreferrer">Terms & Conditions</a>.</span>
+                    </label>
+                </div>
             </div>
 
             <div class="cms-terms-footer">
-                <button type="button" class="cms-terms-btn cms-terms-btn-cancel" id="cmsTermsCancel">Cancel</button>
-                <button type="submit" class="cms-terms-btn cms-terms-btn-continue" id="cmsTermsContinue" disabled>Continue</button>
+                <button type="button" class="cms-terms-btn cms-terms-btn-cancel" id="cmsTermsCancel">Decline & Exit</button>
+                <button type="submit" class="cms-terms-btn cms-terms-btn-continue" id="cmsTermsContinue" disabled>I Accept & Continue</button>
             </div>
         </form>
     </div>
