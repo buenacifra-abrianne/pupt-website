@@ -250,7 +250,7 @@ class PUPHeader extends HTMLElement {
     if (!existingStylesheet) {
       const link = document.createElement("link");
       link.rel = "stylesheet";
-      link.href = `${assets}/css/accessibility_widget.css`;
+      link.href = `${assets}/css/accessibility_widget.css?v=1.8`;
       link.dataset.accessibilityWidgetStyles = "true";
       document.head.appendChild(link);
     }
@@ -285,6 +285,7 @@ class PUPHeader extends HTMLElement {
     }
 
     const _injectDarkModeRow = () => {
+      return; // Disabled dark mode toggle injection in accessibility widget
       if (document.getElementById("pup-dark-mode-row")) return;
 
       const panel =

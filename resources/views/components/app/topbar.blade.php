@@ -13,7 +13,7 @@
 
 @once
     <link rel="stylesheet" href="{{ asset('assets/css/shared/profile-avatar.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}" data-accessibility-widget-styles="true">
+    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}?v={{ filemtime(public_path('assets/css/accessibility_widget.css')) }}" data-accessibility-widget-styles="true">
 @endonce
 
 <style id="cms-unified-button-theme">
@@ -763,6 +763,7 @@
     };
 
     const injectDarkModeRow = () => {
+        return; // Disabled dark mode toggle injection in accessibility widget
         if (document.getElementById('pup-dark-mode-row')) {
             updateDarkModeToggleUI(document.body.classList.contains(DARK_CLASS));
             return;
