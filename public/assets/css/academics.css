@@ -3406,11 +3406,7 @@ body.pup-dark-mode .reveal.active {
 
 /* top accent bar */
 .dp-diploma-cards .contents-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--maroon-deep), var(--maroon-light));
+  display: none;
 }
 
 .dp-diploma-cards .contents-card:hover,
@@ -3701,11 +3697,7 @@ body.pup-dark-mode .dp-diploma-dept   { color: var(--dm-text-secondary); }
 }
 
 .dp-program-cards .contents-card::before {
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 4px;
-  background: linear-gradient(90deg, var(--maroon-deep), var(--maroon-light));
+  display: none;
 }
 
 .dp-program-cards .contents-card.dp-program-card-add {

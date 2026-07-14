@@ -61,10 +61,48 @@
         .backup-code-toggle a:hover {
             text-decoration: underline;
         }
+
+        /* MFA Dark Mode Specifics */
+        body.pup-dark-mode .mfa-split-input input {
+            background: #1c0505;
+            border-color: #4d1515;
+            color: #ffffff;
+        }
+        body.pup-dark-mode .mfa-split-input input:focus {
+            border-color: rgba(240, 200, 90, 0.5);
+            box-shadow: 0 0 0 3px rgba(240, 200, 90, 0.1);
+            background: #3d0d0f;
+        }
+        body.pup-dark-mode .backup-code-toggle a {
+            color: #f3c45a;
+        }
     </style>
 </head>
 <body>
     <main class="login-page">
+        <script>
+            (function() {
+                try {
+                    var isDark = localStorage.getItem('pup-dark-mode') === 'true';
+                    if (isDark) {
+                        document.body.classList.add('pup-dark-mode');
+                    }
+                } catch (e) {}
+            })();
+        </script>
+        <button class="theme-switch" aria-label="Toggle dark mode" onclick="toggleDarkMode()">
+            <div class="theme-switch-track">
+                <svg class="theme-switch-icon theme-switch-icon--sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+                <svg class="theme-switch-icon theme-switch-icon--moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+                <div class="theme-switch-thumb"></div>
+            </div>
+        </button>
+        <script>
+            function toggleDarkMode() {
+                var isDark = document.body.classList.toggle('pup-dark-mode');
+                localStorage.setItem('pup-dark-mode', isDark ? 'true' : 'false');
+            }
+        </script>
         <section class="login-layout" aria-label="MFA Challenge Layout">
             <aside class="login-visual" aria-hidden="true">
                 <div class="visual-overlay"></div>

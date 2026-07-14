@@ -995,7 +995,7 @@ body.pup-dark-mode .view-gallery-btn,
 body.pup-dark-mode .faculty-card-btn,
 body.pup-dark-mode .btn,
 body.pup-dark-mode .btn-primary {
-    background: var(--dm-accent-hover) !important;
+    background: #5A0000 !important;
     color: #ffffff !important;
     border-color: transparent !important;
 }
@@ -1011,7 +1011,7 @@ body.pup-dark-mode .view-gallery-btn:hover,
 body.pup-dark-mode .faculty-card-btn:hover,
 body.pup-dark-mode .btn:hover,
 body.pup-dark-mode .btn-primary:hover {
-    background: var(--dm-accent-hover) !important;
+    background: #750000 !important;
     color: #ffffff !important;
 }
 
@@ -1071,12 +1071,12 @@ body.pup-dark-mode .acc-container .acc-toggle-btn {
 /* Dark Mode Overrides for Carousel Arrows */
 body.pup-dark-mode .carousel-prev,
 body.pup-dark-mode .carousel-next {
-    background: var(--dm-accent) !important;
+    background: #5A0000 !important;
     color: #ffffff !important;
 }
 body.pup-dark-mode .carousel-prev:hover,
 body.pup-dark-mode .carousel-next:hover {
-    background: var(--dm-accent-hover) !important;
+    background: #750000 !important;
     color: #ffffff !important;
 }
 
