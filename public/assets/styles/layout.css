@@ -1462,3 +1462,98 @@ body.pup-dark-mode .iapply-hero::before,
 body.pup-dark-mode .carousel-slide::before {
     display: none !important;
 }
+
+/* Theme Switch */
+.theme-switch {
+    position: fixed;
+    top: 24px;
+    right: 24px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    z-index: 9999;
+    padding: 0;
+    border-radius: 15px;
+    outline: none;
+}
+
+.theme-switch:focus-visible {
+    outline: 2px solid #8B0000;
+    outline-offset: 2px;
+}
+
+.theme-switch-track {
+    box-sizing: border-box;
+    width: 56px;
+    height: 28px;
+    background: #fdf5eb;
+    border-radius: 14px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    position: relative;
+    transition: background 0.3s cubic-bezier(0.4, 0.0, 0.2, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch-icon {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.theme-switch-icon--sun {
+    right: 8px;
+    color: #d7aa43;
+    opacity: 1;
+}
+
+.theme-switch-icon--moon {
+    left: 8px;
+    color: #fff;
+    opacity: 0;
+}
+
+.theme-switch-thumb {
+    box-sizing: border-box;
+    width: 20px;
+    height: 20px;
+    background: #ffffff;
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body.pup-dark-mode .theme-switch-track {
+    background: #3d0d0f;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+body.pup-dark-mode .theme-switch-icon--sun {
+    opacity: 0;
+    transform: scale(0.5) rotate(45deg);
+}
+
+body.pup-dark-mode .theme-switch-icon--moon {
+    opacity: 1;
+}
+
+body.pup-dark-mode .theme-switch-thumb {
+    transform: translateX(28px);
+    background: #fff;
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+    .theme-switch {
+        top: 14px;
+        right: 14px;
+    }
+}
