@@ -7,12 +7,14 @@
 }
 
 :root {
+    --theme-maroon: #7f1113;
+    --theme-maroon-rgb: 127, 17, 19;
     --landing-ink: #1f1816;
     --landing-muted: #6f5f59;
     --landing-line: rgba(127, 17, 19, 0.12);
     --landing-surface: #fffaf6;
     --landing-surface-soft: #f8efe8;
-    --landing-maroon-light: var(--theme-maroon);
+    --landing-maroon-light: var(--theme-maroon, #7f1113);
     --landing-maroon: #7f1113;
     --landing-maroon-deep: #4f090c;
     --landing-gold: #f3c45a;
@@ -722,6 +724,36 @@ body {
     }
 }
 
+/* Dark Mode Overrides */
+body.pup-dark-mode {
+    background: #180607;
+}
+
+body.pup-dark-mode .landing-container {
+    background: linear-gradient(180deg, rgba(30, 8, 9, 0.96), rgba(20, 5, 6, 0.94));
+    border-color: rgba(255, 245, 236, 0.05);
+}
+
+body.pup-dark-mode .landing-actions {
+    background: linear-gradient(180deg, rgba(30, 8, 9, 0.98) 0%, rgba(20, 5, 6, 0.96) 100%);
+}
+
+body.pup-dark-mode .landing-actions h2 {
+    color: #e0b8b8;
+}
+
+body.pup-dark-mode .landing-actions > p {
+    color: #b09e99;
+}
+
+body.pup-dark-mode .landing-helper {
+    color: #b09e99;
+}
+
+body.pup-dark-mode .portal-button--surface,
+body.pup-dark-mode .portal-button--homepage {
+    border-color: rgba(255, 255, 255, 0.05);
+}
 
 
 

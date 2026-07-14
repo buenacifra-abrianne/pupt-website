@@ -23,7 +23,16 @@
 
 </head>
 <body>
-
+<script>
+    (function() {
+        try {
+            var isDark = localStorage.getItem('pup-dark-mode') === 'true';
+            if (isDark) {
+                document.body.classList.add('pup-dark-mode');
+            }
+        } catch (e) {}
+    })();
+</script>
 <main class="menu">
     <div class="landing-container">
         <section class="landing-identity">
