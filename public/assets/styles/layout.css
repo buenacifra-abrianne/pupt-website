@@ -6,7 +6,7 @@
   --dm-surface-elevated: #1a0a0d;
   --dm-border: rgba(128, 0, 0, 0.15);
   --dm-text-primary: #ffffff;
-  --dm-text-secondary: #cccccc;
+  --dm-text-secondary: #ffffff;
   --dm-accent: var(--theme-maroon);
   --dm-accent-hover: var(--theme-maroon);
   --dm-glow: 0 4px 24px rgba(122, 21, 21, 0.25);
