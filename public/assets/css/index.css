@@ -799,12 +799,12 @@ body.pup-dark-mode .portal-button--homepage:hover {
 /* Theme Switch */
 .theme-switch {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 30px;
+    right: 40px;
     background: transparent;
     border: none;
     cursor: pointer;
-    z-index: 1000;
+    z-index: 9999;
     padding: 0;
     border-radius: 15px;
     outline: none;

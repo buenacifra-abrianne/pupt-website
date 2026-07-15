@@ -396,8 +396,8 @@ body {
 /* Theme Switch */
 .theme-switch {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 30px;
+    right: 40px;
     background: transparent;
     border: none;
     cursor: pointer;
