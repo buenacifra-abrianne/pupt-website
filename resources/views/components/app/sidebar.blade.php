@@ -97,6 +97,10 @@
 .sidebar.collapsed .submenu {
     display: none !important; /* Hide submenu when sidebar is collapsed */
 }
+
+.sidebar.collapsed .sidebar-footer-text {
+    display: none !important;
+}
 </style>
 <nav class="sidebar" id="sidebar">
     <div class="logo-section">
