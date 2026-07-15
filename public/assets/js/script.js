@@ -671,6 +671,9 @@ function initWidgetDock() {
   dock.className = "widget-dock";
   dock.innerHTML = `
     <div class="widget-dock-actions" aria-label="Quick widgets">
+      <button type="button" class="widget-dock-action" data-widget-action="theme" title="Toggle dark mode" aria-label="Toggle dark mode" tabindex="-1">
+        <!-- SVG will be injected by JS -->
+      </button>
       <button type="button" class="widget-dock-action" data-widget-action="chat" title="Chat with AI Assistant" aria-label="Open AI Assistant" aria-expanded="false" tabindex="-1">
         <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
           <path fill="currentColor" d="M12 3c-4.97 0-9 3.58-9 8 0 2.33 1.12 4.43 2.92 5.89V21l3.45-1.89c.85.24 1.73.36 2.63.36 4.97 0 9-3.58 9-8s-4.03-8-9-8Zm-4 9h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Zm0-4h8a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2Z"/>
@@ -698,6 +701,7 @@ function initWidgetDock() {
   `;
 
   const launcher = dock.querySelector(".widget-dock-fab");
+  const themeAction = dock.querySelector('[data-widget-action="theme"]');
   const chatAction = dock.querySelector('[data-widget-action="chat"]');
   const homeAction = dock.querySelector('[data-widget-action="home"]');
   const chatButtonIcon = `
@@ -723,11 +727,34 @@ function initWidgetDock() {
       <rect x="16.5" y="16.5" width="5.5" height="5.5" rx="1.4" fill="currentColor" />
     </svg>
   `.trim();
+  const themeSunIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+    </svg>
+  `.trim();
+  const themeMoonIcon = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+      <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+    </svg>
+  `.trim();
+
+  const syncThemeIcon = () => {
+    const isDark = document.body.classList.contains('pup-dark-mode');
+    themeAction.innerHTML = isDark ? themeSunIcon : themeMoonIcon;
+  };
+  syncThemeIcon();
+
+  themeAction.addEventListener("click", () => {
+    const isDark = document.body.classList.toggle('pup-dark-mode');
+    localStorage.setItem('pup-dark-mode', isDark ? 'true' : 'false');
+    syncThemeIcon();
+  });
 
   const setDockOpen = (isOpen) => {
     dock.classList.toggle("is-open", isOpen);
     launcher.classList.toggle("is-open", isOpen);
     document.body.classList.toggle("widget-dock-open", isOpen);
+    themeAction.tabIndex = isOpen ? 0 : -1;
     chatAction.tabIndex = isOpen ? 0 : -1;
     homeAction.tabIndex = isOpen ? 0 : -1;
     launcher.setAttribute("aria-expanded", isOpen ? "true" : "false");
