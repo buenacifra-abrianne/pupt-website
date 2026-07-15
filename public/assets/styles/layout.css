@@ -1466,8 +1466,8 @@ body.pup-dark-mode .carousel-slide::before {
 /* Theme Switch */
 .theme-switch {
     position: fixed;
-    top: 24px;
-    right: 24px;
+    top: 30px;
+    right: 40px;
     background: transparent;
     border: none;
     cursor: pointer;
@@ -1556,4 +1556,26 @@ body.pup-dark-mode .theme-switch-thumb {
         top: 14px;
         right: 14px;
     }
+}
+
+/* Force all text in rich text editors to be white in dark mode */
+body.pup-dark-mode .rich-text-content,
+body.pup-dark-mode .rich-text-content *,
+body.pup-dark-mode .students-rich-copy,
+body.pup-dark-mode .students-rich-copy *,
+body.pup-dark-mode .ne-rich-copy,
+body.pup-dark-mode .ne-rich-copy *,
+body.pup-dark-mode .home-rich-copy,
+body.pup-dark-mode .home-rich-copy *,
+body.pup-dark-mode .academic-rich-copy,
+body.pup-dark-mode .academic-rich-copy *,
+body.pup-dark-mode .academic-intro-rich-copy,
+body.pup-dark-mode .academic-intro-rich-copy *,
+body.pup-dark-mode .philosophy-intro-rich-copy,
+body.pup-dark-mode .philosophy-intro-rich-copy *,
+body.pup-dark-mode .student-page-rich,
+body.pup-dark-mode .student-page-rich *,
+body.pup-dark-mode .quick-link-rich,
+body.pup-dark-mode .quick-link-rich * {
+    color: #ffffff !important;
 }

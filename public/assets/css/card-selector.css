@@ -146,7 +146,7 @@ body.pup-dark-mode .alphabetical-card-selector button[aria-current="page"] {
 
 @media (max-width: 519px) {
   .alphabetical-card-pages {
-    --alphabetical-card-width: min(230px, calc(100vw - (var(--page-gutter) * 2)));
+    --alphabetical-card-width: min(230px, calc(100vw - (var(--page-gutter, 16px) * 2)));
     --alphabetical-card-height: 280px;
   }
 
