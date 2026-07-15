@@ -88,19 +88,10 @@ class AnnouncementController extends Controller
             return $date < $oneMonthAgo;
         })->values();
 
-        $active_announcements = $announcements_all->filter(function($ann) use ($oneMonthAgo) {
-            $date = \Carbon\Carbon::parse($ann->date_published ?? $ann->created_at);
-            return $date >= $oneMonthAgo;
-        })->values();
-
-        $expired_announcements = $announcements_all->filter(function($ann) use ($oneMonthAgo) {
-            $date = \Carbon\Carbon::parse($ann->date_published ?? $ann->created_at);
-            return $date < $oneMonthAgo;
-        })->values();
+        $active_announcements = $announcements_all;
 
         return view('superadmin.announcements', compact(
             'active_announcements',
-            'expired_announcements',
             'active_news',
             'expired_news',
             'hasAnnouncementLinkColumn',
