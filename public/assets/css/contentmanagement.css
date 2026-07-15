@@ -1765,10 +1765,10 @@ body {
 
 .floating-voice-btn {
     position: fixed;
-    right: 24px;
-    bottom: 96px;
-    width: 60px;
-    height: 60px;
+    right: calc(var(--widget-edge-offset) + var(--widget-fab-size) + var(--widget-fab-gap) + env(safe-area-inset-right, 0px));
+    bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px));
+    width: var(--widget-fab-size);
+    height: var(--widget-fab-size);
     border: none;
     border-radius: 50%;
     background: var(--theme-maroon);
@@ -1778,22 +1778,31 @@ body {
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 999999 !important;
+    z-index: 2147483599 !important;
     pointer-events: auto !important;
     font-size: 18px;
-    transition: 0.2s ease;
-    margin-right: 4px;
+    transition: 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    margin-right: 0;
+    outline: none;
+    animation: voice-btn-pulse 2.5s infinite;
+}
+
+@keyframes voice-btn-pulse {
+    0% { box-shadow: 0 14px 32px rgba(77, 9, 11, 0.35), 0 0 0 0 rgba(177, 24, 28, 0.4); }
+    50% { box-shadow: 0 20px 40px rgba(77, 9, 11, 0.45), 0 0 0 12px rgba(177, 24, 28, 0); }
+    100% { box-shadow: 0 14px 32px rgba(77, 9, 11, 0.35), 0 0 0 0 rgba(177, 24, 28, 0); }
 }
 
 .floating-voice-btn:hover {
     background: #670000;
-    transform: translateY(-1px);
+    transform: scale(1.08);
+    animation: none;
 }
 
 .floating-voice-btn.listening {
     background: #fff;
     color: var(--theme-maroon);
-    box-shadow: var(--dm-glow); 
+    animation: voice-btn-pulse 1s infinite;
 }
 
 

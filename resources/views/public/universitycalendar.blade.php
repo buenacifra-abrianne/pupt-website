@@ -64,5 +64,6 @@
         }, 1000);
     </script>
     @endunless
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

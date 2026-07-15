@@ -1517,5 +1517,9 @@ function exportPdf() {
   document.getElementById('exportPdfForm').submit();
 }
 </script>
+<button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
+    <i class="fas fa-microphone"></i>
+</button>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

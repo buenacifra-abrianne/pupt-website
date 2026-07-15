@@ -18,6 +18,8 @@
 
 <style id="cms-unified-button-theme">
     :root {
+        --theme-maroon: #8b0000;
+        --theme-maroon-rgb: 139, 0, 0;
         --cms-btn-h: 40px;
         --cms-btn-px: 16px;
         --cms-btn-radius: 10px;
@@ -876,3 +878,5 @@
         }
     }
 </script>
+
+

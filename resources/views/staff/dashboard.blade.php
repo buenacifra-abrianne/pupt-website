@@ -451,5 +451,9 @@ async function postJSON(url, data) {
         return d.toISOString().slice(0, 10);
     }
 </script>
+<button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
+    <i class="fas fa-microphone"></i>
+</button>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
