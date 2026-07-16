@@ -1101,7 +1101,7 @@ body {
 
 body.pup-dark-mode {
     background: #120606 !important;
-    color: #f0e6e6 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .stat-card,
@@ -1111,23 +1111,23 @@ body.pup-dark-mode .card {
 }
 
 body.pup-dark-mode .stat-card h4 {
-    color: #b89090 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .stat-card .value {
-    color: #f7c5c5 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .page-title {
-    color: #f7c5c5 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .page-subtitle {
-    color: #b89090 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .card-title {
-    color: #f7c5c5 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .filter-field {
@@ -1140,12 +1140,12 @@ body.pup-dark-mode .filter-field select,
 body.pup-dark-mode .filter-field input::placeholder,
 body.pup-dark-mode .filter-field i {
     background: transparent !important;
-    color: #e8d5d5 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .filter-field select option {
     background: #2a1010 !important;
-    color: #e8d5d5 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .notification-item {
@@ -1157,22 +1157,9 @@ body.pup-dark-mode .notification-item.unread {
     background: #2a1010 !important;
     border-left-color: #f0c85a !important;
 }
-
-body.pup-dark-mode .notification-title {
-    color: #f7c5c5 !important;
-}
-
-body.pup-dark-mode .notification-message {
-    color: #e0d0d0 !important;
-}
-
-body.pup-dark-mode .notification-time {
-    color: #b89090 !important;
-}
-
 body.pup-dark-mode .btn-outline {
     background: #2a1010 !important;
-    color: #f7c5c5 !important;
+    color: #ffffff !important;
     border-color: rgba(240, 200, 90, 0.3) !important;
 }
 
@@ -1180,7 +1167,7 @@ body.pup-dark-mode .page-btn,
 body.pup-dark-mode .page-number {
     background: #2a1010 !important;
     border-color: rgba(240, 200, 90, 0.2) !important;
-    color: #f0e6e6 !important;
+    color: #ffffff !important;
 }
 
 body.pup-dark-mode .page-number.active {

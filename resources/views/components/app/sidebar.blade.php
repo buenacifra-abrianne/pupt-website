@@ -37,7 +37,7 @@
 .submenu-link {
     display: block !important;
     padding: 8px 15px 8px 45px !important; /* Indent to align with text */
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: #ffffff !important;
     text-decoration: none !important;
     font-size: 13px !important;
     transition: 0.3s !important;
@@ -190,7 +190,7 @@
         </li>
         @endif
 
-        <li class="sidebar-footer-text" style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center; color: rgba(255,255,255,0.7); font-size: 12px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 0; background: inherit; z-index: 10;">
+        <li class="sidebar-footer-text" style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center; color: #ffffff; font-size: 12px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 0; background: inherit; z-index: 10;">
             Mula Sa'yo, Para sa Bayan
         </li>
     </ul>

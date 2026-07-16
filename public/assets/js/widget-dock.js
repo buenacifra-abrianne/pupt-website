@@ -336,7 +336,6 @@ function initWidgetDock() {
   if (isCMS) {
       const themeActionEl = dock.querySelector('[data-widget-action="theme"]');
       const chatActionEl = dock.querySelector('[data-widget-action="chat"]');
-      if (themeActionEl) themeActionEl.style.display = 'none';
       if (chatActionEl) chatActionEl.style.display = 'none';
   }
   
