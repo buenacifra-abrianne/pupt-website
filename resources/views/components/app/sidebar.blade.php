@@ -147,6 +147,12 @@
             </a>
         </li>
 
+        @php
+            $userRoles = session('user_roles', [session('user_role')]);
+            $allowedCmsTabs = \App\Support\CmsSections::tabsForRoles($userRoles);
+        @endphp
+
+        @if(!empty($allowedCmsTabs))
         <!-- Content Management with Submenu -->
         <li class="nav-item has-submenu {{ $isContentPage ? 'expanded' : '' }}">
             <a href="#" class="nav-link submenu-toggle {{ $isContentPage ? 'active' : '' }}" onclick="toggleSubmenu(event, this)">
@@ -155,14 +161,27 @@
                 <i class="fas fa-chevron-down submenu-icon"></i>
             </a>
             <ul class="submenu" {!! $isContentPage ? 'style="display: block;"' : '' !!}>
+                @if(in_array('home', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=home" class="submenu-link" onclick="handleSubmenuClick(event, 'home')">Home</a></li>
+                @endif
+                @if(in_array('about', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=about" class="submenu-link" onclick="handleSubmenuClick(event, 'about')">About</a></li>
+                @endif
+                @if(in_array('students', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=students" class="submenu-link" onclick="handleSubmenuClick(event, 'students')">Students</a></li>
+                @endif
+                @if(in_array('academics', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=academics" class="submenu-link" onclick="handleSubmenuClick(event, 'academics')">Academics</a></li>
+                @endif
+                @if(in_array('events', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=events" class="submenu-link" onclick="handleSubmenuClick(event, 'events')">Events</a></li>
+                @endif
+                @if(in_array('research_extension', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=research_extension" class="submenu-link" onclick="handleSubmenuClick(event, 'research_extension')">Research and Extension</a></li>
+                @endif
             </ul>
         </li>
+        @endif
 
         <li class="nav-item">
             <a href="{{ route($role . '.downloadables') }}" class="nav-link {{ request()->routeIs('*.downloadables') ? 'active' : '' }}">
