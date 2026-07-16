@@ -106,8 +106,6 @@
                 $icon = $pair[1];
 
                 $unreadClass = ((int)($n->is_read ?? 0) === 0) ? 'unread' : '';
-                $channel = strtoupper($n->channel ?? 'SYSTEM');
-                $badgeClass = ($channel === 'EMAIL') ? 'email' : 'push';
               @endphp
 
               <div class="notification-item {{ $unreadClass }}" data-id="{{ (int)$n->notification_id }}">
@@ -121,7 +119,6 @@
                   <div class="notification-time">
                     <i class="fas fa-clock"></i>
                     {{ \Carbon\Carbon::parse($n->created_at)->format('M d, Y g:i A') }}
-                    <span class="type-badge {{ $badgeClass }}">{{ $channel }}</span>
                   </div>
                 </div>
 

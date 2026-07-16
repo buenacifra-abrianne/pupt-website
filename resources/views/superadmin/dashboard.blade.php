@@ -191,11 +191,6 @@
                                     if ($type === 'INFO') { $iconClass = 'info'; $icon = 'fa-bullhorn'; }
 
                                     $unreadClass = ((int)($n->is_read ?? 0) === 0) ? 'unread' : '';
-                                    $channel = strtoupper($n->channel ?? 'SYSTEM');
-
-                                    $channelBadge = 'push';
-                                    if ($channel === 'EMAIL') $channelBadge = 'email';
-                                    if ($channel === 'SYSTEM') $channelBadge = 'push';
                                 @endphp
 
                                 <div class="notification-item {{ $unreadClass }}">
@@ -209,9 +204,6 @@
                                         <div class="notification-time">
                                             <i class="fas fa-clock"></i>
                                             {{ \Carbon\Carbon::parse($n->created_at)->format('M d, Y g:i A') }}
-                                            <span class="type-badge {{ $channelBadge }}">
-                                                {{ e($channel) }}
-                                            </span>
                                         </div>
                                     </div>
 
