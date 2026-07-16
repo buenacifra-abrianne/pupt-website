@@ -946,7 +946,7 @@
                                             </button>
                                         @endif
                                         <div class="charter-hero-top">
-                                            <p class="charter-hero-tag">PUP TAGUIG BRANCH</p>
+                                            <p class="charter-hero-tag">PUP TAGUIG CAMPUS</p>
                                             <h1>{{ $selectedSection['label'] ?? "Citizen's Charter" }}</h1>
                                             <p class="charter-hero-desc">{{ $selectedSection['lead'] ?? '' }}</p>
                                         </div>
