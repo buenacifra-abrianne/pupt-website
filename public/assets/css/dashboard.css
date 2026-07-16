@@ -2362,26 +2362,32 @@ display: flex;
 
 /* Dark Mode Overrides for Dashboard Buttons */
 body.pup-dark-mode .top-tab-btn,
-body.pup-dark-mode .btn-icon {
+body.pup-dark-mode .btn-icon,
+body.pup-dark-mode .date-range-bar .btn-secondary {
     background: #2a1010 !important;
     color: #ffffff !important;
     border-color: rgba(240, 200, 90, 0.3) !important;
+    box-shadow: none !important;
 }
 
 body.pup-dark-mode .top-tab-btn i,
-body.pup-dark-mode .btn-icon i {
+body.pup-dark-mode .btn-icon i,
+body.pup-dark-mode .date-range-bar .btn-secondary i {
     color: #ffffff !important;
 }
 
 body.pup-dark-mode .top-tab-btn:hover,
-body.pup-dark-mode .btn-icon:hover {
+body.pup-dark-mode .btn-icon:hover,
+body.pup-dark-mode .date-range-bar .btn-secondary:hover {
     background: #750000 !important;
     color: #ffffff !important;
     border-color: rgba(240, 200, 90, 0.3) !important;
+    box-shadow: none !important;
 }
 
 body.pup-dark-mode .top-tab-btn:hover i,
-body.pup-dark-mode .btn-icon:hover i {
+body.pup-dark-mode .btn-icon:hover i,
+body.pup-dark-mode .date-range-bar .btn-secondary:hover i {
     color: #ffffff !important;
 }
 
@@ -2389,4 +2395,61 @@ body.pup-dark-mode .top-tab-btn.active {
     background: var(--admin-primary) !important;
     color: #ffffff !important;
     border-color: var(--admin-primary) !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    outline: none !important;
+}
+
+body.pup-dark-mode .top-tabs {
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    outline: none !important;
+}
+
+body.pup-dark-mode .top-tab-btn::before,
+body.pup-dark-mode .top-tab-btn::after,
+body.pup-dark-mode .top-tabs::before,
+body.pup-dark-mode .top-tabs::after {
+    display: none !important;
+    content: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+/* Analytics Page Date Range Selector Dark Mode */
+body.pup-dark-mode .date-range-bar {
+    background: #1e0a0a !important;
+    border-color: rgba(240, 200, 90, 0.12) !important;
+}
+body.pup-dark-mode .date-range-bar .filter-field,
+body.pup-dark-mode .date-range-bar .cms-dropdown-trigger {
+    background: #2a1010 !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+    color: #ffffff !important;
+}
+
+body.pup-dark-mode .date-range-bar .filter-field i,
+body.pup-dark-mode .date-range-bar .filter-field input,
+body.pup-dark-mode .date-range-bar .cms-dropdown-label {
+    color: #ffffff !important;
+    background: transparent !important;
+}
+
+body.pup-dark-mode .date-range-bar .cms-dropdown-menu {
+    background: #1e0a0a !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+}
+
+body.pup-dark-mode .date-range-bar .cms-dropdown-option {
+    color: #ffffff !important;
+}
+
+body.pup-dark-mode .date-range-bar .cms-dropdown-option:hover {
+    background: #2a1010 !important;
+}
+
+body.pup-dark-mode .date-range-bar .cms-dropdown-option.active {
+    background: var(--admin-primary) !important;
+    color: #ffffff !important;
 }
