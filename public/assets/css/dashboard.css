@@ -2360,6 +2360,33 @@ display: flex;
 }
 
 
+/* Dark Mode Overrides for Dashboard Buttons */
+body.pup-dark-mode .top-tab-btn,
+body.pup-dark-mode .btn-icon {
+    background: #2a1010 !important;
+    color: #ffffff !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+}
 
+body.pup-dark-mode .top-tab-btn i,
+body.pup-dark-mode .btn-icon i {
+    color: #ffffff !important;
+}
 
+body.pup-dark-mode .top-tab-btn:hover,
+body.pup-dark-mode .btn-icon:hover {
+    background: #750000 !important;
+    color: #ffffff !important;
+    border-color: rgba(240, 200, 90, 0.3) !important;
+}
 
+body.pup-dark-mode .top-tab-btn:hover i,
+body.pup-dark-mode .btn-icon:hover i {
+    color: #ffffff !important;
+}
+
+body.pup-dark-mode .top-tab-btn.active {
+    background: var(--admin-primary) !important;
+    color: #ffffff !important;
+    border-color: var(--admin-primary) !important;
+}
