@@ -1161,6 +1161,12 @@ body.pup-dark-mode .status-badge.status-enabled * {
     color: #a0e6b0 !important;
 }
 
+body.pup-dark-mode .status-badge.status-disabled,
+body.pup-dark-mode .status-badge.status-disabled * {
+    background: var(--admin-primary-dark) !important;
+    color: #ffffff !important;
+}
+
 
 /* Card & section titles */
 body.pup-dark-mode .card-title,
