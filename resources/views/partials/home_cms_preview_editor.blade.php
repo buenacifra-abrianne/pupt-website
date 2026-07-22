@@ -496,7 +496,7 @@
 
                                     <div class="form-group">
                                         <label>Question</label>
-                                        <textarea name="home[feedback][questions][{{ $index }}][question]" rows="5">{{ $item['question'] ?? '' }}</textarea>
+                                        <textarea name="home[feedback][questions][{{ $index }}][question]" rows="5" maxlength="255">{{ $item['question'] ?? '' }}</textarea>
                                     </div>
                                 </article>
                             @endforeach
@@ -511,7 +511,7 @@
 
                                 <div class="form-group">
                                     <label>Question</label>
-                                    <textarea name="home[feedback][questions][__INDEX__][question]" rows="5"></textarea>
+                                    <textarea name="home[feedback][questions][__INDEX__][question]" rows="5" maxlength="255"></textarea>
                                 </div>
                             </article>
                         </template>

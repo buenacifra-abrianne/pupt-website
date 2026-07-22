@@ -120,9 +120,9 @@ class DownloadableController extends Controller
 
         $request->validate([
             'request_id' => ['nullable', 'integer'],
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'file' => ['nullable', 'file'],
+            'title' => ['required', 'string', 'max:60'],
+            'description' => ['nullable', 'string', 'max:256'],
+            'file' => ['nullable', 'file', 'mimes:pdf,docx,doc'],
         ]);
 
         if ($message = DownloadableFile::validationError($request->file('file'))) {
@@ -200,11 +200,11 @@ class DownloadableController extends Controller
         $request->validate([
             'request_id' => ['nullable', 'integer'],
             'downloadable_id' => ['required', 'integer', 'gt:0'],
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
+            'title' => ['required', 'string', 'max:60'],
+            'description' => ['nullable', 'string', 'max:256'],
             'existing_file_path' => ['nullable', 'string'],
             'existing_original_filename' => ['nullable', 'string'],
-            'file' => ['nullable', 'file'],
+            'file' => ['nullable', 'file', 'mimes:pdf,docx,doc'],
         ]);
 
         if ($message = DownloadableFile::validationError($request->file('file'))) {

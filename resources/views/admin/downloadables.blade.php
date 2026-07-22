@@ -132,17 +132,17 @@
 
                 <div class="form-group">
                     <label>Title *</label>
-                    <input type="text" name="title" required placeholder="Enter file title">
+                    <input type="text" name="title" required maxlength="60" placeholder="Enter file title">
                 </div>
 
                 <div class="form-group">
                     <label>Description</label>
-                    @include('partials.rich_text_editor', ['name' => 'description', 'placeholder' => 'Enter file description'])
+                    @include('partials.rich_text_editor', ['name' => 'description', 'placeholder' => 'Enter file description', 'characterLimit' => 256])
                 </div>
 
                 <div class="form-group">
                     <label>File <span id="fileRequiredMark">*</span></label>
-                    <input type="file" name="file" id="downloadableFileInput">
+                    <input type="file" name="file" id="downloadableFileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword">
                     <small id="currentFileText" style="display:none; color:#64748b; margin-top:6px;"></small>
                 </div>
 

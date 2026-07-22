@@ -74,7 +74,7 @@ function initWidgetDock() {
         color: #fff;
         box-shadow: var(--widget-fab-shadow);
         cursor: pointer;
-        pointer-events: auto;
+        /* pointer-events intentionally omitted here — set per-element below */
         position: relative;
         overflow: hidden;
         transition:
@@ -82,6 +82,37 @@ function initWidgetDock() {
           box-shadow 0.25s ease,
           background 0.2s ease,
           opacity 0.22s ease;
+      }
+
+      /* The main FAB trigger is always interactive */
+      .widget-dock-fab {
+        pointer-events: auto;
+      }
+
+      /* Action buttons are non-interactive and hidden from a11y tree when collapsed */
+      .widget-dock-action {
+        pointer-events: none;
+        visibility: hidden;
+        transition:
+          transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.22s ease,
+          box-shadow 0.25s ease,
+          background 0.2s ease,
+          /* visibility snaps to hidden immediately on close (after opacity fades) */
+          visibility 0s ease 0.28s;
+      }
+
+      /* Restore interactivity and visibility when the dock is open */
+      .widget-dock.is-open .widget-dock-action {
+        pointer-events: auto;
+        visibility: visible;
+        /* visibility becomes visible instantly on open (no delay) */
+        transition:
+          transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
+          opacity 0.22s ease,
+          box-shadow 0.25s ease,
+          background 0.2s ease,
+          visibility 0s ease 0s;
       }
 
       /* Ripple pseudo-element */
@@ -113,11 +144,7 @@ function initWidgetDock() {
         z-index: 2;
         opacity: 0;
         transform: translateY(10px) scale(0.92);
-        transition:
-          transform 0.32s cubic-bezier(0.22, 1, 0.36, 1),
-          opacity 0.22s ease,
-          box-shadow 0.25s ease,
-          background 0.2s ease;
+        /* transition is now declared above in the shared rule with visibility */
       }
 
       .widget-dock.is-open .widget-dock-action {
@@ -302,7 +329,7 @@ function initWidgetDock() {
   dock.className = "widget-dock";
   dock.innerHTML = `
     <div class="widget-dock-actions" aria-label="Quick widgets">
-      <button type="button" class="widget-dock-action" data-widget-action="theme" title="Toggle dark mode" aria-label="Toggle dark mode" tabindex="-1">
+      <button type="button" class="widget-dock-action" data-widget-action="theme" title="Toggle dark mode" aria-label="Toggle dark mode" tabindex="-1" style="display: none !important;">
         <!-- SVG will be injected by JS -->
       </button>
       <button type="button" class="widget-dock-action" data-widget-action="chat" title="Chat with AI Assistant" aria-label="Open AI Assistant" aria-expanded="false" tabindex="-1">
@@ -334,11 +361,11 @@ function initWidgetDock() {
   const launcher = dock.querySelector(".widget-dock-fab");
   const isCMS = !document.querySelector("pup-header");
   if (isCMS) {
-      const themeActionEl = dock.querySelector('[data-widget-action="theme"]');
-      const chatActionEl = dock.querySelector('[data-widget-action="chat"]');
-      if (chatActionEl) chatActionEl.style.display = 'none';
+    const themeActionEl = dock.querySelector('[data-widget-action="theme"]');
+    const chatActionEl = dock.querySelector('[data-widget-action="chat"]');
+    if (chatActionEl) chatActionEl.style.display = 'none';
   }
-  
+
   const themeAction = dock.querySelector('[data-widget-action="theme"]');
   const chatAction = dock.querySelector('[data-widget-action="chat"]');
   const homeAction = dock.querySelector('[data-widget-action="home"]');
@@ -416,13 +443,13 @@ function initWidgetDock() {
      Glow ring and ripple are simulated via JS since this is a third-party
      button — CSS keyframe animations cannot be applied inline.
   ───────────────────────────────────────────────────────────────────────── */
-  const ACC_FAB_TRANSITION     = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, background 0.2s ease, opacity 0.22s ease';
-  const ACC_FAB_HOVER_TRANSFORM  = 'translateY(-6px) scale(1.1)';
+  const ACC_FAB_TRANSITION = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease, background 0.2s ease, opacity 0.22s ease';
+  const ACC_FAB_HOVER_TRANSFORM = 'translateY(-6px) scale(1.1)';
   const ACC_FAB_ACTIVE_TRANSFORM = 'translateY(-2px) scale(0.96)';
-  const ACC_FAB_HOVER_BG       = '#660000';
-  const ACC_FAB_DEFAULT_BG     = '#660000';
-  const ACC_FAB_HOVER_SHADOW   = '0 20px 40px rgba(77,9,11,0.5)';
-  const ACC_FAB_DEFAULT_SHADOW  = '0 14px 32px rgba(77,9,11,0.35)';
+  const ACC_FAB_HOVER_BG = '#660000';
+  const ACC_FAB_DEFAULT_BG = '#660000';
+  const ACC_FAB_HOVER_SHADOW = '0 20px 40px rgba(77,9,11,0.5)';
+  const ACC_FAB_DEFAULT_SHADOW = '0 14px 32px rgba(77,9,11,0.35)';
 
   let accHoverBound = null;
 
@@ -432,15 +459,15 @@ function initWidgetDock() {
     const size = Math.max(rect.width, rect.height);
     const el = document.createElement('span');
     Object.assign(el.style, {
-      position:     'fixed',
-      left:         rect.left + 'px',
-      top:          rect.top  + 'px',
-      width:        size + 'px',
-      height:       size + 'px',
+      position: 'fixed',
+      left: rect.left + 'px',
+      top: rect.top + 'px',
+      width: size + 'px',
+      height: size + 'px',
       borderRadius: '50%',
-      background:   'rgba(255,255,255,0.32)',
-      pointerEvents:'none',
-      zIndex:       '2147483647',
+      background: 'rgba(255,255,255,0.32)',
+      pointerEvents: 'none',
+      zIndex: '2147483647',
     });
     document.body.appendChild(el);
 
@@ -480,24 +507,24 @@ function initWidgetDock() {
     if (!btn || btn === accHoverBound) return;
     accHoverBound = btn;
 
-    btn.style.setProperty('box-shadow',    ACC_FAB_DEFAULT_SHADOW, 'important');
-    btn.style.setProperty('transition',    ACC_FAB_TRANSITION,    'important');
-    btn.style.setProperty('border-radius', '999px',               'important');
+    btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
+    btn.style.setProperty('transition', ACC_FAB_TRANSITION, 'important');
+    btn.style.setProperty('border-radius', '999px', 'important');
 
     const isTouch = window.matchMedia('(hover:none),(pointer:coarse)').matches;
 
     btn.addEventListener('mouseenter', () => {
       if (isTouch) return;
-      btn.style.setProperty('transform',  ACC_FAB_HOVER_TRANSFORM, 'important');
+      btn.style.setProperty('transform', ACC_FAB_HOVER_TRANSFORM, 'important');
 
       spawnAccGlowRing(btn);
     });
 
     btn.addEventListener('mouseleave', () => {
-      btn.style.setProperty('transform',  '',                     'important');
+      btn.style.setProperty('transform', '', 'important');
 
       btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
-      btn.style.setProperty('animation',  'none',                 'important');
+      btn.style.setProperty('animation', 'none', 'important');
     });
 
     btn.addEventListener('mousedown', () => {
@@ -510,16 +537,16 @@ function initWidgetDock() {
 
     btn.addEventListener('focus', () => {
       if (isTouch) return;
-      btn.style.setProperty('transform',  ACC_FAB_HOVER_TRANSFORM, 'important');
+      btn.style.setProperty('transform', ACC_FAB_HOVER_TRANSFORM, 'important');
 
       spawnAccGlowRing(btn);
     });
 
     btn.addEventListener('blur', () => {
-      btn.style.setProperty('transform',  '',                     'important');
+      btn.style.setProperty('transform', '', 'important');
 
       btn.style.setProperty('box-shadow', ACC_FAB_DEFAULT_SHADOW, 'important');
-      btn.style.setProperty('animation',  'none',                 'important');
+      btn.style.setProperty('animation', 'none', 'important');
     });
   };
 

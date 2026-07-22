@@ -387,6 +387,7 @@
             name="title"
             id="announcementTitle"
             required
+            maxlength="60"
             placeholder="Enter announcement title"
         >
 </div>
@@ -395,7 +396,7 @@
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
         <label style="margin-bottom:0;">Description *</label>
     </div>
-    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
+    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description', 'characterLimit' => 256])
 </div>
 
                 @if($hasAnnouncementLinkColumn)
@@ -408,6 +409,8 @@
                                 id="link"
                                 class="form-control"
                                 placeholder="https://example.com"
+                                pattern="https?://.*"
+                                title="Please enter a valid URL starting with http:// or https://"
                             >
                             <button type="button" class="announcement-link-paste" id="pasteAnnouncementLinkBtn" title="Paste link" aria-label="Paste link">
                                 <i class="fas fa-paste"></i>
@@ -470,6 +473,7 @@
             name="title"
             id="newsTitle"
             required
+            maxlength="60"
             placeholder="Title"
         >
 </div>
@@ -478,7 +482,7 @@
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
         <label style="margin-bottom:0;">Description *</label>
     </div>
-    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
+    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content', 'characterLimit' => 256])
 </div>
 
                 <div class="form-group">
@@ -520,6 +524,7 @@
         <input
             type="text"
             name="location"
+            maxlength="60"
             id="newsLocation"
             placeholder="Location"
         >

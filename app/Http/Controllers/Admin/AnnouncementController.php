@@ -104,8 +104,8 @@ class AnnouncementController extends Controller
     public function save(Request $request)
     {
         $request->validate([
-            'title' => 'required|string',
-            'content' => 'required|string',
+            'title' => 'required|string|max:60',
+            'content' => 'required|string|max:256',
             'link' => 'nullable|url|max:255',
             'priority' => 'required|string',
             'status' => 'required|string',
@@ -236,10 +236,10 @@ class AnnouncementController extends Controller
 
         $rules = [
             'news_id' => ['nullable', 'integer'],
-            'title' => ['required', 'string', 'max:255'],
-            'content' => ['required', 'string'],
+            'title' => ['required', 'string', 'max:60'],
+            'content' => ['required', 'string', 'max:256'],
             'category' => ['required', 'string', 'max:100'],
-            'location' => ['nullable', 'string', 'max:255'],
+            'location' => ['nullable', 'string', 'max:60'],
         ];
 
         if ($hasNewsLinkColumn) {

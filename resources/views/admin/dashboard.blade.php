@@ -104,61 +104,8 @@
                 </div>
             </div> -->
 
-            <!-- ✅ Recent Activity + Recent Notifications SIDE-BY-SIDE -->
-            <div class="two-col-grid">
-
-            <!-- Recent Activity -->
-            <div class="card">
-                <div class="card-header">
-                    <div class="card-header-main">
-                        <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
-                    </div>
-                </div>
-
-                <div class="card-body-scroll">
-                    @forelse($recentActivities as $a)
-                    @php
-                        $action = strtoupper($a->action ?? 'INFO');
-                        $module = strtoupper($a->module ?? '');
-
-                        // map action to icon + color class (reuse your notif styles)
-                        $iconClass = 'info'; $icon = 'fa-bullhorn';
-                        if ($action === 'CREATED')  { $iconClass = 'primary'; $icon = 'fa-plus'; }
-                        if ($action === 'UPDATED')  { $iconClass = 'primary'; $icon = 'fa-pen-to-square'; }
-                        if ($action === 'APPROVED') { $iconClass = 'info';    $icon = 'fa-check-circle'; }
-                        if ($action === 'REJECTED') { $iconClass = 'danger';  $icon = 'fa-times-circle'; }
-                        if ($action === 'DELETED')  { $iconClass = 'danger';  $icon = 'fa-trash'; }
-                        if ($action === 'DISABLED') { $iconClass = 'warning'; $icon = 'fa-ban'; }
-                    @endphp
-
-                    <div class="notification-item">
-                        <div class="notification-icon {{ $iconClass }}">
-                        <i class="fas {{ $icon }}"></i>
-                        </div>
-
-                        <div class="notification-content">
-                        <div class="notification-title">
-                            {{ $module }} • {{ $action }}
-                        </div>
-
-                        <div class="notification-message">
-                            {{ $a->description }}
-                        </div>
-
-                        <div class="notification-time">
-                            <i class="fas fa-user"></i> {{ trim((string) ($a->user_name ?? '')) !== '' ? $a->user_name : 'System' }}
-                            &nbsp; • &nbsp;
-                            <i class="fas fa-clock"></i> {{ \Carbon\Carbon::parse($a->created_at)->format('M d, Y g:i A') }}
-                        </div>
-                        </div>
-                    </div>
-                    @empty
-                    <div class="dashboard-empty-state">
-                        No recent activity yet.
-                    </div>
-                    @endforelse
-                </div>
-            </div>
+            <!-- ✅ Recent Notifications -->
+            <div class="content-grid">
                 <!-- Recent Notifications -->
                 <div class="card">
                     <div class="card-header">
@@ -187,11 +134,6 @@
                                     if ($type === 'INFO') { $iconClass = 'info'; $icon = 'fa-bullhorn'; }
 
                                     $unreadClass = ((int)($n->is_read ?? 0) === 0) ? 'unread' : '';
-                                    $channel = strtoupper($n->channel ?? 'SYSTEM');
-
-                                    $channelBadge = 'push';
-                                    if ($channel === 'EMAIL') $channelBadge = 'email';
-                                    if ($channel === 'SYSTEM') $channelBadge = 'push';
                                 @endphp
 
                                 <div class="notification-item {{ $unreadClass }}">
@@ -205,9 +147,6 @@
                                         <div class="notification-time">
                                             <i class="fas fa-clock"></i>
                                             {{ \Carbon\Carbon::parse($n->created_at)->format('M d, Y g:i A') }}
-                                            <span class="type-badge {{ $channelBadge }}">
-                                                {{ e($channel) }}
-                                            </span>
                                         </div>
                                     </div>
 

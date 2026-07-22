@@ -81,10 +81,10 @@ class AcademicsCmsContent
         'pages' => [
             'degree-programs' => [
                 'hero' => [
-                    'tag' => 'PUP Taguig Branch',
+                    'tag' => 'PUP Taguig Campus',
                     'title' => 'Degree Programs',
                     'subtitle' => 'Academic Year 2024-2025',
-                    'body' => 'Pursue excellence through our CHED-accredited degree programs designed to prepare you for professional success. PUP Taguig Branch offers quality education rooted in science, technology, and professional practice.',
+                    'body' => 'Pursue excellence through our CHED-accredited degree programs designed to prepare you for professional success. PUP Taguig Campus offers quality education rooted in science, technology, and professional practice.',
                     'list_title' => 'Offered Colleges',
                     'list_items' => [
                         'College of Engineering',
@@ -103,7 +103,7 @@ class AcademicsCmsContent
                     'items' => [
                         ['label' => 'Program Type', 'value' => 'CHED-Accredited BS & AB Degrees', 'href' => ''],
                         ['label' => 'Mode of Study', 'value' => 'Face-to-face / Blended Learning', 'href' => ''],
-                        ['label' => 'Location', 'value' => 'PUP Taguig Branch, Gen. Santos Ave., Taguig City', 'href' => ''],
+                        ['label' => 'Location', 'value' => 'PUP Taguig Campus, Gen. Santos Ave., Taguig City', 'href' => ''],
                     ],
                 ],
                 'cards' => [
@@ -126,10 +126,10 @@ class AcademicsCmsContent
             ],
             'diploma-programs' => [
                 'hero' => [
-                    'tag' => 'PUP Taguig Branch',
+                    'tag' => 'PUP Taguig Campus',
                     'title' => 'Diploma Programs',
                     'subtitle' => 'Academic Year 2024-2025',
-                    'body' => 'Gain practical, career-ready skills through our diploma programs designed for students who seek focused, industry-relevant training. PUP Taguig Branch offers CHED-recognized diploma courses that open pathways to employment and further study.',
+                    'body' => 'Gain practical, career-ready skills through our diploma programs designed for students who seek focused, industry-relevant training. PUP Taguig Campus offers CHED-recognized diploma courses that open pathways to employment and further study.',
                     'list_title' => 'Offered Departments',
                     'list_items' => [
                         'Department of Information and Communications Technology',
@@ -143,7 +143,7 @@ class AcademicsCmsContent
                     'items' => [
                         ['label' => 'Program Type', 'value' => 'CHED-Recognized Diploma Courses', 'href' => ''],
                         ['label' => 'Mode of Study', 'value' => 'Face-to-face / Blended Learning', 'href' => ''],
-                        ['label' => 'Location', 'value' => 'PUP Taguig Branch, Gen. Santos Ave., Taguig City', 'href' => ''],
+                        ['label' => 'Location', 'value' => 'PUP Taguig Campus, Gen. Santos Ave., Taguig City', 'href' => ''],
                     ],
                 ],
                 'cards' => [
@@ -218,7 +218,7 @@ class AcademicsCmsContent
             ],
             'university-calendar' => [
                 'hero' => [
-                    'tag' => 'PUP Taguig Branch',
+                    'tag' => 'PUP Taguig Campus',
                     'title' => 'University Calendar',
                     'subtitle' => 'Academic Year 2024-2025',
                     'body' => "Stay on top of your academic journey with PUP Taguig's official university calendar. Find important dates including enrollment periods, class schedules, holidays, examinations, and university-wide events.",

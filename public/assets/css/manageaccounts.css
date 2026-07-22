@@ -1690,7 +1690,7 @@ table, thead, tbody, tfoot, tr, th, td {
 .filter-field input::placeholder,
 .voice-input-row input::placeholder,
 .searchable-select input[type="text"]::placeholder {
-    color: #ffffff;
+    color: #9a9a9a;
 }
 
 .filter-field:focus-within,
@@ -1934,9 +1934,7 @@ tbody td {
     gap: 4px 24px;
 }
 
-.vf .vfl {
-    color: #ffffff;
-}
+
 
 .vf .vfv {
     color: var(--cms-ink);
