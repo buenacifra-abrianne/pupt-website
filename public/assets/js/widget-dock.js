@@ -329,7 +329,7 @@ function initWidgetDock() {
   dock.className = "widget-dock";
   dock.innerHTML = `
     <div class="widget-dock-actions" aria-label="Quick widgets">
-      <button type="button" class="widget-dock-action" data-widget-action="theme" title="Toggle dark mode" aria-label="Toggle dark mode" tabindex="-1">
+      <button type="button" class="widget-dock-action" data-widget-action="theme" title="Toggle dark mode" aria-label="Toggle dark mode" tabindex="-1" style="display: none !important;">
         <!-- SVG will be injected by JS -->
       </button>
       <button type="button" class="widget-dock-action" data-widget-action="chat" title="Chat with AI Assistant" aria-label="Open AI Assistant" aria-expanded="false" tabindex="-1">
