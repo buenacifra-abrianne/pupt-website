@@ -76,9 +76,9 @@ class DownloadableController extends Controller
     {
         $request->validate([
             'downloadable_id' => ['nullable', 'integer'],
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'file' => ['nullable', 'file', 'max:20480'],
+            'title' => ['required', 'string', 'max:60'],
+            'description' => ['nullable', 'string', 'max:256'],
+            'file' => ['nullable', 'file', 'mimes:pdf,docx,doc', 'max:20480'],
         ]);
 
         $title = trim((string) $request->input('title'));
