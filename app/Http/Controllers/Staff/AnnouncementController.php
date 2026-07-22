@@ -161,8 +161,8 @@ $pendingNewsIds = DB::table('approval_requests')
 
         $request->validate([
             'request_id' => ['nullable','integer'], // ✅ for resubmitting/editing existing request (no duplicates)
-            'title' => ['required','string','max:255'],
-            'content' => ['required','string'],
+            'title' => ['required','string','max:60'],
+            'content' => ['required','string','max:256'],
             'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
@@ -185,8 +185,8 @@ $pendingNewsIds = DB::table('approval_requests')
         $request->validate([
             'request_id' => ['nullable','integer'], // ✅
             'announcement_id' => ['required','integer'],
-            'title' => ['required','string','max:255'],
-            'content' => ['required','string'],
+            'title' => ['required','string','max:60'],
+            'content' => ['required','string','max:256'],
             'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
@@ -352,11 +352,11 @@ $pendingNewsIds = DB::table('approval_requests')
 
     $request->validate([
         'request_id' => ['nullable','integer'],
-        'title' => ['required','string','max:255'],
-        'content' => ['required','string'],
+        'title' => ['required','string','max:60'],
+        'content' => ['required','string','max:256'],
         'category' => ['required','string','max:100'],
         'link' => ['nullable','string','max:255'],
-        'location' => ['nullable','string','max:255'],
+        'location' => ['nullable','string','max:60'],
         'existing_image_path' => ['nullable','string'],
         'remove_image' => ['nullable','in:0,1'],
     ]);
@@ -426,11 +426,11 @@ $pendingNewsIds = DB::table('approval_requests')
     $request->validate([
         'request_id' => ['nullable','integer'],
         'news_id' => ['required','integer','gt:0'],
-        'title' => ['required','string','max:255'],
-        'content' => ['required','string'],
+        'title' => ['required','string','max:60'],
+        'content' => ['required','string','max:256'],
         'category' => ['required','string','max:100'],
         'link' => ['nullable','string','max:255'],
-        'location' => ['nullable','string','max:255'],
+        'location' => ['nullable','string','max:60'],
         'existing_image_path' => ['nullable','string'],
         'remove_image' => ['nullable','in:0,1'],
     ]);

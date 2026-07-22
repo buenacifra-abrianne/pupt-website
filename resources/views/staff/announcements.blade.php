@@ -427,12 +427,12 @@
 
                 <div class="form-group">
                     <label>Title *</label>
-                    <input type="text" name="title" required placeholder="Enter announcement title">
+                    <input type="text" name="title" required maxlength="60" placeholder="Enter announcement title">
                 </div>
 
                 <div class="form-group">
                     <label>Description *</label>
-                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description'])
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Enter announcement description', 'characterLimit' => 256])
                 </div>
 
                 <div class="form-group">
@@ -452,6 +452,8 @@
                         id="link"
                         class="form-control"
                         placeholder="https://example.com"
+                        pattern="https?://.*"
+                        title="Please enter a valid URL starting with http:// or https://"
                     >
                 </div>
 
@@ -480,12 +482,12 @@
 
                 <div class="form-group">
                     <label>Title *</label>
-                    <input type="text" name="title" required placeholder="Title">
+                    <input type="text" name="title" required maxlength="60" placeholder="Title">
                 </div>
 
                 <div class="form-group">
                     <label>Description *</label>
-                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content', 'characterLimit' => 256])
                 </div>
 
                 <div class="form-group">
@@ -513,7 +515,7 @@
 
                 <div class="form-group">
                     <label>Location</label>
-                    <input type="text" name="location" placeholder="Location">
+                    <input type="text" name="location" maxlength="60" placeholder="Location">
                 </div>
 
                 <div class="form-group">
