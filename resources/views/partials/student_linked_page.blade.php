@@ -31,48 +31,6 @@
     $isDocumentRequestsPage = $pageKey === 'document-requests';
 @endphp
 
-<section
-    class="hero-shell{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
-    @if($cmsPreview && $heroSectionKey !== '')
-        data-cms-section="{{ $heroSectionKey }}"
-        data-cms-section-label="{{ $isAdmissionsPage ? 'Admissions Header' : ($isDownloadablesPage ? 'Downloadables Header' : 'Document Requests Header') }}"
-    @endif
->
-    @if($cmsPreview && $heroSectionKey !== '')
-        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="{{ $heroSectionKey }}" aria-label="Edit header">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-            </svg>
-        </button>
-    @endif
-
-    <div data-cms-boundary class="cms-preview-boundary-full">
-        <section class="carousel-section">
-            <div class="carousel full-carousel">
-                <div class="carousel-stage">
-                    <div class="carousel-slide active">
-                        <div class="carousel-split" aria-hidden="true">
-                            <img src="{{ $heroImage }}" alt="" class="carousel-half carousel-half-left">
-                        </div>
-                        <div class="carousel-caption">
-                            <h2>{{ $headerText }}</h2>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
-</section>
-
-<div class="academic-shell page-shell">
-    <nav class="academic-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
-        <a href="{{ route('public.home') }}">Home</a>
-        <span>&gt;</span>
-        <a href="{{ route('public.students') }}">Students</a>
-        <span>&gt;</span>
-        <strong>{{ $hero['title'] ?? 'Students' }}</strong>
-    </nav>
-</div>
 
 <div
     class="student-page-body reveal{{ $cmsPreview ? ' active' : '' }}"
