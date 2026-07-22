@@ -720,18 +720,23 @@ margin-top: -0.5px;
 
 .notification-content {
     flex: 1;
+    min-width: 0;
 }
 
 .notification-title {
     color: var(--theme-maroon);
     font-weight: 600;
     margin-bottom: 5px;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .notification-message {
     color: #666;
     font-size: 14px;
     margin-bottom: 5px;
+    word-break: break-word;
+    overflow-wrap: break-word;
 }
 
 .notification-time {
