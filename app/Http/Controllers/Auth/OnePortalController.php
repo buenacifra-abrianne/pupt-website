@@ -159,6 +159,7 @@ class OnePortalController extends Controller
 
     // if user does not exist locally, deny access
     if (!$user) {
+        \App\Services\IncidentResponseService::recordFailure($request->ip(), $email, 'UNKNOWN_USER', 'IDP SSO Login failed: User not found locally');
         $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
@@ -223,6 +224,7 @@ class OnePortalController extends Controller
 
     // if account is inactive, deny access
     if (isset($user->status) && strtoupper((string) $user->status) !== 'ACTIVE') {
+        \App\Services\IncidentResponseService::recordFailure($request->ip(), $email, 'INACTIVE_ACCOUNT', 'IDP SSO Login failed: Account is inactive');
         return redirect()->route('public.landing')
             ->with('error', 'Your CMS account is not active. Please contact Superadmin.');
     }
@@ -252,6 +254,7 @@ class OnePortalController extends Controller
     ];
 
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
+        \App\Services\IncidentResponseService::recordFailure($request->ip(), $email, 'INVALID_ROLE', 'IDP SSO Login failed: User has no valid role');
         $request->session()->flush();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
