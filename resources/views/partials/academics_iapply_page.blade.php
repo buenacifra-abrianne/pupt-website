@@ -17,7 +17,7 @@
     );
     $scheduleItemLabels = [
         'Online Application',
-        'Last day of Issuance',
+        'Last Day of Online Application',
         'Evaluation Result',
     ];
     $formatScheduleDateDisplay = static function (mixed $value): string {
