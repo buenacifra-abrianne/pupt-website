@@ -15,6 +15,7 @@ class SsoController extends Controller
 
         if (!$token) {
             AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: missing token.');
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), null, 'FAILED_SSO_LOGIN', 'Blocked SSO login: missing token.');
             abort(403, 'Missing SSO token.');
         }
 
@@ -22,6 +23,7 @@ class SsoController extends Controller
 
         if (!$portalUser || empty($portalUser['email'])) {
             AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: invalid or expired token.');
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), null, 'FAILED_SSO_LOGIN', 'Blocked SSO login: invalid or expired token.');
             abort(403, 'Invalid or expired SSO token.');
         }
 
@@ -41,6 +43,7 @@ class SsoController extends Controller
             $request->session()->regenerateToken();
 
             AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: unknown user '.$portalUser['email']);
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), $portalUser['email'], 'FAILED_SSO_LOGIN', 'Blocked SSO login: unknown user');
 
             return redirect()->route('public.landing')
                 ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
@@ -48,6 +51,7 @@ class SsoController extends Controller
 
         if (!in_array((string) $user->status, ['Active', 'Suspended'], true)) {
             AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login for inactive account: '.$user->email);
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), $user->email, 'FAILED_SSO_LOGIN', 'Blocked SSO login for inactive account');
             abort(403, 'Your account is inactive/suspended.');
         }
 
@@ -94,6 +98,7 @@ class SsoController extends Controller
                 'SECURITY',
                 'Blocked SSO login: no valid role for '.$user->email
             );
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), $user->email, 'FAILED_SSO_LOGIN', 'Blocked SSO login: no valid role');
 
             return redirect()->route('public.landing')
                 ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
