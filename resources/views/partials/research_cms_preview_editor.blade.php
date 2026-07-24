@@ -351,6 +351,51 @@
                         ])
                     </div>
 
+                    <div class="form-group" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid #d7dbe2;">
+                        <h4 style="color: #7f1113; margin-bottom: 1rem; font-weight: 600;">PDF Document</h4>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Title</label>
+                        <input type="text" name="research[strategic_development_plan][document_title]" maxlength="255" value="{{ $sdpEditor['document_title'] ?? '' }}" placeholder="Strategic Development Plan">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <div class="research-cms-textarea-field">
+                            <textarea name="research[strategic_development_plan][document_desc]" rows="3" maxlength="255">{{ $sdpEditor['document_desc'] ?? '' }}</textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Google Drive Link</label>
+                        <div class="research-cms-image-dropzone-shell">
+                            <div class="research-cms-image-dropzone" style="cursor: default; border-color: #d7dbe2; flex-direction: column; padding: 24px; gap: 24px;">
+                                <span class="research-cms-image-dropzone-preview-column" style="width: 100%; padding-right: 0;">
+                                    <span class="research-cms-image-dropzone-media" style="background: #fdf5f5; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; color: #7f1113; width: 100%; height: 380px; overflow: hidden; position: relative; border-radius: 8px;">
+                                        <i class="fas fa-file-pdf" style="font-size: 3rem;"></i>
+                                        <button type="button" class="research-cms-image-dropzone-remove" onclick="const input = this.closest('.research-cms-image-dropzone').querySelector('input'); input.value = ''; input.dispatchEvent(new Event('input', { bubbles: true }));" aria-label="Clear PDF link" title="Clear PDF link" style="display: flex; position: absolute; top: 12px; right: 12px; z-index: 10;">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                </span>
+                                <span class="research-cms-image-dropzone-upload" style="flex: 1; width: 100%;">
+                                    <span class="research-cms-image-dropzone-icon" style="background: #fdf5f5; color: #7f1113;">
+                                        <i class="fas fa-link" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="research-cms-image-dropzone-upload-title" style="margin-bottom: 12px; font-weight: 600;">Link PDF Document</span>
+                                    <div class="research-link-row" style="width: 100%; max-width: 100%; display: flex; gap: 8px;">
+                                        <input type="text" name="research[strategic_development_plan][document_url]" maxlength="2048" value="{{ $sdpEditor['document_url'] ?? '' }}" placeholder="https://drive.google.com/..." style="flex: 1; border: 1px solid #d7dbe2; border-radius: 8px; padding: 10px 14px;">
+                                        <button type="button" class="research-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL" style="border-radius: 8px; flex-shrink: 0; width: 42px; height: 42px;">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
+                                    <span class="research-cms-image-dropzone-upload-copy" style="margin-top: 12px; display: block; text-align: center;">For Google Drive links, make sure the link is set to "Anyone with the link can view".</span>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="research-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
@@ -359,6 +404,8 @@
                     </div>
                 </form>
             </section>
+
+
 
             <section class="research-cms-editor-panel" data-research-editor-panel="strategic-development-plan" hidden data-research-sdp-panel>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data" data-research-sdp-form>
@@ -2069,6 +2116,75 @@
         bindResearchCardsDirtyTracking();
         relabelSdpPriorities();
         setActiveSdpEditor();
+        
+        // --- SDP Document Preview ---
+        const sdpDocUrlInput = modal.querySelector('input[name="research[strategic_development_plan][document_url]"]');
+        const sdpDocPreviewMedia = modal.querySelector('.research-cms-editor-panel[data-research-editor-panel="strategic-development-plan-header"] .research-cms-image-dropzone-media');
+        
+        if (sdpDocUrlInput && sdpDocPreviewMedia) {
+            let previewTimeout = null;
+            const updateSdpDocPreview = () => {
+                let url = (sdpDocUrlInput.value || '').trim();
+                if (!url) {
+                    sdpDocPreviewMedia.innerHTML = '<i class="fas fa-file-pdf" style="font-size: 3rem;"></i>';
+                    return;
+                }
+                
+                const driveMatch1 = url.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+                const driveMatch2 = url.match(/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/);
+                if (driveMatch1) {
+                    url = 'https://drive.google.com/file/d/' + driveMatch1[1] + '/preview';
+                } else if (driveMatch2) {
+                    url = 'https://drive.google.com/file/d/' + driveMatch2[1] + '/preview';
+                }
+                
+                // Show loading state
+                sdpDocPreviewMedia.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: #7f1113;"></i>';
+                
+                if (previewTimeout) clearTimeout(previewTimeout);
+                previewTimeout = setTimeout(() => {
+                    const wrapper = document.createElement('div');
+                    wrapper.style.width = '100%';
+                    wrapper.style.height = '100%';
+                    wrapper.style.position = 'relative';
+                    
+                    const spinner = document.createElement('i');
+                    spinner.className = 'fas fa-spinner fa-spin';
+                    spinner.style.fontSize = '2rem';
+                    spinner.style.color = '#7f1113';
+                    spinner.style.position = 'absolute';
+                    spinner.style.top = '50%';
+                    spinner.style.left = '50%';
+                    spinner.style.transform = 'translate(-50%, -50%)';
+                    spinner.style.zIndex = '1';
+                    
+                    const iframe = document.createElement('iframe');
+                    iframe.src = url;
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    iframe.style.position = 'relative';
+                    iframe.style.zIndex = '2';
+                    iframe.style.background = '#fff'; 
+                    iframe.onload = () => { spinner.style.display = 'none'; };
+                    
+                    wrapper.appendChild(spinner);
+                    wrapper.appendChild(iframe);
+                    
+                    sdpDocPreviewMedia.innerHTML = '';
+                    sdpDocPreviewMedia.appendChild(wrapper);
+                }, 600); // Small delay to simulate processing
+            };
+            
+            sdpDocUrlInput.addEventListener('input', updateSdpDocPreview);
+            sdpDocUrlInput.addEventListener('change', updateSdpDocPreview);
+            
+            // Trigger initially if there's a value
+            if (sdpDocUrlInput.value.trim() !== '') {
+                updateSdpDocPreview();
+            }
+        }
+
         window.__researchCmsPreviewEditorReady = true;
     })();
 </script>

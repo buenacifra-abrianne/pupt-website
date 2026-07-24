@@ -81,6 +81,7 @@ class CmsController extends Controller
                 'diploma-programs-hero', 'diploma-programs-info', 'diploma-programs-cards', 'diploma-programs-contact',
                 'pup-iapply-hero', 'pup-iapply-schedule', 'pup-iapply-guide', 'pup-iapply-reminders',
                 'university-calendar-hero', 'university-calendar-info', 'university-calendar-calendar',
+                'strategic_development_plan',
             ], AboutCmsContent::sectionSlugs()))],
             'title' => ['nullable', 'string', 'max:255'],
             'content' => ['nullable', 'string'],
