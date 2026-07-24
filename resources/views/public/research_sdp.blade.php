@@ -81,6 +81,56 @@
                 </div>
             </div>
 
+            {{-- Strategic Development Plan Document --}}
+            <div
+                class="sdp-document-section reveal{{ $cmsPreview ? ' cms-preview-editable active' : '' }}"
+                @if($cmsPreview)
+                    data-cms-section="strategic-development-plan-header"
+                    data-cms-section-label="Strategic Development Plan Document"
+                @endif
+            >
+                @if($cmsPreview)
+                    <button type="button" class="cms-preview-chip" data-cms-edit-trigger="strategic-development-plan-header" aria-label="Edit Strategic Development Plan Document">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                        </svg>
+                    </button>
+                @endif
+                <div @if($cmsPreview) data-cms-boundary class="cms-preview-boundary-edge" @endif>
+                    @php
+                        $sdpDocUrl = trim((string) ($sdp['document_url'] ?? ''));
+                        if (preg_match('/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/', $sdpDocUrl, $matches)) {
+                            $sdpDocUrl = 'https://drive.google.com/file/d/' . $matches[1] . '/preview';
+                        } elseif (preg_match('/drive\.google\.com\/open\?id=([a-zA-Z0-9_-]+)/', $sdpDocUrl, $matches)) {
+                            $sdpDocUrl = 'https://drive.google.com/file/d/' . $matches[1] . '/preview';
+                        }
+                        $sdpDocTitle = trim((string) ($sdp['document_title'] ?? ''));
+                        $sdpDocDesc = trim((string) ($sdp['document_desc'] ?? ''));
+                    @endphp
+                    @if($sdpDocUrl !== '' || $cmsPreview)
+                        <div class="sdp-document-embed-container" style="max-width: 960px; margin: 40px auto 60px auto; text-align: center;">
+                            @if($sdpDocTitle !== '')
+                                <h2 style="font-size: 2rem; color: #7f1113; margin-bottom: 12px; font-weight: 700; font-family: 'Poppins', sans-serif;">{{ $sdpDocTitle }}</h2>
+                            @endif
+                            @if($sdpDocDesc !== '')
+                                <p style="font-size: 1.05rem; color: #475569; margin-bottom: 32px; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6;">{{ $sdpDocDesc }}</p>
+                            @endif
+                            @if($sdpDocUrl !== '')
+                                <div style="width: 100%; height: 80vh; min-height: 700px; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; box-shadow: 0 12px 32px rgba(0,0,0,0.12);">
+                                    <iframe src="{{ $sdpDocUrl }}" width="100%" height="100%" style="border: none;" allowfullscreen loading="lazy"></iframe>
+                                </div>
+                            @elseif($cmsPreview)
+                                <div style="width: 100%; height: 240px; border: 2px dashed #cbd5e1; border-radius: 16px; background: #f8fafc; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #64748b; cursor: pointer;">
+                                    <i class="fas fa-file-pdf" style="font-size: 3rem; color: #94a3b8; margin-bottom: 16px;"></i>
+                                    <p style="font-weight: 500; font-size: 1.1rem; margin-bottom: 4px;">No PDF Linked</p>
+                                    <p style="font-size: 0.95rem;">Click this section to provide a Google Drive or PDF link.</p>
+                                </div>
+                            @endif
+                        </div>
+                    @endif
+                </div>
+            </div>
+
             {{-- Development Priorities --}}
             <div
                 class="sdp-priorities-shell reveal{{ $cmsPreview ? ' cms-preview-editable active' : '' }}"
@@ -178,7 +228,8 @@
             }
 
             .sdp-page-header.cms-preview-editable,
-            .sdp-priorities-shell.cms-preview-editable {
+            .sdp-priorities-shell.cms-preview-editable,
+            .sdp-document-section.cms-preview-editable {
 
                 --cms-preview-outline-offset: 12px;
                 --cms-preview-chip-top-offset: 50%;
@@ -210,7 +261,8 @@
             /* The outline goes on the OUTER editable element using ::before
                so it is never clipped by overflow:hidden on the card */
             .sdp-page-header.cms-preview-editable::before,
-            .sdp-priorities-shell.cms-preview-editable::before {
+            .sdp-priorities-shell.cms-preview-editable::before,
+            .sdp-document-section.cms-preview-editable::before {
                 content: "";
                 position: absolute;
                 inset: 0;
@@ -233,9 +285,35 @@
             }
 
 
-            /* Edit chip hidden — not used in this system */
+            /* Edit chip visible on hover */
             .cms-preview-chip {
-                display: none !important;
+                position: absolute;
+                top: var(--cms-preview-chip-top-offset, 12px);
+                right: var(--cms-preview-chip-right-offset, 12px);
+                z-index: 20;
+                width: 44px;
+                min-width: 44px;
+                height: 44px;
+                border: none;
+                border-radius: 12px;
+                background: rgba(127, 17, 19, 0.92);
+                color: #fffaf4;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                box-shadow: 0 10px 18px rgba(32, 8, 8, 0.18);
+                cursor: pointer;
+                transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+                opacity: 0;
+                transform: translateY(8px);
+                pointer-events: none;
+            }
+
+            .cms-preview-editable:hover .cms-preview-chip,
+            .cms-preview-editable:focus-within .cms-preview-chip {
+                opacity: 1;
+                transform: none;
+                pointer-events: auto;
             }
 
             .cms-preview-chip:hover {

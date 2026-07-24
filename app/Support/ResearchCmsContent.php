@@ -61,6 +61,9 @@ class ResearchCmsContent
                 'Use feedback and evidence to improve policies, programs, and resource allocation.',
                 'Build partnerships that extend learning opportunities and community impact.',
             ],
+            'document_url' => '',
+            'document_title' => 'Strategic Development Plan',
+            'document_desc' => '',
         ],
     ];
 
@@ -204,6 +207,9 @@ class ResearchCmsContent
             'lead' => self::pickString($source, $base, $defaults, 'lead', 5000),
             'development_priorities' => $priorities !== [] ? $priorities : ($base['development_priorities'] ?? $defaults['development_priorities']),
             'plan_principles' => $principles !== [] ? $principles : ($base['plan_principles'] ?? $defaults['plan_principles']),
+            'document_url' => self::pickOptionalString($source, $base, $defaults, 'document_url', 2048),
+            'document_title' => self::pickString($source, $base, $defaults, 'document_title'),
+            'document_desc' => self::pickString($source, $base, $defaults, 'document_desc', 5000),
         ];
     }
 
