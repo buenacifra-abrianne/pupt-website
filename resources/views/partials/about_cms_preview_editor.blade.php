@@ -1624,8 +1624,13 @@
 
     .about-cms-modal::-webkit-scrollbar,
     .about-cms-modal-dialog::-webkit-scrollbar,
-    .about-cms-modal-panels::-webkit-scrollbar {
+    .about-cms-modal-panels::-webkit-scrollbar,
+    .about-cms-modal *::-webkit-scrollbar {
         display: none;
+    }
+
+    .about-cms-modal * {
+        scrollbar-width: none;
     }
 
     .about-cms-modal-backdrop {
@@ -2124,7 +2129,7 @@
     .about-cms-image-dropzone-preview-column {
         display: flex;
         min-width: 0;
-        min-height: 180px;
+        min-height: 120px;
     }
 
     .about-cms-image-dropzone-media {
@@ -2137,7 +2142,8 @@
     .about-cms-image-dropzone-preview {
         width: 100%;
         height: 100%;
-        min-height: 180px;
+        min-height: 120px;
+        max-height: 160px;
         object-fit: cover;
         border-radius: 18px;
         background: #f1e7dd;
@@ -2169,9 +2175,9 @@
         display: grid;
         justify-items: center;
         align-content: center;
-        gap: 12px;
+        gap: 8px;
         min-width: 0;
-        padding: 20px 18px;
+        padding: 14px 16px;
         border-radius: 18px;
         background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
         color: #f8f4ef;
@@ -2184,12 +2190,12 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 82px;
-        height: 82px;
+        width: 54px;
+        height: 54px;
         border-radius: 999px;
         background: rgba(73, 8, 13, 0.42);
         color: #f2f0ed;
-        font-size: 2rem;
+        font-size: 1.4rem;
     }
 
     .about-cms-image-dropzone-upload-title {
@@ -2210,12 +2216,12 @@
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 40px;
-        padding: 0 18px;
+        min-height: 36px;
+        padding: 0 16px;
         border-radius: 999px;
         background: #fff8f1;
         color: #1b1714;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: 700;
     }
 
@@ -2462,7 +2468,8 @@
     .about-cms-modal.is-card-focus .about-cms-modal-panels {
         display: block;
         padding: 18px;
-        overflow: visible;
+        overflow-y: auto;
+        overflow-x: hidden;
     }
 
     .about-cms-editor-panel.is-card-focus form {

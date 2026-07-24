@@ -4352,6 +4352,30 @@ body.pup-dark-mode .iapply-checklist li {
   overflow-wrap: anywhere;
 }
 
+.academic-rich-copy p,
+.academic-intro-rich-copy p,
+.academic-feature-copy p,
+.iapply-guide-copy p,
+.iapply-requirements-section p,
+.uc-calendar-official-card p,
+.contents-card p,
+.academic-feature-card p,
+.cards_information p {
+  margin-bottom: 1em;
+}
+
+.academic-rich-copy p:last-child,
+.academic-intro-rich-copy p:last-child,
+.academic-feature-copy p:last-child,
+.iapply-guide-copy p:last-child,
+.iapply-requirements-section p:last-child,
+.uc-calendar-official-card p:last-child,
+.contents-card p:last-child,
+.academic-feature-card p:last-child,
+.cards_information p:last-child {
+  margin-bottom: 0;
+}
+
 .iapply-hero.cms-preview-editable > .iapply-hero-content[data-cms-boundary],
 .iapply-guide-section.cms-preview-editable > .iapply-guide-grid[data-cms-boundary] {
   display: grid;
