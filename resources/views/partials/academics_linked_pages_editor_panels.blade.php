@@ -702,7 +702,7 @@
 @endonce
 
 <section class="academics-cms-editor-panel" data-academics-editor-panel="pup-iapply-schedule" hidden>
-    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" data-academics-card-form="pup-iapply-schedule">
+    <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
         @csrf
         <input type="hidden" name="tab_key" value="academics">
         <input type="hidden" name="section_key" value="pup-iapply-schedule">

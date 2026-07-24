@@ -106,14 +106,6 @@
                         @endphp
                         <article
                             class="uc-schedule-cell{{ $itemHref !== '' && $index === 2 ? ' iapply-schedule-box--with-action' : '' }}"
-                            @if($cmsPreview)
-                                data-academics-schedule-card
-                                data-academics-schedule-card-index="{{ $index }}"
-                                data-academics-schedule-card-label="{{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}"
-                                role="button"
-                                tabindex="0"
-                                aria-label="Edit {{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}"
-                            @endif
                         >
                             <div class="iapply-schedule-box-content">
                                 <span class="iapply-schedule-box-label">{{ $itemLabel !== '' ? $itemLabel : 'Schedule' }}</span>

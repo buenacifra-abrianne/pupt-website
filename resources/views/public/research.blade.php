@@ -35,6 +35,18 @@
         $cards = collect($researchCms['cards'] ?? [])
             ->filter(fn ($card) => is_array($card))
             ->values();
+            
+        if (!$cards->contains(function ($card) {
+            return ($card['link'] ?? '') === '/research/strategic-development-plan'
+                || strtolower($card['title'] ?? '') === 'strategic development plan';
+        })) {
+            $cards->push([
+                'title' => 'Strategic Development Plan',
+                'description' => 'Discover the campus strategic development plan aligning academic priorities and growth.',
+                'link' => '/research/strategic-development-plan',
+                'image' => 'assets/static_img/pupillar.jpeg',
+            ]);
+        }
     @endphp
 
     @unless($cmsPreview)
@@ -165,9 +177,11 @@
                                         <button type="button" class="cms-preview-card-action" data-research-card-edit title="Edit service" aria-label="Edit {{ $cardTitle !== '' ? $cardTitle : 'research service' }}">
                                             Edit
                                         </button>
-                                        <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete service" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research service' }}">
-                                            Delete
-                                        </button>
+                                        @if($cardLink !== '/research/strategic-development-plan' && $cardLink !== route('public.research.strategic-development-plan') && strtolower($cardTitle) !== 'strategic development plan')
+                                            <button type="button" class="cms-preview-card-action cms-preview-card-action-delete" data-research-card-delete title="Delete service" aria-label="Delete {{ $cardTitle !== '' ? $cardTitle : 'research service' }}">
+                                                Delete
+                                            </button>
+                                        @endif
                                     </div>
                                 @endif
                                 <div class="students-card-inner">
