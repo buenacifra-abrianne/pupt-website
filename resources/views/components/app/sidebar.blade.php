@@ -12,6 +12,7 @@
 .sidebar {
     overflow-y: hidden !important;
     padding-bottom: 50px !important; /* Space for the absolute footer */
+    background: linear-gradient(180deg, #6c0202 0%, #7f0606 55%, #510000 100%) !important;
 }
 
 /* Base link sizing to fit vertically */
