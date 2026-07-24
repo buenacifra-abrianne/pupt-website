@@ -34,6 +34,7 @@ class AuthController extends Controller
                 null,
                 ['user_name' => 'Unknown']
             );
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), (string) $request->email, 'FAILED_LOGIN', 'Failed superadmin login: unknown user');
             return back()
                 ->withErrors(['login' => 'Invalid login attempt'])
                 ->withInput();
