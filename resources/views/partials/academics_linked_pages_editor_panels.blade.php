@@ -719,7 +719,7 @@
             );
             $scheduleItemLabels = [
                 'Online Application',
-                'Last day of Issuance',
+                'Last Day of Online Application',
                 'Evaluation Result',
             ];
             $normalizeScheduleDateInput = static function (mixed $value): string {
@@ -752,7 +752,7 @@
         </div>
 
         <div class="form-group">
-            <label>Last Day of Issuance Date</label>
+            <label>Last Day of Online Application Date</label>
             <input type="date" name="academics[pages][pup-iapply][schedule][items][1][value]" value="{{ $normalizeScheduleDateInput($scheduleItems[1]['value'] ?? '') }}">
             <input type="hidden" name="academics[pages][pup-iapply][schedule][items][1][label]" value="Last Day of Issuance">
         </div>

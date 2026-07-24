@@ -177,7 +177,7 @@ class AcademicsCmsContent
                 ],
                 'schedule' => [
                     'tag' => 'Schedule & Key Dates',
-                    'title' => 'Branch Campus - Taguig City',
+                    'title' => 'Campus - Taguig City',
                     'items' => [
                         ['label' => 'Online Application', 'value' => '2022-01-27', 'href' => ''],
                         ['label' => 'Last Day of Issuance', 'value' => '2022-06-15', 'href' => ''],
