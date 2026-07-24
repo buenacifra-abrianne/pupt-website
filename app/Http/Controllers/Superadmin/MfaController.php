@@ -126,6 +126,7 @@ class MfaController extends Controller
                 return $authController->completeLogin($user);
             }
 
+            \App\Services\IncidentResponseService::recordFailure($request->ip(), $user->email ?? 'unknown', 'FAILED_LOGIN', 'Failed superadmin login: invalid backup code');
             return back()->withErrors(['backup_code' => 'Invalid backup code.']);
         }
 
@@ -165,6 +166,7 @@ class MfaController extends Controller
             return $authController->completeLogin($user);
         }
 
+        \App\Services\IncidentResponseService::recordFailure($request->ip(), $user->email ?? 'unknown', 'FAILED_LOGIN', 'Failed superadmin login: invalid MFA code');
         return back()->withErrors(['one_time_password' => 'Invalid code.']);
     }
 }
