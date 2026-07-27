@@ -139,6 +139,13 @@
                 <span>Manage CMS Access</span>
             </a>
         </li>
+
+        <li class="nav-item">
+            <a href="{{ route('superadmin.security.incidents') }}" class="nav-link {{ request()->routeIs('superadmin.security.*') ? 'active' : '' }}">
+                <i class="fas fa-shield-halved"></i>
+                <span>Security & Incidents</span>
+            </a>
+        </li>
         @endif
 
         <li class="nav-item">

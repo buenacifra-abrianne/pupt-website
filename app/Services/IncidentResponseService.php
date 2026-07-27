@@ -85,18 +85,18 @@ class IncidentResponseService
         self::notifySuperadmins($ip, $email, $eventType, $failureCount);
     }
 
-    /**
-     * Instantly dispatch a high-priority alert to all Superadmins.
-     */
     public static function notifySuperadmins(string $ip, ?string $email, string $eventType, int $failureCount)
     {
-        $superadmins = User::join('roles', 'users.role_id', '=', 'roles.id')
-            ->where('roles.code', 'SUPERADMIN')
-            ->select('users.*')
-            ->get();
-
-        if ($superadmins->isNotEmpty()) {
-            Notification::send($superadmins, new SecurityAnomalyNotification($ip, $email, $eventType, $failureCount));
-        }
+        $message = "Detected $failureCount failed attempts from IP $ip. Temporary containment applied. Target: " . ($email ?? 'Unknown');
+        
+        \Illuminate\Support\Facades\DB::table('notifications')->insert([
+            'title' => 'Security Anomaly Detected',
+            'message' => $message,
+            'type' => 'DANGER', // Red icon in the CMS
+            'channel' => 'SYSTEM',
+            'target_role' => 'SUPERADMIN', // Broadcast to all Superadmins
+            'target_user_id' => null,
+            'created_at' => now(),
+        ]);
     }
 }
