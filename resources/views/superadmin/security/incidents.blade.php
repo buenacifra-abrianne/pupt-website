@@ -20,6 +20,8 @@
         .sec-badge-red { background: #fee2e2; color: #b91c1c; }
         .sec-badge-yellow { background: #fef3c7; color: #b45309; }
         .action-btn { background: #dc2626; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-secondary { background: #f3f4f6; color: #374151; border: 1px solid #d1d5db; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 13px; transition: all 0.2s; }
+        .btn-secondary:hover { background: #e5e7eb; color: #111827; }
         .input-text { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 250px; }
         .success-msg { background: #dcfce7; color: #15803d; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
     </style>
@@ -72,7 +74,7 @@
                                     <form action="{{ route('superadmin.security.unblockIp', $ip->id) }}" method="POST" style="display:inline;">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" style="background:none;border:none;color:#2563eb;cursor:pointer;text-decoration:underline;">Unblock</button>
+                                        <button type="submit" class="btn-secondary">Unblock</button>
                                     </form>
                                 </td>
                             </tr>
