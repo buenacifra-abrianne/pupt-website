@@ -16,9 +16,9 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #f0f0f0; }
         th { color: #888; font-weight: 500; }
-        .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; }
-        .badge-red { background: #fee2e2; color: #b91c1c; }
-        .badge-yellow { background: #fef3c7; color: #b45309; }
+        .security-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block; }
+        .sec-badge-red { background: #fee2e2; color: #b91c1c; }
+        .sec-badge-yellow { background: #fef3c7; color: #b45309; }
         .action-btn { background: #dc2626; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }
         .input-text { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 250px; }
         .success-msg { background: #dcfce7; color: #15803d; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
@@ -61,9 +61,9 @@
                                 <td>{{ $ip->ip_address }}</td>
                                 <td>
                                     @if($ip->blacklisted)
-                                        <span class="badge badge-red">Permanent</span>
+                                        <span class="security-badge sec-badge-red">Permanent</span>
                                     @else
-                                        <span class="badge badge-yellow">Temporary</span>
+                                        <span class="security-badge sec-badge-yellow">Temporary</span>
                                     @endif
                                 </td>
                                 <td>{{ $ip->reason }}</td>
@@ -101,7 +101,7 @@
                                 <td>{{ $event->created_at->format('Y-m-d H:i:s') }}</td>
                                 <td>{{ $event->ip_address }}</td>
                                 <td>{{ $event->user_email ?: 'N/A' }}</td>
-                                <td><span class="badge badge-red">{{ $event->event_type }}</span></td>
+                                <td><span class="security-badge sec-badge-red">{{ $event->event_type }}</span></td>
                                 <td>{{ $event->description }}</td>
                             </tr>
                         @empty
