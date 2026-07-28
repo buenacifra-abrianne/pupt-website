@@ -13,6 +13,12 @@ class SecurityController extends Controller
 {
     public function incidents()
     {
+        // Prune expired temporary blocks first
+        BlockedIp::where('blacklisted', false)
+            ->whereNotNull('blocked_until')
+            ->where('blocked_until', '<', now())
+            ->delete();
+
         $events = SecurityEvent::latest()->paginate(20);
         $blockedIps = BlockedIp::latest()->get();
 

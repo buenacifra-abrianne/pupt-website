@@ -27,3 +27,10 @@ Schedule::command('faculty:sync-cache')
 Schedule::command('admin:sync-cache')
     ->everySixHours()
     ->withoutOverlapping();
+
+Schedule::call(function () {
+    \App\Models\BlockedIp::where('blacklisted', false)
+        ->whereNotNull('blocked_until')
+        ->where('blocked_until', '<', now())
+        ->delete();
+})->everyFifteenMinutes();
