@@ -290,6 +290,45 @@ body.nav-open .scroll-nav-button {
   letter-spacing: 1px;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.one-portal-btn {
+  background: rgba(255, 251, 246, 0.72);
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  padding: 0 18px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  transition: 0.3s;
+  white-space: nowrap;
+}
+
+.one-portal-btn:hover {
+  background-color: var(--primary-color);
+  color: var(--white);
+}
+
+.one-portal-btn svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 /* ========== Navbar (Desktop) ========== */
 .navbar {
   background: #991b21;
@@ -545,6 +584,16 @@ body.nav-open .scroll-nav-button {
   .tagline {
     font-size: 10px;
     letter-spacing: 0.5px;
+  }
+
+  .header-actions {
+    margin-top: 5px;
+  }
+
+  .one-portal-btn {
+    font-size: 11px;
+    padding: 0 12px;
+    height: 36px;
   }
 
   .logo {

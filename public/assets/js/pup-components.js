@@ -11,6 +11,7 @@ class PUPHeader extends HTMLElement {
     const research = this.dataset.research || "/research";
     const services = this.dataset.services || "/services";
     const assets = this.dataset.assets || "/assets";
+    const onePortalUrl = this.dataset.oneportal || "https://one-portal.isaxbsit2027.com/landing";
 
     const logoUrl = `${assets}/static_img/logo.png`;
 
@@ -28,7 +29,15 @@ class PUPHeader extends HTMLElement {
         <p class="tagline">A Leading Comprehensive Polytechnic University in Asia</p>
       </div>
     </div>
-    <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
+    <div class="header-actions">
+      <a href="${onePortalUrl}" class="one-portal-btn">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" />
+        </svg>
+        Go to One Portal
+      </a>
+      <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
+    </div>
   </div>
 
   <nav class="navbar">
