@@ -235,6 +235,13 @@ class AcademicsCmsContent
                 'info' => [
                     'tag' => '',
                     'title' => 'Academic Year 2024-2025',
+                    'ay_start_date' => '',
+                    'sem1_start' => '',
+                    'sem1_end' => '',
+                    'sem2_start' => '',
+                    'sem2_end' => '',
+                    'summer_start' => '',
+                    'summer_end' => '',
                     'items' => [
                         ['label' => '1st Semester', 'value' => 'August - December 2024', 'href' => ''],
                         ['label' => '2nd Semester', 'value' => 'January - May 2025', 'href' => ''],
