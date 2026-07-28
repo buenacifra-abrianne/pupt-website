@@ -24,12 +24,12 @@ class FirewallMiddleware
         if ($blockedIp) {
             if ($blockedIp->blacklisted) {
                 AuditLog::record('SECURITY', 'FIREWALL', "Blocked request from permanently blacklisted IP: {$ip}");
-                abort(403, 'Your IP address has been permanently blacklisted.');
+                abort(403, 'Your access has been permanently restricted due to security reasons.');
             }
 
             if ($blockedIp->blocked_until && $blockedIp->blocked_until->isFuture()) {
                 AuditLog::record('SECURITY', 'FIREWALL', "Blocked request from temporarily contained IP: {$ip}");
-                abort(403, 'Your IP address is temporarily blocked due to suspicious activity. Please try again later.');
+                abort(403, 'You have reached the maximum limit of login attempt. Try again after 15 minutes.');
             }
             
             // If the temporary block has expired, we can optionally delete it
