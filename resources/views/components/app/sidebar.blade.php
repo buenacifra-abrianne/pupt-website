@@ -175,11 +175,11 @@
                 @if(in_array('about', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=about" class="submenu-link" onclick="handleSubmenuClick(event, 'about')">About</a></li>
                 @endif
-                @if(in_array('students', $allowedCmsTabs))
-                <li><a href="{{ route($role . '.content') }}?tab=students" class="submenu-link" onclick="handleSubmenuClick(event, 'students')">Students</a></li>
-                @endif
                 @if(in_array('academics', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=academics" class="submenu-link" onclick="handleSubmenuClick(event, 'academics')">Academics</a></li>
+                @endif
+                @if(in_array('students', $allowedCmsTabs))
+                <li><a href="{{ route($role . '.content') }}?tab=students" class="submenu-link" onclick="handleSubmenuClick(event, 'students')">Students</a></li>
                 @endif
                 @if(in_array('events', $allowedCmsTabs))
                 <li><a href="{{ route($role . '.content') }}?tab=events" class="submenu-link" onclick="handleSubmenuClick(event, 'events')">Events</a></li>
