@@ -251,7 +251,6 @@
     @if($isDocumentRequestsPage)
         <section
             class="student-page-section"
-            style="padding-bottom: 0;"
         >
             <div
                 class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
