@@ -6,6 +6,11 @@ const BOTPRESS_SHAREABLE_URL = "https://cdn.botpress.cloud/webchat/v3.6/shareabl
 function initWidgetDock() {
   if (!document.body || document.querySelector(".widget-dock")) return;
 
+  // Do not show the widget dock in CMS live preview pages (or any iframe preview)
+  if (window !== window.parent || document.body.classList.contains('cms-preview-mode') || document.body.hasAttribute('data-cms-preview')) {
+    return;
+  }
+
   if (!document.getElementById("widget-dock-inline-styles")) {
     const style = document.createElement("style");
     style.id = "widget-dock-inline-styles";
