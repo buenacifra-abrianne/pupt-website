@@ -2,7 +2,22 @@
     $researchDefaults = \App\Support\ResearchCmsContent::defaults();
     $researchEditorData = \App\Support\ResearchCmsContent::fromInput($researchEditorData ?? [], null);
     $pageEditor = $researchEditorData['page'] ?? $researchDefaults['page'];
-    $cardsEditor = $researchEditorData['cards'] ?? $researchDefaults['cards'];
+    $cardsEditor = collect($researchEditorData['cards'] ?? $researchDefaults['cards'])
+        ->filter(fn ($card) => is_array($card))
+        ->values();
+
+    if (!$cardsEditor->contains(function ($card) {
+        return ($card['link'] ?? '') === '/research/strategic-development-plan'
+            || strtolower($card['title'] ?? '') === 'strategic development plan';
+    })) {
+        $cardsEditor->push([
+            'title' => 'Strategic Development Plan',
+            'description' => 'Discover the campus strategic development plan aligning academic priorities and growth.',
+            'link' => '/research/strategic-development-plan',
+            'image' => 'assets/static_img/pupillar.jpeg',
+        ]);
+    }
+
     $sdpEditor = $researchEditorData['strategic_development_plan'] ?? $researchDefaults['strategic_development_plan'];
     $researchPreviewPages = $researchPreviewPages ?? ['overview' => ($researchPreviewHtml ?? '')];
     $formClass = $researchEditorFormClass ?? 'cms-save-form';
