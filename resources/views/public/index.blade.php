@@ -163,5 +163,30 @@
     <x-landing-footer />
 </main>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const portalButtons = document.querySelectorAll('.portal-button');
+        let isClicked = false;
+
+        portalButtons.forEach(button => {
+            button.addEventListener('click', function (e) {
+                if (isClicked) {
+                    e.preventDefault();
+                    return;
+                }
+                
+                isClicked = true;
+                this.style.opacity = '0.7';
+                this.style.pointerEvents = 'none';
+                
+                setTimeout(() => {
+                    isClicked = false;
+                    this.style.opacity = '1';
+                    this.style.pointerEvents = 'auto';
+                }, 5000);
+            });
+        });
+    });
+</script>
 </body>
 </html>
