@@ -37,7 +37,7 @@
     @endunless
 
     <main class="main-content research-review-page">
-        <section class="academic-shell page-shell research-page-shell">
+        <section class="academic-shell page-shell research-page-shell sdp-shell">
             <nav class="research-breadcrumb layout-breadcrumb reveal{{ $cmsPreview ? ' active' : '' }}" aria-label="Breadcrumb">
                 <a href="{{ route('public.home') }}">Home</a>
                 <span>&gt;</span>
@@ -217,14 +217,6 @@
             .reveal {
                 opacity: 1 !important;
                 transform: none !important;
-            }
-
-            .research-page-shell {
-                padding-left: clamp(16px, 3vw, 48px) !important;
-                padding-right: clamp(16px, 3vw, 48px) !important;
-                padding-top: clamp(12px, 1.5vw, 24px) !important;
-                padding-bottom: clamp(16px, 2vw, 32px) !important;
-                box-sizing: border-box;
             }
 
             .sdp-page-header.cms-preview-editable,
