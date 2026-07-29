@@ -734,14 +734,18 @@
                                                             </ul>
                                                         @endif
                                                         <div class="ls-gallery-two-col">
+                                                            @if(data_get($seal, 'information.visible', '1') == '1')
                                                             <article class="ls-gallery-container-card rich-text-content">
                                                                 <h4>{{ $sealInfoTitle !== '' ? $sealInfoTitle : 'Informations about the Seal' }}</h4>
                                                                 {!! $sealInfoHtml !!}
                                                             </article>
+                                                            @endif
+                                                            @if(data_get($seal, 'reports.visible', '1') == '1')
                                                             <article class="ls-gallery-container-card rich-text-content">
                                                                 <h4>{{ $sealReportsTitle !== '' ? $sealReportsTitle : 'Reports and Records' }}</h4>
                                                                 {!! $sealReportsHtml !!}
                                                             </article>
+                                                            @endif
                                                         </div>
                                                         @if(!empty($sealLinks))
                                                             <div class="ls-gallery-links">
