@@ -34,10 +34,8 @@ body {
 
 .login-page {
     min-height: 100vh;
-    height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
 }
 
 .login-layout {
@@ -341,39 +339,70 @@ body {
 
 @media (max-width: 1280px) {
     .login-layout {
-        grid-template-columns: 3fr 2fr;
+        grid-template-columns: 1fr 1fr;
     }
 
     .login-container {
-        width: min(100%, 500px);
-        min-height: 480px;
+        width: min(100%, 460px);
+        min-height: auto;
     }
 }
 
 @media (max-width: 1024px) {
+    .login-page {
+        height: auto;
+        overflow-y: auto;
+    }
+
     .login-layout {
         grid-template-columns: 1fr;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
     }
 
     .login-visual {
-        min-height: 42vh;
+        min-height: 35vh;
+        flex-shrink: 0;
     }
 
     .login-panel {
         min-height: auto;
-        padding: 22px 16px 24px;
+        padding: 40px 20px;
         border-left: 0;
-        border-top: 1px solid rgba(240, 200, 90, 0.18);
+        border-top: 3px solid var(--dashboard-red);
+        flex: 1;
     }
 
     .login-container {
-        width: min(100%, 560px);
+        width: min(100%, 500px);
         min-height: auto;
+        margin: 0 auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .visual-content {
+        left: clamp(20px, 4vw, 40px);
+        top: clamp(20px, 4vw, 30px);
+    }
+    
+    .visual-content h1 {
+        font-size: clamp(28px, 6vw, 40px);
     }
 
+    .login-panel {
+        padding: 30px 16px;
+    }
 }
 
 @media (max-width: 480px) {
+    .login-visual {
+        min-height: 25vh;
+    }
+    .login-panel {
+        padding: 20px 12px;
+    }
     .visual-content h1 {
         font-size: clamp(24px, 8vw, 32px);
     }
@@ -384,8 +413,27 @@ body {
 
     .login-container {
         border-radius: 14px;
-        padding: 16px 12px 14px;
+        padding: 20px 16px;
         min-height: auto;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header h2 {
+        font-size: 24px;
+    }
+
+    .header p {
+        font-size: 14px;
+    }
+
+    .input-wrapper input {
+        font-size: 16px;
+        padding: 12px 14px 12px 42px;
+    }
+
+    .login-btn {
+        font-size: 18px;
+        padding: 12px;
     }
 
     .guide-text {
