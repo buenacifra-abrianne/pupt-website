@@ -65,7 +65,9 @@ class RichText
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
-        return trim($output);
+        $result = trim($output);
+        @file_put_contents(storage_path('logs/richtext.log'), "--- IN ---\n" . $value . "\n--- OUT ---\n" . $result . "\n\n", FILE_APPEND);
+        return $result;
     }
 
     public static function plainText(?string $value): string
