@@ -37,17 +37,19 @@
 
 @if(!empty($info))
     @php
-        $ayTitle = '';
-        $ayStartDate = trim((string) ($info['ay_start_date'] ?? '2024-08-01'));
-        if ($ayStartDate !== '') {
-            $startMonth = (int) date('n', strtotime($ayStartDate));
-            $currentMonth = (int) date('n');
-            $currentYear = (int) date('Y');
-            
-            if ($currentMonth >= $startMonth) {
-                $ayTitle = 'Academic Year ' . $currentYear . '&ndash;' . ($currentYear + 1);
-            } else {
-                $ayTitle = 'Academic Year ' . ($currentYear - 1) . '&ndash;' . $currentYear;
+        $ayTitle = trim((string) ($info['title'] ?? ''));
+        if ($ayTitle === '') {
+            $ayStartDate = trim((string) ($info['ay_start_date'] ?? '2024-08-01'));
+            if ($ayStartDate !== '') {
+                $startMonth = (int) date('n', strtotime($ayStartDate));
+                $currentMonth = (int) date('n');
+                $currentYear = (int) date('Y');
+                
+                if ($currentMonth >= $startMonth) {
+                    $ayTitle = 'Academic Year ' . $currentYear . '&ndash;' . ($currentYear + 1);
+                } else {
+                    $ayTitle = 'Academic Year ' . ($currentYear - 1) . '&ndash;' . $currentYear;
+                }
             }
         }
         if (!function_exists('formatAcademicsSemesterDateRange')) {

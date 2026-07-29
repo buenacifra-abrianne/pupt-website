@@ -926,6 +926,11 @@
         @endif
 
         <div class="form-group">
+            <label>Academic Year</label>
+            <input type="text" name="academics[pages][university-calendar][info][title]" maxlength="255" value="{{ $calendarInfo['title'] ?? '' }}" placeholder="e.g. Academic Year 2025-2026">
+        </div>
+
+        <div class="form-group">
             <label>Academic Year Start Date</label>
             <input type="date" name="academics[pages][university-calendar][info][ay_start_date]" value="{{ $calendarInfo['ay_start_date'] ?? '' }}">
         </div>
