@@ -205,6 +205,8 @@ class RichText
                 'line-height' => self::sanitizeLineHeightValue($value),
                 'vertical-align' => self::sanitizeVerticalAlignValue($value),
                 'display' => self::sanitizeDisplayValue($value),
+                'list-style-type' => self::sanitizeListStyleTypeValue($value),
+                'padding-left', 'margin-left' => self::sanitizeIndentValue($value),
                 default => '',
             };
 
@@ -316,6 +318,25 @@ class RichText
         $value = strtolower(trim($value));
 
         return in_array($value, ['inline', 'inline-block', 'block'], true) ? $value : '';
+    }
+
+    private static function sanitizeListStyleTypeValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+        $allowed = [
+            'none', 'disc', 'circle', 'square', 'decimal',
+            'decimal-leading-zero', 'lower-roman', 'upper-roman',
+            'lower-alpha', 'upper-alpha', 'lower-greek', 'lower-latin', 'upper-latin'
+        ];
+
+        return in_array($value, $allowed, true) ? $value : '';
+    }
+
+    private static function sanitizeIndentValue(string $value): string
+    {
+        $value = trim($value);
+
+        return preg_match('/^\d+(?:\.\d+)?(?:px|em|rem|%)$/i', $value) ? strtolower($value) : '';
     }
 
     private static function convertFontElementToSpan(DOMElement $element): void
