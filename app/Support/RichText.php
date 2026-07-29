@@ -13,7 +13,7 @@ class RichText
      * @var array<string, string[]>
      */
     private const ALLOWED_TAGS = [
-        'p' => ['style'],
+        'p' => ['style', 'class'],
         'br' => [],
         'strong' => ['style'],
         'b' => ['style'],
@@ -21,13 +21,13 @@ class RichText
         'i' => ['style'],
         'u' => ['style'],
         's' => ['style'],
-        'span' => ['style'],
-        'ul' => ['type'],
-        'ol' => ['start', 'type'],
-        'li' => ['style', 'value'],
-        'a' => ['href', 'target', 'rel', 'style'],
-        'div' => ['style'],
-        'blockquote' => ['style'],
+        'span' => ['style', 'class'],
+        'ul' => ['type', 'class'],
+        'ol' => ['start', 'type', 'class'],
+        'li' => ['style', 'value', 'class', 'data-list'],
+        'a' => ['href', 'target', 'rel', 'style', 'class'],
+        'div' => ['style', 'class'],
+        'blockquote' => ['style', 'class'],
     ];
 
     public static function sanitize(?string $value): string
