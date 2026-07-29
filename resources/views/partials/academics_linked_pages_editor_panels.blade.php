@@ -720,7 +720,7 @@
             $scheduleItemLabels = [
                 'Online Application',
                 'Last Day of Online Application',
-                'Evaluation Result',
+                'PUPCET results',
             ];
             $normalizeScheduleDateInput = static function (mixed $value): string {
                 $value = trim((string) $value);
@@ -758,13 +758,13 @@
         </div>
 
         <div class="form-group">
-            <label>Evaluation Result Date</label>
+            <label>PUPCET results Date</label>
             <input type="date" name="academics[pages][pup-iapply][schedule][items][2][value]" value="{{ $normalizeScheduleDateInput($scheduleItems[2]['value'] ?? '') }}">
-            <input type="hidden" name="academics[pages][pup-iapply][schedule][items][2][label]" value="Evaluation Result">
+            <input type="hidden" name="academics[pages][pup-iapply][schedule][items][2][label]" value="PUPCET results">
         </div>
 
         <div class="form-group">
-            <label>Evaluation Result</label>
+            <label>PUPCET results</label>
             <div style="display: flex; gap: 8px;">
                 <input type="text" name="academics[pages][pup-iapply][schedule][items][2][href]" maxlength="2048" value="{{ $scheduleItems[2]['href'] ?? '' }}" placeholder="https://...">
                 <button type="button" class="academics-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">

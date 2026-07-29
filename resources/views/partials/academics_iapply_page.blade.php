@@ -18,7 +18,7 @@
     $scheduleItemLabels = [
         'Online Application',
         'Last Day of Online Application',
-        'Evaluation Result',
+        'PUPCET results',
     ];
     $formatScheduleDateDisplay = static function (mixed $value): string {
         $value = trim((string) $value);
