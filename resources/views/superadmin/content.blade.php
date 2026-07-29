@@ -747,6 +747,10 @@
         setCmsTabState(tabKey, btn);
         const nextPanel = document.getElementById('cms-tab-' + tabKey);
         localStorage.setItem('activeSuperadminCmsTab', tabKey);
+
+        const url = new URL(window.location.href);
+        url.searchParams.set('tab', tabKey);
+        window.history.replaceState({}, '', url.toString());
         btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
 
         window.dispatchEvent(new CustomEvent('cms:tab-activated', {
@@ -1022,12 +1026,22 @@
         if (tabKey === 'academics') {
             const normalizedSectionKey = sectionKey.toLowerCase();
             const pageMatch = normalizedSectionKey.match(/^(degree-programs|diploma-programs|pup-iapply|university-calendar)(?:-|$)/);
-            const routeKey = pageMatch ? pageMatch[1] : 'overview';
-            const academicsPreviewStorageKey = `cms:academics-preview-route:${window.location.pathname}`;
-            const academicsPreviewLegacyStorageKey = 'academics-editor-active-academics-preview-page';
+            const isOverview = /^(hero|contents|features)$/.test(normalizedSectionKey);
+            
+            let routeKey = null;
+            if (pageMatch) {
+                routeKey = pageMatch[1];
+            } else if (isOverview) {
+                routeKey = 'overview';
+            }
 
-            localStorage.setItem(academicsPreviewStorageKey, routeKey);
-            localStorage.setItem(academicsPreviewLegacyStorageKey, routeKey);
+            if (routeKey) {
+                const academicsPreviewStorageKey = `cms:academics-preview-route:${window.location.pathname}`;
+                const academicsPreviewLegacyStorageKey = '{{ $academicsEditorIdPrefix ?? 'academics-editor' }}-active-academics-preview-page';
+
+                localStorage.setItem(academicsPreviewStorageKey, routeKey);
+                localStorage.setItem(academicsPreviewLegacyStorageKey, routeKey);
+            }
         }
     }
 
