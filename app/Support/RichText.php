@@ -13,7 +13,7 @@ class RichText
      * @var array<string, string[]>
      */
     private const ALLOWED_TAGS = [
-        'p' => ['style'],
+        'p' => ['style', 'class'],
         'br' => [],
         'strong' => ['style'],
         'b' => ['style'],
@@ -21,13 +21,13 @@ class RichText
         'i' => ['style'],
         'u' => ['style'],
         's' => ['style'],
-        'span' => ['style'],
-        'ul' => [],
-        'ol' => [],
-        'li' => ['style'],
-        'a' => ['href', 'target', 'rel', 'style'],
-        'div' => ['style'],
-        'blockquote' => ['style'],
+        'span' => ['style', 'class'],
+        'ul' => ['type', 'class'],
+        'ol' => ['start', 'type', 'class'],
+        'li' => ['style', 'value', 'class', 'data-list'],
+        'a' => ['href', 'target', 'rel', 'style', 'class'],
+        'div' => ['style', 'class'],
+        'blockquote' => ['style', 'class'],
     ];
 
     public static function sanitize(?string $value): string
@@ -65,7 +65,9 @@ class RichText
         libxml_clear_errors();
         libxml_use_internal_errors($previous);
 
-        return trim($output);
+        $result = trim($output);
+        @file_put_contents(storage_path('logs/richtext.log'), "--- IN ---\n" . $value . "\n--- OUT ---\n" . $result . "\n\n", FILE_APPEND);
+        return $result;
     }
 
     public static function plainText(?string $value): string
@@ -205,6 +207,8 @@ class RichText
                 'line-height' => self::sanitizeLineHeightValue($value),
                 'vertical-align' => self::sanitizeVerticalAlignValue($value),
                 'display' => self::sanitizeDisplayValue($value),
+                'list-style-type' => self::sanitizeListStyleTypeValue($value),
+                'padding-left', 'margin-left' => self::sanitizeIndentValue($value),
                 default => '',
             };
 
@@ -316,6 +320,25 @@ class RichText
         $value = strtolower(trim($value));
 
         return in_array($value, ['inline', 'inline-block', 'block'], true) ? $value : '';
+    }
+
+    private static function sanitizeListStyleTypeValue(string $value): string
+    {
+        $value = strtolower(trim($value));
+        $allowed = [
+            'none', 'disc', 'circle', 'square', 'decimal',
+            'decimal-leading-zero', 'lower-roman', 'upper-roman',
+            'lower-alpha', 'upper-alpha', 'lower-greek', 'lower-latin', 'upper-latin'
+        ];
+
+        return in_array($value, $allowed, true) ? $value : '';
+    }
+
+    private static function sanitizeIndentValue(string $value): string
+    {
+        $value = trim($value);
+
+        return preg_match('/^\d+(?:\.\d+)?(?:px|em|rem|%)$/i', $value) ? strtolower($value) : '';
     }
 
     private static function convertFontElementToSpan(DOMElement $element): void

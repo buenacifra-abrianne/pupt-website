@@ -524,10 +524,66 @@ document.addEventListener("DOMContentLoaded", () => {
   initHistoryTimelineToggles();
   initVisionMissionToggles();
   initStudentQrModal();
+  initLogoSymbolsTabs();
 });
 
 // =======================
-// 6) Feedback "Thank you"
+// 6) Logo & Symbols Tabs
+// =======================
+function initLogoSymbolsTabs() {
+  const triggers = document.querySelectorAll('[data-ls-seal-trigger]');
+  if (!triggers.length) return;
+  
+  const emptyState = document.querySelector('[data-ls-seal-empty]');
+  
+  triggers.forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      if (trigger.closest('.cms-preview-editable-card')) return; // handled by cms preview script
+      
+      // Deactivate all triggers
+      triggers.forEach(t => {
+        t.classList.remove('is-active');
+        t.setAttribute('aria-expanded', 'false');
+      });
+      
+      // Activate clicked trigger
+      trigger.classList.add('is-active');
+      trigger.setAttribute('aria-expanded', 'true');
+
+      // Hide all panels
+      document.querySelectorAll('[data-ls-seal-panel]').forEach(p => {
+        p.setAttribute('aria-hidden', 'true');
+        p.style.display = 'none';
+      });
+
+      // Hide empty state
+      if (emptyState) {
+        emptyState.setAttribute('hidden', 'true');
+        emptyState.style.display = 'none';
+      }
+
+      // Show target panel and scroll to it
+      const targetId = trigger.getAttribute('aria-controls');
+      const targetPanel = document.getElementById(targetId);
+      if (targetPanel) {
+        targetPanel.setAttribute('aria-hidden', 'false');
+        targetPanel.style.display = 'block';
+        
+        // Auto scroll to panel
+        setTimeout(() => {
+          const panelShell = targetPanel.closest('.ls-gallery-panel-shell');
+          if (panelShell) {
+            const y = panelShell.getBoundingClientRect().top + window.scrollY - 100; // 100px offset for header
+            window.scrollTo({ top: y, behavior: 'smooth' });
+          }
+        }, 50);
+      }
+    });
+  });
+}
+
+// =======================
+// 7) Feedback "Thank you"
 // =======================
 function showThankYou(event) {
   event.preventDefault();
