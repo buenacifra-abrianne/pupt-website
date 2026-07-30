@@ -99,22 +99,53 @@
         @endunless
 
         <section class="about-shell page-shell">
-            <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
-                <a href="{{ route('public.home') }}">Home</a>
-                <span>&gt;</span>
-                @if($selectedSection)
-                    <a
-                        href="{{ route('public.about', ['cms_preview' => $cmsPreview ? 1 : null]) }}"
-                        @if($cmsPreview)
-                            data-about-preview-nav="overview"
+            <div
+                class="about-breadcrumb-wrapper"
+                style="position: relative; width: 100%; z-index: 10;"
+            >
+                <div style="position: relative; width: 100%;">
+                    <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
+                        <a href="{{ route('public.home') }}">Home</a>
+                        <span>&gt;</span>
+                        @if($selectedSection)
+                            <a
+                                href="{{ route('public.about', ['cms_preview' => $cmsPreview ? 1 : null]) }}"
+                                @if($cmsPreview)
+                                    data-about-preview-nav="overview"
+                                @endif
+                            >About</a>
+                            <span>&gt;</span>
+                            <strong>{{ $selectedSection['label'] }}</strong>
+                        @else
+                            <strong>About</strong>
                         @endif
-                    >About</a>
-                    <span>&gt;</span>
-                    <strong>{{ $selectedSection['label'] }}</strong>
-                @else
-                    <strong>About</strong>
-                @endif
-            </nav>
+                    </nav>
+
+                    @if(($selectedSection['slug'] ?? null) === 'vision-and-mission')
+                        <div 
+                            class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
+                            style="position: absolute; right: 32px; top: 50%; transform: translateY(-50%);"
+                            @if($cmsPreview)
+                                data-cms-section="vmgo-download"
+                                data-cms-section-label="Download VMGO Button"
+                            @endif
+                        >
+                            @if($cmsPreview)
+                                <button type="button" class="cms-preview-chip" data-cms-edit-trigger="vmgo-download" aria-label="Edit Download VMGO Button" style="top: -12px; left: -12px;">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                        <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                    </svg>
+                                </button>
+                            @endif
+                            <div data-cms-boundary>
+                                <a href="{{ $selectedSection['download_link'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background-color: #800000; color: white; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.9em; transition: background-color 0.3s; border: none; {{ empty($selectedSection['download_link']) ? 'opacity: 0.5; pointer-events: none;' : '' }}" onmouseover="this.style.backgroundColor='#600000'" onmouseout="this.style.backgroundColor='#800000'">
+                                    <i class="fas fa-download" style="margin-right: 6px;"></i> {{ $selectedSection['download_title'] ?? 'Download VMGO' }}
+                                </a>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
 
             @unless($selectedSection)
                 <section

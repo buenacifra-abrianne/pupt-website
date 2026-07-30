@@ -512,6 +512,37 @@
                 </form>
             </section>
 
+            <section class="about-cms-editor-panel" data-about-editor-panel="vmgo-download" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="vision-and-mission">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="about-cms-form-grid">
+                        <div class="form-group">
+                            <label>Download Button Title</label>
+                            <input type="text" name="about[sections][vision-and-mission][download_title]" maxlength="255" value="{{ $visionEditor['download_title'] ?? 'Download VMGO' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Download Link</label>
+                            <div class="about-link-row">
+                                <input type="url" name="about[sections][vision-and-mission][download_link]" value="{{ $visionEditor['download_link'] ?? '' }}" placeholder="https://...">
+                                <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(err => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                    <i class="fas fa-paste"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Download VMGO Button') }}</button>
+                    </div>
+                </form>
+            </section>
+
             <section class="about-cms-editor-panel" data-about-editor-panel="vision-statement" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
@@ -523,7 +554,7 @@
 
                     <div class="form-group">
                         <label>Vision Statement</label>
-                        <textarea name="about[sections][vision-and-mission][vision]" rows="4">{{ $visionEditor['vision'] ?? '' }}</textarea>
+                        <textarea name="about[sections][vision-and-mission][vision]" rows="5">{{ $visionEditor['vision'] ?? '' }}</textarea>
                     </div>
 
                     <div class="about-cms-modal-footer">
@@ -675,6 +706,22 @@
                         <div class="form-group">
                             <label>Page Heading</label>
                             <input type="text" name="about[sections][vision-and-mission][page_title]" maxlength="255" value="{{ $visionEditor['page_title'] ?? '' }}">
+                        </div>
+                    </div>
+
+                    <div class="about-cms-form-grid">
+                        <div class="form-group">
+                            <label>Download Button Title</label>
+                            <input type="text" name="about[sections][vision-and-mission][download_title]" maxlength="255" value="{{ $visionEditor['download_title'] ?? 'Download VMGO' }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Download Link</label>
+                            <div class="about-cms-icon-input" style="position: relative;">
+                                <input type="url" name="about[sections][vision-and-mission][download_link]" value="{{ $visionEditor['download_link'] ?? '' }}" placeholder="https://..." style="padding-right: 30px;">
+                                <button type="button" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(err => console.error('Failed to paste', err))" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: #666;" title="Paste from clipboard">
+                                    <i class="fas fa-paste"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
