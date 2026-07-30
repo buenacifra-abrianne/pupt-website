@@ -62,6 +62,18 @@
             text-decoration: underline;
         }
 
+        @media (max-width: 480px) {
+            .mfa-split-input {
+                gap: 5px;
+            }
+            .mfa-split-input input {
+                width: 38px;
+                height: 42px;
+                font-size: 18px;
+                border-width: 1px;
+            }
+        }
+
         /* MFA Dark Mode Specifics */
         body.pup-dark-mode .mfa-split-input input {
             background: #1c0505;

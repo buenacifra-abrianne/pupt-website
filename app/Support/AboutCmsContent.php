@@ -904,6 +904,12 @@ class AboutCmsContent
                         'description',
                         12000
                     ),
+                    'visible' => self::pickFlag(
+                        $informationSource,
+                        $informationBase,
+                        $informationDefaults + ['visible' => '1'],
+                        'visible'
+                    ),
                 ],
                 'reports' => [
                     'title' => self::pickString(
@@ -918,6 +924,12 @@ class AboutCmsContent
                         $reportsDefaults + ['description' => ''],
                         'description',
                         12000
+                    ),
+                    'visible' => self::pickFlag(
+                        $reportsSource,
+                        $reportsBase,
+                        $reportsDefaults + ['visible' => '1'],
+                        'visible'
                     ),
                 ],
                 'links' => self::normalizeSealLinks(

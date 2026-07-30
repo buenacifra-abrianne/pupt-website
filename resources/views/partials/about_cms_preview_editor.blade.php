@@ -810,7 +810,7 @@
                                             accept="image/*"
                                             data-about-image-field-id="{{ $sealImageFieldId }}"
                                         >
-                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $sealInputId }}" tabindex="0" role="button" aria-label="Upload seal image">
+                                        <div class="about-cms-image-dropzone about-cms-image-dropzone--square" data-about-dropzone-for="{{ $sealInputId }}" tabindex="0" role="button" aria-label="Upload seal image">
                                             <span class="about-cms-image-dropzone-preview-column">
                                                 <span class="about-cms-image-dropzone-media">
                                                     <img
@@ -859,7 +859,14 @@
 
                                 <article class="about-cms-card-editor about-cms-card-editor--sub">
                                     <div class="form-group" data-about-seal-info-desc>
-                                        <label>Informations about the Seal Description</label>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                            <label style="margin-bottom: 0;">Informations about the Seal Description</label>
+                                            <label style="font-weight: normal; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                <input type="hidden" name="about[sections][logo-and-symbols][seals][{{ $index }}][information][visible]" value="0">
+                                                <input type="checkbox" name="about[sections][logo-and-symbols][seals][{{ $index }}][information][visible]" value="1" {{ (data_get($seal, 'information.visible', '1') == '1') ? 'checked' : '' }}>
+                                                Show in public view
+                                            </label>
+                                        </div>
                                         @include('partials.rich_text_editor', [
                                             'name' => 'about[sections][logo-and-symbols][seals]['.$index.'][information][description]',
                                             'value' => data_get($seal, 'information.description', ''),
@@ -870,7 +877,14 @@
 
                                 <article class="about-cms-card-editor about-cms-card-editor--sub">
                                     <div class="form-group" data-about-seal-reports-desc>
-                                        <label>Reports and Records Description</label>
+                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                            <label style="margin-bottom: 0;">Reports and Records Description</label>
+                                            <label style="font-weight: normal; font-size: 0.875rem; display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                                                <input type="hidden" name="about[sections][logo-and-symbols][seals][{{ $index }}][reports][visible]" value="0">
+                                                <input type="checkbox" name="about[sections][logo-and-symbols][seals][{{ $index }}][reports][visible]" value="1" {{ (data_get($seal, 'reports.visible', '1') == '1') ? 'checked' : '' }}>
+                                                Show in public view
+                                            </label>
+                                        </div>
                                         @include('partials.rich_text_editor', [
                                             'name' => 'about[sections][logo-and-symbols][seals]['.$index.'][reports][description]',
                                             'value' => data_get($seal, 'reports.description', ''),
@@ -2110,7 +2124,7 @@
 
     .about-cms-image-dropzone {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: 240px minmax(0, 1fr);
         gap: 16px;
         width: 100%;
         padding: 14px;
@@ -2119,6 +2133,10 @@
         background: linear-gradient(180deg, #fffdf8 0%, #fff8ee 100%);
         cursor: pointer;
         align-items: stretch;
+    }
+
+    .about-cms-image-dropzone--square {
+        grid-template-columns: 160px minmax(0, 1fr);
     }
 
     .about-cms-image-dropzone.dragover {
@@ -2143,11 +2161,15 @@
         width: 100%;
         height: 100%;
         min-height: 120px;
-        max-height: 160px;
         object-fit: cover;
         border-radius: 18px;
         background: #f1e7dd;
         box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .about-cms-image-dropzone--square .about-cms-image-dropzone-preview {
+        max-height: 160px;
+        object-fit: contain;
     }
 
     .about-cms-image-dropzone-preview--profile-placeholder {
@@ -5785,3 +5807,22 @@
         window.__aboutCmsPreviewEditorReady = true;
     })();
 </script>
+<style>
+.about-cms-image-dropzone--square .about-cms-image-dropzone-preview-column {
+    flex: 0 0 200px !important;
+    max-width: 200px !important;
+}
+.about-cms-image-dropzone--square .about-cms-image-dropzone-media {
+    width: 100% !important;
+    aspect-ratio: 1 / 1 !important;
+    height: auto !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent !important;
+}
+.about-cms-image-dropzone--square .about-cms-image-dropzone-preview {
+    object-fit: contain !important;
+    max-height: 100%;
+}
+</style>
