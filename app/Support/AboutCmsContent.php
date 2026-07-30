@@ -134,6 +134,8 @@ class AboutCmsContent
                     ['letter' => 'D', 'title' => 'Democracy'],
                 ],
                 'core_values_heading' => 'INSPIRED values that shape the character of the PUP community.',
+                'download_title' => 'Download VMGO',
+                'download_link' => '',
             ],
             'logo-and-symbols' => [
                 'slug' => 'logo-and-symbols',
@@ -524,6 +526,8 @@ class AboutCmsContent
             'vision-and-mission' => array_merge($section, [
                 'page_kicker' => self::pickString($source, $base, $defaults, 'page_kicker'),
                 'page_title' => self::pickString($source, $base, $defaults, 'page_title'),
+                'download_title' => self::pickString($source, $base, $defaults, 'download_title'),
+                'download_link' => self::pickString($source, $base, $defaults, 'download_link'),
                 'vision' => self::pickString($source, $base, $defaults, 'vision', 4000),
                 'mission' => self::pickString($source, $base, $defaults, 'mission', 4000),
                 'strategic_goals' => self::normalizeStrategicGoals(
@@ -537,6 +541,8 @@ class AboutCmsContent
                     $defaults['core_values']
                 ),
                 'core_values_heading' => self::pickString($source, $base, $defaults, 'core_values_heading', 255),
+                'download_title' => self::pickString($source, $base, $defaults, 'download_title', 255),
+                'download_link' => self::pickString($source, $base, $defaults, 'download_link', 2048),
             ]),
             'logo-and-symbols' => (function () use ($section, $source, $base, $defaults): array {
                 $lead = self::pickString($source, $base, $defaults, 'lead', 4000);
