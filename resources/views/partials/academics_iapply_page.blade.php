@@ -18,7 +18,7 @@
     $scheduleItemLabels = [
         'Online Application',
         'Last Day of Online Application',
-        'Evaluation Result',
+        'PUPCET results',
     ];
     $formatScheduleDateDisplay = static function (mixed $value): string {
         $value = trim((string) $value);
@@ -202,7 +202,7 @@
 
                 <p class="mt-4" style="font-size: 0.92rem; font-weight: 600; color: var(--maroon);">Step by Step Process</p>
                 <div class="academic-rich-copy mt-2">
-                    {!! str_replace('<ol>', '<ol class="iapply-checklist">', \App\Support\RichText::sanitize($reminders['steps_html'] ?? '')) !!}
+                    {!! \App\Support\RichText::sanitize($reminders['steps_html'] ?? '') !!}
                 </div>
             </div>
         </div>

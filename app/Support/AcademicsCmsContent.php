@@ -181,7 +181,7 @@ class AcademicsCmsContent
                     'items' => [
                         ['label' => 'Online Application', 'value' => '2022-01-27', 'href' => ''],
                         ['label' => 'Last Day of Issuance', 'value' => '2022-06-15', 'href' => ''],
-                        ['label' => 'Evaluation Result', 'value' => '2022-06-15', 'href' => ''],
+                        ['label' => 'PUPCET results', 'value' => '2022-06-15', 'href' => ''],
                     ],
                 ],
                 'guide' => [
