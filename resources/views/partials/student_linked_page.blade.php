@@ -187,19 +187,21 @@
                                                     $personEmail = trim((string) ($person['email'] ?? ''));
                                                     $personHref = trim((string) ($person['href'] ?? ''));
                                                     $personImage = trim((string) ($person['image'] ?? ''));
-                                                    $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/pupillar.jpeg') : '';
-                                                    $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/pupillar.jpeg');
+                                                    $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/temporary_profile.png') : '';
+                                                    $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/temporary_profile.png');
                                                     $personModalEmailHref = $personHref !== '' ? $personHref : ($personEmail !== '' ? 'mailto:'.$personEmail : '');
                                                 @endphp
                                                 <button
                                                     type="button"
-                                                    class="student-admissions-person student-admissions-person-trigger"
-                                                    data-student-admissions-person-trigger
-                                                    data-person-name="{{ e($personName) }}"
-                                                    data-person-role="{{ e($personRole) }}"
-                                                    data-person-email="{{ e($personEmail) }}"
-                                                    data-person-href="{{ e($personModalEmailHref) }}"
-                                                    data-person-image="{{ e($personModalImageSrc) }}"
+                                                    class="student-admissions-person{{ !$cmsPreview ? ' student-admissions-person-trigger' : '' }}"
+                                                    @if(!$cmsPreview)
+                                                        data-student-admissions-person-trigger
+                                                        data-person-name="{{ e($personName) }}"
+                                                        data-person-role="{{ e($personRole) }}"
+                                                        data-person-email="{{ e($personEmail) }}"
+                                                        data-person-href="{{ e($personModalEmailHref) }}"
+                                                        data-person-image="{{ e($personModalImageSrc) }}"
+                                                    @endif
                                                     aria-label="Open profile for {{ e($personName !== '' ? $personName : 'contact person') }}"
                                                 >
                                                     <span class="student-admissions-person-avatar" aria-hidden="true">
