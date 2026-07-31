@@ -193,13 +193,15 @@
                                                 @endphp
                                                 <button
                                                     type="button"
-                                                    class="student-admissions-person student-admissions-person-trigger"
-                                                    data-student-admissions-person-trigger
-                                                    data-person-name="{{ e($personName) }}"
-                                                    data-person-role="{{ e($personRole) }}"
-                                                    data-person-email="{{ e($personEmail) }}"
-                                                    data-person-href="{{ e($personModalEmailHref) }}"
-                                                    data-person-image="{{ e($personModalImageSrc) }}"
+                                                    class="student-admissions-person{{ !$cmsPreview ? ' student-admissions-person-trigger' : '' }}"
+                                                    @if(!$cmsPreview)
+                                                        data-student-admissions-person-trigger
+                                                        data-person-name="{{ e($personName) }}"
+                                                        data-person-role="{{ e($personRole) }}"
+                                                        data-person-email="{{ e($personEmail) }}"
+                                                        data-person-href="{{ e($personModalEmailHref) }}"
+                                                        data-person-image="{{ e($personModalImageSrc) }}"
+                                                    @endif
                                                     aria-label="Open profile for {{ e($personName !== '' ? $personName : 'contact person') }}"
                                                 >
                                                     <span class="student-admissions-person-avatar" aria-hidden="true">
