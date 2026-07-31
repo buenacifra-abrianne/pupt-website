@@ -258,6 +258,18 @@ function initWidgetDock() {
         color-scheme: dark;
       }
 
+      @media (max-width: 991px) {
+        .chatbot-widget-shell {
+          right: 16px;
+          left: 16px;
+          top: 16px;
+          bottom: 92px;
+          width: auto;
+          height: auto;
+          max-height: none;
+        }
+      }
+
       @media (max-width: 640px) {
         .widget-dock {
           --widget-fab-size: clamp(48px, 11vw, 54px);
@@ -266,15 +278,6 @@ function initWidgetDock() {
           --widget-expanded-gap: 12px;
           right: calc(var(--widget-edge-offset) + env(safe-area-inset-right, 0px));
           bottom: calc(var(--widget-edge-offset) + env(safe-area-inset-bottom, 0px));
-        }
-
-        .chatbot-widget-shell {
-          right: 84px;
-          left: 16px;
-          bottom: 92px;
-          width: auto;
-          height: min(320px, calc(100vh - 270px));
-          max-height: calc(100vh - 250px);
         }
       }
 

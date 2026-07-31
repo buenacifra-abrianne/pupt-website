@@ -175,6 +175,7 @@ class PUPHeader extends HTMLElement {
       overlay?.classList.remove("open");
       hamburger.setAttribute("aria-expanded", "false");
       document.body.classList.remove("nav-open");
+      document.documentElement.classList.remove("nav-open");
     };
 
     const openMenu = () => {
@@ -183,6 +184,7 @@ class PUPHeader extends HTMLElement {
       overlay?.classList.add("open");
       hamburger.setAttribute("aria-expanded", "true");
       document.body.classList.add("nav-open");
+      document.documentElement.classList.add("nav-open");
     };
 
     const toggleMenu = () => {
@@ -250,6 +252,7 @@ class PUPHeader extends HTMLElement {
 
     document.documentElement.style.removeProperty("--pup-header-offset");
     document.body.classList.remove("nav-open");
+    document.documentElement.classList.remove("nav-open");
   }
 
   #initAccessibilityWidget() {

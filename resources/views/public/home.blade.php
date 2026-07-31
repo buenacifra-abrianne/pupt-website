@@ -407,7 +407,7 @@
                   let visibleCount = 0;
 
                   newsCards.forEach(card => {
-                    if (selectedCategory === 'All' || card.dataset.category === selectedCategory) {
+                    if (selectedCategory === 'All' || (card.dataset.category && card.dataset.category.toLowerCase() === selectedCategory.toLowerCase())) {
                       card.style.display = '';
                       visibleCount++;
                     } else {
