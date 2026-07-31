@@ -5806,6 +5806,8 @@ body.pup-dark-mode .hymn-listen-btn * {
 .map-hero-cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  justify-self: end;
   gap: 8px;
   padding: 10px 18px;
   border-radius: 999px;
@@ -6223,6 +6225,7 @@ body.pup-dark-mode .map-dir-btn--gold:hover { color: #000000 !important; }
   .map-iframe-panel { height: 280px; }
   .map-hero-title { font-size: 1.2rem; }
   .map-dir-footer { flex-direction: column; align-items: flex-start; }
+  .map-dir-btns { align-self: flex-end; }
   .map-hero-header { padding: 18px; border-radius: 18px; }
 }
 
