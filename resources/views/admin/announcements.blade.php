@@ -463,7 +463,7 @@
 
                 <div class="form-group">
                     <label>Description *</label>
-                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content', 'characterLimit' => 256])
+                    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
                 </div>
 
                 <div class="form-group">
