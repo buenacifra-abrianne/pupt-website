@@ -297,34 +297,32 @@ body.nav-open .scroll-nav-button {
 }
 
 .one-portal-btn {
-  background: rgba(255, 251, 246, 0.72);
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  padding: 0 18px;
+  background: linear-gradient(180deg, #8f1218 0%, #6f0d12 100%);
+  color: #fff;
+  border: 1px solid rgba(127, 17, 19, 0.08);
+  width: 42px;
   height: 42px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  border-radius: 8px;
+  justify-content: center;
+  border-radius: 16px;
+  box-shadow: 0 10px 22px rgba(62, 14, 12, 0.08);
   text-decoration: none;
-  font-weight: 600;
-  font-size: 13px;
-  letter-spacing: 0.02em;
   transition: 0.3s;
-  white-space: nowrap;
 }
 
 .one-portal-btn:hover {
-  background-color: var(--primary-color);
-  color: var(--white);
+  background: linear-gradient(180deg, #a41b22 0%, #801318 100%);
+  color: #fff;
+  border-color: rgba(127, 17, 19, 0.15);
 }
 
 .one-portal-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 22px;
+  height: 22px;
   fill: none;
   stroke: currentColor;
-  stroke-width: 2;
+  stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
 }
@@ -591,9 +589,14 @@ body.nav-open .scroll-nav-button {
   }
 
   .one-portal-btn {
-    font-size: 11px;
-    padding: 0 12px;
-    height: 36px;
+    width: 42px;
+    height: 42px;
+    border-radius: 16px;
+  }
+  
+  .one-portal-btn svg {
+    width: 22px;
+    height: 22px;
   }
 
   .logo {
@@ -695,8 +698,10 @@ pup-header {
   z-index: 1200;
 }
 
+html.nav-open,
 body.nav-open {
-  overflow: hidden;
+  overflow: hidden !important;
+  touch-action: none;
 }
 
 body::after {
@@ -1128,6 +1133,8 @@ pup-header .nav-overlay {
     transition: transform 0.24s ease;
     z-index: 1199;
     overflow-y: auto;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
   }
 
   pup-header .nav-menu.open {
@@ -1343,10 +1350,14 @@ pup-header .nav-overlay {
     right: 6px;
   }
 
-  pup-header .hamburger {
+  pup-header .hamburger,
+  pup-header .one-portal-btn {
     width: 40px;
     height: 40px;
     border-radius: 14px;
+  }
+
+  pup-header .hamburger {
     margin-left: 0;
   }
 
@@ -1547,4 +1558,10 @@ body.pup-dark-mode .student-page-rich *,
 body.pup-dark-mode .quick-link-rich,
 body.pup-dark-mode .quick-link-rich * {
     color: #ffffff !important;
+}
+
+/* Prevent body scroll when modal is open */
+html:has(body.modal-open),
+body.modal-open {
+  overflow: hidden !important;
 }

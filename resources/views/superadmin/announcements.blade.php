@@ -482,7 +482,7 @@
     <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:7px;">
         <label style="margin-bottom:0;">Description *</label>
     </div>
-    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content', 'characterLimit' => 256])
+    @include('partials.rich_text_editor', ['name' => 'content', 'placeholder' => 'Content'])
 </div>
 
                 <div class="form-group">

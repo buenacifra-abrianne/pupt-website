@@ -217,20 +217,23 @@
               <style>
                 .news-filter-wrapper {
                   position: relative;
-                  width: 220px;
+                  width: max-content;
+                  min-width: 130px;
                   font-family: inherit;
                 }
                 .custom-dropdown-selected {
                   background-color: #7b1113; /* PUP Maroon */
                   color: white;
-                  padding: 8px 16px;
+                  padding: 6px 12px;
                   border-radius: 6px;
                   cursor: pointer;
                   display: flex;
                   justify-content: space-between;
                   align-items: center;
                   font-weight: 600;
-                  font-size: 14px;
+                  font-size: 11px;
+                  white-space: nowrap;
+                  gap: 10px;
                   transition: background-color 0.2s ease;
                   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
                   user-select: none;
@@ -240,8 +243,8 @@
                 }
                 .custom-dropdown-selected::after {
                   content: '▼';
-                  font-size: 10px;
-                  margin-left: 10px;
+                  font-size: 9px;
+                  margin-left: 5px;
                   transition: transform 0.2s ease;
                 }
                 .news-filter-wrapper.open .custom-dropdown-selected::after {
@@ -252,7 +255,8 @@
                   position: absolute;
                   top: 100%;
                   left: 0;
-                  right: 0;
+                  min-width: 100%;
+                  width: max-content;
                   background-color: white;
                   border-radius: 6px;
                   margin-top: 5px;
@@ -266,11 +270,12 @@
                   animation: fadeInDown 0.2s ease forwards;
                 }
                 .custom-dropdown-option {
-                  padding: 10px 16px;
+                  padding: 6px 12px;
                   cursor: pointer;
-                  font-size: 14px;
+                  font-size: 11px;
                   color: #333;
                   transition: background-color 0.2s ease, color 0.2s ease;
+                  white-space: nowrap;
                 }
                 .custom-dropdown-option:hover {
                   background-color: #f5f5f5;
@@ -294,7 +299,7 @@
                   <div class="custom-dropdown-option" data-value="Registrar">Registrar</div>
                   <div class="custom-dropdown-option" data-value="Academics">Academics</div>
                   <div class="custom-dropdown-option" data-value="Students">Students</div>
-                  <div class="custom-dropdown-option" data-value="Research and Extension">Research and Extension</div>
+                  <div class="custom-dropdown-option" data-value="Research and Extension">Research & Extension</div>
                 </div>
                 <input type="hidden" id="newsCategoryFilter" value="All">
               </div>
@@ -402,7 +407,7 @@
                   let visibleCount = 0;
 
                   newsCards.forEach(card => {
-                    if (selectedCategory === 'All' || card.dataset.category === selectedCategory) {
+                    if (selectedCategory === 'All' || (card.dataset.category && card.dataset.category.toLowerCase() === selectedCategory.toLowerCase())) {
                       card.style.display = '';
                       visibleCount++;
                     } else {
