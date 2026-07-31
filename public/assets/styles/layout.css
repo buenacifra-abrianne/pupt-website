@@ -700,6 +700,7 @@ pup-header {
 
 body.nav-open {
   overflow: hidden;
+  touch-action: none;
 }
 
 body::after {
@@ -1131,6 +1132,8 @@ pup-header .nav-overlay {
     transition: transform 0.24s ease;
     z-index: 1199;
     overflow-y: auto;
+    touch-action: pan-y;
+    overscroll-behavior: contain;
   }
 
   pup-header .nav-menu.open {
