@@ -1555,3 +1555,9 @@ body.pup-dark-mode .quick-link-rich,
 body.pup-dark-mode .quick-link-rich * {
     color: #ffffff !important;
 }
+
+/* Prevent body scroll when modal is open */
+html:has(body.modal-open),
+body.modal-open {
+  overflow: hidden !important;
+}

@@ -2239,8 +2239,10 @@ body.home-carousel-redesign .indicator.active {
   }
 }
 
-body.modal-open {
-  overflow: hidden;
+body.modal-open,
+html:has(body.modal-open) {
+  overflow: hidden !important;
+  touch-action: none; /* Prevent iOS scroll bouncing on the body */
 }
 
 .facility-modal-overlay {
@@ -2435,6 +2437,7 @@ body.modal-open {
 
 .advisory-modal-card {
   position: relative;
+  touch-action: auto;
   width: min(820px, 100%);
   max-height: min(86vh, 780px);
   overflow: auto;
