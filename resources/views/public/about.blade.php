@@ -103,8 +103,8 @@
                 class="about-breadcrumb-wrapper"
                 style="position: relative; width: 100%; z-index: 10;"
             >
-                <div style="position: relative; width: 100%;">
-                    <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb">
+                <div style="position: relative; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                    <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb" style="margin-bottom: 0;">
                         <a href="{{ route('public.home') }}">Home</a>
                         <span>&gt;</span>
                         @if($selectedSection)
@@ -124,7 +124,7 @@
                     @if(($selectedSection['slug'] ?? null) === 'vision-and-mission')
                         <div 
                             class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
-                            style="position: absolute; right: 32px; top: 50%; transform: translateY(-50%);"
+                            style="position: relative; z-index: 10; margin-left: auto;"
                             @if($cmsPreview)
                                 data-cms-section="vmgo-download"
                                 data-cms-section-label="Download VMGO Button"
