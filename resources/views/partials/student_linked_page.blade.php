@@ -187,8 +187,8 @@
                                                     $personEmail = trim((string) ($person['email'] ?? ''));
                                                     $personHref = trim((string) ($person['href'] ?? ''));
                                                     $personImage = trim((string) ($person['image'] ?? ''));
-                                                    $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/pupillar.jpeg') : '';
-                                                    $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/pupillar.jpeg');
+                                                    $personImageSrc = $personImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($personImage, 'assets/static_img/temporary_profile.png') : '';
+                                                    $personModalImageSrc = \App\Support\StudentsCmsContent::resolveImagePath($personImage !== '' ? $personImage : null, 'assets/static_img/temporary_profile.png');
                                                     $personModalEmailHref = $personHref !== '' ? $personHref : ($personEmail !== '' ? 'mailto:'.$personEmail : '');
                                                 @endphp
                                                 <button

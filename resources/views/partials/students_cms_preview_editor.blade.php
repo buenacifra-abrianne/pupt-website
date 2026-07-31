@@ -666,17 +666,17 @@
                                 @php
                                     $personInputId = $idPrefix.'-students-admissions-contact-person-'.$index;
                                     $personFieldId = $idPrefix.'-students-admissions-contact-person-field-'.$index;
-                                    $personPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                    $personPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['image'] ?? null, 'assets/static_img/temporary_profile.png');
                                 @endphp
                                 <div class="students-cms-repeatable-item" data-students-repeatable-item>
                                     <input type="hidden" id="{{ $personFieldId }}" name="students[pages][admissions][contact][persons][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
                                     <div class="form-group">
                                         <label>Upload Profile Photo</label>
                                         <div class="students-cms-image-dropzone-shell">
-                                            <div class="students-cms-image-dropzone" data-students-dropzone-for="{{ $personInputId }}" role="button" tabindex="0" aria-label="Upload contact person profile photo">
+                                            <div class="students-cms-image-dropzone students-cms-image-dropzone--square" data-students-dropzone-for="{{ $personInputId }}" role="button" tabindex="0" aria-label="Upload contact person profile photo">
                                                 <span class="students-cms-image-dropzone-preview-column">
                                                     <span class="students-cms-image-dropzone-media">
-                                                        <img src="{{ $personPreview }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview" data-students-preview-for="{{ $personInputId }}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                        <img src="{{ $personPreview }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview{{ empty($item['image']) ? ' students-cms-image-dropzone-preview--profile-placeholder' : '' }}" data-students-preview-for="{{ $personInputId }}" data-students-default-src="{{ asset('assets/static_img/temporary_profile.png') }}">
                                                         <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="{{ $personInputId }}" aria-label="Edit image" title="Edit image">
                                                             <i class="fas fa-crop-alt" aria-hidden="true"></i>
                                                         </button>
@@ -700,16 +700,16 @@
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Name</label>
-                                            <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][name]" maxlength="255" value="{{ $item['name'] ?? '' }}">
+                                            <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][name]" maxlength="255" value="{{ $item['name'] ?? '' }}" required>
                                         </div>
                                         <div class="form-group">
                                             <label>Role</label>
-                                            <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][role]" maxlength="255" value="{{ $item['role'] ?? '' }}">
+                                            <input type="text" name="students[pages][admissions][contact][persons][{{ $index }}][role]" maxlength="255" value="{{ $item['role'] ?? '' }}" required>
                                         </div>
                                     </div>
                                     <div class="form-group">
                                         <label>Email</label>
-                                        <input type="email" name="students[pages][admissions][contact][persons][{{ $index }}][email]" maxlength="255" value="{{ $item['email'] ?? '' }}">
+                                        <input type="email" name="students[pages][admissions][contact][persons][{{ $index }}][email]" maxlength="255" value="{{ $item['email'] ?? '' }}" required>
                                     </div>
                                     <div class="form-group">
                                         <label>Email Link</label>
@@ -1665,6 +1665,11 @@
         align-items: stretch;
     }
 
+    .students-cms-image-dropzone--square {
+        grid-template-columns: 240px minmax(0, 1fr);
+        max-width: 640px;
+    }
+
     .students-cms-image-dropzone.dragover {
         background: #fff4cf;
         border-color: #bf8f00;
@@ -1691,6 +1696,13 @@
         object-fit: cover;
         border-radius: 18px;
         background: #f1e7dd;
+        box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
+    }
+
+    .students-cms-image-dropzone-preview--profile-placeholder {
+        object-fit: contain;
+        background: radial-gradient(circle at center, #f5ecd8 0%, #faefe2 100%);
+        padding: 24px;
         box-shadow: inset 0 0 0 1px rgba(127, 17, 19, 0.08);
     }
 
@@ -2116,6 +2128,8 @@
             ) || (
                 sectionKey === 'organizations'
                 && String(options.orgKey || '').trim() !== ''
+            ) || (
+                sectionKey === 'admissions_contact_persons'
             );
 
             panels.forEach((panel) => {
@@ -2892,6 +2906,7 @@
 
                     if (previewEl) {
                         previewEl.src = URL.createObjectURL(file);
+                        previewEl.classList.remove('students-cms-image-dropzone-preview--profile-placeholder');
                     }
 
                     syncRemoveState();
@@ -2960,6 +2975,8 @@
                     }
                     if (previewEl && defaultSrc) {
                         previewEl.src = defaultSrc;
+                        const isPlaceholder = defaultSrc.includes('temporary_profile.png');
+                        previewEl.classList.toggle('students-cms-image-dropzone-preview--profile-placeholder', isPlaceholder);
                     }
                     fileNameEl.textContent = emptyText;
                     syncRemoveState();
@@ -3124,10 +3141,10 @@
                         <div class="form-group">
                             <label>Upload Profile Photo</label>
                             <div class="students-cms-image-dropzone-shell">
-                                <div class="students-cms-image-dropzone" data-students-dropzone-for="${inputId}" role="button" tabindex="0" aria-label="Upload contact person profile photo">
+                                <div class="students-cms-image-dropzone students-cms-image-dropzone--square" data-students-dropzone-for="${inputId}" role="button" tabindex="0" aria-label="Upload contact person profile photo">
                                     <span class="students-cms-image-dropzone-preview-column">
                                         <span class="students-cms-image-dropzone-media">
-                                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                            <img src="{{ asset('assets/static_img/temporary_profile.png') }}" alt="Contact person photo preview" class="students-cms-image-dropzone-preview students-cms-image-dropzone-preview--profile-placeholder" data-students-preview-for="${inputId}" data-students-default-src="{{ asset('assets/static_img/temporary_profile.png') }}">
                                             <button type="button" class="students-cms-image-dropzone-edit" data-students-edit-image-for="${inputId}" aria-label="Edit image" title="Edit image">
                                                 <i class="fas fa-crop-alt" aria-hidden="true"></i>
                                             </button>
@@ -3151,16 +3168,16 @@
                         <div class="students-cms-form-grid">
                             <div class="form-group">
                                 <label>Name</label>
-                                <input type="text" name="students[pages][admissions][contact][persons][${index}][name]" maxlength="255" value="">
+                                <input type="text" name="students[pages][admissions][contact][persons][${index}][name]" maxlength="255" value="" required>
                             </div>
                             <div class="form-group">
                                 <label>Role</label>
-                                <input type="text" name="students[pages][admissions][contact][persons][${index}][role]" maxlength="255" value="">
+                                <input type="text" name="students[pages][admissions][contact][persons][${index}][role]" maxlength="255" value="" required>
                             </div>
                         </div>
                         <div class="form-group">
                             <label>Email</label>
-                            <input type="email" name="students[pages][admissions][contact][persons][${index}][email]" maxlength="255" value="">
+                            <input type="email" name="students[pages][admissions][contact][persons][${index}][email]" maxlength="255" value="" required>
                         </div>
                         <div class="form-group">
                             <label>Email Link</label>
