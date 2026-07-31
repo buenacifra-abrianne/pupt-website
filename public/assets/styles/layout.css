@@ -698,8 +698,9 @@ pup-header {
   z-index: 1200;
 }
 
+html.nav-open,
 body.nav-open {
-  overflow: hidden;
+  overflow: hidden !important;
   touch-action: none;
 }
 
