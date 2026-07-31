@@ -494,11 +494,10 @@
                     <label>Category *</label>
                     <select name="category" required>
                         <option value="" disabled selected>Select category</option>
-                        <option value="Campus">Campus</option>
-                        <option value="Academic">Academic</option>
-                        <option value="Event">Event</option>
-                        <option value="Announcement">Announcement</option>
-                        <option value="Other">Other</option>
+                        <option value="Registrar">Registrar</option>
+                        <option value="Academics">Academics</option>
+                        <option value="Students">Students</option>
+                        <option value="Research and Extension">Research and Extension</option>
                     </select>
                 </div>
 

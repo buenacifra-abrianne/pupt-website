@@ -138,7 +138,7 @@
                                 </button>
                             @endif
                             <div data-cms-boundary>
-                                <a href="{{ $selectedSection['download_link'] ?? '#' }}" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="background-color: #800000; color: white; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.9em; transition: background-color 0.3s; border: none; {{ empty($selectedSection['download_link']) ? 'opacity: 0.5; pointer-events: none;' : '' }}" onmouseover="this.style.backgroundColor='#600000'" onmouseout="this.style.backgroundColor='#800000'">
+                                <a href="{{ $cmsPreview ? 'javascript:void(0)' : ($selectedSection['download_link'] ?? '#') }}" {{ $cmsPreview ? '' : 'target="_blank" rel="noopener noreferrer"' }} class="btn btn-primary" style="background-color: #800000; color: white; padding: 6px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 0.9em; transition: background-color 0.3s; border: none; {{ empty($selectedSection['download_link']) ? 'opacity: 0.5; pointer-events: none;' : '' }}" onmouseover="this.style.backgroundColor='#600000'" onmouseout="this.style.backgroundColor='#800000'" @if($cmsPreview) onclick="event.preventDefault(); document.querySelector('[data-cms-edit-trigger=\'vmgo-download\']').click();" @endif>
                                     <i class="fas fa-download" style="margin-right: 6px;"></i> {{ $selectedSection['download_title'] ?? 'Download VMGO' }}
                                 </a>
                             </div>

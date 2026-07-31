@@ -681,9 +681,7 @@ body.nav-open .scroll-nav-button {
 }
 
 @media (max-width: 347px) {
-  .hamburger {
-    top: 25px;
-  }
+  /* removed manual hamburger top offset */
 }
 
 /* ========== Shared PUP Header Refresh ========== */
@@ -967,6 +965,8 @@ pup-header .nav-overlay {
     max-width: none;
     padding: 11px var(--layout-page-gutter) 9px;
     gap: 10px;
+    display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: flex-start;
     position: relative;
@@ -1038,6 +1038,17 @@ pup-header .nav-overlay {
     box-shadow: none;
   }
 
+  pup-header .header-actions {
+    position: absolute;
+    right: var(--layout-page-gutter);
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0;
+  }
+
   pup-header .hamburger {
     display: inline-flex;
     flex-direction: column;
@@ -1053,10 +1064,9 @@ pup-header .nav-overlay {
     cursor: pointer;
     flex: 0 0 auto;
     margin-left: 0;
-    position: absolute;
-    right: var(--layout-page-gutter);
-    top: 50%;
-    transform: translateY(-50%);
+    position: relative;
+    top: 0;
+    right: auto;
   }
 
   pup-header .hamburger span {
@@ -1329,11 +1339,14 @@ pup-header .nav-overlay {
     line-height: 1.15;
   }
 
+  pup-header .header-actions {
+    right: 6px;
+  }
+
   pup-header .hamburger {
     width: 40px;
     height: 40px;
     border-radius: 14px;
-    right: 6px;
     margin-left: 0;
   }
 

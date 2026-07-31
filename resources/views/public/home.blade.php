@@ -212,8 +212,92 @@
       <div class="updates-shared-shell">
         <div class="updates-shared-group news-contents-strip reveal delay-100">
           <div class="cards-shell">
-            <div class="panel-header contents-strip-head">
+            <div class="panel-header contents-strip-head" style="display: flex; justify-content: space-between; align-items: center;">
               <h3>NEWS</h3>
+              <style>
+                .news-filter-wrapper {
+                  position: relative;
+                  width: 220px;
+                  font-family: inherit;
+                }
+                .custom-dropdown-selected {
+                  background-color: #7b1113; /* PUP Maroon */
+                  color: white;
+                  padding: 8px 16px;
+                  border-radius: 6px;
+                  cursor: pointer;
+                  display: flex;
+                  justify-content: space-between;
+                  align-items: center;
+                  font-weight: 600;
+                  font-size: 14px;
+                  transition: background-color 0.2s ease;
+                  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                  user-select: none;
+                }
+                .custom-dropdown-selected:hover {
+                  background-color: #5c0d0e;
+                }
+                .custom-dropdown-selected::after {
+                  content: '▼';
+                  font-size: 10px;
+                  margin-left: 10px;
+                  transition: transform 0.2s ease;
+                }
+                .news-filter-wrapper.open .custom-dropdown-selected::after {
+                  transform: rotate(180deg);
+                }
+                .custom-dropdown-options {
+                  display: none;
+                  position: absolute;
+                  top: 100%;
+                  left: 0;
+                  right: 0;
+                  background-color: white;
+                  border-radius: 6px;
+                  margin-top: 5px;
+                  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                  overflow: hidden;
+                  z-index: 100;
+                  border: 1px solid #eee;
+                }
+                .news-filter-wrapper.open .custom-dropdown-options {
+                  display: block;
+                  animation: fadeInDown 0.2s ease forwards;
+                }
+                .custom-dropdown-option {
+                  padding: 10px 16px;
+                  cursor: pointer;
+                  font-size: 14px;
+                  color: #333;
+                  transition: background-color 0.2s ease, color 0.2s ease;
+                }
+                .custom-dropdown-option:hover {
+                  background-color: #f5f5f5;
+                  color: #7b1113;
+                }
+                .custom-dropdown-option.active {
+                  background-color: #fdf5f5;
+                  color: #7b1113;
+                  font-weight: 600;
+                  border-left: 3px solid #7b1113;
+                }
+                @keyframes fadeInDown {
+                  from { opacity: 0; transform: translateY(-10px); }
+                  to { opacity: 1; transform: translateY(0); }
+                }
+              </style>
+              <div class="news-filter-wrapper" id="newsFilterWrapper">
+                <div class="custom-dropdown-selected" id="newsCategorySelected">All Categories</div>
+                <div class="custom-dropdown-options">
+                  <div class="custom-dropdown-option active" data-value="All">All Categories</div>
+                  <div class="custom-dropdown-option" data-value="Registrar">Registrar</div>
+                  <div class="custom-dropdown-option" data-value="Academics">Academics</div>
+                  <div class="custom-dropdown-option" data-value="Students">Students</div>
+                  <div class="custom-dropdown-option" data-value="Research and Extension">Research and Extension</div>
+                </div>
+                <input type="hidden" id="newsCategoryFilter" value="All">
+              </div>
             </div>
 
             <div class="updates-cards-row news-cards-row contents-cards">
@@ -223,7 +307,7 @@
                   $storyImage = \App\Support\NewsImage::url($n->image_path, 'assets/static_img/pupillar.jpeg');
                 @endphp
 
-                <article class="news-mini-card contents-card card_with_section">
+                <article class="news-mini-card contents-card card_with_section" data-category="{{ e($n->category) }}">
                   <div class="news-mini-card-inner contents-card-inner">
                     <div class="news-mini-card-front contents-card-front">
                       <img src="{{ $storyImage }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="{{ e($n->title) }}">
@@ -266,6 +350,90 @@
               </article>
             @endforelse
             </div>
+
+            <script>
+              document.addEventListener('DOMContentLoaded', function() {
+                const filterInput = document.getElementById('newsCategoryFilter');
+                const filterWrapper = document.getElementById('newsFilterWrapper');
+                const filterSelected = document.getElementById('newsCategorySelected');
+                const filterOptions = document.querySelectorAll('.custom-dropdown-option');
+                
+                if (!filterInput || !filterWrapper) return;
+
+                // Toggle dropdown visibility
+                filterSelected.addEventListener('click', function(e) {
+                  e.stopPropagation();
+                  filterWrapper.classList.toggle('open');
+                });
+
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                  if (!filterWrapper.contains(e.target)) {
+                    filterWrapper.classList.remove('open');
+                  }
+                });
+
+                // Handle option selection
+                filterOptions.forEach(option => {
+                  option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    // Update active state
+                    filterOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update selected text and hidden input value
+                    const selectedValue = this.getAttribute('data-value');
+                    const selectedText = this.textContent;
+                    
+                    filterSelected.textContent = selectedText;
+                    filterInput.value = selectedValue;
+                    
+                    // Close dropdown
+                    filterWrapper.classList.remove('open');
+                    
+                    // Trigger filter
+                    filterNews(selectedValue);
+                  });
+                });
+
+                function filterNews(selectedCategory) {
+                  const newsCards = document.querySelectorAll('.news-mini-card');
+                  let visibleCount = 0;
+
+                  newsCards.forEach(card => {
+                    if (selectedCategory === 'All' || card.dataset.category === selectedCategory) {
+                      card.style.display = '';
+                      visibleCount++;
+                    } else {
+                      card.style.display = 'none';
+                    }
+                  });
+
+                  // Handle empty state
+                  let emptyState = document.querySelector('.news-empty-state');
+                  if (visibleCount === 0) {
+                    if (!emptyState) {
+                      const emptyHtml = `
+                        <article class="announcement-item empty-state mini-empty-state news-empty-state">
+                          <span class="empty-state-icon" aria-hidden="true">
+                            <span class="empty-state-icon-cancel">×</span>
+                          </span>
+                          <h4>NO NEWS FOR THIS CATEGORY</h4>
+                        </article>
+                      `;
+                      document.querySelector('.news-cards-row').insertAdjacentHTML('beforeend', emptyHtml);
+                    } else {
+                      emptyState.style.display = '';
+                    }
+                  } else {
+                    if (emptyState) {
+                      emptyState.style.display = 'none';
+                    }
+                  }
+                }
+              });
+            </script>
           </div>
         </div>
 
