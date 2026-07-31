@@ -3093,9 +3093,47 @@ pup-footer .footer { margin-top: 0; }
   }
 
   .about-values-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+    max-width: 320px;
+    margin: 0 auto;
+  }
+  
+  .about-value-card {
+    border-right: none;
+  }
+  .about-vision-row {
+    display: flex;
+    flex-direction: column;
+    min-height: auto;
+    gap: 12px;
   }
 
+  .about-vision-trigger,
+  .about-vision-row--vision.is-open .about-vision-trigger,
+  .about-vision-row--mission.is-open .about-vision-trigger {
+    position: relative;
+    top: auto;
+    left: auto;
+    right: auto;
+    transform: none !important;
+    align-self: flex-start;
+  }
+
+  .about-vision-panel {
+    position: relative;
+    top: auto;
+    left: auto !important;
+    right: auto !important;
+    transform: none !important;
+    width: 100%;
+    max-width: 100%;
+    display: none;
+  }
+
+  .about-vision-row.is-open .about-vision-panel {
+    display: block;
+    transform: none !important;
+  }
   .about-vision-word { font-size: clamp(2.5rem, 16vw, 4.2rem); line-height: 0.9; }
 
   .about-vision-statement {

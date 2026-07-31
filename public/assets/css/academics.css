@@ -1359,15 +1359,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
     grid-template-columns: 1fr;
   }
 
-  .iapply-schedule-box--with-action {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .iapply-schedule-box-action {
-    justify-content: flex-start;
-    align-self: flex-start;
-  }
 }
 
 .iapply-section-card {
@@ -4350,6 +4342,41 @@ body.pup-dark-mode .iapply-checklist li {
 .academic-feature-card,
 .cards_information {
   overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.academic-rich-copy ul,
+.academic-rich-copy ol,
+.academic-intro-rich-copy ul,
+.academic-intro-rich-copy ol,
+.academic-feature-copy ul,
+.academic-feature-copy ol,
+.iapply-guide-copy ul,
+.iapply-guide-copy ol,
+.iapply-requirements-section ul,
+.iapply-requirements-section ol,
+.uc-calendar-official-card ul,
+.uc-calendar-official-card ol,
+.contents-card ul,
+.contents-card ol,
+.academic-feature-card ul,
+.academic-feature-card ol,
+.cards_information ul,
+.cards_information ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.academic-rich-copy li,
+.academic-intro-rich-copy li,
+.academic-feature-copy li,
+.iapply-guide-copy li,
+.iapply-requirements-section li,
+.uc-calendar-official-card li,
+.contents-card li,
+.academic-feature-card li,
+.cards_information li {
+  margin-bottom: 0.5em;
 }
 
 .academic-rich-copy p,
