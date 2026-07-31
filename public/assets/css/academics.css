@@ -1359,15 +1359,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
     grid-template-columns: 1fr;
   }
 
-  .iapply-schedule-box--with-action {
-    flex-direction: column;
-    align-items: flex-start;
-  }
 
-  .iapply-schedule-box-action {
-    justify-content: flex-start;
-    align-self: flex-start;
-  }
 }
 
 .iapply-section-card {
