@@ -2774,7 +2774,7 @@ pup-footer .footer { margin-top: 0; }
 
   .history-timeline-head h4 { font-size: 1.1rem; }
 
-  .history-timeline-grid { gap: 12px; }
+  .history-timeline-grid { gap: 32px; }
 
   /* Timeline: single column */
   .history-timeline-grid::before {
@@ -2805,15 +2805,15 @@ pup-footer .footer { margin-top: 0; }
   }
 
   .history-timeline-card {
-    padding: 18px 18px 34px;
+    padding: 16px 16px 28px;
   }
 
   .history-timeline-card h5 { font-size: 1.2rem; }
 
   .history-timeline-card::before {
-    left: -18px;
+    left: -26px;
     right: auto;
-    width: 18px;
+    width: 26px;
   }
 
   .history-hero-highlights { gap: 8px; margin-top: 18px; }
