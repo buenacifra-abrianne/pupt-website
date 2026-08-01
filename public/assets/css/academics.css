@@ -308,7 +308,7 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 .iapply-hero {
   padding: 48px var(--page-gutter) 48px;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   overflow: visible;
   min-height: 0;
 }
@@ -4126,33 +4126,67 @@ body.pup-dark-mode .dp-accreditation-footer-inner p {
 }
 
 @media (max-width: 760px) {
+  .iapply-hero {
+    justify-content: flex-start;
+    text-align: left;
+  }
+
+  .iapply-hero-content {
+    align-items: flex-start;
+    text-align: left;
+    margin: 0;
+  }
+
+  .iapply-hero p,
+  .iapply-hero-body,
+  .iapply-hero-sub,
+  .dp-program-hero .iapply-hero-body {
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .iapply-hero h1,
+  .dp-program-hero h1 {
+    font-size: clamp(1.4rem, 6vw, 1.8rem);
+  }
+
   .dp-program-modal-dialog {
-    width: min(100%, calc(100vw - 16px));
-    border-radius: 20px;
+    width: min(100%, calc(100vw - 32px));
+    border-radius: 12px;
   }
 
   .dp-program-modal-copy {
-    padding: 22px 18px 18px;
-    gap: 14px;
+    padding: 14px 12px 10px;
+    gap: 8px;
   }
 
   .dp-program-modal-head {
-    gap: 4px;
-    padding-right: 44px;
+    gap: 2px;
+    padding-right: 32px;
   }
 
   .dp-program-modal-subhead {
-    font-size: 0.84rem;
+    font-size: 0.75rem;
   }
 
   .dp-program-modal-fields-grid {
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 6px;
+  }
+
+  .dp-program-modal-field {
+    padding: 8px 10px;
+    gap: 2px;
+    border-radius: 8px;
+  }
+
+  .dp-program-modal-field-label {
+    font-size: 0.62rem;
   }
 
   .dp-program-modal-field-value,
   .dp-program-modal-body {
-    font-size: 0.92rem;
+    font-size: 0.8rem;
   }
 
   .dp-accreditation-footer-strip {
@@ -4193,7 +4227,7 @@ body.pup-dark-mode .dp-accreditation-footer-inner p {
   }
 
   .dp-diploma-card-body {
-    padding: 22px 18px 20px;
+    padding: 14px 14px 12px;
   }
 }
 
@@ -4243,7 +4277,7 @@ body.pup-dark-mode .dp-accreditation-footer-inner p {
   }
 
   .iapply-hero h1 {
-    font-size: clamp(2rem, 13vw, 3.25rem);
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
   }
 
   .iapply-hero-actions {
@@ -4514,11 +4548,21 @@ body.pup-dark-mode .iapply-checklist li {
   .dp-program-cards,
   .dp-diploma-cards {
     grid-auto-columns: minmax(240px, 82vw);
+    align-items: start;
   }
 
-  .dp-diploma-cards .contents-card {
+  .dp-diploma-cards .contents-card,
+  .dp-program-cards .contents-card,
+  .contents-card {
     width: auto;
-    height: 320px;
+    height: auto !important;
+    min-height: auto !important;
+  }
+  
+  .dp-diploma-card-body {
+    height: auto !important;
+    min-height: auto !important;
+    padding: 16px 16px 14px;
   }
 
   .iapply-hero {
@@ -4534,7 +4578,7 @@ body.pup-dark-mode .iapply-checklist li {
   }
 
   .dp-program-hero h1 {
-    font-size: clamp(1.9rem, 8vw, 3rem);
+    font-size: clamp(1.5rem, 6vw, 2.2rem);
   }
 
   .dp-program-hero {
@@ -4605,11 +4649,28 @@ body.pup-dark-mode .iapply-checklist li {
   .contents-card,
   .dp-diploma-cards .contents-card {
     height: auto;
-    min-height: 260px;
+    min-height: auto;
   }
 
   .dp-diploma-card-body {
-    min-height: 260px;
+    min-height: auto;
+  }
+
+  .dp-diploma-title {
+    font-size: 1.1rem;
+    margin-bottom: 6px;
+  }
+
+  .dp-diploma-desc {
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .dp-diploma-badge,
+  .dp-diploma-accreditation,
+  .dp-diploma-dept {
+    font-size: 0.6rem;
+    padding: 3px 8px;
   }
 
   .contents-card-front,
@@ -4691,11 +4752,11 @@ body.pup-dark-mode .iapply-checklist li {
   .contents-card,
   .dp-diploma-cards .contents-card,
   .dp-diploma-card-body {
-    min-height: 240px;
+    min-height: auto;
   }
 
   .iapply-hero h1 {
-    font-size: clamp(1.7rem, 12vw, 2.45rem);
+    font-size: clamp(1.4rem, 8vw, 1.9rem);
   }
 
   .iapply-hero-panel-head {
