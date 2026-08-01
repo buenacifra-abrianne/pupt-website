@@ -690,9 +690,13 @@ class PUPFooter extends HTMLElement {
     padding-top: 18px;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     display: grid;
-    grid-template-columns: 1.1fr 0.82fr 1fr 1fr;
+    grid-template-columns: 1.1fr 1.82fr 1fr;
     gap: 18px;
     align-items: start;
+  }
+
+  .footer-combined-govph {
+    display: contents;
   }
 
   .footer-govph-block {
@@ -895,37 +899,71 @@ class PUPFooter extends HTMLElement {
 
   @media (max-width: 900px) {
     .footer-shell {
-      padding: 14px 12px 12px;
+      display: flex;
+      flex-wrap: nowrap;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      gap: 12px;
+      padding: 16px 12px;
+      scrollbar-width: none;
+      align-items: stretch;
+    }
+    
+    .footer-shell::-webkit-scrollbar {
+      display: none;
     }
 
-    .footer-top {
-      grid-template-columns: 1fr;
+    .footer-top,
+    .footer-govph-grid {
+      display: contents;
     }
 
     .footer-brand,
-    .footer-panel,
-    .footer-socials-panel {
-      border-left: 0;
-      border-top: 1px solid rgba(255, 255, 255, 0.12);
+    .footer-top > .footer-panel,
+    .footer-combined-panel,
+    .footer-socials-panel,
+    .footer-bottom-strip,
+    .footer-govph-grid > .footer-govph-block,
+    .footer-combined-govph {
+      flex: 0 0 85%;
+      scroll-snap-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      gap: 20px;
     }
 
-    .footer-brand {
-      border-top: 0;
-      padding: 18px 16px 14px;
+    .footer-shell::before,
+    .footer-shell::after {
+      content: "";
+      flex: 0 0 1px;
+    }
+
+    .footer-brand,
+    .footer-socials-panel {
+      justify-content: center;
+      align-items: center;
     }
 
     .footer-brand-seals {
-      max-width: 252px;
+      max-width: 220px;
+      gap: 12px;
     }
 
     .footer-brand-seal,
     .footer-brand-logo {
-      max-width: 72px;
+      max-width: 60px;
     }
 
     .footer-panel {
       gap: 12px;
-      padding: 16px;
+      justify-content: flex-start;
     }
 
     .footer-panel-header {
@@ -933,9 +971,9 @@ class PUPFooter extends HTMLElement {
     }
 
     .footer-panel-title {
-      font-size: 12px;
-      line-height: 1.1;
-      letter-spacing: 0.1em;
+      font-size: 13px;
+      line-height: 1.2;
+      letter-spacing: 0.05em;
     }
 
     .footer-service-link,
@@ -943,54 +981,58 @@ class PUPFooter extends HTMLElement {
       font-size: 12px;
     }
 
-    .footer-socials-panel {
-      padding: 16px;
-      justify-content: center;
+    .footer-socials {
+      gap: 16px;
     }
 
-    .footer-socials {
-      gap: 8px;
+    .footer-social-link {
+      width: 48px;
+      height: 48px;
+    }
+
+    .footer-social-link svg {
+      width: 24px;
+      height: 24px;
     }
 
     .footer-bottom-strip {
-      gap: 12px;
-      padding: 12px 14px;
+      gap: 16px;
+      justify-content: center;
+      align-items: center;
     }
 
     .footer-accreditation-links {
+      display: flex;
+      flex-direction: column;
       gap: 10px;
+      width: 100%;
     }
 
     .footer-accreditation-link {
-      width: min(100%, 280px);
-    }
-
-    .footer-govph-grid {
-      grid-template-columns: 1fr;
-      gap: 16px;
-      margin-top: 14px;
-      padding-top: 16px;
+      width: 100%;
     }
 
     .footer-govph-brand {
-      grid-template-columns: 112px minmax(0, 1fr);
-      gap: 10px;
+      display: grid;
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 12px;
+      align-items: center;
     }
 
     .footer-govph-brand img {
-      width: 112px;
-      height: 112px;
+      width: 80px;
+      height: 80px;
     }
 
     .footer-govph-title {
-      margin-bottom: 8px;
-      font-size: 13px;
+      margin-bottom: 6px;
+      font-size: 14px;
     }
 
     .footer-govph-copy,
     .footer-govph-list a {
-      font-size: 11px;
-      line-height: 1.4;
+      font-size: 12px;
+      line-height: 1.5;
     }
 
     .footer-govph-seal-link {
@@ -1002,7 +1044,7 @@ class PUPFooter extends HTMLElement {
     }
 
     .footer-legal {
-      padding: 8px 12px 10px;
+      padding: 12px 16px;
       font-size: 11px;
     }
   }
@@ -1020,16 +1062,6 @@ class PUPFooter extends HTMLElement {
     .footer-brand-seal,
     .footer-brand-logo {
       max-width: 62px;
-    }
-
-    .footer-social-link {
-      width: 32px;
-      height: 32px;
-    }
-
-    .footer-social-link svg {
-      width: 15px;
-      height: 15px;
     }
 
     .footer-bottom-strip {
@@ -1083,54 +1115,56 @@ class PUPFooter extends HTMLElement {
         </div>
       </section>
 
-      <section class="footer-panel">
-        <div class="footer-panel-header">
-          <span class="footer-panel-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg>
-          </span>
-          <h3 class="footer-panel-title">Downloadables</h3>
-        </div>
-        <div class="footer-services-grid">
-          <a class="footer-service-link" href="/students/downloadable-forms">
-            <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
-            <span>For Students</span>
-          </a>
-        </div>
-      </section>
+      <div class="footer-combined-panel">
+        <section class="footer-panel">
+          <div class="footer-panel-header">
+            <span class="footer-panel-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg>
+            </span>
+            <h3 class="footer-panel-title">Downloadables</h3>
+          </div>
+          <div class="footer-services-grid">
+            <a class="footer-service-link" href="/students/downloadable-forms">
+              <span class="footer-service-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M6 3h9l5 5v11a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Zm8 1.5V9h4.5L14 4.5ZM8 12h8v1.8H8V12Zm0 3.5h8v1.8H8v-1.8Zm0-7h3.8v1.8H8V8.5Z"/></svg></span>
+              <span>For Students</span>
+            </a>
+          </div>
+        </section>
 
-      <section class="footer-panel">
-        <div class="footer-panel-header">
-          <span class="footer-panel-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
-          </span>
-          <h3 class="footer-panel-title">Address</h3>
-        </div>
-        <div class="footer-contact-group">
-          <div class="footer-contact-item">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
-            <span><a href="https://www.google.com/maps/search/?api=1&query=Polytechnic+University+of+the+Philippines+Taguig+Campus%2C+Gen.+Santos+Ave.%2C+Lower+Bicutan%2C+Taguig+City%2C+Philippines" target="_blank" rel="noopener noreferrer">Gen. Santos Ave., Lower Bicutan<br>Taguig City, Philippines</a></span>
+        <section class="footer-panel">
+          <div class="footer-panel-header">
+            <span class="footer-panel-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+            </span>
+            <h3 class="footer-panel-title">Address</h3>
           </div>
-        </div>
-      </section>
+          <div class="footer-contact-group">
+            <div class="footer-contact-item">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a7 7 0 0 0-7 7c0 5.3 7 13 7 13s7-7.7 7-13a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/></svg>
+              <span><a href="https://www.google.com/maps/search/?api=1&query=Polytechnic+University+of+the+Philippines+Taguig+Campus%2C+Gen.+Santos+Ave.%2C+Lower+Bicutan%2C+Taguig+City%2C+Philippines" target="_blank" rel="noopener noreferrer">Gen. Santos Ave., Lower Bicutan<br>Taguig City, Philippines</a></span>
+            </div>
+          </div>
+        </section>
 
-      <section class="footer-panel">
-        <div class="footer-panel-header">
-          <span class="footer-panel-icon" aria-hidden="true">
-            <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
-          </span>
-          <h3 class="footer-panel-title">Contact Us</h3>
-        </div>
-        <div class="footer-contact-group">
-          <div class="footer-contact-item">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
-            <span><a href="tel:+6328375858">(63 2) 837-5858</a> | <a href="tel:+6328375859">(63 2) 837-5859</a></span>
+        <section class="footer-panel">
+          <div class="footer-panel-header">
+            <span class="footer-panel-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
+            </span>
+            <h3 class="footer-panel-title">Contact Us</h3>
           </div>
-          <div class="footer-contact-item">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Zm2 0v.4l6.9 5.2 7.1-5.2v-.4a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5Zm14 13v-10l-6.5 4.8a1 1 0 0 1-1.2 0L5 8.5v10c0 .3.2.5.5.5h13c.3 0 .5-.2.5-.5Z"/></svg>
-            <span><a href="mailto:taguig@pup.edu.ph">taguig@pup.edu.ph</a></span>
+          <div class="footer-contact-group">
+            <div class="footer-contact-item">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8c1.7 3.3 4.3 5.9 7.6 7.6l2.5-2.5c.3-.3.8-.4 1.2-.3 1 .3 2 .4 3.1.4.7 0 1.2.5 1.2 1.2V21c0 .7-.5 1.2-1.2 1.2C10.6 22.2 1.8 13.4 1.8 2.9 1.8 2.2 2.3 1.7 3 1.7h3.8c.7 0 1.2.5 1.2 1.2 0 1.1.1 2.1.4 3.1.1.4 0 .9-.3 1.2l-2.5 2.6Z"/></svg>
+              <span><a href="tel:+6328375858">(63 2) 837-5858</a> | <a href="tel:+6328375859">(63 2) 837-5859</a></span>
+            </div>
+            <div class="footer-contact-item">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 5.5A2.5 2.5 0 0 1 5.5 3h13A2.5 2.5 0 0 1 21 5.5v13a2.5 2.5 0 0 1-2.5 2.5h-13A2.5 2.5 0 0 1 3 18.5v-13Zm2 0v.4l6.9 5.2 7.1-5.2v-.4a.5.5 0 0 0-.5-.5h-13a.5.5 0 0 0-.5.5Zm14 13v-10l-6.5 4.8a1 1 0 0 1-1.2 0L5 8.5v10c0 .3.2.5.5.5h13c.3 0 .5-.2.5-.5Z"/></svg>
+              <span><a href="mailto:taguig@pup.edu.ph">taguig@pup.edu.ph</a></span>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      </div>
 
       <div class="footer-socials-panel">
         <div class="footer-socials" aria-label="PUP Taguig social media links">
@@ -1178,20 +1212,22 @@ class PUPFooter extends HTMLElement {
         </div>
       </section>
 
-      <section class="footer-govph-block">
-        <a class="footer-govph-seal-link" href="${npcCorSealDriveUrl}" target="_blank" rel="noopener noreferrer" aria-label="NPC COR Seal">
-          <img src="${dpoDpsSealUrl}" alt="NPC COR Seal">
-        </a>
-      </section>
+      <div class="footer-combined-govph">
+        <section class="footer-govph-block" style="margin-bottom: 24px;">
+          <a class="footer-govph-seal-link" href="${npcCorSealDriveUrl}" target="_blank" rel="noopener noreferrer" aria-label="NPC COR Seal">
+            <img src="${dpoDpsSealUrl}" alt="NPC COR Seal">
+          </a>
+        </section>
 
-      <section class="footer-govph-block">
-        <h3 class="footer-govph-title">About GOVPH</h3>
-        <p class="footer-govph-copy">Learn more about the Philippine government, its structure, how government works and the people behind it.</p>
-        <ul class="footer-govph-list">
-          <li><a href="http://www.gov.ph/" target="_blank" rel="noopener noreferrer">Official Gazette</a></li>
-          <li><a href="http://data.gov.ph/" target="_blank" rel="noopener noreferrer">Open Data Portal</a></li>
-        </ul>
-      </section>
+        <section class="footer-govph-block">
+          <h3 class="footer-govph-title">About GOVPH</h3>
+          <p class="footer-govph-copy">Learn more about the Philippine government, its structure, how government works and the people behind it.</p>
+          <ul class="footer-govph-list">
+            <li><a href="http://www.gov.ph/" target="_blank" rel="noopener noreferrer">Official Gazette</a></li>
+            <li><a href="http://data.gov.ph/" target="_blank" rel="noopener noreferrer">Open Data Portal</a></li>
+          </ul>
+        </section>
+      </div>
 
       <section class="footer-govph-block">
         <h3 class="footer-govph-title">Government Links</h3>
