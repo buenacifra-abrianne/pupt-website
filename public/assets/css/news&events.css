@@ -194,8 +194,8 @@
   align-items: center;
   flex-wrap: wrap;
   gap: 6px;
-  padding: 18px var(--ne-page-gutter);
-  font-size: 0.82rem;
+  padding: clamp(6px, 1.5vw, 10px) var(--ne-page-gutter) clamp(4px, 1vw, 8px);
+  font-size: clamp(0.6rem, 2.5vw, 0.82rem);
   color: var(--ne-muted);
 }
 .ne-breadcrumb a {
