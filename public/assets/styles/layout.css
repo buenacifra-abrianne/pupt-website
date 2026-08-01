@@ -1564,4 +1564,6 @@ body.pup-dark-mode .quick-link-rich * {
 html:has(body.modal-open),
 body.modal-open {
   overflow: hidden !important;
+  touch-action: none;
+  overscroll-behavior: none;
 }
