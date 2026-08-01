@@ -690,12 +690,13 @@ class PUPFooter extends HTMLElement {
     padding-top: 18px;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     display: grid;
-    grid-template-columns: 1.1fr 1.82fr 1fr;
+    grid-template-columns: 1.1fr 0.82fr 1fr 1fr;
     gap: 18px;
     align-items: start;
   }
 
-  .footer-combined-govph {
+  .footer-combined-govph,
+  .footer-combined-panel {
     display: contents;
   }
 
