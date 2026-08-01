@@ -62,20 +62,21 @@
         data-cms-section-label="PUP iApply Hero"
     @endif
 >
-    <div data-cms-boundary class="cms-preview-boundary-full">
-        <div class="iapply-hero-content">
+    <div data-cms-boundary class="cms-preview-boundary-full" style="width: 100%;">
+        <div class="iapply-hero-content iapply-hero-content-spread">
             <div class="iapply-hero-copy">
                 <p class="iapply-hero-tag">{{ $hero['tag'] ?? '' }}</p>
                 <h1>{{ $hero['title'] ?? '' }}</h1>
                 <p class="iapply-hero-sub">{{ $hero['subtitle'] ?? '' }}</p>
                 <p class="iapply-hero-lede">{{ $hero['body'] ?? '' }}</p>
-
-                <div class="iapply-hero-actions">
-                    <a href="{{ $applyHref }}" class="apply-now-btn" @unless($cmsPreview) target="_blank" rel="noopener" @endunless>
-                        {{ $hero['cta_label'] ?? 'Apply Now' }}
-                    </a>
-                    <a href="#iapply-requirements" class="iapply-secondary-btn">View Requirements</a>
-                </div>
+            </div>
+            
+            <div class="iapply-hero-actions" style="justify-content: flex-end; align-self: end; padding-bottom: 20px;">
+                <a href="{{ $applyHref }}" class="apply-now-btn" @unless($cmsPreview) target="_blank" rel="noopener" @endunless>
+                    {{ str_replace(' ↗', '', $hero['cta_label'] ?? 'Apply Now') }}
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+                </a>
+                <a href="#iapply-requirements" class="iapply-secondary-btn">View Requirements</a>
             </div>
         </div>
     </div>
