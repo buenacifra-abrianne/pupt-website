@@ -95,18 +95,18 @@ pup-footer .footer {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
+  gap: clamp(4px, 1.5vw, 12px);
   justify-content: flex-start;
   align-self: stretch;
   justify-self: stretch;
-  margin: 14px 0 8px;
-  padding: 14px 0 12px;
+  margin: clamp(4px, 1vw, 8px) 0 clamp(2px, 0.5vw, 4px);
+  padding: clamp(6px, 1.5vw, 10px) 0 clamp(4px, 1vw, 8px);
   border: none;
   background: transparent;
   border-radius: 0;
-  font-size: 0.82rem;
+  font-size: clamp(0.6rem, 2.5vw, 0.82rem);
   font-weight: 800;
-  letter-spacing: 0.2em;
+  letter-spacing: clamp(0.05em, 1vw, 0.2em);
   text-transform: uppercase;
 }
 
@@ -1564,4 +1564,6 @@ body.pup-dark-mode .quick-link-rich * {
 html:has(body.modal-open),
 body.modal-open {
   overflow: hidden !important;
+  touch-action: none;
+  overscroll-behavior: none;
 }
