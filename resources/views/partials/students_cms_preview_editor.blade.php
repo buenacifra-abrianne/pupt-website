@@ -797,9 +797,21 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="form-group">
-                                        <label>Description</label>
-                                        <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Category</label>
+                                            <select name="students[pages][admissions][links][items][{{ $index }}][category]" class="form-control" required>
+                                                <option value="" disabled {{ empty($item['category']) ? 'selected' : '' }}>Select Category</option>
+                                                <option value="Applicants" {{ ($item['category'] ?? '') === 'Applicants' ? 'selected' : '' }}>Applicants</option>
+                                                <option value="Returning students" {{ ($item['category'] ?? '') === 'Returning students' ? 'selected' : '' }}>Returning students</option>
+                                                <option value="Shiftee" {{ ($item['category'] ?? '') === 'Shiftee' ? 'selected' : '' }}>Shiftee</option>
+                                                <option value="Transferee" {{ ($item['category'] ?? '') === 'Transferee' ? 'selected' : '' }}>Transferee</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Description</label>
+                                            <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
+                                        </div>
                                     </div>
                                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                                 </div>
@@ -3105,9 +3117,21 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label>Description</label>
-                        <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2" required></textarea>
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Category</label>
+                            <select name="students[pages][admissions][links][items][${index}][category]" class="form-control" required>
+                                <option value="" disabled selected>Select Category</option>
+                                <option value="Applicants">Applicants</option>
+                                <option value="Returning students">Returning students</option>
+                                <option value="Shiftee">Shiftee</option>
+                                <option value="Transferee">Transferee</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2" required></textarea>
+                        </div>
                     </div>
                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                 </div>

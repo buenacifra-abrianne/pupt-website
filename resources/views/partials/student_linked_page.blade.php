@@ -477,15 +477,179 @@
                 @endif
             >
                 <div data-cms-boundary class="cms-preview-boundary-full">
+                    @if($isAdmissionsPage)
+                        <div class="student-page-filter" style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                            <style>
+                                .admissions-filter-wrapper {
+                                    position: relative;
+                                    width: max-content;
+                                    min-width: 150px;
+                                    font-family: inherit;
+                                }
+                                .admissions-dropdown-selected {
+                                    background-color: #7b1113; /* PUP Maroon */
+                                    color: white;
+                                    padding: 8px 16px;
+                                    border-radius: 6px;
+                                    cursor: pointer;
+                                    display: flex;
+                                    justify-content: space-between;
+                                    align-items: center;
+                                    font-weight: 600;
+                                    font-size: 13px;
+                                    white-space: nowrap;
+                                    gap: 10px;
+                                    transition: background-color 0.2s ease;
+                                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                                    user-select: none;
+                                }
+                                .admissions-dropdown-selected:hover {
+                                    background-color: #5c0d0e;
+                                }
+                                .admissions-dropdown-selected::after {
+                                    content: '▼';
+                                    font-size: 10px;
+                                    margin-left: 5px;
+                                    transition: transform 0.2s ease;
+                                }
+                                .admissions-filter-wrapper.open .admissions-dropdown-selected::after {
+                                    transform: rotate(180deg);
+                                }
+                                .admissions-dropdown-options {
+                                    display: none;
+                                    position: absolute;
+                                    top: 100%;
+                                    right: 0;
+                                    min-width: 100%;
+                                    width: max-content;
+                                    background-color: white;
+                                    border-radius: 6px;
+                                    margin-top: 5px;
+                                    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                                    overflow: hidden;
+                                    z-index: 100;
+                                    border: 1px solid #eee;
+                                }
+                                .admissions-filter-wrapper.open .admissions-dropdown-options {
+                                    display: block;
+                                    animation: fadeInDown 0.2s ease forwards;
+                                }
+                                .admissions-dropdown-option {
+                                    padding: 8px 16px;
+                                    cursor: pointer;
+                                    font-size: 13px;
+                                    color: #333;
+                                    transition: background-color 0.2s ease, color 0.2s ease;
+                                    white-space: nowrap;
+                                }
+                                .admissions-dropdown-option:hover {
+                                    background-color: #f5f5f5;
+                                    color: #7b1113;
+                                }
+                                .admissions-dropdown-option.active {
+                                    background-color: #fdf5f5;
+                                    color: #7b1113;
+                                    font-weight: 600;
+                                    border-left: 3px solid #7b1113;
+                                }
+                                @keyframes fadeInDown {
+                                    from { opacity: 0; transform: translateY(-10px); }
+                                    to { opacity: 1; transform: translateY(0); }
+                                }
+                            </style>
+                            <div class="admissions-filter-wrapper" id="admissionsFilterWrapper">
+                                <div class="admissions-dropdown-selected" id="admissionsCategorySelected">All Categories</div>
+                                <div class="admissions-dropdown-options">
+                                    <div class="admissions-dropdown-option active" data-value="All">All Categories</div>
+                                    <div class="admissions-dropdown-option" data-value="Applicants">Applicants</div>
+                                    <div class="admissions-dropdown-option" data-value="Returning students">Returning students</div>
+                                    <div class="admissions-dropdown-option" data-value="Shiftee">Shiftee</div>
+                                    <div class="admissions-dropdown-option" data-value="Transferee">Transferee</div>
+                                </div>
+                                <input type="hidden" id="admissionsCategoryFilter" value="All">
+                            </div>
+                        </div>
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function() {
+                                const filterInput = document.getElementById('admissionsCategoryFilter');
+                                const filterWrapper = document.getElementById('admissionsFilterWrapper');
+                                const filterSelected = document.getElementById('admissionsCategorySelected');
+                                const filterOptions = document.querySelectorAll('.admissions-dropdown-option');
+                                
+                                if (!filterInput || !filterWrapper) return;
+
+                                filterSelected.addEventListener('click', function(e) {
+                                    e.stopPropagation();
+                                    filterWrapper.classList.toggle('open');
+                                });
+
+                                document.addEventListener('click', function(e) {
+                                    if (!filterWrapper.contains(e.target)) {
+                                        filterWrapper.classList.remove('open');
+                                    }
+                                });
+
+                                filterOptions.forEach(option => {
+                                    option.addEventListener('click', function(e) {
+                                        e.stopPropagation();
+                                        
+                                        filterOptions.forEach(opt => opt.classList.remove('active'));
+                                        this.classList.add('active');
+                                        
+                                        const selectedValue = this.getAttribute('data-value');
+                                        const selectedText = this.textContent;
+                                        
+                                        filterSelected.textContent = selectedText;
+                                        filterInput.value = selectedValue;
+                                        
+                                        filterWrapper.classList.remove('open');
+                                        
+                                        filterLinks(selectedValue);
+                                    });
+                                });
+
+                                function filterLinks(selectedCategory) {
+                                    const linkCards = document.querySelectorAll('.student-link-row');
+                                    let visibleCount = 0;
+
+                                    linkCards.forEach(card => {
+                                        if (selectedCategory === 'All' || (card.dataset.category && card.dataset.category.toLowerCase() === selectedCategory.toLowerCase())) {
+                                            card.style.display = '';
+                                            visibleCount++;
+                                        } else {
+                                            card.style.display = 'none';
+                                        }
+                                    });
+
+                                    let emptyState = document.getElementById('admissions-empty-state');
+                                    if (visibleCount === 0) {
+                                        if (!emptyState) {
+                                            const emptyHtml = '<p class="student-page-empty" id="admissions-empty-state">No links found for this category.</p>';
+                                            document.querySelector('.student-link-list').insertAdjacentHTML('beforeend', emptyHtml);
+                                        } else {
+                                            emptyState.style.display = '';
+                                        }
+                                    } else {
+                                        if (emptyState) {
+                                            emptyState.style.display = 'none';
+                                        }
+                                    }
+                                }
+                            });
+                        </script>
+                    @endif
+
                     <div class="student-link-list">
                         @forelse(($links['items'] ?? []) as $link)
                             @php
                                 $href = trim((string) ($link['href'] ?? ''));
                                 $isExternal = preg_match('/^https?:\/\//i', $href) === 1;
+                                $category = $link['category'] ?? '';
                             @endphp
                             <a
                                 href="{{ $href !== '' ? $href : '#' }}"
                                 class="student-link-row"
+                                data-category="{{ e($category) }}"
                                 @if($isExternal && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
                             >
                                 <span>
