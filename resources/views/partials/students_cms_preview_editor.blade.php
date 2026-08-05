@@ -556,6 +556,35 @@
                         <input id="{{ $admissionsInstructionsImageInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][instructions][image_file]" accept="image/*" data-students-image-field-id="{{ $admissionsInstructionsImageFieldId }}">
                     </div>
 
+                    <div class="students-cms-repeatable" data-students-repeatable="admissions-instructions-links">
+                        <div class="students-cms-repeatable-head">
+                            <h4>Important Links</h4>
+                            <button type="button" class="btn btn-primary" data-students-add-repeatable="admissions-instructions-links">Add Link</button>
+                        </div>
+                        <div data-students-repeatable-list="admissions-instructions-links">
+                            @foreach(($admissionsInstructions['links'] ?? []) as $index => $item)
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                    <div class="students-cms-form-grid">
+                                        <div class="form-group">
+                                            <label>Label</label>
+                                            <input type="text" name="students[pages][admissions][instructions][links][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>URL</label>
+                                            <div class="students-link-row">
+                                                <input type="text" name="students[pages][admissions][instructions][links][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
+                                                <button type="button" class="students-link-paste" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(text => this.previousElementSibling.value = text).catch(err => console.error('Failed to read clipboard contents: ', err))">
+                                                    <i class="fas fa-paste"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
@@ -3091,7 +3120,7 @@
         const nextRepeatableIndex = (list) => {
             const indexes = Array.from(list?.querySelectorAll('[name]') ?? [])
                 .map((field) => {
-                    const match = String(field.name || '').match(/\[items\]\[(\d+)\]/);
+                    const match = String(field.name || '').match(/\[(\d+)\]/);
                     return match ? Number(match[1]) : -1;
                 })
                 .filter((value) => Number.isFinite(value) && value >= 0);
@@ -3131,6 +3160,26 @@
                         <div class="form-group">
                             <label>Description</label>
                             <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2" required></textarea>
+                        </div>
+                    </div>
+                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
+                </div>
+            `,
+            'admissions-instructions-links': (index) => `
+                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                    <div class="students-cms-form-grid">
+                        <div class="form-group">
+                            <label>Label</label>
+                            <input type="text" name="students[pages][admissions][instructions][links][${index}][label]" maxlength="255" value="">
+                        </div>
+                        <div class="form-group">
+                            <label>URL</label>
+                            <div class="students-link-row">
+                                <input type="text" name="students[pages][admissions][instructions][links][${index}][href]" maxlength="2048" value="">
+                                <button type="button" class="students-link-paste" title="Paste from clipboard" onclick="navigator.clipboard.readText().then(text => this.previousElementSibling.value = text).catch(err => console.error('Failed to read clipboard contents: ', err))">
+                                    <i class="fas fa-paste"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>

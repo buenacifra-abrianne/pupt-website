@@ -75,6 +75,20 @@
                         <img src="{{ \App\Support\StudentsCmsContent::resolveImagePath($instructionsImage, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $instructions['title'] ?? 'Application Guide' }} step by step process">
                     </figure>
                 @endif
+                @if(isset($instructions['links']) && is_array($instructions['links']) && count($instructions['links']) > 0)
+                    <div class="student-admissions-instructions-links" style="margin-top: 1.5rem;">
+                        <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 12px;">
+                            @foreach($instructions['links'] as $link)
+                                <li>
+                                    <a href="{{ $link['href'] ?? '#' }}" target="_blank" rel="noopener noreferrer" style="color: #7b1113; font-weight: 600; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 12px 16px; background-color: #fdfdfd; border: 1px solid #eee; border-radius: 6px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); width: 100%; transition: background-color 0.2s, box-shadow 0.2s;" onmouseover="this.style.backgroundColor='#f9f9f9'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.1)'" onmouseout="this.style.backgroundColor='#fdfdfd'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.05)'">
+                                        <i class="fas fa-external-link-alt" style="font-size: 14px; opacity: 0.8;"></i> 
+                                        <span>{{ $link['label'] ?? 'Link' }}</span>
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
             </div>
         </section>
                 @php

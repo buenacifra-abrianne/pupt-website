@@ -187,10 +187,96 @@
                     </div>
                 </div>
 
-                <div class="events-cms-card-group-head" style="margin-bottom: 14px;">
+                <div class="events-cms-card-group-head" style="margin-bottom: 14px; display: flex; justify-content: space-between; align-items: flex-end;">
                     <div>
                         <h4 style="margin: 0; color: #5c0000; font-size: 1rem;">Active News</h4>
                         <p style="margin: 6px 0 0; color: #7c6660; font-size: 0.88rem;">These are visible on the public page.</p>
+                    </div>
+                    <div class="news-page-filter" style="display: flex; justify-content: flex-end;">
+                        <style>
+                            .custom-dropdown-selected {
+                              background-color: #7b1113; /* PUP Maroon */
+                              color: white;
+                              padding: 6px 12px;
+                              border-radius: 6px;
+                              cursor: pointer;
+                              display: flex;
+                              justify-content: space-between;
+                              align-items: center;
+                              font-weight: 600;
+                              font-size: 11px;
+                              white-space: nowrap;
+                              gap: 10px;
+                              transition: background-color 0.2s ease;
+                              box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                              user-select: none;
+                            }
+                            .custom-dropdown-selected:hover {
+                              background-color: #5c0d0e;
+                            }
+                            .custom-dropdown-selected::after {
+                              content: '▼';
+                              font-size: 9px;
+                              margin-left: 5px;
+                              transition: transform 0.2s ease;
+                            }
+                            .news-filter-wrapper {
+                              position: relative;
+                              width: max-content;
+                              min-width: 130px;
+                              font-family: inherit;
+                            }
+                            .news-filter-wrapper.open .custom-dropdown-selected::after {
+                              transform: rotate(180deg);
+                            }
+                            .custom-dropdown-options {
+                              display: none;
+                              position: absolute;
+                              top: 100%;
+                              right: 0;
+                              min-width: 100%;
+                              width: max-content;
+                              background-color: white;
+                              border-radius: 6px;
+                              margin-top: 5px;
+                              box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                              overflow: hidden;
+                              z-index: 100;
+                              border: 1px solid #eee;
+                            }
+                            .news-filter-wrapper.open .custom-dropdown-options {
+                              display: block;
+                            }
+                            .custom-dropdown-option {
+                              padding: 6px 12px;
+                              cursor: pointer;
+                              font-size: 11px;
+                              color: #333;
+                              transition: background-color 0.2s ease, color 0.2s ease;
+                              white-space: nowrap;
+                            }
+                            .custom-dropdown-option:hover {
+                              background-color: #f5f5f5;
+                              color: #7b1113;
+                            }
+                            .custom-dropdown-option.active {
+                              background-color: #fdf5f5;
+                              color: #7b1113;
+                              font-weight: 600;
+                              border-left: 3px solid #7b1113;
+                            }
+                        </style>
+                        <div class="news-filter-wrapper" id="newsFilterWrapper">
+                            <div class="custom-dropdown-selected" id="newsCategorySelected">All Categories</div>
+                            <div class="custom-dropdown-options">
+                                <div class="custom-dropdown-option active" data-value="All">All Categories</div>
+                                <div class="custom-dropdown-option" data-value="Registrar">Registrar</div>
+                                <div class="custom-dropdown-option" data-value="Academics">Academics</div>
+                                <div class="custom-dropdown-option" data-value="Students">Students</div>
+                                <div class="custom-dropdown-option" data-value="Research and Extension">Research & Extension</div>
+                            </div>
+                            <input type="hidden" id="newsCategoryFilter" value="All">
+                        </div>
                     </div>
                 </div>
 
@@ -204,6 +290,7 @@
                     @foreach($active_news as $news)
                         <div class="news-card"
                             data-news-id="{{ (int) $news->news_id }}"
+                            data-category="{{ e($news->category) }}"
                             data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location.' '.(($news->is_featured ?? false) ? ' featured' : '').' '.(($news->is_hidden_from_public ?? false) ? ' hidden' : ''))) }}">
 
                             <label class="news-card-select" aria-label="Select {{ e(\App\Support\PlainText::normalize($news->title ?? '')) }}">
@@ -280,6 +367,7 @@
                     @foreach($expired_news as $news)
                         <div class="news-card" style="opacity: 0.85;"
                             data-news-id="{{ (int) $news->news_id }}"
+                            data-category="{{ e($news->category) }}"
                             data-search="{{ e(strtolower($news->title.' '.$news->content.' '.($news->link ?? '').' '.$news->category.' '.$news->location.' '.(($news->is_featured ?? false) ? ' featured' : '').' '.(($news->is_hidden_from_public ?? false) ? ' hidden' : ''))) }}">
 
                             <label class="news-card-select" aria-label="Select {{ e(\App\Support\PlainText::normalize($news->title ?? '')) }}">
@@ -1178,9 +1266,11 @@
     }
 
     const searchInput = document.getElementById('globalSearch');
+    const categoryFilter = document.getElementById('newsCategoryFilter');
 
     function runSearch() {
         const q = (searchInput.value || '').trim().toLowerCase();
+        const selectedCategory = categoryFilter ? categoryFilter.value.toLowerCase() : 'all';
 
         // Search active and expired announcements
         document.querySelectorAll('#announcements .announcement-item').forEach(item => {
@@ -1199,7 +1289,12 @@
                 return;
             }
             const hay = card.getAttribute('data-search') || '';
-            card.style.display = hay.includes(q) ? '' : 'none';
+            const cardCategory = (card.dataset.category || '').toLowerCase();
+            
+            const matchesQuery = hay.includes(q);
+            const matchesCategory = selectedCategory === 'all' || cardCategory === selectedCategory;
+
+            card.style.display = (matchesQuery && matchesCategory) ? '' : 'none';
         });
     }
 
@@ -1228,6 +1323,43 @@
         }
 
         flushReloadToast();
+        
+        // Setup News Category Dropdown Logic
+        const filterInput = document.getElementById('newsCategoryFilter');
+        const filterWrapper = document.getElementById('newsFilterWrapper');
+        const filterSelected = document.getElementById('newsCategorySelected');
+        const filterOptions = document.querySelectorAll('.custom-dropdown-option');
+        
+        if (filterInput && filterWrapper) {
+            filterSelected.addEventListener('click', function(e) {
+                e.stopPropagation();
+                filterWrapper.classList.toggle('open');
+            });
+
+            document.addEventListener('click', function(e) {
+                if (!filterWrapper.contains(e.target)) {
+                    filterWrapper.classList.remove('open');
+                }
+            });
+
+            filterOptions.forEach(option => {
+                option.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    
+                    filterOptions.forEach(opt => opt.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    const selectedValue = this.getAttribute('data-value');
+                    const selectedText = this.textContent;
+                    
+                    filterSelected.textContent = selectedText;
+                    filterInput.value = selectedValue;
+                    
+                    filterWrapper.classList.remove('open');
+                    runSearch();
+                });
+            });
+        }
         if (SERVER_SUCCESS_TOAST) {
             showToast(SERVER_SUCCESS_TOAST, 'success', 'Success');
         }
