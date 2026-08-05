@@ -103,7 +103,7 @@
                 class="about-breadcrumb-wrapper"
                 style="position: relative; width: 100%; z-index: 10;"
             >
-                <div style="position: relative; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+                <div style="position: relative; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: clamp(8px, 1.5vw, 16px);">
                     <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb" style="margin-bottom: 0;">
                         <a href="{{ route('public.home') }}">Home</a>
                         <span>&gt;</span>

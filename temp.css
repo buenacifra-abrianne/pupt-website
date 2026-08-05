@@ -1582,11 +1582,8 @@ body.scroll-up  .reveal:not(.active) { transform: translateY(-40px); }
 }
 
 .iapply-hero-content.iapply-hero-content-spread {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  max-width: 100%;
-  padding-right: 0 !important;
+  grid-template-columns: 1fr auto;
+  max-width: none;
 }
 
 .iapply-hero-copy {
@@ -2354,8 +2351,7 @@ pup-footer .footer { margin-top: 0; }
   }
 
   .iapply-hero-content.iapply-hero-content-spread {
-    flex-direction: column;
-    align-items: stretch;
+    grid-template-columns: 1fr;
   }
 
   .iapply-hero-visual {

@@ -2243,6 +2243,7 @@ body.modal-open,
 html:has(body.modal-open) {
   overflow: hidden !important;
   touch-action: none; /* Prevent iOS scroll bouncing on the body */
+  overscroll-behavior: none;
 }
 
 .facility-modal-overlay {
@@ -2259,6 +2260,7 @@ html:has(body.modal-open) {
   pointer-events: none;
   transition: opacity 0.22s ease, visibility 0.22s ease;
   z-index: 1500;
+  overscroll-behavior: none;
 }
 
 .facility-modal-overlay.show {
@@ -2273,6 +2275,7 @@ html:has(body.modal-open) {
   height: 85vh;
   max-height: 850px;
   overflow: hidden;
+  overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2438,6 +2441,7 @@ html:has(body.modal-open) {
 .advisory-modal-card {
   position: relative;
   touch-action: auto;
+  overscroll-behavior: contain;
   width: min(820px, 100%);
   max-height: min(86vh, 780px);
   overflow: auto;
@@ -2478,6 +2482,7 @@ html:has(body.modal-open) {
   min-width: 0;
   min-height: 0;
   overflow-y: auto;
+  overscroll-behavior: contain;
   padding: 34px 38px 38px;
 }
 
@@ -2537,6 +2542,7 @@ html:has(body.modal-open) {
     grid-template-rows: minmax(240px, 42vh) minmax(0, 1fr);
     height: min(88vh, 760px);
     overflow-y: auto;
+    overscroll-behavior: contain;
   }
 
   .advisory-modal-card.has-media .advisory-modal-media {

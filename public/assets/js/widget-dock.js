@@ -258,7 +258,12 @@ function initWidgetDock() {
         color-scheme: dark;
       }
 
+      .chatbot-widget-header {
+        display: none;
+      }
+
       @media (max-width: 991px) {
+        /* Original working mobile layout — shell sized by top+bottom constraints */
         .chatbot-widget-shell {
           right: 16px;
           left: 16px;
@@ -267,6 +272,82 @@ function initWidgetDock() {
           width: auto;
           height: auto;
           max-height: none;
+          background: #ffffff;
+          border-radius: 12px;
+          box-shadow: 0 24px 48px rgba(20, 10, 10, 0.22);
+        }
+
+        body.pup-dark-mode .chatbot-widget-shell {
+          background: #101010;
+        }
+
+        /* When dock is hidden, expand shell to fill the space */
+        .chatbot-widget-shell.chatbot-expanded {
+          bottom: 0;
+          top: 0;
+          left: 0;
+          right: 0;
+          border-radius: 0;
+        }
+
+        /* Header overlays the top of the iframe — does NOT affect iframe height */
+        .chatbot-widget-header {
+          display: flex;
+          align-items: center;
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 48px;
+          padding: 0 12px;
+          background: rgba(255,255,255,0.97);
+          border-bottom: 1px solid rgba(0,0,0,0.08);
+          z-index: 10;
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+        }
+
+        body.pup-dark-mode .chatbot-widget-header {
+          background: rgba(16,16,16,0.97);
+          border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .chatbot-back-btn {
+          background: transparent;
+          color: var(--widget-fab-bg, #660000);
+          border: none;
+          padding: 6px 12px 6px 4px;
+          border-radius: 8px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-family: inherit;
+          font-weight: 600;
+          font-size: 14px;
+          transition: background 0.2s;
+        }
+
+        body.pup-dark-mode .chatbot-back-btn {
+          color: #ffffff;
+        }
+
+        .chatbot-back-btn:active {
+          background: rgba(0,0,0,0.08);
+        }
+
+        body.pup-dark-mode .chatbot-back-btn:active {
+          background: rgba(255,255,255,0.1);
+        }
+
+        /* Frame fills the full shell (same as original) — header just overlays the top */
+        .chatbot-widget-frame {
+          border-radius: 12px;
+          box-shadow: none;
+        }
+
+        .chatbot-widget-shell.chatbot-expanded .chatbot-widget-frame {
+          border-radius: 0;
         }
       }
 
@@ -322,6 +403,26 @@ function initWidgetDock() {
   const ensureChatIframe = () => {
     if (widget.querySelector(".chatbot-widget-frame")) return;
 
+    const header = document.createElement("div");
+    header.className = "chatbot-widget-header";
+
+    const backBtn = document.createElement("button");
+    backBtn.className = "chatbot-back-btn";
+    backBtn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+        <path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+      </svg>
+      Back
+    `;
+    backBtn.setAttribute("aria-label", "Close AI Assistant");
+    backBtn.title = "Close AI Assistant";
+    backBtn.addEventListener("click", () => {
+      setChatOpenState(false);
+    });
+
+    header.appendChild(backBtn);
+    widget.appendChild(header);
+
     const iframe = document.createElement("iframe");
     iframe.className = "chatbot-widget-frame";
     iframe.src = BOTPRESS_SHAREABLE_URL;
@@ -329,9 +430,13 @@ function initWidgetDock() {
     iframe.allow = "clipboard-write; microphone";
     iframe.referrerPolicy = "strict-origin-when-cross-origin";
 
-    // Load Botpress only after the user explicitly opens chat.
     widget.appendChild(iframe);
   };
+
+  // Explicitly size the iframe in pixels so Botpress knows the exact space available.
+  // CSS-only sizing (flex, dvh, %) can mismatch what Botpress thinks the iframe height is,
+  // causing its text field to land outside the touch-event area after the first interaction.
+
 
   const dock = document.createElement("div");
   dock.className = "widget-dock";
@@ -444,6 +549,22 @@ function initWidgetDock() {
     chatAction.setAttribute("aria-label", isOpen ? "Close AI Assistant" : "Open AI Assistant");
     chatAction.title = isOpen ? "Close AI Assistant" : "Chat with AI Assistant";
     chatAction.innerHTML = isOpen ? closeButtonIcon : chatButtonIcon;
+
+    const isMobile = window.matchMedia('(max-width: 991px)').matches;
+    if (isMobile) {
+      if (isOpen) {
+        dock.style.display = 'none';
+        // Expand shell to fill the screen now that the dock is hidden
+        widget.classList.add('chatbot-expanded');
+        const acc = document.querySelector(".acc-container");
+        if (acc) acc.style.display = 'none';
+      } else {
+        dock.style.display = '';
+        widget.classList.remove('chatbot-expanded');
+        const acc = document.querySelector(".acc-container");
+        if (acc) acc.style.display = '';
+      }
+    }
   };
 
   /* ── Accessibility FAB hover ─────────────────────────────────────────────
@@ -596,6 +717,14 @@ function initWidgetDock() {
 
   document.addEventListener("pointerdown", (event) => {
     if (!dock.classList.contains("is-open") && !widget.classList.contains("is-open")) return;
+
+    // On mobile with chatbot open: the modal is full-screen and the Back button is the
+    // only close mechanism. Skip outside-click-to-close entirely to prevent the
+    // pointerdown listener from incorrectly closing the chatbot when the user taps
+    // inside the iframe (cross-origin iframes report ambiguous event targets).
+    const isMobileAndChatOpen = window.matchMedia('(max-width: 991px)').matches && widget.classList.contains("is-open");
+    if (isMobileAndChatOpen) return;
+
     const accessibilityWidget = document.querySelector(".acc-container");
     if (widget.contains(event.target) || dock.contains(event.target) || accessibilityWidget?.contains(event.target)) return;
     setChatOpenState(false);

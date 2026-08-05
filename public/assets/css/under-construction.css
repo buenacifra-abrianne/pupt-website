@@ -94,12 +94,12 @@ body {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 12px;
-  margin: 0 0 18px;
+  gap: clamp(4px, 1.5vw, 12px);
+  margin: clamp(4px, 1vw, 8px) 0 clamp(4px, 1vw, 10px);
   color: var(--uc-maroon);
-  font-size: 0.82rem;
+  font-size: clamp(0.6rem, 2.5vw, 0.82rem);
   font-weight: 800;
-  letter-spacing: 0.18em;
+  letter-spacing: clamp(0.05em, 1vw, 0.18em);
   text-transform: uppercase;
 }
 
