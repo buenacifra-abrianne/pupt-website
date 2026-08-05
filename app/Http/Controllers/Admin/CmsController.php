@@ -1375,7 +1375,7 @@ class CmsController extends Controller
                     })
                     ->all(),
             ],
-            'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links',
+            'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_qr_codes', 'admissions_links', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons',
             'document_requests_hero', 'document_requests_qr_codes',
             'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'
                 => $this->filterStudentsPageSectionInput($studentsInput, $sectionKey),
@@ -1394,7 +1394,7 @@ class CmsController extends Controller
         $subSection = match ($sectionKey) {
             'admissions_hero', 'downloadable_forms_hero', 'document_requests_hero' => 'hero',
             'admissions_instructions' => 'instructions',
-            'admissions_contact' => 'contact',
+            'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons' => 'contact',
             'admissions_qr_codes', 'document_requests_qr_codes' => 'qr_codes',
             'admissions_links', 'downloadable_forms_links' => 'links',
             default => null,
@@ -1420,7 +1420,7 @@ class CmsController extends Controller
     private function studentsPageKeyForSection(string $sectionKey): ?string
     {
         return match ($sectionKey) {
-            'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_qr_codes', 'admissions_links' => 'admissions',
+            'admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_qr_codes', 'admissions_links' => 'admissions',
             'document_requests_hero', 'document_requests_qr_codes' => 'document-requests',
             'downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links' => 'downloadable-forms',
             default => null,
@@ -1430,7 +1430,7 @@ class CmsController extends Controller
     private function studentsSectionKeysForPage(string $pageKey): array
     {
         return match ($pageKey) {
-            'admissions' => ['admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_qr_codes', 'admissions_links'],
+            'admissions' => ['admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_qr_codes', 'admissions_links'],
             'document-requests' => ['document_requests_hero', 'document_requests_qr_codes'],
             'downloadable-forms' => ['downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'],
             default => [str_replace('-', '_', $pageKey).'_page'],
