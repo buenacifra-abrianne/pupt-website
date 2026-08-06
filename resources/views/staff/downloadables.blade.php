@@ -22,306 +22,59 @@
     <main class="main-content">
         <div class="page-header">
             <h1 class="page-title">Campus Memorandum</h1>
-            <p class="page-subtitle">
-                {{ $isFacultyPro ? 'View files and submit downloadable requests for approval' : 'View and download approved files' }}
-            </p>
+            <p class="page-subtitle">This page provides downloadable Campus Memorandum.</p>
         </div>
 
-        <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
-            @if($isFacultyPro)
-                <button class="btn btn-primary" type="button" onclick="openDownloadableModal(true)">
-                    <i class="fas fa-plus"></i> Request New Upload
-                </button>
-            @endif
-
+        <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom: 24px;">
             <div style="display:flex; gap: 8px;">
-                <select id="sortOption" onchange="runSearch()" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
-                    <option value="date_desc">Date Uploaded (Newest)</option>
-                    <option value="date_asc">Date Uploaded (Oldest)</option>
-                    <option value="name_asc">Name (A-Z)</option>
-                    <option value="name_desc">Name (Z-A)</option>
-                </select>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <i class="fas fa-sort-amount-down" style="position: absolute; left: 16px; color: #888;"></i>
+                    <select id="sortOption" onchange="runSearch()" style="padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; font-size: 14px; font-weight: 600; color: #444; outline: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);"
+                            onfocus="this.style.borderColor='var(--theme-maroon, #800000)'; this.style.boxShadow='0 0 0 3px rgba(128,0,0,0.1)';" onblur="this.style.borderColor='rgba(0,0,0,0.08)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)';">
+                        <option value="date_desc">Date Uploaded (Newest)</option>
+                        <option value="date_asc">Date Uploaded (Oldest)</option>
+                        <option value="name_asc">Name (A-Z)</option>
+                        <option value="name_desc">Name (Z-A)</option>
+                    </select>
+                </div>
             </div>
-
-            <div class="search-bar" style="margin-left:auto;">
-                <i class="fas fa-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search campus memoranda...">
+            <div style="margin-left:auto; position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                <input type="text" id="globalSearch" placeholder="Search campus memoranda..." 
+                       style="padding: 10px 16px 10px 42px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; font-size: 14px; width: 220px; outline: none; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);"
+                       onfocus="this.style.borderColor='var(--theme-maroon, #800000)'; this.style.boxShadow='0 0 0 3px rgba(128,0,0,0.1)'; this.style.width='250px';" onblur="this.style.borderColor='rgba(0,0,0,0.08)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)'; this.style.width='220px';">
             </div>
         </div>
 
-        @if($isFacultyPro)
-            <div style="display:grid; grid-template-columns:1.1fr .9fr; gap:18px; align-items:start;">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">My Requests</h3>
-                    </div>
-
-                    @php
-                        $pendingRequests = $myRequests->filter(fn($r) => strtolower(trim((string) $r->status)) === 'pending');
-                        $rejectedRequests = $myRequests->filter(fn($r) => strtolower(trim((string) $r->status)) === 'rejected');
-                    @endphp
-
-                    <div style="padding:12px;">
-                        <h4 style="margin:0 0 10px 0;">Pending</h4>
-                        <div id="downloadablePendingRequestsList">
-                            @forelse($pendingRequests as $row)
-                                @php
-                                    $payload = json_decode($row->details ?? '{}', true) ?: [];
-                                    $requestDownloadableId = (int) ($payload['downloadable_id'] ?? 0);
-                                    $requestTitle = $payload['title'] ?? $row->title ?? '';
-                                    $requestDescription = $payload['description'] ?? '';
-                                    $requestOriginalFilename = $payload['original_filename'] ?? '';
-                                    $requestFilePath = $payload['file_path'] ?? '';
-                                    $searchText = strtolower(trim(
-                                        ($requestTitle ?? '') . ' ' .
-                                        strip_tags($requestDescription ?? '') . ' ' .
-                                        ($requestOriginalFilename ?? '') . ' ' .
-                                        ($row->status ?? '')
-                                    ));
-                                @endphp
-
-                                <div class="announcement-item"
-                                     data-search="{{ e($searchText) }}"
-                                     style="margin-bottom:14px;">
-                                    <div class="announcement-header">
-                                        <div class="title-row">
-                                            <h3 class="announcement-title">{{ e($row->title ?? 'Request') }}</h3>
-                                        </div>
-                                    </div>
-
-                                    @if(!empty($requestDescription))
-                                        <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($requestDescription) !!}</div>
-                                    @endif
-
-                                    @if(!empty($requestOriginalFilename))
-                                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px;">
-                                            <span>
-                                                <i class="fas fa-clock"></i>
-                                                Submitted: {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y h:i A') : '—' }}
-                                            </span>
-                                        </div>
-                                    @else
-                                        <div class="announcement-meta">
-                                            <span>
-                                                <i class="fas fa-clock"></i>
-                                                Submitted: {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y h:i A') : '—' }}
-                                            </span>
-                                        </div>
-                                    @endif
-
-                                    <div class="announcement-actions">
-                                        <button class="btn btn-sm btn-primary" type="button"
-                                            onclick='editDownloadableRequest(
-                                                {{ (int) $row->id }},
-                                                {{ $requestDownloadableId }},
-                                                @json($requestTitle),
-                                                @json($requestDescription),
-                                                @json($requestFilePath),
-                                                @json($requestOriginalFilename)
-                                            )'>
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-
-                                        <button class="btn btn-sm btn-delete" type="button"
-                                            data-delete-url="{{ route('staff.downloadables.request.deleteOnly', $row->id) }}"
-                                            data-title="{{ e($row->title ?? 'Request') }}"
-                                            onclick="deleteDownloadableRequestOnly(event, this)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-
-                                        <button class="btn btn-sm btn-view-icon" type="button" title="View"
-                                            onclick='openReadMoreModal(
-                                                @json($requestTitle ?: "Request Details"),
-                                                @json($requestDescription ?: "<p>No description available.</p>")
-                                            )'>
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            @empty
-                                <div style="padding:14px; opacity:.75;">No pending requests.</div>
-                            @endforelse
-                        </div>
-
-                        <hr style="opacity:.2; margin:16px 0;">
-
-                        <h4 style="margin:0 0 10px 0;">Rejected</h4>
-                        <div id="downloadableRejectedRequestsList">
-                            @forelse($rejectedRequests as $row)
-                                @php
-                                    $payload = json_decode($row->details ?? '{}', true) ?: [];
-                                    $requestDownloadableId = (int) ($payload['downloadable_id'] ?? 0);
-                                    $requestTitle = $payload['title'] ?? $row->title ?? '';
-                                    $requestDescription = $payload['description'] ?? '';
-                                    $requestOriginalFilename = $payload['original_filename'] ?? '';
-                                    $requestFilePath = $payload['file_path'] ?? '';
-                                    $searchText = strtolower(trim(
-                                        ($requestTitle ?? '') . ' ' .
-                                        strip_tags($requestDescription ?? '') . ' ' .
-                                        ($requestOriginalFilename ?? '') . ' ' .
-                                        ($row->rejection_reason ?? '') . ' ' .
-                                        ($row->status ?? '')
-                                    ));
-                                @endphp
-
-                                <div class="announcement-item"
-                                     data-search="{{ e($searchText) }}"
-                                     style="margin-bottom:14px;">
-                                    <div class="announcement-header">
-                                        <div class="title-row">
-                                            <h3 class="announcement-title">{{ e($row->title ?? 'Request') }}</h3>
-                                        </div>
-                                    </div>
-
-                                    @if(!empty($requestDescription))
-                                        <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($requestDescription) !!}</div>
-                                    @endif
-
-                                    @if(!empty($row->rejection_reason))
-                                        <div class="announcement-description" style="color:#b91c1c;">
-                                            Rejection reason: {{ e($row->rejection_reason) }}
-                                        </div>
-                                    @endif
-
-                                    <div class="announcement-actions">
-                                        <button class="btn btn-sm btn-primary" type="button"
-                                            onclick='editDownloadableRequest(
-                                                {{ (int) $row->id }},
-                                                {{ $requestDownloadableId }},
-                                                @json($requestTitle),
-                                                @json($requestDescription),
-                                                @json($requestFilePath),
-                                                @json($requestOriginalFilename)
-                                            )'>
-                                            <i class="fas fa-edit"></i> Edit
-                                        </button>
-
-                                        <button class="btn btn-sm btn-delete" type="button"
-                                            data-delete-url="{{ route('staff.downloadables.request.deleteOnly', $row->id) }}"
-                                            data-title="{{ e($row->title ?? 'Request') }}"
-                                            onclick="deleteDownloadableRequestOnly(event, this)">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-
-                                        <button class="btn btn-sm btn-view-icon" type="button" title="View"
-                                            onclick='openReadMoreModal(
-                                                @json($requestTitle ?: "Request Details"),
-                                                @json($requestDescription ?: "<p>No description available.</p>")
-                                            )'>
-                                            <i class="fas fa-eye"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            @empty
-                                <div style="padding:14px; opacity:.75;">No rejected requests.</div>
-                            @endforelse
-                        </div>
-                    </div>
-                </div>
-
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="card-title">My Live Uploads</h3>
-                        <span class="status-badge status-enabled">Total: {{ $myApprovedDownloadables->count() }}</span>
-                    </div>
-
-                    <div id="downloadableLiveUploadsList" style="padding:12px;">
-                        @forelse($myApprovedDownloadables as $row)
-                            @php
-                                $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
-                                $searchText = strtolower(trim(
-                                    ($row->title ?? '') . ' ' .
-                                    strip_tags($row->description ?? '') . ' ' .
-                                    ($row->original_filename ?? '')
-                                ));
-                            @endphp
-
-                            <div class="announcement-item"
-                                 data-search="{{ e($searchText) }}"
-                                 style="margin-bottom:14px;">
-                                <div class="announcement-header">
-                                    <div class="title-row">
-                                        <h3 class="announcement-title">{{ e($row->title) }}</h3>
-                                    </div>
-                                </div>
-
-                                @if(!empty($row->description))
-                                    <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($row->description) !!}</div>
-                                @endif
-
-                                <div class="announcement-actions">
-                                    <button class="btn btn-sm btn-primary" type="button"
-                                        onclick='editDownloadableRequest(
-                                            0,
-                                            {{ (int) $row->downloadable_id }},
-                                            @json($row->title ?? ""),
-                                            @json($row->description ?? ""),
-                                            @json($row->file_path ?? ""),
-                                            @json($row->original_filename ?? "")
-                                        )'>
-                                        <i class="fas fa-edit"></i> Edit
-                                    </button>
-
-                                    <button class="btn btn-sm btn-delete" type="button"
-    onclick="requestDeleteDownloadable(
-        {{ (int) $row->downloadable_id }},
-        {{ \Illuminate\Support\Js::from($row->title ?? '') }}
-    )">
-    <i class="fas fa-trash"></i>
-</button>
-
-                                    <a href="{{ $fileUrl }}"
-                                       class="btn btn-sm btn-view-icon"
-                                       target="_blank"
-                                       rel="noopener noreferrer"
-                                       title="Open file">
-                                        <i class="fas fa-external-link-alt"></i>
-                                    </a>
-                                </div>
-                            </div>
-                        @empty
-                            <div style="padding:14px; opacity:.75;">No live uploads yet.</div>
-                        @endforelse
-                    </div>
-                </div>
+        <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
+            <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px;">
+                <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-folder-open" style="color: var(--theme-maroon, #800000);"></i> Campus Memorandum</h3>
             </div>
 
-            <style>
-                @media (max-width: 980px){
-                    .main-content > div[style*="grid-template-columns:1.1fr .9fr"]{
-                        grid-template-columns: 1fr !important;
-                    }
-                }
-            </style>
-        @endif
-
-        <div class="card" style="margin-top:18px;">
-            <div class="card-header">
-                <h3 class="card-title">Available Campus Memoranda</h3>
-            </div>
-
-            <div id="downloadablesList">
+            <div id="downloadablesList" style="padding: 24px 28px;">
                 @forelse($downloadables as $row)
                     @php
                         $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
                     @endphp
 
                     <div class="announcement-item downloadable-item"
-                        data-search="{{ e(strtolower(($row->title ?? '') . ' ' . strip_tags($row->description ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
+                        data-search="{{ e(strtolower(($row->title ?? '') . ' ' . ($row->description ?? '') . ' ' . ($row->category ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
                         data-name="{{ strtolower($row->title ?? '') }}"
                         data-date="{{ strtotime($row->created_at) }}"
-                        style="margin-bottom:16px; transition: background 0.3s; padding: 16px 20px; border-radius: 8px; border: 1px solid #eaeaea; background: {{ $row->is_read ? '#ffffff' : '#f8fafc' }}; box-shadow: {{ $row->is_read ? 'none' : '0 1px 3px rgba(0,0,0,0.04)' }}; display: flex; flex-direction: column; gap: 8px;">
+                        style="margin-bottom: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); background: {{ $row->is_read ? '#ffffff' : '#fdfafb' }}; box-shadow: {{ $row->is_read ? '0 2px 8px rgba(0,0,0,0.02)' : '0 4px 15px rgba(128,0,0,0.05)' }}; display: flex; flex-direction: column; gap: 12px;"
+                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.06)'; this.style.borderColor='rgba(128,0,0,0.2)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{{ $row->is_read ? '0 2px 8px rgba(0,0,0,0.02)' : '0 4px 15px rgba(128,0,0,0.05)' }}'; this.style.borderColor='rgba(0,0,0,0.05)';">
 
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
                             <div style="flex: 1;">
-                                <h3 class="announcement-title" style="margin: 0; font-size: 1.1rem; color: {{ $row->is_read ? '#475569' : '#0f172a' }}; {{ !$row->is_read ? 'font-weight: 600;' : '' }}">
+                                <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; color: {{ $row->is_read ? '#333' : 'var(--theme-maroon, #800000)' }}; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px;">
                                     {{ e($row->title) }}
                                     @if(!$row->is_read)
-                                        <span class="badge" style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; vertical-align: top; margin-left: 6px;">NEW</span>
+                                        <span class="badge" style="background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%); color: white; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(229, 57, 53, 0.3); text-transform: uppercase;">NEW</span>
                                     @endif
                                 </h3>
                                 @if(!empty($row->description))
-                                    <div class="announcement-description rich-text-content" style="margin-top: 8px; color: {{ $row->is_read ? '#64748b' : '#334155' }}; font-size: 0.95em;">
+                                    <div class="announcement-description rich-text-content" style="margin-top: 10px; color: #555; font-size: 0.95em; line-height: 1.6;">
                                         {!! \App\Support\RichText::sanitize($row->description) !!}
                                     </div>
                                 @endif
@@ -329,101 +82,295 @@
 
                             <div class="announcement-actions" style="display: flex; gap: 8px; flex-shrink: 0; margin: 0;">
                                 <a href="{{ $fileUrl }}"
-                                   class="btn btn-sm btn-view-icon"
-                                   style="color: #3b82f6; border: 1px solid transparent; background: transparent; padding: 4px 8px;"
-                                   target="_blank"
-                                   rel="noopener noreferrer"
-                                   onclick="markAsRead(this, {{ (int) $row->downloadable_id }})"
-                                   title="View Memorandum">
-                                    <i class="fas fa-eye" style="font-size: 1.2em;"></i>
+                                    class="btn btn-sm btn-view-icon"
+                                    style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #f0f7ff; color: #2563eb; transition: all 0.2s;"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    onclick="markAsRead(this, {{ (int) $row->downloadable_id }})"
+                                    title="View Memorandum"
+                                    onmouseover="this.style.background='#dbeafe'; this.style.transform='scale(1.05)';"
+                                    onmouseout="this.style.background='#f0f7ff'; this.style.transform='scale(1)';">
+                                    <i class="fas fa-eye" style="font-size: 1.1em;"></i>
                                 </a>
                             </div>
                         </div>
 
-                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px; font-size: 0.85em; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 4px;">
-                            <span><i class="fas fa-file-alt" style="margin-right: 4px;"></i>{{ e($row->original_filename) }}</span>
-                            <span><i class="fas fa-calendar-alt" style="margin-right: 4px;"></i>{{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}</span>
+                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:20px; font-size: 0.85em; font-weight: 500; color: #888; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 14px; margin-top: 4px;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><i class="fas fa-file-pdf" style="color: #ef4444; font-size: 1.1em;"></i> {{ e($row->original_filename) }}</span>
+                            <span style="display: flex; align-items: center; gap: 6px;"><i class="fas fa-calendar-day" style="color: #94a3b8; font-size: 1.1em;"></i> {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}</span>
                         </div>
                     </div>
                 @empty
-                    <div style="padding:18px; opacity:.75;">No campus memoranda available.</div>
+                    <div style="padding: 40px; text-align: center; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 12px; background: #fafafa; border-radius: 12px; border: 1px dashed #ddd;">
+                        <i class="fas fa-folder-open" style="font-size: 36px; color: #ddd;"></i>
+                        <span style="font-size: 14px; font-weight: 600;">No campus memoranda uploaded yet.</span>
+                    </div>
                 @endforelse
             </div>
         </div>
     </main>
 
-    <div id="readMoreModal" class="modal">
-        <div class="modal-content read-more-modal-content">
+    <div id="downloadableModal" class="modal">
+        <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title" id="readMoreTitle">Read More</h2>
-                <button class="close-modal" type="button" onclick="closeReadMoreModal()">
+                <h2 class="modal-title">New Downloadable</h2>
+                <button class="close-modal" type="button" onclick="closeDownloadableModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
-            <div class="read-more-body rich-text-content" id="readMoreContent"></div>
+
+            <form id="downloadableForm" method="POST" action="{{ route('staff.downloadables.save') }}" enctype="multipart/form-data">
+                @csrf
+
+                <div class="form-group">
+                    <label>Title *</label>
+                    <input type="text" name="title" required maxlength="60" placeholder="Enter file title">
+                </div>
+
+                <div class="form-group">
+                    <label>Description</label>
+                    @include('partials.rich_text_editor', ['name' => 'description', 'placeholder' => 'Enter file description', 'characterLimit' => 256])
+                </div>
+
+                <div class="form-group">
+                    <label>File <span id="fileRequiredMark">*</span></label>
+                    <input type="file" name="file" id="downloadableFileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword">
+                    <small id="currentFileText" style="display:none; color:#64748b; margin-top:6px;"></small>
+                </div>
+
+                <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:25px;">
+                    <button type="button" class="btn btn-sm" onclick="closeDownloadableModal()" style="background:#ccc;">
+                        Cancel
+                    </button>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-save"></i> Save Downloadable
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
-    @if($isFacultyPro)
-        <div id="downloadableModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h2 class="modal-title">Request New Upload</h2>
-                    <button class="close-modal" type="button" onclick="closeDownloadableModal()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-
-                <form id="downloadableForm" method="POST" action="{{ route('staff.downloadables.requestCreate') }}" enctype="multipart/form-data">
-                    @csrf
-
-                    <input type="hidden" name="request_id" id="edit_request_id" value="">
-                    <input type="hidden" name="downloadable_id" id="edit_downloadable_id" value="">
-                    <input type="hidden" name="existing_file_path" id="existing_file_path" value="">
-                    <input type="hidden" name="existing_original_filename" id="existing_original_filename" value="">
-
-                    <div class="form-group">
-                        <label>Title *</label>
-                        <input type="text" name="title" required maxlength="60" placeholder="Enter file title">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Description</label>
-                        @include('partials.rich_text_editor', ['name' => 'description', 'placeholder' => 'Enter file description', 'characterLimit' => 256])
-                    </div>
-
-                    <div class="form-group">
-                        <label>File *</label>
-                        <input type="file" name="file" id="downloadableFileInput" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword">
-                        <small id="currentFileText" style="display:none; color:#64748b; margin-top:6px;"></small>
-                    </div>
-
-                    <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:25px;">
-                        <button type="button" class="btn btn-sm" onclick="closeDownloadableModal()" style="background:#ccc;">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn btn-sm btn-primary" id="downloadableSubmitBtn">
-                            <i class="fas fa-paper-plane"></i> Request Upload
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    @endif
-
 <script>
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-    const searchInput = document.getElementById('globalSearch');
-    const RELOAD_TOAST_KEY = 'staffDownloadablesToast';
-    let downloadableEditSnapshot = null;
+    let downloadableBaseline = null;
 
+    const RELOAD_TOAST_KEY = 'superadminDownloadablesToast';
+
+    function queueReloadToast(message, type = 'success', title = 'Success') {
+        try {
+            sessionStorage.setItem(RELOAD_TOAST_KEY, JSON.stringify({ message, type, title }));
+        } catch (_) {}
+    }
+
+    function flushReloadToast() {
+        try {
+            const raw = sessionStorage.getItem(RELOAD_TOAST_KEY);
+            if (!raw) return;
+
+            sessionStorage.removeItem(RELOAD_TOAST_KEY);
+            const payload = JSON.parse(raw);
+            if (!payload || !payload.message) return;
+
+            showToast(payload.message, payload.type || 'success', payload.title || 'Success');
+        } catch (_) {}
+    }
+
+    function postForm(url, data) {
+        return fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                'X-CSRF-TOKEN': token,
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: new URLSearchParams(data)
+        }).then(async (res) => {
+            const raw = await res.text();
+            let json = {};
+            try { json = JSON.parse(raw); } catch (_) {}
+
+            if (!res.ok || !json.ok) {
+                throw new Error(json.error || raw || 'Request failed.');
+            }
+
+            return json;
+        });
+    }
+
+    function showToast(message, type = 'success', title = '') {
+        if (typeof window.showToast === 'function') {
+            window.showToast(message, type, title);
+            return;
+        }
+        alert(message);
+    }
+
+    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
+        if (typeof window.confirmAction === 'function') {
+            return await window.confirmAction({ message, title, confirmText, tone });
+        }
+        return confirm(message);
+    }
+
+    function resetDownloadableFormState() {
+        const form = document.getElementById('downloadableForm');
+        const modal = document.getElementById('downloadableModal');
+        const modalTitle = modal.querySelector('.modal-title');
+        const fileInput = document.getElementById('downloadableFileInput');
+        const currentFileText = document.getElementById('currentFileText');
+        const fileRequiredMark = document.getElementById('fileRequiredMark');
+
+        form.reset();
+
+        const idInput = document.getElementById('edit_downloadable_id');
+        if (idInput) idInput.remove();
+
+        if (modalTitle) modalTitle.innerText = 'New Downloadable';
+        if (fileInput) fileInput.required = true;
+        if (fileRequiredMark) fileRequiredMark.style.display = 'inline';
+        if (currentFileText) {
+            currentFileText.style.display = 'none';
+            currentFileText.textContent = '';
+        }
+
+        if (typeof window.setRichTextEditorValue === 'function') {
+            window.setRichTextEditorValue(form.querySelector('[name="description"]'), '');
+        }
+
+        downloadableBaseline = null;
+    }
+
+    function openDownloadableModal(isNew = false) {
+        const modal = document.getElementById('downloadableModal');
+        if (isNew) {
+            resetDownloadableFormState();
+        }
+        modal.classList.add('active');
+    }
+
+    function closeDownloadableModal() {
+        resetDownloadableFormState();
+        document.getElementById('downloadableModal').classList.remove('active');
+    }
+
+    function editDownloadable(id, title, description, originalFilename) {
+        const modal = document.getElementById('downloadableModal');
+        const form = document.getElementById('downloadableForm');
+        const modalTitle = modal.querySelector('.modal-title');
+        const fileInput = document.getElementById('downloadableFileInput');
+        const currentFileText = document.getElementById('currentFileText');
+        const fileRequiredMark = document.getElementById('fileRequiredMark');
+
+        modal.classList.add('active');
+        if (modalTitle) modalTitle.innerText = 'Edit Downloadable';
+
+        form.querySelector('[name="title"]').value = title || '';
+        if (typeof window.setRichTextEditorValue === 'function') {
+            window.setRichTextEditorValue(form.querySelector('[name="description"]'), description || '');
+        } else {
+            form.querySelector('[name="description"]').value = description || '';
+        }
+
+        let idInput = document.getElementById('edit_downloadable_id');
+        if (!idInput) {
+            idInput = document.createElement('input');
+            idInput.type = 'hidden';
+            idInput.name = 'downloadable_id';
+            idInput.id = 'edit_downloadable_id';
+            form.appendChild(idInput);
+        }
+        idInput.value = id;
+
+        if (fileInput) fileInput.required = false;
+        if (fileRequiredMark) fileRequiredMark.style.display = 'none';
+
+        if (currentFileText) {
+            currentFileText.style.display = 'block';
+            currentFileText.textContent = 'Current file: ' + (originalFilename || 'Unknown file');
+        }
+
+        downloadableBaseline = {
+            title: (title || '').trim(),
+            description: (description || '').trim()
+        };
+    }
+
+    function downloadableHasChanges(form) {
+        if (!downloadableBaseline) return true;
+
+        const fileInput = document.getElementById('downloadableFileInput');
+        const hasNewFile = !!(fileInput && fileInput.files && fileInput.files.length > 0);
+
+        if (hasNewFile) return true;
+
+        return (form.querySelector('[name="title"]').value || '').trim() !== downloadableBaseline.title
+            || (form.querySelector('[name="description"]').value || '').trim() !== downloadableBaseline.description;
+    }
+
+    async function deleteDownloadable(id) {
+        if (!(await askConfirm('Are you sure you want to delete this downloadable?', 'Delete Downloadable', 'Delete', 'danger'))) return;
+
+        try {
+            await postForm("{{ route('staff.downloadables.delete') }}", { id });
+            queueReloadToast('Downloadable deleted successfully.', 'success', 'Downloadable');
+            window.location.reload();
+        } catch (err) {
+            showToast('Delete failed: ' + err.message, 'error');
+        }
+    }
+
+    document.getElementById('downloadableForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const form = e.target;
+        const isEdit = !!document.getElementById('edit_downloadable_id');
+
+        if (typeof window.syncRichTextEditors === 'function') {
+            window.syncRichTextEditors(form);
+        }
+
+        if (isEdit && !downloadableHasChanges(form)) {
+            showToast('No changes detected.', 'info', 'No Changes');
+            return;
+        }
+
+        const fd = new FormData(form);
+
+        try {
+            const res = await fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': token,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: fd
+            });
+
+            const raw = await res.text();
+            let json = {};
+            try { json = JSON.parse(raw); } catch (_) {}
+
+            if (!res.ok || !json.ok) {
+                throw new Error(json.error || raw || 'Submit failed.');
+            }
+
+            closeDownloadableModal();
+            queueReloadToast(json.message || 'Saved successfully.', 'success', 'Downloadable');
+            window.location.reload();
+        } catch (err) {
+            showToast('Submit failed: ' + err.message, 'error');
+        }
+    });
+
+    const searchInput = document.getElementById('globalSearch');
     const sortSelect = document.getElementById('sortOption');
 
     function runSearch() {
-        const q = (searchInput?.value || '').trim().toLowerCase();
+        const q = (searchInput.value || '').trim().toLowerCase();
         const sortVal = sortSelect ? sortSelect.value : 'date_desc';
 
-        // Search available memoranda
         const container = document.getElementById('downloadablesList');
         if (container) {
             let items = Array.from(container.querySelectorAll('.downloadable-item'));
@@ -450,368 +397,47 @@
 
             items.forEach(item => container.appendChild(item));
         }
-
-        // Search requests
-        document.querySelectorAll('#downloadablePendingRequestsList .announcement-item').forEach(item => {
-            const hay = item.getAttribute('data-search') || '';
-            item.style.display = hay.includes(q) ? '' : 'none';
-        });
-
-        document.querySelectorAll('#downloadableRejectedRequestsList .announcement-item').forEach(item => {
-            const hay = item.getAttribute('data-search') || '';
-            item.style.display = hay.includes(q) ? '' : 'none';
-        });
-
-        document.querySelectorAll('#downloadableLiveUploadsList .announcement-item').forEach(item => {
-            const hay = item.getAttribute('data-search') || '';
-            item.style.display = hay.includes(q) ? '' : 'none';
-        });
     }
 
     async function markAsRead(btn, id) {
         try {
-            await fetch("{{ route('staff.downloadables.markRead') }}", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: new URLSearchParams({ id })
-            });
+            await postForm("{{ route('staff.downloadables.markRead') }}", { id });
             
             // Update UI dynamically
             const item = btn.closest('.downloadable-item');
-            if (item) {
-                item.style.background = '#ffffff';
-                item.style.boxShadow = 'none';
-                const title = item.querySelector('.announcement-title');
-                if (title) {
-                    title.style.color = '#555';
-                    title.style.fontWeight = 'normal';
-                    const badge = title.querySelector('.badge');
-                    if (badge) badge.remove();
-                }
-            }
+            item.style.background = '#ffffff';
+            item.style.boxShadow = 'none';
+            const title = item.querySelector('.announcement-title');
+            title.style.color = '#555';
+            title.style.fontWeight = 'normal';
+            const badge = title.querySelector('.badge');
+            if (badge) badge.remove();
+            
         } catch (err) {
             console.error('Error marking as read:', err);
         }
     }
 
-    if (searchInput) {
-        searchInput.addEventListener('input', runSearch);
-        searchInput.addEventListener('keydown', function (e) {
-            if (e.key === 'Escape') {
-                searchInput.value = '';
-                runSearch();
-            }
-        });
-    }
+    searchInput.addEventListener('input', runSearch);
 
-    function showToast(message, type = 'success', title = '') {
-        if (typeof window.showToast === 'function' && window.showToast !== showToast) {
-            window.showToast(message, type, title);
-            return;
+    searchInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') {
+            searchInput.value = '';
+            runSearch();
         }
-
-        if (typeof window.cmsToast === 'function') {
-            window.cmsToast(message, type, title);
-            return;
-        }
-
-        alert(message);
-    }
-
-    function queueReloadToast(message, type = 'success', title = 'Success') {
-        try {
-            sessionStorage.setItem(RELOAD_TOAST_KEY, JSON.stringify({ message, type, title }));
-        } catch (_) {}
-    }
-
-    function flushReloadToast() {
-        try {
-            const raw = sessionStorage.getItem(RELOAD_TOAST_KEY);
-            if (!raw) return;
-
-            sessionStorage.removeItem(RELOAD_TOAST_KEY);
-            const payload = JSON.parse(raw);
-            if (!payload || !payload.message) return;
-
-            showToast(payload.message, payload.type || 'success', payload.title || 'Success');
-        } catch (_) {}
-    }
-
-    async function askConfirm(message, title = 'Confirm Action', confirmText = 'Confirm', tone = 'warning') {
-        if (typeof window.confirmAction === 'function') {
-            return await window.confirmAction({ message, title, confirmText, tone });
-        }
-        return confirm(message);
-    }
-
-    function normalizeText(value) {
-        return String(value ?? '').trim();
-    }
-
-    function openReadMoreModal(title, content) {
-        document.getElementById('readMoreTitle').textContent = title || 'Read More';
-        document.getElementById('readMoreContent').innerHTML = content || '<p>No content available.</p>';
-        document.getElementById('readMoreModal').classList.add('active');
-    }
-
-    function closeReadMoreModal() {
-        document.getElementById('readMoreModal').classList.remove('active');
-    }
-
-    function resetDownloadableFormState() {
-        const form = document.getElementById('downloadableForm');
-        const modal = document.getElementById('downloadableModal');
-        const modalTitle = modal?.querySelector('.modal-title');
-        const submitBtn = document.getElementById('downloadableSubmitBtn');
-        const fileInput = document.getElementById('downloadableFileInput');
-        const currentFileText = document.getElementById('currentFileText');
-
-        if (!form) return;
-
-        form.reset();
-        setRichTextEditorValue(form.querySelector('[name="description"]'), '');
-        form.action = "{{ route('staff.downloadables.requestCreate') }}";
-
-        if (modalTitle) modalTitle.innerText = 'Request New Upload';
-        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Upload';
-        if (fileInput) fileInput.value = '';
-
-        const requestIdInput = document.getElementById('edit_request_id');
-        const downloadableIdInput = document.getElementById('edit_downloadable_id');
-        const existingFilePathInput = document.getElementById('existing_file_path');
-        const existingOriginalFilenameInput = document.getElementById('existing_original_filename');
-
-        if (requestIdInput) requestIdInput.value = '';
-        if (downloadableIdInput) downloadableIdInput.value = '';
-        if (existingFilePathInput) existingFilePathInput.value = '';
-        if (existingOriginalFilenameInput) existingOriginalFilenameInput.value = '';
-
-        if (currentFileText) {
-            currentFileText.style.display = 'none';
-            currentFileText.textContent = '';
-        }
-
-        downloadableEditSnapshot = null;
-    }
-
-    function openDownloadableModal(isNew = false) {
-        const modal = document.getElementById('downloadableModal');
-        if (!modal) return;
-
-        if (isNew) {
-            resetDownloadableFormState();
-        }
-
-        modal.classList.add('active');
-    }
-
-    function closeDownloadableModal() {
-        resetDownloadableFormState();
-        const modal = document.getElementById('downloadableModal');
-        if (modal) modal.classList.remove('active');
-    }
-
-    function editDownloadableRequest(reqId, downloadableId, title, description, filePath, originalFilename) {
-        const modal = document.getElementById('downloadableModal');
-        const form = document.getElementById('downloadableForm');
-        const modalTitle = modal?.querySelector('.modal-title');
-        const submitBtn = document.getElementById('downloadableSubmitBtn');
-        const currentFileText = document.getElementById('currentFileText');
-
-        if (!modal || !form) return;
-
-        modal.classList.add('active');
-
-        form.querySelector('[name="title"]').value = title || '';
-        setRichTextEditorValue(form.querySelector('[name="description"]'), description || '');
-
-        document.getElementById('edit_request_id').value = reqId || '';
-        document.getElementById('edit_downloadable_id').value = downloadableId || '';
-        document.getElementById('existing_file_path').value = filePath || '';
-        document.getElementById('existing_original_filename').value = originalFilename || '';
-
-        if (downloadableId && parseInt(downloadableId, 10) > 0) {
-            form.action = "{{ route('staff.downloadables.requestUpdate') }}";
-            if (modalTitle) modalTitle.innerText = 'Edit Downloadable Request';
-            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Update';
-        } else {
-            form.action = "{{ route('staff.downloadables.requestCreate') }}";
-            if (modalTitle) modalTitle.innerText = 'Edit Draft Request';
-            if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Update Draft';
-        }
-
-        if (currentFileText && originalFilename) {
-            currentFileText.style.display = 'block';
-            currentFileText.textContent = 'Current file: ' + originalFilename;
-        } else if (currentFileText) {
-            currentFileText.style.display = 'none';
-            currentFileText.textContent = '';
-        }
-
-        const fileInput = document.getElementById('downloadableFileInput');
-        if (fileInput) fileInput.value = '';
-
-        downloadableEditSnapshot = {
-            title: normalizeText(title),
-            description: normalizeText(description),
-            filePath: normalizeText(filePath),
-            originalFilename: normalizeText(originalFilename),
-        };
-    }
-
-    function downloadableHasChanges(form) {
-        if (!downloadableEditSnapshot) return true;
-
-        const fileInput = document.getElementById('downloadableFileInput');
-        const hasNewFile = !!(fileInput && fileInput.files && fileInput.files.length > 0);
-
-        if (hasNewFile) return true;
-
-        return normalizeText(form.querySelector('[name="title"]')?.value) !== downloadableEditSnapshot.title
-            || normalizeText(form.querySelector('[name="description"]')?.value) !== downloadableEditSnapshot.description;
-    }
-
-    async function requestDeleteDownloadable(downloadableId, title = '') {
-        try {
-            if (!(await askConfirm('Request DELETE this downloadable?', 'Delete Request', 'Request Delete', 'danger'))) return;
-
-            const fd = new FormData();
-            fd.append('downloadable_id', downloadableId);
-            fd.append('title', title || '');
-
-            const res = await fetch("{{ route('staff.downloadables.requestDelete') }}", {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': token,
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: fd
-            });
-
-            const raw = await res.text();
-            let json = {};
-            try { json = JSON.parse(raw); } catch (_) {}
-
-            if (!res.ok || !json.ok) {
-                throw new Error(json.error || json.message || raw || 'Request failed.');
-            }
-
-            queueReloadToast('Delete request submitted.', 'success', 'Request Submitted');
-            window.location.reload();
-        } catch (err) {
-            showToast(err.message || 'Request failed.', 'error');
-        }
-    }
-
-    async function deleteDownloadableRequestOnly(e, btn) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const deleteUrl = btn.getAttribute('data-delete-url');
-        const title = btn.getAttribute('data-title') || 'Request';
-
-        if (!deleteUrl) {
-            showToast('Delete URL is missing.', 'warning');
-            return;
-        }
-
-        if (!(await askConfirm(`Delete this request?\n\n"${title}"`, 'Delete Request', 'Delete', 'danger'))) return;
-
-        fetch(deleteUrl, {
-            method: 'DELETE',
-            headers: {
-                'X-CSRF-TOKEN': token,
-                'Accept': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
-            },
-        })
-        .then(async (r) => {
-            const text = await r.text();
-            let data = {};
-            try { data = JSON.parse(text); } catch (_) {}
-
-            if (!r.ok) {
-                throw new Error(data.message || text || `Delete failed (HTTP ${r.status})`);
-            }
-
-            return data;
-        })
-        .then(() => {
-            queueReloadToast('Request deleted.', 'success', 'Success');
-            window.location.reload();
-        })
-        .catch(err => showToast(err.message, 'error'));
-    }
-
-    const downloadableForm = document.getElementById('downloadableForm');
-
-    if (downloadableForm) {
-        downloadableForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const form = e.target;
-            syncRichTextEditors(form);
-
-            const isEditMode = !!normalizeText(document.getElementById('edit_request_id')?.value) || !!normalizeText(document.getElementById('edit_downloadable_id')?.value);
-
-            if (isEditMode && !downloadableHasChanges(form)) {
-                showToast('No changes detected.', 'warning', 'No Changes');
-                return;
-            }
-
-            const fd = new FormData(form);
-
-            try {
-                const res = await fetch(form.action, {
-                    method: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': token,
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                    },
-                    body: fd
-                });
-
-                const raw = await res.text();
-                let json = {};
-                try { json = JSON.parse(raw); } catch (_) {}
-
-                if (!res.ok || !json.ok) {
-                    throw new Error(json.error || json.message || raw || 'Submit failed.');
-                }
-
-                closeDownloadableModal();
-                queueReloadToast('Downloadable request submitted successfully.', 'success', 'Request Submitted');
-                window.location.reload();
-            } catch (err) {
-                showToast('Submit failed: ' + err.message, 'error');
-            }
-        });
-    }
+    });
 
     window.addEventListener('click', function (e) {
-        if (!e.target.classList.contains('modal')) return;
-
-        if (e.target.id === 'downloadableModal') {
+        if (e.target.classList.contains('modal') && e.target.id === 'downloadableModal') {
             closeDownloadableModal();
-        }
-
-        if (e.target.id === 'readMoreModal') {
-            closeReadMoreModal();
         }
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        flushReloadToast();
-    });
+    flushReloadToast();
+});
 
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
 
 let activeRecognition = null;
 let activeEditableField = null;
@@ -970,3 +596,6 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
+
+
+
