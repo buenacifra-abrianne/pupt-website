@@ -38,35 +38,35 @@
 @endif
 
 <div class="stats-grid backup-stats-grid">
-    <div class="stat-card">
-        <div class="stat-icon maroon">
+    <div class="stat-card" style="align-items: center;">
+        <div class="stat-icon no-bg maroon" style="font-size: 42px;">
             <i class="fas fa-box-archive"></i>
         </div>
-        <div class="stat-info">
-            <div class="stat-label">Total Backups</div>
-            <div class="stat-value">{{ number_format((int) ($databaseBackupStats['total_backups'] ?? 0)) }}</div>
+        <div class="stat-info" style="flex: 1;">
+            <div class="stat-label" style="margin-bottom:4px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">Total Backups</div>
+            <div class="stat-value" style="font-size: 36px; color: var(--admin-primary); margin-bottom: 0;">{{ number_format((int) ($databaseBackupStats['total_backups'] ?? 0)) }}</div>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon warning">
+    <div class="stat-card" style="align-items: center;">
+        <div class="stat-icon no-bg maroon" style="font-size: 42px;">
             <i class="fas fa-clock"></i>
         </div>
-        <div class="stat-info">
-            <div class="stat-label">Last Backup Date</div>
-            <div class="backup-inline-value">
+        <div class="stat-info" style="flex: 1;">
+            <div class="stat-label" style="margin-bottom:4px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">Last Backup Date</div>
+            <div class="backup-inline-value" style="font-size: 20px; font-weight: 700; color: var(--admin-primary); margin-bottom: 0;">
                 {{ !empty($databaseBackupStats['last_backup_date']) ? \Carbon\Carbon::parse($databaseBackupStats['last_backup_date'])->format('M d, Y g:i A') : 'No backups yet' }}
             </div>
         </div>
     </div>
 
-    <div class="stat-card">
-        <div class="stat-icon info">
+    <div class="stat-card" style="align-items: center;">
+        <div class="stat-icon no-bg maroon" style="font-size: 42px;">
             <i class="fas fa-hard-drive"></i>
         </div>
-        <div class="stat-info">
-            <div class="stat-label">Total Storage Used</div>
-            <div class="stat-value">{{ $databaseBackupStats['total_storage_used'] ?? '0 B' }}</div>
+        <div class="stat-info" style="flex: 1;">
+            <div class="stat-label" style="margin-bottom:4px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">Total Storage Used</div>
+            <div class="stat-value" style="font-size: 36px; color: var(--admin-primary); margin-bottom: 0;">{{ $databaseBackupStats['total_storage_used'] ?? '0 B' }}</div>
         </div>
     </div>
 </div>

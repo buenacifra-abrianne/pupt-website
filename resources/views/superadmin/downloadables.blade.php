@@ -25,27 +25,33 @@
             <p class="page-subtitle">This page provides downloadable Campus Memorandum.</p>
         </div>
 
-        <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px;">
+        <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom: 24px;">
             <div style="display:flex; gap: 8px;">
-                <select id="sortOption" onchange="runSearch()" style="padding: 6px; border-radius: 4px; border: 1px solid #ccc;">
-                    <option value="date_desc">Date Uploaded (Newest)</option>
-                    <option value="date_asc">Date Uploaded (Oldest)</option>
-                    <option value="name_asc">Name (A-Z)</option>
-                    <option value="name_desc">Name (Z-A)</option>
-                </select>
+                <div style="position: relative; display: flex; align-items: center;">
+                    <i class="fas fa-sort-amount-down" style="position: absolute; left: 16px; color: #888;"></i>
+                    <select id="sortOption" onchange="runSearch()" style="padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; font-size: 14px; font-weight: 600; color: #444; outline: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);"
+                            onfocus="this.style.borderColor='var(--theme-maroon, #800000)'; this.style.boxShadow='0 0 0 3px rgba(128,0,0,0.1)';" onblur="this.style.borderColor='rgba(0,0,0,0.08)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)';">
+                        <option value="date_desc">Date Uploaded (Newest)</option>
+                        <option value="date_asc">Date Uploaded (Oldest)</option>
+                        <option value="name_asc">Name (A-Z)</option>
+                        <option value="name_desc">Name (Z-A)</option>
+                    </select>
+                </div>
             </div>
-            <div class="search-bar" style="margin-left:auto;">
-                <i class="fas fa-search"></i>
-                <input type="text" id="globalSearch" placeholder="Search campus memoranda...">
+            <div style="margin-left:auto; position: relative;">
+                <i class="fas fa-search" style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #888;"></i>
+                <input type="text" id="globalSearch" placeholder="Search campus memoranda..." 
+                       style="padding: 10px 16px 10px 42px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; font-size: 14px; width: 220px; outline: none; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);"
+                       onfocus="this.style.borderColor='var(--theme-maroon, #800000)'; this.style.boxShadow='0 0 0 3px rgba(128,0,0,0.1)'; this.style.width='250px';" onblur="this.style.borderColor='rgba(0,0,0,0.08)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)'; this.style.width='220px';">
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h3 class="card-title">Campus Memorandum</h3>
+        <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
+            <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px;">
+                <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-folder-open" style="color: var(--theme-maroon, #800000);"></i> Campus Memorandum</h3>
             </div>
 
-            <div id="downloadablesList">
+            <div id="downloadablesList" style="padding: 24px 28px;">
                 @forelse($downloadables as $row)
                     @php
                         $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
@@ -55,18 +61,20 @@
                         data-search="{{ e(strtolower(($row->title ?? '') . ' ' . ($row->description ?? '') . ' ' . ($row->category ?? '') . ' ' . ($row->original_filename ?? ''))) }}"
                         data-name="{{ strtolower($row->title ?? '') }}"
                         data-date="{{ strtotime($row->created_at) }}"
-                        style="margin-bottom: 16px; transition: background 0.3s; padding: 16px 20px; border-radius: 8px; border: 1px solid #eaeaea; background: {{ $row->is_read ? '#ffffff' : '#f8fafc' }}; box-shadow: {{ $row->is_read ? 'none' : '0 1px 3px rgba(0,0,0,0.04)' }}; display: flex; flex-direction: column; gap: 8px;">
+                        style="margin-bottom: 16px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); padding: 20px 24px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.05); background: {{ $row->is_read ? '#ffffff' : '#fdfafb' }}; box-shadow: {{ $row->is_read ? '0 2px 8px rgba(0,0,0,0.02)' : '0 4px 15px rgba(128,0,0,0.05)' }}; display: flex; flex-direction: column; gap: 12px;"
+                        onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.06)'; this.style.borderColor='rgba(128,0,0,0.2)';"
+                        onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{{ $row->is_read ? '0 2px 8px rgba(0,0,0,0.02)' : '0 4px 15px rgba(128,0,0,0.05)' }}'; this.style.borderColor='rgba(0,0,0,0.05)';">
 
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
                             <div style="flex: 1;">
-                                <h3 class="announcement-title" style="margin: 0; font-size: 1.1rem; color: {{ $row->is_read ? '#475569' : '#0f172a' }}; {{ !$row->is_read ? 'font-weight: 600;' : '' }}">
+                                <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; color: {{ $row->is_read ? '#333' : 'var(--theme-maroon, #800000)' }}; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px;">
                                     {{ e($row->title) }}
                                     @if(!$row->is_read)
-                                        <span class="badge" style="background: #ef4444; color: white; padding: 2px 6px; border-radius: 4px; font-size: 10px; vertical-align: top; margin-left: 6px;">NEW</span>
+                                        <span class="badge" style="background: linear-gradient(135deg, #e53935 0%, #b71c1c 100%); color: white; padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 2px 5px rgba(229, 57, 53, 0.3); text-transform: uppercase;">NEW</span>
                                     @endif
                                 </h3>
                                 @if(!empty($row->description))
-                                    <div class="announcement-description rich-text-content" style="margin-top: 8px; color: {{ $row->is_read ? '#64748b' : '#334155' }}; font-size: 0.95em;">
+                                    <div class="announcement-description rich-text-content" style="margin-top: 10px; color: #555; font-size: 0.95em; line-height: 1.6;">
                                         {!! \App\Support\RichText::sanitize($row->description) !!}
                                     </div>
                                 @endif
@@ -75,23 +83,28 @@
                             <div class="announcement-actions" style="display: flex; gap: 8px; flex-shrink: 0; margin: 0;">
                                 <a href="{{ $fileUrl }}"
                                     class="btn btn-sm btn-view-icon"
-                                    style="color: #3b82f6; border: 1px solid transparent; background: transparent; padding: 4px 8px;"
+                                    style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #f0f7ff; color: #2563eb; transition: all 0.2s;"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onclick="markAsRead(this, {{ (int) $row->downloadable_id }})"
-                                    title="View Memorandum">
-                                    <i class="fas fa-eye" style="font-size: 1.2em;"></i>
+                                    title="View Memorandum"
+                                    onmouseover="this.style.background='#dbeafe'; this.style.transform='scale(1.05)';"
+                                    onmouseout="this.style.background='#f0f7ff'; this.style.transform='scale(1)';">
+                                    <i class="fas fa-eye" style="font-size: 1.1em;"></i>
                                 </a>
                             </div>
                         </div>
 
-                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:16px; font-size: 0.85em; color: #94a3b8; border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 4px;">
-                            <span><i class="fas fa-file-alt" style="margin-right: 4px;"></i>{{ e($row->original_filename) }}</span>
-                            <span><i class="fas fa-calendar-alt" style="margin-right: 4px;"></i>{{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}</span>
+                        <div class="announcement-meta" style="display:flex; flex-wrap:wrap; gap:20px; font-size: 0.85em; font-weight: 500; color: #888; border-top: 1px solid rgba(0,0,0,0.04); padding-top: 14px; margin-top: 4px;">
+                            <span style="display: flex; align-items: center; gap: 6px;"><i class="fas fa-file-pdf" style="color: #ef4444; font-size: 1.1em;"></i> {{ e($row->original_filename) }}</span>
+                            <span style="display: flex; align-items: center; gap: 6px;"><i class="fas fa-calendar-day" style="color: #94a3b8; font-size: 1.1em;"></i> {{ !empty($row->created_at) ? \Carbon\Carbon::parse($row->created_at)->format('M d, Y') : '—' }}</span>
                         </div>
                     </div>
                 @empty
-                    <div style="padding: 18px; opacity: .75;">No campus memoranda yet.</div>
+                    <div style="padding: 40px; text-align: center; color: #aaa; display: flex; flex-direction: column; align-items: center; gap: 12px; background: #fafafa; border-radius: 12px; border: 1px dashed #ddd;">
+                        <i class="fas fa-folder-open" style="font-size: 36px; color: #ddd;"></i>
+                        <span style="font-size: 14px; font-weight: 600;">No campus memoranda uploaded yet.</span>
+                    </div>
                 @endforelse
             </div>
         </div>
@@ -583,3 +596,5 @@ document.addEventListener('DOMContentLoaded', function () {
 <script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
+
+

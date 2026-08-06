@@ -43,10 +43,22 @@
 
     @include('partials.profile_modal')
     <div class="cms-page-loading-overlay" data-cms-page-loader hidden>
-        <div class="cms-page-loading-card" role="status" aria-live="polite">
-            <span class="cms-page-loading-spinner" aria-hidden="true"></span>
-            <h3>Loading CMS Preview</h3>
-            <p>Please wait while the page refreshes.</p>
+        <div style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100vh;">
+            <style>
+                @keyframes spinGradient {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                @keyframes pulseLogo {
+                    0% { transform: scale(0.95); }
+                    50% { transform: scale(1.05); }
+                    100% { transform: scale(0.95); }
+                }
+            </style>
+            <div role="status" aria-live="polite" style="position: relative; display: flex; align-items: center; justify-content: center; width: 140px; height: 140px;">
+                <div style="position: absolute; width: 110px; height: 110px; border-radius: 50%; background: conic-gradient(from 0deg, transparent 10%, #800000 100%); animation: spinGradient 1s linear infinite; -webkit-mask: radial-gradient(transparent 55%, black 56%); mask: radial-gradient(transparent 55%, black 56%);"></div>
+                <img src="{{ asset('assets/static_img/pupt_cms_logo.png') }}" alt="Loading CMS..." style="width: 80px; height: 80px; object-fit: contain; animation: pulseLogo 2s infinite ease-in-out; position: relative; z-index: 10;">
+            </div>
         </div>
     </div>
     <script>
