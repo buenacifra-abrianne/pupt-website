@@ -100,6 +100,7 @@
                     $itemBadge = trim((string) ($item['badge'] ?? ''));
                     $itemDept = trim((string) ($item['dept'] ?? ''));
                     $itemAccreditationLevels = trim((string) ($item['accreditation_levels'] ?? ''));
+                    $mappedAccreditationLevel = ['I' => '1', 'II' => '2', 'III' => '3', 'IV' => '4'][$itemAccreditationLevels] ?? $itemAccreditationLevels;
                     $itemAccreditingInstitution = trim((string) ($item['accrediting_institution'] ?? ''));
                     $itemAccreditationValidity = trim((string) ($item['accreditation_validity'] ?? ''));
                 @endphp
@@ -125,7 +126,7 @@
                         data-program-modal-trigger="{{ $modalId }}"
                         data-program-title="{{ $itemTitle }}"
                         data-program-badge="{{ $itemBadge }}"
-                        data-program-accreditation="{{ $itemAccreditationLevels }}"
+                        data-program-accreditation="{{ $mappedAccreditationLevel }}"
                         data-program-accrediting-institution="{{ $itemAccreditingInstitution }}"
                         data-program-accreditation-validity="{{ $itemAccreditationValidity }}"
                     >
@@ -139,7 +140,7 @@
                             <p class="dp-diploma-desc">{{ $itemBodyPreview }}</p>
                         @endif
                         @if($itemAccreditationLevels !== '')
-                            <span class="dp-diploma-accreditation">Accreditation: {{ $itemAccreditationLevels }}</span>
+                            <span class="dp-diploma-accreditation">Accreditation Level: {{ $mappedAccreditationLevel }}</span>
                         @endif
                         @unless($cmsPreview)
                             <div class="dp-program-modal-payload" hidden data-program-modal-body>
@@ -186,7 +187,7 @@
                     </div>
 
                     <div class="dp-program-modal-field">
-                        <p class="dp-program-modal-field-label">Program Accreditation Status (Roman Numeral)</p>
+                        <p class="dp-program-modal-field-label">Accreditation Level</p>
                         <p class="dp-program-modal-field-value" data-program-modal-accreditation></p>
                     </div>
 
