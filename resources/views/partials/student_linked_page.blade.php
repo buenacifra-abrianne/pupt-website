@@ -653,7 +653,7 @@
                         </script>
                     @endif
 
-                    <div class="student-link-list">
+                    <div class="student-link-list" style="min-height: 250px;">
                         @forelse(($links['items'] ?? []) as $link)
                             @php
                                 $href = trim((string) ($link['href'] ?? ''));
