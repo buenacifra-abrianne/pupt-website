@@ -162,7 +162,7 @@ $pendingNewsIds = DB::table('approval_requests')
         $request->validate([
             'request_id' => ['nullable','integer'], // ✅ for resubmitting/editing existing request (no duplicates)
             'title' => ['required','string','max:60'],
-            'content' => ['required','string','max:256'],
+            'content' => ['required','string'],
             'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
@@ -186,7 +186,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'request_id' => ['nullable','integer'], // ✅
             'announcement_id' => ['required','integer'],
             'title' => ['required','string','max:60'],
-            'content' => ['required','string','max:256'],
+            'content' => ['required','string'],
             'link' => ['nullable','string','max:255'],
             'priority' => ['required','in:HIGH,MEDIUM,LOW'],
         ]);
@@ -353,7 +353,7 @@ $pendingNewsIds = DB::table('approval_requests')
     $request->validate([
         'request_id' => ['nullable','integer'],
         'title' => ['required','string','max:60'],
-        'content' => ['required','string','max:256'],
+        'content' => ['required','string'],
         'category' => ['required','string','max:100'],
         'link' => ['nullable','string','max:255'],
         'location' => ['nullable','string','max:60'],
@@ -427,7 +427,7 @@ $pendingNewsIds = DB::table('approval_requests')
         'request_id' => ['nullable','integer'],
         'news_id' => ['required','integer','gt:0'],
         'title' => ['required','string','max:60'],
-        'content' => ['required','string','max:256'],
+        'content' => ['required','string'],
         'category' => ['required','string','max:100'],
         'link' => ['nullable','string','max:255'],
         'location' => ['nullable','string','max:60'],

@@ -72,6 +72,7 @@ class StudentsCmsContent
                     'title' => 'Application Guide',
                     'body' => '<p>Write the admissions process here. You can add reminders, step-by-step instructions, and requirements for applicants.</p>',
                     'image' => '',
+                    'links' => [],
                 ],
                 'contact' => [
                     'tag' => 'Contact Person',
@@ -572,6 +573,11 @@ class StudentsCmsContent
                     'image',
                     2048
                 ),
+                'links' => self::normalizeLinkItems(
+                    is_array($source['instructions']['links'] ?? null) ? $source['instructions']['links'] : [],
+                    is_array($base['instructions']['links'] ?? null) ? $base['instructions']['links'] : [],
+                    $defaults['instructions']['links'] ?? []
+                ),
             ],
             'links' => $hasLinksInput
                 ? self::normalizeLinkSection($source['links'] ?? [], $baseLinks, $defaults['links'])
@@ -832,9 +838,10 @@ class StudentsCmsContent
                 'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
                 'href' => self::sanitizeString((string) ($item['href'] ?? ($baseItem['href'] ?? '')), 2048, ''),
                 'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 5000, ''),
+                'category' => self::sanitizeString((string) ($item['category'] ?? ($baseItem['category'] ?? '')), 120, ''),
             ];
 
-            if ($normalized['label'] === '' && $normalized['href'] === '' && $normalized['description'] === '') {
+            if ($normalized['label'] === '' && $normalized['href'] === '' && $normalized['description'] === '' && $normalized['category'] === '') {
                 continue;
             }
 

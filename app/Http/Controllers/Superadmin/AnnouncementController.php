@@ -105,7 +105,7 @@ class AnnouncementController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:60',
-            'content' => 'required|string|max:256',
+            'content' => 'required|string',
             'link' => 'nullable|url|max:255',
             'priority' => 'required|string',
             'status' => 'required|string',
@@ -237,7 +237,7 @@ class AnnouncementController extends Controller
         $rules = [
             'news_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:60'],
-            'content' => ['required', 'string', 'max:256'],
+            'content' => ['required', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:60'],
         ];
