@@ -19,7 +19,7 @@ class SecurityController extends Controller
             ->where('blocked_until', '<', now())
             ->delete();
 
-        $events = SecurityEvent::latest()->paginate(20);
+        $events = SecurityEvent::latest()->paginate(10);
         $blockedIps = BlockedIp::latest()->get();
         
         $stats = [
