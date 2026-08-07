@@ -31,12 +31,14 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->web(append: [
             \App\Http\Middleware\FirewallMiddleware::class,
+            \App\Http\Middleware\ActiveSecurityTracker::class,
             \App\Http\Middleware\NormalizePlainTextEntities::class,
             \App\Http\Middleware\TrackPublicAnalytics::class,
         ]);
 
         $middleware->api(append: [
             \App\Http\Middleware\FirewallMiddleware::class,
+            \App\Http\Middleware\ActiveSecurityTracker::class,
             \App\Http\Middleware\NormalizePlainTextEntities::class,
         ]);
 
