@@ -23,8 +23,8 @@ class SecurityController extends Controller
         $blockedIps = BlockedIp::latest()->get();
         
         $stats = [
-            'login' => SecurityEvent::whereIn('event_type', ['LOGIN_FAILURE', 'BRUTE_FORCE'])->count(),
-            'unauth' => SecurityEvent::where('event_type', 'UNAUTHORIZED_ACCESS')->count(),
+            'login' => SecurityEvent::whereIn('event_type', ['LOGIN_FAILURE', 'BRUTE_FORCE', 'FAILED_LOGIN', 'FAILED_SSO_LOGIN'])->count(),
+            'unauth' => SecurityEvent::whereIn('event_type', ['UNAUTHORIZED_ACCESS', 'UNKNOWN_USER', 'INACTIVE_ACCOUNT', 'INVALID_ROLE'])->count(),
             'firewall' => BlockedIp::count(),
             'malicious' => SecurityEvent::where('event_type', 'MALICIOUS_PAYLOAD')->count(),
             'sql_xss' => SecurityEvent::whereIn('event_type', ['SQL_INJECTION', 'XSS_ATTEMPT'])->count(),
