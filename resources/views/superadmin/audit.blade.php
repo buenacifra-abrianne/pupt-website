@@ -30,11 +30,146 @@
             </div>
         </div>
 
+        <style>
+            .modern-stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+                gap: 20px;
+                margin-bottom: 24px;
+            }
+            .modern-stat-card {
+                border-radius: 16px;
+                padding: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background: white;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.02);
+                transition: transform 0.2s, box-shadow 0.2s;
+            }
+            .modern-stat-card:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0,0,0,0.04);
+            }
+            
+            .stat-content-left {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+            }
+            .modern-icon-box {
+                width: 68px;
+                height: 68px;
+                border-radius: 18px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 28px;
+            }
+            .modern-stat-info {
+                display: flex;
+                flex-direction: column;
+            }
+            .modern-stat-title {
+                font-size: 14px;
+                font-weight: 700;
+                color: #64748b;
+                margin-bottom: 2px;
+            }
+            .modern-stat-number {
+                font-size: 36px;
+                font-weight: 800;
+                line-height: 1;
+                margin-bottom: 8px;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            }
+            .modern-stat-trend {
+                font-size: 12px;
+                font-weight: 700;
+                color: #10b981;
+                display: flex;
+                align-items: center;
+                gap: 4px;
+            }
+            .modern-sparkline {
+                width: 110px;
+                height: 55px;
+            }
+        </style>
+
         <!-- Stats -->
-        <div class="stats-row">
-            <div class="stat-card"><div class="stat-icon si-total"><i class="fas fa-list-check"></i></div><div><div class="stat-val" id="cnt-total">0</div><div class="stat-lbl">Total Logs</div></div></div>
-            <div class="stat-card"><div class="stat-icon si-login"><i class="fas fa-user-shield"></i></div><div><div class="stat-val" id="cnt-account">0</div><div class="stat-lbl">Account Logs</div></div></div>
-            <div class="stat-card"><div class="stat-icon si-changes"><i class="fas fa-pen-to-square"></i></div><div><div class="stat-val" id="cnt-content">0</div><div class="stat-lbl">Content Logs</div></div></div>
+        <div class="modern-stats-grid">
+            <!-- Total Logs (Red) -->
+            <div class="modern-stat-card" style="border: 1px solid #fee2e2;">
+                <div class="stat-content-left">
+                    <div class="modern-icon-box" style="background: #fef2f2; color: #b91c1c;">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <div class="modern-stat-info">
+                        <div class="modern-stat-title">Total Logs</div>
+                        <div class="modern-stat-number" id="cnt-total" style="color: #b91c1c;">{{ $auditStats['total'] }}</div>
+                        <div class="modern-stat-trend" style="color: {{ $auditStats['total_trend'] >= 0 ? '#10b981' : '#ef4444' }};">
+                            <i class="fas fa-arrow-{{ $auditStats['total_trend'] >= 0 ? 'up' : 'down' }}"></i> {{ abs($auditStats['total_trend']) }}% vs last month
+                        </div>
+                    </div>
+                </div>
+                <div class="modern-sparkline">
+                    <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="width: 100%; height: 100%;">
+                        <defs>
+                            <linearGradient id="gradRed" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#b91c1c" stop-opacity="0.25" />
+                                <stop offset="100%" stop-color="#b91c1c" stop-opacity="0" />
+                            </linearGradient>
+                        </defs>
+                        <path d="{{ $auditStats['total_svg'] ?? 'M0,45 L100,45' }}" fill="none" stroke="#b91c1c" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="{{ $auditStats['total_svg'] ?? 'M0,45 L100,45' }} L100,50 L0,50 Z" fill="url(#gradRed)" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Account Logs (Red Design) -->
+            <div class="modern-stat-card" style="border: 1px solid #fee2e2;">
+                <div class="stat-content-left">
+                    <div class="modern-icon-box" style="background: #fef2f2; color: #b91c1c;">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="modern-stat-info">
+                        <div class="modern-stat-title">Account Logs</div>
+                        <div class="modern-stat-number" id="cnt-account" style="color: #b91c1c;">{{ $auditStats['account'] }}</div>
+                        <div class="modern-stat-trend" style="color: {{ $auditStats['account_trend'] >= 0 ? '#10b981' : '#ef4444' }};">
+                            <i class="fas fa-arrow-{{ $auditStats['account_trend'] >= 0 ? 'up' : 'down' }}"></i> {{ abs($auditStats['account_trend']) }}% vs last month
+                        </div>
+                    </div>
+                </div>
+                <div class="modern-sparkline">
+                    <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="width: 100%; height: 100%;">
+                        <path d="{{ $auditStats['account_svg'] ?? 'M0,45 L100,45' }}" fill="none" stroke="#b91c1c" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="{{ $auditStats['account_svg'] ?? 'M0,45 L100,45' }} L100,50 L0,50 Z" fill="url(#gradRed)" />
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Content Logs (Red Design) -->
+            <div class="modern-stat-card" style="border: 1px solid #fee2e2;">
+                <div class="stat-content-left">
+                    <div class="modern-icon-box" style="background: #fef2f2; color: #b91c1c;">
+                        <i class="fas fa-pen-to-square"></i>
+                    </div>
+                    <div class="modern-stat-info">
+                        <div class="modern-stat-title">Content Logs</div>
+                        <div class="modern-stat-number" id="cnt-content" style="color: #b91c1c;">{{ $auditStats['content'] }}</div>
+                        <div class="modern-stat-trend" style="color: {{ $auditStats['content_trend'] >= 0 ? '#10b981' : '#ef4444' }};">
+                            <i class="fas fa-arrow-{{ $auditStats['content_trend'] >= 0 ? 'up' : 'down' }}"></i> {{ abs($auditStats['content_trend']) }}% vs last month
+                        </div>
+                    </div>
+                </div>
+                <div class="modern-sparkline">
+                    <svg viewBox="0 0 100 50" preserveAspectRatio="none" style="width: 100%; height: 100%;">
+                        <path d="{{ $auditStats['content_svg'] ?? 'M0,45 L100,45' }}" fill="none" stroke="#b91c1c" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="{{ $auditStats['content_svg'] ?? 'M0,45 L100,45' }} L100,50 L0,50 Z" fill="url(#gradRed)" />
+                    </svg>
+                </div>
+            </div>
         </div>
 
         <!-- Main Card -->

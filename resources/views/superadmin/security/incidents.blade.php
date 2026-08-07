@@ -40,6 +40,83 @@
             <div class="success-msg">{{ session('success') }}</div>
         @endif
 
+        <!-- Security Stats Grid -->
+        <div class="stats-grid" style="margin-bottom: 24px; display: grid; grid-template-columns: 2fr 1fr;">
+            <div class="stat-card" style="display: flex; flex-direction: column; align-items: center; padding: 20px 24px;">
+                <div style="width: 100%; margin-bottom: 10px;">
+                    <div class="stat-label" style="font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #888;">Threat Analysis</div>
+                </div>
+                
+                <div class="svg-chart-wrapper" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; min-height: 260px; padding: 10px 0;">
+                    <svg viewBox="-40 -20 280 240" style="width: 100%; max-width: 360px; height: auto; overflow: visible;">
+                        <!-- Background Grid (Hexagon) -->
+                        <polygon points="100,20 169.3,60 169.3,140 100,180 30.7,140 30.7,60" fill="none" stroke="#ddd" stroke-width="1"></polygon>
+                        <polygon points="100,46.6 146.2,73.3 146.2,126.7 100,153.4 53.8,126.7 53.8,73.3" fill="none" stroke="#ddd" stroke-width="1"></polygon>
+                        <polygon points="100,73.3 123.1,86.7 123.1,113.3 100,126.7 76.9,113.3 76.9,86.7" fill="none" stroke="#ddd" stroke-width="1"></polygon>
+                        
+                        <!-- Axis lines -->
+                        <line x1="100" y1="20" x2="100" y2="180" stroke="#ddd" stroke-width="1"></line>
+                        <line x1="30.7" y1="60" x2="169.3" y2="140" stroke="#ddd" stroke-width="1"></line>
+                        <line x1="30.7" y1="140" x2="169.3" y2="60" stroke="#ddd" stroke-width="1"></line>
+
+                        <!-- Radar Polygon with Red Glow -->
+                        <defs>
+                            <filter id="red-glow" x="-20%" y="-20%" width="140%" height="140%">
+                                <feGaussianBlur stdDeviation="3" result="blur" />
+                                <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                            </filter>
+                            <linearGradient id="gradRadar" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" stop-color="#800000" stop-opacity="0.35"/>
+                                <stop offset="100%" stop-color="#800000" stop-opacity="0.1"/>
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Radar Shape (Red with glow) -->
+                        <polygon points="{{ $radarPoints }}" fill="url(#gradRadar)" stroke="#800000" stroke-width="2" filter="url(#red-glow)"></polygon>
+
+                        <!-- Data points -->
+                        @foreach($radar as $point)
+                            <circle cx="{{ $point['x'] }}" cy="{{ $point['y'] }}" r="3" fill="#fff" stroke="#800000" stroke-width="1.5"></circle>
+                        @endforeach
+
+                        <!-- Labels -->
+                        <text x="100" y="8" font-family="sans-serif" font-size="11" font-weight="bold" fill="#888" text-anchor="middle">Failed Logins</text>
+                        <text x="175" y="60" font-family="sans-serif" font-size="11" font-weight="bold" fill="#888" text-anchor="start" dominant-baseline="middle">Unauthorized</text>
+                        <text x="175" y="140" font-family="sans-serif" font-size="11" font-weight="bold" fill="#888" text-anchor="start" dominant-baseline="middle">Firewall</text>
+                        <text x="100" y="196" font-family="sans-serif" font-size="11" font-weight="bold" fill="#888" text-anchor="middle">Malicious</text>
+                        <text x="25" y="140" font-family="sans-serif" font-size="11" font-weight="bold" fill="#888" text-anchor="end" dominant-baseline="middle">SQL/XSS</text>
+                        <text x="25" y="60" font-family="sans-serif" font-size="11" font-weight="bold" fill="#888" text-anchor="end" dominant-baseline="middle">Policy</text>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="stat-card" style="display: flex; flex-direction: column; justify-content: center; gap: 30px; padding: 30px 24px;">
+                <!-- Active Blocks -->
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="stat-icon no-bg" style="background: transparent; color: var(--theme-maroon, #800000); font-size: 48px; width: auto; height: auto; padding: 0; box-shadow: none;">
+                        <i class="fas fa-ban"></i>
+                    </div>
+                    <div class="stat-info" style="flex: 1;">
+                        <div class="stat-label" style="margin-bottom:6px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; color: #888;">Active Blocks</div>
+                        <div class="stat-value" style="font-size: 42px; font-weight: 800; color: var(--admin-primary); margin-bottom: 0; line-height: 1;">{{ count($blockedIps) }}</div>
+                    </div>
+                </div>
+                
+                <hr style="width: 100%; border: 0; border-top: 1px solid rgba(0,0,0,0.06); margin: 0;">
+                
+                <!-- Recent Events -->
+                <div style="display: flex; align-items: center; gap: 20px;">
+                    <div class="stat-icon no-bg" style="background: transparent; color: var(--theme-maroon, #800000); font-size: 48px; width: auto; height: auto; padding: 0; box-shadow: none;">
+                        <i class="fas fa-triangle-exclamation"></i>
+                    </div>
+                    <div class="stat-info" style="flex: 1;">
+                        <div class="stat-label" style="margin-bottom:6px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; color: #888;">Recent Events</div>
+                        <div class="stat-value" style="font-size: 42px; font-weight: 800; color: var(--admin-primary); margin-bottom: 0; line-height: 1;">{{ isset($recentEvents) ? count($recentEvents) : 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="card">
             <div class="card-header">
                 <div class="card-title"><i class="fas fa-shield-halved"></i> IP Firewall Blacklist</div>
@@ -79,7 +156,15 @@
                                 </td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" style="text-align:center; color:#888;">No blocked IPs.</td></tr>
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding: 40px 20px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                        <i class="fas fa-shield-halved" style="font-size: 32px; color: #ddd;"></i>
+                                        <div style="font-weight: 600; color: #888;">No Blocked IPs</div>
+                                        <div style="font-size: 12px; color: #aaa;">Your firewall is currently not blocking any IP addresses.</div>
+                                    </div>
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
@@ -107,7 +192,15 @@
                                 <td>{{ $event->description }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="5" style="text-align:center; color:#888;">No recent security events.</td></tr>
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding: 40px 20px;">
+                                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                        <i class="fas fa-list-ul" style="font-size: 32px; color: #ddd;"></i>
+                                        <div style="font-weight: 600; color: #888;">No Recent Events</div>
+                                        <div style="font-size: 12px; color: #aaa;">There are no suspicious security activities logged recently.</div>
+                                    </div>
+                                </td>
+                            </tr>
                         @endforelse
                     </tbody>
                 </table>
