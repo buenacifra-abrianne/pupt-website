@@ -24,6 +24,13 @@
         .btn-secondary:hover { background: #e5e7eb; color: #111827; }
         .input-text { padding: 8px 12px; border: 1px solid #ddd; border-radius: 6px; width: 250px; }
         .success-msg { background: #dcfce7; color: #15803d; padding: 12px; border-radius: 6px; margin-bottom: 20px; }
+        /* Pagination Styles */
+        .pagination { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; flex-wrap: wrap; gap: 10px; }
+        .page-info { color: #888; font-size: 13px; }
+        .page-btns { display: flex; gap: 5px; }
+        .pbtn { width: 34px; height: 34px; border-radius: 7px; border: 2px solid #e0e0e0; background: #fff; color: #666; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; font-family: inherit; text-decoration: none; }
+        .pbtn:hover, .pbtn.active { background: var(--theme-maroon, #800000); color: #fff; border-color: var(--theme-maroon, #800000); }
+        .pbtn:disabled, .pbtn.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
     </style>
 </head>
 <body>
@@ -111,7 +118,7 @@
                     </div>
                     <div class="stat-info" style="flex: 1;">
                         <div class="stat-label" style="margin-bottom:6px; font-weight: 800; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; color: #888;">Recent Events</div>
-                        <div class="stat-value" style="font-size: 42px; font-weight: 800; color: var(--admin-primary); margin-bottom: 0; line-height: 1;">{{ isset($recentEvents) ? count($recentEvents) : 0 }}</div>
+                        <div class="stat-value" style="font-size: 42px; font-weight: 800; color: var(--admin-primary); margin-bottom: 0; line-height: 1;">{{ $events->total() }}</div>
                     </div>
                 </div>
             </div>
@@ -206,7 +213,7 @@
                 </table>
             </div>
             <div style="margin-top: 15px;">
-                {{ $events->links() }}
+                {{ $events->links('components.pagination.audit') }}
             </div>
         </div>
     </main>
