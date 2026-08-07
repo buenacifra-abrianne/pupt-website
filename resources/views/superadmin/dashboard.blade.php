@@ -41,7 +41,8 @@
 
 
             <!-- Stats Cards -->
-            <div class="stats-grid">
+            <!-- Stats Cards -->
+            <div class="stats-grid" style="grid-template-columns: 1fr 2.5fr;">
 
                 <div class="stat-card" style="align-items: center;">
                     <div class="stat-icon no-bg maroon" style="font-size: 42px;">
@@ -61,17 +62,33 @@
                     </div>
                 </div>
 
-                <div class="stat-card" style="align-items: center;">
-                    <div class="stat-icon no-bg maroon" style="font-size: 42px;">
-                        <i class="fas fa-chart-line"></i>
+                <div class="stat-card" style="align-items: center; justify-content: space-between; padding: 25px 35px; border: 1px solid #fee2e2; background-color: #fcfcfc; border-radius: 12px; flex-wrap: wrap; gap: 20px;">
+                    <!-- Left Section -->
+                    <div style="display: flex; align-items: center; gap: 25px;">
+                        <i class="fas fa-battery-full" style="font-size: 4.5rem; color: #800000;"></i>
+                        <div style="display: flex; flex-direction: column;">
+                            <span style="font-size: 11px; font-weight: 800; color: #800000; letter-spacing: 0.5px; text-transform: uppercase;">System Uptime</span>
+                            <span style="font-size: 3.5rem; font-weight: 900; color: #000; line-height: 1.1; margin-bottom: 5px; font-family: 'Inter', sans-serif;">{{ $uptime['percent'] ?? '—' }}</span>
+                            <span style="font-size: 12px; font-weight: 600; color: #800000; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas {{ ($uptime['ok'] ?? false) ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> 
+                                <span>{{ ($uptime['ok'] ?? false) ? 'All systems operational' : 'Check system health' }} &bull;</span> 
+                                <span style="color: #666; font-weight: 500;">Up for {{ $uptime['human'] ?? '—' }}</span>
+                            </span>
+                        </div>
                     </div>
-                    <div class="stat-info" style="flex: 1;">
-                        <div class="stat-label" style="margin-bottom:4px; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">System Uptime</div>
-                        <div class="stat-value" style="font-size: 36px; color: var(--admin-primary); margin-bottom: 6px;">{{ $uptime['percent'] ?? '—' }}</div>
-                        <div class="stat-change positive" style="font-size: 11px; font-weight: 500;">
-                            <i class="fas fa-check-circle"></i>
-                            {{ ($uptime['ok'] ?? false) ? 'All systems operational' : 'Check system health' }}
-                            &nbsp;•&nbsp; Up for {{ $uptime['human'] ?? '—' }}
+                    
+                    <!-- Right Section (Timeline) -->
+                    <div style="flex: 1; max-width: 550px; min-width: 300px; display: flex; flex-direction: column; background: #fff; padding: 15px 20px; border-radius: 10px; border: 1px solid #eaeaea; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                        <span style="font-size: 10px; font-weight: 800; color: #666; letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase;">Uptime Overview</span>
+                        <div style="display: flex; gap: 2px; align-items: stretch; height: 22px; margin-bottom: 8px;">
+                            @for ($i = 0; $i < 65; $i++)
+                                <div style="flex: 1; background-color: #800000; border-radius: 2px; opacity: {{ 0.7 + (rand(0, 30) / 100) }};"></div>
+                            @endfor
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; color: #888;">
+                            <span>0%</span>
+                            <span>50%</span>
+                            <span>100%</span>
                         </div>
                     </div>
                 </div>

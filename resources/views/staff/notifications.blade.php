@@ -129,25 +129,17 @@
                    onmouseout="this.style.transform='none'; this.style.boxShadow='{{ $unreadClass ? '0 4px 20px rgba(0,0,0,0.05)' : 'none' }}';">
                 
                 <div style="flex-shrink: 0; padding-top: 2px;">
-                    @php
-                        $iconColor = match($type) {
-                            'ERROR', 'CRITICAL', 'DANGER' => '#ef4444',
-                            'WARNING' => '#f59e0b',
-                            'SUCCESS' => '#10b981',
-                            default => 'var(--theme-maroon, #800000)',
-                        };
-                    @endphp
-                    <i class="fas {{ $icon }}" style="font-size: 32px; color: {{ $iconColor }}; drop-shadow: 0 2px 4px rgba(0,0,0,0.1);"></i>
+                    <i class="fas {{ $icon }}" style="font-size: 32px; color: var(--theme-maroon, #800000); drop-shadow: 0 2px 4px rgba(0,0,0,0.1);"></i>
                 </div>
 
-                <div style="flex: 1;">
+                <div style="flex: 1; min-width: 0;">
                   <div style="font-size: 16px; font-weight: 800; color: {{ $unreadClass ? '#111' : '#666' }}; margin-bottom: 6px; display: flex; align-items: center;">
-                      {{ $n->title }}
+                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $n->title }}</span>
                       @if($unreadClass)
-                          <span style="display: inline-block; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);"></span>
+                          <span style="flex-shrink: 0; display: inline-block; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);"></span>
                       @endif
                   </div>
-                  <div style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 12px; max-width: 90%;">{{ $n->message }}</div>
+                  <div style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all;">{{ $n->message }}</div>
                   <div style="font-size: 12px; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px;">
                     <i class="fas fa-clock" style="margin-right: 4px;"></i>
                     {{ \Carbon\Carbon::parse($n->created_at)->format('M d, Y g:i A') }}

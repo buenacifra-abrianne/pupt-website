@@ -145,8 +145,12 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" style="padding: 18px; text-align:center; opacity:.75;">
-                                        No pending approvals found.
+                                    <td colspan="5" style="text-align:center; padding: 40px 20px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                            <i class="fas fa-file-signature" style="font-size: 32px; color: #ddd;"></i>
+                                            <div style="font-weight: 600; color: #888;">No Pending Approvals</div>
+                                            <div style="font-size: 12px; color: #aaa;">You're all caught up! There are no requests waiting for your review.</div>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse
@@ -296,8 +300,12 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="6" style="padding: 18px; text-align:center; opacity:.75;">
-                                        No processed requests found.
+                                    <td colspan="6" style="text-align:center; padding: 40px 20px;">
+                                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;">
+                                            <i class="fas fa-file-circle-check" style="font-size: 32px; color: #ddd;"></i>
+                                            <div style="font-weight: 600; color: #888;">No Processed Requests</div>
+                                            <div style="font-size: 12px; color: #aaa;">You haven't approved or rejected any requests yet.</div>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforelse

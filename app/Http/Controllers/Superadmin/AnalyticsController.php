@@ -315,51 +315,104 @@ class AnalyticsController extends Controller
     private function buildAnalyticsPayload(Carbon $startAt, Carbon $endAt): array
     {
         $sessionRows = collect();
+        $prevSessionRows = collect();
+        $diffInDays = max(1, $startAt->diffInDays($endAt));
+        $prevStartAt = $startAt->copy()->subDays($diffInDays);
+        $prevEndAt = $startAt->copy();
 
         if ($this->hasAnalyticsSchema()) {
             $sessionRows = DB::table('analytics_sessions')
                 ->select('visitor_id', 'pageviews_count', 'started_at', 'last_activity_at')
                 ->whereBetween('started_at', [$startAt, $endAt])
                 ->get();
+
+            $prevSessionRows = DB::table('analytics_sessions')
+                ->select('visitor_id', 'pageviews_count', 'started_at', 'last_activity_at')
+                ->whereBetween('started_at', [$prevStartAt, $prevEndAt])
+                ->get();
         }
 
-        $sessions = $sessionRows->count();
+        $calcMetrics = function($rows) {
+            $sessions = $rows->count();
+            $totalVisitors = $rows->pluck('visitor_id')->filter()->unique()->count();
+            $pageviews = (int) $rows->sum(fn ($r) => (int) ($r->pageviews_count ?? 0));
+            $totalDur = (int) $rows->sum(fn ($r) => $this->estimateSessionDurationSec($r));
+            $avgDur = (int) round($totalDur / max(1, $sessions));
+            $bounce = $rows->filter(fn ($r) => (int) ($r->pageviews_count ?? 0) <= 1)->count();
+            $bounceRate = round(($bounce / max(1, $sessions)) * 100, 2);
+            $pagesPerSession = round($pageviews / max(1, $sessions), 2);
+            return [$totalVisitors, $avgDur, $bounceRate, $sessions, $pageviews, $pagesPerSession];
+        };
 
-        $totalVisitors = $sessionRows
-            ->pluck('visitor_id')
-            ->filter()
-            ->unique()
-            ->count();
+        [$cVisitors, $cAvgDur, $cBounce, $cSessions, $cPageviews, $cPagesPer] = $calcMetrics($sessionRows);
+        [$pVisitors, $pAvgDur, $pBounce, $pSessions, $pPageviews, $pPagesPer] = $calcMetrics($prevSessionRows);
 
-        $pageviews = (int) $sessionRows->sum(function ($row) {
-            return (int) ($row->pageviews_count ?? 0);
-        });
+        $calcTrend = function($curr, $prev) {
+            if ($prev == 0) return $curr > 0 ? 100 : 0;
+            return round((($curr - $prev) / $prev) * 100, 1);
+        };
 
-        $totalDurationSec = (int) $sessionRows->sum(function ($row) {
-            return $this->estimateSessionDurationSec($row);
-        });
+        $buckets = [];
+        $step = max(1, $diffInDays / 10);
+        for ($i = 0; $i < 10; $i++) {
+            $bStart = $startAt->copy()->addDays($i * $step);
+            $bEnd = $i === 9 ? $endAt->copy() : $startAt->copy()->addDays(($i + 1) * $step);
+            $bRows = $sessionRows->filter(function ($r) use ($bStart, $bEnd) {
+                $dt = Carbon::parse($r->started_at);
+                return $dt >= $bStart && $dt <= $bEnd;
+            });
+            $buckets[] = $calcMetrics($bRows);
+        }
 
-        $avgSessionDurationSec = (int) round($totalDurationSec / max(1, $sessions));
+        $buildSvg = function($idx, $maxHeight = 30) use ($buckets) {
+            $vals = array_column($buckets, $idx);
+            $max = max($vals);
+            $min = min($vals);
+            $range = $max - $min;
+            if ($range == 0) $range = 1;
+            $pts = [];
+            foreach ($vals as $i => $v) {
+                $x = round($i * (100 / 9), 1);
+                $y = round($maxHeight - (($v - $min) / $range) * ($maxHeight * 0.7), 1);
+                $pts[] = "{$x},{$y}";
+            }
+            return 'M' . implode(' L', $pts);
+        };
 
-        $bounceSessions = $sessionRows->filter(function ($row) {
-            return (int) ($row->pageviews_count ?? 0) <= 1;
-        })->count();
-
-        $bounceRatePct = round(($bounceSessions / max(1, $sessions)) * 100, 2);
-        $pagesPerSession = round($pageviews / max(1, $sessions), 2);
         $feedbackResults = $this->resolveFeedbackResults($startAt, $endAt);
         $uploadAnalytics = $this->resolveUploadAnalytics($startAt, $endAt);
+        $prevUploadAnalytics = $this->resolveUploadAnalytics($prevStartAt, $prevEndAt);
+        $cUploads = $uploadAnalytics['total_uploads'] ?? 0;
+        $pUploads = $prevUploadAnalytics['total_uploads'] ?? 0;
 
         return [
             'kpis' => [
-                'total_visitors' => (int) $totalVisitors,
-                'avg_session_duration_sec' => $avgSessionDurationSec,
-                'bounce_rate_pct' => $bounceRatePct,
+                'total_visitors' => (int) $cVisitors,
+                'avg_session_duration_sec' => $cAvgDur,
+                'bounce_rate_pct' => $cBounce,
             ],
             'user_engagement' => [
-                'sessions' => (int) $sessions,
-                'pageviews' => $pageviews,
-                'pages_per_session' => $pagesPerSession,
+                'sessions' => (int) $cSessions,
+                'pageviews' => $cPageviews,
+                'pages_per_session' => $cPagesPer,
+            ],
+            'trends' => [
+                'total_visitors' => $calcTrend($cVisitors, $pVisitors),
+                'avg_session_duration' => $calcTrend($cAvgDur, $pAvgDur),
+                'bounce_rate' => $calcTrend($cBounce, $pBounce),
+                'total_uploads' => $calcTrend($cUploads, $pUploads),
+                'sessions' => $calcTrend($cSessions, $pSessions),
+                'pageviews' => $calcTrend($cPageviews, $pPageviews),
+                'pages_per_session' => $calcTrend($cPagesPer, $pPagesPer),
+            ],
+            'svgs' => [
+                'total_visitors' => $buildSvg(0, 30),
+                'avg_session_duration' => $buildSvg(1, 30),
+                'bounce_rate' => $buildSvg(2, 30),
+                'total_uploads' => $buildSvg(0, 30),
+                'sessions' => $buildSvg(3, 40),
+                'pageviews' => $buildSvg(4, 40),
+                'pages_per_session' => $buildSvg(5, 40),
             ],
             'feedback_results' => $feedbackResults,
             'upload_analytics' => $uploadAnalytics,

@@ -48,25 +48,87 @@ class AuditController extends Controller
             ->select([
                 in_array('action', $columns, true) ? 'action' : DB::raw("'' as action"),
                 in_array('module', $columns, true) ? 'module' : DB::raw("'' as module"),
+                in_array('created_at', $columns, true) ? 'created_at' : DB::raw("null as created_at"),
             ])
             ->get();
+
+        $now = now();
+        $thirtyDaysAgo = $now->copy()->subDays(30);
+        $sixtyDaysAgo = $now->copy()->subDays(60);
+
+        $sparklineBuckets = [];
+        for ($i = 9; $i >= 0; $i--) {
+            $sparklineBuckets[$now->copy()->subDays($i)->format('Y-m-d')] = ['total' => 0, 'account' => 0, 'content' => 0];
+        }
+        $trends = [
+            'total_curr' => 0, 'total_prev' => 0,
+            'account_curr' => 0, 'account_prev' => 0,
+            'content_curr' => 0, 'content_prev' => 0,
+        ];
 
         foreach ($allActions as $event) {
             $action = (string) ($event->action ?? '');
             $module = (string) ($event->module ?? '');
+            $createdAt = !empty($event->created_at) ? Carbon::parse($event->created_at) : null;
 
             if (!AuditLog::includeInAudit($action, $module)) {
                 continue;
             }
 
+            $isAccount = AuditLog::isAccountEvent($action, $module);
+            $isContent = AuditLog::isContentEvent($action, $module);
+
             $auditStats['total']++;
-            if (AuditLog::isAccountEvent($action, $module)) {
-                $auditStats['account']++;
-            }
-            if (AuditLog::isContentEvent($action, $module)) {
-                $auditStats['content']++;
+            if ($isAccount) $auditStats['account']++;
+            if ($isContent) $auditStats['content']++;
+
+            if ($createdAt) {
+                if ($createdAt >= $thirtyDaysAgo) {
+                    $trends['total_curr']++;
+                    if ($isAccount) $trends['account_curr']++;
+                    if ($isContent) $trends['content_curr']++;
+
+                    $dateStr = $createdAt->format('Y-m-d');
+                    if (isset($sparklineBuckets[$dateStr])) {
+                        $sparklineBuckets[$dateStr]['total']++;
+                        if ($isAccount) $sparklineBuckets[$dateStr]['account']++;
+                        if ($isContent) $sparklineBuckets[$dateStr]['content']++;
+                    }
+                } elseif ($createdAt >= $sixtyDaysAgo) {
+                    $trends['total_prev']++;
+                    if ($isAccount) $trends['account_prev']++;
+                    if ($isContent) $trends['content_prev']++;
+                }
             }
         }
+
+        $calcTrend = function($curr, $prev) {
+            if ($prev == 0) return $curr > 0 ? 100 : 0;
+            return round((($curr - $prev) / $prev) * 100, 1);
+        };
+        $auditStats['total_trend'] = $calcTrend($trends['total_curr'], $trends['total_prev']);
+        $auditStats['account_trend'] = $calcTrend($trends['account_curr'], $trends['account_prev']);
+        $auditStats['content_trend'] = $calcTrend($trends['content_curr'], $trends['content_prev']);
+
+        $buildSvg = function($key) use ($sparklineBuckets) {
+            $vals = array_column($sparklineBuckets, $key);
+            $max = max($vals);
+            $min = min($vals);
+            $range = $max - $min;
+            if ($range == 0) $range = 1;
+
+            $pts = [];
+            foreach ($vals as $i => $v) {
+                $x = round($i * (100 / 9), 1);
+                $y = round(40 - (($v - $min) / $range) * 30, 1);
+                $pts[] = "{$x},{$y}";
+            }
+            return 'M' . implode(' L', $pts);
+        };
+
+        $auditStats['total_svg'] = $buildSvg('total');
+        $auditStats['account_svg'] = $buildSvg('account');
+        $auditStats['content_svg'] = $buildSvg('content');
 
         $userMap = [];
         if (in_array('user_id', $columns, true)) {
