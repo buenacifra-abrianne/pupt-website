@@ -73,7 +73,7 @@
             .modern-stat-title {
                 font-size: 14px;
                 font-weight: 700;
-                color: #64748b;
+                color: #8b0000;
                 margin-bottom: 2px;
             }
             .modern-stat-number {

@@ -17,19 +17,20 @@
         <!-- Left Panel -->
         <div style="flex: 0 0 auto; min-width: 320px; display: flex; align-items: center; gap: 20px; padding-right: 30px; border-right: 1px solid #f3f4f6;">
             
-            <!-- Concentric Shield Icon -->
+            <!-- Concentric Score Icon -->
             <div style="position: relative; width: 90px; height: 90px; display: flex; align-items: center; justify-content: center;">
-                <div style="position: absolute; width: 100%; height: 100%; border-radius: 50%; border: 1px solid #e6cccd; opacity: 0.5;"></div>
-                <div style="position: absolute; width: 75%; height: 75%; border-radius: 50%; border: 1px solid #e6cccd; background-color: #fcf4f4; opacity: 0.5;"></div>
+                <div style="position: absolute; width: 100%; height: 100%; animation: server-spin 10s linear infinite;">
+                    <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; border-radius: 50%; border: 1px solid #e6cccd; opacity: 0.5;"></div>
+                    <div style="position: absolute; top: 12.5%; left: 12.5%; width: 75%; height: 75%; border-radius: 50%; border: 1px solid #e6cccd; background-color: #fcf4f4; opacity: 0.5;"></div>
+                    <!-- Decorative Maroon Dots -->
+                    <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background-color: #8b0000; top: 10px; left: 15px;"></div>
+                    <div style="position: absolute; width: 4px; height: 4px; border-radius: 50%; background-color: #8b0000; top: 20px; right: 10px;"></div>
+                    <div style="position: absolute; width: 5px; height: 5px; border-radius: 50%; background-color: #8b0000; bottom: 15px; left: 25px;"></div>
+                    <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background-color: #8b0000; bottom: 25px; right: 15px;"></div>
+                </div>
                 <div style="position: absolute; width: 55%; height: 55%; border-radius: 50%; background-color: #f5e6e6;"></div>
-                <!-- Shield with checkmark -->
-                <i class="fas fa-shield-check" style="font-size: 2.2rem; color: #8b0000; z-index: 1;"></i>
-                
-                <!-- Decorative Maroon Dots -->
-                <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background-color: #8b0000; top: 10px; left: 15px;"></div>
-                <div style="position: absolute; width: 4px; height: 4px; border-radius: 50%; background-color: #8b0000; top: 20px; right: 10px;"></div>
-                <div style="position: absolute; width: 5px; height: 5px; border-radius: 50%; background-color: #8b0000; bottom: 15px; left: 25px;"></div>
-                <div style="position: absolute; width: 6px; height: 6px; border-radius: 50%; background-color: #8b0000; bottom: 25px; right: 15px;"></div>
+                <!-- Percentage Inside -->
+                <span id="serverHealthOverallScore" style="font-size: 1.1rem; font-weight: 800; color: #8b0000; z-index: 1;">100%</span>
             </div>
 
             <!-- Title & Info -->
@@ -46,6 +47,10 @@
                         #serverHealthStatus.status-warning { background-color: #fef3c7; color: #d97706; }
                         #serverHealthStatus.status-critical { background-color: #fce7f3; color: #be185d; }
                         #serverHealthStatus.status-unavailable { background-color: #fce7f3; color: #be185d; }
+                        @keyframes server-spin {
+                            from { transform: rotate(0deg); }
+                            to { transform: rotate(360deg); }
+                        }
                     </style>
                 </div>
                 <div style="font-size: 0.75rem; color: #6b7280; line-height: 1.6; margin-top: 4px;">
@@ -209,6 +214,14 @@ document.addEventListener('DOMContentLoaded', () => {
                  
                  memDesc.textContent = getDescForPercent(memVal.textContent);
                  updateSparkline(memPath, memDot, memVal.textContent);
+                 
+                 const scoreEl = document.getElementById('serverHealthOverallScore');
+                 if (scoreEl) {
+                     const cpu = parseInt(cpuVal.textContent) || 0;
+                     const mem = parseInt(memVal.textContent) || 0;
+                     const score = Math.max(0, 100 - Math.max(cpu, mem));
+                     scoreEl.textContent = score + '%';
+                 }
              }
         });
         if (cpuVal) valObserver.observe(cpuVal, { childList: true, characterData: true, subtree: true });
