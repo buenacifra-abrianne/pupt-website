@@ -217,8 +217,9 @@
         </li>
         @endif
 
-        <li class="sidebar-footer-text" style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center; color: #ffffff; font-size: 12px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 0; background: inherit; z-index: 10;">
-            Mula Sa'yo, Para sa Bayan
+        <li class="sidebar-footer-text" style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center; color: #ffffff; font-size: 12px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 0; background: inherit; z-index: 10; line-height: 1.5;">
+            Mula Sa'yo, Para sa Bayan<br>
+            <span style="font-weight: bold; opacity: 0.7; font-size: 10px; font-style: normal;">PUPT CMS V.2026</span>
         </li>
     </ul>
 </nav>
