@@ -459,11 +459,15 @@
     <div id="announcementModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">New Announcement</h2>
-                <button class="close-modal" onclick="closeAnnouncementModal()">
+                <div class="modal-header-text">
+                    <h2 class="modal-title">New Announcement</h2>
+                    <p class="modal-description">Add or edit a campus announcement.</p>
+                </div>
+                <button type="button" class="close-modal" onclick="closeAnnouncementModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+            <hr class="modal-divider">
 
             <form id="announcementForm" method="POST" action="{{ route('superadmin.announcements.save') }}">
                 @csrf
@@ -545,11 +549,15 @@
     <div id="newsModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title">New News Article</h2>
-                <button class="close-modal" onclick="closeNewsModal()">
+                <div class="modal-header-text">
+                    <h2 class="modal-title">New News Article</h2>
+                    <p class="modal-description">Create or update a news post for the campus.</p>
+                </div>
+                <button type="button" class="close-modal" onclick="closeNewsModal()">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
+            <hr class="modal-divider">
 
             <form id="newsForm" action="{{ route('superadmin.news.save') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -561,7 +569,7 @@
             name="title"
             id="newsTitle"
             required
-            maxlength="60"
+            maxlength="120"
             placeholder="Title"
         >
 </div>
