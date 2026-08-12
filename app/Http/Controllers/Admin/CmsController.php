@@ -107,6 +107,8 @@ class CmsController extends Controller
             'about.sections.*.visible_in_contents' => ['nullable'],
             'about.sections.*.image' => ['nullable', 'string', 'max:2048'],
             'about.sections.*.image_file' => ['nullable', 'image', 'max:5120'],
+            'about.sections.*.quality_policy_image' => ['nullable', 'string', 'max:2048'],
+            'about.sections.*.quality_policy_image_file' => ['nullable', 'image', 'max:5120'],
             'about.sections.*.page_kicker' => ['nullable', 'string', 'max:255'],
             'about.sections.*.page_title' => ['nullable', 'string', 'max:255'],
             'about.sections.*.vision' => ['nullable', 'string'],
@@ -566,13 +568,19 @@ class CmsController extends Controller
                 if (is_array($sectionUploads)) {
                     foreach ($sectionUploads as $slug => $sectionUpload) {
                         $upload = is_array($sectionUpload) ? ($sectionUpload['image_file'] ?? null) : null;
-                        if (!$upload instanceof UploadedFile) {
-                            continue;
+                        if ($upload instanceof UploadedFile) {
+                            $storedPath = ImageStorage::store($upload, 'about/sections');
+                            if ($storedPath !== false) {
+                                $aboutInput['sections'][$slug]['image'] = $storedPath;
+                            }
                         }
 
-                        $storedPath = ImageStorage::store($upload, 'about/sections');
-                        if ($storedPath !== false) {
-                            $aboutInput['sections'][$slug]['image'] = $storedPath;
+                        $qualityUpload = is_array($sectionUpload) ? ($sectionUpload['quality_policy_image_file'] ?? null) : null;
+                        if ($qualityUpload instanceof UploadedFile) {
+                            $storedPath = ImageStorage::store($qualityUpload, 'about/sections/quality');
+                            if ($storedPath !== false) {
+                                $aboutInput['sections'][$slug]['quality_policy_image'] = $storedPath;
+                            }
                         }
                     }
                 }

@@ -136,6 +136,7 @@ class AboutCmsContent
                 'core_values_heading' => 'INSPIRED values that shape the character of the PUP community.',
                 'download_title' => 'Download VMGO',
                 'download_link' => '',
+                'quality_policy_image' => '',
             ],
             'logo-and-symbols' => [
                 'slug' => 'logo-and-symbols',
@@ -543,6 +544,7 @@ class AboutCmsContent
                 'core_values_heading' => self::pickString($source, $base, $defaults, 'core_values_heading', 255),
                 'download_title' => self::pickString($source, $base, $defaults, 'download_title', 255),
                 'download_link' => self::pickString($source, $base, $defaults, 'download_link', 2048),
+                'quality_policy_image' => self::pickOptionalString($source, $base, $defaults, 'quality_policy_image', 2048),
             ]),
             'logo-and-symbols' => (function () use ($section, $source, $base, $defaults): array {
                 $lead = self::pickString($source, $base, $defaults, 'lead', 4000);

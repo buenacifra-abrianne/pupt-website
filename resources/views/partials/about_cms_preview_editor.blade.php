@@ -678,6 +678,72 @@
                 </form>
             </section>
 
+            <section class="about-cms-editor-panel" data-about-editor-panel="pup-quality-policy" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="vision-and-mission">
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    @php
+                        $qualityPolicyImageInputId = $idPrefix.'-quality-policy-image';
+                        $qualityPolicyImageFieldId = $idPrefix.'-quality-policy-image-field';
+                        $emptyPlaceholderSrc = asset('assets/static_img/pupillar.jpeg');
+                        $hasQualityImage = trim($visionEditor['quality_policy_image'] ?? '') !== '';
+                        $qualityPolicyImagePreview = \App\Support\AboutCmsContent::resolveImagePath($visionEditor['quality_policy_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                    @endphp
+                    <input type="hidden" id="{{ $qualityPolicyImageFieldId }}" name="about[sections][vision-and-mission][quality_policy_image]" value="{{ $visionEditor['quality_policy_image'] ?? '' }}">
+
+                    <div class="form-group">
+                        <label>Upload Quality Policy Image</label>
+                        <div class="about-cms-image-dropzone-shell">
+                            <div class="about-cms-image-dropzone" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);" data-about-dropzone-for="{{ $qualityPolicyImageInputId }}" role="button" tabindex="0" aria-label="Upload quality policy image">
+                                <span class="about-cms-image-dropzone-preview-column">
+                                    <span class="about-cms-image-dropzone-media">
+                                        <img
+                                            src="{{ $qualityPolicyImagePreview }}"
+                                            alt="Quality Policy image preview"
+                                            class="about-cms-image-dropzone-preview {{ !$hasQualityImage ? 'about-cms-image-dropzone-preview--profile-placeholder' : '' }}"
+                                            data-about-preview-for="{{ $qualityPolicyImageInputId }}"
+                                            data-about-default-src="{{ $emptyPlaceholderSrc }}"
+                                        >
+                                        <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $qualityPolicyImageInputId }}" aria-label="Edit image" title="Edit image">
+                                            <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                        </button>
+                                        <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $qualityPolicyImageInputId }}" aria-label="Delete image" title="Delete image">
+                                            <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                        </button>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-label">Quality Policy Image</span>
+                                </span>
+                                <span class="about-cms-image-dropzone-upload">
+                                    <span class="about-cms-image-dropzone-icon">
+                                        <i class="fas fa-arrow-up" aria-hidden="true"></i>
+                                    </span>
+                                    <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                    <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                    <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $qualityPolicyImageInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                </span>
+                            </div>
+                        </div>
+                        <input
+                            id="{{ $qualityPolicyImageInputId }}"
+                            class="about-cms-image-dropzone-input"
+                            type="file"
+                            name="about[sections][vision-and-mission][quality_policy_image_file]"
+                            accept="image/*"
+                            data-about-image-field-id="{{ $qualityPolicyImageFieldId }}"
+                        >
+                    </div>
+
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('PUP Quality Policy') }}</button>
+                    </div>
+                </form>
+            </section>
+
             <section class="about-cms-editor-panel" data-about-editor-panel="vision-and-mission" hidden>
                 <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}">
                     @csrf
