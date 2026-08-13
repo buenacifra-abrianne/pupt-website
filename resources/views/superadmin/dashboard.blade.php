@@ -51,7 +51,7 @@
                     <div class="stat-info" style="flex: 1;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
                             <div class="stat-label" style="margin-bottom:0; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">Pending Approvals</div>
-                            <a class="btn btn-outline btn-sm" href="{{ route('superadmin.approvals.pending') }}" style="border-radius: 20px; padding: 4px 12px; font-size: 10px; font-weight: 600;">
+                            <a class="btn btn-outline btn-sm" href="{{ route('superadmin.approvals.pending') }}" style="border-radius: 20px; padding: 4px 12px; font-size: 10px; font-weight: 600; min-width: auto; height: auto;">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
