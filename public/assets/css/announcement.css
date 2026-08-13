@@ -1189,51 +1189,92 @@ body {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(20, 10, 10, 0.6);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     z-index: 2000;
     align-items: center;
     justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
 }
 
 .modal.active {
     display: flex;
+    opacity: 1;
+}
+
+.modal.active .modal-content {
+    transform: translateY(0) scale(1);
+    opacity: 1;
 }
 
 .modal-content {
-    background: white;
-    border-radius: 10px;
-    padding: 30px;
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 32px 36px;
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     max-height: 90vh;
     overflow-y: auto;
+    box-shadow: 0 25px 50px -12px rgba(123, 17, 19, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    transform: translateY(15px) scale(0.98);
+    opacity: 0;
+    transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 .modal-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #D4AF37;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+hr.modal-divider {
+    border: none;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    margin: 0 -36px 24px -36px;
+}
+
+.modal-header-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 
 .modal-title {
     color: var(--theme-maroon);
     font-size: 20px;
     font-weight: 700;
+    margin: 0;
+}
+
+.modal-description {
+    color: #7c6660;
+    font-size: 14px;
+    margin: 0;
 }
 
 .close-modal {
-    background: none;
+    background: #fdf0f0;
     border: none;
-    font-size: 24px;
-    color: #999;
+    font-size: 18px;
     cursor: pointer;
+    color: var(--theme-maroon);
+    transition: all 0.2s ease;
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 .close-modal:hover {
-    color: var(--theme-maroon);
+    background: #f8e1e1;
+    transform: scale(1.05);
 }
 
 .form-group {
@@ -1550,8 +1591,7 @@ body {
 }
 
 .card,
-.news-card,
-.modal-content {
+.news-card {
     background: var(--admin-panel-gradient-soft);
     border: 1px solid var(--admin-panel-border);
     border-radius: 18px;

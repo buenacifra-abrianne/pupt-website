@@ -347,11 +347,12 @@
               </article>
 
             @empty
-              <article class="announcement-item empty-state mini-empty-state news-empty-state">
-                <span class="empty-state-icon" aria-hidden="true">
-                  <span class="empty-state-icon-cancel">×</span>
-                </span>
-                <h4>NO NEWS PUBLISHED</h4>
+              <article class="empty-state news-empty-state" style="text-align: center; padding: 2.5rem 1rem; border: none; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: none; width: 100%; height: 100%; min-height: 250px; grid-column: 1 / -1; flex: 1;">
+                <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" style="width: 70px; height: 70px; object-fit: contain; opacity: 0.9;" />
+                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                  <h4 style="margin: 0; font-size: 1.1rem; color: #8a1538; font-weight: 700; text-transform: none; letter-spacing: normal;">You are up to date!</h4>
+                  <p style="margin: 0; font-size: 0.9rem; color: #666;">Stay tuned for more updates!</p>
+                </div>
               </article>
             @endforelse
             </div>
@@ -420,11 +421,12 @@
                   if (visibleCount === 0) {
                     if (!emptyState) {
                       const emptyHtml = `
-                        <article class="announcement-item empty-state mini-empty-state news-empty-state">
-                          <span class="empty-state-icon" aria-hidden="true">
-                            <span class="empty-state-icon-cancel">×</span>
-                          </span>
-                          <h4>NO NEWS FOR THIS CATEGORY</h4>
+                        <article class="empty-state news-empty-state" style="text-align: center; padding: 2.5rem 1rem; border: none; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: none; width: 100%; height: 100%; min-height: 250px; grid-column: 1 / -1; flex: 1;">
+                          <img src="/assets/static_img/logo.png" alt="PUP Logo" style="width: 70px; height: 70px; object-fit: contain; opacity: 0.9;" />
+                          <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                            <h4 style="margin: 0; font-size: 1.1rem; color: #8a1538; font-weight: 700; text-transform: none; letter-spacing: normal;">You are up to date!</h4>
+                            <p style="margin: 0; font-size: 0.9rem; color: #666;">Stay tuned for more updates!</p>
+                          </div>
                         </article>
                       `;
                       document.querySelector('.news-cards-row').insertAdjacentHTML('beforeend', emptyHtml);
@@ -474,11 +476,12 @@
                   </button>
                 </article>
               @empty
-                <article class="announcement-item empty-state mini-empty-state announcement-empty-state">
-                  <span class="empty-state-icon" aria-hidden="true">
-                    <span class="empty-state-icon-cancel">&times;</span>
-                  </span>
-                  <h4>NO ANNOUNCEMENT PUBLISHED</h4>
+                <article class="empty-state announcement-empty-state" style="text-align: center; padding: 2.5rem 1rem; border: none; background: transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.75rem; box-shadow: none; width: 100%; height: 100%; min-height: 250px; grid-column: 1 / -1; flex: 1;">
+                  <img src="{{ asset('assets/static_img/logo.png') }}" alt="PUP Logo" style="width: 70px; height: 70px; object-fit: contain; opacity: 0.9;" />
+                  <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                    <h4 style="margin: 0; font-size: 1.1rem; color: #8a1538; font-weight: 700; text-transform: none; letter-spacing: normal;">You are up to date!</h4>
+                    <p style="margin: 0; font-size: 0.9rem; color: #666;">Stay tuned for more updates!</p>
+                  </div>
                 </article>
               @endforelse
             </div>

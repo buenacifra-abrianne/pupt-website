@@ -180,7 +180,6 @@ pup-footer .footer {
   z-index: 999 !important;
 }
 
-.message-button:hover,
 .message-button:focus-visible {
   transform: translateY(-4px);
   box-shadow: var(--dm-glow);
@@ -228,7 +227,6 @@ pup-footer .footer {
   transform: translateY(0) scale(1);
 }
 
-.scroll-nav-button:hover,
 .scroll-nav-button:focus-visible {
   background: linear-gradient(135deg, var(--home-maroon, var(--dm-accent-hover)) 0%, var(--home-maroon-deep, #4f090c) 100%);
   transform: translateY(-4px);
@@ -1567,3 +1565,174 @@ body.modal-open {
   touch-action: none;
   overscroll-behavior: none;
 }
+/* ========== Global Shiny Button Hover Animation ========== */
+.btn, 
+.btn-primary, 
+.announcement-read-more, 
+.read-more, 
+.news-read-more, 
+a.btn, 
+input[type="submit"], 
+input[type="button"],
+.portal-button,
+.see-more,
+.view-link,
+.card-btn,
+.view-all,
+.quick-link,
+.header-btn,
+.action-btn,
+.tab-btn,
+.login-btn,
+.btn-secondary,
+.btn-outline,
+.btn-danger,
+.btn-success,
+.top-tab-btn,
+.btn-edit,
+.btn-edit-small,
+.priority-btn,
+.contents-card-action,
+.students-card-action,
+.updates-card-action,
+.card-action,
+.charter-card-link-btn {
+  pointer-events: auto !important;
+}
+
+.contents-card-action,
+.students-card-action,
+.updates-card-action,
+.card-action,
+.charter-card-link-btn,
+a[class*="btn"] {
+  position: relative !important;
+  overflow: hidden !important;
+  filter: brightness(0.9);
+}
+
+.btn:hover, 
+.btn-primary:hover, 
+.announcement-read-more:hover, 
+.read-more:hover, 
+.news-read-more:hover, 
+a.btn:hover, 
+input[type="submit"]:hover, 
+input[type="button"]:hover,
+.portal-button:hover,
+.see-more:hover,
+.view-link:hover,
+.card-btn:hover,
+.view-all:hover,
+.quick-link:hover,
+.header-btn:hover,
+.action-btn:hover,
+.tab-btn:hover,
+.login-btn:hover,
+.btn-secondary:hover,
+.btn-outline:hover,
+.btn-danger:hover,
+.btn-success:hover,
+.top-tab-btn:hover,
+.btn-edit:hover,
+.btn-edit-small:hover,
+.priority-btn:hover,
+.contents-card-action:hover,
+.students-card-action:hover,
+.updates-card-action:hover,
+.card-action:hover,
+.charter-card-link-btn:hover,
+a[class*="btn"]:hover {
+  filter: brightness(1.1) !important;
+}
+
+.btn::before, 
+.btn-primary::before, 
+.announcement-read-more::before, 
+.read-more::before, 
+.news-read-more::before, 
+a.btn::before, 
+input[type="submit"]::before, 
+input[type="button"]::before,
+.portal-button::before,
+.see-more::before,
+.view-link::before,
+.card-btn::before,
+.view-all::before,
+.quick-link::before,
+.header-btn::before,
+.action-btn::before,
+.tab-btn::before,
+.login-btn::before,
+.btn-secondary::before,
+.btn-outline::before,
+.btn-danger::before,
+.btn-success::before,
+.top-tab-btn::before,
+.btn-edit::before,
+.btn-edit-small::before,
+.priority-btn::before,
+.contents-card-action::before,
+.students-card-action::before,
+.updates-card-action::before,
+.card-action::before,
+.charter-card-link-btn::before,
+a[class*="btn"]::before {
+  content: '' !important;
+  position: absolute !important;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+  z-index: 5;
+}
+
+.btn:hover::before, 
+.btn-primary:hover::before, 
+.announcement-read-more:hover::before, 
+.read-more:hover::before, 
+.news-read-more:hover::before, 
+a.btn:hover::before, 
+input[type="submit"]:hover::before, 
+input[type="button"]:hover::before,
+.portal-button:hover::before,
+.see-more:hover::before,
+.view-link:hover::before,
+.card-btn:hover::before,
+.view-all:hover::before,
+.quick-link:hover::before,
+.header-btn:hover::before,
+.action-btn:hover::before,
+.tab-btn:hover::before,
+.login-btn:hover::before,
+.btn-secondary:hover::before,
+.btn-outline:hover::before,
+.btn-danger:hover::before,
+.btn-success:hover::before,
+.top-tab-btn:hover::before,
+.btn-edit:hover::before,
+.btn-edit-small:hover::before,
+.priority-btn:hover::before,
+.contents-card-action:hover::before,
+.students-card-action:hover::before,
+.updates-card-action:hover::before,
+.card-action:hover::before,
+.charter-card-link-btn:hover::before,
+a[class*="btn"]:hover::before {
+  animation: shine-sweep 0.6s ease-in-out !important;
+}
+
+@keyframes shine-sweep {
+  0% { left: -150%; }
+  100% { left: 150%; }
+}
+
+

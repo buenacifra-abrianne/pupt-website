@@ -385,7 +385,7 @@
                     @elseif($selectedSlug === 'vision-and-mission')
                         <section class="history-story history-story--vision">
                             <div class="history-story-inner">
-                                <div class="history-timeline-container history-timeline-container--vision reveal">
+                                <div class="history-timeline-container history-timeline-container--vision reveal" style="max-width: 100%; padding-left: 0; padding-right: 0;">
                                     <div class="history-timeline-shell history-timeline-shell--vision">
                                     <div class="about-detail-body about-detail-body--vision">
                                         @if($cmsPreview)
@@ -598,6 +598,36 @@
                                                     </div>
                                                 </article>
                                             @endforeach
+                                        </div>
+                                    </div>
+                                </article>
+
+                                {{-- PUP Quality Policy --}}
+                                <article
+                                    class="about-values-band reveal{{ $cmsPreview ? ' cms-preview-editable' : '' }}"
+                                    style="margin-top: 60px;"
+                                    @if($cmsPreview)
+                                        data-cms-section="pup-quality-policy"
+                                        data-cms-section-label="PUP Quality Policy"
+                                    @endif
+                                >
+                                    @if($cmsPreview)
+                                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="pup-quality-policy" aria-label="Edit PUP Quality Policy">
+                                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
+                                            </svg>
+                                        </button>
+                                    @endif
+                                    <div @if($cmsPreview) data-cms-boundary class="cms-preview-boundary-edge" @endif>
+                                        @php
+                                            $qualityPolicyImage = \App\Support\AboutCmsContent::resolveImagePath($selectedSection['quality_policy_image'] ?? null, 'assets/static_img/pupillar.jpeg');
+                                        @endphp
+                                        <div class="about-values-band-head">
+                                            <h3>PUP QUALITY POLICY</h3>
+                                        </div>
+                                        
+                                        <div style="width: 100%; border-top: 1px solid rgba(243, 196, 90, 0.18);">
+                                            <img src="{{ $qualityPolicyImage }}" alt="PUP Quality Policy" style="width: 100%; height: auto; display: block;">
                                         </div>
                                     </div>
                                 </article>
