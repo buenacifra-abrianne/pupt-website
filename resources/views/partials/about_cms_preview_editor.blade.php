@@ -708,6 +708,7 @@
                                             class="about-cms-image-dropzone-preview {{ !$hasQualityImage ? 'about-cms-image-dropzone-preview--profile-placeholder' : '' }}"
                                             data-about-preview-for="{{ $qualityPolicyImageInputId }}"
                                             data-about-default-src="{{ $emptyPlaceholderSrc }}"
+                                            onerror="if (this.src !== this.dataset.aboutDefaultSrc) { this.src = this.dataset.aboutDefaultSrc; this.classList.add('about-cms-image-dropzone-preview--profile-placeholder'); }"
                                         >
                                         <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $qualityPolicyImageInputId }}" aria-label="Edit image" title="Edit image">
                                             <i class="fas fa-crop-alt" aria-hidden="true"></i>

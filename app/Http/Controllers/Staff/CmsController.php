@@ -601,6 +601,10 @@ class CmsController extends Controller
             }
 
             if ($sectionKey === '' || $sectionKey === 'vision-and-mission') {
+                if ($request->exists('about.sections.vision-and-mission.quality_policy_image')) {
+                    $aboutInput['sections']['vision-and-mission']['quality_policy_image'] = (string) ($request->input('about.sections.vision-and-mission.quality_policy_image') ?? '');
+                }
+
                 $qualityUpload = data_get($request->file('about.sections', []), 'vision-and-mission.quality_policy_image_file');
                 if ($qualityUpload instanceof UploadedFile) {
                     $storedPath = ImageStorage::store($qualityUpload, 'about/sections/quality');
