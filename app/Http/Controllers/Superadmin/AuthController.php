@@ -465,7 +465,7 @@ class AuthController extends Controller
             $this->clearAuthState($request);
 
             return redirect('/')
-                ->with('error', 'You have no role in this system. Please check with the superadmin.');
+                ->with('error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
         $dbRole = $this->normalizeDbRole((string) ($user->role_code ?? $user->role ?? ''));
@@ -518,7 +518,7 @@ class AuthController extends Controller
             $this->clearAuthState($request);
 
             return redirect('/')
-                ->with('error', 'You have no role in this system. Please check with the superadmin.');
+                ->with('error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
         DB::table('users')

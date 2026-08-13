@@ -165,8 +165,7 @@ class OnePortalController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin. 
-            If you want to switch accounts, please log out from the Identity Provider first.')
+            ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
@@ -260,7 +259,7 @@ class OnePortalController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.')
+            ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }

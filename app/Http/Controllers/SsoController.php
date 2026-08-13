@@ -46,7 +46,7 @@ class SsoController extends Controller
             \App\Services\IncidentResponseService::recordFailure($request->ip(), $portalUser['email'], 'FAILED_SSO_LOGIN', 'Blocked SSO login: unknown user');
 
             return redirect()->route('public.landing')
-                ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+                ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
         if (!in_array((string) $user->status, ['Active', 'Suspended'], true)) {
@@ -101,7 +101,7 @@ class SsoController extends Controller
             \App\Services\IncidentResponseService::recordFailure($request->ip(), $user->email, 'FAILED_SSO_LOGIN', 'Blocked SSO login: no valid role');
 
             return redirect()->route('public.landing')
-                ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+                ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
         session([
@@ -165,6 +165,6 @@ class SsoController extends Controller
         }
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+            ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
     }
 }
