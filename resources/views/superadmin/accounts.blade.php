@@ -1049,10 +1049,10 @@ function renderFacultyDropdown(query = '') {
     const safeId = String(f.id || '').replace(/"/g, '&quot;');
     const safeName = escapeHtml(f.label || [f.first_name, f.last_name].filter(Boolean).join(' '));
     const safeEmail = escapeHtml(f.email || '');
-    const meta = alreadyExists ? 'Already has CMS access' : safeEmail;
+    const meta = alreadyExists ? 'This user is already added to the CMS.' : safeEmail;
 
     return `
-      <div class="searchable-option ${alreadyExists ? 'disabled-option' : ''}" data-id="${safeId}" data-disabled="${alreadyExists ? '1' : '0'}">
+      <div class="searchable-option ${alreadyExists ? 'disabled-option' : ''}" data-id="${safeId}" data-disabled="${alreadyExists ? '1' : '0'}" style="${alreadyExists ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
         <div class="opt-name">${safeName}</div>
         <div class="opt-meta">${escapeHtml(meta)}</div>
       </div>
