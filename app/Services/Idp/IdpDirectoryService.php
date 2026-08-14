@@ -63,8 +63,11 @@ class IdpDirectoryService
                 $items = $data['users'] ?? [];
                 
                 foreach ($items as $item) {
-                    // Only show users with Faculty account type
-                    if (strcasecmp($item['account_type'] ?? '', 'Faculty') !== 0) {
+                    // Display everything EXCEPT Applicant, Guest, Student, Alumni
+                    $excludedTypes = ['applicant', 'guest', 'student', 'alumni'];
+                    $accountType = strtolower($item['account_type'] ?? '');
+                    
+                    if (in_array($accountType, $excludedTypes, true)) {
                         continue;
                     }
 
