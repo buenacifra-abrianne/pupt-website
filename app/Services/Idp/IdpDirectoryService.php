@@ -63,14 +63,6 @@ class IdpDirectoryService
                 $items = $data['users'] ?? [];
                 
                 foreach ($items as $item) {
-                    // Display everything EXCEPT Applicant, Guest, Student, Alumni
-                    $excludedTypes = ['applicant', 'guest', 'student', 'alumni'];
-                    $accountType = strtolower($item['account_type'] ?? '');
-                    
-                    if (in_array($accountType, $excludedTypes, true)) {
-                        continue;
-                    }
-
                     $users[] = [
                         'oneportal_id' => $item['id'] ?? null,
                         'first_name'   => $item['first_name'] ?? '',
