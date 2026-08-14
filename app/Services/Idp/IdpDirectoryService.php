@@ -26,7 +26,7 @@ class IdpDirectoryService
 
         $users = [];
         $page = 1;
-        $limit = 10;
+        $limit = 200;
         $baseUrl = rtrim(env('IDP_BASE_URL', ''), '/');
 
         if (empty($baseUrl)) {
@@ -76,7 +76,7 @@ class IdpDirectoryService
                 $lastPage = $data['meta']['last_page'] ?? $data['last_page'] ?? 1;
                 $page++;
 
-            } while ($page <= $lastPage && $page <= 100); // Failsafe limit of 100 pages
+            } while ($page <= $lastPage && $page <= 200); // Failsafe limit of 200 pages
 
         } catch (\Exception $e) {
             Log::error('IdpDirectoryService exception: ' . $e->getMessage());
