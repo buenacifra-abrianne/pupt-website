@@ -39,8 +39,12 @@ class IdpDirectoryService
         }
 
         try {
+            Log::info('IdpDirectoryService: Fetching users with access_token: ' . ($accessToken ? 'PRESENT' : 'EMPTY'));
             do {
-                $response = Http::withCookies(['access_token' => $accessToken], parse_url($baseUrl, PHP_URL_HOST))
+                $response = Http::withHeaders([
+                        'Cookie' => 'access_token=' . $accessToken,
+                        'Accept' => 'application/json',
+                    ])
                     ->timeout(10)
                     ->get($baseUrl . '/api/v1/admin/users', [
                         'page' => $page,
