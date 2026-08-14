@@ -114,18 +114,6 @@
             </div>
 
             <div class="mbody">
-    @if(!empty($isFacultyCached) && $isFacultyCached)
-    <div style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-exclamation-circle" style="font-size: 16px;"></i>
-        <span>Using offline faculty directory from {{ $facultyCacheTimestamp ? \Carbon\Carbon::parse($facultyCacheTimestamp)->format('M d, Y h:i A') : 'an unknown time' }}. Recent changes may not be visible.</span>
-    </div>
-    @endif
-    @if(!empty($isAdminCached) && $isAdminCached)
-    <div style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-exclamation-circle" style="font-size: 16px;"></i>
-        <span>Using offline admin directory from {{ $adminCacheTimestamp ? \Carbon\Carbon::parse($adminCacheTimestamp)->format('M d, Y h:i A') : 'an unknown time' }}. Recent changes may not be visible.</span>
-    </div>
-    @endif
     <div class="frow frow-single" id="facultyPickerRow" style="display:grid;">
       <div class="fg">
         <label>Select User <span class="req">*</span></label>
