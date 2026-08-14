@@ -1006,7 +1006,7 @@ function clearFacultySelection() {
 }
 
 function selectFaculty(faculty) {
-  document.getElementById('facultySelect').value = String(faculty.id || '');
+  document.getElementById('facultySelect').value = String(faculty.oneportal_id || faculty.email || '');
   document.getElementById('facultySearch').value = faculty.label || [faculty.first_name, faculty.last_name].filter(Boolean).join(' ');
   document.getElementById('f-fn').value = faculty.first_name || '';
   document.getElementById('f-ln').value = faculty.last_name || '';
@@ -1046,7 +1046,8 @@ function renderFacultyDropdown(query = '') {
 
   dropdown.innerHTML = filteredFaculty.map(f => {
     const alreadyExists = existingEmails.has(normalizeText(f.email));
-    const safeId = String(f.id || '').replace(/"/g, '&quot;');
+    const uniqueKey = String(f.oneportal_id || f.email || '');
+    const safeId = uniqueKey.replace(/"/g, '&quot;');
     const safeName = escapeHtml(f.label || [f.first_name, f.last_name].filter(Boolean).join(' '));
     const safeEmail = escapeHtml(f.email || '');
     const meta = alreadyExists ? 'This user is already added to the CMS.' : safeEmail;
@@ -1068,7 +1069,7 @@ function renderFacultyDropdown(query = '') {
         return;
       }
 
-      const selected = facultyDirectory.find(x => String(x.id) === String(this.dataset.id));
+      const selected = facultyDirectory.find(x => String(x.oneportal_id || x.email || '') === String(this.dataset.id));
       if (selected) selectFaculty(selected);
     });
   });
