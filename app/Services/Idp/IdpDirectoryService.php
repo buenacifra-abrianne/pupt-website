@@ -43,6 +43,7 @@ class IdpDirectoryService
             do {
                 $response = Http::withHeaders([
                         'Cookie' => 'access_token=' . $accessToken,
+                        'Authorization' => 'Bearer ' . $accessToken,
                         'Accept' => 'application/json',
                     ])
                     ->timeout(10)
@@ -52,19 +53,18 @@ class IdpDirectoryService
                     ]);
 
                 if (!$response->successful()) {
-                    Log::error('IdpDirectoryService failed to fetch users. Status: ' . $response->status());
+                    Log::error('IdpDirectoryService failed to fetch users. Status: ' . $response->status() . ' Body: ' . $response->body());
                     break;
                 }
 
                 $data = $response->json();
+                Log::info('IdpDirectoryService Response: ' . json_encode($data));
                 
-                // Assuming standard pagination response with 'data' key containing the array of users
-                // and 'meta' containing pagination details
-                $items = $data['data'] ?? [];
+                $items = $data['users'] ?? [];
                 
                 foreach ($items as $item) {
                     $users[] = [
-                        'oneportal_id' => $item['oneportal_id'] ?? null,
+                        'oneportal_id' => $item['id'] ?? null,
                         'first_name'   => $item['first_name'] ?? '',
                         'middle_name'  => $item['middle_name'] ?? '',
                         'last_name'    => $item['last_name'] ?? '',
@@ -73,7 +73,7 @@ class IdpDirectoryService
                     ];
                 }
 
-                $lastPage = $data['meta']['last_page'] ?? 1;
+                $lastPage = $data['meta']['last_page'] ?? $data['last_page'] ?? 1;
                 $page++;
 
             } while ($page <= $lastPage && $page <= 100); // Failsafe limit of 100 pages
