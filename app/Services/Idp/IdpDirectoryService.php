@@ -63,6 +63,11 @@ class IdpDirectoryService
                 $items = $data['users'] ?? [];
                 
                 foreach ($items as $item) {
+                    // Only show users with Faculty account type
+                    if (strcasecmp($item['account_type'] ?? '', 'Faculty') !== 0) {
+                        continue;
+                    }
+
                     $users[] = [
                         'oneportal_id' => $item['id'] ?? null,
                         'first_name'   => $item['first_name'] ?? '',
