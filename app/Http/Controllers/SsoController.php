@@ -140,6 +140,8 @@ class SsoController extends Controller
             'user_email' => $user->email,
             'sso_logged_in' => true,
             'terms_accepted' => false,
+            'access_token' => $token,
+            'oneportal_id' => $user->oneportal_id ?? null,
         ]);
 
         DB::table('users')

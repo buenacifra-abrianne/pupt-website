@@ -72,7 +72,7 @@ class AccountsController extends Controller
                 ->groupBy('user_id');
         }
 
-        $accessToken = $request->cookie('access_token', '');
+        $accessToken = (string) ($request->cookie('access_token') ?: session('access_token') ?: '');
         
         $idpDirectoryResponse = $idpDirectoryService->getActiveUsersForDropdown($accessToken);
         $idpDirectory = $idpDirectoryResponse['data'] ?? [];
