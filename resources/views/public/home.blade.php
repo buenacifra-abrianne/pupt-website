@@ -129,7 +129,7 @@
           </svg>
         </button>
       @endif
-
+      <canvas id="hero-particles"></canvas>
       <div data-cms-boundary class="cms-preview-boundary-edge">
         <section class="carousel-section">
           <div class="carousel full-carousel">
@@ -1315,5 +1315,6 @@
   @endif
 
 <script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/particles.js') }}?v={{ filemtime(public_path('assets/js/particles.js')) }}" defer></script>
 </body>
 </html>
