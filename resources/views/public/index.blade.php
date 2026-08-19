@@ -34,12 +34,13 @@
     })();
 </script>
 <main class="menu">
+    <canvas id="hero-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
     <div class="landing-container">
         <section class="landing-identity">
             <h1 class="title">
-                <span class="title-welcome">WELCOME TO</span>
-                <span class="title-main-line">PUP TAGUIG</span>
-                <span class="title-main-line">WEBSITE</span>
+                <span class="title-welcome" style="min-height: 1em;">WELCOME TO</span>
+                <span class="title-main-line" style="min-height: 1.1em;">PUP TAGUIG</span>
+                <span class="title-main-line" style="min-height: 1.1em;">WEBSITE</span>
             </h1>
 
             <p class="kicker">Official Campus Website</p>
@@ -100,7 +101,7 @@
                 >
             </div>
 
-            <h2>Choose Destination</h2>
+            <h2 class="wavy-text">Choose Destination</h2>
             <p>Access faculty services or enter the public homepage.</p>
 
             @if (session('no_role_error'))
@@ -188,5 +189,113 @@
         });
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const titleContainer = document.querySelector('.landing-identity .title');
+        if (!titleContainer) return;
+        
+        const lines = [
+            titleContainer.querySelector('.title-welcome'),
+            titleContainer.querySelectorAll('.title-main-line')[0],
+            titleContainer.querySelectorAll('.title-main-line')[1]
+        ];
+        
+        const texts = lines.map(line => line.textContent.trim());
+        
+        // Clear all lines initially
+        lines.forEach(line => {
+            line.textContent = '';
+            line.style.display = 'inline-block';
+            line.style.margin = '0 auto';
+        });
+        
+        // Inject blinking caret CSS
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .landing-identity .title span {
+                border-right: 0.12em solid transparent;
+                padding-right: 0.15em; /* Space between text and cursor */
+            }
+            @keyframes blink-caret { 
+                from, to { border-color: transparent; } 
+                50% { border-color: rgba(255, 249, 243, 0.9); } 
+            }
+            .typing-active {
+                animation: blink-caret 0.85s step-end infinite;
+            }
+        `;
+        document.head.appendChild(style);
+
+        const totalDuration = 3000; // 3 seconds total
+        const totalChars = texts.reduce((sum, text) => sum + text.length, 0);
+        const delayPerChar = totalDuration / totalChars;
+        
+        let currentLine = 0;
+        let currentChar = 0;
+        
+        function typeWriter() {
+            if (currentLine < lines.length) {
+                const lineElement = lines[currentLine];
+                const text = texts[currentLine];
+                
+                // Add caret to current line
+                lineElement.classList.add('typing-active');
+                
+                if (currentChar < text.length) {
+                    lineElement.textContent += text.charAt(currentChar);
+                    currentChar++;
+                    setTimeout(typeWriter, delayPerChar);
+                } else {
+                    // Finished this line
+                    if (currentLine < lines.length - 1) {
+                        lineElement.classList.remove('typing-active');
+                    }
+                    currentLine++;
+                    currentChar = 0;
+                    setTimeout(typeWriter, delayPerChar);
+                }
+            }
+        }
+        
+        setTimeout(typeWriter, 300); // Small initial delay
+        
+        // Wavy Text Animation for Choose Destination
+        const wavyElement = document.querySelector('.wavy-text');
+        if (wavyElement) {
+            const text = wavyElement.textContent;
+            wavyElement.textContent = '';
+            
+            // Inject wavy CSS
+            const wavyStyle = document.createElement('style');
+            wavyStyle.innerHTML = `
+                .wavy-text span {
+                    display: inline-block;
+                    animation: wavy 2s ease-in-out infinite;
+                }
+                @keyframes wavy {
+                    0%, 100% { transform: translateY(0); }
+                    25% { transform: translateY(-6px); }
+                    75% { transform: translateY(6px); }
+                }
+            `;
+            document.head.appendChild(wavyStyle);
+            
+            // Wrap each letter in a span
+            for (let i = 0; i < text.length; i++) {
+                const char = text[i];
+                const span = document.createElement('span');
+                
+                if (char === ' ') {
+                    span.innerHTML = '&nbsp;';
+                } else {
+                    span.textContent = char;
+                    span.style.animationDelay = (i * 0.05) + 's';
+                }
+                wavyElement.appendChild(span);
+            }
+        }
+    });
+</script>
+<script src="{{ asset('assets/js/particles.js') }}?v={{ filemtime(public_path('assets/js/particles.js')) }}" defer></script>
 </body>
 </html>
