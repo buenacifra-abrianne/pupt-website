@@ -357,6 +357,7 @@ $pendingNewsIds = DB::table('approval_requests')
         'category' => ['required','string','max:100'],
         'link' => ['nullable','string','max:255'],
         'location' => ['nullable','string','max:60'],
+        'expiration_date' => ['nullable','date'],
         'existing_image_path' => ['nullable','string'],
         'remove_image' => ['nullable','in:0,1'],
     ]);
@@ -412,6 +413,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'category' => PlainText::normalize($request->input('category')),
             'link' => $request->input('link'),
             'location' => PlainText::normalize($request->input('location')),
+            'expiration_date' => $request->input('expiration_date'),
             'image_path' => $imagePath,
         ]
     );
@@ -431,6 +433,7 @@ $pendingNewsIds = DB::table('approval_requests')
         'category' => ['required','string','max:100'],
         'link' => ['nullable','string','max:255'],
         'location' => ['nullable','string','max:60'],
+        'expiration_date' => ['nullable','date'],
         'existing_image_path' => ['nullable','string'],
         'remove_image' => ['nullable','in:0,1'],
     ]);
@@ -469,6 +472,7 @@ $pendingNewsIds = DB::table('approval_requests')
         'category' => PlainText::normalize($request->input('category')),
         'link' => $request->input('link'),
         'location' => PlainText::normalize($request->input('location')),
+        'expiration_date' => $request->input('expiration_date'),
         'image_path' => $imagePath,
     ];
 
