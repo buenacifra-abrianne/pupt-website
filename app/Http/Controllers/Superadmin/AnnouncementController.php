@@ -76,16 +76,16 @@ class AnnouncementController extends Controller
                 return $news;
             });
 
-        $oneMonthAgo = now()->subMonth();
-
-        $active_news = $news_list->filter(function($news) use ($oneMonthAgo) {
-            $date = \Carbon\Carbon::parse($news->date_published ?? $news->created_at);
-            return $date >= $oneMonthAgo;
+        $active_news = $news_list->filter(function($news) {
+            $published = \Carbon\Carbon::parse($news->date_published ?? $news->created_at);
+            $expiration = $news->expiration_date ? \Carbon\Carbon::parse($news->expiration_date)->endOfDay() : $published->copy()->addMonth();
+            return now() <= $expiration;
         })->values();
 
-        $expired_news = $news_list->filter(function($news) use ($oneMonthAgo) {
-            $date = \Carbon\Carbon::parse($news->date_published ?? $news->created_at);
-            return $date < $oneMonthAgo;
+        $expired_news = $news_list->filter(function($news) {
+            $published = \Carbon\Carbon::parse($news->date_published ?? $news->created_at);
+            $expiration = $news->expiration_date ? \Carbon\Carbon::parse($news->expiration_date)->endOfDay() : $published->copy()->addMonth();
+            return now() > $expiration;
         })->values();
 
         $active_announcements = $announcements_all;
@@ -240,6 +240,7 @@ class AnnouncementController extends Controller
             'content' => ['required', 'string'],
             'category' => ['required', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:60'],
+            'expiration_date' => ['nullable', 'date'],
         ];
 
         if ($hasNewsLinkColumn) {
@@ -328,6 +329,7 @@ class AnnouncementController extends Controller
             'category' => $incomingCategory,
             'location' => $incomingLocation,
             'image_path' => $imagePath,
+            'expiration_date' => $request->input('expiration_date'),
             'date_published' => now(),
         ];
 
