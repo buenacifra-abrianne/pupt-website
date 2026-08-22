@@ -627,9 +627,10 @@ class AboutCmsContent
                 'organizational_chart_image' => self::pickOptionalString($source, $base, $defaults, 'organizational_chart_image', 2048),
                 'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
                 'official_groups' => self::normalizeOfficialGroups(
-                    $source['official_groups'] ?? [],
-                    $base['official_groups'] ?? $defaults['official_groups'],
-                    $defaults['official_groups']
+                    $source['official_groups'] ?? null,
+                    $base['official_groups'] ?? [],
+                    $defaults['official_groups'] ?? [],
+                    array_key_exists('label', $source) || array_key_exists('lead', $source) || array_key_exists('official_groups', $source)
                 ),
                 'officials_note' => self::pickString($source, $base, $defaults, 'officials_note', 4000),
             ]),
@@ -1090,7 +1091,7 @@ class AboutCmsContent
         return $items;
     }
 
-    private static function normalizeOfficialGroups(mixed $input, array $base, array $defaults): array
+    private static function normalizeOfficialGroups(mixed $input, array $base, array $defaults, bool $isUpdating = false): array
     {
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = array_values($base);
@@ -1131,8 +1132,13 @@ class AboutCmsContent
         }
 
         if (empty($items)) {
-            foreach ($defaultItems as $index => $defaultItem) {
+            $fallbackItems = (!$isUpdating && !empty($baseItems)) ? $baseItems : $defaultItems;
+
+            foreach ($fallbackItems as $index => $fallbackItem) {
                 $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];
+                $defaultItem = is_array($defaultItems[$index] ?? null)
+                    ? $defaultItems[$index]
+                    : ['name' => '', 'title' => '', 'body' => '', 'image' => '', 'order' => $index + 1];
                 $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
 
                 $items[] = [

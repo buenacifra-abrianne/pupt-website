@@ -145,17 +145,25 @@ class OnePortalController extends Controller
             ->with('error', 'Email not found from IDP.');
     }
 
-    // check local user by email
-    $user = DB::table('users')
-    ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
-    ->select(
-        'users.*',
-        'roles.code as role_code',
-        'roles.name as role_name',
-        'roles.level as role_level'
-    )
-    ->where('users.email', $email)
-    ->first();
+    // check local user by oneportal_id first, then email fallback
+    $userQuery = DB::table('users')
+        ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+        ->select(
+            'users.*',
+            'roles.code as role_code',
+            'roles.name as role_name',
+            'roles.level as role_level'
+        );
+
+    $user = null;
+
+    if ($id) {
+        $user = (clone $userQuery)->where('users.oneportal_id', $id)->first();
+    }
+
+    if (!$user && $email) {
+        $user = (clone $userQuery)->where('users.email', $email)->first();
+    }
 
     // if user does not exist locally, deny access
     if (!$user) {
@@ -165,8 +173,7 @@ class OnePortalController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin. 
-            If you want to switch accounts, please log out from the Identity Provider first.')
+            ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }
@@ -199,7 +206,7 @@ class OnePortalController extends Controller
         $updates['name'] = $fullName;
     }
 
-    if ($id && empty($user->oneportal_id)) {
+    if ($id && (empty($user->oneportal_id) || $user->oneportal_id != $id)) {
         $updates['oneportal_id'] = $id;
     }
 
@@ -260,7 +267,7 @@ class OnePortalController extends Controller
         $request->session()->regenerateToken();
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.')
+            ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.')
             ->withoutCookie('access_token')
             ->withoutCookie('refresh_token');
     }

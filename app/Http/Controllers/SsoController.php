@@ -21,22 +21,49 @@ class SsoController extends Controller
 
         $portalUser = $this->resolvePortalUserFromToken($token);
 
-        if (!$portalUser || empty($portalUser['email'])) {
+        if (!$portalUser || (empty($portalUser['email']) && empty($portalUser['oneportal_id']))) {
             AuditLog::record('SECURITY', 'SECURITY', 'Blocked SSO login: invalid or expired token.');
             \App\Services\IncidentResponseService::recordFailure($request->ip(), null, 'FAILED_SSO_LOGIN', 'Blocked SSO login: invalid or expired token.');
             abort(403, 'Invalid or expired SSO token.');
         }
 
-        $user = DB::table('users')
+        $userQuery = DB::table('users')
             ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
             ->select(
                 'users.*',
                 'roles.code as role_code',
                 'roles.name as role_name',
                 'roles.level as role_level'
-            )
-            ->whereRaw('LOWER(users.email) = ?', [strtolower(trim((string) $portalUser['email']))])
-            ->first();
+            );
+
+        $user = null;
+
+        if (!empty($portalUser['oneportal_id'])) {
+            $user = (clone $userQuery)
+                ->where('users.oneportal_id', $portalUser['oneportal_id'])
+                ->first();
+                
+            if ($user && !empty($portalUser['email']) && strtolower(trim((string) $user->email)) !== strtolower(trim((string) $portalUser['email']))) {
+                $newEmail = strtolower(trim((string) $portalUser['email']));
+                DB::table('users')
+                    ->where(isset($user->user_id) ? 'user_id' : 'id', $user->user_id ?? $user->id)
+                    ->update(['email' => $newEmail]);
+                $user->email = $newEmail;
+            }
+        }
+
+        if (!$user && !empty($portalUser['email'])) {
+            $user = (clone $userQuery)
+                ->whereRaw('LOWER(users.email) = ?', [strtolower(trim((string) $portalUser['email']))])
+                ->first();
+                
+            if ($user && !empty($portalUser['oneportal_id'])) {
+                DB::table('users')
+                    ->where(isset($user->user_id) ? 'user_id' : 'id', $user->user_id ?? $user->id)
+                    ->update(['oneportal_id' => $portalUser['oneportal_id']]);
+                $user->oneportal_id = $portalUser['oneportal_id'];
+            }
+        }
 
         if (!$user) {
             $request->session()->invalidate();
@@ -46,7 +73,7 @@ class SsoController extends Controller
             \App\Services\IncidentResponseService::recordFailure($request->ip(), $portalUser['email'], 'FAILED_SSO_LOGIN', 'Blocked SSO login: unknown user');
 
             return redirect()->route('public.landing')
-                ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+                ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
         if (!in_array((string) $user->status, ['Active', 'Suspended'], true)) {
@@ -101,7 +128,7 @@ class SsoController extends Controller
             \App\Services\IncidentResponseService::recordFailure($request->ip(), $user->email, 'FAILED_SSO_LOGIN', 'Blocked SSO login: no valid role');
 
             return redirect()->route('public.landing')
-                ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+                ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
         session([
@@ -113,6 +140,8 @@ class SsoController extends Controller
             'user_email' => $user->email,
             'sso_logged_in' => true,
             'terms_accepted' => false,
+            'access_token' => $token,
+            'oneportal_id' => $user->oneportal_id ?? null,
         ]);
 
         DB::table('users')
@@ -146,6 +175,7 @@ class SsoController extends Controller
          */
 
         return [
+            'oneportal_id' => null,
             'email' => null,
             'name'  => null,
             'role'  => null,
@@ -165,6 +195,6 @@ class SsoController extends Controller
         }
 
         return redirect()->route('public.landing')
-            ->with('no_role_error', 'You have no role in this system. Please check with the superadmin.');
+            ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
     }
 }

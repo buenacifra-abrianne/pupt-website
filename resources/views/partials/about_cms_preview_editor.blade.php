@@ -699,7 +699,7 @@
                     <div class="form-group">
                         <label>Upload Quality Policy Image</label>
                         <div class="about-cms-image-dropzone-shell">
-                            <div class="about-cms-image-dropzone" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);" data-about-dropzone-for="{{ $qualityPolicyImageInputId }}" role="button" tabindex="0" aria-label="Upload quality policy image">
+                            <div class="about-cms-image-dropzone" style="grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);" data-about-dropzone-for="{{ $qualityPolicyImageInputId }}" data-about-crop-ratio="original" role="button" tabindex="0" aria-label="Upload quality policy image">
                                 <span class="about-cms-image-dropzone-preview-column">
                                     <span class="about-cms-image-dropzone-media">
                                         <img
@@ -708,6 +708,7 @@
                                             class="about-cms-image-dropzone-preview {{ !$hasQualityImage ? 'about-cms-image-dropzone-preview--profile-placeholder' : '' }}"
                                             data-about-preview-for="{{ $qualityPolicyImageInputId }}"
                                             data-about-default-src="{{ $emptyPlaceholderSrc }}"
+                                            onerror="if (this.src !== this.dataset.aboutDefaultSrc) { this.src = this.dataset.aboutDefaultSrc; this.classList.add('about-cms-image-dropzone-preview--profile-placeholder'); }"
                                         >
                                         <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $qualityPolicyImageInputId }}" aria-label="Edit image" title="Edit image">
                                             <i class="fas fa-crop-alt" aria-hidden="true"></i>
@@ -735,6 +736,7 @@
                             name="about[sections][vision-and-mission][quality_policy_image_file]"
                             accept="image/*"
                             data-about-image-field-id="{{ $qualityPolicyImageFieldId }}"
+                            data-about-crop-ratio="original"
                         >
                     </div>
 

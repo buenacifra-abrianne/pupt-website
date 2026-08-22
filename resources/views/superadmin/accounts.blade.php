@@ -114,18 +114,6 @@
             </div>
 
             <div class="mbody">
-    @if(!empty($isFacultyCached) && $isFacultyCached)
-    <div style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-exclamation-circle" style="font-size: 16px;"></i>
-        <span>Using offline faculty directory from {{ $facultyCacheTimestamp ? \Carbon\Carbon::parse($facultyCacheTimestamp)->format('M d, Y h:i A') : 'an unknown time' }}. Recent changes may not be visible.</span>
-    </div>
-    @endif
-    @if(!empty($isAdminCached) && $isAdminCached)
-    <div style="background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; padding: 12px 15px; margin-bottom: 20px; border-radius: 4px; font-size: 13px; display: flex; align-items: center; gap: 8px;">
-        <i class="fas fa-exclamation-circle" style="font-size: 16px;"></i>
-        <span>Using offline admin directory from {{ $adminCacheTimestamp ? \Carbon\Carbon::parse($adminCacheTimestamp)->format('M d, Y h:i A') : 'an unknown time' }}. Recent changes may not be visible.</span>
-    </div>
-    @endif
     <div class="frow frow-single" id="facultyPickerRow" style="display:grid;">
       <div class="fg">
         <label>Select User <span class="req">*</span></label>
@@ -1018,7 +1006,7 @@ function clearFacultySelection() {
 }
 
 function selectFaculty(faculty) {
-  document.getElementById('facultySelect').value = String(faculty.id || '');
+  document.getElementById('facultySelect').value = String(faculty.oneportal_id || faculty.email || '');
   document.getElementById('facultySearch').value = faculty.label || [faculty.first_name, faculty.last_name].filter(Boolean).join(' ');
   document.getElementById('f-fn').value = faculty.first_name || '';
   document.getElementById('f-ln').value = faculty.last_name || '';
@@ -1058,13 +1046,14 @@ function renderFacultyDropdown(query = '') {
 
   dropdown.innerHTML = filteredFaculty.map(f => {
     const alreadyExists = existingEmails.has(normalizeText(f.email));
-    const safeId = String(f.id || '').replace(/"/g, '&quot;');
+    const uniqueKey = String(f.oneportal_id || f.email || '');
+    const safeId = uniqueKey.replace(/"/g, '&quot;');
     const safeName = escapeHtml(f.label || [f.first_name, f.last_name].filter(Boolean).join(' '));
     const safeEmail = escapeHtml(f.email || '');
-    const meta = alreadyExists ? 'Already has CMS access' : safeEmail;
+    const meta = alreadyExists ? 'This user is already added to the CMS.' : safeEmail;
 
     return `
-      <div class="searchable-option ${alreadyExists ? 'disabled-option' : ''}" data-id="${safeId}" data-disabled="${alreadyExists ? '1' : '0'}">
+      <div class="searchable-option ${alreadyExists ? 'disabled-option' : ''}" data-id="${safeId}" data-disabled="${alreadyExists ? '1' : '0'}" style="${alreadyExists ? 'opacity: 0.5; cursor: not-allowed;' : ''}">
         <div class="opt-name">${safeName}</div>
         <div class="opt-meta">${escapeHtml(meta)}</div>
       </div>
@@ -1080,7 +1069,7 @@ function renderFacultyDropdown(query = '') {
         return;
       }
 
-      const selected = facultyDirectory.find(x => String(x.id) === String(this.dataset.id));
+      const selected = facultyDirectory.find(x => String(x.oneportal_id || x.email || '') === String(this.dataset.id));
       if (selected) selectFaculty(selected);
     });
   });

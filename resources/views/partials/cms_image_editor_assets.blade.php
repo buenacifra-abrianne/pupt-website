@@ -305,8 +305,21 @@
             editor.stage.addEventListener('pointercancel', endDrag);
         }
 
-        function getAspectRatio(options) {
+        function getAspectRatio(options, uploadedImage) {
+            const input = options?.input;
             const preview = options?.previewElement;
+            const explicitRatio = input?.dataset?.aboutCropRatio || preview?.dataset?.aboutCropRatio || input?.closest('.about-cms-image-dropzone')?.dataset?.aboutCropRatio;
+
+            if (explicitRatio === 'original' && uploadedImage) {
+                const width = uploadedImage.naturalWidth;
+                const height = uploadedImage.naturalHeight;
+                if (width > 0 && height > 0) {
+                    return Math.min(4, Math.max(0.45, width / height));
+                }
+            } else if (explicitRatio && !isNaN(Number(explicitRatio))) {
+                return Number(explicitRatio);
+            }
+
             const rect = preview?.getBoundingClientRect?.();
             const width = Number(rect?.width || preview?.naturalWidth || 0);
             const height = Number(rect?.height || preview?.naturalHeight || 0);
@@ -317,6 +330,7 @@
 
             return 16 / 9;
         }
+
 
         function loadImage(file) {
             return new Promise((resolve, reject) => {
@@ -523,7 +537,7 @@
                     file,
                     image: loaded.image,
                     url: loaded.url,
-                    aspect: getAspectRatio(options),
+                    aspect: getAspectRatio(options, loaded.image),
                     zoom: 1,
                     offsetX: 0,
                     offsetY: 0,

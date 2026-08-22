@@ -13,14 +13,13 @@ use Illuminate\Support\Str;
 use App\Mail\NewAccountTempPasswordMail;
 use App\Support\AuditLog;
 use App\Support\Avatar;
-use App\Services\Flss\FacultyDirectoryService;
-use App\Services\Ocms\OcmsAdminDirectoryService;
+use App\Services\Idp\IdpDirectoryService;
 
 class AccountsController extends Controller
 {
     public function index(
-        FacultyDirectoryService $facultyDirectoryService,
-        OcmsAdminDirectoryService $ocmsAdminDirectoryService
+        Request $request,
+        IdpDirectoryService $idpDirectoryService
     )
     {
         $roles = $this->fetchRolesForUi();
@@ -73,39 +72,22 @@ class AccountsController extends Controller
                 ->groupBy('user_id');
         }
 
-        $facultyDirectoryResponse = $facultyDirectoryService->getActiveFacultyForDropdown();
-        $facultyDirectory = $facultyDirectoryResponse['data'] ?? [];
-        $isFacultyCached = $facultyDirectoryResponse['is_cached'] ?? false;
-        $facultyCacheTimestamp = $facultyDirectoryResponse['cached_at'] ?? null;
+        $accessToken = (string) ($request->cookie('access_token') ?: session('access_token') ?: '');
         
-        $ocmsDirectoryResponse = $ocmsAdminDirectoryService->getActiveAdminsForDropdown();
-        $ocmsDirectory = $ocmsDirectoryResponse['data'] ?? [];
-        $isAdminCached = $ocmsDirectoryResponse['is_cached'] ?? false;
-        $adminCacheTimestamp = $ocmsDirectoryResponse['cached_at'] ?? null;
+        $idpDirectoryResponse = $idpDirectoryService->getActiveUsersForDropdown($accessToken);
+        $idpDirectory = $idpDirectoryResponse['data'] ?? [];
+        $isIdpCached = $idpDirectoryResponse['is_cached'] ?? false;
+        $idpCacheTimestamp = $idpDirectoryResponse['cached_at'] ?? null;
 
-        $combinedDirectory = collect(array_merge($facultyDirectory, $ocmsDirectory))
+        $combinedDirectory = collect($idpDirectory)
             ->filter(function ($person) {
-                return trim((string) ($person['email'] ?? '')) !== '';
+                return trim((string) ($person['oneportal_id'] ?? '')) !== '' || trim((string) ($person['email'] ?? '')) !== '';
             })
             ->groupBy(function ($person) {
-                return strtolower(trim((string) ($person['email'] ?? '')));
+                return !empty($person['oneportal_id']) ? $person['oneportal_id'] : strtolower(trim((string) ($person['email'] ?? '')));
             })
             ->map(function ($group) {
-                $items = collect($group)->values();
-
-                $primary = $items->firstWhere(function($item) { return str_starts_with($item['source'] ?? '', 'FLSS'); })
-                    ?? $items->firstWhere(function($item) { return str_starts_with($item['source'] ?? '', 'OCMS'); })
-                    ?? $items->first();
-
-                $sources = $items->pluck('source')
-                    ->filter()
-                    ->unique()
-                    ->values()
-                    ->all();
-
-                $primary['source'] = !empty($sources) ? implode(' + ', $sources) : null;
-
-                return $primary;
+                return collect($group)->first();
             })
             ->sortBy([
                 ['first_name', 'asc'],
@@ -129,26 +111,52 @@ class AccountsController extends Controller
                 $roleCodes = [(string) $u->role_code];
             }
 
+            $userOneportalId = $u->oneportal_id ?? null;
             $userFirstName = strtolower(trim((string) $u->first_name));
             $userLastName = strtolower(trim((string) $u->last_name));
             $currentEmail = strtolower(trim((string) $u->email));
 
-            if ($userFirstName !== '' && $userLastName !== '') {
+            $matchedPerson = null;
+
+            if ($userOneportalId) {
+                $matchedPerson = collect($combinedDirectory)->firstWhere('oneportal_id', $userOneportalId);
+            }
+
+            if (!$matchedPerson && $currentEmail !== '') {
+                $matchedPerson = collect($combinedDirectory)->first(function ($person) use ($currentEmail) {
+                    return strtolower(trim((string) ($person['email'] ?? ''))) === $currentEmail;
+                });
+            }
+
+            if (!$matchedPerson && $userFirstName !== '' && $userLastName !== '') {
                 $matchedPerson = collect($combinedDirectory)->first(function ($person) use ($userFirstName, $userLastName) {
                     return strtolower(trim((string) ($person['first_name'] ?? ''))) === $userFirstName
                         && strtolower(trim((string) ($person['last_name'] ?? ''))) === $userLastName;
                 });
+            }
 
-                if ($matchedPerson && !empty($matchedPerson['email'])) {
+            if ($matchedPerson) {
+                $updates = [];
+                
+                if (!empty($matchedPerson['oneportal_id']) && $userOneportalId !== $matchedPerson['oneportal_id']) {
+                    $updates['oneportal_id'] = $matchedPerson['oneportal_id'];
+                    $u->oneportal_id = $matchedPerson['oneportal_id'];
+                }
+
+                if (!empty($matchedPerson['email'])) {
                     $dirEmail = strtolower(trim($matchedPerson['email']));
                     if ($dirEmail !== $currentEmail) {
                         $emailExists = DB::table('users')->where('email', $dirEmail)->where($pk, '!=', $u->user_id)->exists();
                         if (!$emailExists) {
-                            DB::table('users')->where($pk, $u->user_id)->update(['email' => $dirEmail]);
+                            $updates['email'] = $dirEmail;
                             $currentEmail = $dirEmail;
                             $u->email = $dirEmail;
                         }
                     }
+                }
+                
+                if (!empty($updates)) {
+                    DB::table('users')->where($pk, $u->user_id)->update($updates);
                 }
             }
 
@@ -180,10 +188,10 @@ class AccountsController extends Controller
             'usersJson' => $mapped->toJson(),
             'rolesJson' => $roles->toJson(),
             'facultyDirectoryJson' => json_encode($combinedDirectory),
-            'isFacultyCached' => $isFacultyCached,
-            'facultyCacheTimestamp' => $facultyCacheTimestamp,
-            'isAdminCached' => $isAdminCached,
-            'adminCacheTimestamp' => $adminCacheTimestamp,
+            'isFacultyCached' => $isIdpCached,
+            'facultyCacheTimestamp' => $idpCacheTimestamp,
+            'isAdminCached' => false,
+            'adminCacheTimestamp' => null,
         ]);
     }
 
