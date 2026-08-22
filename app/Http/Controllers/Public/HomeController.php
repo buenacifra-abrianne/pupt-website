@@ -60,10 +60,18 @@ class HomeController extends Controller
                     });
                 })
                 ->where(function($query) use ($oneMonthAgo) {
-                    $query->where('date_published', '>=', $oneMonthAgo)
-                          ->orWhere(function($q) use ($oneMonthAgo) {
-                              $q->whereNull('date_published')->where('created_at', '>=', $oneMonthAgo);
+                    $query->where(function($q) {
+                        $q->whereNotNull('expiration_date')
+                          ->where('expiration_date', '>=', now()->toDateString());
+                    })->orWhere(function($q) use ($oneMonthAgo) {
+                        $q->whereNull('expiration_date')
+                          ->where(function($subQ) use ($oneMonthAgo) {
+                              $subQ->where('date_published', '>=', $oneMonthAgo)
+                                   ->orWhere(function($subQ2) use ($oneMonthAgo) {
+                                       $subQ2->whereNull('date_published')->where('created_at', '>=', $oneMonthAgo);
+                                   });
                           });
+                    });
                 })
                 ->orderByRaw("
                     CASE 

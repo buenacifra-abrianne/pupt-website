@@ -625,6 +625,22 @@
         >
 </div>
 
+                <div class="form-group">
+                    <label>Manual Expiration Date <small>(Optional)</small></label>
+                    <div style="position: relative;">
+                        <input 
+                            type="text" 
+                            name="expiration_date" 
+                            id="newsExpirationDate"
+                            class="form-control"
+                            placeholder="Select Date..."
+                            style="cursor: pointer; background: #fff;"
+                        >
+                        <i class="fas fa-calendar-alt" style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #94a3b8; pointer-events: none;"></i>
+                    </div>
+                    <small style="display:block; margin-top:4px; color:#666; font-size:12px;">If left blank, the news will automatically expire 1 month after publishing.</small>
+                </div>
+
                 @if($hasNewsFeaturedColumn ?? false)
                     <label class="news-option-toggle">
                         <input type="checkbox" name="is_featured" value="1" id="newsFeaturedCheckbox">
@@ -1973,6 +1989,24 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('activeEditableField:', activeEditableField);
             startFloatingVoiceRecognition(floatingVoiceBtn);
         });
+    }
+
+    if (typeof window.CmsCalendar?.init === 'function') {
+        const expInput = document.getElementById('newsExpirationDate');
+        if (expInput) {
+            window.CmsCalendar.init(expInput, {
+                onOpen: function() {
+                    document.body.style.overflow = 'hidden';
+                    const modal = document.getElementById('newsModal');
+                    if (modal) modal.style.overflow = 'hidden';
+                },
+                onClose: function() {
+                    document.body.style.overflow = '';
+                    const modal = document.getElementById('newsModal');
+                    if (modal) modal.style.overflow = '';
+                }
+            });
+        }
     }
 });
 </script>

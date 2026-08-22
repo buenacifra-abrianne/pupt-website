@@ -36,6 +36,7 @@ class SafeHttpFetcher
                 'User-Agent' => 'PUP-KnowledgeSync/1.0',
                 'Accept' => 'text/html,text/plain,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document;q=0.9,*/*;q=0.1',
             ],
+            'verify' => false,
         ]);
 
         try {

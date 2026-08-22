@@ -87,6 +87,7 @@ class BotpressKnowledgeAdapter
     private function client(): PendingRequest
     {
         return Http::timeout((int) config('knowledge_sync.fetch.timeout_seconds', 15))
+            ->withoutVerifying()
             ->acceptJson()
             ->asJson()
             ->withToken((string) config('knowledge_sync.botpress.token'))

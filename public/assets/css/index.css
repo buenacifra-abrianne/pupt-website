@@ -59,8 +59,7 @@ body {
     z-index: -3;
     background:
         radial-gradient(circle at 84% 10%, rgba(243, 196, 90, 0.3), transparent 42%),
-        linear-gradient(132deg, rgba(59, 8, 10, 0.88), rgba(20, 8, 9, 0.78)),
-        var(--landing-bg-image) center center / cover no-repeat;
+        linear-gradient(132deg, rgba(59, 8, 10, 0.95), rgba(20, 8, 9, 0.9));
 }
 
 .menu::after {
@@ -265,8 +264,6 @@ body {
     display: block;
     filter: drop-shadow(0 8px 14px rgba(45, 8, 10, 0.14));
     transform-origin: center;
-    will-change: transform, filter;
-    animation: seal-float 4.2s ease-in-out infinite, seal-glow 2.8s ease-in-out infinite;
 }
 
 .landing-actions-seal--pup {
