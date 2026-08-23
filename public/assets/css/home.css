@@ -230,9 +230,9 @@ body {
   z-index: 2;
 }
 
-.hero-shell .carousel-split img.carousel-half {
+/* .hero-shell .carousel-split img.carousel-half {
   display: none !important;
-}
+} */
 
 .campus-story,
 .feature-band,
