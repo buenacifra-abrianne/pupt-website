@@ -25,7 +25,7 @@ class AppServiceProvider extends ServiceProvider
     {
         Blade::withoutDoubleEncoding();
 
-        View::composer(['admin.*', 'superadmin.*'], function ($view) {
+        View::composer(['admin.*', 'superadmin.*', 'components.app.sidebar'], function ($view) {
             $pendingApprovalCount = 0;
 
             if (Schema::hasTable('approval_requests')) {
@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
             $view->with('pendingApprovalCount', $pendingApprovalCount);
         });
 
-        View::composer(['admin.*', 'superadmin.*', 'staff.*'], function ($view) {
+        View::composer(['admin.*', 'superadmin.*', 'staff.*', 'components.app.sidebar'], function ($view) {
             $unreadNotificationCount = 0;
             $userId = (int) session('user_id');
             $role = strtoupper((string) session('role', ''));
