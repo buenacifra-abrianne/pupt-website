@@ -902,8 +902,9 @@ body {
 }
 
 .news-request-card .news-actions {
-    display: grid;
-    grid-template-columns: repeat(2, max-content);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
     align-items: center;
 }
 

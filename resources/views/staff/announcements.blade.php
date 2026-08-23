@@ -227,7 +227,7 @@
 
                         <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($n->content ?? '') !!}</div>
 
-                        <div class="news-actions">
+                        <div class="news-actions announcement-actions">
                             <button class="btn btn-sm btn-primary"
                                 type="button"
                                 onclick="editNews(

@@ -52,7 +52,7 @@
 
     <div class="announcement-description rich-text-content">{!! \App\Support\RichText::sanitize($content) !!}</div>
 
-    <div class="news-actions">
+    <div class="news-actions announcement-actions">
       @if($reqStatus !== 'pending')
       <button class="btn btn-sm btn-primary"
         type="button"
@@ -81,18 +81,18 @@
       </button>
       @endif
 
-      <button class="btn btn-sm btn-primary"
-        type="button"
-        data-view-changes-url="{{ route('staff.requests.changes', ['id' => $reqId]) }}"
-        onclick="openRequestChangesModal(this)">
-        <i class="fas fa-code-compare"></i> View Changes
-      </button>
-
       <button class="btn btn-sm btn-view-icon"
         type="button"
         title="View"
         onclick='openReadMoreModal(@json($title), @json($content), @json($link), @json($displayImageUrl))'>
         <i class="fas fa-eye"></i>
+      </button>
+
+      <button class="btn btn-sm btn-primary"
+        type="button"
+        data-view-changes-url="{{ route('staff.requests.changes', ['id' => $reqId]) }}"
+        onclick="openRequestChangesModal(this)">
+        <i class="fas fa-code-compare"></i> View Changes
       </button>
     </div>
 
