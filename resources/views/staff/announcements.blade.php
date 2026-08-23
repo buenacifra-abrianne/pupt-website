@@ -493,7 +493,7 @@
                 <div class="form-group">
                     <label>Category *</label>
                     <select name="category" required>
-                        <option value="" disabled selected>Select category</option>
+                        <option value="">Select category</option>
                         <option value="Registrar">Registrar</option>
                         <option value="Academics">Academics</option>
                         <option value="Students">Students</option>
