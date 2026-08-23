@@ -73,7 +73,7 @@
                                 <tr class="pending-row"
                                     data-search="{{ e(strtolower(($item->title ?? '').' '.($item->requester_name ?? '').' '.($item->requester_email ?? '').' '.($item->type ?? '').' '.($item->status ?? ''))) }}">
                                     <td style="padding:10px; white-space:nowrap;">
-                                        {{ optional($item->created_at)->format('M d, Y h:i A') }}
+                                        {{ optional($item->updated_at)->format('M d, Y h:i A') }}
                                     </td>
 
                                     <td style="padding:10px;">
@@ -257,7 +257,7 @@
                                 <tr class="history-row"
                                     data-search="{{ e(strtolower(($item->title ?? '').' '.($item->requester_name ?? '').' '.($item->requester_email ?? '').' '.($item->type ?? '').' '.($item->status ?? '').' '.($item->rejection_reason ?? ''))) }}">
                                     <td style="padding:10px; white-space:nowrap;">
-                                        {{ optional($item->created_at)->format('M d, Y h:i A') }}
+                                        {{ optional($item->updated_at)->format('M d, Y h:i A') }}
                                     </td>
 
                                     <td style="padding:10px;">
