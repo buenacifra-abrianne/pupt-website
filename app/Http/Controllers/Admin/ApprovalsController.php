@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
 use App\Support\AuditLog;
 use App\Support\CmsApprovalPreview;
+use App\Services\ResendEmailService;
 use App\Support\CmsSections;
 use App\Support\NewsImage;
 use App\Support\PlainText;
@@ -424,6 +425,13 @@ if ($reqUserId > 0) {
         'STAFF',
         $reqUserId
     );
+
+    // Send Resend notification if user is active
+    $reqUserStatus = DB::table('users')->where('id', $reqUserId)->orWhere('user_id', $reqUserId)->value('status');
+    if ($reqUserStatus === 'Active') {
+        $emailService = app(ResendEmailService::class);
+        $emailService->sendApprovalResultNotification($reqEmail, $row->toArray(), 'approved');
+    }
 }
 
         DB::commit();
@@ -513,6 +521,13 @@ if ($reqUserId > 0) {
         'STAFF',
         $reqUserId
     );
+
+    // Send Resend notification if user is active
+    $reqUserStatus = DB::table('users')->where('id', $reqUserId)->orWhere('user_id', $reqUserId)->value('status');
+    if ($reqUserStatus === 'Active') {
+        $emailService = app(ResendEmailService::class);
+        $emailService->sendApprovalResultNotification($reqEmail, $row->toArray(), 'rejected', $request->input('reason'));
+    }
 }
 
     $reason = trim((string)$request->input('reason'));

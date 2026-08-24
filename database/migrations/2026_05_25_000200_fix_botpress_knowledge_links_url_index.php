@@ -13,6 +13,10 @@ return new class extends Migration
             return;
         }
 
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         if (Schema::hasColumn('botpress_knowledge_links', 'url')) {
             DB::statement('ALTER TABLE botpress_knowledge_links MODIFY url VARCHAR(512) NOT NULL');
         }
@@ -29,6 +33,10 @@ return new class extends Migration
     public function down(): void
     {
         if (!Schema::hasTable('botpress_knowledge_links')) {
+            return;
+        }
+
+        if (DB::getDriverName() === 'sqlite') {
             return;
         }
 

@@ -9,6 +9,7 @@ use App\Support\RichText;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use App\Services\ResendEmailService;
 
 class DownloadableController extends Controller
 {
@@ -366,6 +367,18 @@ class DownloadableController extends Controller
             'STAFF',
             $userId > 0 ? $userId : null
         );
+
+        // Notify active admins/superadmins via Resend
+        $adminEmails = DB::table('users')
+            ->whereIn('role', ['Admin', 'Superadmin'])
+            ->where('status', 'Active')
+            ->pluck('email')
+            ->toArray();
+
+        if (!empty($adminEmails)) {
+            $emailService = app(ResendEmailService::class);
+            $emailService->sendPendingApprovalNotification($adminEmails, $data);
+        }
 
         return response()->json(['ok' => true]);
     }

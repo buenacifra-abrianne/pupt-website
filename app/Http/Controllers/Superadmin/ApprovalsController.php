@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
 use App\Support\AuditLog;
 use App\Support\CmsApprovalPreview;
+use App\Services\ResendEmailService;
 use App\Support\CmsSections;
 use App\Support\NewsImage;
 use App\Support\PlainText;
@@ -403,17 +404,9 @@ $history = $this->attachDisplayFields($history);
         // 🔔 Notify ONLY the requester staff (robust user id lookup)
 $reqEmail = strtolower(trim((string)($row->requester_email ?? '')));
 
-// try user_id first (your app seems to use user_id)
 $reqUserId = (int) DB::table('users')
     ->whereRaw('LOWER(email) = ?', [$reqEmail])
     ->value('user_id');
-
-// fallback if the PK is 'id'
-if ($reqUserId <= 0) {
-    $reqUserId = (int) DB::table('users')
-        ->whereRaw('LOWER(email) = ?', [$reqEmail])
-        ->value('id');
-}
 
 // ✅ If still 0, do nothing (cannot target a staff user)
 if ($reqUserId > 0) {
@@ -424,6 +417,13 @@ if ($reqUserId > 0) {
         'STAFF',
         $reqUserId
     );
+
+    // Send Resend notification if user is active
+    $reqUserStatus = DB::table('users')->where('user_id', $reqUserId)->value('status');
+    if ($reqUserStatus === 'Active') {
+        $emailService = app(ResendEmailService::class);
+        $emailService->sendApprovalResultNotification($reqEmail, $row->toArray(), 'approved');
+    }
 }
 
         DB::commit();
@@ -499,12 +499,6 @@ $reqUserId = (int) DB::table('users')
     ->whereRaw('LOWER(email) = ?', [$reqEmail])
     ->value('user_id');
 
-if ($reqUserId <= 0) {
-    $reqUserId = (int) DB::table('users')
-        ->whereRaw('LOWER(email) = ?', [$reqEmail])
-        ->value('id');
-}
-
 if ($reqUserId > 0) {
     $this->pushSystemNotif(
         'DANGER',
@@ -513,6 +507,13 @@ if ($reqUserId > 0) {
         'STAFF',
         $reqUserId
     );
+
+    // Send Resend notification if user is active
+    $reqUserStatus = DB::table('users')->where('user_id', $reqUserId)->value('status');
+    if ($reqUserStatus === 'Active') {
+        $emailService = app(ResendEmailService::class);
+        $emailService->sendApprovalResultNotification($reqEmail, $row->toArray(), 'rejected', $request->input('reason'));
+    }
 }
 
     $reason = trim((string)$request->input('reason'));

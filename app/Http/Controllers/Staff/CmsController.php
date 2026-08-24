@@ -13,6 +13,8 @@ use App\Support\EventsCmsCardValidation;
 use App\Support\EventsCmsContent;
 use App\Support\HomeCmsContent;
 use App\Support\ImageStorage;
+use App\Support\PlainText;
+use App\Services\ResendEmailService;
 use App\Support\ResearchCmsContent;
 use App\Support\StudentsCmsContent;
 use Illuminate\Http\Request;
@@ -1065,6 +1067,18 @@ class CmsController extends Controller
             'STAFF',
             (int) (session('user_id') ?? 0)
         );
+
+        // Notify active admins/superadmins via Resend
+        $adminEmails = DB::table('users')
+            ->whereIn('role', ['Admin', 'Superadmin'])
+            ->where('status', 'Active')
+            ->pluck('email')
+            ->toArray();
+
+        if (!empty($adminEmails)) {
+            $emailService = app(ResendEmailService::class);
+            $emailService->sendPendingApprovalNotification($adminEmails, $rowData);
+        }
 
         AuditLog::record(
             'UPDATED',

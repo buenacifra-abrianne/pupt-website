@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Models\ApprovalRequest;
+use App\Services\ResendEmailService;
 
 class AnnouncementController extends Controller
 {
@@ -293,6 +294,25 @@ $pendingNewsIds = DB::table('approval_requests')
         }
 
         $count = $announcements->count();
+
+        if ($count > 0) {
+            // Notify active admins/superadmins via Resend
+            $adminEmails = DB::table('users')
+                ->whereIn('role', ['Admin', 'Superadmin'])
+                ->where('status', 'Active')
+                ->pluck('email')
+                ->toArray();
+
+            if (!empty($adminEmails)) {
+                $emailService = app(ResendEmailService::class);
+                $emailService->sendPendingApprovalNotification($adminEmails, [
+                    'type' => 'BULK_ANNOUNCEMENT_DELETE',
+                    'title' => "$count Announcement(s) requested for deletion",
+                    'requester_name' => $name ?: 'Staff',
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                ]);
+            }
+        }
 
         return response()->json([
             'ok' => true,
@@ -581,6 +601,18 @@ $pendingNewsIds = DB::table('approval_requests')
         $userId
     );
 }
+
+        // Notify active admins/superadmins via Resend
+        $adminEmails = DB::table('users')
+            ->whereIn('role', ['Admin', 'Superadmin'])
+            ->where('status', 'Active')
+            ->pluck('email')
+            ->toArray();
+
+        if (!empty($adminEmails)) {
+            $emailService = app(ResendEmailService::class);
+            $emailService->sendPendingApprovalNotification($adminEmails, $data);
+        }
 
         $response = ['ok' => true];
 

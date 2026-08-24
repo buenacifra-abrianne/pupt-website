@@ -12,6 +12,10 @@ return new class extends Migration
             return;
         }
 
+        if (DB::getDriverName() === 'sqlite') {
+            return;
+        }
+
         DB::statement('ALTER TABLE feedback_submissions MODIFY q1_score TINYINT UNSIGNED NULL');
         DB::statement('ALTER TABLE feedback_submissions MODIFY q2_score TINYINT UNSIGNED NULL');
         DB::statement('ALTER TABLE feedback_submissions MODIFY q3_score TINYINT UNSIGNED NULL');
@@ -23,6 +27,10 @@ return new class extends Migration
     public function down(): void
     {
         if (! Schema::hasTable('feedback_submissions')) {
+            return;
+        }
+
+        if (DB::getDriverName() === 'sqlite') {
             return;
         }
 
