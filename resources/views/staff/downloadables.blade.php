@@ -27,18 +27,7 @@
 
         <div class="tab-navigation cms-tab-style" style="display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom: 24px;">
             <div style="display:flex; gap: 8px;">
-                @if($isFacultyPro)
-                    <button class="tab-btn active" onclick="switchTab('all-memoranda', this)">
-                        <i class="fas fa-folder"></i> All Memoranda
-                    </button>
-                    <button class="tab-btn" onclick="switchTab('my-uploads', this)">
-                        <i class="fas fa-upload"></i> My Uploads
-                    </button>
-                    <button class="tab-btn" onclick="switchTab('pending-requests', this)">
-                        <i class="fas fa-clock"></i> Pending Requests
-                    </button>
-                @endif
-                <div style="position: relative; display: flex; align-items: center; {{ $isFacultyPro ? 'margin-left: 10px;' : '' }}">
+                <div style="position: relative; display: flex; align-items: center;">
                     <i class="fas fa-sort-amount-down" style="position: absolute; left: 16px; color: #888;"></i>
                     <select id="sortOption" onchange="runSearch()" style="padding: 12px 16px 12px 40px; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); background: white; font-size: 14px; font-weight: 600; color: #444; outline: none; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.02);"
                             onfocus="this.style.borderColor='var(--theme-maroon, #800000)'; this.style.boxShadow='0 0 0 3px rgba(128,0,0,0.1)';" onblur="this.style.borderColor='rgba(0,0,0,0.08)'; this.style.boxShadow='0 2px 5px rgba(0,0,0,0.02)';">
@@ -57,8 +46,7 @@
             </div>
         </div>
 
-        <div id="all-memoranda" class="tab-content active">
-            <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
+        <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
             <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px;">
                 <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-folder-open" style="color: var(--theme-maroon, #800000);"></i> Campus Memorandum</h3>
             </div>
@@ -120,144 +108,6 @@
                 @endforelse
             </div>
         </div>
-        </div>
-
-        @if($isFacultyPro)
-        @php
-            $downReqs = $myRequests->filter(fn($r) =>
-                in_array(strtoupper($r->type), ['DOWNLOADABLE_CREATE','DOWNLOADABLE_UPDATE','DOWNLOADABLE_DELETE'])
-                && strtolower((string)($r->status ?? '')) === 'rejected'
-            );
-            $pendingRequests = $myRequests->filter(fn($r) => strtolower((string)($r->status ?? '')) === 'pending');
-        @endphp
-
-        <!-- My Uploads Tab -->
-        <div id="my-uploads" class="tab-content">
-            <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
-                <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px;">
-                    <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-upload" style="color: var(--theme-maroon, #800000);"></i> Manage My Uploads</h3>
-                </div>
-                <div id="myUploadsList" class="announcement-grid" style="padding: 24px 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
-                    <button type="button" class="announcement-item announcement-card-create" data-static-card="1" onclick="openDownloadableModal(true)" style="align-items: center;">
-                        <span class="announcement-card-create-icon" style="border-radius: 12px; min-height: 64px; max-height: 64px; min-width: 64px; flex-shrink: 0;">+</span>
-                        <div style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                            <span class="announcement-card-create-title" style="margin: 0;">Create Request</span>
-                            <span class="announcement-card-create-text" style="margin: 0; line-height: 1.4;">Submit a new memorandum request for admin approval.</span>
-                        </div>
-                    </button>
-
-                    @foreach($downReqs as $row)
-                        @php
-                            $payload = json_decode($row->details ?? '{}', true) ?: [];
-                            $title = \App\Support\PlainText::normalize($payload['title'] ?? $row->title ?? 'Request');
-                            $typeLabel = match(strtoupper((string)$row->type)) {
-                                'DOWNLOADABLE_UPDATE' => 'Edit Request',
-                                'DOWNLOADABLE_DELETE' => 'Delete Request',
-                                'DOWNLOADABLE_CREATE' => 'Create Request',
-                                default => 'Request',
-                            };
-                        @endphp
-                        <div class="announcement-item downloadable-item" style="border-left: 4px solid #ef4444; background: #fdfafb; display: flex; flex-direction: column; height: 100%;">
-                            <div class="announcement-header">
-                                <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                        <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; color: var(--theme-maroon, #800000); font-weight: 700;">{{ e($title) }}</h3>
-                                    </div>
-                                    <span style="font-size:12px; padding:6px 10px; border-radius:999px; background:#f2f3f5; color:#333; white-space:nowrap;">
-                                        {{ $typeLabel }} (Rejected)
-                                    </span>
-                                </div>
-                            </div>
-                            <div style="margin-top:10px;padding:10px;border-radius:10px;background:#ffecec;color:#8a1f1f; font-size: 0.9em;">
-                                <strong>Reason:</strong> {{ $row->rejection_reason ?? 'No reason provided' }}
-                            </div>
-                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px;">
-                                <button class="btn btn-sm btn-primary" type="button" 
-                                    onclick="editDownloadableRequest({{ $row->id }}, {{ $payload['downloadable_id'] ?? 0 }}, {{ \Illuminate\Support\Js::from($title) }}, {{ \Illuminate\Support\Js::from($payload['description'] ?? '') }}, {{ \Illuminate\Support\Js::from($payload['original_filename'] ?? '') }})" 
-                                    title="Edit and Resubmit">
-                                    <i class="fas fa-edit"></i> Edit
-                                </button>
-                                <button class="btn btn-sm btn-delete" type="button" onclick="deleteRequestOnly({{ $row->id }})" title="Delete Request">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    @endforeach
-
-                    @foreach($myApprovedDownloadables as $row)
-                        @php
-                            $fileUrl = \App\Support\DownloadableFile::url($row->file_path);
-                        @endphp
-                        <div class="announcement-item downloadable-item" style="display: flex; flex-direction: column; height: 100%;">
-                            <div class="announcement-header">
-                                <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                        <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; font-weight: 700;">{{ e($row->title) }}</h3>
-                                    </div>
-                                    <span style="font-size:12px; padding:6px 10px; border-radius:999px; background:#dcfce7; color:#166534; white-space:nowrap;">
-                                        Approved & Live
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px;">
-                                <button class="btn btn-sm btn-primary" type="button" onclick="editDownloadable({{ $row->downloadable_id }}, {{ \Illuminate\Support\Js::from($row->title) }}, {{ \Illuminate\Support\Js::from($row->description) }}, {{ \Illuminate\Support\Js::from($row->original_filename) }})" title="Edit Request"><i class="fas fa-edit"></i> Edit</button>
-                                <button class="btn btn-sm btn-delete" type="button" onclick="deleteDownloadable({{ $row->downloadable_id }})" title="Delete Request"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-        </div>
-
-        <!-- Pending Requests Tab -->
-        <div id="pending-requests" class="tab-content">
-            <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
-                <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px; display:flex; justify-content:space-between; align-items:center;">
-                    <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-clock" style="color: var(--theme-maroon, #800000);"></i> My Pending Requests</h3>
-                    <span style="display:inline-flex; align-items:center; justify-content:center; min-width:42px; padding:8px 12px; border-radius:999px; background:#f4e7c1; color:#7a0b0b; font-weight:700;">{{ $pendingRequests->count() }}</span>
-                </div>
-                <div style="padding: 24px 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
-                    @forelse($pendingRequests as $row)
-                        @php
-                            $payload = json_decode($row->details ?? '{}', true) ?: [];
-                            $title = \App\Support\PlainText::normalize($payload['title'] ?? $row->title ?? 'Request');
-                            $typeLabel = match(strtoupper((string)$row->type)) {
-                                'DOWNLOADABLE_UPDATE' => 'Edit Request',
-                                'DOWNLOADABLE_DELETE' => 'Delete Request',
-                                'DOWNLOADABLE_CREATE' => 'Create Request',
-                                default => 'Request',
-                            };
-                        @endphp
-                        <div class="announcement-item downloadable-item" style="border-left: 4px solid #eab308; display: flex; flex-direction: column; height: 100%;">
-                            <div class="announcement-header">
-                                <div style="width:100%; display:flex; justify-content:space-between; align-items:flex-start; gap:10px;">
-                                    <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                                        <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; font-weight: 700;">{{ e($title) }}</h3>
-                                    </div>
-                                    <span style="font-size:12px; padding:6px 10px; border-radius:999px; background:#fef3c7; color:#92400e; white-space:nowrap;">
-                                        {{ $typeLabel }} (Pending)
-                                    </span>
-                                </div>
-                            </div>
-                            <div style="margin-top: 12px; font-size: 0.85em; color: #666;">
-                                <i class="fas fa-clock"></i> Updated: {{ !empty($row->updated_at) ? \Carbon\Carbon::parse($row->updated_at)->format('M d, Y h:i A') : '—' }}
-                            </div>
-                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px;">
-                                <button class="btn btn-sm btn-delete" type="button" onclick="deleteRequestOnly({{ $row->id }})" title="Cancel Request">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </div>
-                    @empty
-                        <div style="grid-column: 1 / -1; padding: 40px; text-align: center; color: #aaa; background: #fafafa; border-radius: 12px; border: 1px dashed #ddd;">
-                            <i class="fas fa-check-circle" style="font-size: 36px; color: #ddd; margin-bottom: 12px; display:block;"></i>
-                            <span style="font-size: 14px; font-weight: 600;">No pending requests.</span>
-                        </div>
-                    @endforelse
-                </div>
-            </div>
-        </div>
-        @endif
     </main>
 
     <div id="downloadableModal" class="modal">
@@ -376,11 +226,6 @@
         const idInput = document.getElementById('edit_downloadable_id');
         if (idInput) idInput.remove();
 
-        const reqIdInput = document.getElementById('edit_request_id');
-        if (reqIdInput) reqIdInput.remove();
-
-        form.action = "{{ route('staff.downloadables.requestCreate') }}";
-
         if (modalTitle) modalTitle.innerText = 'New Downloadable';
         if (fileInput) fileInput.required = true;
         if (fileRequiredMark) fileRequiredMark.style.display = 'inline';
@@ -448,58 +293,6 @@
         downloadableBaseline = {
             title: (title || '').trim(),
             description: (description || '').trim()
-        };
-    }
-
-    function editDownloadableRequest(reqId, targetId, title, description, originalFilename) {
-        const modal = document.getElementById('downloadableModal');
-        const form = document.getElementById('downloadableForm');
-        const modalTitle = modal.querySelector('.modal-title');
-        const fileInput = document.getElementById('downloadableFileInput');
-        const currentFileText = document.getElementById('currentFileText');
-        const fileRequiredMark = document.getElementById('fileRequiredMark');
-
-        resetDownloadableFormState();
-
-        modal.classList.add('active');
-        if (modalTitle) modalTitle.innerText = 'Edit Rejected Request';
-
-        form.querySelector('[name="title"]').value = title || '';
-        if (typeof window.setRichTextEditorValue === 'function') {
-            window.setRichTextEditorValue(form.querySelector('[name="description"]'), description || '');
-        } else {
-            form.querySelector('[name="description"]').value = description || '';
-        }
-
-        let reqIdInput = document.createElement('input');
-        reqIdInput.type = 'hidden';
-        reqIdInput.name = 'request_id';
-        reqIdInput.id = 'edit_request_id';
-        reqIdInput.value = reqId;
-        form.appendChild(reqIdInput);
-
-        if (targetId) {
-            let idInput = document.createElement('input');
-            idInput.type = 'hidden';
-            idInput.name = 'downloadable_id';
-            idInput.id = 'edit_downloadable_id';
-            idInput.value = targetId;
-            form.appendChild(idInput);
-            form.action = "{{ route('staff.downloadables.requestUpdate') }}";
-        }
-
-        if (fileInput) fileInput.required = false;
-        if (fileRequiredMark) fileRequiredMark.style.display = 'none';
-
-        if (originalFilename && currentFileText) {
-            currentFileText.style.display = 'block';
-            currentFileText.textContent = 'Current file: ' + originalFilename + ' (Upload new file to replace)';
-        }
-
-        downloadableBaseline = {
-            title: title || '',
-            description: description || '',
-            file: ''
         };
     }
 
@@ -640,35 +433,8 @@
         }
     });
 
-    function switchTab(tabId, btn) {
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-
-        document.getElementById(tabId).classList.add('active');
-        btn.classList.add('active');
-
-        localStorage.setItem('activeStaffDownTab', tabId);
-    }
-
-    async function deleteRequestOnly(id) {
-        if (!(await askConfirm('Are you sure you want to cancel/delete this request?', 'Delete Request', 'Delete', 'danger'))) return;
-
-        try {
-            await postForm(`{{ url('/staff/downloadables/request') }}/${id}`, { _method: 'DELETE' });
-            queueReloadToast('Request deleted successfully.', 'success', 'Request');
-            window.location.reload();
-        } catch (err) {
-            showToast('Delete failed: ' + err.message, 'error');
-        }
-    }
-
     document.addEventListener('DOMContentLoaded', () => {
     flushReloadToast();
-    const savedTab = localStorage.getItem('activeStaffDownTab');
-    if (savedTab) {
-        const btn = document.querySelector(`button[onclick="switchTab('${savedTab}', this)"]`);
-        if (btn) switchTab(savedTab, btn);
-    }
 });
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
