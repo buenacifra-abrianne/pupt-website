@@ -12,8 +12,8 @@ class ResendEmailService
 
     public function __construct()
     {
-        $apiKey = env('RESEND_API_KEY');
-        $this->fromEmail = env('RESEND_FROM_EMAIL', 'noreply@yourdomain.com');
+        $apiKey = config('services.resend.key');
+        $this->fromEmail = config('services.resend.from_email');
 
         if ($apiKey) {
             $this->resend = Resend::client($apiKey);
