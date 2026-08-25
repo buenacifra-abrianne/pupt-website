@@ -199,10 +199,9 @@
                                     </span>
                                 </div>
                             </div>
-                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px; display: flex; gap: 8px; align-items: center;">
-                                <button class="btn btn-sm btn-primary" type="button" onclick="editDownloadable({{ $row->downloadable_id }}, {{ \Illuminate\Support\Js::from($row->title) }}, {{ \Illuminate\Support\Js::from($row->description) }}, {{ \Illuminate\Support\Js::from($row->original_filename) }}, {{ \Illuminate\Support\Js::from($row->file_path) }})" title="Edit Request"><i class="fas fa-edit"></i> Edit</button>
+                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px;">
+                                <button class="btn btn-sm btn-primary" type="button" onclick="editDownloadable({{ $row->downloadable_id }}, {{ \Illuminate\Support\Js::from($row->title) }}, {{ \Illuminate\Support\Js::from($row->description) }}, {{ \Illuminate\Support\Js::from($row->original_filename) }})" title="Edit Request"><i class="fas fa-edit"></i> Edit</button>
                                 <button class="btn btn-sm btn-delete" type="button" onclick="deleteDownloadable({{ $row->downloadable_id }})" title="Delete Request"><i class="fas fa-trash"></i></button>
-                                <a href="{{ $fileUrl }}" class="btn btn-sm btn-view-icon" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #f0f7ff; color: #2563eb; transition: all 0.2s; text-decoration: none; margin-left: auto;" target="_blank" title="View Document" onmouseover="this.style.background='#dbeafe'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='#f0f7ff'; this.style.transform='scale(1)';"><i class="fas fa-eye" style="font-size: 1em;"></i></a>
                             </div>
                         </div>
                     @endforeach
@@ -228,7 +227,6 @@
                                 'DOWNLOADABLE_CREATE' => 'Create Request',
                                 default => 'Request',
                             };
-                            $pendingFileUrl = !empty($payload['file_path']) ? \App\Support\DownloadableFile::url($payload['file_path']) : null;
                         @endphp
                         <div class="announcement-item downloadable-item" style="border-left: 4px solid #eab308; display: flex; flex-direction: column; height: 100%;">
                             <div class="announcement-header">
@@ -244,13 +242,10 @@
                             <div style="margin-top: 12px; font-size: 0.85em; color: #666;">
                                 <i class="fas fa-clock"></i> Updated: {{ !empty($row->updated_at) ? \Carbon\Carbon::parse($row->updated_at)->format('M d, Y h:i A') : '—' }}
                             </div>
-                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px; display: flex; gap: 8px; align-items: center;">
+                            <div class="announcement-actions" style="margin-top:auto; padding-top: 12px;">
                                 <button class="btn btn-sm btn-delete" type="button" onclick="deleteRequestOnly({{ $row->id }})" title="Cancel Request">
                                     <i class="fas fa-trash"></i>
                                 </button>
-                                @if($pendingFileUrl)
-                                <a href="{{ $pendingFileUrl }}" class="btn btn-sm btn-view-icon" style="display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; background: #f0f7ff; color: #2563eb; transition: all 0.2s; text-decoration: none; margin-left: auto;" target="_blank" title="View Document" onmouseover="this.style.background='#dbeafe'; this.style.transform='scale(1.05)';" onmouseout="this.style.background='#f0f7ff'; this.style.transform='scale(1)';"><i class="fas fa-eye" style="font-size: 1em;"></i></a>
-                                @endif
                             </div>
                         </div>
                     @empty
@@ -384,12 +379,6 @@
         const reqIdInput = document.getElementById('edit_request_id');
         if (reqIdInput) reqIdInput.remove();
 
-        const existingPathInput = document.getElementById('edit_existing_file_path');
-        if (existingPathInput) existingPathInput.remove();
-
-        const existingNameInput = document.getElementById('edit_existing_original_filename');
-        if (existingNameInput) existingNameInput.remove();
-
         form.action = "{{ route('staff.downloadables.requestCreate') }}";
 
         if (modalTitle) modalTitle.innerText = 'New Downloadable';
@@ -420,7 +409,7 @@
         document.getElementById('downloadableModal').classList.remove('active');
     }
 
-    function editDownloadable(id, title, description, originalFilename, filePath) {
+    function editDownloadable(id, title, description, originalFilename) {
         const modal = document.getElementById('downloadableModal');
         const form = document.getElementById('downloadableForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -447,35 +436,13 @@
             form.appendChild(idInput);
         }
         idInput.value = id;
-        
-        form.action = "{{ route('staff.downloadables.requestUpdate') }}";
-
-        let existingPathInput = document.getElementById('edit_existing_file_path');
-        if (!existingPathInput) {
-            existingPathInput = document.createElement('input');
-            existingPathInput.type = 'hidden';
-            existingPathInput.name = 'existing_file_path';
-            existingPathInput.id = 'edit_existing_file_path';
-            form.appendChild(existingPathInput);
-        }
-        existingPathInput.value = filePath || '';
-
-        let existingNameInput = document.getElementById('edit_existing_original_filename');
-        if (!existingNameInput) {
-            existingNameInput = document.createElement('input');
-            existingNameInput.type = 'hidden';
-            existingNameInput.name = 'existing_original_filename';
-            existingNameInput.id = 'edit_existing_original_filename';
-            form.appendChild(existingNameInput);
-        }
-        existingNameInput.value = originalFilename || '';
 
         if (fileInput) fileInput.required = false;
         if (fileRequiredMark) fileRequiredMark.style.display = 'none';
 
         if (currentFileText) {
             currentFileText.style.display = 'block';
-            currentFileText.textContent = 'Current file: ' + (originalFilename || 'Unknown file') + ' (Upload new file to replace)';
+            currentFileText.textContent = 'Current file: ' + (originalFilename || 'Unknown file');
         }
 
         downloadableBaseline = {
