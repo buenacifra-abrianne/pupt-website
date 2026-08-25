@@ -2,99 +2,47 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>PUP-Taguig Website CMS</title>
+    <title>Action Required</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background-color: #ffffff;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .header {
-            background-color: #990000;
-            color: #ffffff;
-            text-align: center;
-            padding: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 900;
-            text-transform: uppercase;
-        }
-        .header p {
-            margin: 5px 0 0;
-            color: #ffeb3b;
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .content {
-            padding: 40px 20px;
-            text-align: center;
-        }
-        .highlight-box {
-            background-color: #fef8eb;
-            border-radius: 8px;
-            padding: 40px 20px;
-            margin: 0 auto;
-            max-width: 80%;
-        }
-        .highlight-box p {
-            font-size: 18px;
-            color: #333333;
-            margin: 0 0 15px;
-        }
-        .highlight-box h2 {
-            font-size: 48px;
-            color: #990000;
-            margin: 0;
-            font-weight: bold;
-        }
-        .text-content {
-            text-align: left;
-            margin-top: 20px;
-            color: #333333;
-            line-height: 1.6;
-        }
-        .footer {
-            background-color: #fef8eb;
-            padding: 20px 30px;
-            text-align: left;
-            font-size: 12px;
-            color: #000000;
-            border-top: 1px solid #f0e6d2;
-        }
-        .footer p {
-            margin: 0 0 5px;
-        }
-        .footer p:last-child {
-            margin: 0;
-        }
+        body { margin: 0; padding: 0; background-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>PUP-Taguig</h1>
-            <p>Website CMS</p>
-        </div>
-        
-        <div class="content">
-            @yield('content')
-        </div>
+    <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: transparent; margin: 0; padding: 0; width: 100%;">
+        <tr>
+            <td align="center">
+                <!-- Main Container -->
+                <table width="100%" max-width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; margin: 0 auto; background-color: transparent;">
+                    
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background-color: #800000; padding: 20px;">
+                            <table cellpadding="0" cellspacing="0" border="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td valign="middle" style="color: #ffffff; text-align: center;">
+                                        <div style="font-size: 20px; font-weight: bold; letter-spacing: 1px; line-height: 1.2;">PUP-TAGUIG</div>
+                                        <div style="font-size: 13px; font-weight: normal; color: #f2f2f2;">Website CMS</div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
 
-        <div class="footer">
-            <p>This is an automated message. Please do not reply to this email.</p>
-            <p>&copy; {{ date('Y') }} PUP-Taguig Website CMS. All rights reserved.</p>
-        </div>
-    </div>
+                    <!-- Body Content Container -->
+                    <tr>
+                        <td align="center" style="background-color: transparent; padding: 30px 15px;">
+                            @yield('content')
+                        </td>
+                    </tr>
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="background-color: #800000; padding: 20px 15px; font-size: 12px; font-weight: bold; color: #ffffff; line-height: 1.5; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;">
+                            &copy; 1992-{{ date('Y') }} Polytechnic University of the Philippines | PUPT WEB V.{{ date('Y') }} &nbsp;|&nbsp; <a href="{{ url('/terms-of-use') }}" style="color: #ffffff; text-decoration: underline;">Terms of Use</a> &nbsp;|&nbsp; <a href="{{ url('/privacy-statement') }}" style="color: #ffffff; text-decoration: underline;">Privacy Statement</a>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
 </body>
 </html>
