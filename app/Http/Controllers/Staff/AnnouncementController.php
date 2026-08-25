@@ -298,7 +298,7 @@ $pendingNewsIds = DB::table('approval_requests')
         if ($count > 0) {
             // Notify active admins/superadmins via Resend
             $adminEmails = DB::table('users')
-                ->whereIn('role', ['Admin', 'Superadmin', 'admin', 'superadmin'])
+                ->whereIn('role_id', [1, 2])
                 ->where('status', 'Active')
                 ->pluck('email')
                 ->toArray();
@@ -604,7 +604,7 @@ $pendingNewsIds = DB::table('approval_requests')
 
         // Notify active admins/superadmins via Resend
         $adminEmails = DB::table('users')
-            ->whereIn('role', ['Admin', 'Superadmin', 'admin', 'superadmin'])
+            ->whereIn('role_id', [1, 2])
             ->where('status', 'Active')
             ->pluck('email')
             ->toArray();

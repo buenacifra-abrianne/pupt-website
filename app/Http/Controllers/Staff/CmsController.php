@@ -1070,7 +1070,7 @@ class CmsController extends Controller
 
         // Notify active admins/superadmins via Resend
         $adminEmails = DB::table('users')
-            ->whereIn('role', ['Admin', 'Superadmin', 'admin', 'superadmin'])
+            ->whereIn('role_id', [1, 2])
             ->where('status', 'Active')
             ->pluck('email')
             ->toArray();
