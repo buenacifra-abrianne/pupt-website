@@ -13,7 +13,7 @@ class ResendEmailService
     public function __construct()
     {
         $apiKey = config('services.resend.key');
-        $this->fromEmail = config('services.resend.from_email');
+        $this->fromEmail = config('services.resend.from_email', 'noreply@yourdomain.com');
 
         if ($apiKey) {
             $this->resend = Resend::client($apiKey);
