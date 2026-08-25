@@ -46,22 +46,20 @@ class ResendEmailService
         
         $html = view('emails.pending_approval', $data)->render();
 
-        app()->terminating(function () use ($adminEmails, $html) {
-            foreach ($adminEmails as $email) {
-                try {
-                    $this->resend->emails->send([
-                        'from' => 'PUP-Taguig Website CMS <' . $this->fromEmail . '>',
-                        'to' => [$email],
-                        'subject' => 'Action Required: New Pending Approval Request',
-                        'html' => $html,
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error('ResendEmailService: Failed to send pending approval notification to ' . $email, [
-                        'error' => $e->getMessage(),
-                    ]);
-                }
+        foreach ($adminEmails as $email) {
+            try {
+                $this->resend->emails->send([
+                    'from' => 'PUP-Taguig Website CMS <' . $this->fromEmail . '>',
+                    'to' => [$email],
+                    'subject' => 'Action Required: New Pending Approval Request',
+                    'html' => $html,
+                ]);
+            } catch (\Exception $e) {
+                Log::error('ResendEmailService: Failed to send pending approval notification to ' . $email, [
+                    'error' => $e->getMessage(),
+                ]);
             }
-        });
+        }
     }
 
     /**
@@ -96,20 +94,18 @@ class ResendEmailService
         $html = view('emails.approval_result', $data)->render();
 
         $statusText = ucfirst(strtolower($status));
-        app()->terminating(function () use ($staffEmail, $statusText, $html) {
-            try {
-                $this->resend->emails->send([
-                    'from' => 'PUP-Taguig Website CMS <' . $this->fromEmail . '>',
-                    'to' => [$staffEmail],
-                    'subject' => "Your Approval Request has been {$statusText}",
-                    'html' => $html,
-                ]);
-            } catch (\Exception $e) {
-                Log::error('ResendEmailService: Failed to send approval result notification to ' . $staffEmail, [
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        });
+        try {
+            $this->resend->emails->send([
+                'from' => 'PUP-Taguig Website CMS <' . $this->fromEmail . '>',
+                'to' => [$staffEmail],
+                'subject' => "Your Approval Request has been {$statusText}",
+                'html' => $html,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('ResendEmailService: Failed to send approval result notification to ' . $staffEmail, [
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 
     private function getFriendlyType(string $type): string
