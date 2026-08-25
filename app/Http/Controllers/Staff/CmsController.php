@@ -1076,8 +1076,12 @@ class CmsController extends Controller
             ->toArray();
 
         if (!empty($adminEmails)) {
-            $emailService = app(ResendEmailService::class);
-            $emailService->sendPendingApprovalNotification($adminEmails, $rowData);
+            try {
+                $emailService = app(ResendEmailService::class);
+                $emailService->sendPendingApprovalNotification($adminEmails, $rowData);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('Email notification failed: ' . $e->getMessage());
+            }
         }
 
         AuditLog::record(
