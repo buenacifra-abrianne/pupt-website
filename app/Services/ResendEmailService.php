@@ -46,19 +46,18 @@ class ResendEmailService
         
         $html = view('emails.pending_approval', $data)->render();
 
-        foreach ($adminEmails as $email) {
-            try {
-                $this->resend->emails->send([
-                    'from' => 'PUP-Taguig Website CMS <' . $this->fromEmail . '>',
-                    'to' => [$email],
-                    'subject' => 'Action Required: New Pending Approval Request',
-                    'html' => $html,
-                ]);
-            } catch (\Exception $e) {
-                Log::error('ResendEmailService: Failed to send pending approval notification to ' . $email, [
-                    'error' => $e->getMessage(),
-                ]);
-            }
+        try {
+            $this->resend->emails->send([
+                'from' => 'PUP-Taguig Website CMS <' . $this->fromEmail . '>',
+                'to' => [$this->fromEmail], // Required, but using fromEmail as placeholder
+                'bcc' => $adminEmails,      // Bulk send to all admins simultaneously
+                'subject' => 'Action Required: New Pending Approval Request',
+                'html' => $html,
+            ]);
+        } catch (\Exception $e) {
+            Log::error('ResendEmailService: Failed to send pending approval notification in bulk', [
+                'error' => $e->getMessage(),
+            ]);
         }
     }
 
