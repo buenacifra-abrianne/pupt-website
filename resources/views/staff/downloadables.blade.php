@@ -119,7 +119,7 @@
                 </button>
             </div>
 
-            <form id="downloadableForm" method="POST" action="{{ route('staff.downloadables.requestCreate') }}" enctype="multipart/form-data">
+            <form id="downloadableForm" method="POST" action="{{ route('staff.downloadables.save') }}" enctype="multipart/form-data">
                 @csrf
 
                 <div class="form-group">
@@ -312,7 +312,7 @@
         if (!(await askConfirm('Are you sure you want to delete this downloadable?', 'Delete Downloadable', 'Delete', 'danger'))) return;
 
         try {
-            await postForm("{{ route('staff.downloadables.requestDelete') }}", { id });
+            await postForm("{{ route('staff.downloadables.delete') }}", { id });
             queueReloadToast('Downloadable deleted successfully.', 'success', 'Downloadable');
             window.location.reload();
         } catch (err) {
