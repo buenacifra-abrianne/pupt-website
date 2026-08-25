@@ -376,12 +376,8 @@ class DownloadableController extends Controller
             ->toArray();
 
         if (!empty($adminEmails)) {
-            try {
-                $emailService = app(ResendEmailService::class);
-                $emailService->sendPendingApprovalNotification($adminEmails, $data);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Email notification failed: ' . $e->getMessage());
-            }
+            $emailService = app(ResendEmailService::class);
+            $emailService->sendPendingApprovalNotification($adminEmails, $data);
         }
 
         return response()->json(['ok' => true]);

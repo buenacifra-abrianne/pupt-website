@@ -304,17 +304,13 @@ $pendingNewsIds = DB::table('approval_requests')
                 ->toArray();
 
             if (!empty($adminEmails)) {
-                try {
-                    $emailService = app(ResendEmailService::class);
-                    $emailService->sendPendingApprovalNotification($adminEmails, [
-                        'type' => 'BULK_ANNOUNCEMENT_DELETE',
-                        'title' => "$count Announcement(s) requested for deletion",
-                        'requester_name' => $name ?: 'Staff',
-                        'created_at' => now()->format('Y-m-d H:i:s'),
-                    ]);
-                } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::error('Email notification failed: ' . $e->getMessage());
-                }
+                $emailService = app(ResendEmailService::class);
+                $emailService->sendPendingApprovalNotification($adminEmails, [
+                    'type' => 'BULK_ANNOUNCEMENT_DELETE',
+                    'title' => "$count Announcement(s) requested for deletion",
+                    'requester_name' => $name ?: 'Staff',
+                    'created_at' => now()->format('Y-m-d H:i:s'),
+                ]);
             }
         }
 
@@ -614,12 +610,8 @@ $pendingNewsIds = DB::table('approval_requests')
             ->toArray();
 
         if (!empty($adminEmails)) {
-            try {
-                $emailService = app(ResendEmailService::class);
-                $emailService->sendPendingApprovalNotification($adminEmails, $data);
-            } catch (\Throwable $e) {
-                \Illuminate\Support\Facades\Log::error('Email notification failed: ' . $e->getMessage());
-            }
+            $emailService = app(ResendEmailService::class);
+            $emailService->sendPendingApprovalNotification($adminEmails, $data);
         }
 
         $response = ['ok' => true];
