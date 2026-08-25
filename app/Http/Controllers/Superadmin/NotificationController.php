@@ -321,7 +321,13 @@ class NotificationController extends Controller
     {
         $currentRole = strtoupper(trim((string) session('user_role')));
 
-        $query->where(function ($q) use ($userId, $currentRole) {
+        $userCreatedAt = session('user_created_at');
+        if (!$userCreatedAt) {
+            $userCreatedAt = DB::table('users')->where('user_id', $userId)->value('created_at') ?? '2000-01-01 00:00:00';
+            session(['user_created_at' => $userCreatedAt]);
+        }
+
+        $query->where(function ($q) use ($userId, $currentRole, $userCreatedAt) {
             // Strictly bound to the user directly or via historical interaction
             $q->where('n.target_user_id', $userId)
               ->orWhereExists(function ($sub) use ($userId) {
@@ -338,8 +344,9 @@ class NotificationController extends Controller
               });
 
             // Or it's a broadcast to their current role
-            $q->orWhere(function ($broadcast) use ($currentRole) {
-                $broadcast->whereNull('n.target_user_id');
+            $q->orWhere(function ($broadcast) use ($currentRole, $userCreatedAt) {
+                $broadcast->whereNull('n.target_user_id')
+                          ->where('n.created_at', '>=', $userCreatedAt);
                 if ($currentRole === 'SUPERADMIN') {
                     $broadcast->whereIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN']);
                 } elseif ($currentRole === 'ADMIN') {

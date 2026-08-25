@@ -17,19 +17,8 @@ class AnnouncementController extends Controller
 {
     private function notifySystem(string $title, string $message, string $type = 'INFO'): void
     {
-        $allowed = ['INFO', 'WARNING', 'DANGER', 'PRIMARY'];
-        $type = strtoupper($type);
-        if (!in_array($type, $allowed, true)) {
-            $type = 'INFO';
-        }
-
-        DB::table('notifications')->insert([
-            'channel' => 'SYSTEM',
-            'title' => $title,
-            'message' => $message,
-            'type' => $type,
-            'created_at' => now(),
-        ]);
+        // Notifications disabled for announcements to reduce noise
+        // since they already appear on the Announcements tab.
     }
 
     private function logActivity(string $action, string $module, ?int $targetId, string $description): void

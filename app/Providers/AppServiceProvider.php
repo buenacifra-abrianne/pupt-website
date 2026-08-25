@@ -58,7 +58,13 @@ class AppServiceProvider extends ServiceProvider
 
                 $currentRole = strtoupper(trim((string) (session('user_role') ?? session('role', ''))));
 
-                $base->where(function ($q) use ($userId, $currentRole) {
+                $userCreatedAt = session('user_created_at');
+                if (!$userCreatedAt) {
+                    $userCreatedAt = DB::table('users')->where('user_id', $userId)->value('created_at') ?? '2000-01-01 00:00:00';
+                    session(['user_created_at' => $userCreatedAt]);
+                }
+
+                $base->where(function ($q) use ($userId, $currentRole, $userCreatedAt) {
                     $q->where('n.target_user_id', $userId)
                       ->orWhereExists(function ($sub) use ($userId) {
                           $sub->select(DB::raw(1))
@@ -73,8 +79,9 @@ class AppServiceProvider extends ServiceProvider
                               ->where('nd2.user_id', $userId);
                       });
 
-                    $q->orWhere(function ($broadcast) use ($currentRole) {
-                        $broadcast->whereNull('n.target_user_id');
+                    $q->orWhere(function ($broadcast) use ($currentRole, $userCreatedAt) {
+                        $broadcast->whereNull('n.target_user_id')
+                                  ->where('n.created_at', '>=', $userCreatedAt);
                         if ($currentRole === 'SUPERADMIN') {
                             $broadcast->whereIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN']);
                         } elseif ($currentRole === 'ADMIN') {
