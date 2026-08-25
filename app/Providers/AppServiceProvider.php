@@ -81,19 +81,21 @@ class AppServiceProvider extends ServiceProvider
 
                     $q->orWhere(function ($broadcast) use ($currentRole, $userCreatedAt) {
                         $broadcast->whereNull('n.target_user_id')
-                                  ->where('n.created_at', '>=', $userCreatedAt);
-                        if ($currentRole === 'SUPERADMIN') {
-                            $broadcast->whereIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN']);
-                        } elseif ($currentRole === 'ADMIN') {
-                            $broadcast->whereRaw('UPPER(n.target_role) = ?', ['ADMIN']);
-                        } elseif ($currentRole === 'STAFF') {
-                            $broadcast->whereRaw('UPPER(n.target_role) = ?', ['STAFF']);
-                        }
-                        $broadcast->orWhereNull('n.target_role');
+                                  ->where('n.created_at', '>=', $userCreatedAt)
+                                  ->where(function ($roleCheck) use ($currentRole) {
+                                      if ($currentRole === 'SUPERADMIN') {
+                                          $roleCheck->whereIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN']);
+                                      } elseif ($currentRole === 'ADMIN') {
+                                          $roleCheck->whereRaw('UPPER(n.target_role) = ?', ['ADMIN']);
+                                      } else {
+                                          $roleCheck->whereRaw('UPPER(n.target_role) = ?', ['STAFF']);
+                                      }
+                                      $roleCheck->orWhereNull('n.target_role');
+                                  });
                     });
                 });
 
-                if ($currentRole === 'STAFF') {
+                if (!in_array($currentRole, ['SUPERADMIN', 'ADMIN'])) {
                     $base->where(function ($filter) {
                         $filter->whereNotIn(DB::raw('UPPER(n.target_role)'), ['SUPERADMIN', 'ADMIN'])
                                ->orWhereNull('n.target_role');
