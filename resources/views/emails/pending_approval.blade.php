@@ -1,17 +1,34 @@
 @extends('emails.layout')
 
 @section('content')
-    <div class="highlight-box">
-        <h2 style="font-size: 32px;">New Pending Request</h2>
+    <div class="title-wrapper">
+        <span class="alert-icon">!</span>
+        <div class="title-text">
+            ACTION REQUIRED:<br>
+            NEW PENDING REQUEST
+        </div>
     </div>
-    <div class="text-content">
-        <ul>
-            <li><strong>Requester:</strong> {{ $requesterName }}</li>
-            <li><strong>Request Type:</strong> {{ $type }}</li>
-            <li><strong>Title:</strong> {{ $title }}</li>
-            <li><strong>Submitted At:</strong> {{ $date }}</li>
-            <li><strong>Status:</strong> <span style='color:orange;'>Pending</span></li>
-        </ul>
-        <p>Please log in to dashboard to review.</p>
-    </div>
+
+    <table class="details-grid">
+        <tr>
+            <td class="details-cell">
+                <div class="label">REQUESTER:</div>
+                <div class="value">{{ $requesterName }}</div>
+            </td>
+            <td class="details-cell">
+                <div class="label">REQUEST TYPE:</div>
+                <div class="value">{{ $type }}</div>
+            </td>
+        </tr>
+        <tr>
+            <td class="details-cell">
+                <div class="label">CONTENT TITLE:</div>
+                <div class="value">{{ $title }}</div>
+            </td>
+            <td class="details-cell">
+                <div class="label">SUBMITTED AT:</div>
+                <div class="value">{{ $date }}</div>
+            </td>
+        </tr>
+    </table>
 @endsection
