@@ -195,7 +195,7 @@
                                 <td>{{ $event->created_at->format('Y-m-d H:i:s') }}</td>
                                 <td>{{ $event->ip_address }}</td>
                                 <td>{{ $event->user_email ?: 'N/A' }}</td>
-                                <td><span class="security-badge sec-badge-red">{{ ucwords(strtolower(str_replace('_', ' ', $event->event_type))) }}</span></td>
+                                <td><span class="security-badge sec-badge-red">{{ $event->event_type }}</span></td>
                                 <td>{{ $event->description }}</td>
                             </tr>
                         @empty
