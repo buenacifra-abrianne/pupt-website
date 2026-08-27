@@ -1191,10 +1191,7 @@ class PUPFooter extends HTMLElement {
           <span>Higher Education</span>
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
         </a>
-        <a class="footer-accreditation-link" href="https://drive.google.com/file/d/1zegfm_kj7-9TJHnrHeXqWWGTwIOesZso/view" target="_blank" rel="noopener noreferrer">
-          <span>Advance Education</span>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3h7v7h-2V6.4l-9.3 9.3-1.4-1.4L17.6 5H14V3ZM5 5h6v2H7v10h10v-4h2v6H5V5Z"/></svg>
-        </a>
+
       </div>
     </div>
 
