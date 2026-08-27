@@ -42,7 +42,7 @@ class OnePortalController extends Controller
             'OJT',
             'CWTS',
             'DIRECTOR_OFFICE',
-            'ADMINISTRATION',
+            'ADMINISTRATIVE',
         ];
 
         if (session()->has('user_id') && in_array($role, $allowedRoles, true)) {
@@ -257,7 +257,7 @@ class OnePortalController extends Controller
         'OJT',
         'CWTS',
         'DIRECTOR_OFFICE',
-        'ADMINISTRATION',
+        'ADMINISTRATIVE',
     ];
 
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
@@ -394,7 +394,7 @@ class OnePortalController extends Controller
             $role === 'OJT' ||
             $role === 'CWTS' ||
             $role === 'DIRECTOR_OFFICE' ||
-            $role === 'ADMINISTRATION'
+            $role === 'ADMINISTRATIVE'
         ) {
             return redirect('/staff/dashboard');
         }

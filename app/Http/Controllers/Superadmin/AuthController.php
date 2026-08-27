@@ -138,7 +138,7 @@ class AuthController extends Controller
             $dbRole === 'OJT' ||
             $dbRole === 'CWTS' ||
             $dbRole === 'DIRECTOR_OFFICE' ||
-            $dbRole === 'ADMINISTRATION'
+            $dbRole === 'ADMINISTRATIVE'
         ) {
             return redirect()->route('staff.dashboard');
         }
@@ -509,7 +509,7 @@ class AuthController extends Controller
             'OJT',
             'CWTS',
             'DIRECTOR_OFFICE',
-            'ADMINISTRATION'
+            'ADMINISTRATIVE'
         ];
 
         $validRoles = array_values(array_intersect($assignedRoles, $allowedRoles));
