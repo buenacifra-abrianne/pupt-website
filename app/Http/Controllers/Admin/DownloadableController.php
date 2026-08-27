@@ -74,6 +74,13 @@ class DownloadableController extends Controller
 
     public function save(Request $request)
     {
+        if (!in_array('FACULTY_PRO', session('user_roles', []))) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'Admin is not allowed to edit/delete memorandums unless they have the FACULTY_PRO role.',
+            ], 403);
+        }
+
         $request->validate([
             'downloadable_id' => ['nullable', 'integer'],
             'title' => ['required', 'string', 'max:60'],
@@ -188,6 +195,13 @@ class DownloadableController extends Controller
 
     public function delete(Request $request)
     {
+        if (!in_array('FACULTY_PRO', session('user_roles', []))) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'Admin is not allowed to edit/delete memorandums unless they have the FACULTY_PRO role.',
+            ], 403);
+        }
+
         $id = (int) $request->input('id');
 
         $row = DB::table('downloadables')

@@ -851,6 +851,14 @@ body {
     margin-left: auto;
 }
 
+.announcement-actions .btn-edit-icon,
+.announcement-actions .btn-delete-icon {
+    width: 56px;
+    min-width: 56px;
+    flex: 0 0 56px;
+    padding: 0;
+}
+
 .btn-view-icon {
     background: #e8f1ff;
     color: #2563eb;

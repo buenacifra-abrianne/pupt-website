@@ -276,20 +276,26 @@ private function normalizeRoleCodesFromRequest(Request $request): array
 
 private function validateTopLevelRoleMix(array $requestedRoleCodes): ?\Illuminate\Http\JsonResponse
 {
-    $hasSuperadmin = in_array('SUPERADMIN', $requestedRoleCodes, true);
-    $hasAdmin = in_array('ADMIN', $requestedRoleCodes, true);
+    // Roles that can be combined with any core role
+    $addOnRoles = ['FACULTY_PRO'];
+    
+    // Core roles to be strictly validated
+    $coreRoles = array_diff($requestedRoleCodes, $addOnRoles);
 
-    $staffRoles = array_diff($requestedRoleCodes, ['SUPERADMIN', 'ADMIN']);
+    $hasSuperadmin = in_array('SUPERADMIN', $coreRoles, true);
+    $hasAdmin = in_array('ADMIN', $coreRoles, true);
+
+    $staffRoles = array_diff($coreRoles, ['SUPERADMIN', 'ADMIN']);
     $hasStaffRoles = !empty($staffRoles);
 
-    if ($hasSuperadmin && count($requestedRoleCodes) > 1) {
+    if ($hasSuperadmin && count($coreRoles) > 1) {
         return response()->json([
             'ok' => false,
             'message' => 'Superadmin cannot be combined with staff roles.'
         ], 422);
     }
 
-    if ($hasAdmin && count($requestedRoleCodes) > 1) {
+    if ($hasAdmin && count($coreRoles) > 1) {
         return response()->json([
             'ok' => false,
             'message' => 'Admin cannot be combined with staff roles.'
