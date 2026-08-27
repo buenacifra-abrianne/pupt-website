@@ -134,17 +134,13 @@
         <!-- My Uploads Tab -->
         <div id="my-uploads" class="tab-content">
             <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
-                <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px;">
+                <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px; display: flex; justify-content: space-between; align-items: center;">
                     <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-upload" style="color: var(--theme-maroon, #800000);"></i> Manage My Uploads</h3>
+                    <button class="btn btn-primary" style="display: flex; align-items: center; gap: 8px; font-weight: 600; padding: 8px 16px; border-radius: 8px;" onclick="openDownloadableModal(true)">
+                        <i class="fas fa-plus"></i> Create Request
+                    </button>
                 </div>
                 <div id="myUploadsList" class="announcement-grid" style="padding: 24px 28px; display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px;">
-                    <button type="button" class="announcement-item announcement-card-create" data-static-card="1" onclick="openDownloadableModal(true)" style="align-items: center;">
-                        <span class="announcement-card-create-icon" style="border-radius: 12px; min-height: 64px; max-height: 64px; min-width: 64px; flex-shrink: 0;">+</span>
-                        <div style="display: flex; flex-direction: column; gap: 4px; text-align: left;">
-                            <span class="announcement-card-create-title" style="margin: 0;">Create Request</span>
-                            <span class="announcement-card-create-text" style="margin: 0; line-height: 1.4;">Submit a new memorandum request for admin approval.</span>
-                        </div>
-                    </button>
 
                     @foreach($downReqs as $row)
                         @php
