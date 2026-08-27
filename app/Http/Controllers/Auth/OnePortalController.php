@@ -281,6 +281,17 @@ class OnePortalController extends Controller
 
     $request->session()->regenerate();
 
+    $validRoles = [$finalRole];
+    if (\Illuminate\Support\Facades\Schema::hasTable('user_roles')) {
+        $assignedRoles = DB::table('user_roles')
+            ->where('user_id', $user->user_id)
+            ->pluck('role_code')
+            ->toArray();
+        if (!empty($assignedRoles)) {
+            $validRoles = array_values(array_unique(array_merge($validRoles, $assignedRoles)));
+        }
+    }
+
     // create local session only after role is valid
     session([
         'user_logged_in' => true,
@@ -292,7 +303,7 @@ class OnePortalController extends Controller
         'user_name' => $fullName,
         'user_role' => $finalRole,
         'role' => $finalRole,
-        'user_roles' => [$finalRole],
+        'user_roles' => $validRoles,
         'oneportal_id' => $id,
         'access_token' => $accessToken,
         'refresh_token' => $refreshToken,

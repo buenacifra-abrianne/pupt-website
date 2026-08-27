@@ -131,12 +131,23 @@ class SsoController extends Controller
                 ->with('no_role_error', 'You don’t have a role assigned in this system. Please visit the PUP-T Website instead.');
         }
 
+        $validRoles = [$finalRole];
+        if (\Illuminate\Support\Facades\Schema::hasTable('user_roles')) {
+            $assignedRoles = \Illuminate\Support\Facades\DB::table('user_roles')
+                ->where('user_id', $user->user_id ?? $user->id)
+                ->pluck('role_code')
+                ->toArray();
+            if (!empty($assignedRoles)) {
+                $validRoles = array_values(array_unique(array_merge($validRoles, $assignedRoles)));
+            }
+        }
+
         session([
             'user_logged_in' => true,
             'user_id' => $user->user_id ?? $user->id,
             'user_first_name' => $user->first_name,
             'user_role' => $finalRole,
-            'user_roles' => [$finalRole],
+            'user_roles' => $validRoles,
             'user_email' => $user->email,
             'sso_logged_in' => true,
             'terms_accepted' => false,
