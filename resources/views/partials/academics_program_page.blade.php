@@ -310,14 +310,6 @@
         <p>Access the Higher Education accreditation PDF for full details and validity periods.</p>
         <div class="dp-accreditation-glow-actions">
             <a
-                href="https://drive.google.com/file/d/1zegfm_kj7-9TJHnrHeXqWWGTwIOesZso/view"
-                class="dp-accreditation-glow-btn dp-accreditation-glow-btn-alt"
-                target="_blank"
-                rel="noopener"
-            >
-                ADVANCE EDUCATION
-            </a>
-            <a
                 href="https://drive.google.com/file/d/1I1fTVNwsYkeWfzz8bMqIVRI5vLI5EMob/view"
                 class="dp-accreditation-glow-btn"
                 target="_blank"
