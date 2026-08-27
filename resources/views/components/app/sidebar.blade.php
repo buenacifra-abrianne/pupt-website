@@ -191,12 +191,18 @@
         </li>
         @endif
 
+        @php
+            $hasFacultyAccess = in_array($role, ['superadmin', 'admin']) || in_array('FACULTY', session('user_roles', [])) || in_array('FACULTY_PRO', session('user_roles', []));
+        @endphp
+
+        @if($hasFacultyAccess)
         <li class="nav-item">
             <a href="{{ route($role . '.downloadables') }}" class="nav-link {{ request()->routeIs('*.downloadables') ? 'active' : '' }}">
                 <i class="fas fa-download"></i>
                 <span>Campus Memorandum</span>
             </a>
         </li>
+        @endif
 
         <li class="nav-item">
             <a href="{{ route($role . '.notifications') }}" class="nav-link {{ request()->routeIs('*.notifications') ? 'active' : '' }}">

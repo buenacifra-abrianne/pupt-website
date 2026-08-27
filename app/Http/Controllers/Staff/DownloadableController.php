@@ -15,6 +15,12 @@ class DownloadableController extends Controller
 {
     public function index()
     {
+        $roles = session('user_roles', []);
+        
+        if (!in_array('FACULTY', $roles) && !in_array('FACULTY_PRO', $roles)) {
+            abort(403, 'Unauthorized access.');
+        }
+
         $rawRole = session('role') ?? session('user_role') ?? '';
         $role = strtolower(trim((string) $rawRole));
         $normalizedRole = str_replace(' ', '_', $role);
