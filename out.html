@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - Polytechnic University of the Philippines</title>
+    <link rel="stylesheet" href="http://localhost:8000/assets/styles/layout.css?v=1787637354">
+    <link rel="stylesheet" href="http://localhost:8000/assets/css/about.css?v=1787800265">
+    <link rel="stylesheet" href="http://localhost:8000/assets/css/card-selector.css?v=1787637354">
+    <link rel="icon" type="image/png" href="http://localhost:8000/assets/static_img/logo.png" sizes="32x32">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://localhost:8000/about/awards-and-certificates" />
+    <meta property="og:title" content="Polytechnic University of the Philippines - Taguig Campus" />
+    <meta property="og:description" content="Welcome to the PUP Taguig Campus Website" />
+    <meta property="og:image" content="http://localhost:8000/assets/static_img/logo.png" />
+
+</head>
+<body >
+  <script>
+      (function() {
+          try {
+              var isDark = localStorage.getItem('pup-dark-mode') === 'true';
+              if (isDark) {
+                  document.body.classList.add('pup-dark-mode');
+              }
+          } catch (e) {}
+      })();
+  </script>
+    
+            <pup-header
+            data-home="http://localhost:8000/home"
+            data-about="http://localhost:8000/about"
+            data-academics="http://localhost:8000/academics"
+            data-students="http://localhost:8000/students"
+            data-news-events="http://localhost:8000/events"
+            data-research="http://localhost:8000/research"
+            data-assets="http://localhost:8000/assets"
+        ></pup-header>
+    
+    <main class="main-content">
+
+        
+        <section class="about-shell page-shell">
+            <div
+                class="about-breadcrumb-wrapper"
+                style="position: relative; width: 100%; z-index: 10;"
+            >
+                <div style="position: relative; width: 100%; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: clamp(8px, 1.5vw, 16px);">
+                    <nav class="about-breadcrumb layout-breadcrumb reveal" aria-label="Breadcrumb" style="margin-bottom: 0;">
+                        <a href="http://localhost:8000/home">Home</a>
+                        <span>&gt;</span>
+                                                    <a
+                                href="http://localhost:8000/about"
+                                                            >About</a>
+                            <span>&gt;</span>
+                            <strong>Awards and Certificates</strong>
+                                            </nav>
+
+                                    </div>
+            </div>
+
+            
+                                            <section class="about-sections">
+                                                                
+                        
+                        
+                        
+                        
+                        <section class="aw-hero-section reveal">
+                            <div class="aw-hero-inner">
+                                <div class="aw-hero-badge">Achievements & Excellence</div>
+                                <h1 class="aw-hero-title">Awards and Certificates</h1>
+                                                                    <p class="aw-hero-lead">Celebrating the achievements, recognitions, and certifications that reflect our commitment to excellence.</p>
+                                
+                                                            </div>
+                            <div class="aw-hero-glow" aria-hidden="true"></div>
+                        </section>
+
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                                    </section>
+            </section>
+
+    </main>
+
+            <pup-footer></pup-footer>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const galleries = document.querySelectorAll('[data-ls-gallery]');
+            if (!galleries.length) {
+                return;
+            }
+
+            const isCmsPreview = document.body.hasAttribute('data-cms-preview');
+
+            galleries.forEach((gallery) => {
+                const triggers = Array.from(gallery.querySelectorAll('[data-ls-seal-trigger]'));
+                const panels = Array.from(gallery.querySelectorAll('[data-ls-seal-panel]'));
+                const emptyState = gallery.querySelector('[data-ls-seal-empty]');
+
+                const showPanel = (sealId) => {
+                    let hasActive = false;
+
+                    triggers.forEach((trigger) => {
+                        const isActive = trigger.getAttribute('data-seal-id') === sealId;
+                        trigger.classList.toggle('is-active', isActive);
+                        trigger.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+                    });
+
+                    panels.forEach((panel) => {
+                        const isActive = panel.getAttribute('data-ls-seal-panel') === sealId;
+                        panel.hidden = !isActive;
+                        panel.classList.toggle('is-active', isActive);
+                        hasActive = hasActive || isActive;
+                    });
+
+                    if (emptyState) {
+                        emptyState.hidden = hasActive;
+                    }
+                };
+
+                triggers.forEach((trigger) => {
+                    trigger.addEventListener('click', (event) => {
+                        if (isCmsPreview) {
+                            return;
+                        }
+
+                        const sealId = trigger.getAttribute('data-seal-id') || '';
+                        if (!sealId) {
+                            return;
+                        }
+
+                        showPanel(sealId);
+                        event.preventDefault();
+                    });
+                });
+            });
+        });
+    </script>
+
+    
+    <script src="http://localhost:8000/assets/js/script.js?v=1785489248" defer></script>
+    <script src="http://localhost:8000/assets/js/pup-components.js?v=1787798442" defer></script>
+<script src="http://localhost:8000/assets/js/widget-dock.js?v=1785582780" defer></script>
+</body>
+</html>

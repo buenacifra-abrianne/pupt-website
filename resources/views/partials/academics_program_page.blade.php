@@ -131,25 +131,43 @@
                         data-program-accreditation-validity="{{ $itemAccreditationValidity }}"
                     >
                 @endif
-                    <div class="dp-diploma-card-body">
-                        @if($itemBadge !== '')
-                            <span class="dp-diploma-badge">{{ $itemBadge }}</span>
-                        @endif
-                        <h3 class="dp-diploma-title">{{ $itemTitle }}</h3>
-                        @if($itemBodyPreview !== '')
-                            <p class="dp-diploma-desc">{{ $itemBodyPreview }}</p>
-                        @endif
-                        @if($itemAccreditationLevels !== '')
-                            <span class="dp-diploma-accreditation">Accreditation Level: {{ $mappedAccreditationLevel }}</span>
-                        @endif
-                        @unless($cmsPreview)
-                            <div class="dp-program-modal-payload" hidden data-program-modal-body>
-                                {!! $itemBodyHtml !!}
+                    <div class="dp-diploma-card-inner">
+                        <div class="dp-diploma-card-unhovered">
+                            <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" class="dp-diploma-bg-img" alt="Background">
+                            <div class="dp-diploma-gradient"></div>
+                            <h3 class="dp-diploma-unhovered-title">{{ $itemTitle }}</h3>
+                        </div>
+                        <div class="dp-diploma-card-hovered">
+                            <div class="dp-diploma-hover-head">
+                                @if($itemBadge !== '')
+                                    <span class="dp-diploma-badge">{{ $itemBadge }}</span>
+                                @endif
                             </div>
-                        @endunless
-                        @if($itemDept !== '')
-                            <span class="dp-diploma-dept">{{ $itemDept }}</span>
-                        @endif
+                            <h3 class="dp-diploma-title">{{ $itemTitle }}</h3>
+                            <div class="dp-diploma-divider"></div>
+                            @if($itemBodyPreview !== '')
+                                <p class="dp-diploma-desc">{{ $itemBodyPreview }}</p>
+                            @endif
+                            @if($itemAccreditationLevels !== '')
+                                <span class="dp-diploma-accreditation" style="display:inline-block;margin-top:8px;font-size:0.7rem;font-weight:600;color:var(--maroon);background:rgba(127,17,19,0.08);padding:4px 10px;border-radius:12px;">ACCREDITATION LEVEL: {{ $mappedAccreditationLevel }}</span>
+                            @endif
+                            <hr class="dp-diploma-hr">
+                            <div class="dp-diploma-footer">
+                                <span class="dp-diploma-dept-icon">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true" width="24" height="24" fill="currentColor">
+                                        <path d="M12 3L1 9l4 2.18v6L12 21l7-3.82v-6l2-1.09V17h2V9L12 3zm6.82 6L12 12.72 5.18 9 12 5.28 18.82 9zM17 15.99l-5 2.73-5-2.73v-3.72L12 15l5-2.73v3.72z"/>
+                                    </svg>
+                                </span>
+                                @if($itemDept !== '')
+                                    <span class="dp-diploma-dept">{{ mb_strtoupper($itemDept) }}</span>
+                                @endif
+                            </div>
+                            @unless($cmsPreview)
+                                <div class="dp-program-modal-payload" hidden data-program-modal-body>
+                                    {!! $itemBodyHtml !!}
+                                </div>
+                            @endunless
+                        </div>
                     </div>
                 @if($cmsPreview)
                     </article>
@@ -304,27 +322,4 @@
     </script>
 @endunless
 
-<section class="dp-accreditation-footer-strip{{ $cmsPreview ? ' cms-preview-editable' : '' }}">
-    <div class="dp-accreditation-footer-inner">
-        <h3>Looking for official accreditation records?</h3>
-        <p>Access the Higher Education accreditation PDF for full details and validity periods.</p>
-        <div class="dp-accreditation-glow-actions">
-            <a
-                href="https://drive.google.com/file/d/1zegfm_kj7-9TJHnrHeXqWWGTwIOesZso/view"
-                class="dp-accreditation-glow-btn dp-accreditation-glow-btn-alt"
-                target="_blank"
-                rel="noopener"
-            >
-                ADVANCE EDUCATION
-            </a>
-            <a
-                href="https://drive.google.com/file/d/1I1fTVNwsYkeWfzz8bMqIVRI5vLI5EMob/view"
-                class="dp-accreditation-glow-btn"
-                target="_blank"
-                rel="noopener"
-            >
-                HIGHER EDUCATION
-            </a>
-        </div>
-    </div>
-</section>
+

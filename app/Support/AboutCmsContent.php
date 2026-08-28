@@ -407,6 +407,17 @@ class AboutCmsContent
                 'body_text' => 'Content for Citizen\'s Charter will be updated soon.',
                 'services' => [],
             ],
+            'awards-and-certificates' => [
+                'slug' => 'awards-and-certificates',
+                'number' => '08',
+                'label' => 'Awards and Certificates',
+                'visible_in_contents' => '1',
+                'summary' => 'Recognitions, certifications, and achievements earned by PUP Taguig Campus.',
+                'image' => self::DEFAULT_CARD_IMAGE,
+                'lead' => 'Celebrating the achievements, recognitions, and certifications that reflect our commitment to excellence.',
+                'awards' => [],
+                'certificates' => [],
+            ],
         ],
     ];
 
@@ -657,6 +668,19 @@ class AboutCmsContent
                     array_key_exists('label', $source) || array_key_exists('lead', $source) || array_key_exists('services', $source)
                 ),
             ]),
+            'awards-and-certificates' => array_merge($section, [
+                'lead' => self::pickString($source, $base, $defaults, 'lead', 4000),
+                'awards' => self::normalizeAwards(
+                    $source['awards'] ?? [],
+                    $base['awards'] ?? $defaults['awards'],
+                    $defaults['awards']
+                ),
+                'certificates' => self::normalizeCertificates(
+                    $source['certificates'] ?? [],
+                    $base['certificates'] ?? $defaults['certificates'],
+                    $defaults['certificates']
+                ),
+            ]),
             default => $section,
         };
     }
@@ -834,6 +858,77 @@ class AboutCmsContent
         }
 
         return $services;
+    }
+
+    private static function normalizeAwards(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $awards = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $rawLink = self::sanitizeString((string) ($item['link'] ?? ''), 2048, '');
+            if ($rawLink !== '' && !preg_match('/^https?:\/\//i', $rawLink)) {
+                $rawLink = 'https://' . $rawLink;
+            }
+
+            $normalized = [
+                'title'       => self::sanitizeString((string) ($item['title'] ?? ''), 255, ''),
+                'description' => self::sanitizeString((string) ($item['description'] ?? ''), 5000, ''),
+                'link'        => $rawLink,
+                'image'       => self::sanitizeOptionalString((string) ($item['image'] ?? ''), 2048),
+            ];
+
+            if ($normalized['title'] === '' && $normalized['description'] === '' && $normalized['link'] === '' && $normalized['image'] === null) {
+                continue;
+            }
+
+            $awards[] = $normalized;
+
+            if (count($awards) >= 50) {
+                break;
+            }
+        }
+
+        return $awards;
+    }
+
+    private static function normalizeCertificates(mixed $input, array $base, array $defaults): array
+    {
+        $sourceItems = is_array($input) ? array_values($input) : [];
+        $certificates = [];
+
+        foreach ($sourceItems as $index => $item) {
+            if (!is_array($item)) {
+                continue;
+            }
+
+            $rawLink = self::sanitizeString((string) ($item['link'] ?? ''), 2048, '');
+            if ($rawLink !== '' && !preg_match('/^https?:\/\//i', $rawLink)) {
+                $rawLink = 'https://' . $rawLink;
+            }
+
+            $normalized = [
+                'title'       => self::sanitizeString((string) ($item['title'] ?? ''), 255, ''),
+                'description' => self::sanitizeString((string) ($item['description'] ?? ''), 5000, ''),
+                'link'        => $rawLink,
+            ];
+
+            if ($normalized['title'] === '' && $normalized['description'] === '' && $normalized['link'] === '') {
+                continue;
+            }
+
+            $certificates[] = $normalized;
+
+            if (count($certificates) >= 50) {
+                break;
+            }
+        }
+
+        return $certificates;
     }
 
     private static function normalizeSeals(mixed $input, array $base, array $defaults): array

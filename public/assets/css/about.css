@@ -8486,3 +8486,458 @@ body.pup-dark-mode .map-tip-bull::after {
 body.pup-dark-mode .ls-gallery-tag {
     color: var(--dm-text-secondary, #e8d5d5) !important;
 }
+
+/* ============================================================
+   AWARDS & CERTIFICATES STYLES
+   ============================================================ */
+
+/* Hero Section */
+.aw-hero-section {
+    position: relative;
+    padding: 80px 24px;
+    background: linear-gradient(135deg, #4f090c 0%, #1b0203 100%);
+    color: white;
+    text-align: center;
+    border-radius: 20px;
+    margin-bottom: 40px;
+    overflow: hidden;
+}
+
+.aw-hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.aw-hero-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 100px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    margin-bottom: 24px;
+    color: #ffd700;
+}
+
+.aw-hero-title {
+    font-size: clamp(2.5rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    margin: 0 0 20px;
+    background: linear-gradient(180deg, #ffffff 0%, #e0e0e0 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.aw-hero-lead {
+    font-size: 1.125rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 40px;
+}
+
+.aw-hero-glow {
+    position: absolute;
+    top: -50%;
+    left: 50%;
+    width: 100%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,215,0,0.15) 0%, rgba(0,0,0,0) 70%);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Carousel */
+.aw-carousel {
+    position: relative;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    backdrop-filter: blur(10px);
+}
+
+.aw-carousel-track {
+    display: flex;
+    transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.aw-carousel-slide {
+    flex: 0 0 100%;
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.aw-carousel-chip {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.aw-chip--award { background: rgba(255, 215, 0, 0.2); color: #ffd700; }
+.aw-chip--cert { background: rgba(135, 206, 250, 0.2); color: #87cefa; }
+
+.aw-carousel-label {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: white;
+}
+
+.aw-carousel-dots {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 20px;
+}
+
+.aw-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.aw-dot.is-active {
+    background: white;
+    transform: scale(1.3);
+}
+
+/* Maroon Containers */
+.aw-maroon-section,
+.aw-certs-section {
+    background: #4f090c;
+    border-radius: 24px;
+    padding: 60px 40px;
+    margin-bottom: 40px;
+    color: white;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.aw-certs-section {
+    background: #3a0608; /* Slightly darker for distinction */
+}
+
+.aw-section-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.aw-section-head {
+    text-align: center;
+    margin-bottom: 48px;
+}
+
+.aw-section-eyebrow {
+    display: block;
+    color: #ffd700;
+    font-size: 0.875rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+
+.aw-section-title {
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    margin: 0;
+}
+
+/* Awards Grid */
+.aw-awards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 32px;
+}
+
+.aw-award-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.aw-award-card:hover {
+    transform: translateY(-8px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 215, 0, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.aw-award-image-wrap {
+    position: relative;
+    width: 100%;
+    padding-top: 66%; /* 3:2 aspect ratio */
+    overflow: hidden;
+    background: #2a0406;
+}
+
+.aw-award-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+
+.aw-award-card:hover .aw-award-image {
+    transform: scale(1.05);
+}
+
+.aw-award-image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.2);
+}
+
+.aw-award-glow {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 50%;
+    background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+    pointer-events: none;
+}
+
+.aw-award-body {
+    padding: 24px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.aw-award-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 12px;
+    line-height: 1.4;
+}
+
+.aw-award-desc {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 24px;
+    flex-grow: 1;
+}
+
+/* Certificates List */
+.aw-certs-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+    gap: 24px;
+}
+
+.aw-cert-card {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    padding: 24px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    transition: all 0.3s ease;
+}
+
+.aw-cert-card:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateX(8px);
+}
+
+.aw-cert-icon {
+    flex-shrink: 0;
+    width: 56px;
+    height: 56px;
+    background: rgba(135, 206, 250, 0.1);
+    color: #87cefa;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.aw-cert-body {
+    flex-grow: 1;
+}
+
+.aw-cert-title {
+    font-size: 1.125rem;
+    font-weight: 700;
+    margin: 0 0 8px;
+    line-height: 1.4;
+}
+
+.aw-cert-desc {
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0 0 16px;
+}
+
+/* Buttons & Links */
+.aw-shine-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: #ffd700;
+    color: #4f090c !important;
+    font-weight: 700;
+    font-size: 0.875rem;
+    border-radius: 8px;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: none;
+    cursor: pointer;
+    align-self: flex-start;
+}
+
+.aw-shine-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(255, 215, 0, 0.3);
+}
+
+.aw-shine-btn::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.8) 50%, rgba(255,255,255,0) 100%);
+    transform: rotate(45deg) translateX(-100%);
+    animation: aw-shine 3s infinite;
+}
+
+@keyframes aw-shine {
+    0% { transform: rotate(45deg) translateX(-100%); }
+    20% { transform: rotate(45deg) translateX(100%); }
+    100% { transform: rotate(45deg) translateX(100%); }
+}
+
+.aw-cert-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #87cefa !important;
+    font-weight: 600;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: gap 0.2s ease;
+}
+
+.aw-cert-link:hover {
+    gap: 10px;
+    text-decoration: underline;
+}
+
+/* CMS Editing Styles */
+.aw-cms-add-row {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 40px;
+}
+
+.aw-add-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white !important;
+    border: 1px dashed rgba(255, 255, 255, 0.3);
+}
+.aw-add-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: none;
+}
+.aw-add-btn::after { display: none; }
+
+.aw-cms-card {
+    position: relative;
+}
+
+.aw-cms-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+    opacity: 0;
+    transform: translateY(-10px);
+    transition: all 0.3s ease;
+}
+
+.aw-cms-card:hover .aw-cms-actions,
+.aw-cms-card:focus-within .aw-cms-actions {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.aw-cms-btn {
+    padding: 6px 12px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.aw-cms-btn--edit { background: white; color: #333; }
+.aw-cms-btn--edit:hover { background: #f0f0f0; }
+
+.aw-cms-btn--delete { background: #dc3545; color: white; }
+.aw-cms-btn--delete:hover { background: #c82333; }
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .aw-maroon-section, .aw-certs-section {
+        padding: 40px 24px;
+        border-radius: 16px;
+    }
+    .aw-awards-grid {
+        grid-template-columns: 1fr;
+    }
+    .aw-certs-list {
+        grid-template-columns: 1fr;
+    }
+    .aw-hero-section {
+        padding: 60px 20px;
+    }
+}
