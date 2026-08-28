@@ -47,8 +47,13 @@
         </div>
 
         <div class="card" style="border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.03); background: white; border: 1px solid rgba(0,0,0,0.04);">
-            <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px;">
+            <div class="card-header" style="border-bottom: 1px solid rgba(0,0,0,0.05); padding: 20px 28px; display: flex; justify-content: space-between; align-items: center;">
                 <h3 class="card-title" style="font-size: 18px; font-weight: 800; color: #222; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="fas fa-folder-open" style="color: var(--theme-maroon, #800000);"></i> Campus Memorandum</h3>
+                @if(in_array('FACULTY_PRO', session('user_roles', [])))
+                <button type="button" class="btn btn-primary btn-sm" onclick="openDownloadableModal(true)">
+                    <i class="fas fa-plus"></i> Upload Memorandum
+                </button>
+                @endif
             </div>
 
             <div id="downloadablesList" style="padding: 24px 28px;">
@@ -92,6 +97,25 @@
                                     onmouseout="this.style.background='#f0f7ff'; this.style.transform='scale(1)';">
                                     <i class="fas fa-eye" style="font-size: 1.1em;"></i>
                                 </a>
+
+                                @if(in_array('FACULTY_PRO', session('user_roles', [])))
+                                <a role="button" class="btn btn-sm btn-edit-icon"
+                                    style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #fffbeb; color: #d97706; border: none; cursor: pointer; transition: all 0.2s;"
+                                    onclick="editDownloadable({{ $row->downloadable_id }}, '{{ addslashes($row->title) }}', '{{ addslashes($row->description ?? '') }}', '{{ addslashes($row->original_filename) }}')"
+                                    title="Edit Memorandum"
+                                    onmouseover="this.style.background='#fef3c7'; this.style.transform='scale(1.05)';"
+                                    onmouseout="this.style.background='#fffbeb'; this.style.transform='scale(1)';">
+                                    <i class="fas fa-pen" style="font-size: 1.1em;"></i>
+                                </a>
+                                <a role="button" class="btn btn-sm btn-delete-icon"
+                                    style="display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; background: #fef2f2; color: #dc2626; border: none; cursor: pointer; transition: all 0.2s;"
+                                    onclick="deleteDownloadable({{ $row->downloadable_id }})"
+                                    title="Delete Memorandum"
+                                    onmouseover="this.style.background='#fee2e2'; this.style.transform='scale(1.05)';"
+                                    onmouseout="this.style.background='#fef2f2'; this.style.transform='scale(1)';">
+                                    <i class="fas fa-trash" style="font-size: 1.1em;"></i>
+                                </a>
+                                @endif
                             </div>
                         </div>
 

@@ -33,7 +33,7 @@ class DownloadableController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        $isFacultyPro = ($normalizedRole === 'faculty_pro');
+        $isFacultyPro = in_array('FACULTY_PRO', $roles);
 
         $myRequests = collect();
         $myApprovedDownloadables = collect();

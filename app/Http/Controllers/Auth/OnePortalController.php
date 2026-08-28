@@ -42,7 +42,7 @@ class OnePortalController extends Controller
             'OJT',
             'CWTS',
             'DIRECTOR_OFFICE',
-            'ADMINISTRATION',
+            'ADMINISTRATIVE',
         ];
 
         if (session()->has('user_id') && in_array($role, $allowedRoles, true)) {
@@ -257,7 +257,7 @@ class OnePortalController extends Controller
         'OJT',
         'CWTS',
         'DIRECTOR_OFFICE',
-        'ADMINISTRATION',
+        'ADMINISTRATIVE',
     ];
 
     if ($finalRole === '' || !in_array($finalRole, $allowedRoles, true)) {
@@ -281,6 +281,17 @@ class OnePortalController extends Controller
 
     $request->session()->regenerate();
 
+    $validRoles = [$finalRole];
+    if (\Illuminate\Support\Facades\Schema::hasTable('user_roles')) {
+        $assignedRoles = DB::table('user_roles')
+            ->where('user_id', $user->user_id)
+            ->pluck('role_code')
+            ->toArray();
+        if (!empty($assignedRoles)) {
+            $validRoles = array_values(array_unique(array_merge($validRoles, $assignedRoles)));
+        }
+    }
+
     // create local session only after role is valid
     session([
         'user_logged_in' => true,
@@ -292,7 +303,7 @@ class OnePortalController extends Controller
         'user_name' => $fullName,
         'user_role' => $finalRole,
         'role' => $finalRole,
-        'user_roles' => [$finalRole],
+        'user_roles' => $validRoles,
         'oneportal_id' => $id,
         'access_token' => $accessToken,
         'refresh_token' => $refreshToken,
@@ -394,7 +405,7 @@ class OnePortalController extends Controller
             $role === 'OJT' ||
             $role === 'CWTS' ||
             $role === 'DIRECTOR_OFFICE' ||
-            $role === 'ADMINISTRATION'
+            $role === 'ADMINISTRATIVE'
         ) {
             return redirect('/staff/dashboard');
         }
