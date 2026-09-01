@@ -2616,15 +2616,18 @@ html:has(body.modal-open) {
 }
 
 .advisory-modal-text {
-  display: grid;
-  gap: 14px;
+  display: block;
   color: var(--home-muted);
   font-size: 1rem;
   line-height: 1.85;
 }
 
 .advisory-modal-text p {
-  margin: 0;
+  margin: 0 0 14px 0;
+}
+
+.advisory-modal-text p:last-child {
+  margin-bottom: 0;
 }
 
 .advisory-modal-text a:not([style*="color"]) {
