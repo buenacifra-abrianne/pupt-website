@@ -34,7 +34,7 @@
         $overview = $aboutCms['overview'] ?? [];
         $sections = $sections ?? ($aboutCms['sections'] ?? []);
         $contentsSections = array_values(array_filter($sections, static function ($section) {
-            return (string) ($section['visible_in_contents'] ?? '1') !== '0';
+            return (string) ($section['visible_in_contents'] ?? '1') !== '0' && ($section['slug'] ?? '') !== 'awards-and-certificates';
         }));
         $selectedSection = $selectedSection ?? null;
         $heroTitle = $overview['hero_title_default'] ?? 'ABOUT THE CAMPUS';
@@ -633,7 +633,7 @@
                                 </article>
                             </div>
                         </section>
-                    @else
+                    @elseif($selectedSlug !== 'awards-and-certificates')
 
                         <article
                             class="about-section-card reveal{{ $cmsPreview && $selectedSlug !== 'hymn' && $selectedSlug !== 'maps' && $selectedSlug !== 'logo-and-symbols' && $selectedSlug !== 'citizens-charter' ? ' cms-preview-editable' : '' }}"
@@ -1432,6 +1432,299 @@
                                 </div>{{-- end .about-detail-body --}}
                             </div>{{-- end [data-cms-boundary] --}}
                         </article>
+                    @endif
+                    @if($selectedSlug === 'awards-and-certificates')
+                        {{-- ───────────────────────────────────────────────────────────── --}}
+                        {{-- AWARDS & CERTIFICATES PAGE SECTION                           --}}
+                        {{-- ───────────────────────────────────────────────────────────── --}}
+                        @php
+                            $allAwards       = $selectedSection['awards']       ?? [];
+                            $allCertificates = $selectedSection['certificates'] ?? [];
+                            $latestItems     = collect($allAwards)->map(fn($a) => array_merge($a, ['_type' => 'award']))
+                                ->concat(collect($allCertificates)->map(fn($c) => array_merge($c, ['_type' => 'certificate'])))
+                                ->take(5)
+                                ->values();
+                        @endphp
+
+                        {{-- ── HERO CAROUSEL ────────────────────────────────────────── --}}
+                        <section class="aw-hero-section reveal">
+                            <div class="aw-hero-inner">
+                                <div class="aw-hero-badge">Achievements & Excellence</div>
+                                <h1 class="aw-hero-title">{{ $selectedSection['label'] ?? 'Awards and Certificates' }}</h1>
+                                @if(trim((string) ($selectedSection['lead'] ?? '')) !== '')
+                                    <p class="aw-hero-lead">{{ $selectedSection['lead'] }}</p>
+                                @endif
+
+                                @if($latestItems->isNotEmpty())
+                                    <div class="aw-carousel" aria-label="Latest awards and certificates" data-aw-carousel>
+                                        <div class="aw-carousel-track" data-aw-track>
+                                            @foreach($latestItems as $item)
+                                                <div class="aw-carousel-slide" role="group" aria-label="Item {{ $loop->iteration }} of {{ $latestItems->count() }}">
+                                                    <div class="aw-carousel-chip {{ $item['_type'] === 'award' ? 'aw-chip--award' : 'aw-chip--cert' }}">
+                                                        {{ $item['_type'] === 'award' ? '🏆 Award' : '📜 Certificate' }}
+                                                    </div>
+                                                    <p class="aw-carousel-label">{{ $item['title'] ?? '' }}</p>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        @if($latestItems->count() > 1)
+                                            <div class="aw-carousel-dots" aria-hidden="true" data-aw-dots>
+                                                @foreach($latestItems as $item)
+                                                    <button class="aw-dot{{ $loop->first ? ' is-active' : '' }}" data-aw-dot="{{ $loop->index }}" aria-label="Slide {{ $loop->iteration }}"></button>
+                                                @endforeach
+                                            </div>
+                                        @endif
+                                    </div>
+                                @endif
+                            </div>
+                            <div class="aw-hero-glow" aria-hidden="true"></div>
+                        </section>
+
+                        {{-- ── AWARDS SECTION ───────────────────────────────────────── --}}
+                        @if($cmsPreview || count($allAwards) > 0)
+                        <section class="aw-maroon-section reveal">
+                            <div class="aw-section-inner">
+                                <div class="aw-section-head">
+                                    <span class="aw-section-eyebrow">Recognition</span>
+                                    <h2 class="aw-section-title">Awards</h2>
+                                </div>
+
+                                @if($cmsPreview)
+                                    <div class="aw-cms-add-row">
+                                        <button
+                                            type="button"
+                                            class="aw-add-btn aw-shine-btn"
+                                            data-about-award-card-add
+                                            aria-label="Add award"
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            Add Award
+                                        </button>
+                                    </div>
+                                @endif
+
+                                @if(count($allAwards) > 0)
+                                    <div class="aw-awards-grid">
+                                        @foreach($allAwards as $award)
+                                            @php
+                                                $awardImage = trim((string) ($award['image'] ?? ''));
+                                                $awardLink  = trim((string) ($award['link'] ?? ''));
+                                                $awardTitle = trim((string) ($award['title'] ?? ''));
+                                                $awardDesc  = trim((string) ($award['description'] ?? ''));
+                                            @endphp
+                                            <article
+                                                class="aw-award-card reveal {{ $loop->index % 3 === 1 ? 'delay-100' : ($loop->index % 3 === 2 ? 'delay-200' : '') }}{{ $cmsPreview ? ' aw-cms-card' : '' }}"
+                                                @if($cmsPreview)
+                                                    data-about-award-card
+                                                    data-about-award-index="{{ $loop->index }}"
+                                                    data-about-award-label="{{ $awardTitle !== '' ? $awardTitle : ('Award ' . $loop->iteration) }}"
+                                                @endif
+                                            >
+                                                @if($cmsPreview)
+                                                    <div class="aw-cms-actions">
+                                                        <button type="button" class="aw-cms-btn aw-cms-btn--edit" data-about-award-card-edit>Edit</button>
+                                                        <button type="button" class="aw-cms-btn aw-cms-btn--delete" data-about-award-card-delete>Delete</button>
+                                                    </div>
+                                                @endif
+                                                <div class="aw-award-image-wrap">
+                                                    @if($awardImage !== '')
+                                                        <img
+                                                            src="{{ \App\Support\AboutCmsContent::resolveImagePath($awardImage, 'assets/static_img/pupillar.jpeg') }}"
+                                                            alt="{{ $awardTitle }}"
+                                                            class="aw-award-image"
+                                                            loading="lazy"
+                                                        >
+                                                    @else
+                                                        <div class="aw-award-image-placeholder" aria-hidden="true">
+                                                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M8 12l-2 8 6-3 6 3-2-8"/></svg>
+                                                        </div>
+                                                    @endif
+                                                    <div class="aw-award-glow" aria-hidden="true"></div>
+                                                </div>
+                                                <div class="aw-award-body">
+                                                    <h3 class="aw-award-title">{{ $awardTitle !== '' ? $awardTitle : ('Award ' . $loop->iteration) }}</h3>
+                                                    @if($awardDesc !== '')
+                                                        <p class="aw-award-desc">{{ $awardDesc }}</p>
+                                                    @endif
+                                                    @if($awardLink !== '' && !$cmsPreview)
+                                                        <a
+                                                            href="{{ $awardLink }}"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="aw-shine-btn aw-link-btn"
+                                                            aria-label="Learn more about {{ $awardTitle }}"
+                                                        >
+                                                            Learn More
+                                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </article>
+                                        @endforeach
+                                    </div>
+                                @elseif(!$cmsPreview)
+                                    {{-- No hardcoded placeholder if no data --}}
+                                @endif
+                            </div>
+                        </section>
+                        @endif
+
+                        {{-- ── CERTIFICATES SECTION ─────────────────────────────────── --}}
+                        @if($cmsPreview || count($allCertificates) > 0)
+                        <section class="aw-certs-section reveal">
+                            <div class="aw-section-inner">
+                                <div class="aw-section-head">
+                                    <span class="aw-section-eyebrow">Certifications</span>
+                                    <h2 class="aw-section-title">Certificates</h2>
+                                </div>
+
+                                @if($cmsPreview)
+                                    <div class="aw-cms-add-row">
+                                        <button
+                                            type="button"
+                                            class="aw-add-btn aw-shine-btn"
+                                            data-about-certificate-card-add
+                                            aria-label="Add certificate"
+                                        >
+                                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                                            Add Certificate
+                                        </button>
+                                    </div>
+                                @endif
+
+                                @if(count($allCertificates) > 0)
+                                    <div class="aw-certs-list">
+                                        @foreach($allCertificates as $cert)
+                                            @php
+                                                $certTitle = trim((string) ($cert['title'] ?? ''));
+                                                $certDesc  = trim((string) ($cert['description'] ?? ''));
+                                                $certLink  = trim((string) ($cert['link'] ?? ''));
+                                            @endphp
+                                            <article
+                                                class="aw-cert-card reveal {{ $loop->index % 2 === 1 ? 'delay-100' : '' }}{{ $cmsPreview ? ' aw-cms-card' : '' }}"
+                                                @if($cmsPreview)
+                                                    data-about-certificate-card
+                                                    data-about-certificate-index="{{ $loop->index }}"
+                                                    data-about-certificate-label="{{ $certTitle !== '' ? $certTitle : ('Certificate ' . $loop->iteration) }}"
+                                                @endif
+                                            >
+                                                @if($cmsPreview)
+                                                    <div class="aw-cms-actions">
+                                                        <button type="button" class="aw-cms-btn aw-cms-btn--edit" data-about-certificate-card-edit>Edit</button>
+                                                        <button type="button" class="aw-cms-btn aw-cms-btn--delete" data-about-certificate-card-delete>Delete</button>
+                                                    </div>
+                                                @endif
+                                                <div class="aw-cert-icon" aria-hidden="true">
+                                                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                                                </div>
+                                                <div class="aw-cert-body">
+                                                    <h3 class="aw-cert-title">{{ $certTitle !== '' ? $certTitle : ('Certificate ' . $loop->iteration) }}</h3>
+                                                    @if($certDesc !== '')
+                                                        <p class="aw-cert-desc">{{ $certDesc }}</p>
+                                                    @endif
+                                                    @if($certLink !== '' && !$cmsPreview)
+                                                        <a
+                                                            href="{{ $certLink }}"
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            class="aw-cert-link"
+                                                            aria-label="View certificate: {{ $certTitle }}"
+                                                        >
+                                                            View Certificate
+                                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3"/></svg>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </article>
+                                        @endforeach
+                                    </div>
+                                @elseif(!$cmsPreview)
+                                    {{-- No hardcoded placeholder if no data --}}
+                                @endif
+                            </div>
+                        </section>
+                        @endif
+
+                        {{-- CMS postMessage integration for awards/certificates --}}
+                        @if($cmsPreview)
+                            <script>
+                            (function() {
+                                document.addEventListener('click', function(e) {
+                                    const addAwardBtn = e.target.closest('[data-about-award-card-add]');
+                                    if (addAwardBtn) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        window.parent?.postMessage({ type: 'cms-about-award-card-add', route: 'awards-and-certificates', label: 'Add Award' }, '*');
+                                        return;
+                                    }
+                                    const awardEditBtn = e.target.closest('[data-about-award-card-edit]');
+                                    if (awardEditBtn) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const card = awardEditBtn.closest('[data-about-award-card]');
+                                        window.parent?.postMessage({ type: 'cms-about-award-card-edit', index: card?.getAttribute('data-about-award-index') || '', label: card?.getAttribute('data-about-award-label') || 'Award', route: 'awards-and-certificates' }, '*');
+                                        return;
+                                    }
+                                    const awardDeleteBtn = e.target.closest('[data-about-award-card-delete]');
+                                    if (awardDeleteBtn) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const card = awardDeleteBtn.closest('[data-about-award-card]');
+                                        window.parent?.postMessage({ type: 'cms-about-award-card-delete', index: card?.getAttribute('data-about-award-index') || '', label: card?.getAttribute('data-about-award-label') || 'Award', route: 'awards-and-certificates' }, '*');
+                                        return;
+                                    }
+                                    const addCertBtn = e.target.closest('[data-about-certificate-card-add]');
+                                    if (addCertBtn) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        window.parent?.postMessage({ type: 'cms-about-certificate-card-add', route: 'awards-and-certificates', label: 'Add Certificate' }, '*');
+                                        return;
+                                    }
+                                    const certEditBtn = e.target.closest('[data-about-certificate-card-edit]');
+                                    if (certEditBtn) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const card = certEditBtn.closest('[data-about-certificate-card]');
+                                        window.parent?.postMessage({ type: 'cms-about-certificate-card-edit', index: card?.getAttribute('data-about-certificate-index') || '', label: card?.getAttribute('data-about-certificate-label') || 'Certificate', route: 'awards-and-certificates' }, '*');
+                                        return;
+                                    }
+                                    const certDeleteBtn = e.target.closest('[data-about-certificate-card-delete]');
+                                    if (certDeleteBtn) {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        const card = certDeleteBtn.closest('[data-about-certificate-card]');
+                                        window.parent?.postMessage({ type: 'cms-about-certificate-card-delete', index: card?.getAttribute('data-about-certificate-index') || '', label: card?.getAttribute('data-about-certificate-label') || 'Certificate', route: 'awards-and-certificates' }, '*');
+                                        return;
+                                    }
+                                });
+                            })();
+                            </script>
+                        @endif
+
+                        {{-- Carousel auto-play script --}}
+                        @if($latestItems->isNotEmpty())
+                            <script>
+                            (function() {
+                                const carousel = document.querySelector('[data-aw-carousel]');
+                                if (!carousel) return;
+                                const track = carousel.querySelector('[data-aw-track]');
+                                const dotBtns = Array.from(carousel.querySelectorAll('[data-aw-dot]'));
+                                if (!track) return;
+                                const slides = Array.from(track.children);
+                                let current = 0;
+                                const go = (index) => {
+                                    current = (index + slides.length) % slides.length;
+                                    track.style.transform = `translateX(-${current * 100}%)`;
+                                    dotBtns.forEach((d, i) => d.classList.toggle('is-active', i === current));
+                                };
+                                dotBtns.forEach((btn, i) => btn.addEventListener('click', () => go(i)));
+                                if (slides.length > 1) {
+                                    setInterval(() => go(current + 1), 4000);
+                                }
+                            })();
+                            </script>
+                        @endif
+
                     @endif
                 </section>
             @endif

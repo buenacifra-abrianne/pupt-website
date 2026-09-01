@@ -1238,6 +1238,227 @@
             </section>
 
             @php
+                $awardsEditor = $aboutSections['awards-and-certificates'] ?? [];
+            @endphp
+            <section class="about-cms-editor-panel" data-about-editor-panel="awards-and-certificates" hidden>
+                <form class="{{ $formClass }}" method="POST" action="{{ $submitRoute }}" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" name="tab_key" value="about">
+                    <input type="hidden" name="section_key" value="awards-and-certificates">
+                    <input type="hidden" name="about_awards_version" value="0" data-about-awards-version>
+                    <input type="hidden" name="about_active_award_index" value="" data-about-active-award-index>
+                    @if($requestId > 0)
+                        <input type="hidden" name="request_id" value="{{ $requestId }}">
+                    @endif
+
+                    <div class="form-group">
+                        <label>Section Description</label>
+                        <textarea name="about[sections][awards-and-certificates][lead]" rows="3" maxlength="4000">{{ $awardsEditor['lead'] ?? '' }}</textarea>
+                    </div>
+
+                    <h4 style="margin: 16px 0 8px; font-size: 1rem; font-weight: 600; border-bottom: 1px solid rgba(128,0,0,0.15); padding-bottom: 6px;">Awards</h4>
+
+                    <div class="about-cms-card-stack" data-about-awards-list>
+                        @foreach($awardsEditor['awards'] ?? [] as $index => $award)
+                            @php
+                                $awardImgInputId = $idPrefix.'-award-image-file-'.$index;
+                                $awardImgFieldId = $idPrefix.'-award-image-'.$index;
+                                $awardImgValue   = (string) ($award['image'] ?? '');
+                                $awardImgPreview = \App\Support\AboutCmsContent::resolveImagePath(
+                                    $awardImgValue !== '' ? $awardImgValue : null,
+                                    'assets/static_img/pupillar.jpeg'
+                                );
+                            @endphp
+                            <article class="about-cms-card-editor" data-about-award-editor data-about-award-index="{{ $index }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4 data-about-award-heading>Award {{ $loop->iteration }}</h4>
+                                    <span data-about-award-meta class="about-cms-card-editor-meta">{{ $award['title'] ?? 'Award' }}</span>
+                                </div>
+
+                                <input type="hidden" name="about[sections][awards-and-certificates][awards][{{ $index }}][image]" value="{{ $awardImgValue }}" id="{{ $awardImgFieldId }}" data-about-image-field>
+
+                                <div class="form-group">
+                                    <label>Award Image</label>
+                                    <div class="about-cms-image-dropzone-shell about-cms-image-dropzone--square">
+                                        <div class="about-cms-image-dropzone" data-about-dropzone-for="{{ $awardImgInputId }}" role="button" tabindex="0" aria-label="Upload award image">
+                                            <span class="about-cms-image-dropzone-preview-column">
+                                                <span class="about-cms-image-dropzone-media">
+                                                    <img
+                                                        src="{{ $awardImgPreview }}"
+                                                        alt="Award image preview"
+                                                        class="about-cms-image-dropzone-preview"
+                                                        data-about-preview-for="{{ $awardImgInputId }}"
+                                                        data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}"
+                                                    >
+                                                    <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="{{ $awardImgInputId }}" aria-label="Edit image" title="Edit image">
+                                                        <i class="fas fa-crop-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                    <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="{{ $awardImgInputId }}" aria-label="Remove image" title="Remove image">
+                                                        <i class="fas fa-trash-alt" aria-hidden="true"></i>
+                                                    </button>
+                                                </span>
+                                                <span class="about-cms-image-dropzone-label">Award Image</span>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-upload">
+                                                <span class="about-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                                <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                                <span class="about-cms-image-dropzone-upload-copy">Your image preview updates instantly.</span>
+                                                <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                                <span class="about-cms-image-dropzone-file" data-about-file-name-for="{{ $awardImgInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <input
+                                        id="{{ $awardImgInputId }}"
+                                        class="about-cms-image-dropzone-input"
+                                        type="file"
+                                        name="about[sections][awards-and-certificates][awards][{{ $index }}][image_file]"
+                                        accept="image/*"
+                                        data-about-image-field-id="{{ $awardImgFieldId }}"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="about[sections][awards-and-certificates][awards][{{ $index }}][title]" maxlength="255" value="{{ $award['title'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="about[sections][awards-and-certificates][awards][{{ $index }}][description]" rows="3" maxlength="5000">{{ $award['description'] ?? '' }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link</label>
+                                    <div class="about-link-row">
+                                        <input type="text" name="about[sections][awards-and-certificates][awards][{{ $index }}][link]" maxlength="2048" value="{{ $award['link'] ?? '' }}" placeholder="https://...">
+                                        <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-about-award-template>
+                        <article class="about-cms-card-editor" data-about-award-editor data-about-award-index="__INDEX__">
+                            <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                <h4 data-about-award-heading>Award __NUMBER__</h4>
+                                <span data-about-award-meta class="about-cms-card-editor-meta">Award</span>
+                            </div>
+
+                            <input type="hidden" name="about[sections][awards-and-certificates][awards][__INDEX__][image]" value="" data-about-image-field>
+
+                            <div class="form-group">
+                                <label>Award Image</label>
+                                <div class="about-cms-image-dropzone-shell about-cms-image-dropzone--square">
+                                    <div class="about-cms-image-dropzone" data-about-dropzone-for="about-award-img-file-__INDEX__" role="button" tabindex="0" aria-label="Upload award image">
+                                        <span class="about-cms-image-dropzone-preview-column">
+                                            <span class="about-cms-image-dropzone-media">
+                                                <img src="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="Award image preview" class="about-cms-image-dropzone-preview about-cms-image-dropzone-preview--profile-placeholder" data-about-preview-for="about-award-img-file-__INDEX__" data-about-default-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                                                <button type="button" class="about-cms-image-dropzone-edit" data-about-edit-image-for="about-award-img-file-__INDEX__" aria-label="Edit image" title="Edit image"><i class="fas fa-crop-alt" aria-hidden="true"></i></button>
+                                                <button type="button" class="about-cms-image-dropzone-remove" data-about-clear-image-for="about-award-img-file-__INDEX__" aria-label="Remove image" title="Remove image" hidden><i class="fas fa-trash-alt" aria-hidden="true"></i></button>
+                                            </span>
+                                            <span class="about-cms-image-dropzone-label">Award Image</span>
+                                        </span>
+                                        <span class="about-cms-image-dropzone-upload">
+                                            <span class="about-cms-image-dropzone-icon"><i class="fas fa-arrow-up" aria-hidden="true"></i></span>
+                                            <span class="about-cms-image-dropzone-upload-title">Drag and drop image files to upload</span>
+                                            <span class="about-cms-image-dropzone-upload-copy">Your image preview updates instantly.</span>
+                                            <span class="about-cms-image-dropzone-upload-button">Select image</span>
+                                            <span class="about-cms-image-dropzone-file" data-about-file-name-for="about-award-img-file-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
+                                        </span>
+                                    </div>
+                                </div>
+                                <input id="about-award-img-file-__INDEX__" class="about-cms-image-dropzone-input" type="file" name="about[sections][awards-and-certificates][awards][__INDEX__][image_file]" accept="image/*">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="about[sections][awards-and-certificates][awards][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="about[sections][awards-and-certificates][awards][__INDEX__][description]" rows="3" maxlength="5000"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Link</label>
+                                <div class="about-link-row">
+                                    <input type="text" name="about[sections][awards-and-certificates][awards][__INDEX__][link]" maxlength="2048" value="" placeholder="https://...">
+                                    <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL"><i class="fas fa-paste"></i></button>
+                                </div>
+                            </div>
+                        </article>
+                    </template>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-outline-primary" data-about-award-add>+ Add Award</button>
+                    </div>
+
+                    <h4 style="margin: 24px 0 8px; font-size: 1rem; font-weight: 600; border-bottom: 1px solid rgba(128,0,0,0.15); padding-bottom: 6px;">Certificates</h4>
+
+                    <div class="about-cms-card-stack" data-about-certificates-list>
+                        @foreach($awardsEditor['certificates'] ?? [] as $index => $cert)
+                            <article class="about-cms-card-editor" data-about-certificate-editor data-about-certificate-index="{{ $index }}">
+                                <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                    <h4 data-about-certificate-heading>Certificate {{ $loop->iteration }}</h4>
+                                    <span data-about-certificate-meta class="about-cms-card-editor-meta">{{ $cert['title'] ?? 'Certificate' }}</span>
+                                </div>
+                                <div class="form-group">
+                                    <label>Title</label>
+                                    <input type="text" name="about[sections][awards-and-certificates][certificates][{{ $index }}][title]" maxlength="255" value="{{ $cert['title'] ?? '' }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>Description</label>
+                                    <textarea name="about[sections][awards-and-certificates][certificates][{{ $index }}][description]" rows="3" maxlength="5000">{{ $cert['description'] ?? '' }}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>Link</label>
+                                    <div class="about-link-row">
+                                        <input type="text" name="about[sections][awards-and-certificates][certificates][{{ $index }}][link]" maxlength="2048" value="{{ $cert['link'] ?? '' }}" placeholder="https://...">
+                                        <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL">
+                                            <i class="fas fa-paste"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </article>
+                        @endforeach
+                    </div>
+
+                    <template data-about-certificate-template>
+                        <article class="about-cms-card-editor" data-about-certificate-editor data-about-certificate-index="__INDEX__">
+                            <div class="about-cms-card-editor-head" data-about-card-editor-head>
+                                <h4 data-about-certificate-heading>Certificate __NUMBER__</h4>
+                                <span data-about-certificate-meta class="about-cms-card-editor-meta">Certificate</span>
+                            </div>
+                            <div class="form-group">
+                                <label>Title</label>
+                                <input type="text" name="about[sections][awards-and-certificates][certificates][__INDEX__][title]" maxlength="255" value="">
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="about[sections][awards-and-certificates][certificates][__INDEX__][description]" rows="3" maxlength="5000"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Link</label>
+                                <div class="about-link-row">
+                                    <input type="text" name="about[sections][awards-and-certificates][certificates][__INDEX__][link]" maxlength="2048" value="" placeholder="https://...">
+                                    <button type="button" class="about-link-paste" onclick="navigator.clipboard.readText().then(t => this.previousElementSibling.value = t).catch(e => alert('Please allow clipboard access to paste.'))" title="Paste URL"><i class="fas fa-paste"></i></button>
+                                </div>
+                            </div>
+                        </article>
+                    </template>
+
+                    <div style="margin-top: 10px;">
+                        <button type="button" class="btn btn-outline-primary" data-about-certificate-add>+ Add Certificate</button>
+                    </div>
+
+                    <div class="about-cms-modal-footer">
+                        <button type="submit" class="btn btn-primary">{{ $submitLabel('Awards & Certificates') }}</button>
+                    </div>
+                </form>
+            </section>
+
+            @php
                 $officialsEditor = $aboutSections['campus-officials'] ?? [];
             @endphp
             <section class="about-cms-editor-panel" data-about-editor-panel="campus-officials" hidden>
@@ -3427,7 +3648,9 @@
                 const isSealCardFocus = sectionKey === 'logo-and-symbols' && String(options.sealIndex ?? '').trim() !== '';
                 const isServiceCardFocus = sectionKey === 'citizens-charter' && String(options.serviceIndex ?? '').trim() !== '';
                 const isServiceHeaderFocus = sectionKey === 'citizens-charter' && options.headerFocus === true;
-                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus || isServiceCardFocus;
+                const isAwardCardFocus = sectionKey === 'awards-and-certificates' && String(options.awardIndex ?? '').trim() !== '';
+                const isCertificateCardFocus = sectionKey === 'awards-and-certificates' && String(options.certificateIndex ?? '').trim() !== '';
+                const isCardFocus = isContentsCardFocus || isHistoryCardFocus || isStrategicGoalFocus || isPlanPriorityFocus || isOfficialCardFocus || isSealCardFocus || isServiceCardFocus || isAwardCardFocus || isCertificateCardFocus;
                 panel.hidden = !isActive;
                 panel.classList.toggle('is-card-focus', isActive && isCardFocus);
 
@@ -3460,6 +3683,12 @@
                         focusScope = setActiveSealEditor(options.sealIndex ?? '', panel, isCardFocus) || panel;
                     } else if (sectionKey === 'citizens-charter') {
                         focusScope = setActiveServiceEditor(options.serviceIndex ?? '', panel) || panel;
+                    } else if (sectionKey === 'awards-and-certificates') {
+                        if (String(options.awardIndex ?? '').trim() !== '') {
+                            focusScope = setActiveAwardEditor(options.awardIndex ?? '') || panel;
+                        } else if (String(options.certificateIndex ?? '').trim() !== '') {
+                            focusScope = setActiveCertificateEditor(options.certificateIndex ?? '') || panel;
+                        }
                     }
 
                     if (isCardFocus && focusScope?.classList?.contains('about-cms-card-editor')) {
@@ -3679,6 +3908,54 @@
 
             if (data.type === 'cms-about-preview-route') {
                 loadAboutPreviewPage(data.route || 'overview');
+                return;
+            }
+
+            if (data.type === 'cms-about-award-card-add') {
+                initAwardsEditor();
+                const editor = addAwardEditor({ title: '', description: '', link: '', image: '' }, true);
+                const nextIndex = editor?.getAttribute('data-about-award-index') || '';
+                openAboutEditor('awards-and-certificates', data.label || 'Add Award', {
+                    awardIndex: nextIndex,
+                    route: data.route || 'awards-and-certificates',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-award-card-delete') {
+                confirmDeleteAwardCard(data.index !== undefined && data.index !== null ? data.index : '', data.label || '');
+                return;
+            }
+
+            if (data.type === 'cms-about-award-card-edit') {
+                openAboutEditor('awards-and-certificates', data.label ? `Edit ${data.label}` : 'Edit Award', {
+                    awardIndex: data.index !== undefined && data.index !== null ? data.index : '',
+                    route: data.route || 'awards-and-certificates',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-certificate-card-add') {
+                initAwardsEditor();
+                const editor = addCertificateEditor({ title: '', description: '', link: '' }, true);
+                const nextIndex = editor?.getAttribute('data-about-certificate-index') || '';
+                openAboutEditor('awards-and-certificates', data.label || 'Add Certificate', {
+                    certificateIndex: nextIndex,
+                    route: data.route || 'awards-and-certificates',
+                });
+                return;
+            }
+
+            if (data.type === 'cms-about-certificate-card-delete') {
+                confirmDeleteCertificateCard(data.index !== undefined && data.index !== null ? data.index : '', data.label || '');
+                return;
+            }
+
+            if (data.type === 'cms-about-certificate-card-edit') {
+                openAboutEditor('awards-and-certificates', data.label ? `Edit ${data.label}` : 'Edit Certificate', {
+                    certificateIndex: data.index !== undefined && data.index !== null ? data.index : '',
+                    route: data.route || 'awards-and-certificates',
+                });
                 return;
             }
 
@@ -5831,6 +6108,218 @@
             }
         };
         initServicesEditor();
+
+        // ─── Awards & Certificates Editor ─────────────────────────────────────
+        const awardsPanel = document.querySelector('[data-about-editor-panel="awards-and-certificates"]');
+        const awardsList = awardsPanel?.querySelector('[data-about-awards-list]') || null;
+        const awardsTemplate = awardsPanel?.querySelector('[data-about-award-template]') || null;
+        const certificatesList = awardsPanel?.querySelector('[data-about-certificates-list]') || null;
+        const certificatesTemplate = awardsPanel?.querySelector('[data-about-certificate-template]') || null;
+        let awardsEditorBound = false;
+
+        const bumpAwardsVersion = () => {
+            const versionInput = awardsPanel?.querySelector('[data-about-awards-version]');
+            if (versionInput) versionInput.value = String(Date.now());
+            const frame = document.querySelector('[data-about-preview-frame]');
+            if (frame && typeof queueAboutPreviewSettledSync === 'function') {
+                queueAboutPreviewSettledSync(frame);
+            }
+        };
+
+        const relabelAwardEditors = () => {
+            const editors = Array.from(awardsList?.querySelectorAll('[data-about-award-editor]') || []);
+            editors.forEach((editor, index) => {
+                editor.setAttribute('data-about-award-index', String(index));
+                const heading = editor.querySelector('[data-about-award-heading]');
+                const meta = editor.querySelector('[data-about-award-meta]');
+                const titleInput = editor.querySelector('input[name*="[title]"]');
+                if (heading) heading.textContent = `Award ${index + 1}`;
+                if (meta) meta.textContent = String(titleInput?.value || '').trim() || 'Award';
+                // Update all field names
+                editor.querySelectorAll('input, textarea').forEach((input) => {
+                    const name = input.getAttribute('name');
+                    if (name) input.setAttribute('name', name.replace(/\[awards\]\[\d+\]/, `[awards][${index}]`));
+                });
+                editor.querySelectorAll('[data-about-preview-for], [data-about-dropzone-for], [data-about-file-name-for], [data-about-clear-image-for], [data-about-edit-image-for]').forEach((el) => {
+                    const attr = ['data-about-preview-for', 'data-about-dropzone-for', 'data-about-file-name-for', 'data-about-clear-image-for', 'data-about-edit-image-for'].find(a => el.hasAttribute(a));
+                    if (attr) el.setAttribute(attr, `about-award-img-file-${index}`);
+                });
+                const fileInput = editor.querySelector('[type="file"]');
+                if (fileInput) { fileInput.id = `about-award-img-file-${index}`; fileInput.setAttribute('name', fileInput.getAttribute('name')?.replace(/\[awards\]\[\d+\]/, `[awards][${index}]`) || ''); }
+            });
+        };
+
+        const addAwardEditor = (data = {}, focus = false) => {
+            if (!awardsList || !awardsTemplate) return null;
+            const newIndex = awardsList.querySelectorAll('[data-about-award-editor]').length;
+            const html = document.createElement('div');
+            html.appendChild(awardsTemplate.content.cloneNode(true));
+            html.innerHTML = html.innerHTML.replace(/__INDEX__/g, newIndex).replace(/__NUMBER__/g, newIndex + 1);
+            const editor = html.firstElementChild;
+            if (!editor) return null;
+            awardsList.appendChild(editor);
+            if (data.title) { const i = editor.querySelector('input[name*="[title]"]'); if (i) i.value = data.title; }
+            if (data.description) { const i = editor.querySelector('textarea[name*="[description]"]'); if (i) i.value = data.description; }
+            if (data.link) { const i = editor.querySelector('input[name*="[link]"]'); if (i) i.value = data.link; }
+            initAboutImageDropzones(editor);
+            bumpAwardsVersion();
+            return editor;
+        };
+
+        const relabelCertificateEditors = () => {
+            const editors = Array.from(certificatesList?.querySelectorAll('[data-about-certificate-editor]') || []);
+            editors.forEach((editor, index) => {
+                editor.setAttribute('data-about-certificate-index', String(index));
+                const heading = editor.querySelector('[data-about-certificate-heading]');
+                const meta = editor.querySelector('[data-about-certificate-meta]');
+                const titleInput = editor.querySelector('input[name*="[title]"]');
+                if (heading) heading.textContent = `Certificate ${index + 1}`;
+                if (meta) meta.textContent = String(titleInput?.value || '').trim() || 'Certificate';
+                editor.querySelectorAll('input, textarea').forEach((input) => {
+                    const name = input.getAttribute('name');
+                    if (name) input.setAttribute('name', name.replace(/\[certificates\]\[\d+\]/, `[certificates][${index}]`));
+                });
+            });
+        };
+
+        const addCertificateEditor = (data = {}, focus = false) => {
+            if (!certificatesList || !certificatesTemplate) return null;
+            const newIndex = certificatesList.querySelectorAll('[data-about-certificate-editor]').length;
+            const html = document.createElement('div');
+            html.appendChild(certificatesTemplate.content.cloneNode(true));
+            html.innerHTML = html.innerHTML.replace(/__INDEX__/g, newIndex).replace(/__NUMBER__/g, newIndex + 1);
+            const editor = html.firstElementChild;
+            if (!editor) return null;
+            certificatesList.appendChild(editor);
+            if (data.title) { const i = editor.querySelector('input[name*="[title]"]'); if (i) i.value = data.title; }
+            if (data.description) { const i = editor.querySelector('textarea[name*="[description]"]'); if (i) i.value = data.description; }
+            if (data.link) { const i = editor.querySelector('input[name*="[link]"]'); if (i) i.value = data.link; }
+            bumpAwardsVersion();
+            return editor;
+        };
+
+        const setActiveAwardEditor = (index = '', scope = awardsPanel || document) => {
+            const editors = Array.from(scope?.querySelectorAll('[data-about-award-editor]') || []);
+            if (!editors.length) return null;
+            const normIndex = String(index ?? '').trim();
+            let targetEditor = normIndex !== '' ? editors.find(e => e.getAttribute('data-about-award-index') === normIndex) || null : null;
+            if (!targetEditor) targetEditor = editors[0] || null;
+            editors.forEach(editor => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.hidden = targetEditor ? !isActive : false;
+            });
+            return targetEditor;
+        };
+
+        const setActiveCertificateEditor = (index = '', scope = awardsPanel || document) => {
+            const editors = Array.from(scope?.querySelectorAll('[data-about-certificate-editor]') || []);
+            if (!editors.length) return null;
+            const normIndex = String(index ?? '').trim();
+            let targetEditor = normIndex !== '' ? editors.find(e => e.getAttribute('data-about-certificate-index') === normIndex) || null : null;
+            if (!targetEditor) targetEditor = editors[0] || null;
+            editors.forEach(editor => {
+                const isActive = editor === targetEditor;
+                editor.classList.toggle('is-active', isActive);
+                editor.hidden = targetEditor ? !isActive : false;
+            });
+            return targetEditor;
+        };
+
+        const confirmDeleteAwardCard = async (index, label, options = {}) => {
+            const normIndex = String(index ?? '').trim();
+            if (normIndex === '') return;
+            let confirmed = false;
+            const promptLabel = label || `Award ${Number(normIndex) + 1}`;
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({ title: 'Delete Award', message: `Do you want to delete "${promptLabel}" from Awards & Certificates?`, confirmText: 'Delete', tone: 'danger' });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}"?`);
+            }
+            if (!confirmed) return;
+            const targetEditor = awardsList?.querySelector(`[data-about-award-editor][data-about-award-index="${normIndex}"]`);
+            if (targetEditor) {
+                targetEditor.remove();
+                relabelAwardEditors();
+                bumpAwardsVersion();
+                if (options.submit !== false) {
+                    const form = awardsPanel?.querySelector('form');
+                    if (form) { if (typeof form.requestSubmit === 'function') form.requestSubmit(); else form.submit(); }
+                }
+            }
+        };
+
+        const confirmDeleteCertificateCard = async (index, label, options = {}) => {
+            const normIndex = String(index ?? '').trim();
+            if (normIndex === '') return;
+            let confirmed = false;
+            const promptLabel = label || `Certificate ${Number(normIndex) + 1}`;
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({ title: 'Delete Certificate', message: `Do you want to delete "${promptLabel}" from Awards & Certificates?`, confirmText: 'Delete', tone: 'danger' });
+            } else {
+                confirmed = window.confirm(`Do you want to delete "${promptLabel}"?`);
+            }
+            if (!confirmed) return;
+            const targetEditor = certificatesList?.querySelector(`[data-about-certificate-editor][data-about-certificate-index="${normIndex}"]`);
+            if (targetEditor) {
+                targetEditor.remove();
+                relabelCertificateEditors();
+                bumpAwardsVersion();
+                if (options.submit !== false) {
+                    const form = awardsPanel?.querySelector('form');
+                    if (form) { if (typeof form.requestSubmit === 'function') form.requestSubmit(); else form.submit(); }
+                }
+            }
+        };
+
+        const initAwardsEditor = () => {
+            if (!awardsPanel || awardsEditorBound) return;
+            awardsEditorBound = true;
+
+            awardsPanel.addEventListener('click', (event) => {
+                const addAwardBtn = event.target.closest('[data-about-award-add]');
+                if (addAwardBtn) { event.preventDefault(); addAwardEditor({}, true); return; }
+
+                const addCertBtn = event.target.closest('[data-about-certificate-add]');
+                if (addCertBtn) { event.preventDefault(); addCertificateEditor({}, true); return; }
+
+                const awardHead = event.target.closest('[data-about-card-editor-head]');
+                if (awardHead) {
+                    const awardEditor = awardHead.closest('[data-about-award-editor]');
+                    if (awardEditor) { setActiveAwardEditor(awardEditor.getAttribute('data-about-award-index') || ''); return; }
+                    const certEditor = awardHead.closest('[data-about-certificate-editor]');
+                    if (certEditor) { setActiveCertificateEditor(certEditor.getAttribute('data-about-certificate-index') || ''); return; }
+                }
+            });
+
+            awardsPanel.addEventListener('input', (event) => {
+                const awardEditor = event.target.closest('[data-about-award-editor]');
+                if (awardEditor) {
+                    const meta = awardEditor.querySelector('[data-about-award-meta]');
+                    const titleInput = awardEditor.querySelector('input[name*="[title]"]');
+                    if (meta) meta.textContent = String(titleInput?.value || '').trim() || 'Award';
+                    bumpAwardsVersion();
+                    return;
+                }
+                const certEditor = event.target.closest('[data-about-certificate-editor]');
+                if (certEditor) {
+                    const meta = certEditor.querySelector('[data-about-certificate-meta]');
+                    const titleInput = certEditor.querySelector('input[name*="[title]"]');
+                    if (meta) meta.textContent = String(titleInput?.value || '').trim() || 'Certificate';
+                    bumpAwardsVersion();
+                }
+            });
+
+            const form = awardsPanel.querySelector('form');
+            if (form) {
+                form.addEventListener('submit', () => {
+                    relabelAwardEditors();
+                    relabelCertificateEditors();
+                    bumpAwardsVersion();
+                }, true);
+            }
+        };
+        initAwardsEditor();
 
         const frame = document.querySelector('[data-about-preview-frame]');
         if (frame) {
