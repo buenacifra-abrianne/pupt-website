@@ -678,15 +678,32 @@
                     @endif
 
                     <div class="student-link-list" style="min-height: 250px;">
-                        @forelse(($links['items'] ?? []) as $link)
+                        @if($cmsPreview)
+                            <button
+                                type="button"
+                                class="student-link-row student-link-add-button"
+                                data-students-link-add-trigger
+                                aria-label="Add Form Link"
+                                style="justify-content: center; border: 2px dashed rgba(127, 17, 19, 0.3); background: transparent; box-shadow: none; cursor: pointer;"
+                            >
+                                <span style="display: flex; flex-direction: row; align-items: center; gap: 8px;">
+                                    <div style="color: #800000; font-size: 2rem; line-height: 1; font-weight: 700; margin-top: -4px;">+</div>
+                                    <div style="color: #800000; font-weight: 700; font-size: 1.1rem;">
+                                        Add Link
+                                    </div>
+                                </span>
+                            </button>
+                        @endif
+                        @forelse(($links['items'] ?? []) as $index => $link)
                             @php
                                 $href = trim((string) ($link['href'] ?? ''));
                                 $isExternal = preg_match('/^https?:\/\//i', $href) === 1;
                                 $category = $link['category'] ?? '';
                             @endphp
                             <a
-                                href="{{ $href !== '' ? $href : '#' }}"
+                                href="{{ $cmsPreview ? '#' : ($href !== '' ? $href : '#') }}"
                                 class="student-link-row"
+                                {!! $cmsPreview ? 'data-students-link-index="'.$index.'"' : '' !!}
                                 data-category="{{ e($category) }}"
                                 @if($isExternal && !$cmsPreview) target="_blank" rel="noopener noreferrer" @endif
                             >
@@ -696,7 +713,18 @@
                                         <small>{{ $link['description'] }}</small>
                                     @endif
                                 </span>
-                                <em>Open</em>
+                                @if($cmsPreview)
+                                    <div class="students-cms-preview-link-actions" style="display: flex; gap: 8px; align-items: center;">
+                                        <button type="button" class="students-cms-preview-link-edit" data-students-link-edit aria-label="Edit Link" title="Edit Link" style="background: #7b1113; color: #fff; border: none; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                            Edit
+                                        </button>
+                                        <button type="button" class="students-cms-preview-link-delete" data-students-link-delete aria-label="Delete Link" title="Delete Link" style="background: #7b1113; color: #fff; border: none; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                            Delete
+                                        </button>
+                                    </div>
+                                @else
+                                    <em>Open</em>
+                                @endif
                             </a>
                         @empty
                             <p class="student-page-empty">No links have been added yet.</p>
