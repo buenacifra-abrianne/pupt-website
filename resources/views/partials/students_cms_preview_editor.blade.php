@@ -974,7 +974,7 @@
                                     $qrFlyerFieldId = $idPrefix.'-students-document-requests-qr-flyer-field-'.$index;
                                     $qrFlyerPreview = \App\Support\StudentsCmsContent::resolveImagePath($item['flyer_image'] ?? null, 'assets/static_img/pupillar.jpeg');
                                 @endphp
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-qr-index="{{ $index }}">
                                     <input type="hidden" id="{{ $qrFieldId }}" name="students[pages][document-requests][qr_codes][items][{{ $index }}][image]" value="{{ $item['image'] ?? '' }}" data-students-image-field>
                                     <div class="form-group">
                                         <label>Upload QR Code Image</label>
@@ -1045,7 +1045,6 @@
                                             <input type="text" name="students[pages][document-requests][qr_codes][items][{{ $index }}][href]" maxlength="2048" value="{{ $item['href'] ?? '' }}">
                                         </div>
                                     </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
                                 </div>
                             @endforeach
                         </div>
@@ -1998,11 +1997,18 @@
         gap: 0;
     }
 
-    .students-cms-editor-panel.is-card-focus [data-students-org-editor-head] {
+    .students-cms-editor-panel.is-card-focus [data-students-org-editor-head],
+    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-head {
         display: none;
     }
 
-    .students-cms-editor-panel.is-card-focus .students-cms-card-editor.is-active {
+    .students-cms-editor-panel.is-card-focus .students-cms-card-editor:not(.is-active),
+    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-item:not(.is-active) {
+        display: none;
+    }
+
+    .students-cms-editor-panel.is-card-focus .students-cms-card-editor.is-active,
+    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-item.is-active {
         padding: 22px;
         border: none;
         background: transparent;
@@ -2171,6 +2177,11 @@
                 && String(options.orgKey || '').trim() !== ''
             ) || (
                 sectionKey === 'admissions_contact_persons'
+            ) || (
+                sectionKey === 'document_requests_qr_codes_items'
+                && options.qrIndex !== null
+                && options.qrIndex !== undefined
+                && options.qrIndex !== ''
             );
 
             panels.forEach((panel) => {
@@ -2220,6 +2231,13 @@
             } else if (sectionKey === 'organizations') {
                 setActiveOrganizationEditor(options.orgKey ?? '');
                 window.setTimeout(() => focusOrganizationEditor(options.orgKey ?? ''), 40);
+            } else if (sectionKey === 'document_requests_qr_codes_items' && options.qrIndex !== undefined) {
+                setActiveQrEditor(options.qrIndex ?? null);
+                window.setTimeout(() => {
+                    const target = activePanel?.querySelector(`[data-students-repeatable-item][data-students-qr-index="${options.qrIndex}"]`);
+                    target?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    target?.querySelector('input, textarea')?.focus();
+                }, 40);
             } else if (activePanel) {
                 const firstField = activePanel.querySelector('input:not([type="hidden"]), textarea, select, .rich-editor-surface');
                 window.setTimeout(() => firstField?.focus(), 40);
@@ -2454,6 +2472,46 @@
                     const card = deleteCardTrigger.closest('[data-students-card-index]');
                     const cardIndex = card?.getAttribute('data-students-card-index') ?? null;
                     void confirmDeleteCard(cardIndex);
+                    return;
+                }
+
+                const addQrTrigger = event.target.closest('[data-students-qr-add-trigger]');
+                if (addQrTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    openEditor('document_requests_qr_codes_items', 'Add QR code', { qrIndex: 'new' });
+                    window.setTimeout(() => {
+                        const list = modal.querySelector(`[data-students-repeatable-list="document-requests-qr"]`);
+                        if (list) {
+                            const index = nextRepeatableIndex(list);
+                            list.insertAdjacentHTML('beforeend', repeatableTemplates['document-requests-qr'](index));
+                            initStudentsImageDropzones(list);
+                            setActiveQrEditor(index);
+                            const latest = list.lastElementChild;
+                            latest?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                            latest?.querySelector('input:not([type="hidden"]), textarea')?.focus();
+                        }
+                    }, 0);
+                    return;
+                }
+
+                const editQrTrigger = event.target.closest('[data-students-qr-edit]');
+                if (editQrTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const wrapper = editQrTrigger.closest('[data-students-qr-index]');
+                    const qrIndex = wrapper?.getAttribute('data-students-qr-index') ?? null;
+                    openEditor('document_requests_qr_codes_items', 'Edit QR code', { qrIndex });
+                    return;
+                }
+
+                const deleteQrTrigger = event.target.closest('[data-students-qr-delete]');
+                if (deleteQrTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const wrapper = deleteQrTrigger.closest('[data-students-qr-index]');
+                    const qrIndex = wrapper?.getAttribute('data-students-qr-index') ?? null;
+                    void confirmDeleteQr(qrIndex);
                     return;
                 }
 
@@ -2826,6 +2884,74 @@
                 .filter((value) => Number.isFinite(value));
 
             return indexes.length ? Math.max(...indexes) + 1 : 0;
+        };
+
+        const setActiveQrEditor = (qrIndex = null) => {
+            const list = modal.querySelector(`[data-students-repeatable-list="document-requests-qr"]`);
+            const editors = Array.from(list?.querySelectorAll('[data-students-repeatable-item]') ?? []);
+
+            if (!editors.length) {
+                return;
+            }
+
+            let targetEditor = null;
+
+            if (qrIndex !== null && qrIndex !== undefined && qrIndex !== 'new') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-students-qr-index') === String(qrIndex)) || null;
+            }
+
+            if (!targetEditor && qrIndex === 'new') {
+                targetEditor = editors[editors.length - 1] || null;
+            } else if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                editor.classList.toggle('is-active', editor === targetEditor);
+            });
+        };
+
+        const confirmDeleteQr = async (qrIndex) => {
+            if (qrIndex === null || qrIndex === undefined) return;
+            const list = modal.querySelector(`[data-students-repeatable-list="document-requests-qr"]`);
+            const targetEditor = list?.querySelector(`[data-students-repeatable-item][data-students-qr-index="${qrIndex}"]`);
+            if (!targetEditor) return;
+
+            const titleInput = targetEditor.querySelector('input[name*="[label]"]');
+            const qrTitle = String(titleInput?.value || '').trim();
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete QR Code',
+                    message: qrTitle
+                        ? `Do you want to delete "${qrTitle}"?`
+                        : 'Do you want to delete this QR code?',
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(
+                    qrTitle
+                        ? `Do you want to delete "${qrTitle}"?`
+                        : 'Do you want to delete this QR code?'
+                );
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const form = targetEditor.closest('form');
+            targetEditor.remove();
+            
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            }
         };
 
         const initStudentsImageDropzones = (scope = document) => {
@@ -3368,7 +3494,7 @@
                 const flyerFieldId = `{{ $idPrefix }}-students-document-requests-qr-flyer-field-${index}`;
 
                 return `
-                    <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                    <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-qr-index="${index}">
                         <input type="hidden" id="${fieldId}" name="students[pages][document-requests][qr_codes][items][${index}][image]" value="" data-students-image-field>
                         <div class="form-group">
                             <label>Upload QR Code Image</label>
@@ -3439,7 +3565,6 @@
                                 <input type="text" name="students[pages][document-requests][qr_codes][items][${index}][href]" maxlength="2048" value="">
                             </div>
                         </div>
-                        <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove QR Code</button>
                     </div>
                 `;
             },

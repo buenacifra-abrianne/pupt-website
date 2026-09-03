@@ -286,14 +286,24 @@
             <div
                 class="{{ $cmsPreview ? 'cms-preview-editable' : '' }}"
                 style="margin-top: 30px;"
-                @if($cmsPreview && $qrSectionKey !== '')
-                    data-cms-section="{{ $qrSectionKey }}_items"
-                    data-cms-section-label="Document Requests QR Codes"
-                @endif
             >
                 <div data-cms-boundary class="cms-preview-boundary-full">
                     <div class="student-qr-grid">
-                    @forelse(($qrCodes['items'] ?? []) as $qrCode)
+                    @if($cmsPreview)
+                        <button
+                            type="button"
+                            class="student-qr-card student-qr-add-card"
+                            data-students-qr-add-trigger
+                            aria-label="Add QR Code"
+                            style="flex: 1; justify-content: center; align-items: center; display: flex; flex-direction: column; border: 2px dashed rgba(127, 17, 19, 0.3); background: #fffaf6; box-shadow: none;"
+                        >
+                            <div style="color: #800000; font-size: 3.5rem; line-height: 1; margin-bottom: 16px; font-weight: 700;">+</div>
+                            <div style="color: #800000; font-weight: 700; font-size: 1.1rem;">
+                                Add QR Code
+                            </div>
+                        </button>
+                    @endif
+                    @foreach(($qrCodes['items'] ?? []) as $index => $qrCode)
                         @php
                             $qrImage = trim((string) ($qrCode['image'] ?? ''));
                             $qrImageSrc = $qrImage !== '' ? \App\Support\StudentsCmsContent::resolveImagePath($qrImage, 'assets/static_img/pupillar.jpeg') : '';
@@ -303,29 +313,43 @@
                             $qrLabel = trim((string) ($qrCode['label'] ?? 'QR Code'));
                             $qrDescription = trim((string) ($qrCode['description'] ?? ''));
                         @endphp
-                        <button
-                            type="button"
-                            class="student-qr-card student-qr-trigger"
-                            data-qr-title="{{ $qrLabel }}"
-                            data-qr-description="{{ $qrDescription }}"
-                            data-qr-image="{{ $qrImageSrc }}"
-                            data-qr-flyer-image="{{ $qrFlyerImageSrc }}"
-                            data-qr-link="{{ $qrHref }}"
-                            aria-label="Open QR details for {{ $qrLabel }}"
-                        >
-                            @if($qrImage !== '')
-                                <img src="{{ $qrImageSrc }}" alt="{{ $qrLabel }}">
-                            @else
-                                <div class="student-qr-placeholder">QR</div>
+                        <div class="student-qr-card-wrapper" {!! $cmsPreview ? 'data-students-qr-index="'.$index.'"' : '' !!} style="position: relative; height: 100%; display: flex; flex-direction: column;">
+                            @if($cmsPreview)
+                                <div class="students-cms-preview-card-actions" style="position: absolute; top: 12px; right: 12px; z-index: 10; display: flex; gap: 8px;">
+                                    <button type="button" class="students-cms-preview-card-edit" data-students-qr-edit aria-label="Edit QR Code" title="Edit QR Code" style="background: #7b1113; color: #fff; border: none; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                        Edit
+                                    </button>
+                                    <button type="button" class="students-cms-preview-card-delete" data-students-qr-delete aria-label="Delete QR Code" title="Delete QR Code" style="background: #7b1113; color: #fff; border: none; padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 0.85rem; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                                        Delete
+                                    </button>
+                                </div>
                             @endif
-                            <div>
-                                <h3>{{ $qrLabel }}</h3>
-                                <p>{{ $qrDescription }}</p>
-                            </div>
-                        </button>
-                    @empty
+                            <button
+                                type="button"
+                                class="student-qr-card student-qr-trigger"
+                                data-qr-title="{{ $qrLabel }}"
+                                data-qr-description="{{ $qrDescription }}"
+                                data-qr-image="{{ $qrImageSrc }}"
+                                data-qr-flyer-image="{{ $qrFlyerImageSrc }}"
+                                data-qr-link="{{ $qrHref }}"
+                                aria-label="Open QR details for {{ $qrLabel }}"
+                                style="flex: 1;"
+                            >
+                                @if($qrImage !== '')
+                                    <img src="{{ $qrImageSrc }}" alt="{{ $qrLabel }}">
+                                @else
+                                    <div class="student-qr-placeholder">QR</div>
+                                @endif
+                                <div>
+                                    <h3>{{ $qrLabel }}</h3>
+                                    <p>{{ $qrDescription }}</p>
+                                </div>
+                            </button>
+                        </div>
+                    @endforeach
+                    @if(empty($qrCodes['items']) && !$cmsPreview)
                         <p class="student-page-empty">No QR codes have been added yet.</p>
-                    @endforelse
+                    @endif
                 </div>
             </div>
         </div>
