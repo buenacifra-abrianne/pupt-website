@@ -148,6 +148,7 @@ $history = $this->attachDisplayFields($history);
         'location' => PlainText::normalize($payload['location'] ?? ''),
         'link' => !empty($payload['link']) ? $payload['link'] : null,
         'image_path' => $payload['image_path'] ?? null,
+        'additional_images' => $payload['additional_images'] ?? null,
         'date_published' => now(),
         'created_at' => now(),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
@@ -244,6 +245,9 @@ $history = $this->attachDisplayFields($history);
                     'image_path' => array_key_exists('image_path', $payload)
                         ? ($payload['image_path'] !== '' ? $payload['image_path'] : null)
                         : DB::raw('image_path'),
+                    'additional_images' => array_key_exists('additional_images', $payload)
+                        ? ($payload['additional_images'] !== '' ? $payload['additional_images'] : null)
+                        : DB::raw('additional_images'),
                 ]);
         }
         elseif ($type === 'NEWS_DELETE') {
