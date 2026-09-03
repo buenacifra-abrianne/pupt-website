@@ -141,7 +141,7 @@
 
                 <div>
                     <div class="students-contents-inner">
-                        <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Student services">
+                        <nav class="students-cards" aria-label="Student services">
                         @if($cmsPreview)
                             <article class="students-card students-card-add" data-students-add-card-trigger tabindex="0" role="button" aria-label="Add services">
                                 <div class="students-card-inner">

@@ -8,18 +8,14 @@ use Throwable;
 
 class NewsImage
 {
-    private const MAX_BYTES = 5 * 1024 * 1024;
+    private const MAX_BYTES = 20 * 1024 * 1024;
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
     {
         $disk = self::disk();
 
-        try {
-            return $file->store($directory, $disk);
-        } catch (Throwable) {
-            return false;
-        }
+        return $file->store($directory, $disk);
     }
 
     public static function delete(?string $path): void
@@ -86,7 +82,7 @@ class NewsImage
         }
 
         if (($file->getSize() ?? 0) > self::MAX_BYTES) {
-            return 'Image must not exceed 5 MB.';
+            return 'Image must not exceed 20 MB.';
         }
 
         $extension = strtolower((string) $file->getClientOriginalExtension());

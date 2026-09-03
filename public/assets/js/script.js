@@ -851,14 +851,61 @@ document.addEventListener("DOMContentLoaded", () => {
     renderAdvisoryContent(trigger.dataset.content || "", trigger.dataset.contentHtml || "");
 
     const rawImage = (trigger.getAttribute("data-image") || "").trim();
-    if (rawImage && image && media) {
-      image.src = rawImage;
-      image.alt = decodeEscapedHtml(trigger.dataset.title || "News image");
+    const additionalImagesStr = (trigger.getAttribute("data-additional-images") || "[]").trim();
+    let allImages = [];
+    if (rawImage) allImages.push(rawImage);
+    
+    try {
+      const addImages = JSON.parse(additionalImagesStr);
+      if (Array.isArray(addImages)) {
+         addImages.forEach(img => {
+            if (img && img.trim()) {
+               allImages.push(img.trim());
+            }
+         });
+      }
+    } catch(e) {}
+    
+    if (allImages.length > 0 && media) {
       media.removeAttribute("hidden");
       card?.classList.add("has-media");
-    } else if (image && media) {
-      image.removeAttribute("src");
-      image.alt = "";
+      
+      if (allImages.length === 1) {
+         media.innerHTML = `<img src="${allImages[0]}" alt="${decodeEscapedHtml(trigger.dataset.title || 'News image')}" id="advisoryModalImage" style="width:100%;height:100%;object-fit:cover;">`;
+      } else {
+         let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
+         allImages.forEach((img, idx) => {
+             carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+         });
+         carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
+         carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
+         carouselHtml += '</div>';
+         
+         media.innerHTML = carouselHtml;
+         
+         let currentSlide = 0;
+         const slides = media.querySelectorAll('.news-carousel-slide');
+         const updateCarousel = () => {
+             slides.forEach((s, idx) => {
+                 s.style.opacity = idx === currentSlide ? 1 : 0;
+                 s.style.zIndex = idx === currentSlide ? 1 : 0;
+             });
+         };
+         
+         media.querySelector('.news-carousel-prev').addEventListener('click', (e) => {
+             e.preventDefault();
+             currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+             updateCarousel();
+         });
+         
+         media.querySelector('.news-carousel-next').addEventListener('click', (e) => {
+             e.preventDefault();
+             currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+             updateCarousel();
+         });
+      }
+    } else if (media) {
+      media.innerHTML = `<img src="" alt="" id="advisoryModalImage" data-fallback-src="/assets/static_img/pupillar.jpeg">`;
       media.setAttribute("hidden", "true");
       card?.classList.remove("has-media");
     }

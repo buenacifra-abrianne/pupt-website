@@ -339,6 +339,16 @@
                       data-content="{{ e(\App\Support\RichText::plainText($n->content)) }}"
                       data-link="{{ e($n->link ?? '') }}"
                       data-image="{{ e($storyImage) }}"
+                      @php
+                        $additionalImageUrls = [];
+                        if (!empty($n->additional_images)) {
+                            $paths = json_decode($n->additional_images, true) ?? [];
+                            foreach ($paths as $path) {
+                                $additionalImageUrls[] = \App\Support\NewsImage::url($path);
+                            }
+                        }
+                      @endphp
+                      data-additional-images="{{ e(json_encode($additionalImageUrls, JSON_UNESCAPED_SLASHES)) }}"
                     >
                       Read More
                     </button>

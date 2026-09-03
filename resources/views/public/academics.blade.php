@@ -106,7 +106,7 @@
             </div>
 
             <div class="contents-strip-inner">
-                    <nav class="contents-cards show-card-action{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Academic page contents">
+                    <nav class="contents-cards show-card-action" aria-label="Academic page contents">
                         @foreach($contentsItems as $item)
                             @if($cmsPreview)
                                 <article

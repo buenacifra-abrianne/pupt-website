@@ -237,7 +237,7 @@
                         <h2>{{ $overview['contents_title'] ?? 'All about the campus' }}</h2>
                     </div>
 
-                    <nav class="contents-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="About page contents">
+                    <nav class="contents-cards" aria-label="About page contents">
                         @foreach($contentsSections as $section)
                             @if($cmsPreview)
                                 <article
@@ -1014,7 +1014,7 @@
                                         </div>
                                     </div>
 
-                                    <div class="charter-grid-stack">
+                                    <div class="charter-grid-stack" @if($cmsPreview) style="grid-auto-flow: row; grid-template-columns: repeat(auto-fit, 340px); justify-content: center; overflow-x: hidden;" @endif>
                                         @if($cmsPreview)
                                             <button
                                                 type="button"

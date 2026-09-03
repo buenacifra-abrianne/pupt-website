@@ -380,6 +380,10 @@ $pendingNewsIds = DB::table('approval_requests')
         'expiration_date' => ['nullable','date'],
         'existing_image_path' => ['nullable','string'],
         'remove_image' => ['nullable','in:0,1'],
+        'additional_images' => ['nullable', 'array'],
+        'additional_images.*' => ['image', 'max:20480'], // 20MB max
+        'existing_additional_images' => ['nullable', 'array'],
+        'existing_additional_images.*' => ['string'],
     ]);
 
     if ($message = NewsImage::validationError($request->file('image'))) {
@@ -423,6 +427,25 @@ $pendingNewsIds = DB::table('approval_requests')
         $imagePath = $uploadedPath;
     }
 
+    $additionalImagePaths = [];
+    $existingAdditional = $request->input('existing_additional_images', []);
+    if (is_array($existingAdditional)) {
+        foreach ($existingAdditional as $extPath) {
+            if ($extPath) {
+                $additionalImagePaths[] = $extPath;
+            }
+        }
+    }
+
+    if ($request->hasFile('additional_images')) {
+        foreach ($request->file('additional_images') as $additionalUpload) {
+            $path = NewsImage::store($additionalUpload);
+            if ($path) {
+                $additionalImagePaths[] = $path;
+            }
+        }
+    }
+
     return $this->createOrUpdateRequest(
         $requestId,
         'NEWS_CREATE',
@@ -435,6 +458,7 @@ $pendingNewsIds = DB::table('approval_requests')
             'location' => PlainText::normalize($request->input('location')),
             'expiration_date' => $request->input('expiration_date'),
             'image_path' => $imagePath,
+            'additional_images' => $additionalImagePaths,
         ]
     );
 }
@@ -456,6 +480,10 @@ $pendingNewsIds = DB::table('approval_requests')
         'expiration_date' => ['nullable','date'],
         'existing_image_path' => ['nullable','string'],
         'remove_image' => ['nullable','in:0,1'],
+        'additional_images' => ['nullable', 'array'],
+        'additional_images.*' => ['image', 'max:20480'],
+        'existing_additional_images' => ['nullable', 'array'],
+        'existing_additional_images.*' => ['string'],
     ]);
 
     if ($message = NewsImage::validationError($request->file('image'))) {
@@ -485,6 +513,25 @@ $pendingNewsIds = DB::table('approval_requests')
         $imagePath = $uploadedPath;
     }
 
+    $additionalImagePaths = [];
+    $existingAdditional = $request->input('existing_additional_images', []);
+    if (is_array($existingAdditional)) {
+        foreach ($existingAdditional as $extPath) {
+            if ($extPath) {
+                $additionalImagePaths[] = $extPath;
+            }
+        }
+    }
+
+    if ($request->hasFile('additional_images')) {
+        foreach ($request->file('additional_images') as $additionalUpload) {
+            $path = NewsImage::store($additionalUpload);
+            if ($path) {
+                $additionalImagePaths[] = $path;
+            }
+        }
+    }
+
     $payload = [
         'news_id' => (int) $request->input('news_id'),
         'title' => PlainText::normalize($request->input('title')),
@@ -494,6 +541,7 @@ $pendingNewsIds = DB::table('approval_requests')
         'location' => PlainText::normalize($request->input('location')),
         'expiration_date' => $request->input('expiration_date'),
         'image_path' => $imagePath,
+        'additional_images' => $additionalImagePaths,
     ];
 
     return $this->createOrUpdateRequest(
@@ -626,6 +674,7 @@ $pendingNewsIds = DB::table('approval_requests')
                 'link' => (string) ($payload['link'] ?? ''),
                 'image_path' => (string) ($payload['image_path'] ?? ''),
                 'image_url' => NewsImage::url($payload['image_path'] ?? null),
+                'additional_images' => $payload['additional_images'] ?? [],
             ];
         }
 
