@@ -66,7 +66,8 @@
           {{ \Illuminate\Support\Js::from($location) }},
           {{ \Illuminate\Support\Js::from($link) }},
           {{ \Illuminate\Support\Js::from($imagePath) }},
-          {{ \Illuminate\Support\Js::from($imageUrl) }}
+          {{ \Illuminate\Support\Js::from($imageUrl) }},
+          {{ \Illuminate\Support\Js::from(json_encode($payload['additional_images'] ?? [])) }}
         )">
         <i class="fas fa-edit"></i>
       </button>

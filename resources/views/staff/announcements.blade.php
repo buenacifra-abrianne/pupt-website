@@ -580,6 +580,13 @@
   <input type="hidden" id="news_remove_image" name="remove_image" value="0">
 </div>
 
+<div class="form-group">
+  <label><i class="fas fa-images"></i> Additional Images</label>
+  <input type="file" name="additional_images[]" id="newsAdditionalImagesInput" accept="image/*" multiple class="form-control" style="margin-bottom: 10px;">
+  <small style="display:block; color:#666;">You can select multiple images to appear in the news carousel.</small>
+  <div id="news_existing_additional_images_container"></div>
+</div>
+
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeNewsModal()" style="background: #ccc;">
                         Cancel
@@ -1221,9 +1228,12 @@
     if (removeFlag) removeFlag.value = '0';
 
     setNewsPreview(imageUrl || '');
+    
+    const additionalContainer = document.getElementById('news_existing_additional_images_container');
+    if (additionalContainer) additionalContainer.innerHTML = '';
 }
 
-  function editNewsRequest(reqId, type, newsId, title, content, category, location, link, imagePath, imageUrl) {
+  function editNewsRequest(reqId, type, newsId, title, content, category, location, link, imagePath, imageUrl, additionalImagesJson = '[]') {
     const modal = document.getElementById('newsModal');
     const form = document.getElementById('newsForm');
     const modalTitle = modal.querySelector('.modal-title');
@@ -1266,6 +1276,35 @@
     if (removeFlag) removeFlag.value = '0';
 
     setNewsPreview(imageUrl || '');
+
+    const additionalContainer = document.getElementById('news_existing_additional_images_container');
+    if (additionalContainer) {
+        additionalContainer.innerHTML = '';
+        try {
+            const addImages = JSON.parse(additionalImagesJson || '[]');
+            addImages.forEach((img, i) => {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.type = 'hidden';
+                hiddenInput.name = 'existing_additional_images[]';
+                hiddenInput.value = img;
+                additionalContainer.appendChild(hiddenInput);
+                
+                const previewImg = document.createElement('img');
+                previewImg.src = "/storage/" + img;
+                previewImg.style.width = "50px";
+                previewImg.style.height = "50px";
+                previewImg.style.objectFit = "cover";
+                previewImg.style.marginRight = "5px";
+                previewImg.style.borderRadius = "4px";
+                additionalContainer.appendChild(previewImg);
+            });
+        } catch (e) {
+            console.error(e);
+        }
+    }
+    
+    const addFileInput = document.getElementById('newsAdditionalImagesInput');
+    if (addFileInput) addFileInput.value = '';
 
     const nid = parseInt(newsId || 0, 10);
 
