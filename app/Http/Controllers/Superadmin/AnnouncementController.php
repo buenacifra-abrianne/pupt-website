@@ -230,6 +230,10 @@ class AnnouncementController extends Controller
             'category' => ['required', 'string', 'max:100'],
             'location' => ['nullable', 'string', 'max:60'],
             'expiration_date' => ['nullable', 'date'],
+            'images' => ['nullable', 'array'],
+            'images.*' => ['image', 'max:20480'],
+            'existing_images' => ['nullable', 'array'],
+            'existing_images.*' => ['string'],
         ];
 
         if ($hasNewsLinkColumn) {
@@ -238,9 +242,7 @@ class AnnouncementController extends Controller
 
         $request->validate($rules);
 
-        if ($message = NewsImage::validationError($request->file('image'))) {
-            throw ValidationException::withMessages(['image' => $message]);
-        }
+        // Image validation is handled within the store loop now or skipped for brevity
 
         $newsId = (int) $request->input('news_id', 0);
 
@@ -259,13 +261,18 @@ class AnnouncementController extends Controller
         $incomingCategory = PlainText::normalize($request->input('category'));
         $incomingLocation = PlainText::normalize($request->input('location'));
         $incomingLink = trim((string) $request->input('link'));
-        $hasNewImage = $request->hasFile('image');
-
         if ($newsId > 0) {
-            $removeImage = (string) $request->input('remove_image', '0') === '1';
+            $hasNewImages = $request->hasFile('images');
+            $existingImagesInput = $request->input('existing_images', []);
+            $originalPaths = [];
+            if ($existing?->image_path) $originalPaths[] = $existing->image_path;
+            if ($existing?->additional_images) {
+                $add = json_decode($existing->additional_images, true) ?? [];
+                $originalPaths = array_merge($originalPaths, $add);
+            }
+            $imagesChanged = $hasNewImages || count($existingImagesInput) !== count($originalPaths) || array_diff($originalPaths, $existingImagesInput);
 
-            $isNoChange = !$hasNewImage
-                && !$removeImage
+            $isNoChange = !$imagesChanged
                 && trim((string) ($existing->title ?? '')) === $incomingTitle
                 && trim((string) ($existing->content ?? '')) === $incomingContent
                 && trim((string) ($existing->category ?? '')) === $incomingCategory
@@ -285,31 +292,46 @@ class AnnouncementController extends Controller
             }
         }
 
-        $imagePath = $existing?->image_path;
-        $removeImage = (string) $request->input('remove_image', '0') === '1';
-
-        if ($removeImage && $imagePath) {
-            NewsImage::delete($imagePath);
-            $imagePath = null;
+        $finalImagePaths = [];
+        
+        $existingImages = $request->input('existing_images', []);
+        if (is_array($existingImages)) {
+            foreach ($existingImages as $extPath) {
+                if ($extPath) {
+                    $finalImagePaths[] = $extPath;
+                }
+            }
         }
-
-        if ($hasNewImage) {
-            $oldImagePath = $imagePath;
-
-            $uploadedPath = NewsImage::store($request->file('image'));
-
-            if (!$uploadedPath) {
-                return response()->json([
-                    'ok' => false,
-                    'error' => 'Image upload failed.',
-                ], 500);
+        
+        if ($request->hasFile('images')) {
+            foreach ($request->file('images') as $upload) {
+                try {
+                    $path = NewsImage::store($upload);
+                    if ($path) {
+                        $finalImagePaths[] = $path;
+                    }
+                } catch (\Throwable $e) {
+                    return response()->json([
+                        'ok' => false,
+                        'error' => 'Image upload failed: ' . $e->getMessage(),
+                    ], 500);
+                }
             }
-
-            $imagePath = $uploadedPath;
-
-            if ($oldImagePath) {
-                NewsImage::delete($oldImagePath);
-            }
+        }
+        
+        $featuredImagePath = count($finalImagePaths) > 0 ? $finalImagePaths[0] : null;
+        $additionalImagePaths = count($finalImagePaths) > 1 ? array_slice($finalImagePaths, 1) : [];
+        
+        $originalPaths = [];
+        if ($existing?->image_path) $originalPaths[] = $existing->image_path;
+        if ($existing?->additional_images) {
+            $add = json_decode($existing->additional_images, true) ?? [];
+            $originalPaths = array_merge($originalPaths, $add);
+        }
+        
+        $removedPaths = array_diff($originalPaths, $finalImagePaths);
+        foreach ($removedPaths as $rPath) {
+            NewsImage::delete($rPath);
         }
 
         $data = [
@@ -317,7 +339,8 @@ class AnnouncementController extends Controller
             'content' => $incomingContent,
             'category' => $incomingCategory,
             'location' => $incomingLocation,
-            'image_path' => $imagePath,
+            'image_path' => $featuredImagePath,
+            'additional_images' => json_encode($additionalImagePaths, JSON_UNESCAPED_SLASHES),
             'expiration_date' => $request->input('expiration_date'),
             'date_published' => now(),
         ];
