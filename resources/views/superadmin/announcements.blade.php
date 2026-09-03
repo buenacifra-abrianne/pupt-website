@@ -331,7 +331,8 @@
                                             'imageUrl' => \App\Support\NewsImage::url($news->image_path) ?? '',
                                             'isFeatured' => (bool) ($news->is_featured ?? false),
                                             'isHidden' => (bool) ($news->is_hidden_from_public ?? false),
-                                            'additionalImagesJson' => $news->additional_images ?? '[]'
+                                            'additionalImagesJson' => $news->additional_images ?? '[]',
+                                            'additionalImageUrlsJson' => json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? '[]', true) ?? []), JSON_UNESCAPED_SLASHES)
                                         ]) }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -410,7 +411,8 @@
                                             'imageUrl' => \App\Support\NewsImage::url($news->image_path) ?? '',
                                             'isFeatured' => (bool) ($news->is_featured ?? false),
                                             'isHidden' => (bool) ($news->is_hidden_from_public ?? false),
-                                            'additionalImagesJson' => $news->additional_images ?? '[]'
+                                            'additionalImagesJson' => $news->additional_images ?? '[]',
+                                            'additionalImageUrlsJson' => json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? '[]', true) ?? []), JSON_UNESCAPED_SLASHES)
                                         ]) }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -716,8 +718,8 @@
                             render();
                         }
 
-                        function setExistingImages(images) {
-                            existingImages = Array.isArray(images) ? [...images].filter(Boolean) : [];
+                        function setExistingImages(imagesData) {
+                            existingImages = Array.isArray(imagesData) ? [...imagesData].filter(Boolean) : [];
                             render();
                         }
 
@@ -731,15 +733,15 @@
                             let totalImagesCount = 0;
 
                             // Render existing images
-                            existingImages.forEach((imgUrl, index) => {
+                            existingImages.forEach((imgObj, index) => {
                                 const hidden = document.createElement('input');
                                 hidden.type = 'hidden';
                                 hidden.name = 'existing_images[]';
-                                hidden.value = imgUrl;
+                                hidden.value = imgObj.path;
                                 hiddenInputsContainer.appendChild(hidden);
 
                                 const isFeatured = totalImagesCount === 0;
-                                const wrapper = createThumbnailWrapper("/storage/" + imgUrl, () => removeExistingImage(index), false, isFeatured);
+                                const wrapper = createThumbnailWrapper(imgObj.url, () => removeExistingImage(index), false, isFeatured);
                                 previewContainer.appendChild(wrapper);
                                 totalImagesCount++;
                             });
@@ -1169,37 +1171,50 @@
 
         modal.classList.toggle('read-more-with-image', allImages.length > 0);
         if (media && image) {
-            media.querySelectorAll('.extra-img-gallery').forEach(el => el.remove());
-            
             if (allImages.length > 0) {
-                image.src = allImages[0];
-                image.alt = title || 'News image';
                 media.hidden = false;
-                
-                if (allImages.length > 1) {
-                    const gallery = document.createElement('div');
-                    gallery.className = 'extra-img-gallery';
-                    gallery.style.display = 'flex';
-                    gallery.style.gap = '10px';
-                    gallery.style.marginTop = '15px';
-                    gallery.style.overflowX = 'auto';
-                    gallery.style.paddingBottom = '10px';
-
-                    for (let i = 1; i < allImages.length; i++) {
-                        const img = document.createElement('img');
-                        img.src = allImages[i];
-                        img.style.height = '100px';
-                        img.style.width = '150px';
-                        img.style.objectFit = 'cover';
-                        img.style.borderRadius = '8px';
-                        img.style.border = '1px solid #ddd';
-                        gallery.appendChild(img);
+                if (allImages.length === 1) {
+                    media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:cover;">`;
+                } else {
+                    let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
+                    allImages.forEach((img, idx) => {
+                        carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+                    });
+                    carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
+                    carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
+                    carouselHtml += '</div>';
+                    
+                    media.innerHTML = carouselHtml;
+                    
+                    let currentSlide = 0;
+                    const slides = media.querySelectorAll('.news-carousel-slide');
+                    const updateCarousel = () => {
+                        slides.forEach((s, idx) => {
+                            s.style.opacity = idx === currentSlide ? 1 : 0;
+                            s.style.zIndex = idx === currentSlide ? 1 : 0;
+                        });
+                    };
+                    
+                    const prevBtn = media.querySelector('.news-carousel-prev');
+                    if(prevBtn) {
+                        prevBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+                            updateCarousel();
+                        });
                     }
-                    media.appendChild(gallery);
+                    
+                    const nextBtn = media.querySelector('.news-carousel-next');
+                    if(nextBtn) {
+                        nextBtn.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+                            updateCarousel();
+                        });
+                    }
                 }
             } else {
-                image.removeAttribute('src');
-                image.alt = '';
+                media.innerHTML = `<img src="" alt="" id="readMoreImage">`;
                 media.hidden = true;
             }
         }
@@ -1257,7 +1272,7 @@
         select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-        function editNews(id, title, content, category, location, link, imagePath, imageUrl = '', isFeatured = false, isHidden = false, additionalImagesJson = '[]') {
+        function editNews(id, title, content, category, location, link, imagePath, imageUrl = '', isFeatured = false, isHidden = false, additionalImagesJson = '[]', additionalImageUrlsJson = '[]') {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -1303,8 +1318,8 @@
         
         if (window.NewsImagesManager) {
             try {
-                let allExistingImages = [];
-                if (imagePath) allExistingImages.push(imagePath);
+                let existingData = [];
+                if (imagePath) existingData.push({ path: imagePath, url: imageUrl || imagePath });
                 
                 let addImages = [];
                 if (typeof additionalImagesJson === 'string') {
@@ -1312,9 +1327,19 @@
                 } else if (Array.isArray(additionalImagesJson)) {
                     addImages = additionalImagesJson;
                 }
-                allExistingImages = allExistingImages.concat(addImages);
                 
-                window.NewsImagesManager.setExisting(allExistingImages);
+                let addUrls = [];
+                if (typeof additionalImageUrlsJson === 'string') {
+                    try { addUrls = JSON.parse(additionalImageUrlsJson || '[]'); } catch(e) {}
+                } else if (Array.isArray(additionalImageUrlsJson)) {
+                    addUrls = additionalImageUrlsJson;
+                }
+                
+                addImages.forEach((path, idx) => {
+                    existingData.push({ path: path, url: addUrls[idx] || ("/storage/" + path) });
+                });
+                
+                window.NewsImagesManager.setExisting(existingData);
             } catch (e) {
                 console.error(e);
             }
