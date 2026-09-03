@@ -319,19 +319,20 @@
                                 </div>
 
                                 <div class="news-actions">
-                                    <button type="button" class="btn btn-sm btn-primary"
-                                        onclick='editNews(
-                                            @json($news->news_id),
-                                            @json(\App\Support\PlainText::normalize($news->title ?? '')),
-                                            @json($news->content),
-                                            @json($news->category),
-                                            @json($news->location),
-                                            @json($news->link ?? ""),
-                                            @json($news->image_path ?? ""),
-                                            @json(\App\Support\NewsImage::url($news->image_path) ?? ""),
-                                            @json((bool) ($news->is_featured ?? false)),
-                                            @json((bool) ($news->is_hidden_from_public ?? false))
-                                        )'>
+                                    <button type="button" class="btn btn-sm btn-primary edit-news-btn"
+                                        data-news="{{ json_encode([
+                                            'id' => $news->news_id,
+                                            'title' => \App\Support\PlainText::normalize($news->title ?? ''),
+                                            'content' => $news->content,
+                                            'category' => $news->category,
+                                            'location' => $news->location,
+                                            'link' => $news->link ?? '',
+                                            'imagePath' => $news->image_path ?? '',
+                                            'imageUrl' => \App\Support\NewsImage::url($news->image_path) ?? '',
+                                            'isFeatured' => (bool) ($news->is_featured ?? false),
+                                            'isHidden' => (bool) ($news->is_hidden_from_public ?? false),
+                                            'additionalImagesJson' => $news->additional_images ?? '[]'
+                                        ]) }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
 
@@ -341,7 +342,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), @json($news->additional_images ?? "[]"))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -397,19 +398,20 @@
                                 </div>
 
                                 <div class="news-actions">
-                                    <button type="button" class="btn btn-sm btn-primary"
-                                        onclick='editNews(
-                                            @json($news->news_id),
-                                            @json(\App\Support\PlainText::normalize($news->title ?? '')),
-                                            @json($news->content),
-                                            @json($news->category),
-                                            @json($news->location),
-                                            @json($news->link ?? ""),
-                                            @json($news->image_path ?? ""),
-                                            @json(\App\Support\NewsImage::url($news->image_path) ?? ""),
-                                            @json((bool) ($news->is_featured ?? false)),
-                                            @json((bool) ($news->is_hidden_from_public ?? false))
-                                        )'>
+                                    <button type="button" class="btn btn-sm btn-primary edit-news-btn"
+                                        data-news="{{ json_encode([
+                                            'id' => $news->news_id,
+                                            'title' => \App\Support\PlainText::normalize($news->title ?? ''),
+                                            'content' => $news->content,
+                                            'category' => $news->category,
+                                            'location' => $news->location,
+                                            'link' => $news->link ?? '',
+                                            'imagePath' => $news->image_path ?? '',
+                                            'imageUrl' => \App\Support\NewsImage::url($news->image_path) ?? '',
+                                            'isFeatured' => (bool) ($news->is_featured ?? false),
+                                            'isHidden' => (bool) ($news->is_hidden_from_public ?? false),
+                                            'additionalImagesJson' => $news->additional_images ?? '[]'
+                                        ]) }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
 
@@ -419,7 +421,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), @json($news->additional_images ?? "[]"))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -662,33 +664,184 @@
                 @endif
 
                 <div class="form-group">
-                    <label>Featured Image</label>
-
-                    <input type="file" id="imageUpload" name="image" accept="image/*" hidden>
-                    <input type="hidden" name="remove_image" id="removeImageFlag" value="0">
-                    <input type="hidden" id="existingImagePath" value="">
-
-                    <div id="imagePreviewWrap" class="image-preview-wrap">
-                        <div id="imageEmptyState" class="image-empty-state">
-                            <i class="fas fa-image"></i>
-                            <span>No image selected</span>
-                        </div>
-
-                        <img id="imagePreview" src="" alt="Selected image preview" class="image-preview" style="display:none;">
-
-                        <div class="image-preview-actions">
-                            <button type="button" class="btn btn-sm btn-primary" id="addImageBtn">
-                                <i class="fas fa-plus"></i> Add Image
-                            </button>
-
-                            <span id="removeImageSlot" style="display:none;">
-                                <button type="button" class="btn btn-sm btn-warning" id="removeImageBtn">
-                                    <i class="fas fa-trash-alt"></i> Remove Image
-                                </button>
-                            </span>
-                        </div>
-                    </div>
+                  <label><i class="fas fa-images"></i> Upload Images</label>
+                  <div style="padding: 15px; background: #fafafa; border: 1px dashed #ccc; border-radius: 8px; text-align: center;">
+                      <input type="file" name="images_dummy" id="newsImagesInput" accept="image/*" multiple hidden>
+                      <div id="imagesEmptyState">
+                          <i class="fas fa-images" style="font-size: 24px; color: #ccc; margin-bottom: 10px;"></i>
+                          <p style="margin: 0; color: #666; font-size: 14px;">No images selected.</p>
+                      </div>
+                      <div id="imagesPreview" style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-top: 10px;"></div>
+                      <button type="button" class="btn btn-sm btn-primary" style="margin-top: 15px;" onclick="document.getElementById('newsImagesInput').click()">
+                          <i class="fas fa-plus"></i> Choose Images
+                      </button>
+                  </div>
+                  <small style="display:block; color:#666; margin-top: 5px;">The first image will be the Featured Image. Any additional images will appear in the news carousel.</small>
+                  <div id="news_existing_images_container"></div>
                 </div>
+
+                <script>
+                    window.NewsImagesManager = (function() {
+                        const input = document.getElementById('newsImagesInput');
+                        const previewContainer = document.getElementById('imagesPreview');
+                        const emptyState = document.getElementById('imagesEmptyState');
+                        const hiddenInputsContainer = document.getElementById('news_existing_images_container');
+                        
+                        let newFiles = [];
+                        let existingImages = [];
+
+                        input.addEventListener('change', function(e) {
+                            if (this.files && this.files.length > 0) {
+                                Array.from(this.files).forEach(file => {
+                                    newFiles.push(file);
+                                });
+                                render();
+                            }
+                            this.value = ''; // allow picking the same file again if needed
+                        });
+
+                        function removeNewFile(index) {
+                            newFiles.splice(index, 1);
+                            render();
+                        }
+
+                        function removeExistingImage(index) {
+                            existingImages.splice(index, 1);
+                            render();
+                        }
+
+                        function clearAll() {
+                            newFiles = [];
+                            existingImages = [];
+                            render();
+                        }
+
+                        function setExistingImages(images) {
+                            existingImages = Array.isArray(images) ? [...images].filter(Boolean) : [];
+                            render();
+                        }
+
+                        function render() {
+                            previewContainer.innerHTML = '';
+                            hiddenInputsContainer.innerHTML = '';
+
+                            const hasItems = newFiles.length > 0 || existingImages.length > 0;
+                            emptyState.style.display = hasItems ? 'none' : 'block';
+
+                            let totalImagesCount = 0;
+
+                            // Render existing images
+                            existingImages.forEach((imgUrl, index) => {
+                                const hidden = document.createElement('input');
+                                hidden.type = 'hidden';
+                                hidden.name = 'existing_images[]';
+                                hidden.value = imgUrl;
+                                hiddenInputsContainer.appendChild(hidden);
+
+                                const isFeatured = totalImagesCount === 0;
+                                const wrapper = createThumbnailWrapper("/storage/" + imgUrl, () => removeExistingImage(index), false, isFeatured);
+                                previewContainer.appendChild(wrapper);
+                                totalImagesCount++;
+                            });
+
+                            // Create DataTransfer for new files to inject into a hidden file input
+                            const dt = new DataTransfer();
+                            newFiles.forEach(file => dt.items.add(file));
+                            
+                            const hiddenFileInput = document.createElement('input');
+                            hiddenFileInput.type = 'file';
+                            hiddenFileInput.name = 'images[]';
+                            hiddenFileInput.multiple = true;
+                            hiddenFileInput.files = dt.files;
+                            hiddenFileInput.style.display = 'none';
+                            hiddenInputsContainer.appendChild(hiddenFileInput);
+
+                            newFiles.forEach((file, index) => {
+                                const isFeatured = totalImagesCount === 0;
+                                const reader = new FileReader();
+                                reader.onload = function(e) {
+                                    const wrapper = createThumbnailWrapper(e.target.result, () => removeNewFile(index), true, isFeatured);
+                                    previewContainer.appendChild(wrapper);
+                                }
+                                reader.readAsDataURL(file);
+                                totalImagesCount++;
+                            });
+                        }
+
+                        function createThumbnailWrapper(src, onRemove, isNew = false, isFeatured = false) {
+                            const wrapper = document.createElement('div');
+                            wrapper.style.position = 'relative';
+                            wrapper.style.display = 'inline-block';
+                            
+                            const img = document.createElement('img');
+                            img.src = src;
+                            img.style.width = '90px';
+                            img.style.height = '90px';
+                            img.style.objectFit = 'cover';
+                            img.style.borderRadius = '6px';
+                            img.style.border = isFeatured ? '2px solid #8a1538' : '1px solid #ddd';
+                            
+                            const removeBtn = document.createElement('button');
+                            removeBtn.innerHTML = '&times;';
+                            removeBtn.type = 'button';
+                            removeBtn.style.position = 'absolute';
+                            removeBtn.style.top = '-8px';
+                            removeBtn.style.right = '-8px';
+                            removeBtn.style.background = '#dc3545';
+                            removeBtn.style.color = 'white';
+                            removeBtn.style.border = '2px solid white';
+                            removeBtn.style.borderRadius = '50%';
+                            removeBtn.style.width = '24px';
+                            removeBtn.style.height = '24px';
+                            removeBtn.style.lineHeight = '20px';
+                            removeBtn.style.fontSize = '18px';
+                            removeBtn.style.cursor = 'pointer';
+                            removeBtn.style.padding = '0';
+                            removeBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.2)';
+                            removeBtn.onclick = function(e) {
+                                e.preventDefault();
+                                onRemove();
+                            };
+                            
+                            wrapper.appendChild(img);
+                            wrapper.appendChild(removeBtn);
+                            
+                            if (isFeatured) {
+                                const badge = document.createElement('span');
+                                badge.textContent = 'FEATURED';
+                                badge.style.position = 'absolute';
+                                badge.style.bottom = '4px';
+                                badge.style.left = '50%';
+                                badge.style.transform = 'translateX(-50%)';
+                                badge.style.background = '#8a1538';
+                                badge.style.color = 'white';
+                                badge.style.fontSize = '9px';
+                                badge.style.padding = '2px 6px';
+                                badge.style.borderRadius = '10px';
+                                badge.style.fontWeight = 'bold';
+                                wrapper.appendChild(badge);
+                            } else if (isNew) {
+                                const badge = document.createElement('span');
+                                badge.textContent = 'NEW';
+                                badge.style.position = 'absolute';
+                                badge.style.bottom = '4px';
+                                badge.style.left = '50%';
+                                badge.style.transform = 'translateX(-50%)';
+                                badge.style.background = '#28a745';
+                                badge.style.color = 'white';
+                                badge.style.fontSize = '9px';
+                                badge.style.padding = '2px 6px';
+                                badge.style.borderRadius = '10px';
+                                badge.style.fontWeight = 'bold';
+                                wrapper.appendChild(badge);
+                            }
+
+                            return wrapper;
+                        }
+
+                        return { clear: clearAll, setExisting: setExistingImages, getExisting: () => existingImages };
+                    })();
+                </script>
 
                 <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeNewsModal()" style="background: #ccc;">
@@ -983,7 +1136,7 @@
         return rawHtml;
     }
 
-    function openReadMoreModal(title, content, link = null, imageUrl = null) {
+    function openReadMoreModal(title, content, link = null, imageUrl = null, additionalImagesJson = '[]') {
         const modal = document.getElementById('readMoreModal');
         const titleEl = document.getElementById('readMoreTitle');
         const contentEl = document.getElementById('readMoreContent');
@@ -995,13 +1148,55 @@
         titleEl.textContent = title || 'Read More';
         contentEl.innerHTML = normalizeReadMoreHtml(content) || '<p>No content available.</p>';
 
+        let addImages = [];
+        if (typeof additionalImagesJson === 'string') {
+            try { addImages = JSON.parse(additionalImagesJson || '[]'); } catch(e) {}
+        } else if (Array.isArray(additionalImagesJson)) {
+            addImages = additionalImagesJson;
+        }
+
         const hasImage = String(imageUrl || '').trim() !== '';
-        modal.classList.toggle('read-more-with-image', hasImage);
+        const allImages = [];
+        if (hasImage && !String(imageUrl).includes('pupillar.jpeg')) {
+            allImages.push(imageUrl);
+        } else if (hasImage) {
+            allImages.push(imageUrl); // fallback
+        }
+        
+        addImages.forEach(img => {
+            if (img) allImages.push("/storage/" + img);
+        });
+
+        modal.classList.toggle('read-more-with-image', allImages.length > 0);
         if (media && image) {
-            if (hasImage) {
-                image.src = imageUrl;
+            media.querySelectorAll('.extra-img-gallery').forEach(el => el.remove());
+            
+            if (allImages.length > 0) {
+                image.src = allImages[0];
                 image.alt = title || 'News image';
                 media.hidden = false;
+                
+                if (allImages.length > 1) {
+                    const gallery = document.createElement('div');
+                    gallery.className = 'extra-img-gallery';
+                    gallery.style.display = 'flex';
+                    gallery.style.gap = '10px';
+                    gallery.style.marginTop = '15px';
+                    gallery.style.overflowX = 'auto';
+                    gallery.style.paddingBottom = '10px';
+
+                    for (let i = 1; i < allImages.length; i++) {
+                        const img = document.createElement('img');
+                        img.src = allImages[i];
+                        img.style.height = '100px';
+                        img.style.width = '150px';
+                        img.style.objectFit = 'cover';
+                        img.style.borderRadius = '8px';
+                        img.style.border = '1px solid #ddd';
+                        gallery.appendChild(img);
+                    }
+                    media.appendChild(gallery);
+                }
             } else {
                 image.removeAttribute('src');
                 image.alt = '';
@@ -1062,7 +1257,7 @@
         select.dispatchEvent(new Event('change', { bubbles: true }));
     }
 
-        function editNews(id, title, content, category, location, link, imagePath, imageUrl = '', isFeatured = false, isHidden = false) {
+        function editNews(id, title, content, category, location, link, imagePath, imageUrl = '', isFeatured = false, isHidden = false, additionalImagesJson = '[]') {
         const modal = document.getElementById('newsModal');
         const form = document.getElementById('newsForm');
         const modalTitle = modal.querySelector('.modal-title');
@@ -1104,11 +1299,29 @@
 
         resetNewsImageUI('edit');
 
-        if (imageUrl || imagePath) {
-            showNewsImagePreview(imageUrl || imagePath, 'edit', true, imagePath);
-        } else {
-            setNewsImageButtonLabel('Add New Image');
+        resetNewsImageUI('edit');
+        
+        if (window.NewsImagesManager) {
+            try {
+                let allExistingImages = [];
+                if (imagePath) allExistingImages.push(imagePath);
+                
+                let addImages = [];
+                if (typeof additionalImagesJson === 'string') {
+                    try { addImages = JSON.parse(additionalImagesJson || '[]'); } catch(e) {}
+                } else if (Array.isArray(additionalImagesJson)) {
+                    addImages = additionalImagesJson;
+                }
+                allExistingImages = allExistingImages.concat(addImages);
+                
+                window.NewsImagesManager.setExisting(allExistingImages);
+            } catch (e) {
+                console.error(e);
+            }
         }
+        
+        const addFileInput = document.getElementById('newsImagesInput');
+        if (addFileInput) addFileInput.value = '';
 
         newsBaseline = {
             title: (title || '').trim(),
@@ -1118,6 +1331,7 @@
             link: (link || '').trim(),
             isFeatured: !!isFeatured,
             isHidden: !!isHidden,
+            originalImages: window.NewsImagesManager ? window.NewsImagesManager.getExisting() : []
         };
 
         modal.classList.add('active');
@@ -1412,37 +1626,7 @@
             });
         }
 
-        const imageUpload = document.getElementById('imageUpload');
-        const addImageBtn = document.getElementById('addImageBtn');
-        const removeImageBtn = document.getElementById('removeImageBtn');
-        const removeImageFlag = document.getElementById('removeImageFlag');
-
-        if (addImageBtn && imageUpload) {
-            addImageBtn.addEventListener('click', function () {
-                imageUpload.click();
-            });
-        }
-
-        if (imageUpload) {
-            imageUpload.addEventListener('change', function () {
-                const file = this.files && this.files[0] ? this.files[0] : null;
-                const isEdit = !!document.getElementById('edit_news_id');
-
-                if (!file) {
-                    return;
-                }
-
-                handleNewsImageSelection(file, isEdit ? 'edit' : 'new', imageUpload);
-            });
-        }
-
-        if (removeImageBtn) {
-            removeImageBtn.addEventListener('click', function () {
-                const isEdit = !!document.getElementById('edit_news_id');
-                resetNewsImageUI(isEdit ? 'edit' : 'new');
-                if (removeImageFlag) removeImageFlag.value = '1';
-            });
-        }
+        // Old single image upload logic removed
 
         resetNewsImageUI('new');
 
@@ -1507,6 +1691,26 @@
             });
         });
 
+        document.body.addEventListener('click', function(e) {
+            const btn = e.target.closest('.edit-news-btn');
+            if (btn) {
+                const data = JSON.parse(btn.getAttribute('data-news'));
+                editNews(
+                    data.id,
+                    data.title,
+                    data.content,
+                    data.category,
+                    data.location,
+                    data.link,
+                    data.imagePath,
+                    data.imageUrl,
+                    data.isFeatured,
+                    data.isHidden,
+                    data.additionalImagesJson
+                );
+            }
+        });
+
         document.getElementById('bulkDeleteNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('delete'));
         document.getElementById('bulkHideNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('hide'));
         document.getElementById('bulkShowNewsBtn')?.addEventListener('click', () => submitBulkNewsAction('show'));
@@ -1542,10 +1746,17 @@
     function newsHasChanges(form) {
         if (!newsBaseline) return true;
 
-        const hasFile = !!(form.querySelector('#imageUpload')?.files?.length);
-        const wantsRemoveImage = (form.querySelector('#removeImageFlag')?.value || '0') === '1';
+        const hasNewFile = !!(form.querySelector('input[name="images[]"]')?.files?.length);
+        if (hasNewFile) return true;
 
-        if (hasFile || wantsRemoveImage) return true;
+        if (window.NewsImagesManager) {
+            const currentExisting = window.NewsImagesManager.getExisting();
+            const originalImages = newsBaseline.originalImages || [];
+            if (currentExisting.length !== originalImages.length) return true;
+            for (let i = 0; i < currentExisting.length; i++) {
+                if (currentExisting[i] !== originalImages[i]) return true;
+            }
+        }
 
         return (form.querySelector('[name="title"]')?.value || '').trim() !== newsBaseline.title
             || (form.querySelector('[name="content"]')?.value || '').trim() !== newsBaseline.content
@@ -1742,101 +1953,10 @@
   }
 });
 
-function setNewsImageButtonLabel(text) {
-        const addBtn = document.getElementById('addImageBtn');
-        if (addBtn) {
-            addBtn.innerHTML = `<i class="fas fa-plus"></i> ${text}`;
-        }
-    }
-
     function resetNewsImageUI(mode = 'new') {
-        const fileInput = document.getElementById('imageUpload');
-        const previewImg = document.getElementById('imagePreview');
-        const emptyState = document.getElementById('imageEmptyState');
-        const removeBtn = document.getElementById('removeImageBtn');
-        const removeSlot = document.getElementById('removeImageSlot');
-        const removeFlag = document.getElementById('removeImageFlag');
-        const existingImagePath = document.getElementById('existingImagePath');
-
-        if (fileInput) fileInput.value = '';
-        if (previewImg) {
-            previewImg.src = '';
-            previewImg.style.display = 'none';
+        if (window.NewsImagesManager) {
+            window.NewsImagesManager.clear();
         }
-        if (emptyState) emptyState.style.display = 'flex';
-        if (removeBtn) {
-            removeBtn.hidden = true;
-            removeBtn.setAttribute('aria-hidden', 'true');
-            removeBtn.style.display = 'none';
-        }
-        if (removeSlot) {
-            removeSlot.style.display = 'none';
-        }
-        if (removeFlag) removeFlag.value = '0';
-        if (existingImagePath) existingImagePath.value = '';
-
-        setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
-    }
-
-    function showNewsImagePreview(src, mode = 'new', isExisting = false, storedPath = '') {
-        const previewImg = document.getElementById('imagePreview');
-        const emptyState = document.getElementById('imageEmptyState');
-        const removeBtn = document.getElementById('removeImageBtn');
-        const removeSlot = document.getElementById('removeImageSlot');
-        const removeFlag = document.getElementById('removeImageFlag');
-        const existingImagePath = document.getElementById('existingImagePath');
-
-        const hasImage = !!src;
-
-        if (previewImg) {
-            previewImg.src = hasImage ? src : '';
-            previewImg.style.display = hasImage ? 'block' : 'none';
-        }
-        if (emptyState) emptyState.style.display = hasImage ? 'none' : 'flex';
-        if (removeBtn) {
-            removeBtn.hidden = !hasImage;
-            removeBtn.setAttribute('aria-hidden', hasImage ? 'false' : 'true');
-            removeBtn.style.display = hasImage ? 'inline-flex' : 'none';
-        }
-        if (removeSlot) {
-            removeSlot.style.display = hasImage ? 'inline-flex' : 'none';
-        }
-        if (removeFlag) removeFlag.value = '0';
-
-        if (existingImagePath) {
-            existingImagePath.value = isExisting && hasImage ? (storedPath || src) : '';
-        }
-
-        setNewsImageButtonLabel(mode === 'edit' ? 'Add New Image' : 'Add Image');
-    }
-
-    async function handleNewsImageSelection(file, mode = 'new', input = null) {
-        if (!file || !file.type.startsWith('image/')) {
-            resetNewsImageUI(mode);
-            showToast('Please choose a valid image file.', 'warning', 'Invalid Image');
-            return;
-        }
-
-        const previewElement = document.getElementById('imagePreview');
-        const selectedFile = window.CmsImageEditor
-            ? await window.CmsImageEditor.editFile(file, { input, previewElement })
-            : file;
-
-        if (!selectedFile) {
-            if (input) input.value = '';
-            resetNewsImageUI(mode);
-            return;
-        }
-
-        if (input && window.CmsImageEditor && selectedFile !== file) {
-            window.CmsImageEditor.setInputFile(input, selectedFile);
-        }
-
-        const reader = new FileReader();
-        reader.onload = function (e) {
-            showNewsImagePreview(e.target.result, mode, false);
-        };
-        reader.readAsDataURL(selectedFile);
     }
 
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
