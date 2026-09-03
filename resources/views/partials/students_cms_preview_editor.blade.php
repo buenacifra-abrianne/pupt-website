@@ -1176,7 +1176,7 @@
                         </div>
                         <div data-students-repeatable-list="forms-links">
                             @foreach(($formsLinks['items'] ?? []) as $index => $item)
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="{{ $index }}">
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Form Name</label>
@@ -1191,7 +1191,6 @@
                                         <label>Description</label>
                                         <textarea name="students[pages][downloadable-forms][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
                                     </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
                                 </div>
                             @endforeach
                         </div>
@@ -2182,6 +2181,11 @@
                 && options.qrIndex !== null
                 && options.qrIndex !== undefined
                 && options.qrIndex !== ''
+            ) || (
+                (sectionKey === 'downloadable_forms_items' || sectionKey === 'admissions_form_links')
+                && options.linkIndex !== null
+                && options.linkIndex !== undefined
+                && options.linkIndex !== ''
             );
 
             panels.forEach((panel) => {
@@ -2235,6 +2239,13 @@
                 setActiveQrEditor(options.qrIndex ?? null);
                 window.setTimeout(() => {
                     const target = activePanel?.querySelector(`[data-students-repeatable-item][data-students-qr-index="${options.qrIndex}"]`);
+                    target?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    target?.querySelector('input, textarea')?.focus();
+                }, 40);
+            } else if ((sectionKey === 'downloadable_forms_items' || sectionKey === 'admissions_form_links') && options.linkIndex !== undefined) {
+                setActiveLinkEditor(options.linkIndex ?? null);
+                window.setTimeout(() => {
+                    const target = activePanel?.querySelector(`[data-students-repeatable-item][data-students-link-index="${options.linkIndex}"]`);
                     target?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                     target?.querySelector('input, textarea')?.focus();
                 }, 40);
@@ -2512,6 +2523,50 @@
                     const wrapper = deleteQrTrigger.closest('[data-students-qr-index]');
                     const qrIndex = wrapper?.getAttribute('data-students-qr-index') ?? null;
                     void confirmDeleteQr(qrIndex);
+                    return;
+                }
+
+                const addLinkTrigger = event.target.closest('[data-students-link-add-trigger]');
+                if (addLinkTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const section = addLinkTrigger.closest('[data-cms-section]');
+                    const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
+                    openEditor(sectionKey, 'Add Form Link', { linkIndex: 'new' });
+                    window.setTimeout(() => {
+                        const listKey = sectionKey === 'admissions_form_links' ? 'forms-links' : 'forms-links'; // They both might use forms-links template
+                        const list = modal.querySelector(`[data-students-repeatable-list="${listKey}"]`);
+                        if (list) {
+                            const index = nextRepeatableIndex(list);
+                            list.insertAdjacentHTML('beforeend', repeatableTemplates[listKey](index));
+                            setActiveLinkEditor(index);
+                            const latest = list.lastElementChild;
+                            latest?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                            latest?.querySelector('input:not([type="hidden"]), textarea')?.focus();
+                        }
+                    }, 0);
+                    return;
+                }
+
+                const editLinkTrigger = event.target.closest('[data-students-link-edit]');
+                if (editLinkTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const section = editLinkTrigger.closest('[data-cms-section]');
+                    const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
+                    const wrapper = editLinkTrigger.closest('[data-students-link-index]');
+                    const linkIndex = wrapper?.getAttribute('data-students-link-index') ?? null;
+                    openEditor(sectionKey, 'Edit Form Link', { linkIndex });
+                    return;
+                }
+
+                const deleteLinkTrigger = event.target.closest('[data-students-link-delete]');
+                if (deleteLinkTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const wrapper = deleteLinkTrigger.closest('[data-students-link-index]');
+                    const linkIndex = wrapper?.getAttribute('data-students-link-index') ?? null;
+                    void confirmDeleteLink(linkIndex);
                     return;
                 }
 
@@ -2935,6 +2990,74 @@
                     qrTitle
                         ? `Do you want to delete "${qrTitle}"?`
                         : 'Do you want to delete this QR code?'
+                );
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const form = targetEditor.closest('form');
+            targetEditor.remove();
+            
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            }
+        };
+
+        const setActiveLinkEditor = (linkIndex = null) => {
+            const list = modal.querySelector(`[data-students-repeatable-list="forms-links"]`);
+            const editors = Array.from(list?.querySelectorAll('[data-students-repeatable-item]') ?? []);
+
+            if (!editors.length) {
+                return;
+            }
+
+            let targetEditor = null;
+
+            if (linkIndex !== null && linkIndex !== undefined && linkIndex !== 'new') {
+                targetEditor = editors.find((editor) => editor.getAttribute('data-students-link-index') === String(linkIndex)) || null;
+            }
+
+            if (!targetEditor && linkIndex === 'new') {
+                targetEditor = editors[editors.length - 1] || null;
+            } else if (!targetEditor) {
+                targetEditor = editors[0] || null;
+            }
+
+            editors.forEach((editor) => {
+                editor.classList.toggle('is-active', editor === targetEditor);
+            });
+        };
+
+        const confirmDeleteLink = async (linkIndex) => {
+            if (linkIndex === null || linkIndex === undefined) return;
+            const list = modal.querySelector(`[data-students-repeatable-list="forms-links"]`);
+            const targetEditor = list?.querySelector(`[data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
+            if (!targetEditor) return;
+
+            const titleInput = targetEditor.querySelector('input[name*="[label]"]');
+            const linkTitle = String(titleInput?.value || '').trim();
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Form Link',
+                    message: linkTitle
+                        ? `Do you want to delete "${linkTitle}"?`
+                        : 'Do you want to delete this link?',
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(
+                    linkTitle
+                        ? `Do you want to delete "${linkTitle}"?`
+                        : 'Do you want to delete this link?'
                 );
             }
 
@@ -3387,7 +3510,7 @@
                 `;
             },
             'forms-links': (index) => `
-                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="${index}">
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Form Name</label>
@@ -3402,7 +3525,6 @@
                         <label>Description</label>
                         <textarea name="students[pages][downloadable-forms][links][items][${index}][description]" rows="2" required></textarea>
                     </div>
-                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
                 </div>
             `,
             'admissions-qr': (index) => {
@@ -3715,6 +3837,25 @@
         bindStudentsCardsDirtyTracking();
         syncStudentsPreviewNav(currentStudentsPreviewRoute);
         scheduleFitAllStudentsPreviews();
+
+        document.querySelectorAll('.students-cms-editor-panel form').forEach((form) => {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    const invalids = form.querySelectorAll(':invalid');
+                    invalids.forEach((field) => {
+                        if (field.offsetParent === null) {
+                            const wasRequired = field.required;
+                            if (wasRequired) {
+                                field.required = false;
+                                setTimeout(() => { field.required = true; }, 150);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
         window.__studentsCmsPreviewEditorReady = true;
     })();
 </script>
