@@ -138,7 +138,7 @@
                         <p class="section-tag">Services</p>
                     </div>
 
-                    <nav class="students-cards{{ $cmsPreview ? '' : ' alphabetical-card-pages' }}" aria-label="Research and Extension services">
+                    <nav class="students-cards" aria-label="Research and Extension services">
                         @if($cmsPreview)
                             <article class="students-card students-card-add" data-research-add-card-trigger tabindex="0" role="button" aria-label="Add service">
                                 <div class="students-card-inner">
