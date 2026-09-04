@@ -810,7 +810,7 @@
                         </div>
                         <div data-students-repeatable-list="admissions-links">
                             @foreach(($admissionsLinks['items'] ?? []) as $index => $item)
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="{{ $index }}">
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Label</label>
@@ -842,7 +842,6 @@
                                             <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                                 </div>
                             @endforeach
                         </div>
@@ -2534,7 +2533,7 @@
                     const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
                     openEditor(sectionKey, 'Add Form Link', { linkIndex: 'new' });
                     window.setTimeout(() => {
-                        const listKey = sectionKey === 'admissions_form_links' ? 'forms-links' : 'forms-links'; // They both might use forms-links template
+                        const listKey = sectionKey === 'admissions_form_links' ? 'admissions-links' : 'forms-links';
                         const list = modal.querySelector(`[data-students-repeatable-list="${listKey}"]`);
                         if (list) {
                             const index = nextRepeatableIndex(list);
@@ -2570,7 +2569,11 @@
                     return;
                 }
 
-                if (event.target.closest('[data-students-card-index], [data-students-org-index]')) {
+                const ignoredCard = event.target.closest('[data-students-card-index], [data-students-org-index], [data-students-link-index], [data-students-qr-index]');
+                if (ignoredCard) {
+                    if (ignoredCard.tagName === 'A' || event.target.closest('a')) {
+                        event.preventDefault();
+                    }
                     return;
                 }
 
@@ -3010,35 +3013,37 @@
         };
 
         const setActiveLinkEditor = (linkIndex = null) => {
-            const list = modal.querySelector(`[data-students-repeatable-list="forms-links"]`);
-            const editors = Array.from(list?.querySelectorAll('[data-students-repeatable-item]') ?? []);
-
-            if (!editors.length) {
+            const items = Array.from(modal.querySelectorAll(`[data-students-repeatable-list="forms-links"] [data-students-repeatable-item], [data-students-repeatable-list="admissions-links"] [data-students-repeatable-item]`));
+            
+            if (!items.length) {
                 return;
             }
 
-            let targetEditor = null;
-
+            let activeItem = null;
             if (linkIndex !== null && linkIndex !== undefined && linkIndex !== 'new') {
-                targetEditor = editors.find((editor) => editor.getAttribute('data-students-link-index') === String(linkIndex)) || null;
+                activeItem = items.find((item) => item.getAttribute('data-students-link-index') === String(linkIndex)) || null;
             }
 
-            if (!targetEditor && linkIndex === 'new') {
-                targetEditor = editors[editors.length - 1] || null;
-            } else if (!targetEditor) {
-                targetEditor = editors[0] || null;
+            if (!activeItem && linkIndex === 'new') {
+                activeItem = items[items.length - 1] || null;
+            } else if (!activeItem) {
+                activeItem = items[0] || null;
             }
 
-            editors.forEach((editor) => {
-                editor.classList.toggle('is-active', editor === targetEditor);
+            items.forEach((item) => {
+                item.classList.toggle('is-active', item === activeItem);
             });
         };
 
         const confirmDeleteLink = async (linkIndex) => {
-            if (linkIndex === null || linkIndex === undefined) return;
-            const list = modal.querySelector(`[data-students-repeatable-list="forms-links"]`);
-            const targetEditor = list?.querySelector(`[data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
-            if (!targetEditor) return;
+            if (linkIndex === null || linkIndex === undefined) {
+                return false;
+            }
+
+            const targetEditor = modal.querySelector(`[data-students-repeatable-list="forms-links"] [data-students-repeatable-item][data-students-link-index="${linkIndex}"], [data-students-repeatable-list="admissions-links"] [data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
+            if (!targetEditor) {
+                return false;
+            }
 
             const titleInput = targetEditor.querySelector('input[name*="[label]"]');
             const linkTitle = String(titleInput?.value || '').trim();
@@ -3379,7 +3384,7 @@
 
         const repeatableTemplates = {
             'admissions-links': (index) => `
-                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="${index}">
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Label</label>
@@ -3411,7 +3416,6 @@
                             <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2" required></textarea>
                         </div>
                     </div>
-                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                 </div>
             `,
             'admissions-instructions-links': (index) => `
