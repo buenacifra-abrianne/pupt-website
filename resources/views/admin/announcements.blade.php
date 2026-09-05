@@ -1048,7 +1048,7 @@
         });
 
         modal.classList.toggle('read-more-with-image', allImages.length > 0);
-        if (media && image) {
+        if (media) {
             if (allImages.length > 0) {
                 media.hidden = false;
                 if (allImages.length === 1) {
