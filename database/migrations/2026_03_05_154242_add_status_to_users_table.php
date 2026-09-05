@@ -12,8 +12,12 @@ return new class extends Migration
     public function up()
 {
     Schema::table('users', function (Blueprint $table) {
-        $table->string('status', 20)->default('Active')->after('role'); // Active/Inactive/Pending/Suspended
-        $table->timestamp('last_login_at')->nullable()->after('status'); // optional
+        if (!Schema::hasColumn('users', 'status')) {
+            $table->string('status', 20)->default('Active')->after('role'); // Active/Inactive/Pending/Suspended
+        }
+        if (!Schema::hasColumn('users', 'last_login_at')) {
+            $table->timestamp('last_login_at')->nullable()->after('status'); // optional
+        }
     });
 }
 

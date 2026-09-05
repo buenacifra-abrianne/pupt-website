@@ -222,6 +222,7 @@ class AnnouncementController extends Controller
         $hasNewsLinkColumn = Schema::hasColumn('news', 'link');
         $hasNewsFeaturedColumn = Schema::hasColumn('news', 'is_featured');
         $hasNewsHiddenColumn = Schema::hasColumn('news', 'is_hidden_from_public');
+        $hasNewsAdditionalImagesColumn = Schema::hasColumn('news', 'additional_images');
 
         $rules = [
             'news_id' => ['nullable', 'integer'],
@@ -266,7 +267,7 @@ class AnnouncementController extends Controller
             $existingImagesInput = $request->input('existing_images', []);
             $originalPaths = [];
             if ($existing?->image_path) $originalPaths[] = $existing->image_path;
-            if ($existing?->additional_images) {
+            if ($hasNewsAdditionalImagesColumn && $existing?->additional_images) {
                 $add = json_decode($existing->additional_images, true) ?? [];
                 $originalPaths = array_merge($originalPaths, $add);
             }
@@ -324,7 +325,7 @@ class AnnouncementController extends Controller
         
         $originalPaths = [];
         if ($existing?->image_path) $originalPaths[] = $existing->image_path;
-        if ($existing?->additional_images) {
+        if ($hasNewsAdditionalImagesColumn && $existing?->additional_images) {
             $add = json_decode($existing->additional_images, true) ?? [];
             $originalPaths = array_merge($originalPaths, $add);
         }
@@ -340,10 +341,13 @@ class AnnouncementController extends Controller
             'category' => $incomingCategory,
             'location' => $incomingLocation,
             'image_path' => $featuredImagePath,
-            'additional_images' => json_encode($additionalImagePaths, JSON_UNESCAPED_SLASHES),
             'expiration_date' => $request->input('expiration_date'),
             'date_published' => now(),
         ];
+
+        if ($hasNewsAdditionalImagesColumn) {
+            $data['additional_images'] = json_encode($additionalImagePaths, JSON_UNESCAPED_SLASHES);
+        }
 
         if ($hasNewsLinkColumn) {
             $data['link'] = $incomingLink !== '' ? $incomingLink : null;
