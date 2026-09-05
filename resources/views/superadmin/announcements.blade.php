@@ -343,7 +343,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), @json($news->additional_images ?? "[]"))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), @json(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -423,7 +423,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), @json($news->additional_images ?? "[]"))'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), @json(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)))'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -1166,7 +1166,7 @@
         }
         
         addImages.forEach(img => {
-            if (img) allImages.push("/storage/" + img);
+            if (img) allImages.push(img);
         });
 
         modal.classList.toggle('read-more-with-image', allImages.length > 0);

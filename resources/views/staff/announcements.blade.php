@@ -252,7 +252,7 @@
                             <button class="btn btn-sm btn-view-icon"
                                 type="button"
                                 title="View"
-                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""), @json($displayImgUrl))'>
+                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""), @json($displayImgUrl), @json(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($n->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)))'>
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -1017,37 +1017,91 @@
       return rawHtml;
     }
 
-    function openReadMoreModal(title, content, link = '', imageUrl = '') {
+    function openReadMoreModal(title, content, link = '', imageUrl = '', additionalImagesJson = '[]') {
       const modal = document.getElementById('readMoreModal');
       const media = document.getElementById('readMoreMedia');
       const image = document.getElementById('readMoreImage');
+      const linkWrap = document.getElementById('readMoreLinkWrap');
+      const linkEl = document.getElementById('readMoreLink');
 
       document.getElementById('readMoreTitle').textContent = title || 'Read More';
       document.getElementById('readMoreContent').innerHTML = normalizeReadMoreHtml(content) || '<p>No content available.</p>';
 
-      const hasImage = String(imageUrl || '').trim() !== '';
-      modal.classList.toggle('read-more-with-image', hasImage);
-      if (media && image) {
-        if (hasImage) {
-          image.src = imageUrl;
-          image.alt = title || 'News image';
-          media.hidden = false;
-        } else {
-          image.removeAttribute('src');
-          image.alt = '';
-          media.hidden = true;
-        }
+      let addImages = [];
+      if (typeof additionalImagesJson === 'string') {
+          try { addImages = JSON.parse(additionalImagesJson || '[]'); } catch(e) {}
+      } else if (Array.isArray(additionalImagesJson)) {
+          addImages = additionalImagesJson;
       }
 
-      const linkWrap = document.getElementById('readMoreLinkWrap');
-      const linkBtn = document.getElementById('readMoreLinkBtn');
+      const hasImage = String(imageUrl || '').trim() !== '';
+      const allImages = [];
+      if (hasImage && !String(imageUrl).includes('pupillar.jpeg')) {
+          allImages.push(imageUrl);
+      } else if (hasImage) {
+          allImages.push(imageUrl); // fallback
+      }
+      
+      addImages.forEach(img => {
+          if (img) allImages.push(img);
+      });
 
-      if (link && link.trim() !== '') {
-          linkBtn.href = link;
-          linkWrap.style.display = 'block';
+      modal.classList.toggle('read-more-with-image', allImages.length > 0);
+      if (media && image) {
+          if (allImages.length > 0) {
+              media.hidden = false;
+              if (allImages.length === 1) {
+                  media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:cover;">`;
+              } else {
+                  let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
+                  allImages.forEach((img, idx) => {
+                      carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+                  });
+                  carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
+                  carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
+                  carouselHtml += '</div>';
+                  
+                  media.innerHTML = carouselHtml;
+                  
+                  let currentSlide = 0;
+                  const slides = media.querySelectorAll('.news-carousel-slide');
+                  const updateCarousel = () => {
+                      slides.forEach((s, idx) => {
+                          s.style.opacity = idx === currentSlide ? 1 : 0;
+                          s.style.zIndex = idx === currentSlide ? 1 : 0;
+                      });
+                  };
+                  
+                  const prevBtn = media.querySelector('.news-carousel-prev');
+                  if(prevBtn) {
+                      prevBtn.addEventListener('click', (e) => {
+                          e.preventDefault();
+                          currentSlide = (currentSlide > 0) ? currentSlide - 1 : slides.length - 1;
+                          updateCarousel();
+                      });
+                  }
+                  
+                  const nextBtn = media.querySelector('.news-carousel-next');
+                  if(nextBtn) {
+                      nextBtn.addEventListener('click', (e) => {
+                          e.preventDefault();
+                          currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
+                          updateCarousel();
+                      });
+                  }
+              }
+          } else {
+              media.innerHTML = `<img src="" alt="" id="readMoreImage">`;
+              media.hidden = true;
+          }
+      }
+
+      if (link) {
+          if (linkEl) linkEl.href = link;
+          if (linkWrap) linkWrap.style.display = '';
       } else {
-          linkBtn.href = '#';
-          linkWrap.style.display = 'none';
+          if (linkEl) linkEl.href = '#';
+          if (linkWrap) linkWrap.style.display = 'none';
       }
 
       modal.classList.add('active');
