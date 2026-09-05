@@ -252,7 +252,7 @@
                             <button class="btn btn-sm btn-view-icon"
                                 type="button"
                                 title="View"
-                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""), @json($displayImgUrl), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($n->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)) !!}'>
+                                onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($n->title ?? "")), @json($n->content ?? ""), @json($n->link ?? ""), @json($displayImgUrl), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($n->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)) !!})'>
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>

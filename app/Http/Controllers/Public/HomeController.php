@@ -51,7 +51,7 @@ class HomeController extends Controller
         $oneMonthAgo = now()->subMonth();
         if (Schema::hasTable('news')) {
             $news = DB::table('news')
-                ->select('news_id','title','content', 'link', 'category','location','image_path','priority','date_published','created_at')
+                ->select('news_id','title','content', 'link', 'category','location','image_path','additional_images','priority','date_published','created_at')
                 ->whereRaw("UPPER(TRIM(status)) = 'APPROVED'")
                 ->when($hasNewsHiddenColumn, function ($query) {
                     $query->where(function ($inner) {

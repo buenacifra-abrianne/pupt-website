@@ -85,7 +85,7 @@
       <button class="btn btn-sm btn-view-icon"
         type="button"
         title="View"
-        onclick='openReadMoreModal(@json($title), @json($content), @json($link), @json($displayImageUrl), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), $payload["additional_images"] ?? []), JSON_UNESCAPED_SLASHES)) !!}'>
+        onclick='openReadMoreModal(@json($title), @json($content), @json($link), @json($displayImageUrl), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), $payload["additional_images"] ?? []), JSON_UNESCAPED_SLASHES)) !!})'>
         <i class="fas fa-eye"></i>
       </button>
 

@@ -334,8 +334,7 @@
       }
 
       if (isLikelyServerErrorMessage(raw)) {
-        // TEMPORARY: Show real error instead of masking it
-        return "DEBUG ERROR: " + raw.substring(0, 150);
+        return DEFAULT_ERROR_MESSAGE;
       }
 
       if (isLikelyNetworkMessage(raw)) {

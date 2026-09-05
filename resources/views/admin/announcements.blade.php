@@ -256,7 +256,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)) !!}'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)) !!})'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -334,7 +334,7 @@
                                     </button>
 
                                     <button type="button" class="btn btn-sm btn-view-icon" title="View"
-                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)) !!}'>
+                                        onclick='openReadMoreModal(@json(\App\Support\PlainText::normalize($news->title ?? "")), @json($news->content), @json($news->link ?? null), @json(\App\Support\NewsImage::url($news->image_path, "assets/static_img/pupillar.jpeg")), {!! json_encode(json_encode(array_map(fn($path) => \App\Support\NewsImage::url($path), json_decode($news->additional_images ?? "[]", true) ?? []), JSON_UNESCAPED_SLASHES)) !!})'>
                                         <i class="fas fa-eye"></i>
                                     </button>
                                 </div>
@@ -1560,7 +1560,8 @@
                     data.imageUrl,
                     data.isFeatured,
                     data.isHidden,
-                    data.additionalImagesJson
+                    data.additionalImagesJson,
+                    data.additionalImageUrlsJson
                 );
             }
         });
