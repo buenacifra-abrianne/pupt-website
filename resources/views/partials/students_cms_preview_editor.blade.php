@@ -1198,7 +1198,7 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Downloadables Links') }}
+                            {{ $submitLabel('Downloadable Form Links') }}
                         </button>
                     </div>
                 </form>
@@ -3013,7 +3013,10 @@
         };
 
         const setActiveLinkEditor = (linkIndex = null) => {
-            const items = Array.from(modal.querySelectorAll(`[data-students-repeatable-list="forms-links"] [data-students-repeatable-item], [data-students-repeatable-list="admissions-links"] [data-students-repeatable-item]`));
+            const activePanel = Array.from(panels).find((panel) => !panel.hidden);
+            if (!activePanel) return;
+
+            const items = Array.from(activePanel.querySelectorAll(`[data-students-repeatable-item]`));
             
             if (!items.length) {
                 return;
@@ -3040,7 +3043,10 @@
                 return false;
             }
 
-            const targetEditor = modal.querySelector(`[data-students-repeatable-list="forms-links"] [data-students-repeatable-item][data-students-link-index="${linkIndex}"], [data-students-repeatable-list="admissions-links"] [data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
+            const activePanel = Array.from(panels).find((panel) => !panel.hidden);
+            if (!activePanel) return false;
+
+            const targetEditor = activePanel.querySelector(`[data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
             if (!targetEditor) {
                 return false;
             }
