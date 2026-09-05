@@ -2563,9 +2563,11 @@
                 if (deleteLinkTrigger) {
                     event.preventDefault();
                     event.stopPropagation();
+                    const section = deleteLinkTrigger.closest('[data-cms-section]');
+                    const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
                     const wrapper = deleteLinkTrigger.closest('[data-students-link-index]');
                     const linkIndex = wrapper?.getAttribute('data-students-link-index') ?? null;
-                    void confirmDeleteLink(linkIndex);
+                    void confirmDeleteLink(linkIndex, sectionKey);
                     return;
                 }
 
@@ -3038,12 +3040,18 @@
             });
         };
 
-        const confirmDeleteLink = async (linkIndex) => {
+        const confirmDeleteLink = async (linkIndex, targetSectionKey = null) => {
             if (linkIndex === null || linkIndex === undefined) {
                 return false;
             }
 
-            const activePanel = Array.from(panels).find((panel) => !panel.hidden);
+            let activePanel = null;
+            if (targetSectionKey) {
+                activePanel = Array.from(panels).find((p) => p.getAttribute('data-students-editor-panel') === targetSectionKey);
+            } else {
+                activePanel = Array.from(panels).find((panel) => !panel.hidden);
+            }
+
             if (!activePanel) return false;
 
             const targetEditor = activePanel.querySelector(`[data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
