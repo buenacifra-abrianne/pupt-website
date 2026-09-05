@@ -87,7 +87,8 @@
                                             @json($item->display_image_url),
                                             @json($item->display_category),
                                             @json($item->display_location),
-                                            null
+                                            null,
+                                            @json($item->display_additional_images ?? [])
                                             )'>
                                         <i class="fas fa-eye"></i> View Details
                                         </button>
@@ -271,7 +272,8 @@
                                                 @json($item->display_image_url),
                                                 @json($item->display_category),
                                                 @json($item->display_location),
-                                                @json($item->rejection_reason)
+                                                @json($item->rejection_reason),
+                                                @json($item->display_additional_images ?? [])
                                             )'>
                                             <i class="fas fa-eye"></i> View Details
                                         </button>
@@ -385,9 +387,9 @@
 </div>
 
 <div id="dImgWrap" style="display:none; margin: 10px 0;">
-  <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Image</div>
-  <img id="dImg" src="" alt="Uploaded image"
-       style="max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
+  <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Image(s)</div>
+  <div id="dImgGrid" style="display: flex; flex-direction: column; gap: 10px;">
+  </div>
 </div>
 
       <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Current and Requested Update</div>
@@ -969,15 +971,15 @@ function prettyType(rawType) {
   return m[key] || rawType || 'General';
 }
 
-function openDetails(type, title, priority, content, imageUrl, category, location, rejectionReason) {
+function openDetails(type, title, priority, content, imageUrl, category, location, rejectionReason, additionalImages = []) {
   const modal = document.getElementById('detailsModal');
   modal.classList.add('active');
   document.body.classList.add('approval-modal-open');
 
-  document.getElementById('dTitle').textContent = title || '—';
-  document.getElementById('dContent').innerHTML = content || '—';
+  document.getElementById('dTitle').textContent = title || '-';
+  document.getElementById('dContent').innerHTML = content || '-';
 
-  // ✅ show badge ONLY for announcements
+  // ? show badge ONLY for announcements
   const badge = document.getElementById('dPriority');
   const rawType = String(type || '').toUpperCase();
   const isAnnouncement = rawType.startsWith('ANNOUNCEMENT_');
@@ -995,16 +997,11 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
         badge.textContent = 'Priority: ' + pr;
         badge.classList.add('priority-' + pr.toLowerCase());
       } else {
-        badge.textContent = 'Priority: —';
+        badge.textContent = 'Priority: MEDIUM';
         badge.classList.add('priority-medium');
       }
     }
   }
-
-  // ✅ category/location
-  const meta = document.getElementById('dMeta');
-  const cEl = document.getElementById('dCategory');
-  const lEl = document.getElementById('dLocation');
 
   if (category) cEl.innerHTML = `<i class="fas fa-tag" style="margin-right:4px;"></i>${category}`;
   else cEl.innerHTML = '';
@@ -1028,15 +1025,43 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
     }
   }
 
-  // ✅ image
+  // ✅ image(s)
   const wrap = document.getElementById('dImgWrap');
-  const img = document.getElementById('dImg');
+  const imgGrid = document.getElementById('dImgGrid');
+  if (imgGrid) {
+      imgGrid.innerHTML = '';
+  }
+
+  let hasImages = false;
+
   if (imageUrl) {
-    img.src = imageUrl;
-    wrap.style.display = 'block';
-  } else {
-    img.src = '';
-    wrap.style.display = 'none';
+    hasImages = true;
+    if (imgGrid) {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.alt = 'Uploaded image';
+        img.style.cssText = 'max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);';
+        imgGrid.appendChild(img);
+    }
+  }
+
+  if (Array.isArray(additionalImages) && additionalImages.length > 0) {
+      hasImages = true;
+      if (imgGrid) {
+          additionalImages.forEach(src => {
+              if (src) {
+                  const img = document.createElement('img');
+                  img.src = src;
+                  img.alt = 'Additional image';
+                  img.style.cssText = 'max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);';
+                  imgGrid.appendChild(img);
+              }
+          });
+      }
+  }
+
+  if (wrap) {
+      wrap.style.display = hasImages ? 'block' : 'none';
   }
 }
 
