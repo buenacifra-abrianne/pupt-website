@@ -1964,7 +1964,7 @@
     }
 
     if (json?.news?.image_url) {
-      showNewsImagePreview(json.news.image_url, isEdit ? 'edit' : 'new', true, json.news.image_path || '');
+      // The page will reload shortly so we do not need to update the preview manually.
     }
 
     closeNewsModal();
