@@ -834,30 +834,82 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
       imgGrid.innerHTML = '';
   }
 
-  let hasImages = false;
-
-  if (imageUrl) {
-    hasImages = true;
-    if (imgGrid) {
-        const img = document.createElement('img');
-        img.src = imageUrl;
-        img.alt = 'Uploaded image';
-        img.style.cssText = 'max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);';
-        imgGrid.appendChild(img);
-    }
+  let imagesToDisplay = [];
+  if (imageUrl) imagesToDisplay.push(imageUrl);
+  if (Array.isArray(additionalImages)) {
+      additionalImages.forEach(src => {
+          if (src) imagesToDisplay.push(src);
+      });
   }
 
-  if (Array.isArray(additionalImages) && additionalImages.length > 0) {
-      hasImages = true;
-      if (imgGrid) {
-          additionalImages.forEach(src => {
-              if (src) {
-                  const img = document.createElement('img');
-                  img.src = src;
-                  img.alt = 'Additional image';
-                  img.style.cssText = 'max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);';
-                  imgGrid.appendChild(img);
-              }
+  let hasImages = imagesToDisplay.length > 0;
+
+  if (hasImages && imgGrid) {
+      if (imagesToDisplay.length === 1) {
+          const img = document.createElement('img');
+          img.src = imagesToDisplay[0];
+          img.alt = 'Uploaded image';
+          img.style.cssText = 'max-width:100%; max-height:400px; object-fit:contain; border-radius:12px; border:1px solid rgba(0,0,0,.08); display:block; margin:0 auto; background:#f8f6f2;';
+          imgGrid.appendChild(img);
+      } else {
+          // Multiple images carousel
+          let carouselHtml = '<div class="modal-carousel-container" style="position:relative; width:100%; height:400px; overflow:hidden; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#f8f6f2;">';
+          
+          imagesToDisplay.forEach((imgSrc, idx) => {
+              carouselHtml += `<img src="${imgSrc}" class="modal-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx+1}">`;
+          });
+
+          carouselHtml += `<button class="modal-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">&#10094;</button>`;
+          carouselHtml += `<button class="modal-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">&#10095;</button>`;
+          carouselHtml += '</div>';
+          
+          carouselHtml += '<div class="modal-carousel-indicators" style="display:flex; justify-content:center; gap:8px; margin-top:12px;">';
+          imagesToDisplay.forEach((_, idx) => {
+              carouselHtml += `<div class="modal-carousel-dot" data-idx="${idx}" style="width:10px; height:10px; border-radius:50%; background:${idx===0?'#800000':'#ddd'}; cursor:pointer; transition:background 0.2s;"></div>`;
+          });
+          carouselHtml += '</div>';
+
+          imgGrid.innerHTML = carouselHtml;
+
+          let currentSlide = 0;
+          const slides = imgGrid.querySelectorAll('.modal-carousel-slide');
+          const dots = imgGrid.querySelectorAll('.modal-carousel-dot');
+          const prevBtn = imgGrid.querySelector('.modal-carousel-prev');
+          const nextBtn = imgGrid.querySelector('.modal-carousel-next');
+
+          const updateSlide = (newIdx) => {
+              slides[currentSlide].style.opacity = '0';
+              slides[currentSlide].style.zIndex = '0';
+              if (dots[currentSlide]) dots[currentSlide].style.background = '#ddd';
+              
+              currentSlide = newIdx;
+              
+              slides[currentSlide].style.opacity = '1';
+              slides[currentSlide].style.zIndex = '1';
+              if (dots[currentSlide]) dots[currentSlide].style.background = '#800000';
+          };
+
+          if (prevBtn) {
+              prevBtn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  let newIdx = currentSlide === 0 ? slides.length - 1 : currentSlide - 1;
+                  updateSlide(newIdx);
+              });
+          }
+
+          if (nextBtn) {
+              nextBtn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  let newIdx = currentSlide === slides.length - 1 ? 0 : currentSlide + 1;
+                  updateSlide(newIdx);
+              });
+          }
+          
+          dots.forEach(dot => {
+              dot.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  updateSlide(parseInt(dot.getAttribute('data-idx')));
+              });
           });
       }
   }
