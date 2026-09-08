@@ -819,6 +819,23 @@
             const selectedExpiredCards = new Set();
             let lockedScrollY = 0;
 
+            const featuredImg = document.querySelector('.ne-featured-img img');
+            if (featuredImg) {
+                const updateLayout = () => {
+                    const isLandscape = featuredImg.naturalWidth > featuredImg.naturalHeight;
+                    const featuredSec = featuredImg.closest('.ne-featured');
+                    if (featuredSec) {
+                        featuredSec.classList.remove('layout-portrait', 'layout-landscape');
+                        featuredSec.classList.add(isLandscape ? 'layout-landscape' : 'layout-portrait');
+                    }
+                };
+                if (featuredImg.complete) {
+                    updateLayout();
+                } else {
+                    featuredImg.addEventListener('load', updateLayout);
+                }
+            }
+
             // CMS preview does not load the public reveal script, so force visible content there.
             if (cmsPreview) {
                 revealElements.forEach((element) => element.classList.add('active'));
