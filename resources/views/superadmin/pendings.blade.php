@@ -1003,6 +1003,10 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
     }
   }
 
+  const meta = document.getElementById('dMeta');
+  const cEl = document.getElementById('dCategory');
+  const lEl = document.getElementById('dLocation');
+
   if (category) cEl.innerHTML = `<i class="fas fa-tag" style="margin-right:4px;"></i>${category}`;
   else cEl.innerHTML = '';
 
