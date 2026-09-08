@@ -863,7 +863,10 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
   }
 
   if (wrap) {
-      wrap.style.display = hasImages ? 'block' : 'none';
+      wrap.style.display = 'block';
+      if (!hasImages) {
+          imgGrid.innerHTML = '<div style="opacity:0.6; font-size:14px; padding: 10px 0; font-style: italic;">No image uploaded</div>';
+      }
   }
 }
 
