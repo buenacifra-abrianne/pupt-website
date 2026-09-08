@@ -836,6 +836,23 @@
                 }
             }
 
+            const cardImages = document.querySelectorAll('.ne-card-img img');
+            cardImages.forEach(img => {
+                const updateCardLayout = () => {
+                    const isLandscape = img.naturalWidth > img.naturalHeight;
+                    const card = img.closest('.ne-card');
+                    if (card) {
+                        card.classList.remove('layout-portrait', 'layout-landscape');
+                        card.classList.add(isLandscape ? 'layout-landscape' : 'layout-portrait');
+                    }
+                };
+                if (img.complete) {
+                    updateCardLayout();
+                } else {
+                    img.addEventListener('load', updateCardLayout);
+                }
+            });
+
             // CMS preview does not load the public reveal script, so force visible content there.
             if (cmsPreview) {
                 revealElements.forEach((element) => element.classList.add('active'));

@@ -637,7 +637,13 @@
   overflow: hidden;
   background: #191919;
 }
+.ne-card.layout-portrait .ne-card-img {
+  height: 360px;
+}
 .ne-card-img img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -825,12 +831,16 @@
 }
 
 .ne-modal-img-wrap {
+  position: relative;
   overflow: hidden;
   background: #191919;
   min-height: min(72vh, 620px);
-  height: auto;
+  height: 100%;
 }
 .ne-modal-img-wrap img {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
