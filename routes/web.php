@@ -52,9 +52,7 @@ use App\Http\Controllers\Public\UniversityCalendarController;
 
 Route::get('/', [App\Http\Controllers\PublicController::class, 'index'])->name('public.landing');
 
-Route::get('/home/callback', function () {
-    return view('public.home_callback');
-})->name('public.home.callback');
+Route::get('/home/callback', [HomeController::class, 'homeCallback'])->name('public.home.callback');
 
 Route::get('/home', [HomeController::class, 'index'])->name('public.home');
 Route::get('/about', [AboutController::class, 'index'])->name('public.about');
@@ -85,10 +83,7 @@ Route::post('/auth/logout', [OnePortalController::class, 'logout'])->name('onepo
 
 Route::post('/logout', [OnePortalController::class, 'logout'])->name('logout');
 
-Route::get('/logout/completed', function () {
-    return redirect()->route('public.landing')
-        ->with('success', 'You have been logged out.');
-})->name('logout.completed');
+Route::get('/logout/completed', [OnePortalController::class, 'logoutCompleted'])->name('logout.completed');
 
 Route::get('/auth/idp/logout', [OnePortalController::class, 'idpLogout'])
     ->name('idp.logout');
@@ -110,19 +105,7 @@ Route::middleware('superadmin.auth')->group(function () {
     Route::post('/cms/terms/accept', [CmsTermsController::class, 'accept'])->name('cms.terms.accept');
     Route::get('/cms/terms/blocked', [CmsTermsController::class, 'blocked'])->name('cms.terms.blocked');
     
-    Route::get('/cms/proxy-image', function (\Illuminate\Http\Request $request) {
-        $path = $request->query('path');
-        if (!$path) abort(400);
-        $disk = config('filesystems.default');
-        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($path)) {
-            abort(404);
-        }
-        $mime = \Illuminate\Support\Facades\Storage::disk($disk)->mimeType($path);
-        $contents = \Illuminate\Support\Facades\Storage::disk($disk)->get($path);
-        return response($contents)
-            ->header('Content-Type', $mime)
-            ->header('Access-Control-Allow-Origin', '*');
-    })->name('cms.proxy-image');
+    Route::get('/cms/proxy-image', [CmsTermsController::class, 'proxyImage'])->name('cms.proxy-image');
 });
 
 // Staff Login
@@ -384,4 +367,4 @@ Route::prefix('superadmin')->group(function () {
 Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])
     ->get('/api/analytics/server-health', AnalyticsServerHealthController::class)
     ->name('superadmin.analytics.serverHealth');
-Route::post('/debug-height', function(\Illuminate\Http\Request $req) { file_put_contents(public_path('heights.txt'), $req->getContent()); return 'ok'; });
+Route::post('/debug-height', [HomeController::class, 'debugHeight']);

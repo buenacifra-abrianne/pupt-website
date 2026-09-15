@@ -7,6 +7,7 @@ use App\Support\StudentsCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class StudentsController extends Controller
 {
@@ -44,18 +45,20 @@ class StudentsController extends Controller
 
     private function loadStudentsCms(): array
     {
-        $studentsCms = StudentsCmsContent::defaults();
+        return Cache::remember('public_students_cms', 300, function () {
+            $studentsCms = StudentsCmsContent::defaults();
 
-        if (Schema::hasTable('cms_contents')) {
-            $studentsRow = DB::table('cms_contents')
-                ->where('tab_key', 'students')
-                ->first();
+            if (Schema::hasTable('cms_contents')) {
+                $studentsRow = DB::table('cms_contents')
+                    ->where('tab_key', 'students')
+                    ->first();
 
-            if ($studentsRow) {
-                $studentsCms = StudentsCmsContent::fromStored((string) ($studentsRow->content ?? ''));
+                if ($studentsRow) {
+                    $studentsCms = StudentsCmsContent::fromStored((string) ($studentsRow->content ?? ''));
+                }
             }
-        }
 
-        return $studentsCms;
+            return $studentsCms;
+        });
     }
 }

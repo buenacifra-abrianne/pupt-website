@@ -7,6 +7,7 @@ use App\Support\AboutCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class AboutController extends Controller
 {
@@ -22,14 +23,16 @@ class AboutController extends Controller
 
     private function renderPage(Request $request, ?string $section = null)
     {
-        $aboutCms = AboutCmsContent::defaults();
-
-        if (Schema::hasTable('cms_contents')) {
-            $aboutRow = DB::table('cms_contents')->where('tab_key', 'about')->first();
-            if ($aboutRow) {
-                $aboutCms = AboutCmsContent::fromStored((string) ($aboutRow->content ?? ''));
+        $aboutCms = Cache::remember('public_about_cms', 300, function () {
+            $cms = AboutCmsContent::defaults();
+            if (Schema::hasTable('cms_contents')) {
+                $aboutRow = DB::table('cms_contents')->where('tab_key', 'about')->first();
+                if ($aboutRow) {
+                    $cms = AboutCmsContent::fromStored((string) ($aboutRow->content ?? ''));
+                }
             }
-        }
+            return $cms;
+        });
 
         $sections = $aboutCms['sections'] ?? [];
         $selectedSection = null;

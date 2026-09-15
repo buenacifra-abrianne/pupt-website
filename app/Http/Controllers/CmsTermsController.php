@@ -53,4 +53,19 @@ class CmsTermsController extends Controller
 
         return route('superadmin.login');
     }
+
+    public function proxyImage(Request $request)
+    {
+        $path = $request->query('path');
+        if (!$path) abort(400);
+        $disk = config('filesystems.default');
+        if (!\Illuminate\Support\Facades\Storage::disk($disk)->exists($path)) {
+            abort(404);
+        }
+        $mime = \Illuminate\Support\Facades\Storage::disk($disk)->mimeType($path);
+        $contents = \Illuminate\Support\Facades\Storage::disk($disk)->get($path);
+        return response($contents)
+            ->header('Content-Type', $mime)
+            ->header('Access-Control-Allow-Origin', '*');
+    }
 }

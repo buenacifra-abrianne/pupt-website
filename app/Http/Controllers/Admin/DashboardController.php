@@ -13,24 +13,33 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $pendingApprovals = ApprovalRequest::where('status', 'pending')->count();
+        $pendingApprovals = Cache::remember('admin_dashboard_pending_approvals', 60, function () {
+            return ApprovalRequest::where('status', 'pending')->count();
+        });
 
         $uptime = $this->getSystemUptime();
 
-        $total_announcements = \DB::table('announcements')->count();
+        $total_announcements = Cache::remember('admin_dashboard_total_announcements', 60, function () {
+            return \DB::table('announcements')->count();
+        });
 
-        $recent_announcements = \DB::table('announcements')
-            ->orderBy('created_at', 'desc')
-            ->limit(5)
-            ->get();
-
-        $recentActivities = collect();
-        if (Schema::hasTable('activity_logs')) {
-            $recentActivities = DB::table('activity_logs')
-                ->orderByDesc('created_at')
-                ->limit(10)
+        $recent_announcements = Cache::remember('admin_dashboard_recent_announcements', 60, function () {
+            return \DB::table('announcements')
+                ->orderBy('created_at', 'desc')
+                ->limit(5)
                 ->get();
-        }
+        });
+
+        $recentActivities = Cache::remember('admin_dashboard_recent_activities', 60, function () {
+            $items = collect();
+            if (Schema::hasTable('activity_logs')) {
+                $items = DB::table('activity_logs')
+                    ->orderByDesc('created_at')
+                    ->limit(10)
+                    ->get();
+            }
+            return $items;
+        });
 
         $userId = (int) session('user_id');
 

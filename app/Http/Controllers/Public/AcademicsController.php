@@ -7,6 +7,7 @@ use App\Support\AcademicsCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class AcademicsController extends Controller
 {
@@ -37,14 +38,16 @@ class AcademicsController extends Controller
 
     private function renderPage()
     {
-        $academicsCms = AcademicsCmsContent::defaults();
-
-        if (Schema::hasTable('cms_contents')) {
-            $academicsRow = DB::table('cms_contents')->where('tab_key', 'academics')->first();
-            if ($academicsRow) {
-                $academicsCms = AcademicsCmsContent::fromStored((string) ($academicsRow->content ?? ''));
+        $academicsCms = Cache::remember('public_academics_cms', 300, function () {
+            $cms = AcademicsCmsContent::defaults();
+            if (Schema::hasTable('cms_contents')) {
+                $academicsRow = DB::table('cms_contents')->where('tab_key', 'academics')->first();
+                if ($academicsRow) {
+                    $cms = AcademicsCmsContent::fromStored((string) ($academicsRow->content ?? ''));
+                }
             }
-        }
+            return $cms;
+        });
 
         return view('public.academics', compact('academicsCms'));
     }

@@ -7,6 +7,7 @@ use App\Support\ResearchCmsContent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Cache;
 
 class ResearchController extends Controller
 {
@@ -33,18 +34,20 @@ class ResearchController extends Controller
 
     private function loadResearchCms(): array
     {
-        $researchCms = ResearchCmsContent::defaults();
+        return Cache::remember('public_research_cms', 300, function () {
+            $researchCms = ResearchCmsContent::defaults();
 
-        if (Schema::hasTable('cms_contents')) {
-            $row = DB::table('cms_contents')
-                ->where('tab_key', 'research_extension')
-                ->first();
+            if (Schema::hasTable('cms_contents')) {
+                $row = DB::table('cms_contents')
+                    ->where('tab_key', 'research_extension')
+                    ->first();
 
-            if ($row) {
-                $researchCms = ResearchCmsContent::fromStored((string) ($row->content ?? ''));
+                if ($row) {
+                    $researchCms = ResearchCmsContent::fromStored((string) ($row->content ?? ''));
+                }
             }
-        }
 
-        return $researchCms;
+            return $researchCms;
+        });
     }
 }

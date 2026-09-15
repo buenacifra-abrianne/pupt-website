@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Staff;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class DashboardController extends Controller
 {
@@ -12,20 +13,26 @@ class DashboardController extends Controller
     {
         $userEmail = strtolower(trim((string) session('user_email')));
 
-$pending_requests = \DB::table('approval_requests')
-    ->whereRaw("LOWER(status) = 'pending'")
-    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
-    ->count();
+        $pending_requests = Cache::remember("staff_dashboard_pending_{$userEmail}", 60, function () use ($userEmail) {
+            return \DB::table('approval_requests')
+                ->whereRaw("LOWER(status) = 'pending'")
+                ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+                ->count();
+        });
 
-$approved_requests = \DB::table('approval_requests')
-    ->whereRaw("LOWER(status) = 'approved'")
-    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
-    ->count();
+        $approved_requests = Cache::remember("staff_dashboard_approved_{$userEmail}", 60, function () use ($userEmail) {
+            return \DB::table('approval_requests')
+                ->whereRaw("LOWER(status) = 'approved'")
+                ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+                ->count();
+        });
 
-$rejected_requests = \DB::table('approval_requests')
-    ->whereRaw("LOWER(status) = 'rejected'")
-    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
-    ->count();
+        $rejected_requests = Cache::remember("staff_dashboard_rejected_{$userEmail}", 60, function () use ($userEmail) {
+            return \DB::table('approval_requests')
+                ->whereRaw("LOWER(status) = 'rejected'")
+                ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+                ->count();
+        });
 
         $recentActivities = collect();
         $userDisplayName = trim((string) session('user_first_name', '').' '.(string) session('user_last_name', ''));
@@ -34,25 +41,27 @@ $rejected_requests = \DB::table('approval_requests')
         }
 
         if ($userEmail !== '') {
-            $recentActivities = DB::table('approval_requests')
-                ->select('type', 'title', 'status', 'updated_at', 'created_at')
-                ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
-                ->orderByDesc('updated_at')
-                ->orderByDesc('id')
-                ->limit(10)
-                ->get()
-                ->map(function ($row) use ($userDisplayName) {
-                    $type = strtoupper(trim((string) ($row->type ?? '')));
-                    $status = strtoupper(trim((string) ($row->status ?? 'PENDING')));
+            $recentActivities = Cache::remember("staff_dashboard_recent_activities_{$userEmail}", 60, function () use ($userEmail, $userDisplayName) {
+                return DB::table('approval_requests')
+                    ->select('type', 'title', 'status', 'updated_at', 'created_at')
+                    ->whereRaw('LOWER(requester_email) = ?', [$userEmail])
+                    ->orderByDesc('updated_at')
+                    ->orderByDesc('id')
+                    ->limit(10)
+                    ->get()
+                    ->map(function ($row) use ($userDisplayName) {
+                        $type = strtoupper(trim((string) ($row->type ?? '')));
+                        $status = strtoupper(trim((string) ($row->status ?? 'PENDING')));
 
-                    return (object) [
-                        'action' => $status !== '' ? $status : 'PENDING',
-                        'module' => $this->moduleFromRequestType($type),
-                        'description' => $this->activityDescription($type, (string) ($row->title ?? '')),
-                        'user_name' => $userDisplayName,
-                        'created_at' => $row->updated_at ?? $row->created_at ?? now(),
-                    ];
-                });
+                        return (object) [
+                            'action' => $status !== '' ? $status : 'PENDING',
+                            'module' => $this->moduleFromRequestType($type),
+                            'description' => $this->activityDescription($type, (string) ($row->title ?? '')),
+                            'user_name' => $userDisplayName,
+                            'created_at' => $row->updated_at ?? $row->created_at ?? now(),
+                        ];
+                    });
+            });
         }
 
         $userId = (int) session('user_id');

@@ -377,6 +377,12 @@ class OnePortalController extends Controller
         return $this->clearLocalSession($request, $response);
     }
 
+    public function logoutCompleted()
+    {
+        return redirect()->route('public.landing')
+            ->with('success', 'You have been logged out.');
+    }
+
     private function redirectByRole($role)
     {
         $role = strtoupper((string) $role);
