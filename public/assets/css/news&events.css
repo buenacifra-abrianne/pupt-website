@@ -237,21 +237,19 @@
 .ne-featured-img {
   position: relative;
   overflow: hidden;
-  height: 100%;
-  min-height: clamp(260px, 35vw, 420px);
-  background: #191919;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
 }
 
 .ne-featured.layout-landscape .ne-featured-img {
-  height: clamp(350px, 45vw, 550px);
+  /* Height scales naturally based on image width */
 }
 
 .ne-featured-img img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
   display: block;
   transition: transform .55s ease;
@@ -633,19 +631,18 @@
 
 .ne-card-img {
   position: relative;
-  height: 180px;
   overflow: hidden;
-  background: #191919;
+  background: transparent;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 .ne-card.layout-portrait .ne-card-img {
-  height: 360px;
+  /* Height scales naturally based on image width */
 }
 .ne-card-img img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100%;
+  height: auto;
   object-fit: contain;
   display: block;
   transition: transform .45s ease, filter .45s ease;
