@@ -266,23 +266,8 @@ body {
     transform-origin: center;
 }
 
-.landing-actions-seal--pup {
-    animation-delay: 0s;
-}
-
 .landing-actions-seal--bagong {
     width: 106px;
-    animation-delay: 0.35s;
-}
-
-@keyframes seal-float {
-    0%, 100% {
-        transform: translateY(0);
-    }
-
-    50% {
-        transform: translateY(-7px);
-    }
 }
 
 @keyframes seal-glow {
