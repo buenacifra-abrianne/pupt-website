@@ -977,7 +977,7 @@
 
     .events-cms-image-dropzone {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: 1fr;
         gap: 16px;
         width: 100%;
         padding: 14px;
@@ -1028,25 +1028,32 @@
 
     .events-cms-image-dropzone-upload {
         display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas:
+            "icon title button"
+            "icon copy button"
+            "icon file button";
+        align-items: center;
         justify-items: center;
-        align-content: center;
-        gap: 12px;
-        min-width: 0;
-        padding: 20px 18px;
+        column-gap: 16px;
+        row-gap: 2px;
+        width: 100%;
+        min-height: 0;
+        padding: 14px 16px;
         border-radius: 18px;
         background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
         color: #f8f4ef;
         text-align: center;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-        min-height: 100%;
     }
 
     .events-cms-image-dropzone-icon {
+        grid-area: icon;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 72px;
-        height: 72px;
+        width: 54px;
+        height: 54px;
         border-radius: 999px;
         background: rgba(73, 8, 13, 0.42);
         color: #f2f0ed;
@@ -1054,20 +1061,26 @@
     }
 
     .events-cms-image-dropzone-upload-title {
+        grid-area: title;
         display: block;
-        font-size: 1rem;
+        color: #fff8f1;
+        font-size: 0.92rem;
         font-weight: 600;
         line-height: 1.4;
     }
 
     .events-cms-image-dropzone-upload-copy {
+        grid-area: copy;
+        max-width: 640px;
         display: block;
-        color: rgba(255, 255, 255, 0.72);
+        color: rgba(255, 255, 255, 0.78);
         font-size: 0.84rem;
         line-height: 1.55;
     }
 
     .events-cms-image-dropzone-upload-button {
+        grid-area: button;
+        justify-self: end;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1081,8 +1094,10 @@
     }
 
     .events-cms-image-dropzone-file {
+        grid-area: file;
+        max-width: 640px;
         display: block;
-        color: rgba(255, 255, 255, 0.74);
+        color: rgba(255, 255, 255, 0.76);
         font-size: 0.8rem;
         line-height: 1.5;
         word-break: break-word;
@@ -1165,13 +1180,20 @@
         color: #fff8f1;
     }
 
-    @media (max-width: 460px) {
-        .events-cms-image-dropzone {
-            grid-template-columns: 1fr;
+    @media (max-width: 640px) {
+        .events-cms-image-dropzone-upload {
+            grid-template-columns: auto minmax(0, 1fr);
+            grid-template-areas:
+                "icon title"
+                "icon copy"
+                "icon file"
+                "button button";
+            justify-items: center;
         }
 
-        .events-cms-image-dropzone-upload {
-            min-height: 280px;
+        .events-cms-image-dropzone-upload-button {
+            justify-self: center;
+            margin-top: 10px;
         }
     }
 
@@ -1238,8 +1260,8 @@
     }
 
     .events-cms-modal.is-card-focus .events-cms-modal-dialog {
-        width: min(640px, calc(100vw - 24px));
-        max-width: min(640px, calc(100vw - 24px));
+        width: min(860px, calc(100vw - 24px));
+        max-width: min(860px, calc(100vw - 24px));
         border-radius: 32px;
         border: 1px solid rgba(255, 255, 255, 0.8);
         background: linear-gradient(145deg, #ffffff 0%, #fffbfa 100%);
