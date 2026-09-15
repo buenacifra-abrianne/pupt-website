@@ -810,7 +810,7 @@
                         </div>
                         <div data-students-repeatable-list="admissions-links">
                             @foreach(($admissionsLinks['items'] ?? []) as $index => $item)
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="{{ $index }}">
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Label</label>
@@ -842,7 +842,6 @@
                                             <textarea name="students[pages][admissions][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
                                         </div>
                                     </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                                 </div>
                             @endforeach
                         </div>
@@ -1176,7 +1175,7 @@
                         </div>
                         <div data-students-repeatable-list="forms-links">
                             @foreach(($formsLinks['items'] ?? []) as $index => $item)
-                                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="{{ $index }}">
                                     <div class="students-cms-form-grid">
                                         <div class="form-group">
                                             <label>Form Name</label>
@@ -1191,7 +1190,6 @@
                                         <label>Description</label>
                                         <textarea name="students[pages][downloadable-forms][links][items][{{ $index }}][description]" rows="2" required>{{ $item['description'] ?? '' }}</textarea>
                                     </div>
-                                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
                                 </div>
                             @endforeach
                         </div>
@@ -1200,7 +1198,7 @@
                     <div class="students-cms-modal-footer">
                         <button type="submit" class="btn btn-primary">
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
-                            {{ $submitLabel('Downloadables Links') }}
+                            {{ $submitLabel('Downloadable Form Links') }}
                         </button>
                     </div>
                 </form>
@@ -2182,6 +2180,11 @@
                 && options.qrIndex !== null
                 && options.qrIndex !== undefined
                 && options.qrIndex !== ''
+            ) || (
+                (sectionKey === 'downloadable_forms_items' || sectionKey === 'admissions_form_links')
+                && options.linkIndex !== null
+                && options.linkIndex !== undefined
+                && options.linkIndex !== ''
             );
 
             panels.forEach((panel) => {
@@ -2235,6 +2238,13 @@
                 setActiveQrEditor(options.qrIndex ?? null);
                 window.setTimeout(() => {
                     const target = activePanel?.querySelector(`[data-students-repeatable-item][data-students-qr-index="${options.qrIndex}"]`);
+                    target?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                    target?.querySelector('input, textarea')?.focus();
+                }, 40);
+            } else if ((sectionKey === 'downloadable_forms_items' || sectionKey === 'admissions_form_links') && options.linkIndex !== undefined) {
+                setActiveLinkEditor(options.linkIndex ?? null);
+                window.setTimeout(() => {
+                    const target = activePanel?.querySelector(`[data-students-repeatable-item][data-students-link-index="${options.linkIndex}"]`);
                     target?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                     target?.querySelector('input, textarea')?.focus();
                 }, 40);
@@ -2515,7 +2525,57 @@
                     return;
                 }
 
-                if (event.target.closest('[data-students-card-index], [data-students-org-index]')) {
+                const addLinkTrigger = event.target.closest('[data-students-link-add-trigger]');
+                if (addLinkTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const section = addLinkTrigger.closest('[data-cms-section]');
+                    const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
+                    openEditor(sectionKey, 'Add Form Link', { linkIndex: 'new' });
+                    window.setTimeout(() => {
+                        const listKey = sectionKey === 'admissions_form_links' ? 'admissions-links' : 'forms-links';
+                        const list = modal.querySelector(`[data-students-repeatable-list="${listKey}"]`);
+                        if (list) {
+                            const index = nextRepeatableIndex(list);
+                            list.insertAdjacentHTML('beforeend', repeatableTemplates[listKey](index));
+                            setActiveLinkEditor(index);
+                            const latest = list.lastElementChild;
+                            latest?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                            latest?.querySelector('input:not([type="hidden"]), textarea')?.focus();
+                        }
+                    }, 0);
+                    return;
+                }
+
+                const editLinkTrigger = event.target.closest('[data-students-link-edit]');
+                if (editLinkTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const section = editLinkTrigger.closest('[data-cms-section]');
+                    const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
+                    const wrapper = editLinkTrigger.closest('[data-students-link-index]');
+                    const linkIndex = wrapper?.getAttribute('data-students-link-index') ?? null;
+                    openEditor(sectionKey, 'Edit Form Link', { linkIndex });
+                    return;
+                }
+
+                const deleteLinkTrigger = event.target.closest('[data-students-link-delete]');
+                if (deleteLinkTrigger) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    const section = deleteLinkTrigger.closest('[data-cms-section]');
+                    const sectionKey = section?.getAttribute('data-cms-section') || 'downloadable_forms_items';
+                    const wrapper = deleteLinkTrigger.closest('[data-students-link-index]');
+                    const linkIndex = wrapper?.getAttribute('data-students-link-index') ?? null;
+                    void confirmDeleteLink(linkIndex, sectionKey);
+                    return;
+                }
+
+                const ignoredCard = event.target.closest('[data-students-card-index], [data-students-org-index], [data-students-link-index], [data-students-qr-index]');
+                if (ignoredCard) {
+                    if (ignoredCard.tagName === 'A' || event.target.closest('a')) {
+                        event.preventDefault();
+                    }
                     return;
                 }
 
@@ -2954,6 +3014,88 @@
             }
         };
 
+        const setActiveLinkEditor = (linkIndex = null) => {
+            const activePanel = Array.from(panels).find((panel) => !panel.hidden);
+            if (!activePanel) return;
+
+            const items = Array.from(activePanel.querySelectorAll(`[data-students-repeatable-item]`));
+            
+            if (!items.length) {
+                return;
+            }
+
+            let activeItem = null;
+            if (linkIndex !== null && linkIndex !== undefined && linkIndex !== 'new') {
+                activeItem = items.find((item) => item.getAttribute('data-students-link-index') === String(linkIndex)) || null;
+            }
+
+            if (!activeItem && linkIndex === 'new') {
+                activeItem = items[items.length - 1] || null;
+            } else if (!activeItem) {
+                activeItem = items[0] || null;
+            }
+
+            items.forEach((item) => {
+                item.classList.toggle('is-active', item === activeItem);
+            });
+        };
+
+        const confirmDeleteLink = async (linkIndex, targetSectionKey = null) => {
+            if (linkIndex === null || linkIndex === undefined) {
+                return false;
+            }
+
+            let activePanel = null;
+            if (targetSectionKey) {
+                activePanel = Array.from(panels).find((p) => p.getAttribute('data-students-editor-panel') === targetSectionKey);
+            } else {
+                activePanel = Array.from(panels).find((panel) => !panel.hidden);
+            }
+
+            if (!activePanel) return false;
+
+            const targetEditor = activePanel.querySelector(`[data-students-repeatable-item][data-students-link-index="${linkIndex}"]`);
+            if (!targetEditor) {
+                return false;
+            }
+
+            const titleInput = targetEditor.querySelector('input[name*="[label]"]');
+            const linkTitle = String(titleInput?.value || '').trim();
+            let confirmed = false;
+
+            if (typeof window.confirmAction === 'function') {
+                confirmed = await window.confirmAction({
+                    title: 'Delete Form Link',
+                    message: linkTitle
+                        ? `Do you want to delete "${linkTitle}"?`
+                        : 'Do you want to delete this link?',
+                    confirmText: 'Delete',
+                    tone: 'danger',
+                });
+            } else {
+                confirmed = window.confirm(
+                    linkTitle
+                        ? `Do you want to delete "${linkTitle}"?`
+                        : 'Do you want to delete this link?'
+                );
+            }
+
+            if (!confirmed) {
+                return;
+            }
+
+            const form = targetEditor.closest('form');
+            targetEditor.remove();
+            
+            if (form) {
+                if (typeof form.requestSubmit === 'function') {
+                    form.requestSubmit();
+                } else {
+                    form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+                }
+            }
+        };
+
         const initStudentsImageDropzones = (scope = document) => {
             scope.querySelectorAll('.students-cms-image-dropzone-input').forEach((input) => {
                 if (input.dataset.studentsDropzoneBound === '1') {
@@ -3256,7 +3398,7 @@
 
         const repeatableTemplates = {
             'admissions-links': (index) => `
-                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="${index}">
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Label</label>
@@ -3288,7 +3430,6 @@
                             <textarea name="students[pages][admissions][links][items][${index}][description]" rows="2" required></textarea>
                         </div>
                     </div>
-                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Link</button>
                 </div>
             `,
             'admissions-instructions-links': (index) => `
@@ -3387,7 +3528,7 @@
                 `;
             },
             'forms-links': (index) => `
-                <div class="students-cms-repeatable-item" data-students-repeatable-item>
+                <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-link-index="${index}">
                     <div class="students-cms-form-grid">
                         <div class="form-group">
                             <label>Form Name</label>
@@ -3402,7 +3543,6 @@
                         <label>Description</label>
                         <textarea name="students[pages][downloadable-forms][links][items][${index}][description]" rows="2" required></textarea>
                     </div>
-                    <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Form Link</button>
                 </div>
             `,
             'admissions-qr': (index) => {
@@ -3715,6 +3855,25 @@
         bindStudentsCardsDirtyTracking();
         syncStudentsPreviewNav(currentStudentsPreviewRoute);
         scheduleFitAllStudentsPreviews();
+
+        document.querySelectorAll('.students-cms-editor-panel form').forEach((form) => {
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) {
+                submitBtn.addEventListener('click', () => {
+                    const invalids = form.querySelectorAll(':invalid');
+                    invalids.forEach((field) => {
+                        if (field.offsetParent === null) {
+                            const wasRequired = field.required;
+                            if (wasRequired) {
+                                field.required = false;
+                                setTimeout(() => { field.required = true; }, 150);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+
         window.__studentsCmsPreviewEditorReady = true;
     })();
 </script>

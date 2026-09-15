@@ -697,6 +697,11 @@ private function attachDisplayFields($paginator)
         $imagePath = $payload['image_path'] ?? null;
         $item->display_image_url = NewsImage::url($imagePath);
 
+        $additionalImagesPaths = $payload['additional_images'] ?? [];
+        $item->display_additional_images = is_array($additionalImagesPaths)
+            ? array_values(array_filter(array_map(fn($p) => NewsImage::url($p), $additionalImagesPaths)))
+            : [];
+
         // news meta for modal
         $item->display_category = isset($payload['category']) ? PlainText::normalize($payload['category']) : null;
         $item->display_location = isset($payload['location']) ? PlainText::normalize($payload['location']) : null;

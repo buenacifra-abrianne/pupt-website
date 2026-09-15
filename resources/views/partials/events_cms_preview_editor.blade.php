@@ -169,7 +169,7 @@
                                                             <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                                         </span>
                                                         <span class="events-cms-image-dropzone-upload-title">Upload event image</span>
-                                                        <span class="events-cms-image-dropzone-upload-copy">Preview supports saved local and S3 images.</span>
+                                                        <span class="events-cms-image-dropzone-upload-copy">Preview can be seen after the upload of the image.</span>
                                                         <span class="events-cms-image-dropzone-upload-button">Select image</span>
                                                         <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                     </span>
@@ -185,7 +185,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Event Title</label>
+                                            <label>Event Title <span style="color: red;">*</span></label>
                                             <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
                                         </div>
 
@@ -196,7 +196,7 @@
 
                                         <div class="events-cms-form-grid">
                                             <div class="form-group">
-                                                <label>Category</label>
+                                                <label>Category <span style="color: red;">*</span></label>
                                                 <select name="events[cards][{{ $index }}][category]">
                                                     @foreach($categoryOptions as $value => $label)
                                                         <option value="{{ $value }}" @selected(($card['category'] ?? 'events') === $value)>{{ $label }}</option>
@@ -204,15 +204,15 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Location</label>
+                                                <label>Location <span style="color: red;">*</span></label>
                                                 <input type="text" name="events[cards][{{ $index }}][location]" maxlength="255" value="{{ $card['location'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Event Date</label>
+                                                <label>Event Date <span style="color: red;">*</span></label>
                                                 <input type="date" name="events[cards][{{ $index }}][event_date]" value="{{ $card['event_date'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Event Time</label>
+                                                <label>Event Time <span style="color: red;">*</span></label>
                                                 <div class="events-cms-time-range-field">
                                                     <input type="time" name="events[cards][{{ $index }}][start_time]" value="{{ $card['start_time'] ?? '' }}" aria-label="Start time">
                                                     <span class="events-cms-time-range-separator" aria-hidden="true">to</span>
@@ -234,7 +234,7 @@
                                         </label>
 
                                         <div class="form-group">
-                                            <label>Event Details</label>
+                                            <label>Event Details <span style="color: red;">*</span></label>
                                             @include('partials.rich_text_editor', [
                                                 'name' => 'events[cards]['.$index.'][content]',
                                                 'value' => $card['content'] ?? '',
@@ -306,7 +306,7 @@
                                                             <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                                         </span>
                                                         <span class="events-cms-image-dropzone-upload-title">Upload event image</span>
-                                                        <span class="events-cms-image-dropzone-upload-copy">Preview supports saved local and S3 images.</span>
+                                                        <span class="events-cms-image-dropzone-upload-copy">Preview can be seen after the upload of the image.</span>
                                                         <span class="events-cms-image-dropzone-upload-button">Select image</span>
                                                         <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $cardInputId }}" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                                     </span>
@@ -322,7 +322,7 @@
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Event Title</label>
+                                            <label>Event Title <span style="color: red;">*</span></label>
                                             <input type="text" name="events[cards][{{ $index }}][title]" maxlength="255" value="{{ $card['title'] ?? '' }}">
                                         </div>
 
@@ -333,7 +333,7 @@
 
                                         <div class="events-cms-form-grid">
                                             <div class="form-group">
-                                                <label>Category</label>
+                                                <label>Category <span style="color: red;">*</span></label>
                                                 <select name="events[cards][{{ $index }}][category]">
                                                     @foreach($categoryOptions as $value => $label)
                                                         <option value="{{ $value }}" @selected(($card['category'] ?? 'events') === $value)>{{ $label }}</option>
@@ -341,15 +341,15 @@
                                                 </select>
                                             </div>
                                             <div class="form-group">
-                                                <label>Location</label>
+                                                <label>Location <span style="color: red;">*</span></label>
                                                 <input type="text" name="events[cards][{{ $index }}][location]" maxlength="255" value="{{ $card['location'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Event Date</label>
+                                                <label>Event Date <span style="color: red;">*</span></label>
                                                 <input type="date" name="events[cards][{{ $index }}][event_date]" value="{{ $card['event_date'] ?? '' }}">
                                             </div>
                                             <div class="form-group">
-                                                <label>Event Time</label>
+                                                <label>Event Time <span style="color: red;">*</span></label>
                                                 <div class="events-cms-time-range-field">
                                                     <input type="time" name="events[cards][{{ $index }}][start_time]" value="{{ $card['start_time'] ?? '' }}" aria-label="Start time">
                                                     <span class="events-cms-time-range-separator" aria-hidden="true">to</span>
@@ -371,7 +371,7 @@
                                         </label>
 
                                         <div class="form-group">
-                                            <label>Event Details</label>
+                                            <label>Event Details <span style="color: red;">*</span></label>
                                             @include('partials.rich_text_editor', [
                                                 'name' => 'events[cards]['.$index.'][content]',
                                                 'value' => $card['content'] ?? '',
@@ -422,7 +422,7 @@
                                                 <i class="fas fa-arrow-up" aria-hidden="true"></i>
                                             </span>
                                             <span class="events-cms-image-dropzone-upload-title">Upload event image</span>
-                                            <span class="events-cms-image-dropzone-upload-copy">Preview supports saved local and S3 images.</span>
+                                            <span class="events-cms-image-dropzone-upload-copy">Preview can be seen after the upload of the image.</span>
                                             <span class="events-cms-image-dropzone-upload-button">Select image</span>
                                             <span class="events-cms-image-dropzone-file" data-events-file-name-for="{{ $idPrefix }}-events-card-image-__INDEX__" data-empty-text="Drop image here or click to replace">Drop image here or click to replace</span>
                                         </span>
@@ -438,7 +438,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Event Title</label>
+                                <label>Event Title <span style="color: red;">*</span></label>
                                 <input type="text" name="events[cards][__INDEX__][title]" maxlength="255" value="">
                             </div>
 
@@ -977,7 +977,7 @@
 
     .events-cms-image-dropzone {
         display: grid;
-        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-columns: 1fr;
         gap: 16px;
         width: 100%;
         padding: 14px;
@@ -1028,25 +1028,32 @@
 
     .events-cms-image-dropzone-upload {
         display: grid;
+        grid-template-columns: auto minmax(0, 1fr) auto;
+        grid-template-areas:
+            "icon title button"
+            "icon copy button"
+            "icon file button";
+        align-items: center;
         justify-items: center;
-        align-content: center;
-        gap: 12px;
-        min-width: 0;
-        padding: 20px 18px;
+        column-gap: 16px;
+        row-gap: 2px;
+        width: 100%;
+        min-height: 0;
+        padding: 14px 16px;
         border-radius: 18px;
         background: radial-gradient(circle at top, rgba(151, 26, 33, 0.98), rgba(96, 12, 18, 0.98));
         color: #f8f4ef;
         text-align: center;
         box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
-        min-height: 100%;
     }
 
     .events-cms-image-dropzone-icon {
+        grid-area: icon;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 72px;
-        height: 72px;
+        width: 54px;
+        height: 54px;
         border-radius: 999px;
         background: rgba(73, 8, 13, 0.42);
         color: #f2f0ed;
@@ -1054,20 +1061,26 @@
     }
 
     .events-cms-image-dropzone-upload-title {
+        grid-area: title;
         display: block;
-        font-size: 1rem;
+        color: #fff8f1;
+        font-size: 0.92rem;
         font-weight: 600;
         line-height: 1.4;
     }
 
     .events-cms-image-dropzone-upload-copy {
+        grid-area: copy;
+        max-width: 640px;
         display: block;
-        color: rgba(255, 255, 255, 0.72);
+        color: rgba(255, 255, 255, 0.78);
         font-size: 0.84rem;
         line-height: 1.55;
     }
 
     .events-cms-image-dropzone-upload-button {
+        grid-area: button;
+        justify-self: end;
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -1081,8 +1094,10 @@
     }
 
     .events-cms-image-dropzone-file {
+        grid-area: file;
+        max-width: 640px;
         display: block;
-        color: rgba(255, 255, 255, 0.74);
+        color: rgba(255, 255, 255, 0.76);
         font-size: 0.8rem;
         line-height: 1.5;
         word-break: break-word;
@@ -1165,13 +1180,20 @@
         color: #fff8f1;
     }
 
-    @media (max-width: 460px) {
-        .events-cms-image-dropzone {
-            grid-template-columns: 1fr;
+    @media (max-width: 640px) {
+        .events-cms-image-dropzone-upload {
+            grid-template-columns: auto minmax(0, 1fr);
+            grid-template-areas:
+                "icon title"
+                "icon copy"
+                "icon file"
+                "button button";
+            justify-items: center;
         }
 
-        .events-cms-image-dropzone-upload {
-            min-height: 280px;
+        .events-cms-image-dropzone-upload-button {
+            justify-self: center;
+            margin-top: 10px;
         }
     }
 
@@ -1238,8 +1260,8 @@
     }
 
     .events-cms-modal.is-card-focus .events-cms-modal-dialog {
-        width: min(640px, calc(100vw - 24px));
-        max-width: min(640px, calc(100vw - 24px));
+        width: min(860px, calc(100vw - 24px));
+        max-width: min(860px, calc(100vw - 24px));
         border-radius: 32px;
         border: 1px solid rgba(255, 255, 255, 0.8);
         background: linear-gradient(145deg, #ffffff 0%, #fffbfa 100%);
@@ -1945,6 +1967,25 @@
 
                     return editedFile;
                 };
+
+                const validateLandscapeImage = (file) => {
+                    return new Promise((resolve) => {
+                        if (!file || !file.type.startsWith('image/')) {
+                            resolve(true);
+                            return;
+                        }
+                        const img = new Image();
+                        img.onload = () => {
+                            URL.revokeObjectURL(img.src);
+                            resolve(img.width > img.height);
+                        };
+                        img.onerror = () => {
+                            URL.revokeObjectURL(img.src);
+                            resolve(false);
+                        };
+                        img.src = URL.createObjectURL(file);
+                    });
+                };
                 if (typeof editButton !== 'undefined' && editButton) {
                     editButton.addEventListener('click', async (e) => {
                         e.preventDefault();
@@ -2012,7 +2053,17 @@
                 };
 
                 input.addEventListener('change', async () => {
-                    const file = await prepareImageFile(input.files && input.files[0] ? input.files[0] : null);
+                    let file = input.files && input.files[0] ? input.files[0] : null;
+                    if (file) {
+                        const isLandscape = await validateLandscapeImage(file);
+                        if (!isLandscape) {
+                            showEventsValidationToast('Please upload a landscape image. Portrait images are not allowed.');
+                            input.value = '';
+                            applyFile(null);
+                            return;
+                        }
+                    }
+                    file = await prepareImageFile(file);
                     if (!file) {
                         input.value = '';
                     }
@@ -2051,6 +2102,12 @@
 
                     const file = event.dataTransfer?.files?.[0] ?? null;
                     if (!file) {
+                        return;
+                    }
+
+                    const isLandscape = await validateLandscapeImage(file);
+                    if (!isLandscape) {
+                        showEventsValidationToast('Please upload a landscape image. Portrait images are not allowed.');
                         return;
                     }
 

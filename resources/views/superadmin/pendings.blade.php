@@ -87,7 +87,8 @@
                                             @json($item->display_image_url),
                                             @json($item->display_category),
                                             @json($item->display_location),
-                                            null
+                                            null,
+                                            @json($item->display_additional_images ?? [])
                                             )'>
                                         <i class="fas fa-eye"></i> View Details
                                         </button>
@@ -271,7 +272,8 @@
                                                 @json($item->display_image_url),
                                                 @json($item->display_category),
                                                 @json($item->display_location),
-                                                @json($item->rejection_reason)
+                                                @json($item->rejection_reason),
+                                                @json($item->display_additional_images ?? [])
                                             )'>
                                             <i class="fas fa-eye"></i> View Details
                                         </button>
@@ -385,9 +387,9 @@
 </div>
 
 <div id="dImgWrap" style="display:none; margin: 10px 0;">
-  <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Image</div>
-  <img id="dImg" src="" alt="Uploaded image"
-       style="max-width:100%; border-radius:12px; border:1px solid rgba(0,0,0,.08);">
+  <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Image(s)</div>
+  <div id="dImgGrid" style="display: flex; flex-direction: column; gap: 10px;">
+  </div>
 </div>
 
       <div style="opacity:.7;font-size:13px;margin-bottom:6px;">Current and Requested Update</div>
@@ -969,15 +971,15 @@ function prettyType(rawType) {
   return m[key] || rawType || 'General';
 }
 
-function openDetails(type, title, priority, content, imageUrl, category, location, rejectionReason) {
+function openDetails(type, title, priority, content, imageUrl, category, location, rejectionReason, additionalImages = []) {
   const modal = document.getElementById('detailsModal');
   modal.classList.add('active');
   document.body.classList.add('approval-modal-open');
 
-  document.getElementById('dTitle').textContent = title || '—';
-  document.getElementById('dContent').innerHTML = content || '—';
+  document.getElementById('dTitle').textContent = title || '-';
+  document.getElementById('dContent').innerHTML = content || '-';
 
-  // ✅ show badge ONLY for announcements
+  // ? show badge ONLY for announcements
   const badge = document.getElementById('dPriority');
   const rawType = String(type || '').toUpperCase();
   const isAnnouncement = rawType.startsWith('ANNOUNCEMENT_');
@@ -995,13 +997,12 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
         badge.textContent = 'Priority: ' + pr;
         badge.classList.add('priority-' + pr.toLowerCase());
       } else {
-        badge.textContent = 'Priority: —';
+        badge.textContent = 'Priority: MEDIUM';
         badge.classList.add('priority-medium');
       }
     }
   }
 
-  // ✅ category/location
   const meta = document.getElementById('dMeta');
   const cEl = document.getElementById('dCategory');
   const lEl = document.getElementById('dLocation');
@@ -1028,15 +1029,98 @@ function openDetails(type, title, priority, content, imageUrl, category, locatio
     }
   }
 
-  // ✅ image
+  // ✅ image(s)
   const wrap = document.getElementById('dImgWrap');
-  const img = document.getElementById('dImg');
-  if (imageUrl) {
-    img.src = imageUrl;
-    wrap.style.display = 'block';
-  } else {
-    img.src = '';
-    wrap.style.display = 'none';
+  const imgGrid = document.getElementById('dImgGrid');
+  if (imgGrid) {
+      imgGrid.innerHTML = '';
+  }
+
+  let imagesToDisplay = [];
+  if (imageUrl) imagesToDisplay.push(imageUrl);
+  if (Array.isArray(additionalImages)) {
+      additionalImages.forEach(src => {
+          if (src) imagesToDisplay.push(src);
+      });
+  }
+
+  let hasImages = imagesToDisplay.length > 0;
+
+  if (hasImages && imgGrid) {
+      if (imagesToDisplay.length === 1) {
+          const img = document.createElement('img');
+          img.src = imagesToDisplay[0];
+          img.alt = 'Uploaded image';
+          img.style.cssText = 'max-width:100%; max-height:400px; object-fit:contain; border-radius:12px; border:1px solid rgba(0,0,0,.08); display:block; margin:0 auto; background:#f8f6f2;';
+          imgGrid.appendChild(img);
+      } else {
+          // Multiple images carousel
+          let carouselHtml = '<div class="modal-carousel-container" style="position:relative; width:100%; height:400px; overflow:hidden; border-radius:12px; border:1px solid rgba(0,0,0,.08); background:#f8f6f2;">';
+          
+          imagesToDisplay.forEach((imgSrc, idx) => {
+              carouselHtml += `<img src="${imgSrc}" class="modal-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx+1}">`;
+          });
+
+          carouselHtml += `<button class="modal-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">&#10094;</button>`;
+          carouselHtml += `<button class="modal-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:36px; height:36px; border-radius:50%; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px;">&#10095;</button>`;
+          carouselHtml += '</div>';
+          
+          carouselHtml += '<div class="modal-carousel-indicators" style="display:flex; justify-content:center; gap:8px; margin-top:12px;">';
+          imagesToDisplay.forEach((_, idx) => {
+              carouselHtml += `<div class="modal-carousel-dot" data-idx="${idx}" style="width:10px; height:10px; border-radius:50%; background:${idx===0?'#800000':'#ddd'}; cursor:pointer; transition:background 0.2s;"></div>`;
+          });
+          carouselHtml += '</div>';
+
+          imgGrid.innerHTML = carouselHtml;
+
+          let currentSlide = 0;
+          const slides = imgGrid.querySelectorAll('.modal-carousel-slide');
+          const dots = imgGrid.querySelectorAll('.modal-carousel-dot');
+          const prevBtn = imgGrid.querySelector('.modal-carousel-prev');
+          const nextBtn = imgGrid.querySelector('.modal-carousel-next');
+
+          const updateSlide = (newIdx) => {
+              slides[currentSlide].style.opacity = '0';
+              slides[currentSlide].style.zIndex = '0';
+              if (dots[currentSlide]) dots[currentSlide].style.background = '#ddd';
+              
+              currentSlide = newIdx;
+              
+              slides[currentSlide].style.opacity = '1';
+              slides[currentSlide].style.zIndex = '1';
+              if (dots[currentSlide]) dots[currentSlide].style.background = '#800000';
+          };
+
+          if (prevBtn) {
+              prevBtn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  let newIdx = currentSlide === 0 ? slides.length - 1 : currentSlide - 1;
+                  updateSlide(newIdx);
+              });
+          }
+
+          if (nextBtn) {
+              nextBtn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  let newIdx = currentSlide === slides.length - 1 ? 0 : currentSlide + 1;
+                  updateSlide(newIdx);
+              });
+          }
+          
+          dots.forEach(dot => {
+              dot.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  updateSlide(parseInt(dot.getAttribute('data-idx')));
+              });
+          });
+      }
+  }
+
+  if (wrap) {
+      wrap.style.display = 'block';
+      if (!hasImages) {
+          imgGrid.innerHTML = '<div style="opacity:0.6; font-size:14px; padding: 10px 0; font-style: italic;">No image uploaded</div>';
+      }
   }
 }
 
