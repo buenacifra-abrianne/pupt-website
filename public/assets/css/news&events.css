@@ -239,7 +239,11 @@
   overflow: hidden;
   height: 100%;
   min-height: clamp(260px, 35vw, 420px);
-  background: #191919;
+  max-height: 550px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
 }
 
 .ne-featured.layout-landscape .ne-featured-img {
@@ -247,9 +251,6 @@
 }
 
 .ne-featured-img img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
@@ -635,15 +636,15 @@
   position: relative;
   height: 180px;
   overflow: hidden;
-  background: #191919;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: transparent;
 }
 .ne-card.layout-portrait .ne-card-img {
   height: 360px;
 }
 .ne-card-img img {
-  position: absolute;
-  top: 0;
-  left: 0;
   width: 100%;
   height: 100%;
   object-fit: contain;
