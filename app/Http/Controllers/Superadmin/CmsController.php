@@ -636,6 +636,24 @@ class CmsController extends Controller
                 }
             }
 
+            if ($sectionKey === '' || $sectionKey === 'awards-and-certificates') {
+                $awardUploads = data_get($request->file('about.sections', []), 'awards-and-certificates.awards', []);
+
+                if (is_array($awardUploads)) {
+                    foreach ($awardUploads as $index => $awardUpload) {
+                        $upload = is_array($awardUpload) ? ($awardUpload['image_file'] ?? null) : null;
+                        if (!$upload instanceof UploadedFile) {
+                            continue;
+                        }
+
+                        $storedPath = ImageStorage::store($upload, 'about/awards');
+                        if ($storedPath !== false) {
+                            $aboutInput['sections']['awards-and-certificates']['awards'][$index]['image'] = $storedPath;
+                        }
+                    }
+                }
+            }
+
             if ($sectionKey === '' || $sectionKey === 'logo-and-symbols') {
                 $sealUploads = data_get($request->file('about.sections', []), 'logo-and-symbols.seals', []);
 
@@ -1444,9 +1462,9 @@ class CmsController extends Controller
     private function studentsSectionKeysForPage(string $pageKey): array
     {
         return match ($pageKey) {
-            'admissions' => ['admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_qr_codes', 'admissions_links'],
-            'document-requests' => ['document_requests_hero', 'document_requests_qr_codes'],
-            'downloadable-forms' => ['downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links'],
+            'admissions' => ['admissions_page', 'admissions_hero', 'admissions_instructions', 'admissions_contact', 'admissions_contact_offices', 'admissions_contact_persons', 'admissions_qr_codes', 'admissions_links', 'admissions_form_links'],
+            'document-requests' => ['document_requests_hero', 'document_requests_qr_codes', 'document_requests_qr_codes_header', 'document_requests_qr_codes_items'],
+            'downloadable-forms' => ['downloadable_forms_page', 'downloadable_forms_hero', 'downloadable_forms_links', 'downloadable_forms_items'],
             default => [str_replace('-', '_', $pageKey).'_page'],
         };
     }
