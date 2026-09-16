@@ -556,6 +556,7 @@
                         <input id="{{ $admissionsInstructionsImageInputId }}" class="students-cms-image-dropzone-input" type="file" name="students[pages][admissions][instructions][image_file]" accept="image/*" data-students-image-field-id="{{ $admissionsInstructionsImageFieldId }}">
                     </div>
 
+                    <input type="hidden" name="students[pages][admissions][instructions][links][_dummy]" value="1">
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-instructions-links">
                         <div class="students-cms-repeatable-head">
                             <h4>Important Links</h4>
@@ -623,6 +624,7 @@
                         <textarea name="students[pages][admissions][contact][offices_description]" rows="2">{{ $admissionsContact['offices_description'] ?? ($admissionsContact['description'] ?? '') }}</textarea>
                     </div>
 
+                    <input type="hidden" name="students[pages][admissions][contact][offices][_dummy]" value="1">
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-offices">
                         <div class="students-cms-repeatable-head">
                             <h4>Contact Us Offices</h4>
@@ -685,6 +687,7 @@
                         <textarea name="students[pages][admissions][contact][persons_description]" rows="2">{{ $admissionsContact['persons_description'] ?? ($admissionsContact['description'] ?? '') }}</textarea>
                     </div>
 
+                    <input type="hidden" name="students[pages][admissions][contact][persons][_dummy]" value="1">
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-contact-persons">
                         <div class="students-cms-repeatable-head">
                             <h4>Contact Persons</h4>
@@ -803,6 +806,7 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
+                    <input type="hidden" name="students[pages][admissions][links][_dummy]" value="1">
                     <div class="students-cms-repeatable" data-students-repeatable="admissions-links">
                         <div class="students-cms-repeatable-head">
                             <h4>Application & Form Links</h4>
@@ -957,6 +961,7 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
+                    <input type="hidden" name="students[pages][document-requests][qr_codes][_dummy]" value="1">
                     <div class="students-cms-repeatable" data-students-repeatable="document-requests-qr">
                         <div class="students-cms-repeatable-head">
                             <h4>QR Codes</h4>
@@ -1168,6 +1173,7 @@
                         <input type="hidden" name="request_id" value="{{ $requestId }}">
                     @endif
 
+                    <input type="hidden" name="students[pages][downloadable-forms][links][_dummy]" value="1">
                     <div class="students-cms-repeatable" data-students-repeatable="forms-links">
                         <div class="students-cms-repeatable-head">
                             <h4>Downloadable Form Links</h4>
