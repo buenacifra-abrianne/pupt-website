@@ -870,12 +870,89 @@ document.addEventListener("DOMContentLoaded", () => {
       media.removeAttribute("hidden");
       card?.classList.add("has-media");
       
+      // Fullscreen viewer function
+      function openAdvisoryFullscreen(imgs, startIndex = 0) {
+        let overlay = document.getElementById('advisoryFullscreenOverlay');
+        if (!overlay) {
+           const div = document.createElement('div');
+           div.id = 'advisoryFullscreenOverlay';
+           div.innerHTML = `
+              <div style="position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.9); display:flex; flex-direction:column; align-items:center; justify-content:center; opacity:0; transition:opacity 0.3s ease; pointer-events:none;">
+                 <button class="advisory-fs-close" style="position:absolute; top:20px; right:20px; background:none; border:none; color:white; font-size:2.5rem; cursor:pointer; z-index:10001; line-height:1;">&times;</button>
+                 <button class="advisory-fs-prev" style="position:absolute; left:20px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.1); border:none; color:white; font-size:2rem; padding:10px 15px; border-radius:50%; cursor:pointer; z-index:10001;">&#10094;</button>
+                 <button class="advisory-fs-next" style="position:absolute; right:20px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.1); border:none; color:white; font-size:2rem; padding:10px 15px; border-radius:50%; cursor:pointer; z-index:10001;">&#10095;</button>
+                 <img id="advisoryFsImage" src="" style="max-width:90vw; max-height:90vh; object-fit:contain;">
+              </div>
+           `;
+           document.body.appendChild(div);
+           overlay = document.getElementById('advisoryFullscreenOverlay');
+           
+           const closeBtn = overlay.querySelector('.advisory-fs-close');
+           const nextBtn = overlay.querySelector('.advisory-fs-next');
+           const prevBtn = overlay.querySelector('.advisory-fs-prev');
+           
+           closeBtn.addEventListener('click', () => {
+               overlay.firstElementChild.style.opacity = '0';
+               overlay.firstElementChild.style.pointerEvents = 'none';
+           });
+           
+           nextBtn.addEventListener('click', () => {
+               let currentIndex = parseInt(overlay.dataset.currentIndex) || 0;
+               let imgsData = JSON.parse(overlay.dataset.images || '[]');
+               currentIndex = (currentIndex + 1) % imgsData.length;
+               overlay.dataset.currentIndex = currentIndex;
+               overlay.querySelector('#advisoryFsImage').src = imgsData[currentIndex];
+           });
+           
+           prevBtn.addEventListener('click', () => {
+               let currentIndex = parseInt(overlay.dataset.currentIndex) || 0;
+               let imgsData = JSON.parse(overlay.dataset.images || '[]');
+               currentIndex = (currentIndex - 1 + imgsData.length) % imgsData.length;
+               overlay.dataset.currentIndex = currentIndex;
+               overlay.querySelector('#advisoryFsImage').src = imgsData[currentIndex];
+           });
+        }
+        
+        const prevBtn = overlay.querySelector('.advisory-fs-prev');
+        const nextBtn = overlay.querySelector('.advisory-fs-next');
+        if (imgs.length <= 1) {
+           prevBtn.style.display = 'none';
+           nextBtn.style.display = 'none';
+        } else {
+           prevBtn.style.display = '';
+           nextBtn.style.display = '';
+        }
+        
+        overlay.dataset.images = JSON.stringify(imgs);
+        overlay.dataset.currentIndex = startIndex;
+        overlay.querySelector('#advisoryFsImage').src = imgs[startIndex];
+        
+        overlay.firstElementChild.style.opacity = '1';
+        overlay.firstElementChild.style.pointerEvents = 'auto';
+      }
+
+      const expandBtnHtml = `
+        <button type="button" class="advisory-modal-expand" title="View full screen" aria-label="View full screen" style="position:absolute; top:20px; left:20px; z-index:20; background:rgba(255,255,255,0.9); border:none; border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; color:#7b1113; box-shadow:0 2px 8px rgba(0,0,0,0.15); transition:transform 0.2s ease;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:20px;height:20px;"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
+        </button>
+      `;
+
       if (allImages.length === 1) {
-         media.innerHTML = `<img src="${allImages[0]}" alt="${decodeEscapedHtml(trigger.dataset.title || 'News image')}" id="advisoryModalImage" style="width:100%;height:100%;object-fit:cover;">`;
+         media.innerHTML = `
+           <div style="position:relative; width:100%; height:100%; padding:24px; box-sizing:border-box;">
+             ${expandBtnHtml}
+             <img src="${allImages[0]}" alt="${decodeEscapedHtml(trigger.dataset.title || 'News image')}" id="advisoryModalImage" style="width:100%;height:100%;object-fit:contain;background:transparent;">
+           </div>
+         `;
+         media.querySelector('.advisory-modal-expand').addEventListener('click', (e) => {
+             e.preventDefault();
+             openAdvisoryFullscreen(allImages, 0);
+         });
       } else {
-         let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
+         let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden; padding:24px; box-sizing:border-box;">';
+         carouselHtml += expandBtnHtml;
          allImages.forEach((img, idx) => {
-             carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+             carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:24px; left:24px; width:calc(100% - 48px); height:calc(100% - 48px); object-fit:contain; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
          });
          carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
          carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
@@ -902,6 +979,11 @@ document.addEventListener("DOMContentLoaded", () => {
              e.preventDefault();
              currentSlide = (currentSlide < slides.length - 1) ? currentSlide + 1 : 0;
              updateCarousel();
+         });
+
+         media.querySelector('.advisory-modal-expand').addEventListener('click', (e) => {
+             e.preventDefault();
+             openAdvisoryFullscreen(allImages, currentSlide);
          });
       }
     } else if (media) {
