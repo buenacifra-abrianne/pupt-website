@@ -2001,13 +2001,13 @@
         gap: 0;
     }
 
-    .students-cms-editor-panel.is-card-focus [data-students-org-editor-head],
-    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-head {
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) [data-students-org-editor-head],
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) .students-cms-repeatable-head {
         display: none;
     }
 
-    .students-cms-editor-panel.is-card-focus .students-cms-card-editor:not(.is-active),
-    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-item:not(.is-active) {
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) .students-cms-card-editor:not(.is-active),
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) .students-cms-repeatable-item:not(.is-active) {
         display: none;
     }
 
