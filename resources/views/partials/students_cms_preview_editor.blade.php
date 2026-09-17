@@ -2126,6 +2126,9 @@
         };
 
         const syncEditorsInScope = (scope) => {
+            if (typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(scope);
+            }
             if (typeof window.syncRichTextEditors === 'function') {
                 window.syncRichTextEditors(scope);
             }

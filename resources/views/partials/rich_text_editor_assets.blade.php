@@ -1218,7 +1218,10 @@ body.pup-dark-mode .priority-medium {
         root.__richEditorSavedRange = null;
         root.__richEditorCurrentFontSize = '14px';
 
-        surface.innerHTML = input.value || '';
+        const currentHtml = (surface.innerHTML || '').trim();
+        if (currentHtml === '' || currentHtml === '<br>' || currentHtml === '<p><br></p>') {
+            surface.innerHTML = input.value || '';
+        }
 
         root.querySelectorAll('.rich-editor-btn').forEach((button) => {
             button.addEventListener('mousedown', (event) => {
