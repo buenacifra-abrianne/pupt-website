@@ -639,12 +639,12 @@
                                             <input type="text" name="students[pages][admissions][contact][offices][{{ $index }}][label]" maxlength="255" value="{{ $item['label'] ?? '' }}">
                                         </div>
                                         <div class="form-group">
-                                            <label>Contact Number</label>
+                                            <label>Contact Info</label>
                                             <input type="text" name="students[pages][admissions][contact][offices][{{ $index }}][value]" maxlength="255" value="{{ $item['value'] ?? '' }}">
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <label>Phone Link</label>
+                                        <label>Link (tel: or mailto:)</label>
                                         <input type="text" name="students[pages][admissions][contact][offices][{{ $index }}][href]" maxlength="255" value="{{ $item['href'] ?? '' }}">
                                     </div>
                                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Office</button>
@@ -2001,13 +2001,13 @@
         gap: 0;
     }
 
-    .students-cms-editor-panel.is-card-focus [data-students-org-editor-head],
-    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-head {
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) [data-students-org-editor-head],
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) .students-cms-repeatable-head {
         display: none;
     }
 
-    .students-cms-editor-panel.is-card-focus .students-cms-card-editor:not(.is-active),
-    .students-cms-editor-panel.is-card-focus .students-cms-repeatable-item:not(.is-active) {
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) .students-cms-card-editor:not(.is-active),
+    .students-cms-editor-panel.is-card-focus:not([data-students-editor-panel="admissions_contact_persons"]) .students-cms-repeatable-item:not(.is-active) {
         display: none;
     }
 
@@ -2126,6 +2126,9 @@
         };
 
         const syncEditorsInScope = (scope) => {
+            if (typeof window.initializeRichTextEditors === 'function') {
+                window.initializeRichTextEditors(scope);
+            }
             if (typeof window.syncRichTextEditors === 'function') {
                 window.syncRichTextEditors(scope);
             }
@@ -3466,12 +3469,12 @@
                             <input type="text" name="students[pages][admissions][contact][offices][${index}][label]" maxlength="255" value="">
                         </div>
                         <div class="form-group">
-                            <label>Contact Number</label>
+                            <label>Contact Info</label>
                             <input type="text" name="students[pages][admissions][contact][offices][${index}][value]" maxlength="255" value="">
                         </div>
                     </div>
                     <div class="form-group">
-                        <label>Phone Link</label>
+                        <label>Link (tel: or mailto:)</label>
                         <input type="text" name="students[pages][admissions][contact][offices][${index}][href]" maxlength="255" value="">
                     </div>
                     <button type="button" class="btn students-cms-delete-card" data-students-remove-repeatable>Remove Office</button>
