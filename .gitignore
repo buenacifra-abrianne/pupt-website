@@ -25,3 +25,10 @@ Thumbs.db
 
 # Local environment files, including credential-bearing templates
 .env.*
+
+# Local evaluator history and credentials
+/botpress_eval/report_history/
+/botpress_eval/credentials.json
+/botpress_eval/.pdf_cache.json
+__pycache__/
+.pytest_cache/

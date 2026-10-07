@@ -1,3 +1,4 @@
-deepeval
 requests
 python-dotenv
+pytest
+pypdf
