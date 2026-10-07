@@ -1,157 +1,75 @@
-Index,User Input,Bot Response,Relevancy Score (0-10),Relevancy Pass,Faithfulness Score (0-10),Faithfulness Pass
-0,whats the address,"The address of PUP Taguig Campus is: 
+Index,Conversation ID,Message ID,Created At,User Input,Bot Response,Evaluation Status,Relevancy Score (0-10),Relevancy Pass,Accuracy Score (0-10),Accuracy Pass,Faithfulness Score (0-10),Faithfulness Pass,Unsupported Answer,KB Answerable,Evidence Sources,TP,FN,FP,TN,Overall Pass,Evaluation Reason,Evaluator Model,Pass Threshold
+0,conv_01M47SBMMC507368TXRVWC8MXR,8718b882-2f41-404d-b46c-fabc0aa53788,2026-10-06T05:02:14.224Z,How do I check my PUPCET results?,"To check your PUPCET results for PUP Taguig: 
  
-**Gen. Santos Ave., Central Bicutan, Taguig City** 
+1. **Sign in to PUP iApply:** Go to [https://iapply.pup.edu.ph/signin](https://iapply.pup.edu.ph/signin) and log in with your applicant credentials. 
+2. On your Applicant's page, select **Check PUPCET Results**. 
+3. Alternatively, PUP Taguig also posts results on its admission site: [View Results](https://sites.google.com/view/puptaguig-admission/home). 
  
-If you need directions, yo",9,PASS,N/A,N/A
-1,"sorry i cant understand english, can you reply in chinese mandarin",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
-2,what is the latest campus updates news and announcements,"Here are the latest PUP Taguig campus updates, news, and announcements: 
+If you have any concerns, you may also visit the PUP SINTA help desk: [https://pupsinta.freshservice.com/support/home](https://pupsinta.freshservice.com/support/home).",OK,10,PASS,9,PASS,9,PASS,NO,YES,"{""sources"": [""[1] Source: Enrollment-and-Admission.pdf; page: 2; passage: Enrollment-and-Admission.pdf:page:2""]}",1,0,0,0,PASS,,phi3:mini,7.0
+1,conv_01M47SBMMC507368TXRVWC8MXR,97bfcb1b-9b2c-43fa-865a-7b6730701f4c,2026-10-06T05:02:04.710Z,When is the application period?,"The PUPCET online application period for PUP Taguig usually opens in **January** and closes in **March**, with results released around **May**. Please note that exact dates may change each year, so it's best to check the [PUP iApply page](https://puptweb.isaxbsit2027.com/academics/pup-iapply) for the current schedule. ",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Enrollment-and-Admission.pdf; page: 2; passage: Enrollment-and-Admission.pdf:page:2""]}",1,0,0,0,PASS,,phi3:mini,7.0
+2,conv_01M47SBMMC507368TXRVWC8MXR,fd7b5b27-7276-40ba-a168-39ec61593279,2026-10-06T05:01:57.872Z,Can my parent apply for me?,"No, only the applicant can register and apply online for admission to PUP Taguig. Parents or others cannot apply on your behalf. You must personally complete the registration and application process through PUP iApply.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Enrollment-and-Admission.pdf; page: 1; passage: Enrollment-and-Admission.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+3,conv_01M47SBMMC507368TXRVWC8MXR,fba398e3-8303-40ad-ad86-1dce031f63e8,2026-10-06T05:01:48.460Z,What file size should my upload be?,Each file you upload must be in JPEG format (.jpg or .jpeg) and no larger than 300 KB in size.,OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Enrollment-and-Admission.pdf; page: 2; passage: Enrollment-and-Admission.pdf:page:2""]}",1,0,0,0,PASS,,phi3:mini,7.0
+4,conv_01M47SBMMC507368TXRVWC8MXR,22facf26-fd11-4f0d-98ef-ec14313074cd,2026-10-06T05:01:25.259Z,What is PUPCET?,"The PUPCET is the PUP College Entrance Test, which serves as the entrance examination for incoming freshmen at the Polytechnic University of the Philippines. Applicants must register for the PUPCET through the PUP iApply system.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Frequently-Asked-Questions.pdf; page: 4; passage: Frequently-Asked-Questions.pdf:page:4"", ""[2] Source: Enrollment-and-Admission.pdf; page: 4; passage: Enrollment-and-Admission.pdf:page:4"", ""[3] Source: Campus-Information.pdf; page: 4; passage: Campus-Information.pdf:page:4"", ""[4] Source: Student-Services.pdf; page: 2; passage: Student-Services.pdf:page:2"", ""[5] Source: Enrollment-and-Admission.pdf; page: 2; passage: Enrollment-and-Admission.pdf:page:2""]}",1,0,0,0,PASS,,phi3:mini,7.0
+5,conv_01M47SBMMC507368TXRVWC8MXR,cb3fe70c-d858-4c4c-9df8-2ebe47585b93,2026-10-06T05:01:19.239Z,How do I apply to PUP Taguig?,"To apply to PUP Taguig as a freshman, follow these steps: 
  
-- **President's Weekly Update:** Catch the la",9,PASS,N/A,N/A
-3,where did you get the information that theres an upcoming and ongoing events,The information about upcoming and ongoing events at PUP Taguig comes directly from the official PUP Taguig website and ,10,PASS,N/A,N/A
-4,what is the published news and announcement in the website,"Here are the published news and announcements available on the PUP Taguig website: 
+1. **Register and apply online** through PUP iApply: [https://iapply.pup.edu.ph/signin](https://iapply.pup.edu.ph/signin) 
+2. **Take the PUP College Entrance Test (PUPCET)** as part of the admission process. 
+3. The online application period usually opens in January and closes in March, with results released around May. Always check the [PUP iApply page](https://puptweb.isaxbsit2027.com/academics/pup-iapply) for the current schedule, as dates may change yearly. 
+4. For updates and result checking, sign in to PUP iApply or visit the PUP Taguig admission site: [https://sites.google.com/view/puptaguig-admission/home](https://sites.google.com/view/puptaguig-admission/home) 
  
-- You can stay updated with campus",9,PASS,N/A,N/A
-5,news and announcement not events,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
-6,what is the latest news and announcements in the home page,"Here are the latest news and announcements available on the PUP Taguig homepage: 
+For transferees, shiftees, and returning students, additional forms and requirements may apply. Please refer to the official PUP Taguig website for detailed instructions. 
  
-- You can keep up to date with the l",8,PASS,N/A,N/A
-7,list the news and announcements,"Here are the latest news and announcements available on the PUP Taguig website: 
+Good luck with your application!",OK,9,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Enrollment-and-Admission.pdf; page: 1; passage: Enrollment-and-Admission.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+6,conv_01M47SBMMC507368TXRVWC8MXR,b11650cc-a947-4edb-a803-fa7359459aa9,2026-10-06T05:01:11.091Z,What organizations can I join?,"Here are the student organizations you can join at PUP Taguig: 
  
-- **Campus Update:** Check out the la",8,PASS,N/A,N/A
-8,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
+**Academic Organizations:** 
+- Association of Electronics Engineering Students (PUPT-AECES) 
+- Computer Society (PUPT-CS) 
+- Junior Marketing Association (PUPT-JMA) 
+- Psychological Association of the Philippines Student Unit (PUPT-PAPSU) 
+- Junior People Management Association of the Philippines (PUPT-JPMAP) 
+- Mentor's Society (PUPT-MS) 
+- Philippine Association of Students in Office Administration (PUPT-PASOA) 
+- Philippine Society of Mechanical Engineers (PUPTSU-PSME) 
  
-**News** 
-- *Protect Yourself from Haze!* 
-  Date: September 16, 20",9,PASS,N/A,N/A
-9,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
+**Non-Academic Organizations:** 
+- Emergency Response Group (PUPT ERG) 
+- iROCK Campus 
+- PUPUKAW (Politeknikong Unibersidad ng Pilipinas Ugat ng Kamalayang Aktibo sa Wika) 
+- PUP-REC 
  
-1. **Protect Yourself from Haze!** 
-   Date: September 16, 2026 
-  ",9,PASS,N/A,N/A
-10,what is the latest news,"For the latest news and updates about PUP Taguig, you can check out the official campus events and announcements page he",9,PASS,N/A,N/A
-11,what are the systems of PUP Taguig from One Portal IDP?,The One Portal provides access to all systems within the PUP-Taguig Campus. You can visit the portal here: [One Portal](,8,PASS,N/A,N/A
-12,can you list all the systems that only students can access within the One Portal?,"Here are some of the systems that students can access within the One Portal of PUP Taguig: 
+You can find more details and contact links for each organization on the [Students page](https://puptweb.isaxbsit2027.com/students).",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Student-Services.pdf; page: 4; passage: Student-Services.pdf:page:4"", ""[2] Source: Student-Services.pdf; page: 3; passage: Student-Services.pdf:page:3"", ""[3] Source: Student-Services.pdf; page: 2; passage: Student-Services.pdf:page:2"", ""[4] Source: Academic-Programs.pdf; page: 2; passage: Academic-Programs.pdf:page:2"", ""[5] Source: Student-Services.pdf; page: 1; passage: Student-Services.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+7,conv_01M47SBMMC507368TXRVWC8MXR,08240f83-62cf-4a6b-af70-3cdd72178ce5,2026-10-06T05:00:55.906Z,How do I reserve a venue?,"To reserve a venue at PUP Taguig, follow these steps: 
  
-- **PUP Student Portal**: ",9,PASS,N/A,N/A
-13,what is the latest news today,"For the latest news and updates about PUP Taguig, please visit the official campus announcements and events page: [PUPT ",8,PASS,N/A,N/A
-14,give me the list of news ,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
-15,what is the latest news and announcement from the website,Sure! Redirecting you to the requested page.,1,FAIL,N/A,N/A
-16,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
-17,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
-18,what is the latest news ,The latest news and updates for PUP Taguig can be found on the official campus website's announcements and events pages.,8,PASS,N/A,N/A
-19,what is the latest news in this month,"Here are the latest news and announcements for PUP Taguig this month: 
+- For academic activities (such as seminars, workshops, presentations, or educational events), use the **Venue Request Form for Academic-Related Activities**. 
+- For student organization activities and events, use the **Venue Request Form for Organizational Activities**. 
+- If you need to reserve university equipment or facilities, use the **Property Reservation Form**. 
  
-- The Polytechnic University of the Philippines",9,PASS,N/A,N/A
-20,what is the news and announcement this month,"Here are the latest news and announcements for PUP Taguig this month: 
+All these forms can be downloaded from the [Downloadable Forms page](https://puptweb.isaxbsit2027.com/students/downloadable-forms). 
  
-- The Polytechnic University of the Philippines",10,PASS,N/A,N/A
-21,news in september 16,"On September 16, 2026, PUP Taguig released a news update titled **""Protect Yourself from Haze!""** as part of their campu",8,PASS,N/A,N/A
-22,what are the campus facilities in PUP Taguig,"PUP Taguig Campus provides various facilities to support student life, academics, and campus activities. These include a",8,PASS,N/A,N/A
-23,whos the campus director?,The Campus Director of PUP Taguig is Dr. Rhyan V. Molinar.,8,PASS,N/A,N/A
-24,Yow,Hello! Welcome to PUP-T. How can I help you today?,1,FAIL,N/A,N/A
-25,What else can u do? ,"I can help you with information about admissions, academic programs, schedules, announcements, campus details, and navig",8,PASS,N/A,N/A
-26,How about announcements ,"You can view the latest announcements and updates for PUP-T by visiting the official announcements and events pages: 
+Be sure to include the purpose of your reservation and any required supporting documents when submitting your form.",OK,9,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Student-Services.pdf; page: 1; passage: Student-Services.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+8,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,29439d14-abaa-4687-8ab5-3c3db4592317,2026-10-06T04:54:44.198Z,Where can I find the Student Handbook?,"You can find the PUP Taguig Student Handbook here: 
+[Student Handbook (PDF)](https://drive.google.com/file/d/0B1BuDAuN0r8SX1BWX2NSN3FURzg/view?resourcekey=0oi8lUy9PCFysh0FDyL5ipw) 
  
-",9,PASS,N/A,N/A
-27,How about something u can't easily navigate in this website? ,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
-28,what is the purpose of pupt connect?,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
-29,what is research and extension,"Research and Extension at PUP Taguig focus on promoting knowledge creation, innovation, and national development through",8,PASS,N/A,N/A
-30,which part shows the academic student organization?,You can find information about academic student organizations under the Student Services section of the PUP-T website. T,8,PASS,N/A,N/A
-31,address,"The address of PUP Taguig Campus is: 
+If you need more student resources, you can also visit the [Students page](https://puptweb.isaxbsit2027.com/students).",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Systems-and-Quick-Links.pdf; page: 2; passage: Systems-and-Quick-Links.pdf:page:2""]}",1,0,0,0,PASS,,phi3:mini,7.0
+9,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,fbddc2ae-61db-40f4-9d2e-e097a8de3712,2026-10-06T04:54:32.803Z,Is there a dental check-up for freshmen?,"Yes, there is a **Mandatory Oral Check-Up for Freshmen** at PUP Taguig. The check-up is held at the PUP Taguig Dental Clinic. Members of the Dental Management System will coordinate with each program, and schedules and booking details are shared through 1st Year Class Presidents. Please wait for further instructions from your class president regarding your schedule.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Frequently-Asked-Questions.pdf; page: 5; passage: Frequently-Asked-Questions.pdf:page:5""]}",1,0,0,0,PASS,,phi3:mini,7.0
+10,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,52de5521-c89a-4cc5-89d6-871dd57fc05b,2026-10-06T04:54:24.829Z,Where is the clinic?,The Medical Clinic at PUP Taguig is located in **Building A** on campus.,OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Campus-Information.pdf; page: 5; passage: Campus-Information.pdf:page:5"", ""[2] Source: Student-Services.pdf; page: 2; passage: Student-Services.pdf:page:2""]}",1,0,0,0,PASS,,phi3:mini,7.0
+11,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,66f24acf-128e-47fa-b3db-808f1cdbed6e,2026-10-06T04:53:22.714Z,How do I get a Good Moral Certificate?,"To get a Good Moral Certificate at PUP Taguig, use the SERV-Isko QR code found on the Document Requests page: [https://puptweb.isaxbsit2027.com/students/document-requests](https://puptweb.isaxbsit2027.com/students/document-requests). All requests are processed online through this system.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Student-Services.pdf; page: 1; passage: Student-Services.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+12,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,61b14e22-ad7c-4d19-9c58-52768e29e302,2026-10-06T04:53:15.658Z,How do I request my documents?,"To request your academic documents at PUP Taguig, scan the PUP-T Registrar Information System QR code found on the Document Requests page: [https://puptweb.isaxbsit2027.com/students/document-requests](https://puptweb.isaxbsit2027.com/students/document-requests). For a Good Moral Certificate, use the SERV-Isko QR code on the same page. All requests are processed online through these systems.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Student-Services.pdf; page: 1; passage: Student-Services.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+13,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,6565c586-128a-48ae-bf76-6e1b105b491d,2026-10-06T04:53:05.051Z,Are there options for working students?,"Yes, there are options for working students at PUP. The university offers programs that adapt to students' living conditions, especially for the working class. This includes the Open University and distance learning programs, which go beyond the physical restrictions of a campus.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Academic-Programs.pdf; page: 4; passage: Academic-Programs.pdf:page:4""]}",1,0,0,0,PASS,,phi3:mini,7.0
+14,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,cb39a65b-fd5a-4e92-ba2b-9e56f32872ba,2026-10-06T04:52:55.360Z,When does the first semester start?,"The first semester at PUP Taguig usually starts in **August** and ends in **December**. For the exact start date each year, please check the official academic calendar: [https://www.pup.edu.ph/about/calendar](https://www.pup.edu.ph/about/calendar).",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Frequently-Asked-Questions.pdf; page: 5; passage: Frequently-Asked-Questions.pdf:page:5""]}",1,0,0,0,PASS,,phi3:mini,7.0
+15,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,184ee958-fc02-4695-a9ec-33af268a0352,2026-10-06T04:52:47.501Z,Is there a psychology course?,"Yes, PUP Taguig offers a **Bachelor of Science in Psychology (BSPSY)** as one of its bachelor's degree programs.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Academic-Programs.pdf; page: 1; passage: Academic-Programs.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+16,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,791bdf74-a49f-41d7-870b-7ad0dede36ca,2026-10-06T04:52:39.966Z,Is BSIT accredited?,"Yes, the **BS in Information Technology (BSIT)** program at PUP Taguig is accredited. It holds **AACCUP Accreditation Level 3**, which means it has met high standards set by the Accrediting Agency of Chartered Colleges and Universities in the Philippines (AACCUP).",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Academic-Programs.pdf; page: 1; passage: Academic-Programs.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+17,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,c278fcb3-262f-40cf-adf9-fef5fa0c079c,2026-10-06T04:52:33.021Z,Do you offer a teaching course?,"Yes, PUP Taguig offers teaching courses under its bachelor's degree programs: 
  
-**41 General Santos Ave, Lower Bicutan, Taguig, Metro Manila** 
-[View on Google ",10,PASS,N/A,N/A
-32,i need more details on specific software or equipment,"For the Bachelor of Science in Computer Engineering, students typically use a combination of software and equipment such",9,PASS,N/A,N/A
-33,"here: fiberglass
-
-i need information on this",Fiberglass is a material made from fine strands of glass that are woven together and combined with resin to form a stron,8,PASS,N/A,N/A
-34,"ohh see, how is it made of?","Fiberglass is made from fine strands of glass that are woven together and combined with resin to form a strong, lightwei",8,PASS,N/A,N/A
-35,"hmm i see, now i'm feeling hungry, can u suggest a food that i can eat that i can place on my fiberglass?",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
-36,"okay, let's go back on the fiber glass, can you tell me more how is it made?","Fiberglass is made by weaving fine strands of glass together and combining them with resin to create a strong, lightweig",8,PASS,N/A,N/A
-37,can you give me an example of its byproducts?,Some byproducts related to fiberglass include support structures from manufacturing that can be shredded and recycled in,8,PASS,N/A,N/A
-38,let's discuss about photochemicals,"Phytochemicals are beneficial plant compounds found in fruits and vegetables, often known for their anti-inflammatory pr",1,FAIL,N/A,N/A
-39,what fruits?,"Many fruits contain phytochemicals, which are beneficial plant compounds. Examples include apples, berries, blueberries,",5,PASS,N/A,N/A
-40,do banana have it?,"Yes, bananas contain phytochemicals, including antioxidants and other beneficial plant compounds that support health.",1,FAIL,N/A,N/A
-41,"speaking of banana, can you tell me how to make turon?","Here's how to make turon: 
+- **Bachelor of Secondary Education (BSED) Major in English** 
+- **Bachelor of Secondary Education (BSED) Major in Mathematics** 
  
-1. Prepare the filling by mixing sliced bananas (preferably saba variety) and jackfruit (if",9,PASS,N/A,N/A
-42,I want to get a copy of my certification of registration. where and how?,You can request a copy of your Certification of Registration online through the Polytechnic University of the Philippine,8,PASS,N/A,N/A
-0,whats the address,"The address of PUP Taguig Campus is: 
+These programs prepare students for a career in teaching at the secondary level. If you need more details about these programs, let me know!",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Academic-Programs.pdf; page: 1; passage: Academic-Programs.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+18,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,302214e3-a682-49f9-ae02-439e20cadf89,2026-10-06T04:52:24.795Z,What engineering programs are available?,"PUP Taguig offers the following engineering programs: 
  
-**Gen. Santos Ave., Central Bicutan, Taguig City** 
+- **BS in Electronics Engineering (BSECE)** 
+- **BS in Mechanical Engineering (BSME)** 
  
-If you need directions, yo",9,PASS,N/A,N/A
-1,"sorry i cant understand english, can you reply in chinese mandarin",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
-2,what is the latest campus updates news and announcements,"Here are the latest PUP Taguig campus updates, news, and announcements: 
- 
-- **President's Weekly Update:** Catch the la",9,PASS,N/A,N/A
-3,where did you get the information that theres an upcoming and ongoing events,The information about upcoming and ongoing events at PUP Taguig comes directly from the official PUP Taguig website and ,10,PASS,N/A,N/A
-4,what is the published news and announcement in the website,"Here are the published news and announcements available on the PUP Taguig website: 
- 
-- You can stay updated with campus",9,PASS,N/A,N/A
-5,news and announcement not events,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
-6,what is the latest news and announcements in the home page,"Here are the latest news and announcements available on the PUP Taguig homepage: 
- 
-- You can keep up to date with the l",8,PASS,N/A,N/A
-7,list the news and announcements,"Here are the latest news and announcements available on the PUP Taguig website: 
- 
-- **Campus Update:** Check out the la",8,PASS,N/A,N/A
-8,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
- 
-**News** 
-- *Protect Yourself from Haze!* 
-  Date: September 16, 20",9,PASS,N/A,N/A
-9,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
- 
-1. **Protect Yourself from Haze!** 
-   Date: September 16, 2026 
-  ",9,PASS,N/A,N/A
-10,what is the latest news,"For the latest news and updates about PUP Taguig, you can check out the official campus events and announcements page he",9,PASS,N/A,N/A
-11,what are the systems of PUP Taguig from One Portal IDP?,The One Portal provides access to all systems within the PUP-Taguig Campus. You can visit the portal here: [One Portal](,8,PASS,N/A,N/A
-12,can you list all the systems that only students can access within the One Portal?,"Here are some of the systems that students can access within the One Portal of PUP Taguig: 
- 
-- **PUP Student Portal**: ",9,PASS,N/A,N/A
-13,what is the latest news today,"For the latest news and updates about PUP Taguig, please visit the official campus announcements and events page: [PUPT ",8,PASS,N/A,N/A
-14,give me the list of news ,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
-15,what is the latest news and announcement from the website,Sure! Redirecting you to the requested page.,1,FAIL,N/A,N/A
-16,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
-17,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
-18,what is the latest news ,The latest news and updates for PUP Taguig can be found on the official campus website's announcements and events pages.,8,PASS,N/A,N/A
-19,what is the latest news in this month,"Here are the latest news and announcements for PUP Taguig this month: 
- 
-- The Polytechnic University of the Philippines",9,PASS,N/A,N/A
-20,what is the news and announcement this month,"Here are the latest news and announcements for PUP Taguig this month: 
- 
-- The Polytechnic University of the Philippines",10,PASS,N/A,N/A
-21,news in september 16,"On September 16, 2026, PUP Taguig released a news update titled **""Protect Yourself from Haze!""** as part of their campu",8,PASS,N/A,N/A
-22,what are the campus facilities in PUP Taguig,"PUP Taguig Campus provides various facilities to support student life, academics, and campus activities. These include a",8,PASS,N/A,N/A
-23,whos the campus director?,The Campus Director of PUP Taguig is Dr. Rhyan V. Molinar.,8,PASS,N/A,N/A
-24,Yow,Hello! Welcome to PUP-T. How can I help you today?,1,FAIL,N/A,N/A
-25,What else can u do? ,"I can help you with information about admissions, academic programs, schedules, announcements, campus details, and navig",8,PASS,N/A,N/A
-26,How about announcements ,"You can view the latest announcements and updates for PUP-T by visiting the official announcements and events pages: 
- 
-",9,PASS,N/A,N/A
-27,How about something u can't easily navigate in this website? ,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
-28,what is the purpose of pupt connect?,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
-29,what is research and extension,"Research and Extension at PUP Taguig focus on promoting knowledge creation, innovation, and national development through",8,PASS,N/A,N/A
-30,which part shows the academic student organization?,You can find information about academic student organizations under the Student Services section of the PUP-T website. T,8,PASS,N/A,N/A
-31,address,"The address of PUP Taguig Campus is: 
- 
-**41 General Santos Ave, Lower Bicutan, Taguig, Metro Manila** 
-[View on Google ",10,PASS,N/A,N/A
-32,i need more details on specific software or equipment,"For the Bachelor of Science in Computer Engineering, students typically use a combination of software and equipment such",9,PASS,N/A,N/A
-33,"here: fiberglass
-
-i need information on this",Fiberglass is a material made from fine strands of glass that are woven together and combined with resin to form a stron,8,PASS,N/A,N/A
-34,"ohh see, how is it made of?","Fiberglass is made from fine strands of glass that are woven together and combined with resin to form a strong, lightwei",8,PASS,N/A,N/A
-35,"hmm i see, now i'm feeling hungry, can u suggest a food that i can eat that i can place on my fiberglass?",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
-36,"okay, let's go back on the fiber glass, can you tell me more how is it made?","Fiberglass is made by weaving fine strands of glass together and combining them with resin to create a strong, lightweig",8,PASS,N/A,N/A
-37,can you give me an example of its byproducts?,Some byproducts related to fiberglass include support structures from manufacturing that can be shredded and recycled in,8,PASS,N/A,N/A
-38,let's discuss about photochemicals,"Phytochemicals are beneficial plant compounds found in fruits and vegetables, often known for their anti-inflammatory pr",1,FAIL,N/A,N/A
-39,what fruits?,"Many fruits contain phytochemicals, which are beneficial plant compounds. Examples include apples, berries, blueberries,",5,PASS,N/A,N/A
-40,do banana have it?,"Yes, bananas contain phytochemicals, including antioxidants and other beneficial plant compounds that support health.",1,FAIL,N/A,N/A
-41,"speaking of banana, can you tell me how to make turon?","Here's how to make turon: 
- 
-1. Prepare the filling by mixing sliced bananas (preferably saba variety) and jackfruit (if",9,PASS,N/A,N/A
-42,I want to get a copy of my certification of registration. where and how?,You can request a copy of your Certification of Registration online through the Polytechnic University of the Philippine,8,PASS,N/A,N/A
+These programs are part of the bachelor's degree offerings at PUP Taguig.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Academic-Programs.pdf; page: 1; passage: Academic-Programs.pdf:page:1""]}",1,0,0,0,PASS,,phi3:mini,7.0
+19,conv_01M47RG4CNG5T1YSSDE3K3BV4Q,df7067b7-e1f2-4a45-b9fe-361a0a3ab43b,2026-10-06T04:52:10.541Z,Is tuition free at PUP?,"Yes, tuition is free at PUP for qualified students. As a state university, PUP is covered by Republic Act No. 10931 (Universal Access to Quality Tertiary Education Act), which provides free tuition and miscellaneous fees for qualified Filipino students in undergraduate programs.",OK,10,PASS,10,PASS,10,PASS,NO,YES,"{""sources"": [""[1] Source: Academic-Programs.pdf; page: 4; passage: Academic-Programs.pdf:page:4""]}",1,0,0,0,PASS,,phi3:mini,7.0
