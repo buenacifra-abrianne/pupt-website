@@ -1,0 +1,104 @@
+=== F1 METRIC SUMMARY ===
+Metric,Value
+Total Test Cases,86
+True Positives (TP),74
+False Negatives (FN),12
+False Positives (FP),0
+Precision,1.0
+Recall,0.8605
+F1 Score,0.925
+Pass Rate (%),86.0
+Avg Relevancy (0-10),6.86
+
+=== PER-CASE BREAKDOWN ===
+Index,User Input,Relevancy Score,Pass/Fail,TP,FN
+0,whats the address,9.0,PASS,1,0
+1,"sorry i cant understand english, can you reply in chinese mandarin",1.0,FAIL,0,1
+2,what is the latest campus updates news and announcements,9.0,PASS,1,0
+3,where did you get the information that theres an upcoming and ongoing events,10.0,PASS,1,0
+4,what is the published news and announcement in the website,9.0,PASS,1,0
+5,news and announcement not events,5.0,PASS,1,0
+6,what is the latest news and announcements in the home page,8.0,PASS,1,0
+7,list the news and announcements,8.0,PASS,1,0
+8,what is the latest news and announcement,9.0,PASS,1,0
+9,what is the latest news and announcement,9.0,PASS,1,0
+10,what is the latest news,9.0,PASS,1,0
+11,what are the systems of PUP Taguig from One Portal IDP?,8.0,PASS,1,0
+12,can you list all the systems that only students can access within the One Portal,9.0,PASS,1,0
+13,what is the latest news today,8.0,PASS,1,0
+14,give me the list of news ,4.0,PASS,1,0
+15,what is the latest news and announcement from the website,1.0,FAIL,0,1
+16,what is the latest news and announcement,4.0,PASS,1,0
+17,what is the latest news and announcement,4.0,PASS,1,0
+18,what is the latest news ,8.0,PASS,1,0
+19,what is the latest news in this month,9.0,PASS,1,0
+20,what is the news and announcement this month,10.0,PASS,1,0
+21,news in september 16,8.0,PASS,1,0
+22,what are the campus facilities in PUP Taguig,8.0,PASS,1,0
+23,whos the campus director?,8.0,PASS,1,0
+24,Yow,1.0,FAIL,0,1
+25,What else can u do? ,8.0,PASS,1,0
+26,How about announcements ,9.0,PASS,1,0
+27,How about something u can't easily navigate in this website? ,5.0,PASS,1,0
+28,what is the purpose of pupt connect?,5.0,PASS,1,0
+29,what is research and extension,8.0,PASS,1,0
+30,which part shows the academic student organization?,8.0,PASS,1,0
+31,address,10.0,PASS,1,0
+32,i need more details on specific software or equipment,9.0,PASS,1,0
+33,"here: fiberglass
+
+i need information on this",8.0,PASS,1,0
+34,"ohh see, how is it made of?",8.0,PASS,1,0
+35,"hmm i see, now i'm feeling hungry, can u suggest a food that i can eat that i ca",1.0,FAIL,0,1
+36,"okay, let's go back on the fiber glass, can you tell me more how is it made?",8.0,PASS,1,0
+37,can you give me an example of its byproducts?,8.0,PASS,1,0
+38,let's discuss about photochemicals,1.0,FAIL,0,1
+39,what fruits?,5.0,PASS,1,0
+40,do banana have it?,1.0,FAIL,0,1
+41,"speaking of banana, can you tell me how to make turon?",9.0,PASS,1,0
+42,I want to get a copy of my certification of registration. where and how?,8.0,PASS,1,0
+0,whats the address,9.0,PASS,1,0
+1,"sorry i cant understand english, can you reply in chinese mandarin",1.0,FAIL,0,1
+2,what is the latest campus updates news and announcements,9.0,PASS,1,0
+3,where did you get the information that theres an upcoming and ongoing events,10.0,PASS,1,0
+4,what is the published news and announcement in the website,9.0,PASS,1,0
+5,news and announcement not events,5.0,PASS,1,0
+6,what is the latest news and announcements in the home page,8.0,PASS,1,0
+7,list the news and announcements,8.0,PASS,1,0
+8,what is the latest news and announcement,9.0,PASS,1,0
+9,what is the latest news and announcement,9.0,PASS,1,0
+10,what is the latest news,9.0,PASS,1,0
+11,what are the systems of PUP Taguig from One Portal IDP?,8.0,PASS,1,0
+12,can you list all the systems that only students can access within the One Portal,9.0,PASS,1,0
+13,what is the latest news today,8.0,PASS,1,0
+14,give me the list of news ,4.0,PASS,1,0
+15,what is the latest news and announcement from the website,1.0,FAIL,0,1
+16,what is the latest news and announcement,4.0,PASS,1,0
+17,what is the latest news and announcement,4.0,PASS,1,0
+18,what is the latest news ,8.0,PASS,1,0
+19,what is the latest news in this month,9.0,PASS,1,0
+20,what is the news and announcement this month,10.0,PASS,1,0
+21,news in september 16,8.0,PASS,1,0
+22,what are the campus facilities in PUP Taguig,8.0,PASS,1,0
+23,whos the campus director?,8.0,PASS,1,0
+24,Yow,1.0,FAIL,0,1
+25,What else can u do? ,8.0,PASS,1,0
+26,How about announcements ,9.0,PASS,1,0
+27,How about something u can't easily navigate in this website? ,5.0,PASS,1,0
+28,what is the purpose of pupt connect?,5.0,PASS,1,0
+29,what is research and extension,8.0,PASS,1,0
+30,which part shows the academic student organization?,8.0,PASS,1,0
+31,address,10.0,PASS,1,0
+32,i need more details on specific software or equipment,9.0,PASS,1,0
+33,"here: fiberglass
+
+i need information on this",8.0,PASS,1,0
+34,"ohh see, how is it made of?",8.0,PASS,1,0
+35,"hmm i see, now i'm feeling hungry, can u suggest a food that i can eat that i ca",1.0,FAIL,0,1
+36,"okay, let's go back on the fiber glass, can you tell me more how is it made?",8.0,PASS,1,0
+37,can you give me an example of its byproducts?,8.0,PASS,1,0
+38,let's discuss about photochemicals,1.0,FAIL,0,1
+39,what fruits?,5.0,PASS,1,0
+40,do banana have it?,1.0,FAIL,0,1
+41,"speaking of banana, can you tell me how to make turon?",9.0,PASS,1,0
+42,I want to get a copy of my certification of registration. where and how?,8.0,PASS,1,0

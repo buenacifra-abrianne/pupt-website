@@ -1,0 +1,157 @@
+Index,User Input,Bot Response,Relevancy Score (0-10),Relevancy Pass,Faithfulness Score (0-10),Faithfulness Pass
+0,whats the address,"The address of PUP Taguig Campus is: 
+ 
+**Gen. Santos Ave., Central Bicutan, Taguig City** 
+ 
+If you need directions, yo",9,PASS,N/A,N/A
+1,"sorry i cant understand english, can you reply in chinese mandarin",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
+2,what is the latest campus updates news and announcements,"Here are the latest PUP Taguig campus updates, news, and announcements: 
+ 
+- **President's Weekly Update:** Catch the la",9,PASS,N/A,N/A
+3,where did you get the information that theres an upcoming and ongoing events,The information about upcoming and ongoing events at PUP Taguig comes directly from the official PUP Taguig website and ,10,PASS,N/A,N/A
+4,what is the published news and announcement in the website,"Here are the published news and announcements available on the PUP Taguig website: 
+ 
+- You can stay updated with campus",9,PASS,N/A,N/A
+5,news and announcement not events,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
+6,what is the latest news and announcements in the home page,"Here are the latest news and announcements available on the PUP Taguig homepage: 
+ 
+- You can keep up to date with the l",8,PASS,N/A,N/A
+7,list the news and announcements,"Here are the latest news and announcements available on the PUP Taguig website: 
+ 
+- **Campus Update:** Check out the la",8,PASS,N/A,N/A
+8,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
+ 
+**News** 
+- *Protect Yourself from Haze!* 
+  Date: September 16, 20",9,PASS,N/A,N/A
+9,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
+ 
+1. **Protect Yourself from Haze!** 
+   Date: September 16, 2026 
+  ",9,PASS,N/A,N/A
+10,what is the latest news,"For the latest news and updates about PUP Taguig, you can check out the official campus events and announcements page he",9,PASS,N/A,N/A
+11,what are the systems of PUP Taguig from One Portal IDP?,The One Portal provides access to all systems within the PUP-Taguig Campus. You can visit the portal here: [One Portal](,8,PASS,N/A,N/A
+12,can you list all the systems that only students can access within the One Portal?,"Here are some of the systems that students can access within the One Portal of PUP Taguig: 
+ 
+- **PUP Student Portal**: ",9,PASS,N/A,N/A
+13,what is the latest news today,"For the latest news and updates about PUP Taguig, please visit the official campus announcements and events page: [PUPT ",8,PASS,N/A,N/A
+14,give me the list of news ,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
+15,what is the latest news and announcement from the website,Sure! Redirecting you to the requested page.,1,FAIL,N/A,N/A
+16,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
+17,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
+18,what is the latest news ,The latest news and updates for PUP Taguig can be found on the official campus website's announcements and events pages.,8,PASS,N/A,N/A
+19,what is the latest news in this month,"Here are the latest news and announcements for PUP Taguig this month: 
+ 
+- The Polytechnic University of the Philippines",9,PASS,N/A,N/A
+20,what is the news and announcement this month,"Here are the latest news and announcements for PUP Taguig this month: 
+ 
+- The Polytechnic University of the Philippines",10,PASS,N/A,N/A
+21,news in september 16,"On September 16, 2026, PUP Taguig released a news update titled **""Protect Yourself from Haze!""** as part of their campu",8,PASS,N/A,N/A
+22,what are the campus facilities in PUP Taguig,"PUP Taguig Campus provides various facilities to support student life, academics, and campus activities. These include a",8,PASS,N/A,N/A
+23,whos the campus director?,The Campus Director of PUP Taguig is Dr. Rhyan V. Molinar.,8,PASS,N/A,N/A
+24,Yow,Hello! Welcome to PUP-T. How can I help you today?,1,FAIL,N/A,N/A
+25,What else can u do? ,"I can help you with information about admissions, academic programs, schedules, announcements, campus details, and navig",8,PASS,N/A,N/A
+26,How about announcements ,"You can view the latest announcements and updates for PUP-T by visiting the official announcements and events pages: 
+ 
+",9,PASS,N/A,N/A
+27,How about something u can't easily navigate in this website? ,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
+28,what is the purpose of pupt connect?,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
+29,what is research and extension,"Research and Extension at PUP Taguig focus on promoting knowledge creation, innovation, and national development through",8,PASS,N/A,N/A
+30,which part shows the academic student organization?,You can find information about academic student organizations under the Student Services section of the PUP-T website. T,8,PASS,N/A,N/A
+31,address,"The address of PUP Taguig Campus is: 
+ 
+**41 General Santos Ave, Lower Bicutan, Taguig, Metro Manila** 
+[View on Google ",10,PASS,N/A,N/A
+32,i need more details on specific software or equipment,"For the Bachelor of Science in Computer Engineering, students typically use a combination of software and equipment such",9,PASS,N/A,N/A
+33,"here: fiberglass
+
+i need information on this",Fiberglass is a material made from fine strands of glass that are woven together and combined with resin to form a stron,8,PASS,N/A,N/A
+34,"ohh see, how is it made of?","Fiberglass is made from fine strands of glass that are woven together and combined with resin to form a strong, lightwei",8,PASS,N/A,N/A
+35,"hmm i see, now i'm feeling hungry, can u suggest a food that i can eat that i can place on my fiberglass?",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
+36,"okay, let's go back on the fiber glass, can you tell me more how is it made?","Fiberglass is made by weaving fine strands of glass together and combining them with resin to create a strong, lightweig",8,PASS,N/A,N/A
+37,can you give me an example of its byproducts?,Some byproducts related to fiberglass include support structures from manufacturing that can be shredded and recycled in,8,PASS,N/A,N/A
+38,let's discuss about photochemicals,"Phytochemicals are beneficial plant compounds found in fruits and vegetables, often known for their anti-inflammatory pr",1,FAIL,N/A,N/A
+39,what fruits?,"Many fruits contain phytochemicals, which are beneficial plant compounds. Examples include apples, berries, blueberries,",5,PASS,N/A,N/A
+40,do banana have it?,"Yes, bananas contain phytochemicals, including antioxidants and other beneficial plant compounds that support health.",1,FAIL,N/A,N/A
+41,"speaking of banana, can you tell me how to make turon?","Here's how to make turon: 
+ 
+1. Prepare the filling by mixing sliced bananas (preferably saba variety) and jackfruit (if",9,PASS,N/A,N/A
+42,I want to get a copy of my certification of registration. where and how?,You can request a copy of your Certification of Registration online through the Polytechnic University of the Philippine,8,PASS,N/A,N/A
+0,whats the address,"The address of PUP Taguig Campus is: 
+ 
+**Gen. Santos Ave., Central Bicutan, Taguig City** 
+ 
+If you need directions, yo",9,PASS,N/A,N/A
+1,"sorry i cant understand english, can you reply in chinese mandarin",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
+2,what is the latest campus updates news and announcements,"Here are the latest PUP Taguig campus updates, news, and announcements: 
+ 
+- **President's Weekly Update:** Catch the la",9,PASS,N/A,N/A
+3,where did you get the information that theres an upcoming and ongoing events,The information about upcoming and ongoing events at PUP Taguig comes directly from the official PUP Taguig website and ,10,PASS,N/A,N/A
+4,what is the published news and announcement in the website,"Here are the published news and announcements available on the PUP Taguig website: 
+ 
+- You can stay updated with campus",9,PASS,N/A,N/A
+5,news and announcement not events,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
+6,what is the latest news and announcements in the home page,"Here are the latest news and announcements available on the PUP Taguig homepage: 
+ 
+- You can keep up to date with the l",8,PASS,N/A,N/A
+7,list the news and announcements,"Here are the latest news and announcements available on the PUP Taguig website: 
+ 
+- **Campus Update:** Check out the la",8,PASS,N/A,N/A
+8,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
+ 
+**News** 
+- *Protect Yourself from Haze!* 
+  Date: September 16, 20",9,PASS,N/A,N/A
+9,what is the latest news and announcement,"Here are the latest PUP-T news and announcements: 
+ 
+1. **Protect Yourself from Haze!** 
+   Date: September 16, 2026 
+  ",9,PASS,N/A,N/A
+10,what is the latest news,"For the latest news and updates about PUP Taguig, you can check out the official campus events and announcements page he",9,PASS,N/A,N/A
+11,what are the systems of PUP Taguig from One Portal IDP?,The One Portal provides access to all systems within the PUP-Taguig Campus. You can visit the portal here: [One Portal](,8,PASS,N/A,N/A
+12,can you list all the systems that only students can access within the One Portal?,"Here are some of the systems that students can access within the One Portal of PUP Taguig: 
+ 
+- **PUP Student Portal**: ",9,PASS,N/A,N/A
+13,what is the latest news today,"For the latest news and updates about PUP Taguig, please visit the official campus announcements and events page: [PUPT ",8,PASS,N/A,N/A
+14,give me the list of news ,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
+15,what is the latest news and announcement from the website,Sure! Redirecting you to the requested page.,1,FAIL,N/A,N/A
+16,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
+17,what is the latest news and announcement,Sure! Redirecting you to the requested page.,4,PASS,N/A,N/A
+18,what is the latest news ,The latest news and updates for PUP Taguig can be found on the official campus website's announcements and events pages.,8,PASS,N/A,N/A
+19,what is the latest news in this month,"Here are the latest news and announcements for PUP Taguig this month: 
+ 
+- The Polytechnic University of the Philippines",9,PASS,N/A,N/A
+20,what is the news and announcement this month,"Here are the latest news and announcements for PUP Taguig this month: 
+ 
+- The Polytechnic University of the Philippines",10,PASS,N/A,N/A
+21,news in september 16,"On September 16, 2026, PUP Taguig released a news update titled **""Protect Yourself from Haze!""** as part of their campu",8,PASS,N/A,N/A
+22,what are the campus facilities in PUP Taguig,"PUP Taguig Campus provides various facilities to support student life, academics, and campus activities. These include a",8,PASS,N/A,N/A
+23,whos the campus director?,The Campus Director of PUP Taguig is Dr. Rhyan V. Molinar.,8,PASS,N/A,N/A
+24,Yow,Hello! Welcome to PUP-T. How can I help you today?,1,FAIL,N/A,N/A
+25,What else can u do? ,"I can help you with information about admissions, academic programs, schedules, announcements, campus details, and navig",8,PASS,N/A,N/A
+26,How about announcements ,"You can view the latest announcements and updates for PUP-T by visiting the official announcements and events pages: 
+ 
+",9,PASS,N/A,N/A
+27,How about something u can't easily navigate in this website? ,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
+28,what is the purpose of pupt connect?,I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,5,PASS,N/A,N/A
+29,what is research and extension,"Research and Extension at PUP Taguig focus on promoting knowledge creation, innovation, and national development through",8,PASS,N/A,N/A
+30,which part shows the academic student organization?,You can find information about academic student organizations under the Student Services section of the PUP-T website. T,8,PASS,N/A,N/A
+31,address,"The address of PUP Taguig Campus is: 
+ 
+**41 General Santos Ave, Lower Bicutan, Taguig, Metro Manila** 
+[View on Google ",10,PASS,N/A,N/A
+32,i need more details on specific software or equipment,"For the Bachelor of Science in Computer Engineering, students typically use a combination of software and equipment such",9,PASS,N/A,N/A
+33,"here: fiberglass
+
+i need information on this",Fiberglass is a material made from fine strands of glass that are woven together and combined with resin to form a stron,8,PASS,N/A,N/A
+34,"ohh see, how is it made of?","Fiberglass is made from fine strands of glass that are woven together and combined with resin to form a strong, lightwei",8,PASS,N/A,N/A
+35,"hmm i see, now i'm feeling hungry, can u suggest a food that i can eat that i can place on my fiberglass?",I couldn't find that information on the PUP-T website. Please contact this email: taguig@pup.edu.ph for more information,1,FAIL,N/A,N/A
+36,"okay, let's go back on the fiber glass, can you tell me more how is it made?","Fiberglass is made by weaving fine strands of glass together and combining them with resin to create a strong, lightweig",8,PASS,N/A,N/A
+37,can you give me an example of its byproducts?,Some byproducts related to fiberglass include support structures from manufacturing that can be shredded and recycled in,8,PASS,N/A,N/A
+38,let's discuss about photochemicals,"Phytochemicals are beneficial plant compounds found in fruits and vegetables, often known for their anti-inflammatory pr",1,FAIL,N/A,N/A
+39,what fruits?,"Many fruits contain phytochemicals, which are beneficial plant compounds. Examples include apples, berries, blueberries,",5,PASS,N/A,N/A
+40,do banana have it?,"Yes, bananas contain phytochemicals, including antioxidants and other beneficial plant compounds that support health.",1,FAIL,N/A,N/A
+41,"speaking of banana, can you tell me how to make turon?","Here's how to make turon: 
+ 
+1. Prepare the filling by mixing sliced bananas (preferably saba variety) and jackfruit (if",9,PASS,N/A,N/A
+42,I want to get a copy of my certification of registration. where and how?,You can request a copy of your Certification of Registration online through the Polytechnic University of the Philippine,8,PASS,N/A,N/A
