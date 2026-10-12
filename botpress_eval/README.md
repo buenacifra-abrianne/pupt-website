@@ -8,7 +8,7 @@ F1 are AI estimates, not independently verified ground truth. Invalid JSON,
 timeouts and incorrect chatbot answers still produce explicit errors/failures.
 The default output cap is 192 tokens. Set OLLAMA_NUM_PREDICT to override it.
 Feedback prompts and cannot-find-information replies are excluded before selecting
-up to 20 answered turns. Filtering changes the evaluated population.
+up to 100 answered turns. Filtering changes the evaluated population.
 
 ```powershell
 python -m pytest test_botpress.py -s
@@ -70,7 +70,7 @@ BOTPRESS_BOT_ID=your_bot_id
 OLLAMA_MODEL=phi3:mini
 PASS_THRESHOLD=7
 MAX_CONVERSATIONS=100
-MAX_TEST_CASES=20
+MAX_TEST_CASES=100
 ```
 
 `BOTPRESS_PAT` is accepted as an alternative token name. Workspace ID/URL is not needed.
@@ -92,7 +92,46 @@ All three scores are 0–10 and use the retrieved Botpress evidence:
 
 A correct refusal for a question not answerable from evidence can pass. A refusal for
 an answerable question fails. Overall PASS requires all three score thresholds and an appropriate answer/refusal.
-Response latency is not evaluated.
+Response latency is now saved and summarized separately from answer quality.
+
+## Response latency for the study
+
+Backfill the existing evaluation cases using their original Botpress conversation
+and first-reply message IDs, without rerunning Ollama or changing quality scores:
+
+```powershell
+python compute_latency.py
+python compute_f1.py
+```
+
+The command reads Botpress logs, archives the original evaluation CSV, adds
+`Response Latency (seconds)`, and writes `latency_metrics.csv`. Future evaluations
+save latency automatically. The F1 summary includes latency over all report rows,
+including quality failures and evaluation errors with valid timings.
+
+Latency is the first outgoing nonempty text message's `createdAt` minus the
+preceding incoming nonempty text message's `createdAt`, within the same conversation.
+It measures server-log time to first reply, including a refusal or acknowledgement
+if that is the first reply; it does not measure complete multi-message answers,
+streaming completion, network delivery, or display in the user's browser.
+Replies are paired by chronological order; overlapping user requests cannot be
+causally disambiguated by these timestamps alone. Backfill requires the original
+question text and first reply timestamp to match the saved case. Conversations
+with invalid timestamps are conservatively excluded from backfill.
+
+Report the median and **nearest-rank P95** (`ceil(0.95*n)`-th sorted observation)
+in seconds, the valid sample size, and missing/invalid case count. Missing values
+are excluded rather than treated as zero. The study's proposed operational
+definition of **real-time** is a first logged reply within **5.0 seconds**;
+the study target is met when **P95 <= 5.0 seconds**, meaning at least 95% of valid
+observations fall within the threshold. This is a study-defined criterion, not
+a universal standard or a Botpress guarantee. Decide on it before interpreting results.
+
+The backfilled population is the existing evaluation sample, which already
+excludes certain refusal/limit notices and unanswered turns. Report this selection
+explicitly; results do not establish response latency for every help desk request.
+The measurement period is the minimum and maximum `Created At` in that sample.
+Source: [Botpress message timestamps and direction](https://botpress.com/docs/api-reference/runtime-api/concepts/).
 
 The CSV preserves full questions/responses, quoted evidence,
 source/page/passage references, model and threshold for review. Model output is validated;
