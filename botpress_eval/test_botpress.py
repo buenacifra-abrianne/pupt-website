@@ -13,10 +13,11 @@ import requests
 from botpress_client import BotpressClient
 from knowledge import KnowledgeIndex
 from local_knowledge import load_pdf_knowledge
+from latency import LATENCY_COLUMN
 
 ROOT = Path(__file__).resolve().parent
 MAX_CONVERSATIONS = int(os.getenv("MAX_CONVERSATIONS", "100"))
-MAX_TEST_CASES = int(os.getenv("MAX_TEST_CASES", "20"))
+MAX_TEST_CASES = int(os.getenv("MAX_TEST_CASES", "100"))
 PASS_THRESHOLD = float(os.getenv("PASS_THRESHOLD", "7"))
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "phi3:mini")
 OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434").rstrip("/")
@@ -28,6 +29,7 @@ HEADERS = [
     "Unsupported Answer", "KB Answerable", "Evidence Sources",
     "TP", "FN", "FP", "TN",
     "Overall Pass", "Evaluation Reason", "Evaluator Model", "Pass Threshold",
+    LATENCY_COLUMN,
 ]
 SCHEMA = {
     "type": "object",
@@ -189,6 +191,7 @@ def test_botpress_logs(qa_pair, pair_index, evaluation_run):
         "Message ID": qa_pair["message_id"], "Created At": qa_pair["created_at"],
         "User Input": qa_pair["input"], "Bot Response": qa_pair["output"],
         "Evaluator Model": OLLAMA_MODEL, "Pass Threshold": PASS_THRESHOLD,
+        LATENCY_COLUMN: qa_pair.get("response_latency") if qa_pair.get("response_latency") is not None else "",
     }
     print(f"\nEvaluating case {pair_index + 1} (model: {OLLAMA_MODEL})...", flush=True)
     try:
