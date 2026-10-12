@@ -209,7 +209,10 @@ def test_summary_all_metrics_errors_and_undefined_f1():
     assert summary['Unsupported Answers (refusals)'] == 2
     assert summary['Pass Rate (%)'] == 40
     assert summary['Accuracy (avg 0-10)'] == 5.5
-    assert not any('Latency' in key for key in summary)
+    assert summary['Latency Sample Size'] == 4
+    assert summary['Latency Missing / Invalid Cases'] == 1
+    assert summary['Median Response Time (seconds)'] == 2
+    assert summary['95th Percentile Response Time (seconds)'] == 2
     assert summarize([])['F1 Score'] == 'N/A'
     assert summarize([{'Relevancy Pass': 'PASS'}])['Legacy / Unscored Cases'] == 1
 
