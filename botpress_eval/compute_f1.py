@@ -2,6 +2,7 @@
 import csv
 import math
 from pathlib import Path
+from latency import summarize_latency
 
 ROOT = Path(__file__).resolve().parent
 INPUT_FILE = ROOT / "evaluation_report.csv"
@@ -58,6 +59,7 @@ def summarize(rows):
     for key in ("Incomplete Cases", "Correct Answer / Refusal Rate (%)",
                 "Unsupported Answers (%)", "Avg Relevancy Score"):
         summary.pop(key, None)
+    summary.update(summarize_latency(rows))
     return summary
 
 
@@ -70,6 +72,7 @@ def print_report(summary, output_file=None):
         ("F1 METRICS", ["Precision", "Recall", "F1 Score"]),
         ("QUALITY", ["Relevancy (avg 0-10)", "Accuracy (avg 0-10)", "Faithfulness (avg 0-10)",
                      "Unsupported Answers (refusals)", "Pass Rate (%)"]),
+        ("RESPONSE LATENCY", list(summarize_latency([]))),
     ]
     print()
     print(margin + "=" * width)
