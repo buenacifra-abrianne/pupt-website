@@ -287,7 +287,7 @@
             <!-- Pagination -->
             <div class="pagination">
                 <div class="page-info" id="pgInfo">Showing 1-15</div>
-                <div class="page-btns">
+                <div class="page-btns" id="pageBtns">
                     <button class="pbtn" id="prevBtn" onclick="changePg(-1)"><i class="fas fa-chevron-left"></i></button>
                     <button class="pbtn active" id="pgNum">1</button>
                     <button class="pbtn" id="nextBtn" onclick="changePg(1)"><i class="fas fa-chevron-right"></i></button>
@@ -581,9 +581,33 @@ function render() {
     document.getElementById('pgInfo').textContent = tot
         ? `Showing ${s + 1}-${Math.min(s + PP, tot)} of ${tot} log${tot !== 1 ? 's' : ''}`
         : 'Showing 0 of 0 logs';
-    document.getElementById('pgNum').textContent = String(pg);
-    document.getElementById('prevBtn').disabled = pg === 1;
-    document.getElementById('nextBtn').disabled = pg >= max;
+        
+    let btnsHtml = `<button class="pbtn" id="prevBtn" onclick="changePg(-1)" ${pg === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+    
+    let startPage = Math.max(1, pg - 2);
+    let endPage = Math.min(max, pg + 2);
+    
+    if (startPage > 1) {
+        btnsHtml += `<button class="pbtn" onclick="goToPg(1)">1</button>`;
+        if (startPage > 2) {
+            btnsHtml += `<button class="pbtn disabled" disabled>...</button>`;
+        }
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        btnsHtml += `<button class="pbtn ${i === pg ? 'active' : ''}" onclick="goToPg(${i})">${i}</button>`;
+    }
+    
+    if (endPage < max) {
+        if (endPage < max - 1) {
+            btnsHtml += `<button class="pbtn disabled" disabled>...</button>`;
+        }
+        btnsHtml += `<button class="pbtn" onclick="goToPg(${max})">${max}</button>`;
+    }
+    
+    btnsHtml += `<button class="pbtn" id="nextBtn" onclick="changePg(1)" ${pg >= max ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+    
+    document.getElementById('pageBtns').innerHTML = btnsHtml;
 
     updateStats();
     document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString('en-PH');
@@ -665,6 +689,11 @@ function switchType(t, silent = false) {
     curType = t;
     pg = 1;
     document.querySelectorAll('[data-type]').forEach((b) => b.classList.toggle('active', b.dataset.type === t));
+    render();
+}
+
+function goToPg(n) {
+    pg = n;
     render();
 }
 

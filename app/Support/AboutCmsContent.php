@@ -711,9 +711,7 @@ class AboutCmsContent
     {
         $sourceGroups = is_array($input) ? array_values($input) : [];
         $baseGroups = array_values($base);
-        $effectiveGroups = !empty($sourceGroups)
-            ? $sourceGroups
-            : (!empty($baseGroups) ? $baseGroups : $defaults);
+        $effectiveGroups = $sourceGroups;
 
         $groups = [];
 
@@ -729,9 +727,7 @@ class AboutCmsContent
             $sourceGoals = is_array($source['goals'] ?? null) ? array_values($source['goals']) : [];
             $baseGoals = array_values(is_array($baseGroup['goals'] ?? null) ? $baseGroup['goals'] : []);
             $defaultGoals = array_values(is_array($defaultGroup['goals'] ?? null) ? $defaultGroup['goals'] : []);
-            $effectiveGoals = !empty($sourceGoals)
-                ? $sourceGoals
-                : (!empty($baseGoals) ? $baseGoals : $defaultGoals);
+            $effectiveGoals = $sourceGoals;
             $goals = [];
 
             foreach ($effectiveGoals as $goalIndex => $goalCandidate) {
@@ -936,9 +932,7 @@ class AboutCmsContent
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = array_values($base);
         $defaultItems = array_values($defaults);
-        $effectiveItems = !empty($sourceItems)
-            ? $sourceItems
-            : (!empty($baseItems) ? $baseItems : $defaultItems);
+        $effectiveItems = $sourceItems;
 
         $items = [];
         $usedIds = [];
@@ -1072,9 +1066,7 @@ class AboutCmsContent
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = array_values($base);
         $defaultItems = array_values($defaults);
-        $effectiveItems = !empty($sourceItems)
-            ? $sourceItems
-            : (!empty($baseItems) ? $baseItems : $defaultItems);
+        $effectiveItems = $sourceItems;
 
         $items = [];
 
@@ -1193,41 +1185,40 @@ class AboutCmsContent
         $defaultItems = array_values($defaults);
         $items = [];
 
-        if (!empty($sourceItems)) {
-            foreach ($sourceItems as $index => $source) {
-                if (!is_array($source)) {
-                    continue;
-                }
-
-                $defaultItem = is_array($defaultItems[$index] ?? null)
-                    ? $defaultItems[$index]
-                    : ['name' => '', 'title' => '', 'body' => '', 'image' => '', 'order' => $index + 1];
-                $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
-
-                $item = [
-                    'name' => self::pickString($source, $baseItem, $defaultItem + ['name' => ''], 'name'),
-                    'title' => self::pickString($source, $baseItem, $defaultItem + ['title' => ''], 'title'),
-                    'body' => self::pickString($source, $baseItem, $defaultItem + ['body' => ''], 'body', 6000),
-                    'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
-                    'order' => self::normalizePositiveInt($source['order'] ?? ($baseItem['order'] ?? ($index + 1)), $index + 1),
-                    '__position' => $index,
-                ];
-
-                if (
-                    trim((string) $item['name']) === ''
-                    && trim((string) $item['title']) === ''
-                    && trim((string) $item['body']) === ''
-                    && trim((string) $item['image']) === ''
-                ) {
-                    continue;
-                }
-
-                $items[] = $item;
+        foreach ($sourceItems as $index => $source) {
+            if (!is_array($source)) {
+                continue;
             }
+
+
+            $defaultItem = is_array($defaultItems[$index] ?? null)
+                ? $defaultItems[$index]
+                : ['name' => '', 'title' => '', 'body' => '', 'image' => '', 'order' => $index + 1];
+            $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
+
+            $item = [
+                'name' => self::pickString($source, $baseItem, $defaultItem + ['name' => ''], 'name'),
+                'title' => self::pickString($source, $baseItem, $defaultItem + ['title' => ''], 'title'),
+                'body' => self::pickString($source, $baseItem, $defaultItem + ['body' => ''], 'body', 6000),
+                'image' => self::pickString($source, $baseItem, $defaultItem + ['image' => ''], 'image', 2048),
+                'order' => self::normalizePositiveInt($source['order'] ?? ($baseItem['order'] ?? ($index + 1)), $index + 1),
+                '__position' => $index,
+            ];
+
+            if (
+                trim((string) $item['name']) === ''
+                && trim((string) $item['title']) === ''
+                && trim((string) $item['body']) === ''
+                && trim((string) $item['image']) === ''
+            ) {
+                continue;
+            }
+
+            $items[] = $item;
         }
 
         if (empty($items)) {
-            $fallbackItems = (!$isUpdating && !empty($baseItems)) ? $baseItems : $defaultItems;
+            $fallbackItems = $defaultItems;
 
             foreach ($fallbackItems as $index => $fallbackItem) {
                 $source = is_array($sourceItems[$index] ?? null) ? $sourceItems[$index] : [];

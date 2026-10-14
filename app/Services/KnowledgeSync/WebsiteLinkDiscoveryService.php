@@ -288,6 +288,11 @@ class WebsiteLinkDiscoveryService
                 continue;
             }
 
+            // Exclude protected and internal prefixes from being scanned
+            if (preg_match('#^(api|auth|sso|admin|superadmin|staff)(/|$)#i', $uri)) {
+                continue;
+            }
+
             $absolute = rtrim($baseUrl, '/').'/'.$uri;
             $urls[] = $absolute;
         }

@@ -12,8 +12,14 @@ class ScanLinksCommand extends Command
 
     protected $description = 'Discover external/document links across website sources.';
 
-    public function handle(KnowledgeSyncService $service): int
+    public function handle(KnowledgeSyncService $service, \App\Services\CloudWatchService $cloudWatchService): int
     {
+        $health = $cloudWatchService->getServerHealth();
+        if (in_array($health['status'] ?? 'Unavailable', ['Warning', 'Critical'], true)) {
+            $this->error('Aborting scan:links: Server health is currently '.$health['status'].'.');
+            return self::FAILURE;
+        }
+
         if ((bool) $this->option('queue')) {
             ScanWebsiteLinksJob::dispatch();
             $this->info('scan:links dispatched to queue.');
