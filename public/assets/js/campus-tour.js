@@ -10,29 +10,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.querySelectorAll('[data-campus-tour-avp]').forEach((media) => {
     const video = media.querySelector('video');
-    const play = media.querySelector('[data-campus-tour-play]');
-    const error = media.querySelector('[data-campus-tour-play-error]');
-    if (!video || !play) return;
+    if (!video) return;
 
-    play.hidden = false;
-    play.addEventListener('click', async () => {
-      try {
-        error.hidden = true;
-        await video.play();
-        video.focus({ preventScroll: true });
-      } catch {
-        error.textContent = 'The video could not be played. Please try the video controls.';
-        error.hidden = false;
-      }
-    });
     video.addEventListener('play', () => {
       media.classList.add('has-started');
-      play.hidden = true;
-      error.hidden = true;
     });
     video.addEventListener('ended', () => {
       media.classList.remove('has-started');
-      play.hidden = false;
     });
   });
 

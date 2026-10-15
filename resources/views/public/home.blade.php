@@ -526,11 +526,6 @@
 
             <div class="campus-tour-avp-shade" aria-hidden="true"></div>
             <h3 class="campus-tour-avp-label">University AVP</h3>
-            @if($campusTourVideo)
-              <button type="button" class="campus-tour-play" data-campus-tour-play aria-label="Play the PUP Taguig University AVP" hidden>
-                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
-              </button>
-            @endif
             <div class="campus-tour-avp-copy">
               <span class="campus-tour-eyebrow">Discover our campus</span>
               <p class="campus-tour-avp-title">PUP Taguig Campus</p>
@@ -538,7 +533,6 @@
               @unless($campusTourVideo)
                 <span class="campus-tour-video-status">Campus video coming soon</span>
               @endunless
-              <p class="campus-tour-play-error" data-campus-tour-play-error role="status" hidden></p>
             </div>
           </div>
         </article>

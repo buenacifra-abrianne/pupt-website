@@ -1035,46 +1035,6 @@ body.home-carousel-redesign .indicator.active {
   font-size: 0.74rem;
 }
 
-.campus-tour-play-error {
-  margin: 10px 0 0;
-  color: #ffdfae;
-  font-size: 0.78rem;
-}
-
-.campus-tour-play {
-  position: absolute;
-  top: 38%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
-  width: 76px;
-  height: 76px;
-  padding: 0;
-  border: 3px solid rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  background: #8b0000;
-  color: #fff;
-  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.24);
-  cursor: pointer;
-  transition: background 0.2s ease, scale 0.2s ease;
-}
-
-.campus-tour-play svg {
-  width: 36px;
-  height: 36px;
-  margin-left: 3px;
-}
-
-.campus-tour-play[hidden], .campus-tour-play-error[hidden] {
-  display: none;
-}
-
-.campus-tour-play:hover {
-  background: #a31720;
-  scale: 1.06;
-}
-
 .campus-tour-avp-media.has-started .campus-tour-video {
   object-fit: contain;
 }
@@ -4593,15 +4553,6 @@ body.modal-open .announcement-mini-card img {
   .campus-tour-eyebrow {
     font-size: 0.58rem;
     margin-bottom: 6px;
-  }
-  .campus-tour-play {
-    top: 35%;
-    width: 60px;
-    height: 60px;
-  }
-  .campus-tour-play svg {
-    width: 28px;
-    height: 28px;
   }
   .campus-tour-facilities-card {
     padding: 12px;
