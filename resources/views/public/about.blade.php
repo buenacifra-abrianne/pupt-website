@@ -6,6 +6,7 @@
     <title>About - Polytechnic University of the Philippines</title>
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/about-overview.css') }}?v={{ filemtime(public_path('assets/css/about-overview.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
@@ -169,25 +170,86 @@
                             data-cms-boundary
                         @endif
                     >
+                        @php
+                            $storyDescription = (string) ($overview['story_description'] ?? '');
+                            $storyDescriptionHtml = trim($storyDescription) !== strip_tags($storyDescription)
+                                ? \App\Support\RichText::sanitize($storyDescription)
+                                : collect(preg_split('/\R\s*\R/', trim($storyDescription)) ?: [])
+                                    ->filter(fn ($paragraph) => trim($paragraph) !== '')
+                                    ->map(fn ($paragraph) => '<p>'.nl2br(e($paragraph)).'</p>')
+                                    ->implode('');
+
+                            // Older editor content uses top-level BRs instead of paragraphs.
+                            $storyDocument = new \DOMDocument('1.0', 'UTF-8');
+                            $previousXmlErrors = libxml_use_internal_errors(true);
+                            $storyDocument->loadHTML(
+                                mb_convert_encoding('<div id="campus-story-body-root">'.$storyDescriptionHtml.'</div>', 'HTML-ENTITIES', 'UTF-8'),
+                                LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD
+                            );
+                            $storyRoot = $storyDocument->getElementById('campus-story-body-root');
+                            if ($storyRoot) {
+                                $storyBody = $storyDocument->createElement('div');
+                                $storyParagraph = null;
+                                foreach (iterator_to_array($storyRoot->childNodes) as $node) {
+                                    if ($node->nodeName === 'br') {
+                                        $storyParagraph = null;
+                                    } elseif ($node instanceof \DOMElement && in_array($node->nodeName, ['p', 'div', 'blockquote', 'ul', 'ol'], true)) {
+                                        $storyParagraph = null;
+                                        $storyBody->appendChild($node);
+                                    } elseif ($storyParagraph || trim($node->textContent) !== '') {
+                                        if (!$storyParagraph) {
+                                            $storyParagraph = $storyDocument->createElement('p');
+                                            $storyBody->appendChild($storyParagraph);
+                                        }
+                                        $storyParagraph->appendChild($node);
+                                    }
+                                }
+                                $storyDescriptionHtml = '';
+                                foreach ($storyBody->childNodes as $node) {
+                                    $storyDescriptionHtml .= $storyDocument->saveHTML($node);
+                                }
+                            }
+                            libxml_clear_errors();
+                            libxml_use_internal_errors($previousXmlErrors);
+                        @endphp
                         <div class="campus-story-layout">
                             <div class="campus-story-copy">
                                 <p class="campus-story-tag">{{ $overview['story_tag'] ?? 'Campus Story' }}</p>
                                 <h2>{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}</h2>
+                                <p class="campus-story-motto">Quality education <span aria-hidden="true">&bull;</span> Opportunities <span aria-hidden="true">&bull;</span> A stronger Taguig</p>
+                                <div class="campus-story-description rich-text-content">
+                                    <div class="campus-story-body">{!! $storyDescriptionHtml !!}</div>
+                                    <div class="campus-story-actions">
+                                        <a
+                                            href="{{ route('public.about.section', ['section' => 'history', 'cms_preview' => $cmsPreview ? 1 : null]) }}"
+                                            class="campus-story-link campus-story-history-link campus-story-history-btn"
+                                            @if($cmsPreview) data-about-preview-nav="history" @endif
+                                        >History</a>
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="campus-story-visual">
-                                <img src="{{ \App\Support\AboutCmsContent::resolveImagePath($overview['story_image'] ?? null, 'assets/static_img/pupillar.jpeg') }}" alt="{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}">
-                            </div>
-
-                            @php
-                                $storyDescription = (string) ($overview['story_description'] ?? '');
-                                $storyDescriptionHtml = trim($storyDescription) !== strip_tags($storyDescription)
-                                    ? \App\Support\RichText::sanitize($storyDescription)
-                                    : nl2br(e($storyDescription));
-                            @endphp
-                            <div class="campus-story-description rich-text-content">
-                                {!! $storyDescriptionHtml !!}
-                            </div>
+                            <figure class="campus-story-visual">
+                                <img
+                                    src="{{ \App\Support\AboutCmsContent::resolveImagePath($overview['story_image'] ?? null, 'assets/static_img/bg_landing_page.jpg') }}"
+                                    alt="{{ $overview['story_title'] ?? 'PUP Taguig Campus' }}"
+                                    data-story-image
+                                    data-fallback-src="{{ asset('assets/static_img/bg_landing_page.jpg') }}"
+                                    loading="lazy"
+                                >
+                                <figcaption class="campus-story-location">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                                    <span><strong>PUP Taguig Campus</strong><small>Taguig City, Metro Manila</small></span>
+                                    <a
+                                        href="{{ route('public.about.section', ['section' => 'maps', 'cms_preview' => $cmsPreview ? 1 : null]) }}"
+                                        class="campus-story-link campus-story-maps-link campus-story-maps-btn"
+                                        @if($cmsPreview) data-about-preview-nav="maps" @endif
+                                    >
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6Z"/><path d="M9 3v15M15 6v15"/></svg>
+                                        Maps
+                                    </a>
+                                </figcaption>
+                            </figure>
                         </div>
                     </div>
                 </section>
@@ -1738,6 +1800,14 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
+            document.querySelectorAll('[data-story-image]').forEach((image) => {
+                const useFallback = () => {
+                    if (image.src !== image.dataset.fallbackSrc) image.src = image.dataset.fallbackSrc;
+                };
+                image.addEventListener('error', useFallback, { once: true });
+                if (image.complete && image.naturalWidth === 0) useFallback();
+            });
+
             const galleries = document.querySelectorAll('[data-ls-gallery]');
             if (!galleries.length) {
                 return;
