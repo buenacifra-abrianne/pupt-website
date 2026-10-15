@@ -259,36 +259,49 @@
                     @if($cmsPreview)
                         data-cms-section="philosophy"
                         data-cms-section-label="Philosophy"
+                        tabindex="0"
+                        role="button"
+                        aria-label="Edit Philosophy"
                     @endif
                 >
-                    @if($cmsPreview)
-                        <button type="button" class="cms-preview-chip" data-cms-edit-trigger="philosophy" aria-label="Edit Philosophy">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25Zm2.92 2.33H5v-.92l8.06-8.06.92.92L5.92 19.58ZM20.71 7.04a1.003 1.003 0 0 0 0-1.42L18.37 3.29a1.003 1.003 0 0 0-1.42 0l-1.83 1.83 3.75 3.75 1.84-1.83Z"/>
-                            </svg>
-                        </button>
-                    @endif
-
                     <div
-                        class="philosophy-intro-text-inner philosophy-intro-rich-copy{{ $cmsPreview ? ' cms-preview-boundary-edge' : '' }}"
-                        @if($cmsPreview)
-                            data-cms-boundary
-                        @endif
+                        class="philosophy-intro-text-inner{{ $cmsPreview ? ' cms-preview-boundary-edge' : '' }}"
+                        @if($cmsPreview) data-cms-boundary @endif
                     >
-                        <p class="section-tag layout-kicker" style="margin-bottom: 24px;">{{ $overview['philosophy_tag'] ?? 'PUP-T Philosophy' }}</p>
-                        @php
-                            $philosophyDescription = (string) ($overview['philosophy_description'] ?? '');
-                            $philosophyDescriptionHtml = trim($philosophyDescription) !== strip_tags($philosophyDescription)
-                                ? \App\Support\RichText::sanitize($philosophyDescription)
-                                : nl2br(e($philosophyDescription));
-                        @endphp
-                        @if($philosophyDescriptionHtml !== '')
-                            {!! $philosophyDescriptionHtml !!}
-                        @else
-                            <p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p>
-                            <p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p>
-                            <p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>
-                        @endif
+                        <div class="philosophy-visual" aria-hidden="true">
+                            <img
+                                class="philosophy-campus-image"
+                                src="{{ \App\Support\AboutCmsContent::resolveImagePath($overview['hero_image'] ?? null, 'assets/static_img/about_header_image.png') }}"
+                                alt=""
+                                data-philosophy-image
+                                data-fallback-src="{{ asset('assets/static_img/bg_landing_page.jpg') }}"
+                                loading="lazy"
+                            >
+                            <svg class="philosophy-emblem" viewBox="0 0 160 190" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                                <path d="M80 160c-18-22-38-31-64-31l12-46c17 0 29 5 40 15M80 160c18-22 38-31 64-31l-12-46c-17 0-29 5-40 15"/>
+                                <path d="M80 160c-21-14-42-18-64-16l-7-8 8-7M80 160c21-14 42-18 64-16l7-8-8-7M31 97l-6 23c17 3 29 9 41 19M129 97l6 23c-17 3-29 9-41 19"/>
+                                <path d="M69 99h22l-5 51H74l-5-51ZM62 82h36l-5 17H67l-5-17Z" fill="currentColor" stroke="none"/>
+                                <path d="M63 75c-13-18 1-29 6-40 0 15 9 17 10 25 7-8 7-17 2-29 16 13 28 30 15 44M80 19c5 14-3 18-1 28"/>
+                            </svg>
+                        </div>
+                        <div class="philosophy-copy">
+                            <h2 class="philosophy-heading">{{ $overview['philosophy_tag'] ?? 'PUP-T Philosophy' }}</h2>
+                            <div class="philosophy-statement rich-text-content">
+                                @php
+                                    $philosophyDescription = (string) ($overview['philosophy_description'] ?? '');
+                                    $philosophyDescriptionHtml = trim($philosophyDescription) !== strip_tags($philosophyDescription)
+                                        ? \App\Support\RichText::sanitize($philosophyDescription)
+                                        : nl2br(e($philosophyDescription));
+                                @endphp
+                                @if($philosophyDescriptionHtml !== '')
+                                    {!! $philosophyDescriptionHtml !!}
+                                @else
+                                    <p><strong>Quality and relevant education</strong> that responds to the call of present times in building the <strong>foundations of the future.</strong></p>
+                                    <p>Ranging from high school to doctoral courses, traditional to nontraditional education system, <strong>the University makes it possible</strong> that <strong>deserving individuals can have access</strong> to these academic resources.</p>
+                                    <p>The University has always been making <strong>initiatives to enrich its academic programs</strong> in various fields of study and <strong>implement an educational strategy</strong> designed to provide our students with highly employable, managerial, and entrepreneurial skills in order to make them exceedingly <strong>creative, productive, competitive, and self-reliant</strong>.</p>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -1800,7 +1813,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            document.querySelectorAll('[data-story-image]').forEach((image) => {
+            document.querySelectorAll('[data-story-image], [data-philosophy-image]').forEach((image) => {
                 const useFallback = () => {
                     if (image.src !== image.dataset.fallbackSrc) image.src = image.dataset.fallbackSrc;
                 };
@@ -2581,6 +2594,15 @@
                         event.stopPropagation();
                         postSection(section, label);
                     };
+
+                    if (section === 'philosophy') {
+                        target.addEventListener('keydown', (event) => {
+                            if (event.target === target && (event.key === 'Enter' || event.key === ' ')) {
+                                event.preventDefault();
+                                postSection(section, label);
+                            }
+                        });
+                    }
 
                     target.addEventListener('mouseenter', () => target.classList.add('is-active'));
                     target.addEventListener('mouseleave', () => target.classList.remove('is-active'));

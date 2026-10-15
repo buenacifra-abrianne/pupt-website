@@ -359,3 +359,264 @@ body.pup-dark-mode .about-intro .campus-story-description blockquote {
     aspect-ratio: 1;
   }
 }
+
+/* Philosophy */
+.philosophy-intro-text {
+  padding: 0;
+  margin: 36px 0 40px;
+  min-width: 0;
+}
+
+.philosophy-intro-text .philosophy-intro-text-inner {
+  display: grid;
+  grid-template-columns: minmax(200px, 0.28fr) minmax(0, 1fr);
+  width: 100%;
+  max-width: none;
+  min-height: 380px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(127, 17, 19, 0.08);
+  border-radius: 24px;
+  background: linear-gradient(130deg, #fffaf6, #f9f1eb);
+  box-shadow: 0 14px 36px rgba(79, 9, 12, 0.09);
+  isolation: isolate;
+}
+
+.philosophy-intro-text .philosophy-intro-text-inner::before {
+  content: none;
+}
+
+body[data-cms-preview] .philosophy-intro-text > .philosophy-intro-text-inner {
+  display: grid !important;
+}
+
+.philosophy-visual {
+  position: relative;
+  isolation: isolate;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  padding: 32px 38px 32px 16px;
+  background: #7f1113;
+  color: #fff2dc;
+  clip-path: polygon(0 0, 100% 0, 80% 70%, 94% 100%, 0 100%);
+}
+
+.philosophy-campus-image {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 40% center;
+}
+
+.philosophy-visual::before,
+.philosophy-visual::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.philosophy-visual::before {
+  z-index: -1;
+  background: linear-gradient(175deg, rgba(111, 8, 14, 0.98) 10%, rgba(127, 17, 19, 0.91) 45%, rgba(127, 17, 19, 0.65));
+}
+
+.philosophy-visual::after {
+  background: #d8ba88;
+  clip-path: polygon(96% 0, 98% 0, 78% 70%, 92% 100%, 90% 100%, 76% 70%);
+}
+
+.philosophy-emblem {
+  width: min(180px, 100%);
+  height: auto;
+  filter: drop-shadow(0 4px 16px rgba(40, 0, 0, 0.16));
+}
+
+.philosophy-copy {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 42px clamp(28px, 4vw, 64px) 38px 28px;
+}
+
+.philosophy-intro-text .philosophy-heading {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 40px;
+  color: #7f1113;
+  font-size: clamp(0.8rem, 1.2vw, 1rem);
+  font-weight: 800;
+  line-height: 1.5;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  overflow-wrap: anywhere;
+}
+
+.philosophy-heading::before {
+  content: "";
+  flex: 0 0 48px;
+  height: 1px;
+  background: #a42127;
+}
+
+.philosophy-statement {
+  position: relative;
+  min-width: 0;
+  margin-left: 66px;
+  padding: 4px 0 24px;
+  border-bottom: 1px solid rgba(164, 33, 39, 0.6);
+  color: #514b49;
+  font-size: clamp(0.9rem, 1.15vw, 1.08rem);
+  line-height: 1.85;
+  overflow-wrap: anywhere;
+}
+
+.philosophy-statement::before,
+.philosophy-statement::after {
+  position: absolute;
+  color: rgba(164, 33, 39, 0.11);
+  font-family: Georgia, serif;
+  font-size: 7rem;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.philosophy-statement::before {
+  content: "\201C";
+  top: -34px;
+  left: -66px;
+}
+
+.philosophy-statement::after {
+  content: "\201D";
+  right: 0;
+  bottom: -58px;
+}
+
+.philosophy-intro-text .philosophy-statement :is(p, div, blockquote, li) {
+  margin: 0 0 8px;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+.philosophy-intro-text .philosophy-statement > :last-child {
+  margin-bottom: 0;
+}
+
+.philosophy-intro-text .philosophy-statement :is(strong, b):not([style*="color"]) {
+  color: #7f1113;
+  font-weight: 700;
+}
+
+.philosophy-intro-text[role="button"]:focus-visible {
+  outline: 3px solid #d7aa43;
+  outline-offset: 4px;
+}
+
+body.pup-dark-mode .philosophy-intro-text .philosophy-intro-text-inner {
+  background: linear-gradient(130deg, #291719, #1c1011);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.pup-dark-mode .philosophy-statement {
+  color: #f0e5dd;
+  border-color: #a65d5e;
+}
+
+body.pup-dark-mode .philosophy-statement::before,
+body.pup-dark-mode .philosophy-statement::after {
+  color: rgba(221, 158, 139, 0.18);
+}
+
+body.pup-dark-mode .philosophy-intro-text .philosophy-statement :is(strong, b):not([style*="color"]) {
+  color: #f1bdab;
+}
+
+@media (max-width: 1100px) {
+  .philosophy-copy {
+    padding: 32px 28px 36px 20px;
+  }
+  .philosophy-statement {
+    margin-left: 42px;
+  }
+  .philosophy-statement::before {
+    left: -42px;
+    font-size: 5.5rem;
+  }
+}
+
+@media (max-width: 850px) {
+  .philosophy-intro-text .philosophy-intro-text-inner {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .philosophy-visual {
+    min-height: 180px;
+    padding: 18px;
+    clip-path: none;
+  }
+  .philosophy-campus-image {
+    object-position: center 45%;
+  }
+  .philosophy-visual::after {
+    inset: auto 0 0;
+    height: 3px;
+    clip-path: none;
+  }
+  .philosophy-emblem {
+    width: 110px;
+  }
+  .philosophy-copy {
+    padding: 30px 32px 40px 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .philosophy-intro-text {
+    margin-block: 24px;
+  }
+  .philosophy-intro-text .philosophy-intro-text-inner {
+    border-radius: 18px;
+  }
+  .philosophy-visual {
+    min-height: 144px;
+  }
+  .philosophy-emblem {
+    width: 90px;
+  }
+  .philosophy-copy {
+    padding: 26px 22px 34px;
+  }
+  .philosophy-intro-text .philosophy-heading {
+    gap: 12px;
+    margin-bottom: 32px;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+  }
+  .philosophy-heading::before {
+    flex-basis: 24px;
+  }
+  .philosophy-statement {
+    margin-left: 16px;
+    font-size: 0.85rem;
+  }
+  .philosophy-statement::before {
+    left: -20px;
+    top: -28px;
+    font-size: 4rem;
+  }
+  .philosophy-statement::after {
+    right: 0;
+    bottom: -50px;
+    font-size: 5rem;
+  }
+}
