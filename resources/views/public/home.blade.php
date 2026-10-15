@@ -97,6 +97,7 @@
     });
 
     $campusTourVideo = \App\Support\ImageStorage::url((string) ($campusTourSection['avp_video'] ?? ''), null);
+    $campusTourPoster = \App\Support\HomeCmsContent::resolveImagePath((string) ($homeCms['campus_image'] ?? ''), 'assets/static_img/pupillar.jpeg');
     $campusFacilities = collect($campusTourSection['facilities'] ?? [])
         ->filter(fn ($item) => is_array($item) && trim((string) ($item['image'] ?? '')) !== '')
         ->values();
@@ -513,18 +514,33 @@
             </div>
           @endif
 
-          <div class="campus-tour-card-head">
-            <h3>University AVP</h3>
-          </div>
+          <div class="campus-tour-avp-media" data-campus-tour-avp>
+            @if($campusTourVideo)
+              <video class="campus-tour-video" controls playsinline preload="metadata" poster="{{ $campusTourPoster }}" aria-label="PUP Taguig University AVP">
+                <source src="{{ $campusTourVideo }}">
+                Your browser does not support the video tag.
+              </video>
+            @else
+              <img class="campus-tour-avp-poster" src="{{ $campusTourPoster }}" data-campus-tour-fallback="{{ asset('assets/static_img/pupillar.jpeg') }}" alt="PUP Taguig campus" loading="lazy">
+            @endif
 
-          @if($campusTourVideo)
-            <video class="campus-tour-video" controls playsinline preload="metadata">
-              <source src="{{ $campusTourVideo }}">
-              Your browser does not support the video tag.
-            </video>
-          @else
-            <div class="campus-tour-empty">No AVP video uploaded yet.</div>
-          @endif
+            <div class="campus-tour-avp-shade" aria-hidden="true"></div>
+            <h3 class="campus-tour-avp-label">University AVP</h3>
+            @if($campusTourVideo)
+              <button type="button" class="campus-tour-play" data-campus-tour-play aria-label="Play the PUP Taguig University AVP" hidden>
+                <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+              </button>
+            @endif
+            <div class="campus-tour-avp-copy">
+              <span class="campus-tour-eyebrow">Discover our campus</span>
+              <p class="campus-tour-avp-title">PUP Taguig Campus</p>
+              <p class="campus-tour-avp-description">A closer look at our community and campus life.</p>
+              @unless($campusTourVideo)
+                <span class="campus-tour-video-status">Campus video coming soon</span>
+              @endunless
+              <p class="campus-tour-play-error" data-campus-tour-play-error role="status" hidden></p>
+            </div>
+          </div>
         </article>
 
         <article class="campus-tour-card campus-tour-facilities-card{{ $cmsPreview ? ' campus-tour-preview-card' : '' }}">
@@ -534,7 +550,7 @@
             </div>
           @endif
 
-          <div class="campus-tour-card-head" style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="campus-tour-card-head">
             <h3>Campus Facilities</h3>
             @if($campusFacilities->isNotEmpty() && empty($cmsPreview))
               <button type="button" class="view-gallery-btn" data-facility-view-gallery>View Gallery</button>
@@ -542,40 +558,57 @@
           </div>
 
           @if($campusFacilities->isNotEmpty())
-            <div class="campus-tour-facilities-carousel" data-campus-tour-carousel>
-              <div class="campus-tour-facilities-track">
+            <div class="campus-tour-facilities-carousel" data-campus-tour-carousel role="region" aria-label="Campus facilities gallery" aria-roledescription="carousel">
+              <div class="campus-tour-facilities-stage">
+                <div class="campus-tour-facilities-track">
+                  @foreach($campusFacilities as $facility)
+                    @php
+                      $facilityImage = \App\Support\HomeCmsContent::resolveImagePath((string) ($facility['image'] ?? ''), 'assets/static_img/pupillar.jpeg');
+                      $facilityName = trim((string) ($facility['name'] ?? '')) ?: 'Facility '.$loop->iteration;
+                    @endphp
+                    <figure class="campus-tour-facility-slide{{ $loop->first ? ' is-active' : '' }}" data-campus-tour-slide aria-hidden="{{ $loop->first ? 'false' : 'true' }}" aria-label="{{ $loop->iteration }} of {{ $loop->count }}" aria-roledescription="slide">
+                      <div class="campus-tour-facility-image-shell">
+                        <img src="{{ $facilityImage }}" alt="{{ $facilityName }}" loading="{{ $loop->first ? 'eager' : 'lazy' }}" data-campus-tour-fallback="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                        <button type="button" class="campus-tour-facility-expand" data-facility-expand title="View full screen" aria-label="View {{ $facilityName }} full screen">
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+                        </button>
+                      </div>
+                      <figcaption class="campus-tour-facility-name">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        <span>{{ $facilityName }}</span>
+                      </figcaption>
+                    </figure>
+                  @endforeach
+                </div>
+                @if($campusFacilities->count() > 1)
+                  <div class="campus-tour-stage-controls">
+                    <button type="button" class="campus-tour-arrow campus-tour-arrow-prev" data-campus-tour-prev aria-label="Previous facility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg></button>
+                    <button type="button" class="campus-tour-arrow campus-tour-arrow-next" data-campus-tour-next aria-label="Next facility"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m10 6 6 6-6 6"/></svg></button>
+                  </div>
+                @endif
+                <span class="campus-tour-count" data-campus-tour-count aria-live="off">01 / {{ str_pad((string) $campusFacilities->count(), 2, '0', STR_PAD_LEFT) }}</span>
+              </div>
+              <div class="campus-tour-thumbnails" aria-label="Choose a facility">
                 @foreach($campusFacilities as $facility)
                   @php
                     $facilityImage = \App\Support\HomeCmsContent::resolveImagePath((string) ($facility['image'] ?? ''), 'assets/static_img/pupillar.jpeg');
-                    $facilityName = trim((string) ($facility['name'] ?? ''));
+                    $facilityName = trim((string) ($facility['name'] ?? '')) ?: 'Facility '.$loop->iteration;
                   @endphp
-                  <figure class="campus-tour-facility-slide{{ $loop->first ? ' is-active' : '' }}" data-campus-tour-slide>
-                    <div class="campus-tour-facility-image-shell">
-                      <img src="{{ $facilityImage }}" alt="{{ $facilityName !== '' ? e($facilityName) : 'Campus facility '.$loop->iteration }}">
-                      <button type="button" class="campus-tour-facility-expand" data-facility-expand title="View full screen" aria-label="View full screen">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path></svg>
-                      </button>
-                    </div>
-                    <figcaption class="campus-tour-facility-name">
-                      {{ $facilityName !== '' ? e($facilityName) : 'Facility '.$loop->iteration }}
-                    </figcaption>
-                  </figure>
+                  <button type="button" class="campus-tour-thumbnail{{ $loop->first ? ' is-active' : '' }}" data-campus-tour-thumbnail aria-label="Show {{ $facilityName }}" aria-pressed="{{ $loop->first ? 'true' : 'false' }}" title="{{ $facilityName }}">
+                    <img src="{{ $facilityImage }}" alt="" loading="lazy" data-campus-tour-fallback="{{ asset('assets/static_img/pupillar.jpeg') }}">
+                    <span>{{ $facilityName }}</span>
+                  </button>
                 @endforeach
               </div>
-
-              @if($campusFacilities->count() > 1)
-                <button type="button" class="campus-tour-arrow campus-tour-arrow-prev" data-campus-tour-prev aria-label="Previous facility">&#10094;</button>
-                <button type="button" class="campus-tour-arrow campus-tour-arrow-next" data-campus-tour-next aria-label="Next facility">&#10095;</button>
-              @endif
             </div>
           @else
-            <div class="campus-tour-empty">No facility images uploaded yet.</div>
+            <div class="campus-tour-empty"><span>Explore our campus spaces</span><p>Facility photos will be available here soon.</p></div>
           @endif
         </article>
       </div>
     </section>
 
-    <div class="facility-modal-overlay" id="facilityModalOverlay" aria-hidden="true">
+    <div class="facility-modal-overlay" id="facilityModalOverlay" aria-hidden="true" hidden inert>
       <div class="facility-modal-card" role="dialog" aria-modal="true" aria-label="Facility Full View">
         <button class="facility-modal-close" type="button" aria-label="Close full view">&times;</button>
 
@@ -653,155 +686,7 @@
 
   <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
   <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('[data-campus-tour-carousel]').forEach((carousel) => {
-        const slides = Array.from(carousel.querySelectorAll('[data-campus-tour-slide]'));
-        const prev = carousel.querySelector('[data-campus-tour-prev]');
-        const next = carousel.querySelector('[data-campus-tour-next]');
-        if (!slides.length) {
-          return;
-        }
-
-        let current = Math.max(0, slides.findIndex((slide) => slide.classList.contains('is-active')));
-        if (current < 0) {
-          current = 0;
-        }
-
-        const show = (index) => {
-          current = (index + slides.length) % slides.length;
-          slides.forEach((slide, slideIndex) => {
-            slide.classList.toggle('is-active', slideIndex === current);
-          });
-        };
-
-        prev?.addEventListener('click', () => show(current - 1));
-        next?.addEventListener('click', () => show(current + 1));
-
-        if (slides.length > 1) {
-          let autoSlideTimer = null;
-
-          const startAutoSlide = () => {
-            if (autoSlideTimer !== null) {
-              return;
-            }
-            autoSlideTimer = window.setInterval(() => show(current + 1), 5000);
-          };
-
-          const stopAutoSlide = () => {
-            if (autoSlideTimer === null) {
-              return;
-            }
-            window.clearInterval(autoSlideTimer);
-            autoSlideTimer = null;
-          };
-
-          startAutoSlide();
-          carousel.addEventListener('mouseenter', stopAutoSlide);
-          carousel.addEventListener('mouseleave', startAutoSlide);
-        } else {
-          // If only 1 slide, define dummy start/stop so openFacilityModal doesn't crash
-          window.startAutoSlide = () => {};
-          window.stopAutoSlide = () => {};
-        }
-
-        const facilityModalOverlay = document.getElementById('facilityModalOverlay');
-        const facilityModalImage = document.getElementById('facilityModalImage');
-        const facilityModalTitle = document.getElementById('facilityModalTitle');
-        const facilityModalDots = document.getElementById('facilityModalDots');
-        const facilityModalClose = document.querySelector('.facility-modal-close');
-        const facilityModalPrev = document.getElementById('facilityModalPrev');
-        const facilityModalNext = document.getElementById('facilityModalNext');
-
-        const updateModalDots = () => {
-          if (!facilityModalDots) return;
-          facilityModalDots.innerHTML = '';
-          slides.forEach((_, idx) => {
-            const dot = document.createElement('button');
-            dot.className = 'facility-modal-dot' + (idx === current ? ' is-active' : '');
-            dot.setAttribute('aria-label', 'Go to slide ' + (idx + 1));
-            dot.addEventListener('click', (e) => {
-              e.stopPropagation();
-              show(idx);
-              openFacilityModal();
-            });
-            facilityModalDots.appendChild(dot);
-          });
-        };
-
-        const openFacilityModal = () => {
-          if (typeof stopAutoSlide === 'function') stopAutoSlide();
-          const activeSlide = slides[current];
-          const img = activeSlide.querySelector('img');
-          const caption = activeSlide.querySelector('figcaption');
-          
-          if (img && facilityModalImage) {
-            facilityModalImage.src = img.src;
-            facilityModalImage.alt = img.alt;
-          }
-          if (caption && facilityModalTitle) {
-            facilityModalTitle.textContent = caption.textContent.trim();
-          }
-          
-          updateModalDots();
-
-          if (facilityModalOverlay) {
-            facilityModalOverlay.classList.add('show');
-            facilityModalOverlay.setAttribute('aria-hidden', 'false');
-            document.body.classList.add('modal-open');
-          }
-        };
-
-        const closeFacilityModal = () => {
-          if (facilityModalOverlay) {
-            facilityModalOverlay.classList.remove('show');
-            facilityModalOverlay.setAttribute('aria-hidden', 'true');
-            document.body.classList.remove('modal-open');
-          }
-          if (typeof startAutoSlide === 'function') startAutoSlide();
-        };
-
-        slides.forEach((slide) => {
-          const expandBtn = slide.querySelector('[data-facility-expand]');
-          expandBtn?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            openFacilityModal();
-          });
-        });
-
-        const viewGalleryBtn = document.querySelector('[data-facility-view-gallery]');
-        viewGalleryBtn?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          openFacilityModal();
-        });
-
-        facilityModalClose?.addEventListener('click', closeFacilityModal);
-        facilityModalOverlay?.addEventListener('click', (e) => {
-          if (e.target === facilityModalOverlay || e.target.classList.contains('facility-modal-card')) {
-            closeFacilityModal();
-          }
-        });
-
-        facilityModalPrev?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          show(current - 1);
-          openFacilityModal();
-        });
-
-        facilityModalNext?.addEventListener('click', (e) => {
-          e.stopPropagation();
-          show(current + 1);
-          openFacilityModal();
-        });
-        
-        // Disable next/prev in modal if only 1 slide
-        if (slides.length <= 1) {
-            if (facilityModalPrev) facilityModalPrev.style.display = 'none';
-            if (facilityModalNext) facilityModalNext.style.display = 'none';
-        }
-      });
-    });
-  </script>
+  <script src="{{ asset('assets/js/campus-tour.js') }}?v={{ filemtime(public_path('assets/js/campus-tour.js')) }}" defer></script>
 
   @if($cmsPreview)
     <style>

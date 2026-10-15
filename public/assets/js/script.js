@@ -155,6 +155,7 @@ function initGlobalRevealTargets() {
     ".carousel-next",
     ".carousel-indicators",
     ".advisory-modal-overlay",
+    ".facility-modal-overlay",
     ".modal",
   ].join(", ");
 
