@@ -553,7 +553,7 @@
           <div class="campus-tour-card-head">
             <h3>Campus Facilities</h3>
             @if($campusFacilities->isNotEmpty() && empty($cmsPreview))
-              <button type="button" class="view-gallery-btn" data-facility-view-gallery>View Gallery</button>
+              <button type="button" class="btn view-gallery-btn" data-facility-view-gallery>View Gallery</button>
             @endif
           </div>
 

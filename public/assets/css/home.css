@@ -1108,15 +1108,17 @@ body.home-carousel-redesign .indicator.active {
 }
 
 .view-gallery-btn {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 36px;
   padding: 6px 12px;
-  border: 1px solid rgba(127, 17, 19, 0.18);
+  border: 1px solid #8b0000;
   border-radius: 7px;
-  background: #f8eee7;
-  color: #7f1113;
+  background: #8b0000;
+  color: #ffffff;
   font-size: 0.7rem;
   font-weight: 600;
   cursor: pointer;
@@ -1124,7 +1126,8 @@ body.home-carousel-redesign .indicator.active {
 }
 
 .view-gallery-btn:hover {
-  background: #efdbcd;
+  background: #a42127;
+  color: #ffffff;
 }
 
 .campus-tour-empty {
@@ -4677,9 +4680,9 @@ body.pup-dark-mode .campus-tour-empty > span {
 }
 
 body.pup-dark-mode .view-gallery-btn {
-  background: #371619;
-  color: #f1d9c4;
-  border-color: rgba(255, 255, 255, 0.2);
+  background: #8b0000;
+  color: #ffffff;
+  border-color: #8b0000;
 }
 
 /* Theme Switch */
