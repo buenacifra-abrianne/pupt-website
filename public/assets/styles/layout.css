@@ -283,7 +283,7 @@ body.nav-open .scroll-nav-button {
 
 .tagline {
   font-size: 12px;
-  color: var(--primary-color);
+  color: #171717;
   font-weight: 600;
   letter-spacing: 1px;
 }
@@ -786,7 +786,7 @@ pup-header .header-title-campus::before {
 pup-header .tagline {
   display: inline-flex;
   margin-top: 4px;
-  color: var(--dm-accent-hover);
+  color: #171717;
   font-size: 0.72rem;
   font-weight: 600;
   letter-spacing: 0.12em;
