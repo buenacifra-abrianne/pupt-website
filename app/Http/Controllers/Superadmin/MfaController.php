@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Services\MfaSecretStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -130,7 +131,8 @@ class MfaController extends Controller
             return back()->withErrors(['backup_code' => 'Invalid backup code.']);
         }
 
-        $secret = $isSetup ? session('mfa_setup_secret') : $user->mfa_secret;
+        $storage = app(MfaSecretStorage::class);
+        $secret = $isSetup ? session('mfa_setup_secret') : $storage->decrypt($user->mfa_secret);
 
         if (!$secret) {
             return back()->withErrors(['one_time_password' => 'MFA secret missing.']);
@@ -149,7 +151,7 @@ class MfaController extends Controller
                 $hashedBackupCodes = array_map(fn($code) => Hash::make($code), $rawBackupCodes);
 
                 DB::table('users')->where($idColumn, $userId)->update([
-                    'mfa_secret' => $secret,
+                    'mfa_secret' => $storage->encrypt($secret),
                     'backup_codes' => json_encode($hashedBackupCodes)
                 ]);
                 session()->forget(['mfa_setup_secret', 'mfa_setup_backup_codes']);

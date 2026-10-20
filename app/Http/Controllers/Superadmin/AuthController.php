@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Superadmin;
 
 use App\Http\Controllers\Controller;
+use App\Services\MfaSecretStorage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -43,6 +44,8 @@ class AuthController extends Controller
 
 
         $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+
+        $user->mfa_secret = app(MfaSecretStorage::class)->protectUser(data_get($user, $idColumn), $idColumn);
 
         $updates = [
             'last_login_at' => now(),
