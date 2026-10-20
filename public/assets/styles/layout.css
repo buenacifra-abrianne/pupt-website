@@ -294,25 +294,36 @@ body.nav-open .scroll-nav-button {
   gap: 15px;
 }
 
-.one-portal-btn {
+.one-portal-split {
+  position: relative;
+  display: inline-flex;
+  flex: 0 0 auto;
+  height: 48px;
   background: linear-gradient(180deg, #8f1218 0%, #6f0d12 100%);
   color: #fff;
-  border: 1px solid rgba(127, 17, 19, 0.08);
-  width: 42px;
-  height: 42px;
+  border: 1px solid rgba(127, 17, 19, 0.15);
+  border-radius: 12px;
+  box-shadow: 0 10px 22px rgba(62, 14, 12, 0.08);
+  transition: box-shadow 0.22s ease;
+}
+
+.one-portal-btn {
+  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 11px 0 0 11px;
+  text-decoration: none;
+  transition: background 0.22s ease;
+}
+
+.one-portal-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 16px;
-  box-shadow: 0 10px 22px rgba(62, 14, 12, 0.08);
-  text-decoration: none;
-  transition: 0.3s;
-}
-
-.one-portal-btn:hover {
-  background: linear-gradient(180deg, #a41b22 0%, #801318 100%);
-  color: #fff;
-  border-color: rgba(127, 17, 19, 0.15);
+  width: 50px;
+  height: 100%;
+  flex: 0 0 auto;
+  border-right: 1px solid rgba(255, 255, 255, 0.25);
 }
 
 .one-portal-btn svg {
@@ -323,6 +334,129 @@ body.nav-open .scroll-nav-button {
   stroke-width: 1.5;
   stroke-linecap: round;
   stroke-linejoin: round;
+}
+
+.one-portal-label {
+  padding: 0 18px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.35;
+  white-space: nowrap;
+}
+
+.one-portal-label span {
+  display: block;
+}
+
+.one-portal-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 0 11px 11px 0;
+  background: rgba(255, 255, 255, 0.04);
+  color: inherit;
+  cursor: pointer;
+  transition: background 0.22s ease;
+}
+
+.one-portal-toggle svg,
+.one-portal-options svg {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 0.22s ease;
+}
+
+.one-portal-split:hover,
+.one-portal-split:focus-within {
+  box-shadow: 0 10px 24px rgba(111, 13, 18, 0.2);
+}
+
+.one-portal-btn:hover,
+.one-portal-toggle:hover,
+.one-portal-toggle[aria-expanded="true"] {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.one-portal-toggle[aria-expanded="true"] svg {
+  transform: rotate(180deg);
+}
+
+.one-portal-btn:focus-visible,
+.one-portal-toggle:focus-visible,
+.one-portal-options a:focus-visible {
+  outline: 2px solid #c69225;
+  outline-offset: 3px;
+}
+
+.one-portal-options {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 272px;
+  padding-top: 10px;
+  z-index: 2;
+}
+
+.one-portal-options a {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 15px 18px;
+  border: 1px solid rgba(127, 17, 19, 0.15);
+  border-radius: 12px;
+  background: #fffaf7;
+  color: #6f0d12;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+  text-decoration: none;
+  box-shadow: 0 12px 28px rgba(62, 14, 12, 0.16);
+  transition: background 0.22s ease;
+}
+
+.one-portal-options a:hover {
+  background: #f6e9e5;
+}
+
+@media (max-width: 1100px) {
+  pup-header .one-portal-split {
+    height: 42px;
+  }
+
+  pup-header .one-portal-btn {
+    width: 42px;
+    height: 100%;
+    border-radius: 11px 0 0 11px;
+  }
+
+  .one-portal-icon {
+    width: 42px;
+    border-right: 0;
+  }
+
+  .one-portal-label {
+    display: none;
+  }
+
+  .one-portal-toggle {
+    width: 30px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .one-portal-split,
+  .one-portal-split * {
+    transition: none;
+  }
 }
 
 /* ========== Navbar (Desktop) ========== */
@@ -973,7 +1107,7 @@ pup-header .nav-overlay {
     align-items: center;
     justify-content: flex-start;
     position: relative;
-    padding-right: calc(var(--layout-page-gutter) + 44px);
+    padding-right: calc(var(--layout-page-gutter) + 132px);
   }
 
   pup-header .logo-section {
@@ -1321,7 +1455,7 @@ pup-header .nav-overlay {
   pup-header .header-top {
     padding: 11px var(--layout-page-gutter) 9px;
     gap: 8px;
-    padding-right: calc(var(--layout-page-gutter) + 42px);
+    padding-right: calc(var(--layout-page-gutter) + 126px);
   }
 
   pup-header .logo-section {
@@ -1348,11 +1482,14 @@ pup-header .nav-overlay {
     right: 6px;
   }
 
-  pup-header .hamburger,
-  pup-header .one-portal-btn {
+  pup-header .hamburger {
     width: 40px;
     height: 40px;
     border-radius: 14px;
+  }
+
+  pup-header .one-portal-split {
+    height: 40px;
   }
 
   pup-header .hamburger {

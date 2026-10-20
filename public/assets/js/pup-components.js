@@ -30,11 +30,22 @@ class PUPHeader extends HTMLElement {
       </div>
     </div>
     <div class="header-actions">
-      <a href="${onePortalUrl}" class="one-portal-btn" title="Go to One Portal" aria-label="Go to One Portal">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+      <div class="one-portal-split">
+        <a href="${onePortalUrl}" class="one-portal-btn" aria-label="Go to One Portal for Online Services">
+          <span class="one-portal-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418" />
         </svg>
-      </a>
+          </span>
+          <span class="one-portal-label">Go to One Portal<span>for Online Services</span></span>
+        </a>
+        <button type="button" class="one-portal-toggle" aria-label="Show One Portal options" aria-expanded="false" aria-controls="onePortalOptions">
+          <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="m5 7.5 5 5 5-5" /></svg>
+        </button>
+        <div class="one-portal-options" id="onePortalOptions" hidden>
+          <a href="${onePortalUrl}">Go to One Portal for Online Services<svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M4 10h12m-5-5 5 5-5 5" /></svg></a>
+        </div>
+      </div>
       <button class="hamburger" id="hamburger" aria-label="Open menu">☰</button>
     </div>
   </div>
@@ -67,7 +78,47 @@ class PUPHeader extends HTMLElement {
 
     this.#setActiveLink();
     this.#initHeaderMenu();
+    this.#initOnePortal();
     this.#initAccessibilityWidget();
+  }
+
+  #initOnePortal() {
+    const split = this.querySelector(".one-portal-split");
+    const toggle = split.querySelector(".one-portal-toggle");
+    const options = split.querySelector(".one-portal-options");
+    this._portalEvents?.abort();
+    this._portalEvents = new AbortController();
+    const { signal } = this._portalEvents;
+    const setOpen = (open) => {
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Hide One Portal options" : "Show One Portal options");
+      options.hidden = !open;
+      split.classList.toggle("is-open", open);
+    };
+
+    toggle.addEventListener("click", () => setOpen(options.hidden), { signal });
+    split.addEventListener("pointerenter", (event) => {
+      if (event.pointerType === "mouse") setOpen(true);
+    }, { signal });
+    split.addEventListener("pointerleave", () => {
+      if (!split.contains(document.activeElement)) setOpen(false);
+    }, { signal });
+    split.addEventListener("focusout", (event) => {
+      if (!split.contains(event.relatedTarget)) setOpen(false);
+    }, { signal });
+    split.addEventListener("keydown", (event) => {
+      if (event.key === "ArrowDown") {
+        event.preventDefault();
+        setOpen(true);
+        options.querySelector("a").focus();
+      } else if (event.key === "Escape") {
+        setOpen(false);
+        toggle.focus();
+      }
+    }, { signal });
+    document.addEventListener("click", (event) => {
+      if (!split.contains(event.target)) setOpen(false);
+    }, { signal });
   }
 
   #setActiveLink() {
@@ -234,6 +285,7 @@ class PUPHeader extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._portalEvents?.abort();
     if (this._handleHeaderScroll) {
       window.removeEventListener("scroll", this._handleHeaderScroll);
     }
