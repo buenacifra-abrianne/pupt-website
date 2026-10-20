@@ -37,13 +37,13 @@
     <canvas id="hero-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
     <div class="landing-container">
         <section class="landing-identity">
-            <h1 class="title">
-                <span class="title-welcome" style="min-height: 1em;">WELCOME TO</span>
-                <span class="title-main-line" style="min-height: 1.1em;">PUP TAGUIG</span>
-                <span class="title-main-line" style="min-height: 1.1em;">WEBSITE</span>
+            <h1 class="title" aria-label="Welcome to PUP Taguig">
+                <span class="title-welcome" aria-hidden="true">WELCOME TO</span>
+                <span class="title-main-line" aria-hidden="true">PUP TAGUIG</span>
             </h1>
 
             <p class="kicker">Official Campus Website</p>
+            <p class="landing-intro">Your gateway to campus information<br>and digital services.</p>
 
             <div class="landing-seals-shell" aria-label="Government and campus seals">
                 <div class="support-logo-row">
@@ -58,7 +58,7 @@
                         <img
                             class="support-logo"
                             src="{{ asset('assets/static_img/TUVSUD%20ISO.png') }}"
-                            alt="TUVSU Seal"
+                            alt="TÜV SÜD ISO Certification"
                         >
                     </span>
                     <span class="support-logo-item">
@@ -194,11 +194,7 @@
         const titleContainer = document.querySelector('.landing-identity .title');
         if (!titleContainer) return;
         
-        const lines = [
-            titleContainer.querySelector('.title-welcome'),
-            titleContainer.querySelectorAll('.title-main-line')[0],
-            titleContainer.querySelectorAll('.title-main-line')[1]
-        ];
+        const lines = Array.from(titleContainer.querySelectorAll('.title-welcome, .title-main-line'));
         
         const texts = lines.map(line => line.textContent.trim());
         
@@ -212,7 +208,7 @@
         // Inject blinking caret CSS
         const style = document.createElement('style');
         style.innerHTML = `
-            .landing-identity .title span {
+            .landing-identity .title > span {
                 border-right: 0.12em solid transparent;
                 padding-right: 0.15em; /* Space between text and cursor */
             }
@@ -263,6 +259,7 @@
         const wavyElement = document.querySelector('.wavy-text');
         if (wavyElement) {
             const text = wavyElement.textContent;
+            wavyElement.setAttribute('aria-label', text);
             wavyElement.textContent = '';
             
             // Inject wavy CSS
@@ -284,6 +281,7 @@
             for (let i = 0; i < text.length; i++) {
                 const char = text[i];
                 const span = document.createElement('span');
+                span.setAttribute('aria-hidden', 'true');
                 
                 if (char === ' ') {
                     span.innerHTML = '&nbsp;';
