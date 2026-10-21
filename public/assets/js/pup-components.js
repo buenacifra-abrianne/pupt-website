@@ -447,6 +447,7 @@ class PUPFooter extends HTMLElement {
   .footer {
     background: linear-gradient(180deg, #8f1016 0%, #5f080b 56%, #330507 100%);
     color: #fff;
+    overflow-wrap: anywhere;
   }
 
   .footer a {
@@ -611,6 +612,7 @@ class PUPFooter extends HTMLElement {
   }
 
   .footer-panel-title {
+    min-width: 0;
     font-size: 13px;
     line-height: 34px;
   }
@@ -956,15 +958,21 @@ class PUPFooter extends HTMLElement {
     }
   }
 
-  @media (max-width: 900px) {
+  .footer-carousel-controls {
+    display: none;
+  }
+
+  @media (max-width: 1024px) {
     .footer-shell {
       display: flex;
       flex-wrap: nowrap;
       overflow-x: auto;
       scroll-snap-type: x mandatory;
+      scroll-padding-inline: var(--layout-page-gutter, 16px);
+      overscroll-behavior-x: contain;
       -webkit-overflow-scrolling: touch;
       gap: 12px;
-      padding: 16px 12px;
+      padding: 16px var(--layout-page-gutter, 16px);
       scrollbar-width: none;
       align-items: stretch;
     }
@@ -985,8 +993,11 @@ class PUPFooter extends HTMLElement {
     .footer-bottom-strip,
     .footer-govph-grid > .footer-govph-block,
     .footer-combined-govph {
-      flex: 0 0 85%;
-      scroll-snap-align: center;
+      flex: 0 0 100%;
+      min-width: 0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      scroll-snap-align: start;
       background: rgba(0, 0, 0, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 12px;
@@ -998,10 +1009,39 @@ class PUPFooter extends HTMLElement {
       gap: 20px;
     }
 
-    .footer-shell::before,
-    .footer-shell::after {
-      content: "";
-      flex: 0 0 1px;
+    .footer-carousel-controls {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 0 var(--layout-page-gutter, 16px) 16px;
+    }
+
+    .footer-carousel-controls button {
+      width: 44px;
+      height: 44px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.2);
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .footer-carousel-controls button:disabled {
+      opacity: 0.4;
+      cursor: default;
+    }
+
+    .footer-carousel-controls button:focus-visible,
+    .footer-shell:focus-visible {
+      outline: 2px solid #f3c45a;
+      outline-offset: -2px;
+    }
+
+    .footer-carousel-status {
+      color: #fff;
+      font-size: 13px;
     }
 
     .footer-brand,
@@ -1110,7 +1150,7 @@ class PUPFooter extends HTMLElement {
 
   @media (max-width: 480px) {
     .footer-shell {
-      padding: 10px 10px 10px;
+      padding: 16px var(--layout-page-gutter, 16px);
     }
 
     .footer-brand-seals {
@@ -1134,7 +1174,7 @@ class PUPFooter extends HTMLElement {
 </style>
 <footer class="footer${isLanding ? " footer-landing" : ""}">
   ${!isLanding ? `
-  <div class="footer-shell">
+  <div class="footer-shell" tabindex="0" aria-label="University services and government information">
     <div class="footer-top">
       <div class="footer-brand">
         <div class="footer-brand-seals" aria-label="University and government seals">
@@ -1296,6 +1336,11 @@ class PUPFooter extends HTMLElement {
     </div>
   </div>
 
+  <nav class="footer-carousel-controls" aria-label="Footer carousel">
+    <button type="button" data-footer-prev aria-label="Previous footer section">&#8249;</button>
+    <span class="footer-carousel-status" aria-live="polite" aria-atomic="true"></span>
+    <button type="button" data-footer-next aria-label="Next footer section">&#8250;</button>
+  </nav>
   ` : ""}
 
   <div class="footer-legal">
@@ -1308,6 +1353,57 @@ class PUPFooter extends HTMLElement {
   </div>
 </footer>
     `.trim();
+
+    if (!isLanding) this.setupCarousel();
+  }
+
+  setupCarousel() {
+    this.carouselAbort?.abort();
+    const controller = new AbortController();
+    this.carouselAbort = controller;
+    const options = { signal: controller.signal };
+    const shell = this.querySelector('.footer-shell');
+    const slides = [...shell.querySelectorAll('.footer-brand, .footer-top > .footer-panel, .footer-combined-panel, .footer-socials-panel, .footer-bottom-strip, .footer-govph-grid > .footer-govph-block, .footer-combined-govph')];
+    const previous = this.querySelector('[data-footer-prev]');
+    const next = this.querySelector('[data-footer-next]');
+    const status = this.querySelector('.footer-carousel-status');
+    const compact = window.matchMedia('(max-width: 1024px)');
+    let current = 0;
+    const update = () => {
+      const shellLeft = shell.getBoundingClientRect().left + parseFloat(getComputedStyle(shell).paddingLeft);
+      current = slides.reduce((nearest, slide, index) => Math.abs(slide.getBoundingClientRect().left - shellLeft) < Math.abs(slides[nearest].getBoundingClientRect().left - shellLeft) ? index : nearest, 0);
+      previous.disabled = current === 0;
+      next.disabled = current === slides.length - 1;
+      status.textContent = `${current + 1} / ${slides.length}`;
+    };
+    const go = index => {
+      if (!compact.matches) return;
+      const slide = slides[Math.max(0, Math.min(slides.length - 1, index))];
+      const left = shell.scrollLeft + slide.getBoundingClientRect().left - shell.getBoundingClientRect().left - parseFloat(getComputedStyle(shell).paddingLeft);
+      shell.scrollTo({ left, behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'instant' : 'smooth' });
+    };
+    previous.addEventListener('click', () => go(current - 1), options);
+    next.addEventListener('click', () => go(current + 1), options);
+    shell.addEventListener('scroll', update, { ...options, passive: true });
+    shell.addEventListener('keydown', event => {
+      if (!compact.matches || event.target !== shell) return;
+      const destination = { ArrowLeft: current - 1, ArrowRight: current + 1, Home: 0, End: slides.length - 1 }[event.key];
+      if (destination === undefined) return;
+      event.preventDefault();
+      go(destination);
+    }, options);
+    const resize = () => {
+      shell.tabIndex = compact.matches ? 0 : -1;
+      if (!compact.matches) shell.scrollLeft = 0;
+      update();
+    };
+    compact.addEventListener('change', resize, options);
+    window.addEventListener('resize', resize, options);
+    resize();
+  }
+
+  disconnectedCallback() {
+    this.carouselAbort?.abort();
   }
 }
 
