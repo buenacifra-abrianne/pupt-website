@@ -12,6 +12,9 @@
 @endphp
 
 @once
+    <script>document.body.classList.add('cms-shell');</script>
+    <link rel="stylesheet" href="{{ asset('assets/css/shared/cms-responsive.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-responsive.css')) }}">
+    <script src="{{ asset('assets/js/cms-layout.js') }}?v={{ filemtime(public_path('assets/js/cms-layout.js')) }}" defer></script>
     <link rel="stylesheet" href="{{ asset('assets/css/shared/profile-avatar.css') }}">
     <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}?v={{ filemtime(public_path('assets/css/accessibility_widget.css')) }}" data-accessibility-widget-styles="true">
 @endonce
@@ -546,7 +549,7 @@
 <header class="topbar">
     <div class="topbar-left">
         <button class="menu-toggle" onclick="{{ $menuToggleFunction }}" type="button">
-            <i class="fas fa-bars"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
         </button>
         {{ $left ?? '' }}
     </div>
