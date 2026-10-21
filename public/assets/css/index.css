@@ -34,7 +34,7 @@ body {
 }
 
 .menu {
-    --menu-pad-x: clamp(12px, 2.5vw, 36px);
+    --menu-pad-x: clamp(16px, 2.5vw, 36px);
     position: relative;
     width: 100%;
     min-height: 100vh;
@@ -404,7 +404,7 @@ body {
 }
 
 @media (max-width: 540px) {
-    .menu { --menu-pad-x: 12px; padding-top: 14px; gap: 16px; }
+    .menu { --menu-pad-x: 16px; padding-top: 14px; gap: 16px; }
     .landing-container { border-radius: 20px; }
     .landing-identity { padding: 30px 18px 26px; gap: 10px; }
     .title-welcome { font-size: 0.72rem; letter-spacing: 0.28em; }
