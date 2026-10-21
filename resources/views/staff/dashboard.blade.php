@@ -18,14 +18,14 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-dashboard">
         <!-- ========================= -->
         <!-- ✅ TAB 1: DASHBOARD -->
         <!-- ========================= -->
 
 
             <!-- Stats Cards -->
-            <div class="stats-grid">
+            <div class="stats-grid cms-summary-grid">
             <div class="stat-card">
                 <div class="stat-icon maroon">
                     <i class="fas fa-hourglass-half"></i>
@@ -57,14 +57,15 @@
             <div class="content-grid">
                 <!-- Recent Notifications -->
                 <div class="card">
-                    <div class="card-header">
+                    <header class="card-header cms-dashboard-feed-header">
                         <h2 class="card-title">Recent Notifications</h2>
                         <div style="display:flex; gap:10px;">
                             <a class="btn btn-outline btn-sm" href="{{ route('staff.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
-                    </div>
+                    </header>
+                    <hr class="cms-dashboard-feed-divider">
 
                     <div class="card-body-scroll">
                         @if(!empty($recent_notifications) && count($recent_notifications) > 0)
