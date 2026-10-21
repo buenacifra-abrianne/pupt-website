@@ -1059,6 +1059,7 @@
                             <i class="fas {{ $submitMode === 'request' ? 'fa-paper-plane' : 'fa-save' }}"></i>
                             {{ $submitLabel('Document Requests QR Codes') }}
                         </button>
+                        <button type="button" class="btn btn-outline" data-close-students-editor>Cancel</button>
                     </div>
                 </form>
             </section>
@@ -2128,6 +2129,8 @@
 
     .students-cms-modal.is-document-request-editor .students-cms-modal-footer {
         padding-right: 0;
+        gap: 10px;
+        flex-wrap: wrap;
     }
 
     @media (max-width: 768px) {
@@ -2236,6 +2239,14 @@
         };
 
         const closeEditor = () => {
+            modal.querySelectorAll('[data-students-qr-draft]').forEach((draft) => {
+                draft.querySelectorAll('.students-cms-image-dropzone-preview').forEach((preview) => {
+                    if (preview.src.startsWith('blob:')) {
+                        URL.revokeObjectURL(preview.src);
+                    }
+                });
+                draft.remove();
+            });
             modal.hidden = true;
             modal.classList.remove('is-card-focus', 'is-document-request-editor');
             document.body.style.overflow = '';
@@ -2601,18 +2612,16 @@
                     event.preventDefault();
                     event.stopPropagation();
                     openEditor('document_requests_qr_codes_items', 'Add QR code', { qrIndex: 'new' });
-                    window.setTimeout(() => {
-                        const list = modal.querySelector(`[data-students-repeatable-list="document-requests-qr"]`);
-                        if (list) {
-                            const index = nextRepeatableIndex(list);
-                            list.insertAdjacentHTML('beforeend', repeatableTemplates['document-requests-qr'](index));
-                            initStudentsImageDropzones(list);
-                            setActiveQrEditor(index);
-                            const latest = list.lastElementChild;
-                            latest?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                            latest?.querySelector('input:not([type="hidden"]), textarea')?.focus();
-                        }
-                    }, 0);
+                    const list = modal.querySelector(`[data-students-repeatable-list="document-requests-qr"]`);
+                    if (list) {
+                        const index = nextRepeatableIndex(list);
+                        list.insertAdjacentHTML('beforeend', repeatableTemplates['document-requests-qr'](index));
+                        initStudentsImageDropzones(list);
+                        setActiveQrEditor(index);
+                        const latest = list.lastElementChild;
+                        latest?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                        latest?.querySelector('input:not([type="hidden"]), textarea')?.focus();
+                    }
                     return;
                 }
 
@@ -3745,7 +3754,7 @@
                 const flyerFieldId = `{{ $idPrefix }}-students-document-requests-qr-flyer-field-${index}`;
 
                 return `
-                    <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-qr-index="${index}">
+                    <div class="students-cms-repeatable-item" data-students-repeatable-item data-students-qr-index="${index}" data-students-qr-draft>
                         <div class="students-cms-document-images">
                             <input type="hidden" id="${fieldId}" name="students[pages][document-requests][qr_codes][items][${index}][image]" value="" data-students-image-field>
                             <div class="form-group">
