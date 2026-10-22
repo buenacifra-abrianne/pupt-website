@@ -148,7 +148,7 @@ $history = $this->attachDisplayFields($history);
         'location' => PlainText::normalize($payload['location'] ?? ''),
         'link' => !empty($payload['link']) ? $payload['link'] : null,
         'image_path' => $payload['image_path'] ?? null,
-        'additional_images' => $payload['additional_images'] ?? null,
+        'additional_images' => isset($payload['additional_images']) ? json_encode($payload['additional_images'], JSON_UNESCAPED_SLASHES) : null,
         'date_published' => now(),
         'created_at' => now(),
         'priority' => strtoupper($payload['priority'] ?? 'LOW'),
@@ -246,7 +246,7 @@ $history = $this->attachDisplayFields($history);
                         ? ($payload['image_path'] !== '' ? $payload['image_path'] : null)
                         : DB::raw('image_path'),
                     'additional_images' => array_key_exists('additional_images', $payload)
-                        ? ($payload['additional_images'] !== '' ? $payload['additional_images'] : null)
+                        ? json_encode($payload['additional_images'], JSON_UNESCAPED_SLASHES)
                         : DB::raw('additional_images'),
                 ]);
         }
@@ -436,7 +436,12 @@ if ($reqUserId > 0) {
 
     } catch (\Throwable $e) {
         DB::rollBack();
-        return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
+        report($e);
+
+        return response()->json([
+            'ok' => false,
+            'error' => "We couldn't approve this request. Please try again later.",
+        ], 500);
     }
 }
 
