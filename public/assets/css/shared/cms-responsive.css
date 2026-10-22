@@ -1,0 +1,447 @@
+/* Shared by Superadmin, Admin and Staff. Keep content inside its available column. */
+body.cms-shell {
+    --cms-gutter: clamp(16px, 2vw, 32px);
+    --cms-viewport-height: 100vh;
+    --cms-topbar-height: 70px;
+}
+
+@supports (height: 100dvh) {
+    body.cms-shell { --cms-viewport-height: 100dvh; }
+}
+
+body.cms-shell .main-content {
+    min-width: 0;
+    max-width: 100%;
+    padding-inline: var(--cms-gutter);
+    overflow-wrap: anywhere;
+}
+
+body.cms-shell :is(.main-content, .modal, .modal-overlay, .profile-edit-modal, [class*="-cms-modal"]) :where(section, article, aside, div, form, fieldset) {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+body.cms-shell :is(input, select, textarea, img, video, canvas, iframe) {
+    max-width: 100%;
+}
+
+body.cms-shell :is(.sidebar, .sidebar.collapsed) {
+    height: var(--cms-viewport-height);
+    max-height: var(--cms-viewport-height);
+    overflow-y: hidden !important;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0 !important;
+}
+
+body.cms-shell .sidebar > * { flex-shrink: 0; }
+body.cms-shell .sidebar .logo-section { flex: 0 0 auto; }
+body.cms-shell .sidebar > .nav-menu {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    overscroll-behavior: contain;
+    padding-block: 8px;
+}
+body.cms-shell .sidebar .sidebar-footer-text {
+    position: static !important;
+    display: block !important;
+    flex: 0 0 auto;
+    margin-top: auto;
+    padding: 14px 12px;
+    border-top: 1px solid rgba(255, 255, 255, .15);
+    color: #fff;
+    background: inherit;
+    text-align: center;
+    font-size: 12px;
+    font-style: italic;
+    line-height: 1.5;
+}
+body.cms-shell .sidebar-footer-version { display: block; font-size: 10px; font-weight: 700; font-style: normal; opacity: .7; }
+@media (min-width: 1025px) {
+    body.cms-shell .sidebar.collapsed .sidebar-footer-text { padding: 10px 6px; font-size: 9px; }
+    body.cms-shell .sidebar.collapsed .sidebar-footer-version { font-size: 8px; }
+}
+body.cms-shell .topbar { min-width: 0; padding-inline: var(--cms-gutter); }
+body.cms-shell :is(.topbar-left, .topbar-right, .user-profile, .user-info) { min-width: 0; }
+body.cms-shell .user-name { overflow-wrap: anywhere; }
+body.cms-shell .profile-dropdown { max-width: calc(100vw - 2 * var(--cms-gutter)); }
+body.cms-shell .menu-toggle svg { display: block; width: 24px; height: 24px; }
+body.cms-shell .tab-navigation { width: 100% !important; margin-inline: 0 !important; }
+body.cms-shell .modern-stats-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); }
+body.cms-shell :is(.pagination, .custom-pagination, .pagination-container, .pagination-controls, .pagination-buttons, .page-numbers, .page-btns) {
+    max-width: 100%;
+    min-width: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+}
+body.cms-shell .modal-divider { width: 100%; margin-inline: 0 !important; }
+body.cms-shell .cms-native-select { inset: 0 auto auto 0; padding: 0 !important; border: 0 !important; }
+body.cms-shell :is(.cms-dropdown-menu, .searchable-dropdown) { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+
+body.cms-shell :is(.page-header, .card-header, .panel-header, .modal-header, .modal-footer, .filter-bar, .filters-bar, .table-header, .search-filter-bar, .tab-navigation, .top-tabs) {
+    flex-wrap: wrap;
+    gap: 12px;
+    min-width: 0;
+}
+
+body.cms-shell :is(.tab-navigation-list, .tab-navigation > div, .filter-actions, .header-actions, .action-buttons, .announcement-actions, .news-actions, .announcement-header, .export-options, .date-range-bar, .date-range-selector) {
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
+}
+
+body.cms-shell .cms-table-scroll {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}
+
+body.cms-shell .cms-table-scroll:focus-visible { outline: 2px solid #800000; outline-offset: 2px; }
+body.cms-shell .main-content .cms-table-scroll {
+    max-height: min(640px, calc(var(--cms-viewport-height) * .65));
+    overflow: auto;
+    scrollbar-gutter: stable;
+}
+body.cms-shell .main-content .cms-table-scroll > table > thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--theme-maroon, #800000);
+}
+body.cms-shell .main-content .cms-table-scroll > table > thead th { color: #fff; }
+
+/* Preserve column space; let the table scroll instead of compressing cells. */
+body.cms-shell .cms-table-scroll > table {
+    width: 100%;
+    min-width: var(--cms-table-min-width, 640px);
+    table-layout: auto;
+    border-collapse: collapse;
+}
+body.cms-shell .cms-table-scroll > .audit-table { table-layout: fixed; min-width: max(1120px, var(--cms-table-min-width, 1120px)); }
+body.cms-shell .cms-table-scroll :is(th, td) { vertical-align: top; overflow-wrap: anywhere; }
+body.cms-shell .cms-table-scroll th { white-space: normal; }
+body.cms-shell .cms-table-scroll :is(.actions, .table-actions, .approvals-actions) { flex-wrap: wrap; max-width: 100%; gap: 8px; }
+body.cms-shell .cms-table-scroll :is(.role-badge, .security-badge, .action-badge, .mod-badge) { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
+body.cms-shell .audit-table :is(.time-text, .time-ago) { white-space: normal; }
+
+body.cms-shell :is(.modal, .modal-overlay, .profile-edit-modal, .cms-image-editor, .cms-terms-overlay, .home-cms-modal, .about-cms-modal, .academics-cms-modal, .students-cms-modal, .events-cms-modal, .research-cms-modal) {
+    box-sizing: border-box;
+    inset: 0 !important;
+    height: var(--cms-viewport-height) !important;
+    min-height: 0 !important;
+    max-height: var(--cms-viewport-height);
+    padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left)) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+}
+
+body.cms-shell :is(.modal-content, .mbox, .profile-edit-dialog, .cms-image-editor-dialog, .cms-terms-modal, [class*="-cms-modal-dialog"]) {
+    box-sizing: border-box;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-height: calc(var(--cms-viewport-height) - 32px) !important;
+    overflow-y: auto !important;
+    overscroll-behavior: contain;
+    overflow-wrap: anywhere;
+    margin-block: auto !important;
+}
+
+body.cms-shell :is(.modal-body, .profile-edit-body, [class*="-cms-modal-panels"]) {
+    min-height: 0;
+    max-width: 100%;
+}
+
+body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
+    max-width: 100%;
+    white-space: normal;
+    height: auto;
+    line-height: 1.35 !important;
+    padding-block: 8px !important;
+}
+
+.cms-sidebar-close, .cms-sidebar-backdrop { display: none; }
+
+@media (max-width: 1200px) {
+    body.cms-shell :is(.analytics-split-grid, .content-grid) { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 1024px) {
+    body.cms-shell { --cms-gutter: clamp(16px, 2.5vw, 24px); }
+    body.cms-shell.cms-nav-open { overflow: hidden; }
+
+    body.cms-shell :is(.sidebar, .sidebar.collapsed, .sidebar.sidebar-expanded) {
+        width: min(300px, calc(100vw - 48px)) !important;
+        transform: translateX(-100%);
+        visibility: hidden;
+        transition: transform 0.2s ease, visibility 0.2s;
+        z-index: 2200;
+    }
+
+    body.cms-shell.cms-nav-open .sidebar {
+        transform: translateX(0);
+        visibility: visible;
+    }
+
+    body.cms-shell .sidebar :is(.logo-text, .nav-link span) { display: initial !important; }
+    body.cms-shell .sidebar.collapsed .submenu { display: none !important; }
+    body.cms-shell .sidebar .nav-link span { white-space: normal !important; }
+    body.cms-shell .sidebar .sidebar-footer-text { display: block !important; }
+    body.cms-shell .sidebar ~ .topbar { left: 0 !important; right: 0; height: var(--cms-topbar-height); }
+    body.cms-shell .sidebar ~ .main-content {
+        margin-left: 0 !important;
+        margin-top: var(--cms-topbar-height) !important;
+        width: 100% !important;
+        padding: 20px var(--cms-gutter) !important;
+    }
+
+    body.cms-shell .cms-sidebar-close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        align-self: flex-end;
+        width: 44px;
+        height: 44px;
+        margin: 0 12px 12px;
+        border: 1px solid rgba(255,255,255,.5);
+        border-radius: 10px;
+        background: transparent;
+        color: #fff;
+        font-size: 26px;
+        cursor: pointer;
+    }
+
+    body.cms-shell .cms-sidebar-backdrop:not([hidden]) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 2100;
+        border: 0;
+        background: rgba(0,0,0,.45);
+    }
+
+    body.cms-shell :is(.modal-content, .mbox, .profile-edit-dialog, .cms-image-editor-dialog, .cms-terms-modal, [class*="-cms-modal-dialog"]) {
+        max-width: min(720px, 100%) !important;
+        margin-inline: auto !important;
+    }
+
+    body.cms-shell :is(.stats-grid, .form-row, .analytics-grid, .analytics-split-grid, .content-grid) {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+
+    body.cms-shell :is(.search-box, .search-bar, .search-input, .filter-group, .filter-select) {
+        min-width: 0 !important;
+        max-width: 100%;
+    }
+
+    body.cms-shell :is(.filter-bar, .filters-bar, .search-filter-bar, .table-controls, .filters-container) {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    body.cms-shell .tab-navigation:has(.tab-navigation-list) { display: block; overflow-x: auto; }
+    body.cms-shell .tab-navigation-list {
+        width: max-content !important;
+        min-width: 100%;
+        max-width: none;
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        gap: 8px;
+        padding: 8px;
+    }
+    body.cms-shell .tab-navigation-item { flex: 0 0 auto; }
+    body.cms-shell .cms-uptime-summary { flex-wrap: wrap; gap: 12px !important; }
+    body.cms-shell .cms-uptime-status { flex-wrap: wrap; }
+    body.cms-shell .cms-uptime-timeline { min-width: 0 !important; max-width: 100% !important; flex: 1 1 100% !important; }
+}
+
+@media (max-width: 600px) {
+    body.cms-shell .user-info { display: none; }
+    body.cms-shell :is(.topbar-left, .topbar-right) { gap: 10px; }
+    body.cms-shell :is(.page-title, .modal-title, .profile-edit-title) { font-size: clamp(18px, 5.5vw, 26px); }
+    body.cms-shell :is(.stats-grid, .form-row, .frow, .vgrid, .analytics-grid, .analytics-split-grid, .content-grid, .profile-edit-grid) {
+        grid-template-columns: minmax(0, 1fr) !important;
+    }
+
+    body.cms-shell :is(.modal-content, .profile-edit-body, [class*="-cms-modal-panels"]) { padding: 16px !important; }
+    body.cms-shell :is(.modal-header, .profile-edit-head, [class*="-cms-modal-header"]) { padding: 16px !important; }
+    body.cms-shell [class*="-cms-modal-header"] { padding-right: 64px !important; }
+    body.cms-shell :is(.modal-footer, [class*="-cms-modal-footer"]) { flex-wrap: wrap; gap: 10px; }
+    body.cms-shell :is(.filter-group, .search-box, .search-bar) { width: 100%; }
+    body.cms-shell .tab-navigation > div { flex-wrap: wrap; width: 100%; }
+    body.cms-shell .cms-image-editor-dialog { grid-template-rows: auto minmax(100px, 1fr) auto; }
+    body.cms-shell .stat-card { flex-wrap: wrap; padding: 18px !important; }
+    body.cms-shell .stat-info { flex: 1 1 100% !important; }
+    body.cms-shell :is(.stat-card-head, .stat-info > div:has(> .stat-label)) { flex-wrap: wrap; gap: 10px; }
+    body.cms-shell .stat-info .stat-label { min-width: min(100%, 120px); }
+    body.cms-shell .cms-uptime-value { font-size: clamp(32px, 10vw, 48px) !important; }
+    body.cms-shell .rich-editor-toolbar { padding: 8px; gap: 6px; }
+    body.cms-shell .rich-editor-group { max-width: 100%; flex-wrap: wrap; }
+    body.cms-shell .rich-editor-separator { display: none; }
+    body.cms-shell .rich-editor-color-popover { width: min(248px, calc(100vw - 96px)); }
+    body.cms-shell .rich-editor-color-wrap { position: static; }
+    body.cms-shell :is(.rich-editor-color-popover, .rich-editor-fontsize-popover) { max-width: 100%; }
+    body.cms-shell .form-group > div:has(> input[type="date"]) { flex-wrap: wrap; }
+    body.cms-shell .form-group > div > input[type="date"] { flex: 1 1 140px; min-width: 0; }
+}
+
+@media (max-height: 500px) {
+    body.cms-shell :is(.modal-content, .profile-edit-dialog, .cms-image-editor-dialog, [class*="-cms-modal-dialog"]) { border-radius: 12px; }
+    body.cms-shell .cms-image-editor-stage { min-height: 100px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    body.cms-shell .sidebar { transition: none; }
+}
+
+body.cms-shell .cms-dashboard-feed-header {
+    align-items: center;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+body.cms-shell .cms-dashboard-feed-divider {
+    width: 100%;
+    height: 0;
+    border: 0;
+    border-top: 1px solid var(--admin-panel-border);
+    margin: 16px 0 20px;
+}
+
+/* Dashboard controls and summaries share a compact phone/tablet layout. */
+body.cms-shell .cms-summary-grid .stat-card:has(> .stat-card-head) {
+    flex-direction: column;
+    align-items: stretch !important;
+    gap: 14px;
+}
+body.cms-shell .cms-summary-grid .stat-card-head { gap: 12px; }
+body.cms-shell .cms-summary-grid .stat-card-title-wrap { gap: 12px; }
+body.cms-shell .cms-summary-grid .stat-card-head .stat-icon { width: 48px; height: 48px; font-size: 32px !important; }
+body.cms-shell .cms-summary-grid .stat-card-head .stat-label { overflow-wrap: normal; }
+body.cms-shell .cms-summary-grid .stat-action-btn {
+    min-height: 34px !important;
+    padding: 6px 10px !important;
+    font-size: 12px !important;
+    white-space: nowrap;
+}
+
+@media (max-width: 1024px) {
+    body.cms-shell .cms-dashboard-feed-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+    }
+    body.cms-shell .cms-dashboard-feed-header > div { min-width: 0; }
+    body.cms-shell .cms-dashboard-feed-header :is(.card-header-main, .card-actions) {
+        min-height: 0;
+        margin: 0;
+    }
+    body.cms-shell .cms-dashboard-feed-header .card-title {
+        min-width: 0;
+        gap: 6px;
+        font-size: 14px;
+        line-height: 1.35;
+        overflow-wrap: normal;
+    }
+    body.cms-shell .cms-dashboard-feed-header .btn {
+        min-width: 0;
+        min-height: 32px !important;
+        padding: 6px 9px !important;
+        border-radius: 10px !important;
+        font-size: 11px !important;
+        gap: 5px !important;
+        white-space: nowrap;
+    }
+    body.cms-shell .cms-dashboard .top-tabs {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, .9fr) minmax(0, 1.35fr);
+        gap: 6px;
+        margin: 0 0 16px;
+        width: min(100%, 540px);
+    }
+    body.cms-shell .cms-dashboard .top-tab-btn {
+        min-width: 0;
+        min-height: 38px;
+        width: 100%;
+        padding: 6px;
+        justify-content: center;
+        gap: 5px;
+        border-radius: 10px;
+        font-size: clamp(10px, 2.5vw, 13px);
+        white-space: nowrap;
+    }
+    body.cms-shell .cms-dashboard .top-tab-btn i { width: 12px; flex: 0 0 12px; font-size: 12px; }
+    body.cms-shell .cms-summary-grid { gap: 14px; margin-bottom: 20px; }
+    body.cms-shell .cms-summary-grid .stat-card {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch !important;
+        justify-content: flex-start !important;
+        gap: 12px !important;
+        padding: 16px !important;
+        border-radius: 16px;
+    }
+    body.cms-shell .cms-summary-grid .stat-card-head {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+    }
+    body.cms-shell .cms-summary-grid .stat-card-title-wrap { gap: 10px; }
+    body.cms-shell .cms-summary-grid .stat-heading-group { gap: 4px; }
+    body.cms-shell .cms-summary-grid .stat-card .stat-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 26px !important;
+        border-radius: 10px;
+        margin: 0;
+    }
+    body.cms-shell .cms-summary-grid .stat-info { flex: initial !important; }
+    body.cms-shell .cms-summary-grid .stat-label { min-width: 0; font-size: 11px; line-height: 1.35; }
+    body.cms-shell .cms-summary-grid .stat-value { font-size: 30px !important; line-height: 1.1; margin: 0 !important; }
+    body.cms-shell .cms-summary-grid .stat-change { font-size: 11px; line-height: 1.5; }
+    body.cms-shell .cms-summary-grid .stat-action-btn {
+        min-height: 32px !important;
+        padding: 6px 9px !important;
+        border-radius: 10px !important;
+        font-size: 11px !important;
+        white-space: nowrap;
+        align-self: center;
+    }
+    body.cms-shell .cms-summary-grid .stat-card:has(> .stat-icon) {
+        display: grid;
+        grid-template-columns: 40px minmax(0, 1fr);
+        align-items: center !important;
+    }
+    body.cms-shell .cms-summary-grid .cms-uptime-summary {
+        display: grid !important;
+        grid-template-columns: 40px minmax(0, 1fr);
+        gap: 6px 12px !important;
+        width: 100%;
+    }
+    body.cms-shell .cms-summary-grid .cms-uptime-copy { display: contents !important; }
+    body.cms-shell .cms-summary-grid .cms-uptime-summary > i {
+        grid-column: 1;
+        grid-row: 1 / 3;
+        align-self: center;
+        font-size: 32px !important;
+    }
+    body.cms-shell .cms-summary-grid .cms-uptime-copy > span:first-child { grid-column: 2; grid-row: 1; font-size: 10px !important; }
+    body.cms-shell .cms-summary-grid .cms-uptime-value { grid-column: 2; grid-row: 2; font-size: 34px !important; margin: 0 !important; }
+    body.cms-shell .cms-summary-grid .cms-uptime-status { grid-column: 1 / -1; gap: 4px 6px !important; font-size: 11px !important; }
+    body.cms-shell .cms-summary-grid .cms-uptime-timeline { flex: initial !important; padding: 12px !important; }
+    body.cms-shell .cms-summary-grid .cms-uptime-bars { height: 18px !important; gap: 1px !important; }
+}
+
+@media (max-width: 380px) {
+    body.cms-shell .cms-dashboard .top-tab-btn i { display: none; }
+}

@@ -40,7 +40,7 @@
   --border-color: #ddd;
   --title-shadow: rgba(63, 7, 11, 0.1);
   --title-shadow-deep: rgba(32, 4, 6, 0.04);
-  --layout-page-gutter: 24px;
+  --layout-page-gutter: clamp(16px, 2.5vw, 40px);
 }
 
 html,
@@ -68,7 +68,18 @@ pup-footer {
 
 body > .main-content {
   flex: 1 0 auto;
+  min-width: 0;
   min-height: 0;
+}
+
+/* Allow grid/flex content and uploaded media to fit their available space. */
+.main-content :where(section, article, aside, div, a, p, h1, h2, h3, h4, li) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.main-content :where(img, video, iframe, input, select, textarea) {
+  max-width: 100%;
 }
 
 pup-footer {
@@ -877,7 +888,7 @@ pup-header .header.header-scrolled {
 }
 
 pup-header .header-top {
-  width: min(100% - 2rem, 1700px);
+  width: min(100% - 2 * var(--layout-page-gutter), 1700px);
   max-width: none;
   margin: 0 auto;
   padding: 14px 0;
@@ -1100,7 +1111,7 @@ pup-header .nav-overlay {
   :root {
   --theme-maroon: #8b0000;
   --theme-maroon-rgb: 139, 0, 0;
-    --layout-page-gutter: 12px;
+    --layout-page-gutter: clamp(16px, 2.5vw, 24px);
   }
 
   pup-header .header-top {
@@ -1130,6 +1141,7 @@ pup-header .nav-overlay {
     height: 40px;
     margin-top: 0;
     margin-right: 4px;
+    margin-left: 0;
   }
 
   pup-header .header-text {
@@ -1455,7 +1467,7 @@ pup-header .nav-overlay {
   :root {
   --theme-maroon: #8b0000;
   --theme-maroon-rgb: 139, 0, 0;
-    --layout-page-gutter: 10px;
+    --layout-page-gutter: 16px;
   }
 
   pup-header .header-top {
@@ -1485,7 +1497,7 @@ pup-header .nav-overlay {
   }
 
   pup-header .header-actions {
-    right: 6px;
+    right: var(--layout-page-gutter);
   }
 
   pup-header .hamburger {

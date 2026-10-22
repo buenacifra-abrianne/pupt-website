@@ -72,12 +72,12 @@ body {
    HERO / CAROUSEL
    ============================================================ */
 .hero-shell {
-  width: 100vw;
+  width: 100%;
   position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  left: auto;
+  right: auto;
+  margin-left: 0;
+  margin-right: 0;
   z-index: 1;
 }
 
@@ -196,9 +196,9 @@ body {
 .about-intro {
   display: flex;
   justify-content: center;
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   margin-top: -8px;
   padding: 0;
   background: transparent;
@@ -207,7 +207,7 @@ body {
   overflow: visible;
   position: relative;
   z-index: 4;
-  /* FIX: ensure it stretches to fill the grid cell before the 100vw breakout */
+  /* Stretch sections within the available grid width. */
   justify-self: stretch;
   align-self: start;
 }
@@ -347,10 +347,10 @@ body {
    CONTENTS STRIP & CARDS
    ============================================================ */
 .contents-strip {
-  width: 100vw;
+  width: 100%;
   max-width: none;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  margin-left: 0;
+  margin-right: 0;
   margin-top: -10px;
   padding: 24px 32px 28px;
   border-radius: 26px;
@@ -359,7 +359,7 @@ body {
   box-shadow: var(--about-shadow);
   position: relative;
   z-index: 1;
-  /* FIX: ensure it stretches to fill the grid cell before the 100vw breakout */
+  /* Stretch sections within the available grid width. */
   justify-self: stretch;
   align-self: start;
 }
@@ -730,10 +730,10 @@ body {
 .about-sections {
   display: grid;
   gap: 22px;
-  width: 100vw;
+  width: 100%;
   max-width: none;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  margin-left: 0;
+  margin-right: 0;
   padding: 0 0 28px;
   justify-items: center;
   /* FIX: ensure it stretches within the parent grid */
@@ -788,7 +788,7 @@ body {
 }
 
 .about-section-card {
-  width: 100vw;
+  width: 100%;
   max-width: none;
   padding: var(--about-page-gutter);
   scroll-margin-top: 110px;
@@ -1087,7 +1087,7 @@ body {
 .about-vision-word {
   margin: 0;
   color: #fff7ef;
-  font-size: clamp(3.8rem, 8.2vw, 7.2rem);
+  font-size: clamp(3rem, 5.5vw, 6rem);
   font-weight: 800;
   line-height: 0.84;
   letter-spacing: 0.01em;
@@ -1900,9 +1900,9 @@ body {
    HISTORY STORY
    ============================================================ */
 .history-story {
-  width: 100vw;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
   padding: 0 var(--about-page-gutter) 28px;
   display: grid;
   gap: 0;
@@ -2559,6 +2559,8 @@ pup-footer .footer { margin-top: 0; }
   .about-vision-trigger {
     position: static;
     transform: none;
+    transition: none;
+    max-width: 100%;
     left: auto;
     top: auto;
     justify-self: start;
@@ -2707,17 +2709,17 @@ pup-footer .footer { margin-top: 0; }
 
   .about-intro {
     padding: 0;
-    /* FIX: remove any inherited width constraints that fight 100vw breakout */
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    /* Keep the overview inside the available page width. */
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
   }
 
-  /* FIX: contents-strip must also fully reset for mobile breakout to work */
+  /* Keep the contents strip within the mobile page width. */
   .contents-strip {
-    width: 100vw;
-    margin-left: calc(50% - 50vw);
-    margin-right: calc(50% - 50vw);
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
     border-radius: 0;
     padding: 18px var(--about-page-gutter) 20px;
   }
@@ -2898,7 +2900,7 @@ pup-footer .footer { margin-top: 0; }
 
   /* Section card */
   .about-section-card {
-    width: 100vw;
+    width: 100%;
     padding: var(--about-page-gutter);
     border-radius: 0;
   }
@@ -3134,7 +3136,11 @@ pup-footer .footer { margin-top: 0; }
     display: block;
     transform: none !important;
   }
-  .about-vision-word { font-size: clamp(2.5rem, 16vw, 4.2rem); line-height: 0.9; }
+  .about-vision-word {
+    font-size: clamp(1.25rem, 7vw, 2rem);
+    line-height: 1;
+    white-space: nowrap;
+  }
 
   .about-vision-statement {
     max-width: none;
@@ -3401,7 +3407,7 @@ pup-footer .footer { margin-top: 0; }
   .contents-cards { grid-auto-columns: minmax(160px, 190px); }
   .contents-card { height: 240px; }
 
-  .about-vision-word { font-size: clamp(1.9rem, 12vw, 2.8rem); }
+  .about-vision-word { font-size: clamp(1.25rem, 7vw, 1.5rem); }
 
   .about-goal-pillar-icon-shell { width: 44px; height: 44px; }
   .about-goal-pillar-icon { width: 24px; height: 24px; }
@@ -4957,11 +4963,6 @@ body.pup-dark-mode .ls-color-card {
     drop-shadow(0 10px 16px rgba(16, 4, 4, 0.18));
 }
 
-.ls-gallery-card[data-seal-id="wuri"] .ls-gallery-media img {
-  transform: scale(1.9);
-  transform-origin: center;
-}
-
 .ls-gallery-label {
   color: var(--about-ink);
   font-size: 0.92rem;
@@ -5380,10 +5381,6 @@ body.pup-dark-mode .ls-gallery-pup-extra .ls-symbols-color-card {
     height: 100%;
     max-width: 190px;
     max-height: 98px;
-  }
-
-  .ls-gallery-card[data-seal-id="wuri"] .ls-gallery-media img {
-    transform: scale(1.55);
   }
 
   .ls-gallery-label {
@@ -6784,10 +6781,10 @@ body.pup-dark-mode .officials-chart-zoom {
    Keep every About subsection on the same shell rhythm as overview.
    ============================================================ */
 .about-shell > .about-sections {
-  width: 100vw;
+  width: 100%;
   max-width: none;
-  margin-left: calc(50% - 50vw);
-  margin-right: calc(50% - 50vw);
+  margin-left: 0;
+  margin-right: 0;
   padding: 0 var(--about-page-gutter) clamp(28px, 3vw, 40px);
   justify-self: stretch;
   justify-items: stretch;

@@ -202,13 +202,13 @@ body {
 }
 
 .hero-shell {
-  width: 100vw;
+  width: 100%;
   max-width: none;
   position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  left: auto;
+  right: auto;
+  margin-left: 0;
+  margin-right: 0;
   margin-bottom: 0;
   z-index: 3;
   background: #4a0810; /* Dark maroon background */
@@ -497,12 +497,12 @@ body {
 }
 
 .hero-actions-band {
-  width: 100vw;
+  width: 100%;
   position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  left: auto;
+  right: auto;
+  margin-left: 0;
+  margin-right: 0;
   z-index: 1;
   padding: 132px 24px 12px;
   background: #f6efe8;
@@ -781,13 +781,13 @@ body.home-carousel-redesign .indicator.active {
 .updates-section,
 .campus-tour,
 .feedback-banner {
-  width: 100vw;
+  width: 100%;
   max-width: none;
   position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
+  left: auto;
+  right: auto;
+  margin-left: 0;
+  margin-right: 0;
   margin-top: 0;
   padding: 40px clamp(24px, 4.2vw, 64px);
   border-top: 1px solid var(--home-line);
@@ -4637,6 +4637,20 @@ body.pup-dark-mode .view-gallery-btn {
 }
 
 /* Theme Switch */
+@media (max-width: 1024px) {
+  .quick-links,
+  .campus-story,
+  .feature-band,
+  .news-hub,
+  .updates-section,
+  .news-contents-strip,
+  .announcements-contents-strip,
+  .campus-tour,
+  .feedback-banner {
+    padding-inline: var(--layout-page-gutter);
+  }
+}
+
 .theme-switch {
     position: fixed;
     top: 30px;
