@@ -1116,7 +1116,7 @@ class PUPFooter extends HTMLElement {
           <span class="footer-panel-icon" aria-hidden="true">
             <svg viewBox="0 0 24 24"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4h13A1.5 1.5 0 0 1 20 5.5v8A1.5 1.5 0 0 1 18.5 15H14l-2 2-2-2H5.5A1.5 1.5 0 0 1 4 13.5v-8Zm2 .2V13h4.2l1.1 1.1L12.4 13h5.4V5.7H6Z"/></svg>
           </span>
-          <h3 class="footer-panel-title">Online Services</h3>
+          <h3 class="footer-panel-title">PUPT Weblinks</h3>
         </div>
         <div class="footer-services-grid">
           <a class="footer-service-link" href="https://outlook.office.com/mail/" target="_blank" rel="noopener noreferrer">
