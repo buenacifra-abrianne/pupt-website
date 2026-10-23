@@ -442,10 +442,19 @@ body.pup-dark-mode .nav-menu a {
     color: var(--dm-text-secondary, #ffffff) !important;
 }
 
-body.pup-dark-mode .nav-menu a:hover,
 body.pup-dark-mode .nav-menu a.active {
     color: #f0c85a !important;
+}
+
+body.pup-dark-mode .nav-menu a:hover,
+body.pup-dark-mode .nav-menu a:focus-visible {
+    color: #f0c85a !important;
     border-bottom-color: #f0c85a !important;
+}
+
+body.pup-dark-mode .nav-menu:has(a:hover) a:not(:hover),
+body.pup-dark-mode .nav-menu:not(:has(a:hover)):has(a:focus-visible) a:not(:focus-visible) {
+    color: var(--dm-text-secondary, #ffffff) !important;
 }
 
 body.pup-dark-mode .hamburger span {

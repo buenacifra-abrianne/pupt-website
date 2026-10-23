@@ -128,12 +128,17 @@ class PUPHeader extends HTMLElement {
   }
 
   #setActiveLink() {
-    const path = (location.pathname || "/").toLowerCase();
+    const normalizePath = (path) => path.toLowerCase().replace(/\/+$/, "") || "/";
+    const path = normalizePath(location.pathname);
 
     this.querySelectorAll(".nav-menu a").forEach((a) => {
-      const href = (a.getAttribute("href") || "").toLowerCase();
-      const isActive = href !== "/" ? path.startsWith(href) : path === "/";
+      const url = new URL(a.href, location.href);
+      const href = normalizePath(url.pathname);
+      const isActive = url.origin === location.origin &&
+        (path === href || (href !== "/" && path.startsWith(`${href}/`)));
       a.classList.toggle("active", isActive);
+      if (isActive) a.setAttribute("aria-current", "page");
+      else a.removeAttribute("aria-current");
     });
   }
 
