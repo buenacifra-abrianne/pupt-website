@@ -30,7 +30,7 @@
      data-search="{{ e($searchHay) }}">
 
   <div class="news-image">
-    <img src="{{ $displayImageUrl }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" alt="news image" style="width:100%; height:150px; object-fit:cover;">
+    <img src="{{ $displayImageUrl }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" alt="news image" style="width:100%; height:150px; object-fit:contain; background:#080808;">
   </div>
 
   <div class="news-content">
