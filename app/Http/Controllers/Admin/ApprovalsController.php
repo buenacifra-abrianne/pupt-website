@@ -444,7 +444,12 @@ if ($reqUserId > 0) {
 
     } catch (\Throwable $e) {
         DB::rollBack();
-        return response()->json(['ok' => false, 'error' => $e->getMessage()], 422);
+        report($e);
+
+        return response()->json([
+            'ok' => false,
+            'error' => "We couldn't approve this request. Please try again later.",
+        ], 500);
     }
 }
 

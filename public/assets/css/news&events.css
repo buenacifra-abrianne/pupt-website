@@ -1019,7 +1019,7 @@ body.modal-open {
 }
 
 @media (max-width: 360px) {
-  :root { --ne-page-gutter: 12px; }
+  :root { --ne-page-gutter: 16px; }
   .ne-featured-title  { font-size: 1.2rem; }
   .ne-events-header h2{ font-size: 1.15rem; }
   .ne-col-title       { font-size: 0.75rem; }

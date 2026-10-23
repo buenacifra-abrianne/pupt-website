@@ -212,7 +212,7 @@
                             </label>
 
                             <div class="news-image">
-                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:contain; background:#080808;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
                             </div>
 
                             <div class="news-content">
@@ -290,7 +290,7 @@
                             </label>
 
                             <div class="news-image">
-                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:contain; background:#080808;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
                             </div>
 
                             <div class="news-content">
@@ -657,7 +657,8 @@
                             img.src = src;
                             img.style.width = '90px';
                             img.style.height = '90px';
-                            img.style.objectFit = 'cover';
+                            img.style.objectFit = 'contain';
+                            img.style.background = '#080808';
                             img.style.borderRadius = '6px';
                             img.style.border = isFeatured ? '2px solid #8a1538' : '1px solid #ddd';
                             
@@ -1052,11 +1053,11 @@
             if (allImages.length > 0) {
                 media.hidden = false;
                 if (allImages.length === 1) {
-                    media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:cover;">`;
+                    media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:contain; background:#080808;">`;
                 } else {
                     let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
                     allImages.forEach((img, idx) => {
-                        carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+                        carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; background:#080808; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
                     });
                     carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
                     carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;

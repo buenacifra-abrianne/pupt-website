@@ -208,7 +208,7 @@
                     data-search="{{ e(strtolower(($n->title ?? '').' '.\App\Support\RichText::plainText($n->content ?? '').' '.($n->link ?? '').' '.($n->category ?? '').' '.($n->location ?? '').' live approved')) }}">
 
                     <div class="news-image">
-                        <img src="{{ $displayImgUrl }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($n->title ?? 'News image')) }}">
+                        <img src="{{ $displayImgUrl }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:contain; background:#080808;" alt="{{ e(\App\Support\PlainText::normalize($n->title ?? 'News image')) }}">
                     </div>
 
                     <div class="news-content">
@@ -547,7 +547,7 @@
     </div>
 
     <img id="newsPreviewImg" src="" alt="Preview"
-         style="display:none; width:100%; height:220px; object-fit:cover; border-radius:12px;">
+         style="display:none; width:100%; height:220px; object-fit:contain; background:#080808; border-radius:12px;">
   </div>
 
   <div class="image-actions" style="display:flex; gap:10px; margin-top:10px;">
@@ -1051,11 +1051,11 @@
           if (allImages.length > 0) {
               media.hidden = false;
               if (allImages.length === 1) {
-                  media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:cover;">`;
+                  media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:contain; background:#080808;">`;
               } else {
                   let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
                   allImages.forEach((img, idx) => {
-                      carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+                      carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; background:#080808; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
                   });
                   carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
                   carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
@@ -1347,7 +1347,8 @@
                 previewImg.src = "/storage/" + img;
                 previewImg.style.width = "50px";
                 previewImg.style.height = "50px";
-                previewImg.style.objectFit = "cover";
+                previewImg.style.objectFit = "contain";
+                previewImg.style.background = "#080808";
                 previewImg.style.marginRight = "5px";
                 previewImg.style.borderRadius = "4px";
                 additionalContainer.appendChild(previewImg);

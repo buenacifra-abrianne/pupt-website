@@ -841,7 +841,7 @@ function showToast(message, typeOrMs = 'success', title = '') {
     try { json = JSON.parse(raw); } catch (_) {}
 
     if (!res.ok || !json.ok) {
-      throw new Error(json.error || json.message || raw.slice(0, 200) || `HTTP ${res.status}`);
+      throw new Error(json.error || json.message || "We couldn't approve this request. Please try again later.");
     }
 
     if (typeof window.queueToast === 'function') {
