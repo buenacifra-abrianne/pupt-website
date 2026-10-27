@@ -23,7 +23,7 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-data-page" data-compact-controls>
         <div class="page-header">
             <h1 class="page-title">Manage CMS Access</h1>
             <p class="page-subtitle">View faculty access, assign CMS roles, and manage authorized users.</p>
@@ -84,7 +84,7 @@
 </div>
 
             <div class="table-wrap">
-                <table>
+                <table class="cms-access-table" data-responsive-cards data-card-primary="User">
                     <thead>
                         <tr>
                             <th>#</th><th>User</th><th>Role</th><th>Status</th><th>Last Login</th><th>Actions</th>
@@ -94,12 +94,13 @@
                 </table>
             </div>
 
-            <div class="pagination">
-                <div class="page-info" id="pgInfo">Showing 0</div>
+            <div class="pagination cms-responsive-pagination">
+                <div class="page-info" id="pgInfo" role="status" aria-live="polite">Showing 0</div>
                 <div class="page-btns">
-                    <button class="pbtn" type="button" onclick="changePg(-1)"><i class="fas fa-chevron-left"></i></button>
-                    <button class="pbtn active" type="button" id="pgNum">1</button>
-                    <button class="pbtn" type="button" onclick="changePg(1)"><i class="fas fa-chevron-right"></i></button>
+                    <button class="pbtn" type="button" id="cmsAccessPrev" aria-label="Previous page" onclick="changePg(-1)"><i class="fas fa-chevron-left"></i></button>
+                    <span class="cms-pagination-status" id="cmsAccessPageStatus">Page 1</span>
+                    <button class="pbtn active cms-pagination-number" type="button" id="pgNum" aria-current="page">1</button>
+                    <button class="pbtn" type="button" id="cmsAccessNext" aria-label="Next page" onclick="changePg(1)"><i class="fas fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>
@@ -635,6 +636,10 @@ ${statusBtn}
     tot ? `Showing ${s+1}–${Math.min(s+PP,tot)} of ${tot} user${tot!==1?'s':''}` : 'No users found';
 
   document.getElementById('pgNum').textContent=pg;
+  const maxPage=Math.max(1,Math.ceil(tot/PP));
+  document.getElementById('cmsAccessPageStatus').textContent=`Page ${pg} of ${maxPage}`;
+  document.getElementById('cmsAccessPrev').disabled=pg<=1;
+  document.getElementById('cmsAccessNext').disabled=pg>=maxPage;
   updateCounts();
 }
 

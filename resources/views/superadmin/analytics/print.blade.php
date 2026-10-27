@@ -1,6 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="{{ asset('assets/css/shared/cms-adaptive-tables.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-adaptive-tables.css')) }}">
+<script src="{{ asset('assets/js/cms-adaptive-tables.js') }}?v={{ filemtime(public_path('assets/js/cms-adaptive-tables.js')) }}" defer></script>
 <title>PUP Taguig Website Analytics Report</title>
 
 <style>
@@ -184,7 +187,7 @@ tr:nth-child(even) td{
 </style>
 </head>
 
-<body>
+<body class="cms-analytics-report" data-compact-controls>
 <script>
     function printReport() {
         window.print();
@@ -267,7 +270,7 @@ tr:nth-child(even) td{
 
 <div class="section">
     <h2>Part 2: User Engagement</h2>
-    <table>
+    <table data-responsive-cards>
         <tr>
             <th>Metric</th>
             <th>Value</th>
@@ -290,7 +293,7 @@ tr:nth-child(even) td{
 <div class="section">
     <h2>Part 3: Feedback Result</h2>
     <div class="two-col">
-        <table>
+        <table data-responsive-cards>
             <tr>
                 <th>Question</th>
                 <th>Average Score</th>
@@ -311,7 +314,7 @@ tr:nth-child(even) td{
             </tr>
         </table>
 
-        <table>
+        <table data-responsive-cards>
             <tr>
                 <th>Rating</th>
                 <th>Responses</th>
@@ -333,7 +336,7 @@ tr:nth-child(even) td{
 <div class="section">
     <h2>Part 4: Upload Percentage</h2>
     <div class="two-col">
-        <table>
+        <table data-responsive-cards>
             <tr>
                 <th>Uploader Role</th>
                 <th>Uploads</th>
@@ -352,7 +355,7 @@ tr:nth-child(even) td{
             @endforelse
         </table>
 
-        <table>
+        <table data-responsive-cards>
             <tr>
                 <th>Upload Source</th>
                 <th>Uploads</th>
@@ -373,7 +376,7 @@ tr:nth-child(even) td{
 
 <div class="section">
     <h2>Part 5: Announcement Reach</h2>
-    <table>
+    <table data-responsive-cards>
         <tr>
             <th>Metric</th>
             <th>Value</th>
@@ -399,7 +402,7 @@ tr:nth-child(even) td{
 
 <div class="section">
     <h2>Part 6: Server Health</h2>
-    <table>
+    <table data-responsive-cards>
         <tr>
             <th>Metric</th>
             <th>Value</th>

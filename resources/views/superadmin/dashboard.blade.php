@@ -258,14 +258,14 @@
         <!-- ========================= -->
         <!-- ✅ TAB 2: DATABASE BACKUP -->
         <!-- ========================= -->
-        <div id="databaseBackupTab" class="top-tab-content">
+        <div id="databaseBackupTab" class="top-tab-content" data-compact-controls>
             @include('superadmin.partials.dashboard-database-backups')
         </div>
 
         <!-- ========================= -->
         <!-- ✅ TAB 3: ANALYTICS -->
         <!-- ========================= -->
-        <div id="analyticsTab" class="top-tab-content">
+        <div id="analyticsTab" class="top-tab-content" data-compact-controls>
 
 
 

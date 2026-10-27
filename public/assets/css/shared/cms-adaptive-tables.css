@@ -1,0 +1,122 @@
+.cms-card-label, .cms-action-label, .cms-control-icon, .cms-pagination-status { display: none; }
+.cms-control-icon.cms-pagination-arrow { display: inline-block; width: 16px; height: 16px; flex: 0 0 16px; }
+.cms-control-icon.cms-chevron-icon { display: inline-block; width: 14px; height: 14px; flex: 0 0 14px; }
+.cms-dropdown.open .cms-chevron-icon, .feedback-question-toggle.open .cms-chevron-icon { transform: rotate(180deg); }
+.cms-responsive-pagination { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; margin-top: 16px; }
+.cms-responsive-pagination .page-btns { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; }
+.cms-responsive-pagination .pbtn { display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box; width: 36px; height: 36px; padding: 0; border: 1px solid #ead8d0; border-radius: 8px; background: #fff; color: #800000; font: inherit; font-size: 12px; line-height: 1; text-decoration: none; cursor: pointer; }
+.cms-responsive-pagination .pbtn.active { background: #800000; color: #fff; border-color: #800000; }
+.cms-responsive-pagination :is(.pbtn:disabled,.pbtn.disabled) { opacity: .45; cursor: default; pointer-events: none; }
+.cms-responsive-pagination .page-info { font-size: 12px; color: #6d5a5a; }
+body.pup-dark-mode .cms-responsive-pagination .page-info { color: #eadbd5; }
+body.pup-dark-mode .cms-responsive-pagination .pbtn { background: #2a1010; color: #fff; border-color: rgba(240,200,90,.2); }
+body.pup-dark-mode .cms-responsive-pagination .pbtn.active { background: #800000; }
+
+@media screen and (max-width: 1024px) {
+    body :is(.main-content,.cms-analytics-report) .cms-adaptive-container,
+    body :is(.main-content,.cms-analytics-report) .cms-table-scroll.cms-adaptive-scroll,
+    body.cms-analytics-report .cms-adaptive-scroll {
+        width: 100%; min-width: 0; max-width: 100%; max-height: none;
+        overflow: visible; scrollbar-gutter: auto; border: 0; border-radius: 0; background: transparent !important;
+    }
+    body :is(.main-content,.cms-analytics-report) .cms-adaptive-scroll > table.cms-adaptive-table,
+    body.cms-analytics-report table.cms-adaptive-table {
+        display: block; width: 100%; min-width: 0 !important; max-width: 100%; table-layout: auto;
+        margin: 0; border: 0; font-size: 12px; line-height: 1.5;
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table colgroup { display: none; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table > thead {
+        position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+        overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table > tbody { display: grid; gap: 12px; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table > tbody > tr {
+        display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); align-items: start;
+        gap: 12px 16px; padding: 16px; border: 1px solid #ead8d0; border-radius: 14px;
+        background: #fffdf9; box-shadow: 0 3px 12px rgba(35,5,5,.04);
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table > tbody > tr > td {
+        display: block; min-width: 0; max-width: 100%; width: auto !important; padding: 0 !important;
+        border: 0; background: transparent; overflow: visible; white-space: normal !important; text-align: left;
+        font-size: 12px !important; line-height: 1.5; overflow-wrap: anywhere;
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-label {
+        display: block; margin-bottom: 4px; color: #6d5a5a; font-size: 10px; font-weight: 600; line-height: 1.5;
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-cell-value { min-width: 0; max-width: 100%; font-size: 12px; overflow-wrap: anywhere; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-primary { grid-column: 1 / -1; order: -1; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-primary .cms-cell-value { font-weight: 600; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table :is(.cms-card-wide,.cms-card-actions) { grid-column: 1 / -1; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-actions { padding-top: 12px !important; border-top: 1px solid #ead8d0; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table :is(.actions,.table-actions,.backup-row-actions,.approvals-actions) { display: flex; flex-wrap: wrap; gap: 8px; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table :is(.uname,.uemail,.role-badge,.sbadge,.security-badge,.priority-badge,.status-badge) {
+        max-width: 100%; white-space: normal; overflow-wrap: anywhere; font-size: 11px; line-height: 1.5;
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .uname { font-size: 12px; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table :is(button,a.btn) {
+        display: inline-flex; align-items: center; justify-content: center; flex-wrap: nowrap;
+        gap: 6px; min-height: 44px !important; min-width: 44px; max-width: 100%; width: auto; height: auto;
+        padding: 8px 10px !important; font-size: 11px !important; line-height: 1.4 !important;
+        white-space: normal; word-break: normal; overflow-wrap: normal; vertical-align: middle;
+    }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-control > i { display: none; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-control-icon { display: inline-block; width: 16px; height: 16px; flex: 0 0 16px; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-action-label { display: inline; }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-empty { grid-template-columns: minmax(0,1fr); }
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table .cms-card-empty > td { grid-column: 1 / -1; }
+    body [data-compact-controls] { font-size: 12px; }
+    body [data-compact-controls] :is(.card-title,.analytics-panel-title) { font-size: 14px !important; line-height: 1.4; }
+    body [data-compact-controls] :is(.btn,.action-btn,.export-btn,.cms-dropdown-trigger) { font-size: 12px !important; }
+    body [data-compact-controls] :is(.filter-bar,.backup-settings-grid) { gap: 10px; }
+    body [data-compact-controls] :is(.pbtn,.page-btn,.page-number) { min-width: 44px; min-height: 44px; font-size: 12px; line-height: 1; flex: 0 0 auto; }
+    body [data-compact-controls] :is(button,a):focus-visible { outline: 2px solid #9a6700; outline-offset: 3px; }
+    body #analyticsTab .analytics-split-grid { grid-template-columns: minmax(0,1fr) !important; }
+    /* Desktop places feedback in column 2; reset every panel to avoid an implicit column. */
+    body #analyticsTab .analytics-split-grid > .analytics-panel { grid-column: 1 / -1; width: 100%; min-width: 0; }
+    body #analyticsTab :is(.upload-analytics-layout,.feedback-pie-layout) { grid-template-columns: minmax(0,1fr); }
+    body #analyticsTab [hidden] { display: none !important; }
+    body #analyticsTab .stat-chart-container { min-width: 0; max-width: 100%; }
+    body #analyticsTab .chart-label { white-space: normal; max-width: 100%; overflow-wrap: anywhere; line-height: 1.5; font-size: 10px !important; }
+    body #analyticsTab #serverHealthGrid > div:first-child { min-width: 0 !important; width: 100%; flex: 1 1 100% !important; padding-right: 0 !important; border-right: 0 !important; gap: 12px !important; }
+    body #analyticsTab #serverHealthGrid > div:first-child > div:first-child { width: 60px !important; height: 60px !important; flex: 0 0 60px; }
+    body #analyticsTab #serverHealthGrid h3 { font-size: 16px !important; }
+    body #analyticsTab #serverHealthGrid > div:last-child { min-width: 0; grid-template-columns: repeat(2,minmax(0,1fr)) !important; }
+    body #databaseBackupTab :is(.backup-inline-value,.stat-value) { font-size: 24px !important; }
+    body #databaseBackupTab .backup-stats-grid .stat-card { display: grid; grid-template-columns: 36px minmax(0,1fr); min-height: 0; padding: 14px !important; gap: 12px; align-items: center !important; }
+    body #databaseBackupTab .backup-stats-grid .stat-icon { width: 36px; height: 36px; font-size: 28px !important; }
+    body #databaseBackupTab .backup-stats-grid .stat-info { flex: initial !important; }
+    body #databaseBackupTab :is(.backup-field-label,.backup-field-help,.backup-info-item,.backup-field-group select) { font-size: 12px; line-height: 1.5; }
+    body.pup-dark-mode table.cms-adaptive-table > tbody > tr { background: #1e0a0a !important; border-color: rgba(240,200,90,.2); }
+    body.pup-dark-mode table.cms-adaptive-table :is(.cms-card-label,.cms-cell-value) { color: #eadbd5 !important; }
+    body.pup-dark-mode table.cms-adaptive-table .cms-card-actions { border-color: rgba(240,200,90,.2) !important; }
+}
+
+@media screen and (max-width: 767px) {
+    :is(body.cms-shell .main-content, body.cms-analytics-report) .cms-adaptive-scroll table.cms-adaptive-table > tbody > tr { grid-template-columns: minmax(0,1fr); padding: 14px; gap: 10px; }
+    body [data-compact-controls] .filter-bar { grid-template-columns: minmax(0,1fr) !important; }
+    body [data-compact-controls] .filter-bar > * { grid-column: 1 / -1; width: 100%; }
+    body [data-compact-controls] :is(.page-info,.page-number) { font-size: 11px; }
+    body .cms-responsive-pagination { display: flex; flex-direction: column; gap: 10px; align-items: stretch; }
+    body .cms-responsive-pagination .page-info { text-align: center; }
+    body .cms-responsive-pagination .page-btns { display: grid; grid-template-columns: 44px minmax(0,1fr) 44px; gap: 8px; width: 100%; }
+    body .cms-responsive-pagination .cms-pagination-number { display: none; }
+    body .cms-responsive-pagination .cms-pagination-status { display: block; text-align: center; align-self: center; font-size: 12px; }
+    body #analyticsTab :is(.feedback-question-grid,.upload-source-grid,.analytics-engagement-grid) { grid-template-columns: minmax(0,1fr); }
+    body #analyticsTab .date-range-custom-wrap:not([hidden]) { display: grid; grid-template-columns: minmax(0,1fr); width: 100%; }
+    body #analyticsTab .date-range-custom-wrap .filter-field { min-width: 0; width: 100%; }
+    body #analyticsTab #serverHealthGrid > div:last-child { grid-template-columns: minmax(0,1fr) !important; }
+}
+
+@media screen and (max-width: 1024px) {
+    body.cms-analytics-report { margin: 16px; font-size: 12px; overflow-wrap: anywhere; }
+    body.cms-analytics-report .header { align-items: flex-start; gap: 12px; }
+    body.cms-analytics-report .logo { width: 44px; margin-right: 0; }
+    body.cms-analytics-report .title-block { min-width: 0; }
+    body.cms-analytics-report .title-block h1 { font-size: 18px; }
+    body.cms-analytics-report .title-block p { font-size: 12px; }
+    body.cms-analytics-report .summary-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+    body.cms-analytics-report .two-col { grid-template-columns: minmax(0,1fr); }
+    body.cms-analytics-report .section h2 { font-size: 15px; }
+    body.cms-analytics-report .report-action { min-height: 44px; font-size: 12px; }
+    body.cms-analytics-report .report-footer-left { max-width: 100%; white-space: normal; }
+}

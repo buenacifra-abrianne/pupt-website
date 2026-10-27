@@ -95,6 +95,17 @@ body.cms-shell :is(.tab-navigation-list, .tab-navigation > div, .filter-actions,
     flex-wrap: wrap;
 }
 
+/* Page controls must remain available even when older module styles hide search. */
+body.cms-shell .main-content .search-bar {
+    display: flex;
+    min-width: 0;
+}
+body.cms-shell .main-content .search-bar input { min-width: 0; flex: 1; }
+body.cms-shell .card-header > div { max-width: 100%; flex-wrap: wrap; }
+body.cms-shell :is(.events-cms-card-group-head, .cms-notification-overview-head) { flex-wrap: wrap; gap: 12px; }
+body.cms-shell .cms-notification-title { overflow-wrap: anywhere; }
+body.cms-shell .cms-notification-message { overflow-wrap: anywhere; word-break: normal; }
+
 body.cms-shell .cms-table-scroll {
     display: block;
     width: 100%;
@@ -174,6 +185,19 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
     body.cms-shell :is(.analytics-split-grid, .content-grid) { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* A visible desktop sidebar leaves less space than the viewport suggests. */
+@media (max-width: 1280px) {
+    body.cms-shell .filter-bar {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+    body.cms-shell .filter-bar > :is(.filter-search, .audit-date-range-wrap) { grid-column: 1 / -1; }
+    body.cms-shell .filter-field { min-width: 0; width: 100%; }
+    body.cms-shell .filter-field :is(input, select, .searchable-select, .voice-input-row) { min-width: 0; }
+    body.cms-shell .filter-bar > .btn { justify-content: center; }
+}
+
 @media (max-width: 1024px) {
     body.cms-shell { --cms-gutter: clamp(16px, 2.5vw, 24px); }
     body.cms-shell.cms-nav-open { overflow: hidden; }
@@ -233,7 +257,7 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
         margin-inline: auto !important;
     }
 
-    body.cms-shell :is(.stats-grid, .form-row, .analytics-grid, .analytics-split-grid, .content-grid) {
+    body.cms-shell :is(.stats-grid, .stats-row, .form-row, .analytics-grid, .analytics-split-grid, .content-grid) {
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
     }
 
@@ -242,11 +266,33 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
         max-width: 100%;
     }
 
-    body.cms-shell :is(.filter-bar, .filters-bar, .search-filter-bar, .table-controls, .filters-container) {
+    body.cms-shell :is(.filters-bar, .search-filter-bar, .table-controls, .filters-container) {
         display: flex;
         flex-wrap: wrap;
         gap: 12px;
     }
+
+    body.cms-shell .main-content .tab-navigation .search-bar { flex: 1 1 260px; max-width: none; }
+    body.cms-shell .main-content :is(.search-bar, .filter-field) { min-height: 44px; }
+    body.cms-shell .card-header > div:has(.search-bar) { flex: 1 1 300px; gap: 10px; }
+    body.cms-shell .card-header .search-bar { flex: 1 1 220px; }
+
+    body.cms-shell .cms-firewall-form { flex-wrap: wrap; }
+    body.cms-shell .cms-firewall-form .input-text { flex: 1 1 220px; min-width: 0; }
+    body.cms-shell .cms-firewall-form .action-btn { flex: 0 0 auto; }
+
+    body.cms-shell .notification-item {
+        display: grid !important;
+        grid-template-columns: 32px minmax(0, 1fr);
+        gap: 12px !important;
+        padding: 18px !important;
+    }
+    body.cms-shell .cms-notification-actions { grid-column: 2; justify-content: flex-end; }
+    body.cms-shell .cms-notification-actions button { min-width: 44px; min-height: 44px; }
+
+    body.cms-shell .cms-memorandum-heading { flex-wrap: wrap; gap: 12px !important; }
+    body.cms-shell .cms-memorandum-heading > div:first-child { flex: 1 1 240px !important; }
+    body.cms-shell .cms-memorandum-heading .announcement-title { flex-wrap: wrap; }
 
     body.cms-shell .tab-navigation:has(.tab-navigation-list) { display: block; overflow-x: auto; }
     body.cms-shell .tab-navigation-list {
@@ -268,9 +314,31 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
     body.cms-shell .user-info { display: none; }
     body.cms-shell :is(.topbar-left, .topbar-right) { gap: 10px; }
     body.cms-shell :is(.page-title, .modal-title, .profile-edit-title) { font-size: clamp(18px, 5.5vw, 26px); }
-    body.cms-shell :is(.stats-grid, .form-row, .frow, .vgrid, .analytics-grid, .analytics-split-grid, .content-grid, .profile-edit-grid) {
+    body.cms-shell :is(.stats-grid, .stats-row, .form-row, .frow, .vgrid, .analytics-grid, .analytics-split-grid, .content-grid, .profile-edit-grid) {
         grid-template-columns: minmax(0, 1fr) !important;
     }
+    /* A span of two creates an unwanted implicit column on single-column phones. */
+    body.cms-shell .stats-grid > .stat-card { grid-column: 1 / -1 !important; }
+    body.cms-shell .filter-bar { grid-template-columns: minmax(0, 1fr); padding-inline: 0; }
+    body.cms-shell .filter-bar > * { grid-column: 1 / -1; }
+    body.cms-shell .main-content > .card { padding: 16px !important; }
+    body.cms-shell .main-content > .card > .card-header { padding: 0 0 16px !important; }
+    body.cms-shell .main-content #downloadablesList { padding: 0 !important; }
+    body.cms-shell .downloadable-item { padding: 16px !important; }
+    body.cms-shell .card-header > div:has(> .btn) { width: 100%; gap: 8px !important; }
+    body.cms-shell .card-header > div > .btn { flex: 1 1 120px; justify-content: center; }
+    body.cms-shell .tab-navigation.cms-tab-style .tab-btn { flex: 1 1 110px; justify-content: center; padding-inline: 12px !important; }
+    body.cms-shell .main-content .tab-navigation .search-bar { flex-basis: 100%; margin-left: 0; }
+    body.cms-shell .tab-navigation #globalSearch { width: 100% !important; }
+    body.cms-shell .news-bulk-actions .btn { flex: 1 1 120px; }
+    body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn, .page-btn, .page-number, .pbtn) { min-height: 44px !important; }
+    body.cms-shell :is(.page-btn, .page-number, .pbtn) { min-width: 44px; display: inline-flex; align-items: center; justify-content: center; }
+    body.cms-shell :is(.news-grid, .announcement-grid) { grid-template-columns: minmax(0, 1fr); }
+    body.cms-shell .modern-stat-card { padding: 16px; gap: 12px; }
+    body.cms-shell .stat-content-left { gap: 12px; }
+    body.cms-shell .modern-icon-box { width: 44px; height: 44px; flex: 0 0 44px; }
+    body.cms-shell .modern-sparkline { width: 64px; flex: 0 1 64px; }
+    body.cms-shell .modern-stat-number { font-size: 30px; }
 
     body.cms-shell :is(.modal-content, .profile-edit-body, [class*="-cms-modal-panels"]) { padding: 16px !important; }
     body.cms-shell :is(.modal-header, .profile-edit-head, [class*="-cms-modal-header"]) { padding: 16px !important; }
@@ -444,4 +512,97 @@ body.cms-shell .cms-summary-grid .stat-action-btn {
 
 @media (max-width: 380px) {
     body.cms-shell .cms-dashboard .top-tab-btn i { display: none; }
+}
+
+/* Compact data pages keep rows readable without desktop-sized text and insets. */
+@media (max-width: 1024px) {
+    body.cms-shell .cms-data-page { font-size: 13px; }
+    body.cms-shell .cms-data-page .page-header { margin-bottom: 18px; }
+    body.cms-shell .cms-data-page .page-title { font-size: 20px; line-height: 1.4; }
+    body.cms-shell .cms-data-page .page-subtitle { font-size: 12px; line-height: 1.5; }
+    body.cms-shell .cms-data-page .card-title { font-size: 14px !important; line-height: 1.4; }
+    body.cms-shell .cms-data-page .card-header { margin-bottom: 14px; gap: 10px; }
+    body.cms-shell .cms-data-page .cms-table-panel { padding: 0 !important; }
+    body.cms-shell .cms-data-page :is(.btn, .action-btn, .export-btn, .cms-dropdown-trigger) { font-size: 12px !important; }
+    body.cms-shell .cms-data-page :is(.search-bar input, .filter-field input, .input-text) { font-size: 12px; }
+    body.cms-shell .cms-data-page .cms-dropdown-trigger { white-space: nowrap; }
+    body.cms-shell .cms-data-page .stat-card { padding: 14px !important; gap: 12px !important; }
+    body.cms-shell .cms-data-page :is(.stat-label, .stat-lbl) { font-size: 10px !important; }
+    body.cms-shell .cms-data-page :is(.stat-value, .stat-val) { font-size: 28px !important; }
+    body.cms-shell .cms-data-page .stat-icon { width: 36px; height: 36px; font-size: 30px !important; }
+    body.cms-shell .cms-data-page .svg-chart-wrapper { min-height: 200px !important; }
+
+    body.cms-shell .cms-data-page .cms-table-scroll > table {
+        table-layout: fixed;
+        min-width: 720px;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+    body.cms-shell .cms-data-page .cms-table-scroll :is(th, td) {
+        padding: 8px !important;
+        font-size: 12px;
+        line-height: 1.4;
+        vertical-align: middle;
+    }
+    body.cms-shell .cms-data-page .cms-table-scroll th { font-size: 11px; white-space: nowrap; letter-spacing: 0; }
+    body.cms-shell .cms-data-page .cms-table-scroll td > div { font-size: inherit !important; }
+    body.cms-shell .cms-data-page .cms-table-scroll :is(.btn, .btn-secondary) {
+        width: auto;
+        min-width: 0;
+        min-height: 36px !important;
+        padding: 6px 8px !important;
+        font-size: 11px !important;
+        gap: 5px;
+        white-space: nowrap;
+        overflow-wrap: normal;
+    }
+    body.cms-shell .cms-data-page .cms-table-scroll :is(.role-badge, .sbadge, .status-badge, .priority-badge, .security-badge) {
+        padding: 3px 6px;
+        font-size: 10px;
+        line-height: 1.4;
+    }
+    body.cms-shell .cms-data-page .cms-table-scroll .user-cell { gap: 8px; }
+    body.cms-shell .cms-data-page .cms-table-scroll .avatar { width: 28px; height: 28px; font-size: 10px; }
+    body.cms-shell .cms-data-page .cms-table-scroll .uname { font-size: 12px; }
+    body.cms-shell .cms-data-page .cms-table-scroll .uemail { font-size: 11px; }
+    body.cms-shell .cms-data-page .cms-table-scroll .actions { gap: 6px; }
+
+    body.cms-shell .cms-data-page .cms-table-scroll > .approvals-table { min-width: 760px; }
+    body.cms-shell .cms-data-page .approvals-table th:nth-child(1) { width: 150px; }
+    body.cms-shell .cms-data-page .approvals-table th:nth-child(2) { width: 120px; }
+    body.cms-shell .cms-data-page .approvals-table th:nth-child(3) { width: 180px; }
+    body.cms-shell .cms-data-page .approvals-table th:nth-child(4) { width: 140px; }
+    body.cms-shell .cms-data-page .approvals-table th:nth-child(5) { width: 170px; }
+    body.cms-shell .cms-data-page .approvals-table td:first-child { white-space: nowrap; }
+
+    body.cms-shell .cms-data-page .cms-table-scroll > .cms-access-table { min-width: 760px; }
+    body.cms-shell .cms-access-table th:nth-child(1) { width: 32px; }
+    body.cms-shell .cms-access-table th:nth-child(2) { width: 220px; }
+    body.cms-shell .cms-access-table th:nth-child(3) { width: 150px; }
+    body.cms-shell .cms-access-table th:nth-child(4) { width: 90px; }
+    body.cms-shell .cms-access-table th:nth-child(5) { width: 120px; }
+    body.cms-shell .cms-access-table th:nth-child(6) { width: 148px; }
+
+    body.cms-shell .cms-data-page .cms-table-scroll > .cms-firewall-table { min-width: 650px; }
+    body.cms-shell .cms-firewall-table th:nth-child(1) { width: 110px; }
+    body.cms-shell .cms-firewall-table th:nth-child(2) { width: 100px; }
+    body.cms-shell .cms-firewall-table th:nth-child(3) { width: 200px; }
+    body.cms-shell .cms-firewall-table th:nth-child(4) { width: 148px; }
+    body.cms-shell .cms-firewall-table th:nth-child(5) { width: 92px; }
+    body.cms-shell .cms-data-page .cms-table-scroll > .cms-security-events-table { min-width: 820px; }
+    body.cms-shell .cms-security-events-table th:nth-child(1) { width: 140px; }
+    body.cms-shell .cms-security-events-table th:nth-child(2) { width: 110px; }
+    body.cms-shell .cms-security-events-table th:nth-child(3) { width: 180px; }
+    body.cms-shell .cms-security-events-table th:nth-child(4) { width: 140px; }
+    body.cms-shell .cms-security-events-table th:nth-child(5) { width: 250px; }
+}
+
+@media (max-width: 600px) {
+    body.cms-shell .cms-data-page .page-title { font-size: 18px; padding-left: 38px; }
+    body.cms-shell .cms-data-page .page-title::before { width: 26px; }
+    body.cms-shell .cms-data-page .card-title { font-size: 13px !important; }
+    body.cms-shell .cms-data-page > .card { padding: 14px !important; }
+    body.cms-shell .cms-data-page .cms-table-scroll :is(th, td) { padding: 7px 8px !important; }
+    body.cms-shell .cms-data-page :is(.custom-pagination, .pagination) { padding: 10px 0; gap: 6px; }
+    body.cms-shell .cms-data-page :is(.page-btn, .page-number, .pbtn, .page-info) { font-size: 11px; }
 }
