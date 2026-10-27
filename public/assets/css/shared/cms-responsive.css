@@ -302,6 +302,13 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
     }
     body.cms-shell .cms-notification-actions { grid-column: 2; justify-content: flex-end; }
     body.cms-shell .cms-notification-actions button { min-width: 44px; min-height: 44px; }
+    body.cms-shell .notification-item > .notification-actions {
+        grid-column: 2;
+        justify-self: end;
+        justify-content: flex-end;
+        width: max-content;
+        max-width: 100%;
+    }
 
     body.cms-shell .cms-memorandum-heading { flex-wrap: wrap; gap: 12px !important; }
     body.cms-shell .cms-memorandum-heading > div:first-child { flex: 1 1 240px !important; }
