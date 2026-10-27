@@ -29,6 +29,7 @@
         </div>
 
         <!-- Tab Navigation -->
+        @include('superadmin.partials.cms-history-launcher', ['historyLabel' => 'News & Announcements'])
         <div class="tab-navigation cms-tab-style">
             <button class="tab-btn active" onclick="switchTab('news', this)">
                 <i class="fas fa-newspaper"></i>
@@ -2161,6 +2162,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <i class="fas fa-microphone"></i>
 </button>
 <script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+@include('superadmin.partials.cms-version-history', ['historyScope' => 'news_announcements', 'historyLabel' => 'News & Announcements'])
 </body>
 </html>
 

@@ -1,7 +1,11 @@
 <link rel="stylesheet" href="{{ asset('assets/css/shared/cms-version-history.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-version-history.css')) }}">
 <dialog id="cms-version-history" class="cms-history-dialog"
     aria-labelledby="cms-history-heading"
-    data-base-url="{{ url('/superadmin/content/history') }}">
+    data-base-url="{{ url(isset($historyScope) ? '/superadmin/publication-history' : '/superadmin/content/history') }}"
+    @isset($historyScope)
+        data-scope="{{ $historyScope }}"
+        data-label="{{ $historyLabel }}"
+    @endisset>
     <header class="cms-history-header">
         <div>
             <p class="cms-history-eyebrow">SUPERADMIN WORKSPACE</p>
@@ -20,7 +24,7 @@
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7"/></svg> Restore this version
                 </button>
             </div>
-            <p class="cms-history-notice">Restores the entire selected CMS page, including its sections, images, and document links. Other CMS pages and separately managed news, announcements, and downloads are unchanged.</p>
+            <p class="cms-history-notice">{{ isset($historyScope) ? \App\Support\PublicationBackupContent::definition($historyScope)['notice'] : 'Restores the entire selected CMS page, including its sections, images, and document links. Other CMS pages and separately managed news, announcements, and downloads are unchanged.' }}</p>
             <div id="cms-history-message" class="cms-history-message" role="status" aria-live="polite"></div>
             <div class="cms-history-controls">
                 <label>View
@@ -56,5 +60,7 @@
     'students' => ['overview' => 'Students overview', 'admissions' => 'Admissions', 'downloadable-forms' => 'Downloadable forms', 'document-requests' => 'Document requests'],
     'research_extension' => ['overview' => 'Research overview', 'strategic-development-plan' => 'Strategic development plan'],
     'events' => ['overview' => 'Events'],
+    'news_announcements' => ['overview' => 'News & Announcements'],
+    'memoranda' => ['overview' => 'Campus Memorandum'],
 ], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
 <script src="{{ asset('assets/js/cms-version-history.js') }}?v={{ filemtime(public_path('assets/js/cms-version-history.js')) }}" defer></script>

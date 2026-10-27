@@ -112,8 +112,8 @@
         table.append(body); el('diff').append(table);
     }
     el('open').addEventListener('click', () => {
-        tab = document.querySelector('.cms-tab-btn.active')?.dataset.tabKey || 'home';
-        const label = document.querySelector('.cms-tab-btn.active')?.textContent.trim() || 'Home';
+        tab = dialog.dataset.scope || document.querySelector('.cms-tab-btn.active')?.dataset.tabKey || 'home';
+        const label = dialog.dataset.label || document.querySelector('.cms-tab-btn.active')?.textContent.trim() || 'Home';
         el('heading').textContent = `${label} version history`;
         el('subtitle').textContent = 'Review database backups stored in S3 and restore earlier CMS content.';
         generation++; selectionRequest++; page = 1; selected = null; detail = null;
@@ -133,7 +133,7 @@
     ['view', 'compare', 'changed', 'page'].forEach(id => el(id).addEventListener('change', render));
     el('restore').addEventListener('click', () => {
         if (!detail || detail.matches_live) return;
-        el('confirm-text').textContent = `Backup #${selected} from ${date(detail.version.created_at)} will become the live ${tab.replaceAll('_', ' ')} page.`;
+        el('confirm-text').textContent = `Backup #${selected} from ${date(detail.version.created_at)} will become the live ${dialog.dataset.label || tab.replaceAll('_', ' ')} page.`;
         el('confirm').hidden = false; el('cancel').focus();
     });
     el('cancel').addEventListener('click', () => { el('confirm').hidden = true; el('restore').focus(); });
@@ -145,7 +145,8 @@
             await request(url(`/${selected}/restore`), { method: 'POST', headers: {
                 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
             }, body: JSON.stringify({ live_checksum: detail.live_checksum, head_id: detail.head_id, backup_checksum: detail.backup_checksum }) });
-            const target = new URL(window.location.href); target.searchParams.set('tab', tab);
+            const target = new URL(window.location.href);
+            if (!dialog.dataset.scope) target.searchParams.set('tab', tab);
             window.location.assign(target.href);
         } catch (error) {
             message(error.message, true); el('confirm').hidden = true;
