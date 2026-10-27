@@ -1,7 +1,7 @@
 .cms-history-toolbar {
     display:flex;
     align-items:center;
-    justify-content:space-between;
+    justify-content:flex-end;
     gap:16px;
     margin:0 0 16px;
     color:#475569;
@@ -519,9 +519,6 @@
     }
     .cms-history-controls {
         gap:8px;
-    }
-    .cms-history-toolbar>span {
-        font-size:12px;
     }
     .cms-history-confirm {
         position:fixed;
