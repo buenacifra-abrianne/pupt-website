@@ -1018,25 +1018,10 @@ class CmsController extends Controller
             ]);
         }
 
-        if ($existing) {
-            DB::table('cms_contents')
-                ->where('tab_key', $tabKey)
-                ->update([
-                    'title' => $title,
-                    'content' => $content,
-                    'updated_by' => (int) (session('user_id') ?? 0),
-                    'updated_at' => now(),
-                ]);
-        } else {
-            DB::table('cms_contents')->insert([
-                'tab_key' => $tabKey,
-                'title' => $title,
-                'content' => $content,
-                'updated_by' => (int) (session('user_id') ?? 0),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        \App\Support\CmsVersionHistory::publish(
+            $tabKey, $title, $content, 'direct_save', $sectionKey,
+            \App\Support\CmsVersionHistory::checksum($existing)
+        );
 
         $auditMessage = 'Updated '.$tabLabel.' content directly as superadmin.';
         if (in_array($tabKey, ['home', 'about', 'academics', 'students', 'research_extension', 'events'], true) && $sectionLabel !== '') {

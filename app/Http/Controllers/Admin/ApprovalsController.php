@@ -275,26 +275,15 @@ $history = $this->attachDisplayFields($history);
 
             $content = (string) ($payload['content'] ?? '');
 
-            $exists = DB::table('cms_contents')->where('tab_key', $tabKey)->exists();
-            if ($exists) {
-                DB::table('cms_contents')
-                    ->where('tab_key', $tabKey)
-                    ->update([
-                        'title' => $title,
-                        'content' => $content,
-                        'updated_by' => (int) (session('user_id') ?? 0),
-                        'updated_at' => now(),
-                    ]);
-            } else {
-                DB::table('cms_contents')->insert([
-                    'tab_key' => $tabKey,
-                    'title' => $title,
-                    'content' => $content,
-                    'updated_by' => (int) (session('user_id') ?? 0),
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ]);
+            $live = DB::table('cms_contents')->where('tab_key', $tabKey)->first();
+            if (array_key_exists('previous_content', $payload)
+                && (string) ($live->content ?? '') !== (string) $payload['previous_content']) {
+                abort(409, 'The live CMS page has changed since this request was submitted. Ask the requester to review the latest page and resubmit.');
             }
+            \App\Support\CmsVersionHistory::publish(
+                $tabKey, $title, $content, 'approval', $payload['section_key'] ?? null,
+                \App\Support\CmsVersionHistory::checksum($live)
+            );
 
             AuditLog::record(
                 'APPROVED',
@@ -444,6 +433,9 @@ if ($reqUserId > 0) {
 
     } catch (\Throwable $e) {
         DB::rollBack();
+        if ($e instanceof \Symfony\Component\HttpKernel\Exception\HttpExceptionInterface) {
+            return response()->json(['ok' => false, 'error' => $e->getMessage(), 'message' => $e->getMessage()], $e->getStatusCode());
+        }
         report($e);
 
         return response()->json([
