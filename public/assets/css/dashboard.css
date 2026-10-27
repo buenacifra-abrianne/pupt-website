@@ -1495,7 +1495,7 @@ min-height: 78px;
 
 .upload-role-row {
 display: grid;
-grid-template-columns: 14px minmax(0, 1fr) 84px;
+grid-template-columns: 14px minmax(0, 1fr) minmax(84px, max-content);
 gap: 12px;
 align-items: center;
 border: 1px solid #ececec;
@@ -1505,12 +1505,16 @@ padding: 10px 12px;
 }
 
 .upload-role-color {
+grid-column: 1;
+grid-row: 1;
 width: 12px;
 height: 12px;
 border-radius: 50%;
 }
 
 .upload-role-name {
+grid-column: 2;
+grid-row: 1;
 font-size: 14px;
 font-weight: 700;
 color: #4a4a4a;
@@ -1520,6 +1524,7 @@ overflow-wrap: anywhere;
 
 .upload-role-bar {
 grid-column: 2 / -1;
+grid-row: 2;
 height: 12px;
 border-radius: 999px;
 background: #eceff1;
@@ -1535,6 +1540,9 @@ transition: width 0.3s ease;
 }
 
 .upload-role-value {
+grid-column: 3;
+grid-row: 1;
+white-space: nowrap;
 font-size: 13px;
 font-weight: 700;
 color: #555;
@@ -1619,7 +1627,7 @@ text-align: center;
 }
 
 .upload-role-row {
-    grid-template-columns: 14px minmax(0, 1fr) 72px;
+    grid-template-columns: 14px minmax(0, 1fr) minmax(72px, max-content);
 }
 
 .upload-role-bar {
