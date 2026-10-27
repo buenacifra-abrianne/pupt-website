@@ -20,7 +20,7 @@ const server = http.createServer(async (req, res) => {
     res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
     return fs.createReadStream(file).pipe(res);
   }
-  if (!url.pathname.startsWith('/superadmin/content')) { res.writeHead(404); return res.end(); }
+  if (!url.pathname.startsWith('/superadmin/content') && !url.pathname.startsWith('/superadmin/publication-history/') && !['/superadmin/announcements', '/superadmin/downloadables'].includes(url.pathname)) { res.writeHead(404); return res.end(); }
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
   const body = Buffer.concat(chunks).toString();
@@ -32,7 +32,7 @@ const server = http.createServer(async (req, res) => {
       if (req.method === 'GET') cache.set(key, fixture);
     }
     if (req.method === 'POST') restores.push({ path: req.url, body: JSON.parse(body), status: fixture.status });
-    res.writeHead(fixture.status, { 'Content-Type': url.pathname.includes('/history/') && !url.pathname.includes('/preview/') ? 'application/json' : 'text/html' });
+    res.writeHead(fixture.status, { 'Content-Type': (url.pathname.includes('/history/') || url.pathname.includes('/publication-history/')) && !url.pathname.includes('/preview/') ? 'application/json' : 'text/html' });
     res.end(fixture.body.replaceAll('http://localhost/', '/'));
   } catch (error) { console.error(error.message); res.writeHead(500); res.end('Fixture failed'); }
 });
@@ -110,7 +110,36 @@ const server = http.createServer(async (req, res) => {
     assert.equal(restores.length, 1, 'Exactly one restore request'); assert.equal(restores[0].status, 200);
     assert.equal(restores[0].body.live_checksum.length, 64); assert.equal(restores[0].body.head_id, 8);
     assert.equal(restores[0].body.backup_checksum.length, 64, 'Restore is bound to the reviewed S3 archive');
+    for (const [page, scope, label] of [
+      ['/superadmin/announcements', 'news_announcements', 'Original news'],
+      ['/superadmin/downloadables', 'memoranda', 'Original memo'],
+    ]) {
+      await cdp('Page.navigate', { url: `http://127.0.0.1:${server.address().port}${page}` });
+      await waitFor('document.readyState === "complete" && !!document.getElementById("cms-history-open")');
+      await evaluate('document.getElementById("cms-history-open").click()');
+      await waitFor('document.querySelectorAll(".cms-history-version").length === 3 && !!document.querySelector("#cms-history-diff table")');
+      assert.equal(await evaluate('document.getElementById("cms-version-history").dataset.scope'), scope);
+      await evaluate('document.querySelectorAll(".cms-history-version")[1].click()');
+      await waitFor('!document.getElementById("cms-history-restore").disabled');
+      assert.ok((await evaluate('document.getElementById("cms-history-diff").textContent')).includes(label), `${scope}: before/after content visible`);
+      for (const width of [375, 768, 1024, 1440]) {
+        await cdp('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        const fits = await evaluate('(() => {const d=document.getElementById("cms-version-history"),r=d.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth+1 && d.scrollWidth<=d.clientWidth+1;})()');
+        assert.ok(fits, `${scope}: dialog fits at ${width}px`);
+      }
+      await evaluate('document.getElementById("cms-history-view").value="preview"; document.getElementById("cms-history-view").dispatchEvent(new Event("change"))');
+      assert.ok((await evaluate('document.getElementById("cms-history-preview").getAttribute("src")')).includes(`/publication-history/${scope}/2/preview/overview`));
+      await evaluate('document.getElementById("cms-history-restore").click()');
+      assert.equal(await evaluate('document.activeElement.id'), 'cms-history-cancel');
+      const shot = await cdp('Page.captureScreenshot', { format: 'png' });
+      fs.writeFileSync(path.join(output, `${scope}-history.png`), Buffer.from(shot.data, 'base64'));
+      const beforeRestores = restores.length;
+      await evaluate('document.getElementById("cms-history-confirm-restore").click()');
+      await waitFor('document.readyState === "complete" && !!document.getElementById("cms-version-history") && !document.getElementById("cms-version-history").open');
+      assert.equal(restores.length, beforeRestores + 1); assert.equal(restores.at(-1).status, 200);
+      assert.equal(restores.at(-1).body.head_id, 0, 'First module restore does not need an existing CMS tab history row');
+    }
     assert.deepEqual(exceptions, [], 'No uncaught JavaScript errors');
-    console.log('PASS: version selection, before/after comparison, read-only preview, confirmation, restore, and responsive layouts at 375/768/1024/1440px.');
+    console.log('PASS: version history, comparison, preview, confirmation, and restore on Content Management, News & Announcements, and Campus Memorandum at 375/768/1024/1440px.');
   } finally { if (ws) ws.close(); chrome.kill(); server.closeAllConnections(); server.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

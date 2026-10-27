@@ -3,11 +3,12 @@
 namespace Tests\Support;
 
 use App\Models\Backup;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 
 class CmsBackupFixture
 {
-    public static function create(array $pages, string $disk = 's3'): Backup
+    public static function create(array $pages, string $disk = 's3', array $extraTables = []): Backup
     {
         $id = (int) Backup::query()->max('id') + 1;
         $name = 'fixture_backup_'.$id.'.zip';
@@ -21,6 +22,20 @@ class CmsBackupFixture
         }
         if ($tuples !== []) {
             $sql .= 'INSERT INTO `cms_contents` VALUES '.implode(',', $tuples).";\n";
+        }
+        foreach ($extraTables as $table => $rows) {
+            $columns = Schema::getColumnListing($table);
+            $sql .= 'CREATE TABLE `'.$table."` (\n";
+            $sql .= implode(",\n", array_map(fn ($column) => '  `'.$column.'` longtext', $columns));
+            $sql .= "\n) ENGINE=InnoDB;\n";
+            $tuples = [];
+            foreach ($rows as $row) {
+                $row = (array) $row;
+                $tuples[] = '('.implode(',', array_map(fn ($column) => self::literal($row[$column] ?? null), $columns)).')';
+            }
+            if ($tuples !== []) {
+                $sql .= 'INSERT INTO `'.$table.'` VALUES '.implode(',', $tuples).";\n";
+            }
         }
 
         // Fixed ZIP timestamps keep separate browser fixture requests byte-identical.

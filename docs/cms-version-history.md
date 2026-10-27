@@ -1,6 +1,6 @@
 # CMS version history from S3 database backups
 
-Superadmins can open **Version history** above the CMS tabs. Each selectable version is an existing database backup registered in `backups` on the configured S3 disk. Preview, comparison, and restore fetch that archive from S3 and read the selected tab's original `cms_contents` values from its MySQL SQL dump. The backup SQL is parsed as data and is never executed.
+Superadmins can open **Version history** on Content Management, News & Announcements, and Campus Memorandum. Each selectable version is an existing database backup registered in `backups` on the configured S3 disk. Preview, comparison, and restore fetch that archive from S3 and read the original records from its MySQL SQL dump. The backup SQL is parsed as data and is never executed.
 
 The feature uses the same configuration as `main` and the deployed backup dashboard: `database_backups.s3_disk` (default `s3`) and `database_backups.s3_path` (default `backups/database`). The existing S3 disk uses the deployment's `AWS_BUCKET`, region, and AWS credential provider configuration. No additional bucket is required. Local backup disks, browser storage, and the database's `cms_content_versions` audit copies are never rollback sources. Missing S3 configuration or unreadable archives fail without falling back to local content.
 
@@ -9,6 +9,10 @@ The feature uses the same configuration as `main` and the deployed backup dashbo
 Select a backup to compare its CMS fields with the previous S3 backup or live database content. Image fields have thumbnails; the read-only page preview supports all CMS subpages. Available restore points follow the existing database backup schedule and retention settings. Create a backup from **Dashboard → Database backups** to add a restore point.
 
 **Restore this version** restores the whole selected tab, including its nested sections, ordering, visibility, media paths, and document links. Other tabs and separately managed news, announcements, and downloads are not restored by this page operation. The database backup contains file references; uploaded media must remain available at those paths.
+
+On **News & Announcements**, a restore replaces both the `news` and `announcements` collections together, preserving IDs, statuses, visibility, gallery references, and publication/expiration dates. On **Campus Memorandum**, it replaces `downloadables`, including original file references and filenames. Records created after the selected backup are removed, and records deleted since it was taken are recreated. These operations affect only their named page; the confirmation explains the scope. Current per-user read markers are preserved for remaining memorandum IDs and removed for deleted IDs.
+
+News images and memorandum attachments are retained when replaced or removed once version history is installed, because older S3 database backups may reference them. Before restoration, managed attachment references are checked. A missing attachment blocks the entire restore; database backups cannot recreate file binaries that were already deleted. External links are retained without fetching arbitrary third-party URLs. Backups missing a required table or incompatible with the current schema are rejected rather than interpreted as an empty page.
 
 Before publishing a restore, the server:
 
@@ -32,7 +36,7 @@ php artisan migrate
 The migrations create `cms_content_versions` and add its S3 source audit columns. Existing S3 database backups containing the supported `cms_contents` table are available immediately; earlier restore points are not fabricated from local audit copies.
 
 ```sh
-php artisan test --filter='CmsVersionHistoryTest|CmsBackupSqlReaderTest'
+php artisan test --filter='CmsVersionHistoryTest|CmsBackupSqlReaderTest|PublicationHistoryTest'
 node tests/Browser/cms-version-history.cjs
 ```
 
