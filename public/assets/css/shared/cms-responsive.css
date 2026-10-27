@@ -79,6 +79,13 @@ body.cms-shell :is(.pagination, .custom-pagination, .pagination-container, .pagi
     justify-content: center;
     gap: 8px;
 }
+/* Floating controls must never cover or receive input over a CMS dialog. */
+body.cms-shell.cms-modal-open :is(.widget-dock, .floating-voice-btn, .acc-container, .chatbot-widget-shell),
+body.cms-shell.cms-modal-open :is(.widget-dock, .floating-voice-btn, .acc-container, .chatbot-widget-shell) * {
+    visibility: hidden !important;
+    pointer-events: none !important;
+}
+
 body.cms-shell .modal-divider { width: 100%; margin-inline: 0 !important; }
 body.cms-shell .cms-native-select { inset: 0 auto auto 0; padding: 0 !important; border: 0 !important; }
 /* Floating menus can be wider than a compact trigger; do not squeeze their options. */
