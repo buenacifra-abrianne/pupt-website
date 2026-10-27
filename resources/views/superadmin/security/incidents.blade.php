@@ -37,7 +37,7 @@
     <x-app.sidebar />
     <x-app.topbar :logout-route="route('superadmin.logout')" default-role="SUPERADMIN" />
 
-    <main class="main-content">
+    <main class="main-content cms-data-page" data-compact-controls>
         <div class="page-header" style="margin-bottom:20px;">
             <h1 class="page-title">Security Incidents & Firewall</h1>
             <p class="page-subtitle">Monitor suspicious activities and manage blacklisted IPs.</p>
@@ -128,14 +128,14 @@
             <div class="card-header">
                 <div class="card-title"><i class="fas fa-shield-halved"></i> IP Firewall Blacklist</div>
             </div>
-            <form action="{{ route('superadmin.security.blockIp') }}" method="POST" style="display:flex; gap:10px; margin-bottom: 20px;">
+            <form class="cms-firewall-form" action="{{ route('superadmin.security.blockIp') }}" method="POST" style="display:flex; gap:10px; margin-bottom: 20px;">
                 @csrf
                 <input type="text" name="ip_address" class="input-text" placeholder="IP Address (e.g. 192.168.1.1)" required>
                 <input type="text" name="reason" class="input-text" placeholder="Reason (optional)">
                 <button type="submit" class="action-btn">Block IP</button>
             </form>
             <div class="table-wrap">
-                <table>
+                <table class="cms-firewall-table" data-responsive-cards data-card-primary="IP Address">
                     <thead>
                         <tr>
                             <th>IP Address</th><th>Status</th><th>Reason</th><th>Blocked Until</th><th>Actions</th>
@@ -183,7 +183,7 @@
                 <div class="card-title"><i class="fas fa-list-ul"></i> Recent Security Events</div>
             </div>
             <div class="table-wrap">
-                <table>
+                <table class="cms-security-events-table" data-responsive-cards data-card-primary="User/Email">
                     <thead>
                         <tr>
                             <th>Timestamp</th><th>IP Address</th><th>User/Email</th><th>Event Type</th><th>Description</th>
@@ -213,7 +213,7 @@
                 </table>
             </div>
             <div style="margin-top: 15px;">
-                {{ $events->links('components.pagination.audit') }}
+                {{ $events->links('components.pagination.responsive') }}
             </div>
         </div>
     </main>

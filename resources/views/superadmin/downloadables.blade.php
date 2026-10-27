@@ -71,7 +71,7 @@
                         onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.06)'; this.style.borderColor='rgba(128,0,0,0.2)';"
                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{{ $row->is_read ? '0 2px 8px rgba(0,0,0,0.02)' : '0 4px 15px rgba(128,0,0,0.05)' }}'; this.style.borderColor='rgba(0,0,0,0.05)';">
 
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                        <div class="cms-memorandum-heading" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
                             <div style="flex: 1;">
                                 <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; color: {{ $row->is_read ? '#333' : 'var(--theme-maroon, #800000)' }}; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px;">
                                     {{ e($row->title) }}

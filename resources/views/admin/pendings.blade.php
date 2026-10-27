@@ -24,7 +24,7 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-data-page" data-compact-controls>
         <div class="page-header">
             <h1 class="page-title">Approvals</h1>
             <p class="page-subtitle">Review and approve or reject submitted requests</p>
@@ -44,7 +44,7 @@
                 </div>
             </div>
 
-            <div style="padding: 15px;">
+            <div class="cms-table-panel" style="padding: 15px;">
                 @if(session('success'))
                     <div class="alert alert-success" style="margin-bottom: 15px;">
                         {{ session('success') }}
@@ -58,7 +58,7 @@
                 @endif
 
                 <div class="table-wrap approvals-table-wrap">
-                    <table class="table approvals-table">
+                    <table class="table approvals-table" data-responsive-cards data-card-primary="Requester">
                         <thead>
                             <tr>
                                 <th style="text-align:left; padding:10px;">Date</th>
@@ -161,39 +161,7 @@
 
                 <div style="margin-top: 15px;">
                     <div style="padding:14px; display:flex; justify-content:flex-end;">
-  <div class="custom-pagination">
-    {{-- Previous --}}
-    @if ($pending->onFirstPage())
-      <span class="page-btn disabled">
-        <i class="fas fa-chevron-left"></i>
-      </span>
-    @else
-      <a class="page-btn"
-         href="{{ $pending->appends(request()->query())->previousPageUrl() }}">
-        <i class="fas fa-chevron-left"></i>
-      </a>
-    @endif
-
-    {{-- Page Numbers --}}
-    @for ($i = 1; $i <= $pending->lastPage(); $i++)
-      <a class="page-number {{ $pending->currentPage() == $i ? 'active' : '' }}"
-         href="{{ $pending->appends(request()->query())->url($i) }}">
-        {{ $i }}
-      </a>
-    @endfor
-
-    {{-- Next --}}
-    @if ($pending->hasMorePages())
-      <a class="page-btn"
-         href="{{ $pending->appends(request()->query())->nextPageUrl() }}">
-        <i class="fas fa-chevron-right"></i>
-      </a>
-    @else
-      <span class="page-btn disabled">
-        <i class="fas fa-chevron-right"></i>
-      </span>
-    @endif
-  </div>
+  @include('components.pagination.responsive', ['paginator' => $pending])
 </div>
                 </div>
             </div>
@@ -212,9 +180,9 @@
                 </div>
             </div>
 
-            <div style="padding: 15px;">
+            <div class="cms-table-panel" style="padding: 15px;">
                 <div class="table-wrap approvals-table-wrap">
-                    <table class="table approvals-table">
+                    <table class="table approvals-table" data-responsive-cards data-card-primary="Requester">
                         <thead>
                             <tr>
                                 <th style="text-align:left; padding:10px;">Date</th>
@@ -317,35 +285,7 @@
 
                 <div style="margin-top: 15px;">
                     <div style="padding:14px; display:flex; justify-content:flex-end;">
-  <div class="custom-pagination">
-    {{-- Previous --}}
-    @if ($history->onFirstPage())
-      <span class="page-btn disabled"><i class="fas fa-chevron-left"></i></span>
-    @else
-      <a class="page-btn"
-         href="{{ $history->appends(request()->query())->previousPageUrl() }}">
-        <i class="fas fa-chevron-left"></i>
-      </a>
-    @endif
-
-    {{-- Page Numbers --}}
-    @for ($i = 1; $i <= $history->lastPage(); $i++)
-      <a class="page-number {{ $history->currentPage() == $i ? 'active' : '' }}"
-         href="{{ $history->appends(array_merge(request()->query(), ['history_page' => $i]))->url($i) }}">
-        {{ $i }}
-      </a>
-    @endfor
-
-    {{-- Next --}}
-    @if ($history->hasMorePages())
-      <a class="page-btn"
-         href="{{ $history->appends(request()->query())->nextPageUrl() }}">
-        <i class="fas fa-chevron-right"></i>
-      </a>
-    @else
-      <span class="page-btn disabled"><i class="fas fa-chevron-right"></i></span>
-    @endif
-  </div>
+  @include('components.pagination.responsive', ['paginator' => $history])
 </div>
                 </div>
             </div>

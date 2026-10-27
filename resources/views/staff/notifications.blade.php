@@ -31,7 +31,7 @@
 
     <div class="stats-grid">
       <div class="stat-card" style="grid-column: span 2; display: flex; flex-direction: column; justify-content: center; padding: 24px; border-radius: 16px; background: white; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.04);">
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
+        <div class="cms-notification-overview-head" style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px;">
             <div>
                 <h4 style="margin: 0; font-size: 12px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #888;"><i class="fas fa-chart-pie" style="margin-right: 6px; color: var(--theme-maroon, #800000);"></i> Notifications Overview</h4>
                 <div style="font-size: 36px; font-weight: 800; color: #222; line-height: 1; margin-top: 10px;">
@@ -132,21 +132,21 @@
                     <i class="fas {{ $icon }}" style="font-size: 32px; color: var(--theme-maroon, #800000); drop-shadow: 0 2px 4px rgba(0,0,0,0.1);"></i>
                 </div>
 
-                <div style="flex: 1; min-width: 0;">
+                <div class="cms-notification-body" style="flex: 1; min-width: 0;">
                   <div style="font-size: 16px; font-weight: 800; color: {{ $unreadClass ? '#111' : '#666' }}; margin-bottom: 6px; display: flex; align-items: center;">
-                      <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $n->title }}</span>
+                      <span class="cms-notification-title">{{ $n->title }}</span>
                       @if($unreadClass)
                           <span style="flex-shrink: 0; display: inline-block; width: 8px; height: 8px; background: #ef4444; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 8px rgba(239, 68, 68, 0.6);"></span>
                       @endif
                   </div>
-                  <div style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; word-break: break-all;">{{ $n->message }}</div>
+                  <div class="cms-notification-message" style="font-size: 14px; color: #555; line-height: 1.6; margin-bottom: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">{{ $n->message }}</div>
                   <div style="font-size: 12px; font-weight: 700; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.5px;">
                     <i class="fas fa-clock" style="margin-right: 4px;"></i>
                     {{ \Carbon\Carbon::parse($n->created_at)->format('M d, Y g:i A') }}
                   </div>
                 </div>
 
-                <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start;">
+                <div class="cms-notification-actions" style="display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start;">
                   @if((int)($n->is_read ?? 0) === 0)
                       <button title="Mark as Read" type="button"
                               style="background: #f5ebe3; color: #777; border: none; width: 40px; height: 40px; border-radius: 12px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; font-size: 16px;"
