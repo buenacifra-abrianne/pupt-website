@@ -20,8 +20,9 @@
     @include('partials.profile_modal')
 
     <main class="main-content">
-        <div class="page-header">
+        <div class="page-header cms-history-page-header">
             <h1 class="page-title">Campus Memorandum</h1>
+            @include('superadmin.partials.cms-history-launcher')
             <p class="page-subtitle">This page provides downloadable Campus Memorandum.</p>
         </div>
 
@@ -618,6 +619,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <i class="fas fa-microphone"></i>
 </button>
 <script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+@include('superadmin.partials.cms-version-history', ['historyScope' => 'memoranda', 'historyLabel' => 'Campus Memorandum'])
 </body>
 </html>
 

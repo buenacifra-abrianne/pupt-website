@@ -24,8 +24,9 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="page-header">
+        <div class="page-header cms-history-page-header">
             <h1 class="page-title">News & Announcements</h1>
+            @include('superadmin.partials.cms-history-launcher')
             <p class="page-subtitle">Manage announcements and news articles for PUP Taguig</p>
         </div>
 
@@ -2162,6 +2163,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <i class="fas fa-microphone"></i>
 </button>
 <script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+@include('superadmin.partials.cms-version-history', ['historyScope' => 'news_announcements', 'historyLabel' => 'News & Announcements'])
 </body>
 </html>
 

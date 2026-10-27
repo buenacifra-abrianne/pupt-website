@@ -272,7 +272,19 @@ Route::prefix('superadmin')->group(function () {
 
         Route::get('/content', [CmsController::class, 'page'])->name('superadmin.content');
         Route::post('/content/save', [CmsController::class, 'save'])->name('superadmin.content.save');
+        Route::prefix('/content/history/{tabKey}')->name('superadmin.content.history.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Superadmin\CmsVersionController::class, 'index'])->name('index');
+            Route::get('/{version}', [\App\Http\Controllers\Superadmin\CmsVersionController::class, 'show'])->whereNumber('version')->name('show');
+            Route::post('/{version}/restore', [\App\Http\Controllers\Superadmin\CmsVersionController::class, 'restore'])->whereNumber('version')->name('restore');
+            Route::get('/{version}/preview/{sectionKey}', [\App\Http\Controllers\Superadmin\CmsVersionController::class, 'preview'])->whereNumber('version')->name('preview');
+        });
         Route::get('/content/preview/{tabKey}/{sectionKey}', [CmsController::class, 'preview'])->name('superadmin.content.preview');
+        Route::prefix('/publication-history/{scope}')->name('superadmin.publication-history.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Superadmin\PublicationHistoryController::class, 'index'])->name('index');
+            Route::get('/{version}', [\App\Http\Controllers\Superadmin\PublicationHistoryController::class, 'show'])->whereNumber('version')->name('show');
+            Route::post('/{version}/restore', [\App\Http\Controllers\Superadmin\PublicationHistoryController::class, 'restore'])->whereNumber('version')->name('restore');
+            Route::get('/{version}/preview/{sectionKey}', [\App\Http\Controllers\Superadmin\PublicationHistoryController::class, 'preview'])->whereNumber('version')->name('preview');
+        });
 
         Route::get('/notifications', [NotificationController::class, 'page'])->name('superadmin.notifications');
 

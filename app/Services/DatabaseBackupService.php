@@ -8,6 +8,8 @@ use App\Support\AuditLog;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
+use Phar;
+use PharData;
 use RuntimeException;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Process\Process;
@@ -16,10 +18,20 @@ use ZipArchive;
 
 class DatabaseBackupService
 {
-    public function createBackup(?int $userId = null): Backup
+    public function createS3Backup(?int $userId = null): Backup
     {
-        $backupName = 'database_backup_'.now()->format('Y-m-d_H-i').'.zip';
+        return $this->createBackup($userId, true);
+    }
+
+    public function createBackup(?int $userId = null, bool $requireS3 = false): Backup
+    {
+        $backupName = 'database_backup_'.now()->format('Y-m-d_H-i-s_u').'_'.bin2hex(random_bytes(4)).'.zip';
         $disk = $this->resolveStorageDisk();
+        if ($requireS3 && ($disk !== (string) config('database_backups.s3_disk', 's3')
+            || config('filesystems.disks.'.$disk.'.driver') !== 's3'
+            || ! filled(config('filesystems.disks.'.$disk.'.bucket')))) {
+            throw new RuntimeException('An S3 database backup is required before restoring CMS content. Configure S3 backups first.');
+        }
         $sqlTempPath = $this->makeTempPath('sql');
         $zipTempPath = $this->makeTempPath('zip');
 
@@ -164,8 +176,13 @@ class DatabaseBackupService
             throw new RuntimeException('Database backup connection details are incomplete.');
         }
 
+        $binary = (string) config('database_backups.dump_binary', 'mysqldump');
+        $bundledBinary = dirname(PHP_BINARY, 2).'/mysql/bin/mysqldump.exe';
+        if ($binary === 'mysqldump' && PHP_OS_FAMILY === 'Windows' && is_file($bundledBinary)) {
+            $binary = $bundledBinary;
+        }
         $command = [
-            (string) config('database_backups.dump_binary', 'mysqldump'),
+            $binary,
             '--single-transaction',
             '--quick',
             '--skip-lock-tables',
@@ -206,10 +223,13 @@ class DatabaseBackupService
     private function zipDump(string $sqlTempPath, string $zipTempPath, string $backupName): void
     {
         if (! class_exists(ZipArchive::class)) {
-            throw new RuntimeException('The ZipArchive extension is required for database backups.');
+            $archive = new PharData($zipTempPath, 0, null, Phar::ZIP);
+            $archive->addFile($sqlTempPath, pathinfo($backupName, PATHINFO_FILENAME).'.sql');
+
+            return;
         }
 
-        $zip = new ZipArchive();
+        $zip = new ZipArchive;
         $result = $zip->open($zipTempPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
 
         if ($result !== true) {

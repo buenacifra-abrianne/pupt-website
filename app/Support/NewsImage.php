@@ -3,12 +3,14 @@
 namespace App\Support;
 
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class NewsImage
 {
     private const MAX_BYTES = 20 * 1024 * 1024;
+
     private const ALLOWED_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg'];
 
     public static function store(UploadedFile $file, string $directory = 'news'): string|false
@@ -20,6 +22,9 @@ class NewsImage
 
     public static function delete(?string $path): void
     {
+        if (Schema::hasTable('cms_content_versions')) {
+            return; // S3 database restore points can still reference this image.
+        }
         $normalized = self::normalizeStoredPath($path);
 
         if ($normalized === '' || self::isExternal($normalized) || str_starts_with($normalized, 'assets/')) {
@@ -73,11 +78,11 @@ class NewsImage
 
     public static function validationError(?UploadedFile $file): ?string
     {
-        if (!$file) {
+        if (! $file) {
             return null;
         }
 
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             return 'Image upload failed during transfer.';
         }
 
