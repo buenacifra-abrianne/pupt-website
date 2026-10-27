@@ -81,7 +81,13 @@ body.cms-shell :is(.pagination, .custom-pagination, .pagination-container, .pagi
 }
 body.cms-shell .modal-divider { width: 100%; margin-inline: 0 !important; }
 body.cms-shell .cms-native-select { inset: 0 auto auto 0; padding: 0 !important; border: 0 !important; }
-body.cms-shell :is(.cms-dropdown-menu, .searchable-dropdown) { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+/* Floating menus can be wider than a compact trigger; do not squeeze their options. */
+body.cms-shell .cms-dropdown-menu {
+    min-width: min(220px, calc(100vw - 32px));
+    max-width: calc(100vw - 32px);
+    overflow-wrap: normal;
+}
+body.cms-shell .searchable-dropdown { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
 
 body.cms-shell :is(.page-header, .card-header, .panel-header, .modal-header, .modal-footer, .filter-bar, .filters-bar, .table-header, .search-filter-bar, .tab-navigation, .top-tabs) {
     flex-wrap: wrap;
