@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Superadmin;
 
+use App\Exceptions\CmsHistoryException;
 use App\Http\Controllers\Controller;
 use App\Services\CmsS3BackupHistory;
 use App\Services\DatabaseBackupService;
@@ -122,7 +123,7 @@ class CmsVersionController extends Controller
             $safetyBackup = $this->backupService->createS3Backup((int) session('user_id') ?: null);
         } catch (Throwable $exception) {
             report($exception);
-            abort(503, 'A safety database backup could not be saved to S3. No content was restored. Please check S3 backup access and try again.');
+            throw new CmsHistoryException(503, 'A safety database backup could not be saved to S3. No content was restored. Please check S3 backup access and try again.', 's3_safety_backup_failed', $exception);
         }
         $changed = CmsVersionHistory::publish(
             $tabKey, $selected->title, $selected->content, 's3_restore', null,

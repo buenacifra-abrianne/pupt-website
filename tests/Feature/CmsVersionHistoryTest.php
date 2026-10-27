@@ -12,11 +12,18 @@ use App\Support\AboutCmsContent;
 use App\Support\CmsSections;
 use App\Support\CmsVersionHistory;
 use App\Support\HomeCmsContent;
+use Aws\Command;
+use Aws\Exception\CredentialsException;
+use Aws\S3\Exception\S3Exception;
+use GuzzleHttp\Psr7\Response;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
+use League\Flysystem\FilesystemOperator;
+use League\Flysystem\UnableToReadFile;
 use PHPUnit\Framework\Attributes\DataProvider;
 use Tests\Support\CmsBackupFixture;
 use Tests\TestCase;
@@ -192,6 +199,49 @@ class CmsVersionHistoryTest extends TestCase
         $this->assertDatabaseCount('cms_contents', 0);
     }
 
+    private function failS3Reads(\Throwable $cause): void
+    {
+        $driver = \Mockery::mock(FilesystemOperator::class);
+        $driver->shouldReceive('readStream')->andThrow(
+            UnableToReadFile::fromLocation('backups/database/test.zip', '', $cause)
+        );
+        $adapter = \Mockery::mock(FilesystemAdapter::class);
+        $adapter->shouldReceive('getDriver')->andReturn($driver);
+        Storage::shouldReceive('disk')->with('s3')->andReturn($adapter);
+    }
+
+    public function test_missing_aws_credentials_show_an_actionable_message_instead_of_the_global_generic_error(): void
+    {
+        $this->failS3Reads(new CredentialsException('INTERNAL_PROVIDER_DETAIL'));
+        $response = $this->getJson($this->historyUrl('home', '/'.$this->baselineBackupId))
+            ->assertStatus(503)
+            ->assertJsonPath('error_code', 's3_authentication_unavailable');
+        $this->assertStringContainsString('Configure its AWS credentials or IAM role', $response->json('message'));
+        $response->assertDontSee('INTERNAL_PROVIDER_DETAIL')->assertDontSee('We could not complete that request');
+        $this->assertDatabaseCount('cms_contents', 0);
+    }
+
+    public static function s3Failures(): array
+    {
+        return [
+            ['AccessDenied', 403, 503, 's3_backup_access_denied'],
+            ['ExpiredToken', 403, 503, 's3_backup_access_denied'],
+            ['NoSuchKey', 404, 404, 's3_backup_not_found'],
+            ['ServiceUnavailable', 503, 503, 's3_backup_unavailable'],
+        ];
+    }
+
+    #[DataProvider('s3Failures')]
+    public function test_s3_access_errors_are_reported_safely(string $awsCode, int $awsStatus, int $status, string $errorCode): void
+    {
+        $this->failS3Reads(new S3Exception('INTERNAL_SDK_DETAIL', new Command('GetObject'), [
+            'code' => $awsCode, 'response' => new Response($awsStatus),
+        ]));
+        $this->getJson($this->historyUrl('home', '/'.$this->baselineBackupId))
+            ->assertStatus($status)->assertJsonPath('error_code', $errorCode)
+            ->assertDontSee('INTERNAL_SDK_DETAIL')->assertDontSee('We could not complete that request');
+    }
+
     public function test_archive_replacement_after_review_prevents_restore(): void
     {
         CmsVersionHistory::publish('home', 'Current', 'Current content', 'direct_save');
@@ -214,7 +264,7 @@ class CmsVersionHistoryTest extends TestCase
         $count = DB::table('cms_content_versions')->count();
         $this->postJson($this->historyUrl('home', '/'.$this->baselineBackupId.'/restore'), [
             'live_checksum' => $review['live_checksum'], 'head_id' => $review['head_id'], 'backup_checksum' => $review['backup_checksum'],
-        ])->assertStatus(503);
+        ])->assertStatus(503)->assertJsonPath('error_code', 's3_safety_backup_failed');
         $this->assertDatabaseHas('cms_contents', ['title' => 'Current', 'content' => 'Current content']);
         $this->assertDatabaseCount('cms_content_versions', $count);
     }

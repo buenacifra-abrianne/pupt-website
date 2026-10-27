@@ -2,9 +2,12 @@
 
 namespace App\Services;
 
+use App\Exceptions\CmsHistoryException;
 use App\Models\Backup;
 use App\Support\CmsBackupSqlReader;
 use App\Support\CmsVersionHistory;
+use Aws\Exception\CredentialsException;
+use Aws\S3\Exception\S3Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Storage;
 use PharData;
@@ -34,7 +37,8 @@ class CmsS3BackupHistory
         $path = null;
         try {
             // The source is always S3. The ZIP decoder uses a disposable spool, never a local backup or cache.
-            $remote = Storage::disk($disk)->readStream($backup->file_path);
+            // Keep the underlying failure: the adapter's readStream may otherwise swallow it.
+            $remote = Storage::disk($disk)->getDriver()->readStream($backup->file_path);
             if (! is_resource($remote)) {
                 throw new RuntimeException('The selected S3 database backup could not be read.');
             }
@@ -79,7 +83,7 @@ class CmsS3BackupHistory
             ];
         } catch (Throwable $exception) {
             report($exception);
-            abort(422, 'The selected S3 database backup could not be verified. It may be missing, damaged, or incompatible. No content was restored.');
+            throw $this->readFailure($exception);
         } finally {
             if (is_resource($sql)) {
                 fclose($sql);
@@ -100,9 +104,35 @@ class CmsS3BackupHistory
     private function diskName(): string
     {
         $disk = (string) config('database_backups.s3_disk', 's3');
-        abort_unless(config('filesystems.disks.'.$disk.'.driver') === 's3', 503, 'CMS version history requires the configured S3 backup disk.');
-        abort_unless(filled(config('filesystems.disks.'.$disk.'.bucket')), 503, 'Configure the S3 backup bucket before using CMS version history.');
+        if (config('filesystems.disks.'.$disk.'.driver') !== 's3') {
+            throw new CmsHistoryException(503, 'CMS version history requires the configured S3 backup disk.', 's3_backup_disk_not_configured');
+        }
+        if (! filled(config('filesystems.disks.'.$disk.'.bucket'))) {
+            throw new CmsHistoryException(503, 'Configure the S3 backup bucket before using CMS version history.', 's3_backup_bucket_not_configured');
+        }
 
         return $disk;
+    }
+
+    private function readFailure(Throwable $exception): CmsHistoryException
+    {
+        for ($cause = $exception; $cause !== null; $cause = $cause->getPrevious()) {
+            if ($cause instanceof CredentialsException) {
+                return new CmsHistoryException(503, 'This server cannot authenticate with AWS to read S3 database backups. Configure its AWS credentials or IAM role, then try again. No content was restored.', 's3_authentication_unavailable', $exception);
+            }
+            if ($cause instanceof S3Exception) {
+                $code = $cause->getAwsErrorCode();
+                if (in_array($code, ['NoSuchKey', 'NoSuchBucket', 'NotFound'], true) || $cause->getStatusCode() === 404) {
+                    return new CmsHistoryException(404, 'The selected database backup was not found in S3. Choose another backup or check the configured bucket and backup path. No content was restored.', 's3_backup_not_found', $exception);
+                }
+                if (in_array($code, ['AccessDenied', 'InvalidAccessKeyId', 'SignatureDoesNotMatch', 'ExpiredToken', 'InvalidToken'], true) || in_array($cause->getStatusCode(), [401, 403], true)) {
+                    return new CmsHistoryException(503, 'This server is not authorized to read the selected S3 database backup. Check its AWS credentials and access to database backups. No content was restored.', 's3_backup_access_denied', $exception);
+                }
+
+                return new CmsHistoryException(503, 'S3 database backups are temporarily unavailable. Please try again later. No content was restored.', 's3_backup_unavailable', $exception);
+            }
+        }
+
+        return new CmsHistoryException(422, 'The selected S3 database backup could not be verified. It may be missing, damaged, or incompatible. No content was restored.', 's3_backup_invalid', $exception);
     }
 }

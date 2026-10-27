@@ -37,3 +37,9 @@ node tests/Browser/cms-version-history.cjs
 ```
 
 Tests use SQLite in memory and an isolated S3 storage fake. They never publish fixture data to the project database or the deployed bucket. Browser screenshots are saved under `storage/app/cms-history-preview`. Testing the real deployed bucket requires that deployment's S3 configuration and access.
+
+## Troubleshooting S3 access
+
+The backup list comes from the database's backup records; a populated list does not confirm that this server can read the corresponding S3 objects. Bucket, region, and public asset URL settings identify the destination but do not authenticate requests to private database backups. The local server needs its own AWS authentication through the SDK's configured credentials, profile, or role. A role assigned to the deployment does not automatically authenticate a local development machine.
+
+CMS history reports missing authentication, denied access, missing objects, and invalid archives separately. These messages do not include raw AWS SDK responses. Credentials stay in the server environment or AWS credential store, outside version control. A failed read or failed safety backup leaves live CMS content unchanged.
