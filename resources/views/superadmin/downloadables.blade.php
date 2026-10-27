@@ -20,9 +20,9 @@
     @include('partials.profile_modal')
 
     <main class="main-content">
-        @include('superadmin.partials.cms-history-launcher', ['historyLabel' => 'Campus Memorandum'])
-        <div class="page-header">
+        <div class="page-header cms-history-page-header">
             <h1 class="page-title">Campus Memorandum</h1>
+            @include('superadmin.partials.cms-history-launcher')
             <p class="page-subtitle">This page provides downloadable Campus Memorandum.</p>
         </div>
 

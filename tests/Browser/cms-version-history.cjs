@@ -116,6 +116,18 @@ const server = http.createServer(async (req, res) => {
     ]) {
       await cdp('Page.navigate', { url: `http://127.0.0.1:${server.address().port}${page}` });
       await waitFor('document.readyState === "complete" && !!document.getElementById("cms-history-open")');
+      for (const width of [375, 768, 1024, 1440]) {
+        await cdp('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        await evaluate('new Promise(resolve => setTimeout(resolve, 350))');
+        const header = await evaluate('(() => {const t=document.querySelector(".page-header .page-title").getBoundingClientRect(),b=document.getElementById("cms-history-open").getBoundingClientRect(),s=document.querySelector(".page-header .page-subtitle").getBoundingClientRect();return {titleRight:t.right,buttonLeft:b.left,buttonRight:b.right,centerDifference:Math.abs((t.top+t.bottom-b.top-b.bottom)/2),subtitleTop:s.top,rowBottom:Math.max(t.bottom,b.bottom),width:b.width,height:b.height};})()');
+        assert.ok(header.buttonLeft >= header.titleRight, `${scope}: button stays to the right of the title at ${width}px`);
+        assert.ok(header.centerDifference <= 2, `${scope}: title and history button share the same row at ${width}px`);
+        assert.ok(header.subtitleTop >= header.rowBottom, `${scope}: subtitle stays below title and button`);
+        assert.ok(header.buttonRight <= width, `${scope}: header fits viewport at ${width}px: ${JSON.stringify(header)}`);
+        if (width === 375) assert.ok(header.width >= 44 && header.height >= 44, 'Mobile button keeps a 44px touch target');
+        const headerShot = await cdp('Page.captureScreenshot', { format: 'png' });
+        fs.writeFileSync(path.join(output, `${scope}-header-${width}.png`), Buffer.from(headerShot.data, 'base64'));
+      }
       await evaluate('document.getElementById("cms-history-open").click()');
       await waitFor('document.querySelectorAll(".cms-history-version").length === 3 && !!document.querySelector("#cms-history-diff table")');
       assert.equal(await evaluate('document.getElementById("cms-version-history").dataset.scope'), scope);

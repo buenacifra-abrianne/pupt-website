@@ -27,6 +27,55 @@
     transition:background .15s,border-color .15s;
 }
 
+body.cms-shell .cms-history-page-header {
+    display:grid;
+    grid-template-columns:minmax(0,1fr) auto;
+    align-items:center;
+    column-gap:20px;
+    row-gap:8px;
+}
+
+body.cms-shell .cms-history-page-header .page-title {
+    grid-column:1;
+    grid-row:1;
+    min-width:0;
+    margin:0;
+    overflow-wrap:anywhere;
+}
+
+body.cms-shell .cms-history-page-header .cms-history-toolbar {
+    grid-column:2;
+    grid-row:1;
+    margin:0;
+    align-self:center;
+}
+
+body.cms-shell .cms-history-page-header .page-subtitle {
+    grid-column:1 / -1;
+    margin:0;
+}
+
+@media(max-width:600px) {
+    body.cms-shell .cms-history-page-header {
+        column-gap:12px;
+    }
+    body.cms-shell .cms-history-page-header .page-title {
+        font-size:clamp(18px,5vw,24px);
+        padding-left:36px;
+    }
+    body.cms-shell .cms-history-page-header .page-title::before {
+        width:24px;
+    }
+    .cms-history-page-header .cms-history-button {
+        width:44px;
+        min-height:44px;
+        padding:10px;
+    }
+    .cms-history-page-header .cms-history-launcher-label {
+        display:none;
+    }
+}
+
 .cms-history-button:hover {
     background:#f1f5f9;
     border-color:#94a3b8;

@@ -23,13 +23,13 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <div class="page-header">
+        <div class="page-header cms-history-page-header">
             <h1 class="page-title">News & Announcements</h1>
+            @include('superadmin.partials.cms-history-launcher')
             <p class="page-subtitle">Manage announcements and news articles for PUP Taguig</p>
         </div>
 
         <!-- Tab Navigation -->
-        @include('superadmin.partials.cms-history-launcher', ['historyLabel' => 'News & Announcements'])
         <div class="tab-navigation cms-tab-style">
             <button class="tab-btn active" onclick="switchTab('news', this)">
                 <i class="fas fa-newspaper"></i>
