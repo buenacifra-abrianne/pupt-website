@@ -7,8 +7,9 @@ use RuntimeException;
 /** Reads CMS values from mysqldump output. It never executes backup SQL. */
 class CmsBackupSqlReader
 {
-    public function read($stream): array
+    public function read($stream, string $tableName = 'cms_contents', string $keyColumn = 'tab_key', array $requiredColumns = ['tab_key', 'title', 'content']): array
     {
+        $quotedTable = preg_quote($tableName, '/');
         $columns = [];
         $rows = [];
         $inSchema = false;
@@ -22,7 +23,7 @@ class CmsBackupSqlReader
             if ($bytes > $limit || (strlen($line) === 16777216 && ! str_ends_with($line, "\n"))) {
                 throw new RuntimeException('The database dump exceeds the CMS history read limit.');
             }
-            if (preg_match('/^CREATE TABLE(?: IF NOT EXISTS)? `cms_contents`\s*\(/i', $line)) {
+            if (preg_match('/^CREATE TABLE(?: IF NOT EXISTS)? `'.$quotedTable.'`\s*\(/i', $line)) {
                 $inSchema = true;
                 $inCmsData = true;
                 $foundSchema = true;
@@ -43,12 +44,12 @@ class CmsBackupSqlReader
                 $inCmsData = false;
             }
             if (preg_match('/^-- Dumping data for table `([^`]+)`/', $line, $table)) {
-                $inCmsData = $table[1] === 'cms_contents';
+                $inCmsData = $table[1] === $tableName;
             }
             if (! $inCmsData) {
                 continue;
             }
-            if (! preg_match('/^INSERT INTO `cms_contents`\s*(\([^)]*\))?\s*VALUES\s*/i', $line, $match)) {
+            if (! preg_match('/^INSERT INTO `'.$quotedTable.'`\s*(\([^)]*\))?\s*VALUES\s*/i', $line, $match)) {
                 continue;
             }
             $insertColumns = $columns;
@@ -56,7 +57,7 @@ class CmsBackupSqlReader
                 preg_match_all('/`([^`]+)`/', $match[1], $names);
                 $insertColumns = $names[1];
             }
-            if (array_diff(['tab_key', 'title', 'content'], $insertColumns) !== []) {
+            if (array_diff($requiredColumns, $insertColumns) !== []) {
                 throw new RuntimeException('The backup CMS schema is not supported.');
             }
             // mysqldump escapes newlines inside strings and writes each INSERT on one line.
@@ -80,7 +81,7 @@ class CmsBackupSqlReader
                     throw new RuntimeException('The backup contains an invalid CMS row.');
                 }
                 $row = array_combine($insertColumns, $tuple);
-                $tab = $row['tab_key'];
+                $tab = $row[$keyColumn];
                 if (! is_string($tab) || isset($rows[$tab])) {
                     throw new RuntimeException('The backup contains duplicate or invalid CMS pages.');
                 }
@@ -99,8 +100,8 @@ class CmsBackupSqlReader
                 throw new RuntimeException('The backup contains an incomplete CMS INSERT.');
             }
         }
-        if (! $foundSchema || $inSchema || array_diff(['tab_key', 'title', 'content'], $columns) !== []) {
-            throw new RuntimeException('This database backup does not contain a supported CMS contents table.');
+        if (! $foundSchema || $inSchema || array_diff($requiredColumns, $columns) !== []) {
+            throw new RuntimeException('This database backup does not contain the requested content table.');
         }
 
         return $rows;

@@ -6,6 +6,7 @@ use App\Exceptions\CmsHistoryException;
 use App\Models\Backup;
 use App\Support\CmsBackupSqlReader;
 use App\Support\CmsVersionHistory;
+use App\Support\PublicationBackupContent;
 use Aws\Exception\CredentialsException;
 use Aws\S3\Exception\S3Exception;
 use Illuminate\Database\Eloquent\Builder;
@@ -70,9 +71,21 @@ class CmsS3BackupHistory
             if ($sqlEntry === null || $sqlEntry->getSize() > (int) config('database_backups.history_max_sql_bytes', 536870912)) {
                 throw new RuntimeException('The backup SQL dump is missing or exceeds the CMS history read limit.');
             }
-            $sql = fopen($sqlEntry->getPathname(), 'rb');
-            $rows = app(CmsBackupSqlReader::class)->read($sql);
-            $row = $rows[$tabKey] ?? (object) ['title' => null, 'content' => null];
+            if (PublicationBackupContent::supports($tabKey)) {
+                $definition = PublicationBackupContent::definition($tabKey);
+                $tables = [];
+                foreach ($definition['tables'] as $table => $key) {
+                    $sql = fopen($sqlEntry->getPathname(), 'rb');
+                    $tables[$table] = app(CmsBackupSqlReader::class)->read($sql, $table, $key, [$key, 'title']);
+                    fclose($sql);
+                    $sql = null;
+                }
+                $row = (object) ['title' => $definition['label'], 'content' => PublicationBackupContent::encode($tables)];
+            } else {
+                $sql = fopen($sqlEntry->getPathname(), 'rb');
+                $rows = app(CmsBackupSqlReader::class)->read($sql);
+                $row = $rows[$tabKey] ?? (object) ['title' => null, 'content' => null];
+            }
 
             return (object) [
                 'id' => $backup->id, 'tab_key' => $tabKey, 'title' => $row->title, 'content' => $row->content,
