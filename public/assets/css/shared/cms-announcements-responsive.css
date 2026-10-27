@@ -1,0 +1,109 @@
+/* News & Announcements only. Desktop styles remain entirely unchanged. */
+@media screen and (max-width: 1024px) {
+    body.cms-shell.cms-announcements-page .main-content { font-size: 12px; }
+    body.cms-announcements-page .page-header { margin-bottom: 14px; }
+    body.cms-announcements-page .main-content .page-title { font-size: 20px; line-height: 1.4; }
+    body.cms-announcements-page .page-subtitle { font-size: 12px; line-height: 1.5; }
+    body.cms-announcements-page .main-content .tab-navigation { gap: 6px; margin-block: 12px 14px; }
+    body.cms-announcements-page .main-content .tab-btn { font-size: 12px !important; padding: 8px 12px !important; min-height: 40px !important; }
+    body.cms-announcements-page .main-content .search-bar { padding: 6px 10px; min-height: 40px; }
+    body.cms-announcements-page .main-content .search-bar input { font-size: 12px; }
+    body.cms-announcements-page .main-content .card { padding: 12px; border-radius: 14px; margin-bottom: 14px; }
+    body.cms-announcements-page .card-header { margin-bottom: 12px; padding-bottom: 8px; }
+    body.cms-announcements-page .card-title { font-size: 14px; }
+    body.cms-announcements-page .events-cms-card-group-head { gap: 8px; margin-bottom: 10px !important; }
+    body.cms-announcements-page .events-cms-card-group-head h4 { font-size: 13px !important; line-height: 1.4; }
+    body.cms-announcements-page .events-cms-card-group-head p { font-size: 11px !important; line-height: 1.5; margin-top: 4px !important; }
+    body.cms-announcements-page :is(.news-grid,.announcement-grid) { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; align-items: start; }
+    body.cms-announcements-page .announcement-grid { max-height: none; overflow: visible; padding: 0; }
+    body.cms-announcements-page :is(.news-card,.announcement-item) { min-width: 0; border-radius: 12px; }
+    body.cms-announcements-page .announcement-item { padding: 12px; }
+    body.cms-announcements-page .announcement-header { padding-right: 24px; }
+    body.cms-announcements-page :is(.news-title,.announcement-title) { font-size: 14px; line-height: 1.4; margin-bottom: 6px; }
+    body.cms-announcements-page .title-row { gap: 6px; }
+    body.cms-announcements-page :is(.announcement-description,.news-description) { font-size: 12px; line-height: 1.5; margin-block: 8px; }
+    body.cms-announcements-page :is(.announcement-description,.news-description) :is(p,div,span,strong,em,li) { font-size: inherit !important; line-height: inherit; }
+    body.cms-announcements-page :is(.announcement-meta,.news-meta) { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 10px; line-height: 1.5; margin-block: 8px; }
+    body.cms-announcements-page :is(.announcement-meta,.news-meta) > span { min-width: 0; overflow-wrap: anywhere; }
+    body.cms-announcements-page :is(.priority-badge,.news-category,.news-flag-badge,.status-badge) { font-size: 10px; padding: 3px 6px; }
+    body.cms-announcements-page .news-content { padding: 12px; }
+    body.cms-announcements-page .news-image { height: 132px; font-size: 28px; }
+    body.cms-announcements-page .news-image img { height: 100% !important; object-fit: contain; }
+    body.cms-announcements-page :is(.news-card-badges,.news-option-toggle) { gap: 6px; margin-bottom: 8px; }
+    body.cms-announcements-page :is(.news-card-select,.announcement-card-select) { top: 8px; right: 8px; min-width: 32px; min-height: 32px; display: grid; place-items: center; }
+    body.cms-announcements-page .news-card-select span { width: 20px; height: 20px; }
+    body.cms-announcements-page .news-bulk-toolbar { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+    body.cms-announcements-page .news-bulk-count { flex: 0 0 auto; align-self: flex-start; height: auto; min-height: 0; padding: 6px 10px; font-size: 10px; line-height: 1.4; white-space: nowrap; }
+    body.cms-announcements-page .news-bulk-actions { display: flex; flex: 1 1 220px; flex-wrap: wrap; gap: 6px; width: auto; }
+    body.cms-announcements-page .main-content .btn { font-size: 11px !important; min-height: 40px !important; padding: 6px 10px !important; line-height: 1.4 !important; }
+    body.cms-announcements-page .news-bulk-actions .btn { flex: 1 1 110px; justify-content: center; }
+    body.cms-announcements-page :is(.announcement-actions,.news-actions) { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+    body.cms-announcements-page .main-content :is(.announcement-actions,.news-actions) .btn { width: auto; min-width: 40px; flex: 0 1 auto; white-space: nowrap; justify-content: center; }
+    body.cms-announcements-page :is(.announcement-actions,.news-actions) .btn-view-icon { margin-left: auto; }
+    body.cms-announcements-page .main-content :is(.news-card-create,.announcement-card-create) {
+        display: grid; grid-template-columns: 36px minmax(0,1fr); grid-template-rows: auto auto;
+        min-height: 90px; height: auto; padding: 12px; gap: 4px 10px; text-align: left; align-content: center;
+    }
+    body.cms-announcements-page :is(.news-card-create-icon,.announcement-card-create-icon) { grid-column: 1; grid-row: 1 / 3; width: 36px; height: 36px; font-size: 24px; align-self: center; }
+    body.cms-announcements-page :is(.news-card-create-title,.announcement-card-create-title) { grid-column: 2; grid-row: 1; font-size: 13px; line-height: 1.4; }
+    body.cms-announcements-page :is(.news-card-create-text,.announcement-card-create-text) { grid-column: 2; grid-row: 2; max-width: none; font-size: 11px; line-height: 1.5; }
+
+    body.cms-shell.cms-announcements-page :is(#announcementModal,#newsModal,#readMoreModal,#requestChangesModal) { padding: 16px !important; }
+    body.cms-shell.cms-announcements-page :is(#announcementModal,#newsModal,#readMoreModal,#requestChangesModal) .modal-content {
+        width: 100% !important; max-width: 640px !important; max-height: calc(var(--cms-viewport-height) - 32px) !important;
+        padding: 14px !important; border-radius: 14px; font-size: 12px;
+    }
+    body.cms-announcements-page :is(#announcementModal,#newsModal,#requestChangesModal) .modal-header {
+        display: grid; grid-template-columns: minmax(0,1fr) 40px; gap: 8px; padding: 0 0 10px !important; margin-bottom: 10px;
+    }
+    body.cms-announcements-page :is(#announcementModal,#newsModal,#readMoreModal,#requestChangesModal) .modal-title { font-size: 16px; line-height: 1.4; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .modal-description { font-size: 11px; line-height: 1.5; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal,#readMoreModal,#requestChangesModal) .close-modal { width: 40px; height: 40px; min-width: 40px; min-height: 40px; font-size: 16px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .modal-divider { margin: 0 0 12px !important; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .form-group { margin-bottom: 12px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .form-group label { font-size: 12px; margin-bottom: 5px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) :is(input:not([type="hidden"]):not([type="checkbox"]):not([type="file"]),textarea,select) { min-height: 40px; padding: 8px; font-size: 12px; border-width: 1px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .cms-dropdown-trigger { min-height: 40px; font-size: 12px !important; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) :is(.rich-editor-toolbar,.rich-editor-group) { gap: 4px; flex-wrap: wrap; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-toolbar { padding: 6px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-separator { display: none; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-btn { width: 32px; min-width: 32px; height: 32px; font-size: 12px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-fontsize-trigger { width: auto; min-width: 60px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) :is(.rich-editor-fontsize-wrap,.rich-editor-color-wrap) { position: static; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) :is(.rich-editor-fontsize-popover,.rich-editor-color-popover) { left: 6px; top: calc(100% + 4px); max-width: calc(100% - 12px); }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-fontsize-popover { width: 120px; max-height: min(280px,calc(var(--cms-viewport-height) * .5)); overflow-y: auto; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-color-popover { width: 248px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-fontsize-title { font-size: 11px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-fontsize-option { height: 32px; font-size: 12px; padding: 4px 8px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-surface { min-height: 120px; padding: 10px; font-size: 12px; line-height: 1.5; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-footer { padding: 6px 8px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .rich-editor-count { font-size: 10px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .news-option-toggle { padding: 10px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .news-option-toggle strong { font-size: 12px; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) :is(small,#imagesEmptyState p) { font-size: 11px !important; line-height: 1.5; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .btn { min-height: 40px !important; padding: 8px 10px !important; font-size: 11px !important; line-height: 1.4 !important; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .cms-news-modal-actions { display: grid !important; grid-template-columns: minmax(72px,.7fr) minmax(0,1.3fr); gap: 8px !important; margin-top: 14px !important; }
+    body.cms-announcements-page :is(#announcementModal,#newsModal) .cms-news-modal-actions .btn { width: 100%; min-width: 0; justify-content: center; white-space: nowrap; }
+    body.cms-shell.cms-announcements-page #readMoreModal.read-more-with-image .read-more-modal-content { display: grid; grid-template-columns: minmax(0,1fr); height: auto; padding: 0 !important; }
+    body.cms-announcements-page #readMoreModal .read-more-media { min-height: 0; height: clamp(120px,24vh,200px); max-height: 30vh; }
+    body.cms-announcements-page #readMoreModal .read-more-details { min-width: 0; overflow: visible; padding: 12px !important; }
+    body.cms-announcements-page #readMoreModal .modal-header { padding: 0 44px 8px 0 !important; margin-bottom: 8px; }
+    body.cms-announcements-page #readMoreModal .read-more-close { top: 8px; right: 8px; }
+    body.cms-announcements-page #readMoreModal .read-more-body { font-size: 12px; line-height: 1.5; }
+    body.cms-announcements-page #readMoreModal .read-more-body :is(p,div,span,li) { font-size: inherit !important; line-height: inherit; }
+    body.cms-announcements-page #readMoreModal .btn { min-height: 40px !important; font-size: 11px !important; }
+    body.cms-shell.cms-announcements-page .cms-image-editor-dialog { grid-template-rows: auto minmax(120px,1fr) auto; padding: 12px; gap: 12px; }
+    body.cms-announcements-page .cms-image-editor-title { font-size: 16px; }
+    body.cms-announcements-page .cms-image-editor-subtitle { font-size: 11px; }
+    body.cms-announcements-page .cms-image-editor-stage { min-height: 160px; }
+    body.cms-announcements-page .cms-image-editor-controls { grid-template-columns: minmax(0,1fr); gap: 8px; }
+    body.cms-announcements-page .cms-image-editor-zoom { grid-template-columns: auto minmax(0,1fr) auto; font-size: 11px; }
+    body.cms-announcements-page .cms-image-editor-actions { gap: 6px; }
+    body.cms-announcements-page .cms-image-editor-btn { flex: 1 1 100px; min-height: 40px; padding: 8px; font-size: 11px; white-space: nowrap; }
+}
+
+@media screen and (max-width: 767px) {
+    body.cms-announcements-page .main-content .page-title { font-size: 18px; padding-left: 38px; }
+    body.cms-announcements-page .page-title::before { width: 26px; }
+    body.cms-announcements-page .main-content :is(.news-grid,.announcement-grid) { grid-template-columns: minmax(0,1fr); }
+}

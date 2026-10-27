@@ -30,7 +30,7 @@ const pages = ['superadmin', 'admin', 'staff'].flatMap(role => ['dashboard', 'an
 server.listen(0, '127.0.0.1', () => {
   const child = spawn(process.execPath, ['tests/Browser/responsive.cjs'], {
     cwd: root, windowsHide: true, stdio: 'inherit',
-    env: { ...process.env, CMS: '1', BASE_URL: `http://127.0.0.1:${server.address().port}`, PAGES: process.env.PAGES || pages.join(','), WIDTHS: process.env.WIDTHS || '320,393,600,768,834,991,1024,1280,1440,1920,3440,5120' },
+    env: { ...process.env, CMS: '1', BASE_URL: `http://127.0.0.1:${server.address().port}`, PAGES: process.env.PAGES || pages.join(','), WIDTHS: process.env.WIDTHS || '320,375,393,600,768,834,991,1024,1025,1100,1200,1280,1440,1920,3440,5120' },
   });
   child.on('exit', code => { server.closeAllConnections(); server.close(); process.exitCode = code || 0; });
 });
