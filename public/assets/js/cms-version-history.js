@@ -38,8 +38,10 @@
             json.versions.data.forEach((version, index) => {
                 const button = node('button', undefined, 'cms-history-version');
                 button.type = 'button'; button.dataset.version = version.id; button.setAttribute('aria-pressed', 'false');
+                button.setAttribute('aria-label', `Backup #${version.id}, ${date(version.created_at)}, ${source(version)}`);
+                button.title = source(version);
                 if (page === 1 && index === 0) button.append(node('span', 'Newest S3 backup', 'cms-history-badge'));
-                button.append(node('strong', date(version.created_at)), node('small', `${version.actor_name || 'CMS editor'}${version.actor_role ? ' · ' + version.actor_role : ''}`), node('small', source(version)), node('small', `Backup #${version.id}`));
+                button.append(node('strong', date(version.created_at)), node('small', `${version.actor_name || 'CMS editor'}${version.actor_role ? ' · ' + version.actor_role : ''}`, 'cms-history-version-author'), node('small', source(version), 'cms-history-version-source'), node('small', `Backup #${version.id}`));
                 button.addEventListener('click', () => selectVersion(version.id));
                 el('list').append(button);
             });
@@ -58,6 +60,9 @@
         el('diff').hidden = false; el('diff').replaceChildren(node('p', 'Loading version…', 'cms-history-empty'));
         message();
         dialog.querySelectorAll('[data-version]').forEach(button => button.setAttribute('aria-pressed', String(Number(button.dataset.version) === Number(id))));
+        if (window.matchMedia('(max-width: 1024px)').matches) {
+            dialog.querySelector(`[data-version="${id}"]`)?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+        }
         try {
             const json = await request(url(`/${id}`));
             if (run !== generation || attempt !== selectionRequest || !dialog.open) return;
@@ -97,6 +102,7 @@
             tr.append(node('td', row.field));
             [row.before, row.after].forEach((value, index) => {
                 const td = node('td');
+                td.dataset.label = index === 0 ? (el('compare').value === 'live' ? 'Live content' : 'Previous version') : 'Selected version';
                 if (row.changed) td.append(node('span', index === 0 ? 'Before' : 'Selected', 'cms-history-value-status'));
                 td.append(node('span', value === null ? 'Not present' : (value === '' ? '(empty)' : value)));
                 const imageUrl = index === 0 ? row.before_image : row.after_image;
@@ -124,11 +130,13 @@
         el('page').replaceChildren(...Object.entries(pages[tab]).map(([value, text]) => { const option = node('option', text); option.value = value; return option; }));
         el('view').value = 'changes'; el('compare').value = 'previous'; el('changed').checked = true;
         el('page-label').hidden = true; el('compare-label').hidden = false; el('filter-label').hidden = false; el('diff').hidden = false;
-        dialog.showModal(); loadVersions(true);
+        dialog.showModal();
+        document.documentElement.classList.add('cms-history-open');
+        loadVersions(true);
     });
     el('close').addEventListener('click', () => { if (!busy) dialog.close(); });
     dialog.addEventListener('cancel', event => { if (busy) event.preventDefault(); });
-    dialog.addEventListener('close', () => { generation++; selectionRequest++; el('preview').removeAttribute('src'); el('open').focus(); });
+    dialog.addEventListener('close', () => { generation++; selectionRequest++; document.documentElement.classList.remove('cms-history-open'); el('preview').removeAttribute('src'); el('open').focus(); });
     el('more').addEventListener('click', () => { if (page < lastPage) { page++; loadVersions(); } });
     ['view', 'compare', 'changed', 'page'].forEach(id => el(id).addEventListener('change', render));
     el('restore').addEventListener('click', () => {

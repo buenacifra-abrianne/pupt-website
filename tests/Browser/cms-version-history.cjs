@@ -78,6 +78,43 @@ const server = http.createServer(async (req, res) => {
       }
       throw new Error('Timed out: ' + expression);
     };
+    const checkResponsiveModal = async scope => {
+      const viewports = [[320, 568], [393, 852], [600, 800], [768, 1024], [820, 1180], [1024, 768], [852, 393]];
+      for (const [width, height] of viewports) {
+        await cdp('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: true });
+        await evaluate('new Promise(resolve => setTimeout(resolve, 150))');
+        const geometry = await evaluate(`(() => {
+          const rect = selector => {const r=document.querySelector(selector).getBoundingClientRect();return {left:r.left,top:r.top,right:r.right,bottom:r.bottom,width:r.width,height:r.height};};
+          const d=document.getElementById('cms-version-history'),h=document.querySelector('.cms-history-header');
+          return {dialog:rect('#cms-version-history'),header:rect('.cms-history-header'),heading:rect('#cms-history-heading'),close:rect('#cms-history-close'),body:rect('.cms-history-layout'),width:innerWidth,height:innerHeight,overflow:d.scrollWidth>d.clientWidth+1,headerOverflow:h.scrollHeight>h.clientHeight+1};
+        })()`);
+        const tag = `${scope} ${width}x${height}`;
+        assert.ok(geometry.dialog.left >= -1 && geometry.dialog.top >= -1 && geometry.dialog.right <= geometry.width + 1 && geometry.dialog.bottom <= geometry.height + 1, `${tag}: complete dialog fits the viewport: ${JSON.stringify(geometry)}`);
+        assert.equal(geometry.overflow, false, `${tag}: no modal horizontal overflow`);
+        assert.equal(geometry.headerOverflow, false, `${tag}: modal header does not shrink over its content`);
+        assert.ok(geometry.heading.top >= geometry.header.top && geometry.heading.bottom <= geometry.header.bottom, `${tag}: title is not clipped`);
+        assert.ok(geometry.heading.right <= geometry.close.left, `${tag}: title does not overlap Close`);
+        assert.ok(geometry.close.height >= 44 && geometry.close.width >= 44, `${tag}: Close keeps its touch target`);
+        assert.ok(geometry.body.height >= 120, `${tag}: main scroll area remains usable`);
+        for (const selector of ['#cms-history-restore', '#cms-history-view', '#cms-history-compare', '#cms-history-diff']) {
+          const visible = await evaluate(`(() => {const e=document.querySelector('${selector}');e.scrollIntoView({block:'nearest',inline:'nearest'});const r=e.getBoundingClientRect(),h=document.querySelector('.cms-history-header').getBoundingClientRect(),d=document.getElementById('cms-version-history').getBoundingClientRect();return r.top>=h.bottom-1 && r.top<d.bottom && r.left>=d.left-1 && r.right<=d.right+1;})()`);
+          assert.ok(visible, `${tag}: ${selector} is reachable without clipping`);
+        }
+        await evaluate('document.getElementById("cms-history-restore").click()');
+        const confirmationFits = await evaluate(`(() => {const c=document.getElementById('cms-history-confirm').getBoundingClientRect(),d=document.getElementById('cms-version-history').getBoundingClientRect();document.getElementById('cms-history-confirm-restore').scrollIntoView({block:'nearest'});const b=document.getElementById('cms-history-confirm-restore').getBoundingClientRect();return c.top>=d.top && c.bottom<=d.bottom+1 && c.left>=d.left && c.right<=d.right && b.top>=c.top && b.bottom<=c.bottom+1;})()`);
+        assert.ok(confirmationFits, `${tag}: confirmation and restore action fit even in landscape`);
+        await evaluate('document.getElementById("cms-history-cancel").click(); document.querySelector(".cms-history-layout").scrollTop=0');
+        const screenshot = await cdp('Page.captureScreenshot', { format: 'png' });
+        fs.writeFileSync(path.join(output, `${scope}-modal-${width}x${height}.png`), Buffer.from(screenshot.data, 'base64'));
+      }
+      await cdp('Emulation.setDeviceMetricsOverride', { width: 393, height: 852, deviceScaleFactor: 1, mobile: true });
+      await evaluate(`(() => {const diff=document.getElementById('cms-history-diff'),message=document.getElementById('cms-history-message');window.__historyLayoutState={nodes:[...diff.childNodes],message:message.textContent};diff.replaceChildren(Object.assign(document.createElement('p'),{textContent:'Loading version…',className:'cms-history-empty'}));message.textContent='This server cannot authenticate with AWS to read S3 database backups. Configure its AWS credentials or IAM role, then try again. No content was restored.';document.querySelector('.cms-history-layout').scrollTop=0;})()`);
+      const errorHeaderFits = await evaluate('(() => {const h=document.querySelector(".cms-history-header"),d=document.getElementById("cms-version-history");return h.scrollHeight<=h.clientHeight+1 && d.scrollWidth<=d.clientWidth+1;})()');
+      assert.ok(errorHeaderFits, `${scope}: loading and authentication error messages do not squash the header`);
+      await evaluate('(() => {document.getElementById("cms-history-diff").replaceChildren(...window.__historyLayoutState.nodes);document.getElementById("cms-history-message").textContent=window.__historyLayoutState.message;delete window.__historyLayoutState;})()');
+      await cdp('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+      await evaluate('document.querySelector(".cms-history-layout").scrollTop=0;new Promise(resolve=>setTimeout(resolve,150))');
+    };
     await cdp('Page.enable'); await cdp('Runtime.enable'); await cdp('Network.enable');
     await cdp('Network.setBlockedURLs', { urls: ['https://*'] });
     await cdp('Page.navigate', { url: `http://127.0.0.1:${server.address().port}/superadmin/content` });
@@ -85,6 +122,14 @@ const server = http.createServer(async (req, res) => {
     await evaluate('document.getElementById("cms-history-open").click()');
     await waitFor('document.querySelectorAll(".cms-history-version").length === 3 && document.querySelector("#cms-history-diff table")');
     assert.equal(await evaluate('document.getElementById("cms-history-restore").disabled'), true, 'Current page cannot be restored onto itself');
+    await evaluate('document.querySelectorAll(".cms-history-version")[1].click()');
+    await waitFor('!document.getElementById("cms-history-restore").disabled');
+    await checkResponsiveModal('content');
+    assert.equal(await evaluate('document.documentElement.classList.contains("cms-history-open")'), true, 'Background scrolling is locked while history is open');
+    await evaluate('document.getElementById("cms-history-close").click()');
+    await waitFor('!document.getElementById("cms-version-history").open && !document.documentElement.classList.contains("cms-history-open")');
+    await evaluate('document.getElementById("cms-history-open").click()');
+    await waitFor('!!document.querySelector("#cms-history-diff table")');
     await evaluate('document.querySelectorAll(".cms-history-version")[1].click()');
     await waitFor('!document.getElementById("cms-history-restore").disabled');
     assert.ok((await evaluate('document.getElementById("cms-history-diff").textContent')).includes('Earlier campus description'));
@@ -134,6 +179,7 @@ const server = http.createServer(async (req, res) => {
       await evaluate('document.querySelectorAll(".cms-history-version")[1].click()');
       await waitFor('!document.getElementById("cms-history-restore").disabled');
       assert.ok((await evaluate('document.getElementById("cms-history-diff").textContent')).includes(label), `${scope}: before/after content visible`);
+      await checkResponsiveModal(scope);
       for (const width of [375, 768, 1024, 1440]) {
         await cdp('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
         const fits = await evaluate('(() => {const d=document.getElementById("cms-version-history"),r=d.getBoundingClientRect();return r.left>=0 && r.right<=innerWidth+1 && d.scrollWidth<=d.clientWidth+1;})()');
@@ -152,6 +198,6 @@ const server = http.createServer(async (req, res) => {
       assert.equal(restores.at(-1).body.head_id, 0, 'First module restore does not need an existing CMS tab history row');
     }
     assert.deepEqual(exceptions, [], 'No uncaught JavaScript errors');
-    console.log('PASS: version history, comparison, preview, confirmation, and restore on Content Management, News & Announcements, and Campus Memorandum at 375/768/1024/1440px.');
+    console.log('PASS: history, previews, restore, unclipped headers, reachable controls, and confirmation on all three pages; phone/tablet/landscape viewports from 320px to 1440px.');
   } finally { if (ws) ws.close(); chrome.kill(); server.closeAllConnections(); server.close(); }
 })().catch(error => { console.error(error); process.exitCode = 1; });

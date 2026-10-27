@@ -38,12 +38,6 @@
             </div>
             <div id="cms-history-diff" class="cms-history-diff"></div>
             <iframe id="cms-history-preview" title="Read-only historical CMS page preview" sandbox="allow-scripts" hidden></iframe>
-            <section id="cms-history-confirm" class="cms-history-confirm" aria-label="Confirm version restore" hidden>
-                <h3>Restore this page?</h3>
-                <p id="cms-history-confirm-text"></p>
-                <p>A fresh database backup will be saved to S3 before restoring. Unsaved edits in the editor will be discarded.</p>
-                <div><button type="button" class="cms-history-button" id="cms-history-cancel">Cancel</button><button type="button" class="cms-history-button cms-history-primary" id="cms-history-confirm-restore">Confirm restore</button></div>
-            </section>
         </section>
         <aside class="cms-history-sidebar" aria-label="S3 database backups">
             <div class="cms-history-sidebar-heading"><h3>S3 database backups</h3><span id="cms-history-total"></span></div>
@@ -52,6 +46,12 @@
             <button type="button" id="cms-history-more" class="cms-history-button" hidden>Load older versions</button>
         </aside>
     </div>
+    <section id="cms-history-confirm" class="cms-history-confirm" aria-label="Confirm version restore" hidden>
+        <h3>Restore this page?</h3>
+        <p id="cms-history-confirm-text"></p>
+        <p>A fresh database backup will be saved to S3 before restoring. Unsaved edits in the editor will be discarded.</p>
+        <div><button type="button" class="cms-history-button" id="cms-history-cancel">Cancel</button><button type="button" class="cms-history-button cms-history-primary" id="cms-history-confirm-restore">Confirm restore</button></div>
+    </section>
 </dialog>
 <script type="application/json" id="cms-history-pages">{!! json_encode([
     'home' => ['overview' => 'Home'],
