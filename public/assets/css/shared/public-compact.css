@@ -97,7 +97,27 @@
   main.main-content :is(.ne-filter, .ne-btn-gold, .apply-now-btn, .student-page-cta, .ords-btn) {
     font-size: 12px; min-height: 40px; padding: 8px 12px; white-space: normal;
   }
-  main.main-content .ne-filters { flex-wrap: wrap; gap: 6px; }
+  main.main-content .ne-page-intro { padding: 18px 16px; margin-bottom: 18px; }
+  main.main-content .ne-page-title { font-size: 18px; }
+  main.main-content :is(.ne-page-copy, .ne-featured-desc, .ne-card-desc),
+  main.main-content :is(.ne-page-copy, .ne-featured-desc, .ne-card-desc) :is(p, li) { font-size: 12px; line-height: 1.55; }
+  main.main-content .ne-page-copy { margin-top: 8px; }
+  main.main-content .ne-featured-title { font-size: 16px; }
+  main.main-content .ne-card-title { font-size: 13px; }
+  main.main-content .ne-events-main { padding-inline: 0; }
+  main.main-content .ne-events-section { padding: 14px; margin-bottom: 18px; border-radius: 14px; }
+  main.main-content .ne-events-header { margin-bottom: 12px; }
+  main.main-content .ne-events-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  main.main-content .ne-events-divider { display: none; }
+  main.main-content .ne-col-title { font-size: 11px; letter-spacing: .06em; gap: 5px; margin-bottom: 8px; }
+  main.main-content .ne-event-item { flex-wrap: wrap; gap: 4px; padding: 8px; min-height: 64px; border-radius: 10px; }
+  main.main-content .ne-event-date { font-size: 9px; }
+  main.main-content .ne-event-name { font-size: 10px; line-height: 1.45; }
+  main.main-content .ne-filter-bar { display: grid; grid-template-columns: minmax(0, 1fr); padding-inline: 0; gap: 6px; margin-block: 14px; }
+  main.main-content .ne-filter-label { font-size: 10px; }
+  main.main-content .ne-filters { flex-wrap: nowrap; gap: 4px; width: 100%; overflow-x: auto; }
+  main.main-content .ne-filter { flex: 1 0 auto; min-height: 34px; padding: 6px 4px; font-size: 10px; white-space: nowrap; letter-spacing: normal; }
+  main.main-content :is(.ne-page-copy, .ne-featured-desc, .ne-card-desc) [style*="font-size"] { font-size: 12px !important; }
   main.main-content :is(.student-link-row, .student-admissions-person) { padding: 12px; font-size: 13px; gap: 8px; }
   main.main-content .student-link-row { min-height: 44px; overflow-wrap: anywhere; }
   main.main-content .ords-button { font-size: 13px; min-height: 40px; padding: 10px 16px; }
