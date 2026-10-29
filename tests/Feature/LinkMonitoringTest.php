@@ -103,12 +103,97 @@ class LinkMonitoringTest extends TestCase
         $this->assertSame('not_working', $this->find($scan, 'https://campus.test/missing.pdf')['status']);
         $this->assertSame(404, $this->find($scan, 'https://campus.test/missing.pdf')['http_status']);
         $this->assertSame(['https://campus.test/', 'https://campus.test/nested'], $this->find($scan, 'https://external.test/good')['pages']);
-        $this->assertSame('not_checked', $this->find($scan, 'mailto:office@campus.test')['status']);
-        $this->assertSame('not_working', $this->find($scan, 'https://campus.test/#')['status']);
-        foreach (['/deep', '/small.jpg', '/large.jpg', '/poster.jpg', '/signed?key=a%20b&key=c'] as $path) {
+        $this->assertNotContains('mailto:office@campus.test', array_column($scan['links'], 'url'));
+        $this->assertNotContains('https://campus.test/#', array_column($scan['links'], 'url'));
+        foreach (['/deep', '/signed?key=a%20b&key=c'] as $path) {
             $this->assertSame('working', $this->find($scan, 'https://campus.test'.$path)['status']);
         }
-        Http::assertSentCount(10);
+        foreach (['/image.jpg', '/small.jpg', '/large.jpg', '/poster.jpg'] as $path) {
+            $this->assertNotContains('https://campus.test'.$path, array_column($scan['links'], 'url'));
+        }
+        Http::assertSentCount(6);
+    }
+
+    public function test_only_navigation_and_published_modal_links_are_discovered_not_page_resources(): void
+    {
+        $html = <<<'HTML'
+            <link rel="stylesheet" href="https://fonts.example.test/css2?family=Example">
+            <link rel="icon" href="/favicon.ico">
+            <script src="https://cdn.example.test/widget.js"></script>
+            <script>const example = 'https://script.example.test/not-a-link';</script>
+            <!-- <a href="https://comment.example.test/not-published">Comment</a> -->
+            <img src="/photo.jpg" data-src="/lazy-photo.jpg" srcset="/small.jpg 1x, /large.jpg 2x">
+            <video src="/video.mp4" poster="/poster.jpg"></video>
+            <iframe src="https://embed.example.test/player"></iframe>
+            <div style="background-image: url(https://images.example.test/background)"></div>
+            <a href="/assets/linked-photo.png?version=1">Image resource</a>
+            <a href="https://cdn.example.test/style.css">Stylesheet resource</a>
+            <a href="/about">About</a>
+            <a href="https://external.test/page">External</a>
+            <button data-link="/published-news-link" data-image="/news-image.jpg">News</button>
+            <button data-content-html="&lt;a href=&quot;/cms-modal-link&quot;&gt;CMS link&lt;/a&gt;">Read more</button>
+            <button data-summary-html="&lt;a href=&quot;/cms-summary-link&quot;&gt;Summary link&lt;/a&gt;">Summary</button>
+            HTML;
+        Http::fake(['*' => Http::response($html, 200, ['Content-Type' => 'text/html'])]);
+        $monitor = app(LinkMonitoringService::class);
+        $scan = $monitor->step($this->rootOnly($monitor->start()));
+        $this->assertEqualsCanonicalizing([
+            'https://campus.test/',
+            'https://campus.test/about',
+            'https://external.test/page',
+            'https://campus.test/published-news-link',
+            'https://campus.test/cms-modal-link',
+            'https://campus.test/cms-summary-link',
+        ], array_column($scan['links'], 'url'));
+        Http::assertSentCount(1);
+    }
+
+    public function test_all_published_news_announcement_and_memorandum_links_are_included_without_drafts_or_resources(): void
+    {
+        foreach (['news', 'announcements'] as $table) {
+            Schema::create($table, function (Blueprint $schema) {
+                $schema->id();
+                $schema->string('title');
+                $schema->text('content')->nullable();
+                $schema->string('link')->nullable();
+                $schema->string('status');
+                $schema->boolean('is_hidden_from_public')->nullable();
+                $schema->string('image_path')->nullable();
+            });
+        }
+        for ($i = 1; $i <= 12; $i++) {
+            DB::table('news')->insert(['title' => 'Published News '.$i, 'link' => 'https://news.test/published-'.$i, 'status' => ' approved ', 'image_path' => 'https://images.test/news-'.$i.'.jpg']);
+        }
+        DB::table('news')->insert([
+            ['title' => 'Draft', 'link' => 'https://news.test/draft', 'status' => 'PENDING', 'is_hidden_from_public' => 0],
+            ['title' => 'Hidden', 'link' => 'https://news.test/hidden', 'status' => 'APPROVED', 'is_hidden_from_public' => 1],
+        ]);
+        DB::table('announcements')->insert([
+            ['title' => 'Published announcement', 'link' => 'https://announcements.test/live', 'content' => '<a href="/announcement-document.pdf">Document</a><img src="https://images.test/announcement.jpg">', 'status' => 'ENABLED'],
+            ['title' => 'Disabled', 'link' => 'https://announcements.test/disabled', 'content' => '<a href="https://announcements.test/unpublished-body">Draft body</a>', 'status' => 'DISABLED'],
+        ]);
+        Schema::create('downloadables', function (Blueprint $schema) {
+            $schema->id();
+            $schema->string('title');
+            $schema->text('description')->nullable();
+            $schema->string('file_path')->nullable();
+        });
+        DB::table('downloadables')->insert(['title' => 'Campus notice', 'description' => '<a href="https://memo.test/reference">Reference</a> https://memo.test/plain-link <img src="https://images.test/memo.jpg">', 'file_path' => 'https://memo.test/notice.pdf']);
+        $this->withSession(['user_role' => 'ADMIN']);
+        $scan = app(LinkMonitoringService::class)->start();
+        $urls = array_column($scan['links'], 'url');
+        foreach (range(1, 12) as $i) {
+            $this->assertContains('https://news.test/published-'.$i, $urls);
+        }
+        foreach (['https://announcements.test/live', 'https://campus.test/announcement-document.pdf', 'https://memo.test/notice.pdf', 'https://memo.test/reference', 'https://memo.test/plain-link'] as $url) {
+            $this->assertContains($url, $urls);
+        }
+        foreach (['https://news.test/draft', 'https://news.test/hidden', 'https://announcements.test/disabled', 'https://announcements.test/unpublished-body', 'https://images.test/announcement.jpg', 'https://images.test/memo.jpg'] as $url) {
+            $this->assertNotContains($url, $urls);
+        }
+        $this->assertSame(['https://campus.test/admin/downloadables'], $this->find($scan, 'https://memo.test/notice.pdf')['pages']);
+        $this->assertSame('Campus Memorandum: Campus notice', $this->find($scan, 'https://memo.test/notice.pdf')['label']);
+        Http::assertNothingSent();
     }
 
     public function test_shared_javascript_navigation_is_included_for_its_source_page(): void
@@ -119,9 +204,12 @@ class LinkMonitoringTest extends TestCase
         $this->assertSame(['https://campus.test/'], $this->find($scan, 'https://outlook.office.com/mail/')['pages']);
         $this->assertSame('pending', $this->find($scan, 'https://campus.test/events')['status']);
         $this->assertSame('pending', $this->find($scan, 'https://www.pup.edu.ph/privacy/')['status']);
+        $this->assertSame('pending', $this->find($scan, 'https://one-portal.isaxbsit2027.com/landing')['status']);
+        $this->assertSame('pending', $this->find($scan, 'https://drive.google.com/file/d/1Ef-hJnBux5Bn9Z3L4xUNeOETT-11f_7l/view?usp=drive_link')['status']);
         $this->assertNotContains('http://www.w3.org/2000/svg', array_column($scan['links'], 'url'));
         foreach ($scan['links'] as $link) {
             $this->assertStringNotContainsString('${', $link['url']);
+            $this->assertDoesNotMatchRegularExpression('/\.(?:js|css|png|jpg|woff2?)(?:\?|$)/i', $link['url']);
         }
     }
 
@@ -165,7 +253,7 @@ class LinkMonitoringTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
     }
 
-    public function test_local_scans_render_public_routes_and_assets_without_requesting_the_single_worker_server(): void
+    public function test_local_scans_render_public_routes_without_requesting_the_single_worker_server_or_page_resources(): void
     {
         $this->app['env'] = 'local';
         $original = app('request');
@@ -183,7 +271,7 @@ class LinkMonitoringTest extends TestCase
         }
         $this->assertNotNull($scan['completed_at']);
         $this->assertSame('working', $this->find($scan, 'https://campus.test/monitor-child')['status']);
-        $this->assertSame('working', $this->find($scan, 'https://campus.test/assets/static_img/logo.png')['status']);
+        $this->assertNotContains('https://campus.test/assets/static_img/logo.png', array_column($scan['links'], 'url'));
         $this->assertSame(404, $this->find($scan, 'https://campus.test/monitor-missing')['http_status']);
         $this->assertSame(403, $this->find($scan, 'https://campus.test/monitor-action')['http_status']);
         $this->assertSame($original, app('request'));

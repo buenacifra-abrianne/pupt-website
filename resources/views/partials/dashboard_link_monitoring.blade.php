@@ -3,7 +3,7 @@
     <header class="link-monitor-header">
         <div>
             <h2 id="linkMonitorTitle"><i class="fas fa-link" aria-hidden="true"></i> Link Monitoring</h2>
-            <p>Check public pages, subpages, shared navigation, footer links, downloads, and external destinations.</p>
+            <p>Monitor page and external links in published CMS content, News, Announcements, and Campus Memorandum.</p>
         </div>
         <button type="button" class="btn btn-primary" id="linkMonitorScan"><i class="fas fa-rotate" aria-hidden="true"></i> Scan all links</button>
     </header>
@@ -51,6 +51,6 @@
             <button type="button" class="btn btn-outline" id="linkMonitorNext" disabled aria-label="Next results">Next</button>
         </div>
     </div>
-    <p class="link-monitor-note">A scan checks published content and continues while this tab is open. Reopen it to resume; results are kept for two hours. Email, telephone, page anchors, and protected endpoints are listed as not checked. Some external sites may block automated requests.</p>
+    <p class="link-monitor-note">Includes page links, external destinations, and linked document uploads. Images, scripts, stylesheets, fonts, and other page resources are excluded. A scan continues while this tab is open; reopen it to resume. Results are kept for two hours. Some external sites may block automated requests.</p>
 </section>
 <script src="{{ asset('assets/js/link-monitoring.js') }}?v={{ filemtime(public_path('assets/js/link-monitoring.js')) }}" defer></script>

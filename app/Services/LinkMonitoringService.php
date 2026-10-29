@@ -6,6 +6,8 @@ use App\Services\KnowledgeSync\LinkExtractor;
 use App\Services\KnowledgeSync\UrlNormalizer;
 use App\Services\KnowledgeSync\UrlSafetyValidator;
 use App\Support\AboutCmsContent;
+use App\Support\DownloadableFile;
+use App\Support\RichText;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Uri;
 use Illuminate\Http\Request;
@@ -44,8 +46,41 @@ class LinkMonitoringService
         foreach (array_keys($about['sections'] ?? []) as $section) {
             $this->add($scan, '/about/'.$section, $scan['base_url'], 'Page');
         }
+        $this->discoverPublishedLinks($scan);
 
         return $scan;
+    }
+
+    private function discoverPublishedLinks(array &$scan): void
+    {
+        foreach (['announcements' => 'ENABLED', 'news' => 'APPROVED', 'downloadables' => null] as $table => $status) {
+            if (! Schema::hasTable($table)) {
+                continue;
+            }
+            $query = DB::table($table);
+            if ($status !== null) {
+                $query->whereRaw('UPPER(TRIM(status)) = ?', [$status]);
+            }
+            if ($table === 'news' && Schema::hasColumn($table, 'is_hidden_from_public')) {
+                $query->where(fn ($scope) => $scope->whereNull('is_hidden_from_public')->orWhere('is_hidden_from_public', 0));
+            }
+            $source = $table === 'downloadables'
+                ? route((strtoupper(trim((string) session('user_role'))) === 'ADMIN' ? 'admin' : 'superadmin').'.downloadables', [], false)
+                : '/home';
+            $page = $this->normalizer->normalize($source, $scan['base_url']);
+            foreach ($query->cursor() as $row) {
+                $label = ($table === 'downloadables' ? 'Campus Memorandum' : ($table === 'news' ? 'News' : 'Announcement')).': '.($row->title ?? '');
+                $url = $table === 'downloadables' ? DownloadableFile::url($row->file_path ?? null) : ($row->link ?? null);
+                if (is_string($url)) {
+                    $this->add($scan, $url, $scan['base_url'], $label, $page);
+                }
+                $html = RichText::sanitize($row->content ?? $row->description ?? '');
+                $this->discover($scan, $html, $page, $page);
+                foreach ($this->extractor->extractFromText(strip_tags($html)) as $url) {
+                    $this->add($scan, $url, $page, $label, $page);
+                }
+            }
+        }
     }
 
     public function step(array $scan): array
@@ -72,6 +107,9 @@ class LinkMonitoringService
 
     private function discover(array &$scan, string $html, string $base, string $page): void
     {
+        if (trim($html) === '') {
+            return;
+        }
         $document = new \DOMDocument;
         $previous = libxml_use_internal_errors(true);
         $document->loadHTML('<?xml encoding="UTF-8">'.$html, LIBXML_NONET | LIBXML_NOERROR | LIBXML_NOWARNING);
@@ -81,17 +119,18 @@ class LinkMonitoringService
         $baseHref = $xpath->query('//base[@href]')->item(0)?->getAttribute('href');
         $base = $baseHref ? ($this->normalizer->normalize($baseHref, $base) ?? $base) : $base;
 
-        foreach ($this->extractor->extractFromHtml($html, $page) as $row) {
-            $this->add($scan, $row['url'], $base, $row['anchor_text'] ?? 'Resource', $page);
-        }
-        foreach ($xpath->query('//*[@poster or @data-src or @srcset]') as $node) {
-            foreach (['poster', 'data-src'] as $attribute) {
+        foreach ($xpath->query('//a[@href] | //area[@href] | //*[@data-link or @data-href]') as $node) {
+            foreach (['href', 'data-link', 'data-href'] as $attribute) {
                 if ($node->hasAttribute($attribute)) {
-                    $this->add($scan, $node->getAttribute($attribute), $base, 'Media', $page);
+                    $this->add($scan, $node->getAttribute($attribute), $base, trim($node->textContent) ?: 'Link', $page);
                 }
             }
-            foreach (explode(',', $node->getAttribute('srcset')) as $source) {
-                $this->add($scan, preg_split('/\s+/', trim($source))[0], $base, 'Responsive image', $page);
+        }
+        foreach ($xpath->query('//*[@data-content-html or @data-summary-html]') as $node) {
+            foreach (['data-content-html', 'data-summary-html'] as $attribute) {
+                if ($node->hasAttribute($attribute)) {
+                    $this->discover($scan, RichText::sanitize($node->getAttribute($attribute)), $base, $page);
+                }
             }
         }
         foreach ($xpath->query('//*[@data-home or @data-about or @data-academics or @data-students or @data-news-events or @data-research or @data-oneportal]') as $node) {
@@ -102,10 +141,15 @@ class LinkMonitoringService
             }
         }
         // Shared navigation is rendered by this web component in the browser.
-        if (str_contains($html, 'pup-header') || str_contains($html, 'pup-footer')) {
+        if (str_contains($html, '<pup-header') || str_contains($html, '<pup-footer')) {
             $components = file_get_contents(public_path('assets/js/pup-components.js'));
-            foreach ($this->extractor->extractFromHtml($components) as $row) {
-                $this->add($scan, $row['url'], $base, $row['anchor_text'] ?? 'Header / Footer', $page);
+            preg_match_all('/const\s+(\w+)\s*=\s*(?:this\.dataset\.\w+\s*\|\|\s*)?["\'](https?:\/\/[^"\']+)["\']/', $components, $constants, PREG_SET_ORDER);
+            foreach ($constants as $constant) {
+                $components = str_replace('${'.$constant[1].'}', $constant[2], $components);
+            }
+            preg_match_all('/\bhref\s*=\s*(["\'])(.*?)\1/s', $components, $links);
+            foreach ($links[2] as $url) {
+                $this->add($scan, $url, $base, 'Header / Footer', $page);
             }
         }
     }
@@ -113,29 +157,30 @@ class LinkMonitoringService
     private function add(array &$scan, string $raw, string $base, string $label, ?string $page = null): void
     {
         $raw = trim(html_entity_decode($raw, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
-        if ($raw === '' || str_contains($raw, '${') || str_contains($raw, '{{') || str_starts_with($raw, 'data:') || in_array($raw, ['http://www.w3.org/2000/svg', 'http://www.w3.org/1999/xlink'], true)) {
+        if ($raw === '' || str_contains($raw, '${') || str_contains($raw, '{{') || str_starts_with($raw, '#')) {
             return;
         }
-        $special = preg_match('/^(#|mailto:|tel:|javascript:)/i', $raw);
-        $url = $special ? ($raw[0] === '#' ? $base.$raw : $raw) : $this->normalizer->normalize($raw, $base);
+        $url = $this->normalizer->normalize($raw, $base);
         if ($url === null) {
             return;
         }
+        if (preg_match('/\.(?:css|m?js|map|png|jpe?g|gif|webp|svg|ico|avif|bmp|tiff?|mp4|webm|mov|mp3|wav|ogg|woff2?|ttf|otf|eot)$/i', rawurldecode((string) parse_url($url, PHP_URL_PATH)))) {
+            return;
+        }
         // Keep signed URLs and repeated query parameters exactly as published.
-        if (! $special && str_contains($raw, '?')) {
+        if (str_contains($raw, '?')) {
             $url = (string) (new Uri($url))->withQuery((string) parse_url($raw, PHP_URL_QUERY));
         }
         $key = hash('sha256', $url);
         $page ??= $url;
         if (! isset($scan['links'][$key])) {
-            $placeholder = $raw === '#';
             $scan['links'][$key] = [
                 'url' => $url,
                 'label' => mb_substr(preg_replace('/\s+/', ' ', trim($label)), 0, 160),
                 'pages' => [],
-                'status' => $placeholder ? 'not_working' : ($special ? 'not_checked' : 'pending'),
+                'status' => 'pending',
                 'http_status' => null,
-                'detail' => $placeholder ? 'Placeholder link; no destination to check.' : ($special ? 'Email, telephone, page anchor or JavaScript action; no HTTP availability check.' : 'Waiting to be checked'),
+                'detail' => 'Waiting to be checked',
             ];
         }
         if (! in_array($page, $scan['links'][$key]['pages'], true)) {

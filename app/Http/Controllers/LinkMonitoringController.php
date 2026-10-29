@@ -12,7 +12,7 @@ class LinkMonitoringController extends Controller
     public function __invoke(Request $request, LinkMonitoringService $monitor)
     {
         abort_unless(in_array(CmsSections::normalizeRole((string) session('user_role')), ['SUPERADMIN', 'ADMIN'], true), 403);
-        $key = 'link-monitoring:'.hash('sha256', $request->session()->getId());
+        $key = 'link-monitoring:published-links:'.hash('sha256', $request->session()->getId());
 
         if ($request->isMethod('GET')) {
             return response()->json(['scan' => Cache::get($key)]);
