@@ -20,10 +20,20 @@
     <!-- Main Content -->
     <main class="main-content cms-dashboard">
 
+        @php
+            $showLinkMonitoring = request('tab') === 'link-monitoring' && \App\Support\CmsSections::normalizeRole((string) session('user_role')) === 'ADMIN';
+        @endphp
+        @if(\App\Support\CmsSections::normalizeRole((string) session('user_role')) === 'ADMIN')
+            <nav class="top-tabs" aria-label="Dashboard pages">
+                <a class="top-tab-btn {{ !$showLinkMonitoring ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fas fa-home" aria-hidden="true"></i> Dashboard</a>
+                <a class="top-tab-btn {{ $showLinkMonitoring ? 'active' : '' }}" href="{{ route('admin.dashboard', ['tab' => 'link-monitoring']) }}"><i class="fas fa-link" aria-hidden="true"></i> Link Monitoring</a>
+            </nav>
+        @endif
+
         <!-- ========================= -->
         <!-- ✅ TAB 1: DASHBOARD -->
         <!-- ========================= -->
-        <div id="dashboardTab" class="top-tab-content active">
+        <div id="dashboardTab" class="top-tab-content {{ !$showLinkMonitoring ? 'active' : '' }}">
 
 
 
@@ -175,6 +185,11 @@
 
             </div>
         </div>
+        @if(\App\Support\CmsSections::normalizeRole((string) session('user_role')) === 'ADMIN')
+            <div id="linkMonitoringTab" class="top-tab-content {{ $showLinkMonitoring ? 'active' : '' }}">
+                @include('partials.dashboard_link_monitoring')
+            </div>
+        @endif
     </main>
 
     <div class="modal" id="addUserModal">

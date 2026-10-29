@@ -396,4 +396,8 @@ Route::prefix('superadmin')->group(function () {
 Route::middleware(['superadmin.auth', 'check.idp', 'superadmin.role', 'cms.terms.accepted'])
     ->get('/api/analytics/server-health', AnalyticsServerHealthController::class)
     ->name('superadmin.analytics.serverHealth');
+
+Route::match(['GET', 'POST'], '/cms/link-monitoring', \App\Http\Controllers\LinkMonitoringController::class)
+    ->middleware(['superadmin.auth', 'check.idp', 'cms.terms.accepted'])
+    ->name('cms.link-monitoring');
 Route::post('/debug-height', function(\Illuminate\Http\Request $req) { file_put_contents(public_path('heights.txt'), $req->getContent()); return 'ok'; });
