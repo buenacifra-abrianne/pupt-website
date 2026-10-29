@@ -50,8 +50,9 @@
   main.main-content :is(.academic-feature-card, .cards_information) { height: var(--compact-card-height) !important; min-height: 0 !important; padding: 12px; border-radius: 12px; overflow-y: auto; }
   main.main-content .academic-feature-card:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
   main.main-content .academic-feature-card--wide { grid-column: auto; }
-  main.main-content :is(.academic-feature-card, .cards_information) h3 { margin-bottom: 8px; }
-  main.main-content :is(.academic-feature-card, .cards_information) p { font-size: 12px; line-height: 1.45; }
+  main.main-content :is(.academic-feature-card, .cards_information) h3 { margin-bottom: 6px; font-size: 12px !important; }
+  main.main-content :is(.academic-feature-card, .cards_information) p { font-size: 11px !important; line-height: 1.45 !important; }
+  main.main-content .academic-feature-card .academic-feature-tag { font-size: 9px !important; }
   main.main-content .dp-diploma-unhovered-title { font-size: 13px; min-height: 64px; padding: 10px 12px; }
   main.main-content .dp-diploma-card-hovered { padding: 12px; }
   main.main-content .dp-program-card-trigger .dp-diploma-card-hovered { display: none; }
