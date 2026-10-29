@@ -117,7 +117,12 @@
   main.main-content .ne-filter-label { font-size: 10px; }
   main.main-content .ne-filters { flex-wrap: nowrap; gap: 4px; width: 100%; overflow-x: auto; }
   main.main-content .ne-filter { flex: 1 0 auto; min-height: 34px; padding: 6px 4px; font-size: 10px; white-space: nowrap; letter-spacing: normal; }
-  main.main-content :is(.ne-page-copy, .ne-featured-desc, .ne-card-desc) [style*="font-size"] { font-size: 12px !important; }
+  main.main-content .research-story-card { padding: 18px 16px; }
+  main.main-content .research-story-card h1 { font-size: 18px; margin-block: 0 6px; }
+  main.main-content .research-story-layout { gap: 6px; }
+  main.main-content .research-story-description,
+  main.main-content .research-story-description :is(p, li) { font-size: 12px; line-height: 1.55; }
+  main.main-content :is(.ne-page-copy, .ne-featured-desc, .ne-card-desc, .research-story-description) [style*="font-size"] { font-size: 12px !important; }
   main.main-content :is(.student-link-row, .student-admissions-person) { padding: 12px; font-size: 13px; gap: 8px; }
   main.main-content .student-link-row { min-height: 44px; overflow-wrap: anywhere; }
   main.main-content .ords-button { font-size: 13px; min-height: 40px; padding: 10px 16px; }
