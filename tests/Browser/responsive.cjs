@@ -295,6 +295,7 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
         }
         if (process.env.TABLE_CHECKS === '1') await require('./tables-checks.cjs')({evaluate,cdp,width,page});
         if (process.env.NEWS_CHECKS === '1') await require('./news-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.PUBLIC_COMPACT === '1') await require('./public-compact-checks.cjs')({evaluate,cdp,width,page});
         if (process.env.CAPTURE === '1' && (process.env.AUDIT_CHECKS === '1' || [320,375,768,1024,1440].includes(width))) {
           // The fixture server omits analytics API responses; clear its error toasts for screenshots.
           if (process.env.CMS === '1') await evaluate('document.getElementById("cmsToastWrap")?.replaceChildren()');
