@@ -51,6 +51,8 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
       assert.equal(await evaluate('document.querySelector(".footer-carousel-status").textContent'), expected);
     };
     await cdp('Page.enable');
+    if (process.env.REDUCED_MOTION === '1') await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    if (process.env.GLOBE_FALLBACK === '1') await cdp('Page.addScriptToEvaluateOnNewDocument', { source: `const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return String(type).includes('webgl')?null:originalContext.call(this,type,...args);};` });
     if (process.env.MOBILE === '1') await cdp('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp('Network.enable');
     // Keep the check independent of third-party widgets, media and font servers.
@@ -296,6 +298,7 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
         if (process.env.TABLE_CHECKS === '1') await require('./tables-checks.cjs')({evaluate,cdp,width,page});
         if (process.env.NEWS_CHECKS === '1') await require('./news-checks.cjs')({evaluate,cdp,width,page});
         if (process.env.PUBLIC_COMPACT === '1') await require('./public-compact-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.GLOBE_CHECKS === '1' && page === '/') await require('./globe-checks.cjs')({evaluate,cdp});
         if (process.env.CAPTURE === '1' && (process.env.AUDIT_CHECKS === '1' || [320,375,768,1024,1440].includes(width))) {
           // The fixture server omits analytics API responses; clear its error toasts for screenshots.
           if (process.env.CMS === '1') await evaluate('document.getElementById("cmsToastWrap")?.replaceChildren()');

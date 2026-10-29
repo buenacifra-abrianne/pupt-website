@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}?v={{ filemtime(public_path('assets/css/components/landing-footer.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
+    @vite('resources/js/landing-globe.jsx')
     <style>
         :root {
             --landing-bg-image: url("{{ asset('assets/static_img/bg_landing_page.jpg') }}");
@@ -88,6 +89,7 @@
         </section>
 
         <section class="landing-actions" aria-label="Landing actions">
+            <div id="landing-globe" class="landing-globe" aria-hidden="true" inert></div>
             <div class="landing-actions-seals-row" aria-label="Primary seals">
                 <img
                     class="landing-actions-seal landing-actions-seal--pup"
