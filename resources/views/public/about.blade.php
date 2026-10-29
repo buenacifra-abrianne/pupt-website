@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/about.css') }}?v={{ filemtime(public_path('assets/css/about.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/about-overview.css') }}?v={{ filemtime(public_path('assets/css/about-overview.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
+    <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ filemtime(public_path('assets/css/shared/public-compact.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
     <!-- Open Graph / Facebook -->

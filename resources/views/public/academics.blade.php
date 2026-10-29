@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/academics.css') }}?v={{ filemtime(public_path('assets/css/academics.css')) }}">
     <link rel="stylesheet" href="{{ asset('assets/css/card-selector.css') }}?v={{ filemtime(public_path('assets/css/card-selector.css')) }}">
+    <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ filemtime(public_path('assets/css/shared/public-compact.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
     <!-- Open Graph / Facebook -->
@@ -178,6 +179,7 @@
                             @foreach($featureItems as $item)
                                 <div
                                     class="academic-feature-card{{ !empty($item['wide']) ? ' academic-feature-card--wide' : '' }}"
+                                    tabindex="0"
                                     @if($cmsPreview)
                                         data-academics-feature-card
                                         data-academics-feature-index="{{ $loop->index }}"

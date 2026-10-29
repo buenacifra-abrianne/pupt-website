@@ -38,6 +38,9 @@ $session->put([
 ]);
 $request->setLaravelSession($session);
 Illuminate\Support\Facades\View::share('errors', new Illuminate\Support\ViewErrorBag());
+Illuminate\Support\Facades\View::composer('components.app.sidebar', function ($view) {
+    $view->with(['pendingApprovalCount' => 7, 'unreadNotificationCount' => 29]);
+});
 Illuminate\Support\Facades\DB::beginTransaction();
 try {
     $response = app('router')->dispatch($request);

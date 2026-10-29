@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}?v={{ filemtime(public_path('assets/css/components/landing-footer.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
+    @vite('resources/js/landing-globe.jsx')
     <style>
         :root {
             --landing-bg-image: url("{{ asset('assets/static_img/bg_landing_page.jpg') }}");
@@ -88,6 +89,7 @@
         </section>
 
         <section class="landing-actions" aria-label="Landing actions">
+            <div id="landing-globe" class="landing-globe" aria-hidden="true" inert></div>
             <div class="landing-actions-seals-row" aria-label="Primary seals">
                 <img
                     class="landing-actions-seal landing-actions-seal--pup"
@@ -101,7 +103,7 @@
                 >
             </div>
 
-            <h2 class="wavy-text">Choose Destination</h2>
+            <h2>Choose Destination</h2>
             <p>Access faculty services or enter the public homepage.</p>
 
             @if (session('no_role_error'))
@@ -255,43 +257,6 @@
         
         setTimeout(typeWriter, 300); // Small initial delay
         
-        // Wavy Text Animation for Choose Destination
-        const wavyElement = document.querySelector('.wavy-text');
-        if (wavyElement) {
-            const text = wavyElement.textContent;
-            wavyElement.setAttribute('aria-label', text);
-            wavyElement.textContent = '';
-            
-            // Inject wavy CSS
-            const wavyStyle = document.createElement('style');
-            wavyStyle.innerHTML = `
-                .wavy-text span {
-                    display: inline-block;
-                    animation: wavy 2s ease-in-out infinite;
-                }
-                @keyframes wavy {
-                    0%, 100% { transform: translateY(0); }
-                    25% { transform: translateY(-6px); }
-                    75% { transform: translateY(6px); }
-                }
-            `;
-            document.head.appendChild(wavyStyle);
-            
-            // Wrap each letter in a span
-            for (let i = 0; i < text.length; i++) {
-                const char = text[i];
-                const span = document.createElement('span');
-                span.setAttribute('aria-hidden', 'true');
-                
-                if (char === ' ') {
-                    span.innerHTML = '&nbsp;';
-                } else {
-                    span.textContent = char;
-                    span.style.animationDelay = (i * 0.05) + 's';
-                }
-                wavyElement.appendChild(span);
-            }
-        }
     });
 </script>
 <script src="{{ asset('assets/js/particles.js') }}?v={{ filemtime(public_path('assets/js/particles.js')) }}" defer></script>

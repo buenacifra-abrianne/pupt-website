@@ -51,6 +51,8 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
       assert.equal(await evaluate('document.querySelector(".footer-carousel-status").textContent'), expected);
     };
     await cdp('Page.enable');
+    if (process.env.REDUCED_MOTION === '1') await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    if (process.env.GLOBE_FALLBACK === '1') await cdp('Page.addScriptToEvaluateOnNewDocument', { source: `const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return String(type).includes('webgl')?null:originalContext.call(this,type,...args);};` });
     if (process.env.MOBILE === '1') await cdp('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp('Network.enable');
     // Keep the check independent of third-party widgets, media and font servers.
@@ -240,9 +242,34 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
           if (process.env.AUDIT_ONLY !== '1') assert.deepEqual(cms.dashboard, [], page + ': compact dashboard at ' + width);
           if (process.env.AUDIT_ONLY !== '1') assert.deepEqual(cms.controls, [], page + ': usable mobile controls at ' + width);
           const sidebarFits = () => evaluate('(() => { const sidebar=document.querySelector(".sidebar"),footer=sidebar.querySelector(".sidebar-footer-text"),links=sidebar.querySelector(".nav-menu"); const sr=sidebar.getBoundingClientRect(),fr=footer.getBoundingClientRect(),nr=links.getBoundingClientRect(); return Math.abs(fr.bottom-sr.bottom)<=1 && nr.bottom<=fr.top+1 && fr.height>0; })()');
+          const sidebarBadges = () => evaluate(`(() => {
+            const problems=[];
+            const badges=[...document.querySelectorAll('.sidebar-count-badge')];
+            if(!badges.length)problems.push('Sidebar count fixtures must be present');
+            for(const badge of badges){
+              const original=badge.textContent,display=badge.style.display;
+              for(const count of ['7','29','99+']){
+                badge.textContent=count;
+                const style=getComputedStyle(badge),r=badge.getBoundingClientRect(),parent=badge.parentElement.getBoundingClientRect();
+                const range=document.createRange();range.selectNodeContents(badge);const text=range.getBoundingClientRect();
+                if(!['flex','inline-flex'].includes(style.display)||style.alignItems!=='center'||Math.abs((text.top+text.bottom-r.top-r.bottom)/2)>2)problems.push(count+': count must be vertically centered '+JSON.stringify({display:style.display,align:style.alignItems,offset:(text.top+text.bottom-r.top-r.bottom)/2}));
+                if(r.left<parent.left||r.right>parent.right||badge.scrollWidth>badge.clientWidth+1)problems.push(count+': badge must fit inside its navigation row');
+              }
+              badge.textContent=original;badge.style.display='none';
+              if(getComputedStyle(badge).display!=='none')problems.push('Cleared notification counts must stay hidden');
+              badge.style.display=display;
+            }
+            return problems;
+          })()`);
           if (width <= 1024) {
             await evaluate('document.querySelector(".topbar .menu-toggle").click()');
             assert.equal(await evaluate('document.body.classList.contains("cms-nav-open")'), true, page + ': navigation opens');
+            assert.deepEqual(await sidebarBadges(), [], page + ': sidebar badge alignment at ' + width);
+            await evaluate('document.querySelector(".sidebar .has-submenu:not(.expanded) > .submenu-toggle")?.click()');
+            if(process.env.CAPTURE==='1'){
+              const shot=await cdp('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+              fs.writeFileSync(path.join(output,page.replace(/[^a-z0-9-]/gi,'-')+'-navigation-'+width+'.png'),Buffer.from(shot.data,'base64'));
+            }
             assert.ok(await evaluate('(() => { const sidebar=document.querySelector(".sidebar"),links=sidebar.querySelector(".nav-menu"),footer=sidebar.querySelector(".sidebar-footer-text"); const last=[...links.querySelectorAll("a")].at(-1); last.scrollIntoView({block:"nearest",behavior:"instant"}); const r=last.getBoundingClientRect(); return getComputedStyle(links).overflowY === "auto" && r.top>=0 && r.bottom<=footer.getBoundingClientRect().top+1; })()'), page + ': last navigation link remains reachable');
             assert.ok(await sidebarFits(), page + ': sidebar footer stays at bottom');
             await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
@@ -251,9 +278,11 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
             const before = await evaluate('document.querySelector(".sidebar").classList.contains("collapsed")');
             await evaluate('document.querySelector(".topbar .menu-toggle").click()');
             assert.equal(await evaluate('document.querySelector(".sidebar").classList.contains("collapsed")'), !before, page + ': desktop navigation toggle');
+            if(!before)assert.equal(await evaluate('[...document.querySelectorAll(".sidebar-count-badge")].every(badge=>getComputedStyle(badge).display==="none")'), true, page + ': count badges hide with collapsed navigation');
             assert.ok(await sidebarFits(), page + ': collapsed sidebar footer stays at bottom');
             await evaluate('document.querySelector(".topbar .menu-toggle").click()');
             assert.ok(await sidebarFits(), page + ': expanded sidebar footer stays at bottom');
+            assert.deepEqual(await sidebarBadges(), [], page + ': desktop sidebar badge alignment at ' + width);
           }
         }
         if (process.env.AUDIT_ONLY !== '1') {
@@ -295,6 +324,8 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
         }
         if (process.env.TABLE_CHECKS === '1') await require('./tables-checks.cjs')({evaluate,cdp,width,page});
         if (process.env.NEWS_CHECKS === '1') await require('./news-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.PUBLIC_COMPACT === '1') await require('./public-compact-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.GLOBE_CHECKS === '1' && page === '/') await require('./globe-checks.cjs')({evaluate,cdp});
         if (process.env.CAPTURE === '1' && (process.env.AUDIT_CHECKS === '1' || [320,375,768,1024,1440].includes(width))) {
           // The fixture server omits analytics API responses; clear its error toasts for screenshots.
           if (process.env.CMS === '1') await evaluate('document.getElementById("cmsToastWrap")?.replaceChildren()');
