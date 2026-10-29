@@ -279,6 +279,16 @@ body {
     border-bottom: 1px solid var(--landing-line);
 }
 
+.landing-actions-seals-row::after {
+    content: "";
+    position: absolute;
+    left: 100%;
+    bottom: -1px;
+    width: 100%;
+    border-bottom: inherit;
+    pointer-events: none;
+}
+
 .landing-actions-seal {
     display: block;
     width: 94px;
