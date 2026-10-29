@@ -8,6 +8,10 @@ const cache = new Map();
 const server = http.createServer((req, res) => {
   if (req.method !== 'GET') { res.writeHead(405); return res.end(); }
   const url = new URL(req.url, 'http://localhost');
+  if (url.pathname === '/cms/link-monitoring') {
+    res.setHeader('Content-Type', 'application/json');
+    return res.end(JSON.stringify({ scan: null }));
+  }
   if (url.pathname.startsWith('/assets/')) {
     const file = path.resolve(root, 'public', '.' + decodeURIComponent(url.pathname));
     if (!file.startsWith(path.join(root, 'public', 'assets') + path.sep) || !fs.existsSync(file)) { res.writeHead(404); return res.end(); }
