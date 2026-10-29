@@ -37,6 +37,7 @@ body.cms-shell :is(.sidebar, .sidebar.collapsed) {
 }
 
 body.cms-shell .sidebar > * { flex-shrink: 0; }
+body.cms-shell .sidebar .nav-link .sidebar-count-badge { color: #5c0000 !important; }
 body.cms-shell .sidebar .logo-section { flex: 0 0 auto; }
 body.cms-shell .sidebar > .nav-menu {
     flex: 1 1 auto;
@@ -62,6 +63,7 @@ body.cms-shell .sidebar .sidebar-footer-text {
 }
 body.cms-shell .sidebar-footer-version { display: block; font-size: 10px; font-weight: 700; font-style: normal; opacity: .7; }
 @media (min-width: 1025px) {
+    body.cms-shell .sidebar.collapsed .sidebar-count-badge { display: none !important; }
     body.cms-shell .sidebar.collapsed .sidebar-footer-text { padding: 10px 6px; font-size: 9px; }
     body.cms-shell .sidebar.collapsed .sidebar-footer-version { font-size: 8px; }
 }
@@ -228,9 +230,9 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
         visibility: visible;
     }
 
-    body.cms-shell .sidebar :is(.logo-text, .nav-link span) { display: initial !important; }
+    body.cms-shell .sidebar :is(.logo-text, .nav-link span:not(.sidebar-count-badge)) { display: initial !important; }
     body.cms-shell .sidebar.collapsed .submenu { display: none !important; }
-    body.cms-shell .sidebar .nav-link span { white-space: normal !important; }
+    body.cms-shell .sidebar .nav-link span:not(.sidebar-count-badge) { white-space: normal !important; }
     body.cms-shell .sidebar .sidebar-footer-text { display: block !important; }
     body.cms-shell .sidebar ~ .topbar { left: 0 !important; right: 0; height: var(--cms-topbar-height); }
     body.cms-shell .sidebar ~ .main-content {
