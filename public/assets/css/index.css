@@ -178,7 +178,9 @@ body {
     width: clamp(280px, 36vw, 440px);
     aspect-ratio: 1;
     transform: translate(50%, -50%);
-    opacity: 0.18;
+    opacity: 0.42;
+    background: radial-gradient(circle, #c52638 0%, #e65d6e 55%, transparent 60%);
+    filter: drop-shadow(0 0 18px rgba(240, 78, 96, 0.4));
     pointer-events: none;
     z-index: 0;
 }
@@ -193,6 +195,7 @@ body {
 }
 
 .magicui-globe canvas { cursor: grab; touch-action: pan-y; }
+.landing-globe canvas { mix-blend-mode: screen; }
 .magicui-globe canvas:focus-visible { outline: 2px solid #f3c45a; outline-offset: 3px; border-radius: 50%; }
 .magicui-globe-fallback { border-radius: 50%; background: radial-gradient(circle at 35% 30%, #ff777a, #b51223 50%, #4f090c 80%); }
 
