@@ -157,16 +157,16 @@
             justify-content: flex-start;
             width: max-content;
             min-width: 100%;
-            padding: 0 8px;
+            padding: 0 4px;
             gap: 0;
         }
 
         body.cms-shell .main-content .tab-navigation-item { flex: 0 0 auto; }
         body.cms-shell .main-content .tab-navigation-item::after { display: none; }
         body.cms-shell .main-content .cms-tab-btn {
-            min-height: 44px !important;
-            padding: 12px !important;
-            font-size: 11px !important;
+            min-height: 36px !important;
+            padding: 8px 10px !important;
+            font-size: 10px !important;
             white-space: nowrap;
             border-bottom: 3px solid transparent;
         }
@@ -175,12 +175,25 @@
 
         body.cms-shell [class$="-cms-preview-nav"] {
             flex-wrap: nowrap;
+            align-items: center;
+            gap: 6px;
             max-width: 100%;
             overflow-x: auto;
-            padding-bottom: 6px;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
             scrollbar-width: thin;
         }
-        body.cms-shell [class$="-cms-preview-nav-btn"] { flex-shrink: 0; white-space: nowrap; }
+        body.cms-shell [class*="-cms-preview-nav-btn"] {
+            flex: 0 0 auto;
+            width: auto;
+            height: 32px;
+            min-height: 32px;
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 11px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
 
         body.cms-shell [class$="-cms-modal-dialog"] {
             width: min(720px, 100%) !important;
