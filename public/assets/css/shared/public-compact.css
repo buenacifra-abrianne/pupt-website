@@ -247,12 +247,15 @@
   :is(.dp-program-modal-copy, .ne-modal-content, .student-admissions-person-modal-copy) { padding: 16px; }
   :is(.dp-program-modal, .ne-modal-overlay, .student-qr-modal, .student-admissions-person-modal) :is(p, li) { font-size: 13px; line-height: 1.6; }
   :is(.dp-program-modal-heading, .ne-modal-title) { font-size: 20px; }
-  .dp-program-modal .dp-program-modal-heading { font-size: 18px; }
-  .dp-program-modal .dp-program-modal-subhead { font-size: 12px; }
-  .dp-program-modal .dp-program-modal-field-label { font-size: 10px; }
-  .dp-program-modal-head { padding-right: 48px; }
-  .dp-program-modal-fields-grid { gap: 10px; }
-  .dp-program-modal-field { padding: 12px; }
+  .dp-program-modal .dp-program-modal-dialog { width: min(100%, 560px); max-height: min(80dvh, 680px); }
+  .dp-program-modal .dp-program-modal-copy { padding: 12px; gap: 8px; }
+  main.main-content .dp-program-modal .dp-program-modal-heading { font-size: 14px !important; }
+  main.main-content .dp-program-modal .dp-program-modal-subhead { font-size: 11px !important; }
+  main.main-content .dp-program-modal .dp-program-modal-field-label { font-size: 10px !important; line-height: 1.4; }
+  main.main-content .dp-program-modal :is(.dp-program-modal-field-value,.dp-program-modal-body,.dp-program-modal-body p) { font-size: 11px !important; line-height: 1.6; }
+  .dp-program-modal-head { padding-right: 44px; gap: 4px; }
+  .dp-program-modal-fields-grid { gap: 6px; }
+  .dp-program-modal-field { padding: 8px; gap: 4px; border-radius: 8px; }
   .ne-modal-body { grid-template-columns: minmax(0, 1fr); max-height: none; overflow: visible; }
   .ne-modal-img-wrap { height: 180px; min-height: 0; }
   .ne-modal-content { max-height: none; overflow: visible; }
