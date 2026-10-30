@@ -142,7 +142,7 @@
   main.main-content .ne-events-header { margin-bottom: 12px; }
   main.main-content .ne-events-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   main.main-content .ne-events-divider { display: none; }
-  main.main-content .ne-col-title { font-size: 11px; letter-spacing: .06em; gap: 5px; margin-bottom: 8px; }
+  main.main-content .ne-col-title { font-size: 10px !important; letter-spacing: .04em; gap: 4px; margin-bottom: 6px; }
   main.main-content .ne-event-item { flex-wrap: wrap; gap: 4px; padding: 8px; min-height: 64px; border-radius: 10px; }
   main.main-content .ne-event-date { font-size: 9px; }
   main.main-content .ne-event-name { font-size: 10px; line-height: 1.45; }
