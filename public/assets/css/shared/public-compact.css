@@ -33,6 +33,26 @@
     padding: 4px 0 12px !important;
   }
   main.main-content :is(.contents-cards, .students-cards, .academic-features-grid, .alphabetical-card-pages, .charter-grid-stack) > * { scroll-snap-align: start; }
+  html body main.main-content .cms-preview-editable :is(.contents-cards, .students-cards, .academic-features-grid,
+    .alphabetical-card-pages, .charter-grid-stack, .ne-card-grid, .students-orgs-grid, .officials-grid, .ls-gallery-grid, .aw-awards-grid, .aw-certs-list) {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: min(var(--compact-card-width), 100%) !important;
+    grid-template-columns: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    gap: 12px !important;
+    padding-bottom: 12px !important;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-inline: contain;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  html body[data-cms-preview] main.main-content .about-intro .campus-story-card::after {
+    background: none;
+    clip-path: none;
+  }
   main.main-content .alphabetical-card-pages > * {
     width: 100% !important; height: auto !important; min-height: 0 !important;
   }
