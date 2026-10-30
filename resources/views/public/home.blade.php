@@ -621,7 +621,9 @@
 
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
       <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">
-        <button class="advisory-modal-close" type="button" aria-label="Close details">&times;</button>
+        <button class="advisory-modal-close" type="button" aria-label="Close details">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
 
         <div class="advisory-modal-media" id="advisoryModalMedia" hidden>
           <img src="" alt="" id="advisoryModalImage" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
