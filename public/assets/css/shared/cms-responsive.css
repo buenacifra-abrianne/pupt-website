@@ -103,8 +103,7 @@ body.cms-shell .sidebar .sidebar-footer-text {
 body.cms-shell .sidebar-footer-version { display: block; font-size: 10px; font-weight: 700; font-style: normal; opacity: .7; }
 @media (min-width: 1025px) {
     body.cms-shell .sidebar.collapsed .sidebar-count-badge { display: none !important; }
-    body.cms-shell .sidebar.collapsed .sidebar-footer-text { padding: 10px 6px; font-size: 9px; }
-    body.cms-shell .sidebar.collapsed .sidebar-footer-version { font-size: 8px; }
+    body.cms-shell .sidebar.collapsed .sidebar-footer-text { display: none !important; }
 }
 body.cms-shell .topbar { min-width: 0; padding-inline: var(--cms-gutter); }
 body.cms-shell :is(.topbar-left, .topbar-right, .user-profile, .user-info) { min-width: 0; }
