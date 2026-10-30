@@ -78,7 +78,7 @@
 
                                     <td style="padding:10px;">
                                         <button type="button"
-                                        class="btn btn-sm btn-primary"
+                                        class="btn btn-sm btn-primary approval-details-btn"
                                         onclick='openDetails(
                                             @json($item->type),
                                             @json($item->display_title),
@@ -231,7 +231,7 @@
 
                                     <td style="padding:10px;">
                                         <button type="button"
-                                            class="btn btn-sm btn-primary"
+                                            class="btn btn-sm btn-primary approval-details-btn"
                                             onclick='openDetails(
                                                 @json($item->type),
                                                 @json($item->display_title),

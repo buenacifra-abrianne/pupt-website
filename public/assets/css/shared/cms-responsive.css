@@ -1,4 +1,17 @@
 /* Shared by Superadmin, Admin and Staff. Keep content inside its available column. */
+@media screen and (max-width: 1024px) {
+    body.cms-shell .main-content.cms-data-page .approvals-table .btn.approval-details-btn {
+        width: auto;
+        min-width: 0;
+        min-height: 28px !important;
+        padding: 4px 8px !important;
+        border-radius: 6px !important;
+        font-size: 10px !important;
+        gap: 4px !important;
+        white-space: nowrap;
+    }
+}
+
 body.cms-shell {
     --cms-gutter: clamp(16px, 2vw, 32px);
     --cms-viewport-height: 100vh;
