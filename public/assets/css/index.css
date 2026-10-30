@@ -433,43 +433,44 @@ body {
     .portal-button .text strong { font-size: 0.83rem; }
 }
 
-@media (max-width: 960px) {
-    .menu { padding-top: 20px; gap: 20px; }
-    .landing-container { max-width: 680px; grid-template-columns: minmax(0, 1fr); }
-    .landing-identity { padding: 36px 28px 30px; }
+@media (max-width: 1024px) {
+    .menu { padding-top: 12px; gap: 12px; }
+    .landing-container { max-width: 560px; grid-template-columns: minmax(0, 1fr); border-radius: 16px; }
+    .landing-identity { padding: 20px 16px; gap: 8px; }
     .landing-identity::before { inset: 0; clip-path: none; }
-    .title-main-line { font-size: clamp(2.3rem, 7.8vw, 3.7rem); }
-    .landing-seals-shell { max-width: 400px; }
-    .landing-actions { padding: 26px 28px 30px; }
-    .landing-actions-seal { width: 82px; height: 82px; }
-    .landing-actions h2 { font-size: clamp(1.1rem, 3.7vw, 1.65rem); }
+    .title { gap: 4px; }
+    .title-welcome { font-size: 10px; letter-spacing: .2em; }
+    .title-welcome::before, .title-welcome::after { width: 20px; }
+    .title-welcome::before { right: calc(100% + 8px); }
+    .title-welcome::after { left: calc(100% + 8px); }
+    .title-main-line { font-size: clamp(26px, 4vw, 32px); }
+    .kicker { font-size: 9px; letter-spacing: .2em; }
+    .kicker::after { width: 32px; margin-top: 8px; }
+    .landing-intro { font-size: 11px; line-height: 1.5; }
+    .landing-seals-shell { max-width: 240px; margin-top: 4px; padding: 6px; border-radius: 10px; }
+    .support-logo-row { gap: 6px; }
+    .support-logo-item { padding: 3px; border-radius: 6px; }
+    .landing-actions { padding: 14px 16px 16px; gap: 8px; }
+    .landing-actions-seals-row { gap: 10px; padding-bottom: 10px; margin-bottom: 0; }
+    .landing-actions-seal { width: 48px; height: 48px; }
+    .landing-actions h2 { font-size: 16px; letter-spacing: .04em; }
+    .landing-actions > p { font-size: 11px; line-height: 1.5; margin-top: 0; }
+    .button-container { gap: 8px; margin-top: 4px; }
+    .portal-button { min-height: 64px; padding: 10px; gap: 10px; border-radius: 10px; }
+    .portal-button .icon { width: 32px; height: 32px; }
+    .portal-button .icon svg { width: 18px; height: 18px; }
+    .portal-button .text { gap: 2px; }
+    .portal-button .text strong { font-size: 13px; }
+    .portal-button .text small { font-size: 11px; }
+    .landing-alert { padding: 8px 10px; font-size: 11px; }
 }
 
 @media (max-width: 540px) {
-    .menu { --menu-pad-x: 16px; padding-top: 14px; gap: 16px; }
-    .landing-container { border-radius: 20px; }
-    .landing-identity { padding: 30px 18px 26px; gap: 10px; }
-    .title-welcome { font-size: 0.72rem; letter-spacing: 0.28em; }
-    .title-welcome::before, .title-welcome::after { width: 24px; }
-    .title-welcome::before { right: calc(100% + 10px); }
-    .title-welcome::after { left: calc(100% + 10px); }
-    .title-main-line { font-size: clamp(1.8rem, 8.6vw, 2.9rem); }
-    .kicker { font-size: 0.64rem; letter-spacing: 0.24em; }
-    .landing-intro { font-size: 0.78rem; }
-    .landing-seals-shell { margin-top: 10px; padding: 9px; border-radius: 12px; }
-    .support-logo-row { gap: 7px; }
-    .support-logo-item { padding: 4px; border-radius: 9px; }
-    .landing-actions { padding: 24px 18px; }
-    .landing-actions-seals-row { padding-bottom: 16px; }
-    .landing-actions-seal { width: 76px; height: 76px; }
-    .landing-actions > p { font-size: 0.76rem; }
+    .menu { --menu-pad-x: 12px; }
     .button-container { grid-template-columns: minmax(0, 1fr); }
-    .portal-button { min-height: 86px; padding: 16px; }
-    .portal-button .text strong { font-size: 0.92rem; }
-    .portal-button .text small { font-size: 0.73rem; }
 }
 
-@media (max-height: 560px) and (min-width: 961px) {
+@media (max-height: 560px) and (min-width: 1025px) {
     .menu { padding-top: 14px; gap: 14px; }
     .landing-identity { padding-top: 28px; padding-bottom: 28px; }
     .landing-actions { padding-top: 22px; padding-bottom: 22px; }
