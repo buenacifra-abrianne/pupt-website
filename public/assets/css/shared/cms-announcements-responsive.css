@@ -53,7 +53,15 @@
     body.cms-announcements-page .news-image img { height: 100% !important; object-fit: contain; }
     body.cms-announcements-page :is(.news-card-badges,.news-option-toggle) { gap: 6px; margin-bottom: 8px; }
     body.cms-announcements-page :is(.news-card-select,.announcement-card-select) { top: 8px; right: 8px; min-width: 32px; min-height: 32px; display: grid; place-items: center; }
-    body.cms-announcements-page .news-card-select span { width: 20px; height: 20px; }
+    body.cms-announcements-page .news-card-select span { position: relative; width: 20px; height: 20px; }
+    body.cms-announcements-page .news-card-select input:checked + span::after {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 6px;
+        height: 10px;
+        transform: translate(-50%, -60%) rotate(45deg);
+    }
     body.cms-announcements-page .news-bulk-toolbar { flex-direction: row; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
     body.cms-announcements-page .news-bulk-count { flex: 0 0 auto; align-self: flex-start; height: auto; min-height: 0; padding: 6px 10px; font-size: 10px; line-height: 1.4; white-space: nowrap; }
     body.cms-announcements-page .news-bulk-actions { display: flex; flex: 1 1 220px; flex-wrap: wrap; gap: 6px; width: auto; }
