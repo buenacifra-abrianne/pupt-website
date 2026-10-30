@@ -83,7 +83,7 @@
   main.main-content .academic-feature-card .academic-feature-tag { font-size: 9px !important; }
   main.main-content .academic-shell { gap: 0; margin-block: 0; }
   main.main-content .academic-shell > .academic-breadcrumb {
-    justify-content: center; gap: 6px; padding: 10px 0; margin: 0; font-size: 11px; line-height: 1.4; letter-spacing: .08em;
+    justify-content: flex-start; gap: 6px; padding: 10px 0; margin: 0; font-size: 11px; line-height: 1.4; letter-spacing: .08em;
   }
   main.main-content .academic-shell > .academic-breadcrumb::before { display: none; }
   main.main-content .academic-shell + .students-contents-strip { margin-top: 0; }
