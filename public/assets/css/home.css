@@ -2803,15 +2803,15 @@ html:has(body.modal-open) {
 
 .advisory-modal-card.has-media {
   display: grid;
-  grid-template-columns: minmax(360px, 0.95fr) minmax(420px, 1fr);
+  grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1fr);
   grid-template-rows: minmax(0, 1fr);
   align-items: stretch;
   width: min(1180px, 94vw);
   height: min(760px, 86vh);
   max-height: min(760px, 86vh);
   overflow: hidden;
-  border-radius: 24px;
-  background: rgba(255, 252, 248, 0.98);
+  border-radius: 12px;
+  background: #fff;
 }
 
 .advisory-modal-card::before {
@@ -2839,7 +2839,7 @@ html:has(body.modal-open) {
   min-height: 0;
   margin: 0;
   overflow: hidden;
-  background: #070707;
+  background: #f8f5f0;
 }
 
 .advisory-modal-media[hidden] {
@@ -2860,17 +2860,17 @@ html:has(body.modal-open) {
   height: 100%;
   object-fit: contain;
   object-position: center center;
-  background: #070707;
+  background: #f8f5f0;
 }
 
 .advisory-modal-close {
   position: absolute;
   top: 20px;
   right: 20px;
-  width: 54px;
-  height: 54px;
+  width: 38px;
+  height: 38px;
   border: none;
-  border-radius: 18px;
+  border-radius: 12px;
   background: linear-gradient(180deg, rgba(127, 17, 19, 0.08) 0%, rgba(127, 17, 19, 0.14) 100%);
   color: var(--home-maroon);
   font-size: 1.9rem;
@@ -2930,15 +2930,15 @@ html:has(body.modal-open) {
 
 .advisory-modal-title {
   margin: 12px 64px 0 0;
-  color: var(--home-ink);
-  font-size: clamp(1.8rem, 2.7vw, 2.7rem);
-  font-weight: 800;
-  line-height: 1.08;
+  color: var(--home-maroon);
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1.4;
 }
 
 .advisory-modal-divider {
   height: 1px;
-  margin: 24px 0 22px;
+  margin: 18px 0;
   background: rgba(127, 17, 19, 0.12);
 }
 
@@ -2976,10 +2976,14 @@ html:has(body.modal-open) {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin-top: 26px;
-  color: var(--home-maroon);
-  font-size: 1rem;
-  font-weight: 800;
+  margin-top: 18px;
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--home-maroon) 0%, #5c0000 100%);
+  color: #fff;
+  box-shadow: var(--dm-glow);
+  font-size: 14px;
+  font-weight: 600;
   text-decoration: none;
 }
 
@@ -2987,8 +2991,10 @@ html:has(body.modal-open) {
   display: none !important;
 }
 
-.advisory-modal-link::after {
-  content: "\2197";
+.advisory-modal-link:hover,
+.advisory-modal-link:focus-visible {
+  background: #5c0000;
+  color: #fff;
 }
 
 .feedback-banner {
@@ -3670,7 +3676,7 @@ body.scroll-up .reveal:not(.active) {
 
   .advisory-modal-title {
     margin-right: 48px;
-    font-size: 1.65rem;
+    font-size: 20px;
   }
 
   .news-mini-card {
@@ -4272,7 +4278,7 @@ body.pup-dark-mode .advisory-modal-close:hover {
 }
 
 body.pup-dark-mode .advisory-modal-link {
-  color: var(--dm-text-secondary);
+  color: #fff;
 }
 
 body.pup-dark-mode .feedback-banner {

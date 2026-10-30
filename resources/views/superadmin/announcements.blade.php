@@ -439,6 +439,8 @@
         </div>
     </main>
 
+    @include('partials.news_upload_preview')
+
     <div id="readMoreModal" class="modal">
         <div class="modal-content read-more-modal-content">
             <button class="close-modal read-more-close" type="button" onclick="closeReadMoreModal()">
@@ -779,8 +781,8 @@
                             
                             const img = document.createElement('img');
                             img.src = src;
-                            img.style.width = '90px';
-                            img.style.height = '90px';
+                            img.style.width = '160px';
+                            img.style.height = '160px';
                             img.style.objectFit = 'contain';
                             img.style.background = '#080808';
                             img.style.borderRadius = '6px';
@@ -808,12 +810,23 @@
                                 onRemove();
                             };
                             
-                            wrapper.appendChild(img);
+                            const previewBtn = document.createElement('button');
+                            previewBtn.type = 'button';
+                            previewBtn.className = 'news-upload-preview-button';
+                            previewBtn.setAttribute('aria-label', 'Preview uploaded image');
+                            previewBtn.onclick = function() {
+                                const preview = document.getElementById('newsUploadPreviewDialog');
+                                preview.querySelector('img').src = src;
+                                preview.showModal();
+                            };
+                            previewBtn.appendChild(img);
+                            wrapper.appendChild(previewBtn);
                             wrapper.appendChild(removeBtn);
                             
                             if (isFeatured) {
                                 const badge = document.createElement('span');
                                 badge.textContent = 'FEATURED';
+                                badge.style.whiteSpace = 'nowrap';
                                 badge.style.position = 'absolute';
                                 badge.style.bottom = '4px';
                                 badge.style.left = '50%';
