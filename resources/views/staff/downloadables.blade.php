@@ -12,7 +12,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
 </head>
-<body>
+<body class="cms-memorandum-page">
     <x-app.sidebar />
 
     <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Staff" />

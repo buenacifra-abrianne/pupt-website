@@ -48,19 +48,21 @@
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage Announcements</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage Announcements</h3>
+                    </div>
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkAnnouncementSelection">
-                        <input type="checkbox" id="bulkAnnouncementSelection" hidden>
-                        <span id="announcementSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" disabled>
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkAnnouncementSelection">
+                            <input type="checkbox" id="bulkAnnouncementSelection" hidden>
+                            <span id="announcementSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" title="Delete Selected" aria-label="Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Delete<span class="cms-bulk-label-extra"> Selected</span></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -164,27 +166,29 @@
         <!-- News Tab -->
         <div id="news" class="tab-content active">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage News</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage News</h3>
+                    </div>
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkNewsSelection">
-                        <input type="checkbox" id="bulkNewsSelection" hidden>
-                        <span id="newsSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        @if($hasNewsHiddenColumn ?? false)
-                            <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" disabled>
-                                <i class="fas fa-eye-slash"></i> Hide from Public
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkNewsSelection">
+                            <input type="checkbox" id="bulkNewsSelection" hidden>
+                            <span id="newsSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            @if($hasNewsHiddenColumn ?? false)
+                                <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" title="Hide from Public" aria-label="Hide from Public" disabled>
+                                    <i class="fas fa-eye-slash"></i> <span>Hide<span class="cms-bulk-label-extra"> from Public</span></span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" title="Show in Public" aria-label="Show in Public" disabled>
+                                    <i class="fas fa-eye"></i> <span>Show<span class="cms-bulk-label-extra"> in Public</span></span>
+                                </button>
+                            @endif
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" title="Delete Selected" aria-label="Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Delete<span class="cms-bulk-label-extra"> Selected</span></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" disabled>
-                                <i class="fas fa-eye"></i> Show in Public
-                            </button>
-                        @endif
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" disabled>
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                        </div>
                     </div>
                 </div>
 

@@ -52,26 +52,28 @@
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage Announcements</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage Announcements</h3>
+                    </div>
 
-                @php
-                    $annReqs = $myRequests->filter(fn($r) =>
-                        in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
-                        && strtolower((string)($r->status ?? '')) === 'rejected'
-                    );
-                @endphp
+                    @php
+                        $annReqs = $myRequests->filter(fn($r) =>
+                            in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+                            && strtolower((string)($r->status ?? '')) === 'rejected'
+                        );
+                    @endphp
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkAnnouncementSelection">
-                        <input type="checkbox" id="bulkAnnouncementSelection" hidden>
-                        <span id="announcementSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" disabled>
-                            <i class="fas fa-trash"></i> Request Delete Selected
-                        </button>
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkAnnouncementSelection">
+                            <input type="checkbox" id="bulkAnnouncementSelection" hidden>
+                            <span id="announcementSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" title="Request Delete Selected" aria-label="Request Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Request Delete<span class="cms-bulk-label-extra"> Selected</span></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 

@@ -1,4 +1,43 @@
 /* Shared by Superadmin, Admin and Staff. Keep content inside its available column. */
+@media screen and (max-width: 1024px) {
+    body.cms-memorandum-page .main-content { font-size: 12px; }
+    body.cms-memorandum-page .main-content .page-title { font-size: 20px; line-height: 1.4; }
+    body.cms-memorandum-page .page-subtitle { font-size: 12px; line-height: 1.5; }
+    body.cms-shell.cms-memorandum-page .main-content .card { padding: 12px !important; }
+    body.cms-shell.cms-memorandum-page .main-content .card-header { padding: 0 0 12px !important; margin-bottom: 12px; }
+    body.cms-memorandum-page .main-content .card-title { font-size: 14px !important; gap: 8px !important; }
+    body.cms-shell.cms-memorandum-page .main-content #downloadablesList { padding: 0 !important; }
+    body.cms-shell.cms-memorandum-page .main-content .downloadable-item { padding: 12px !important; gap: 10px !important; }
+    body.cms-memorandum-page .downloadable-item .announcement-title { font-size: 14px !important; line-height: 1.5 !important; }
+    body.cms-memorandum-page .downloadable-item .announcement-description { font-size: 12px !important; line-height: 1.6 !important; margin-top: 6px !important; }
+    body.cms-memorandum-page .downloadable-item .announcement-description :is(p,div,span,li) { font-size: inherit !important; line-height: inherit !important; }
+    body.cms-memorandum-page .downloadable-item .announcement-meta { font-size: 11px !important; gap: 8px 12px !important; padding-top: 10px !important; }
+    body.cms-memorandum-page .downloadable-item .announcement-meta > span { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+    body.cms-memorandum-page .downloadable-item .announcement-meta i { flex-shrink: 0; }
+    body.cms-shell.cms-memorandum-page .main-content .tab-navigation { gap: 10px !important; margin-bottom: 14px !important; }
+    body.cms-memorandum-page .main-content .tab-navigation > div { flex: 1 1 220px; flex-wrap: wrap; }
+    body.cms-memorandum-page :is(#sortOption,#globalSearch) { width: 100% !important; min-height: 36px; font-size: 12px !important; }
+    body.cms-memorandum-page .main-content :is(.btn,.tab-btn) { min-height: 36px !important; font-size: 11px !important; padding: 6px 10px !important; }
+    body.cms-shell.cms-memorandum-page .main-content .announcement-actions .btn { width: 36px; min-width: 36px; height: 36px !important; flex: 0 0 36px; padding: 0 !important; }
+    body.cms-memorandum-page .main-content #myUploadsList { padding: 0 !important; grid-template-columns: repeat(auto-fit,minmax(min(100%,220px),1fr)) !important; gap: 12px !important; }
+    body.cms-memorandum-page #downloadableModal .modal-title { font-size: 16px; }
+    body.cms-memorandum-page #downloadableModal :is(label,input,textarea,.rich-editor-input) { font-size: 12px; }
+}
+
+@media screen and (max-width: 1024px) {
+    body.cms-shell .main-content.cms-data-page .approvals-table .btn.approval-details-btn {
+        width: auto;
+        min-width: 0;
+        min-height: 28px !important;
+        padding: 4px 8px !important;
+        border-radius: 6px !important;
+        font-size: 10px !important;
+        gap: 4px !important;
+        white-space: nowrap;
+    }
+    body.cms-shell .main-content .search-bar { flex-wrap: nowrap; }
+}
+
 body.cms-shell {
     --cms-gutter: clamp(16px, 2vw, 32px);
     --cms-viewport-height: 100vh;
@@ -113,7 +152,6 @@ body.cms-shell :is(.tab-navigation-list, .tab-navigation > div, .filter-actions,
 /* Page controls must remain available even when older module styles hide search. */
 body.cms-shell .main-content .search-bar {
     display: flex;
-    flex-wrap: nowrap;
     min-width: 0;
 }
 body.cms-shell .main-content .search-bar input { min-width: 0; flex: 1; }
