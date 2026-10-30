@@ -92,13 +92,18 @@ body.cms-shell .sidebar .sidebar-footer-text {
     flex: 0 0 auto;
     margin-top: auto;
     padding: 14px 12px;
-    border-top: 1px solid rgba(255, 255, 255, .15);
+    border-top: none;
     color: #fff;
-    background: inherit;
+    background: #6c0202;
     text-align: center;
     font-size: 12px;
     font-style: italic;
     line-height: 1.5;
+}
+body.cms-shell .sidebar-footer-text hr {
+    margin: 0 0 10px;
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, .2);
 }
 body.cms-shell .sidebar-footer-version { display: block; font-size: 10px; font-weight: 700; font-style: normal; opacity: .7; }
 @media (min-width: 1025px) {

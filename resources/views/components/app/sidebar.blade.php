@@ -225,6 +225,7 @@
 
     </ul>
     <footer class="sidebar-footer-text">
+        <hr>
         <span>Mula Sa'yo, Para sa Bayan</span>
         <span class="sidebar-footer-version">PUPT CMS V.2026</span>
     </footer>
