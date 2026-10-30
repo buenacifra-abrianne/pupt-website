@@ -10,6 +10,7 @@
         gap: 4px !important;
         white-space: nowrap;
     }
+    body.cms-shell .main-content .search-bar { flex-wrap: nowrap; }
 }
 
 body.cms-shell {
@@ -126,7 +127,6 @@ body.cms-shell :is(.tab-navigation-list, .tab-navigation > div, .filter-actions,
 /* Page controls must remain available even when older module styles hide search. */
 body.cms-shell .main-content .search-bar {
     display: flex;
-    flex-wrap: nowrap;
     min-width: 0;
 }
 body.cms-shell .main-content .search-bar input { min-width: 0; flex: 1; }
