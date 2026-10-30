@@ -9,7 +9,18 @@
     body.cms-announcements-page .cms-selection-controls .news-bulk-count { margin-left: auto; align-self: center; flex-shrink: 0; padding: 4px 8px; font-size: 11px; white-space: nowrap; }
     body.cms-announcements-page .main-content .news-bulk-actions { flex: 0 1 auto; width: auto; gap: 6px; }
     body.cms-announcements-page .main-content .news-bulk-actions .btn { flex: 0 0 auto; width: auto; min-height: 32px !important; padding: 6px 10px !important; font-size: 11px !important; white-space: nowrap; justify-content: center; }
-
+    body.cms-shell.cms-announcements-page .main-content .announcement-actions { gap: 6px; align-items: center; }
+    body.cms-shell.cms-announcements-page .main-content .announcement-actions .btn {
+        width: auto;
+        min-width: 32px;
+        min-height: 32px !important;
+        flex: 0 0 auto;
+        padding: 6px 8px !important;
+        border-radius: 8px !important;
+        font-size: 11px !important;
+        gap: 4px !important;
+        white-space: nowrap;
+    }
 
     body.cms-shell.cms-announcements-page .main-content { font-size: 12px; }
     body.cms-announcements-page .page-header { margin-bottom: 14px; }
