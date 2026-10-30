@@ -140,6 +140,68 @@
         }
     }
 
+    @media (max-width: 1024px) {
+        [class$="-cms-preview-frame-shell"] {
+            scrollbar-gutter: auto;
+        }
+
+        body.cms-shell .main-content > .tab-navigation {
+            display: block;
+            overflow-x: auto;
+            overflow-y: hidden;
+            scrollbar-width: thin;
+        }
+
+        body.cms-shell .main-content .tab-navigation-list {
+            flex-wrap: nowrap;
+            justify-content: flex-start;
+            width: max-content;
+            min-width: 100%;
+            padding: 0 8px;
+            gap: 0;
+        }
+
+        body.cms-shell .main-content .tab-navigation-item { flex: 0 0 auto; }
+        body.cms-shell .main-content .tab-navigation-item::after { display: none; }
+        body.cms-shell .main-content .cms-tab-btn {
+            min-height: 44px !important;
+            padding: 12px !important;
+            font-size: 11px !important;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+        }
+        body.cms-shell .main-content .cms-tab-btn.active { color: #ffd43b; border-bottom-color: #ffd43b; }
+        body.cms-shell .main-content .cms-tab-indicator { display: none; }
+
+        body.cms-shell [class$="-cms-preview-nav"] {
+            flex-wrap: nowrap;
+            max-width: 100%;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            scrollbar-width: thin;
+        }
+        body.cms-shell [class$="-cms-preview-nav-btn"] { flex-shrink: 0; white-space: nowrap; }
+
+        body.cms-shell [class$="-cms-modal-dialog"] {
+            width: min(720px, 100%) !important;
+            max-width: 100% !important;
+            max-height: calc(var(--cms-modal-viewport-height) - 48px);
+            min-height: 0 !important;
+            overflow-y: auto;
+            padding: 12px !important;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+        body.cms-shell [class$="-cms-modal-dialog"] :is(h2,h3,h4) { font-size: 16px !important; line-height: 1.4; }
+        body.cms-shell [class$="-cms-modal-dialog"] :is(p,label,small,input,textarea,select,.rich-editor-surface) { font-size: 12px !important; line-height: 1.5; }
+        body.cms-shell [class$="-cms-modal-dialog"] :is(button,.btn) {
+            min-height: 36px !important; padding: 8px 10px !important; font-size: 12px !important; white-space: normal;
+        }
+        body.cms-shell [class$="-cms-modal-header"] { padding-right: 40px; margin-bottom: 12px; }
+        body.cms-shell [class$="-cms-modal-panels"] { padding: 0; gap: 12px; }
+        body.cms-shell [class$="-cms-modal-footer"] { gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+    }
+
     @media (max-width: 768px) {
         [class$="-cms-modal"] {
             align-items: flex-start !important;
@@ -619,6 +681,19 @@
 
                 if (Math.abs(deltaX) < 1 && Math.abs(deltaY) < 1) {
                     return;
+                }
+
+                if (window.matchMedia('(max-width: 1024px)').matches) {
+                    for (let target = event.target?.closest?.('*'); target && target !== doc.body; target = target.parentElement) {
+                        const styles = doc.defaultView.getComputedStyle(target);
+                        const canScrollX = deltaX !== 0 && /auto|scroll/.test(styles.overflowX)
+                            && (deltaX < 0 ? target.scrollLeft > 0 : target.scrollLeft + target.clientWidth < target.scrollWidth - 1);
+                        const canScrollY = deltaY !== 0 && /auto|scroll/.test(styles.overflowY)
+                            && (deltaY < 0 ? target.scrollTop > 0 : target.scrollTop + target.clientHeight < target.scrollHeight - 1);
+                        if (canScrollX || canScrollY) {
+                            return;
+                        }
+                    }
                 }
 
                 const scrollTarget = document.scrollingElement || document.documentElement || document.body;

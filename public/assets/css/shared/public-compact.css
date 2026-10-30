@@ -3,13 +3,15 @@
   main.main-content { --compact-card-width: 220px; --compact-card-height: 220px; }
   main.main-content { font-size: 13px; }
   main.main-content :is(section, article, nav, div) { min-width: 0; box-sizing: border-box; }
-  main.main-content :is(p, li) { font-size: 13px; line-height: 1.6; }
-  main.main-content h1 { font-size: clamp(22px, 4vw, 28px); line-height: 1.25; }
-  main.main-content h2 { font-size: 20px; line-height: 1.35; }
-  main.main-content h3 { font-size: 15px; line-height: 1.4; }
-  main.main-content h4 { font-size: 14px; line-height: 1.4; }
+  main.main-content :is(p, li) { font-size: 12px !important; line-height: 1.6; }
+  main.main-content h1 { font-size: clamp(20px, 4vw, 24px) !important; line-height: 1.25; }
+  main.main-content h2 { font-size: 18px !important; line-height: 1.35; }
+  main.main-content h3 { font-size: 14px !important; line-height: 1.4; }
+  main.main-content h4 { font-size: 13px !important; line-height: 1.4; }
+  main.main-content .rich-text-content { font-size: 12px !important; }
+  main.main-content .rich-text-content :is(p,li,div,span) { font-size: inherit !important; line-height: 1.6; }
   main.main-content :is(.section-tag, .academic-features-eyebrow, .iapply-hero-tag, .ne-section-label) {
-    font-size: 10px; line-height: 1.4; letter-spacing: .12em;
+    font-size: 10px !important; line-height: 1.4; letter-spacing: .12em;
   }
   main.main-content .carousel-caption h2 { font-size: clamp(24px, 5vw, 32px); overflow-wrap: normal; }
 
@@ -33,6 +35,26 @@
     padding: 4px 0 12px !important;
   }
   main.main-content :is(.contents-cards, .students-cards, .academic-features-grid, .alphabetical-card-pages, .charter-grid-stack) > * { scroll-snap-align: start; }
+  html body main.main-content .cms-preview-editable :is(.contents-cards, .students-cards, .academic-features-grid,
+    .alphabetical-card-pages, .charter-grid-stack, .ne-card-grid, .students-orgs-grid, .officials-grid, .ls-gallery-grid, .aw-awards-grid, .aw-certs-list) {
+    display: grid !important;
+    grid-auto-flow: column !important;
+    grid-auto-columns: min(var(--compact-card-width), 100%) !important;
+    grid-template-columns: none !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    max-width: 100% !important;
+    gap: 12px !important;
+    padding-bottom: 12px !important;
+    scroll-snap-type: x proximity;
+    overscroll-behavior-inline: contain;
+    touch-action: pan-x pan-y;
+    -webkit-overflow-scrolling: touch;
+  }
+  html body[data-cms-preview] main.main-content .about-intro .campus-story-card::after {
+    background: none;
+    clip-path: none;
+  }
   main.main-content .alphabetical-card-pages > * {
     width: 100% !important; height: auto !important; min-height: 0 !important;
   }
@@ -44,8 +66,14 @@
   main.main-content :is(.contents-card-front, .contents-card-back, .students-card-front, .students-card-back) { border-radius: 12px; }
   main.main-content :is(.contents-card-copy, .students-card-copy) { min-height: 64px; padding: 10px 12px; }
   main.main-content :is(.contents-card-back, .students-card-back) { padding: 12px; }
-  main.main-content :is(.contents-card, .students-card) h3 { font-size: 13px; line-height: 1.35; }
-  main.main-content :is(.contents-card-overlay-copy, .students-card-overlay-copy) p { font-size: 12px; line-height: 1.45; }
+  main.main-content :is(.contents-card, .students-card, .academic-feature-card, .cards_information,
+    .news-mini-card, .announcement-mini-card, .ne-card, .student-qr-card, .ls-gallery-card, .charter-card) :is(h2,h3,h4) {
+    font-size: 11px !important; line-height: 1.4 !important; font-weight: 700;
+  }
+  main.main-content :is(.contents-card, .students-card, .news-mini-card, .announcement-mini-card,
+    .ne-card, .student-qr-card, .ls-gallery-card, .charter-card) :is(p,li) {
+    font-size: 12px !important; line-height: 1.5;
+  }
   main.main-content :is(.contents-card-action, .students-card-action) { font-size: 12px; padding: 8px 12px; min-height: 36px; }
   main.main-content :is(.academic-feature-card, .cards_information) { height: var(--compact-card-height) !important; min-height: 0 !important; padding: 12px; border-radius: 12px; overflow-y: auto; }
   main.main-content .academic-feature-card:focus-visible { outline: 2px solid currentColor; outline-offset: -3px; }
@@ -53,9 +81,13 @@
   main.main-content :is(.academic-feature-card, .cards_information) h3 { margin-bottom: 6px; font-size: 12px !important; }
   main.main-content :is(.academic-feature-card, .cards_information) p { font-size: 11px !important; line-height: 1.45 !important; }
   main.main-content .academic-feature-card .academic-feature-tag { font-size: 9px !important; }
-  main.main-content .academic-shell > .academic-breadcrumb { padding-block: 12px; margin-block: 0; line-height: 1.6; }
+  main.main-content .academic-shell { gap: 0; margin-block: 0; }
+  main.main-content .academic-shell > .academic-breadcrumb {
+    justify-content: center; gap: 6px; padding: 10px 0; margin: 0; font-size: 11px; line-height: 1.4; letter-spacing: .08em;
+  }
+  main.main-content .academic-shell > .academic-breadcrumb::before { display: none; }
   main.main-content .academic-shell + .students-contents-strip { margin-top: 0; }
-  main.main-content .dp-diploma-unhovered-title { font-size: 13px; min-height: 64px; padding: 10px 12px; }
+  main.main-content .dp-diploma-unhovered-title { font-size: 11px !important; min-height: 56px; padding: 8px; }
   main.main-content .dp-diploma-card-hovered { padding: 12px; }
   main.main-content .dp-program-card-trigger .dp-diploma-card-hovered { display: none; }
   main.main-content .dp-program-card-trigger .dp-diploma-card-unhovered { opacity: 1; }
@@ -88,11 +120,20 @@
   main.main-content .charter-card { height: var(--compact-card-height); border-radius: 12px; }
   main.main-content .charter-card-seal-wrap { padding: 14px; }
   main.main-content .charter-card-back { padding: 12px; overflow-y: auto; }
-  main.main-content .students-org-card { padding: 12px; min-height: 0; gap: 10px; }
-  main.main-content .students-org-img-wrap { height: 90px; }
-  main.main-content .students-org-img-wrap img { max-height: 84px; }
-  main.main-content .students-org-copy h3 { font-size: 12px; }
+  main.main-content .students-org-card { padding: 10px; min-height: 0; gap: 8px; border-radius: 12px; }
+  main.main-content .students-org-img-wrap { height: 56px; }
+  main.main-content .students-org-img-wrap img { max-height: 56px; max-width: 80px; }
+  main.main-content .students-org-copy h3 { font-size: 11px !important; line-height: 1.5; }
   main.main-content :is(.students-org-abbr, .official-role, .ne-card-date, .ne-featured-meta) { font-size: 11px; }
+  main.main-content .students-org-abbr { font-size: 10px !important; letter-spacing: .04em; }
+  main.main-content .map-hero-header { grid-template-columns: minmax(0,1fr); padding: 12px; gap: 10px; border-radius: 12px; }
+  main.main-content .map-hero-chips { flex-wrap: nowrap; justify-content: space-between; gap: 6px; margin-block: 10px; max-width: 100%; overflow-x: auto; }
+  main.main-content .map-chip {
+    flex: 0 0 auto; padding: 3px 0; border: 0; background: transparent;
+    font-size: 9px; line-height: 1.4; white-space: nowrap;
+  }
+  main.main-content .map-hero-cta { min-height: 32px; padding: 6px 10px; gap: 6px; font-size: 11px; }
+  main.main-content .map-hero-cta svg { width: 12px; height: 12px; }
   main.main-content .ne-card-img { height: 150px; }
   main.main-content :is(.ne-filter, .ne-btn-gold, .apply-now-btn, .student-page-cta, .ords-btn) {
     font-size: 12px; min-height: 40px; padding: 8px 12px; white-space: normal;
@@ -109,7 +150,7 @@
   main.main-content .ne-events-header { margin-bottom: 12px; }
   main.main-content .ne-events-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   main.main-content .ne-events-divider { display: none; }
-  main.main-content .ne-col-title { font-size: 11px; letter-spacing: .06em; gap: 5px; margin-bottom: 8px; }
+  main.main-content .ne-col-title { font-size: 10px !important; letter-spacing: .04em; gap: 4px; margin-bottom: 6px; }
   main.main-content .ne-event-item { flex-wrap: wrap; gap: 4px; padding: 8px; min-height: 64px; border-radius: 10px; }
   main.main-content .ne-event-date { font-size: 9px; }
   main.main-content .ne-event-name { font-size: 10px; line-height: 1.45; }
@@ -122,10 +163,103 @@
   main.main-content .research-story-layout { gap: 6px; }
   main.main-content .research-story-description,
   main.main-content .research-story-description :is(p, li) { font-size: 12px; line-height: 1.55; }
+  main.main-content .sdp-priorities-shell { padding: 12px; border-radius: 12px; }
+  main.main-content .sdp-block-header { gap: 6px; margin: 0 0 10px; }
+  main.main-content .sdp-block-header .ls-block-kicker { font-size: 9px; letter-spacing: .1em; }
+  main.main-content .sdp-block-header .ls-block-title { font-size: 16px !important; line-height: 1.4; }
+  main.main-content .sdp-priorities-grid { grid-auto-rows: auto; align-items: start; gap: 10px; }
+  main.main-content .sdp-priority-card {
+    min-height: 0; height: auto; padding: 12px; border-radius: 12px; gap: 8px; grid-template-rows: auto;
+  }
+  main.main-content .sdp-priority-header { align-items: center; gap: 8px; }
+  main.main-content .sdp-priority-index { min-width: 26px; min-height: 26px; font-size: 9px; }
+  main.main-content .sdp-priority-title { padding-top: 0; font-size: 12px !important; line-height: 1.4; }
+  main.main-content .sdp-priority-body { font-size: 11px !important; line-height: 1.6; }
+  main.main-content .sdp-priority-add-inner { padding: 8px; gap: 6px; }
+  main.main-content .sdp-priority-add-plus { font-size: 24px; }
   main.main-content :is(.ne-page-copy, .ne-featured-desc, .ne-card-desc, .research-story-description) [style*="font-size"] { font-size: 12px !important; }
   main.main-content :is(.student-link-row, .student-admissions-person) { padding: 12px; font-size: 13px; gap: 8px; }
   main.main-content .student-link-row { min-height: 44px; overflow-wrap: anywhere; }
+  main.main-content .student-link-row strong { font-size: 12px; line-height: 1.45; }
+  main.main-content .student-page-section-head h2 { font-size: 16px !important; line-height: 1.4; }
   main.main-content .ords-button { font-size: 13px; min-height: 40px; padding: 10px 16px; }
+
+  main.main-content :is(.campus-tour, .updates-section, .feedback-banner, .aw-hero-section) { padding-block: 24px !important; }
+  main.main-content :is(.feedback-form-panel, .feedback-hero-boundary, .feedback-rating-card, .sdp-document-section) { padding: 16px; }
+  main.main-content :is(.feedback-add-question-card, .student-link-add-button, .submit-btn, .campus-story-link, .ords-button) {
+    min-height: 36px !important; padding: 8px 12px !important; font-size: 12px !important; border-radius: 8px;
+  }
+  main.main-content :is(.cms-preview-chip, .cms-preview-card-action, .students-cms-preview-link-edit, .students-cms-preview-link-delete) {
+    min-width: 32px !important; min-height: 32px !important; height: 32px !important;
+    padding: 6px 8px !important; font-size: 12px !important; border-radius: 8px !important;
+  }
+  main.main-content :is(.official-card--add, .charter-add-card) { height: var(--compact-card-height) !important; min-height: 0 !important; padding: 16px; }
+  main.main-content .student-link-list { min-height: 0 !important; align-content: start; }
+  main.main-content .student-link-add-button { display: flex; align-items: center; justify-content: center; align-self: start; }
+  main.main-content .student-link-add-button > span > div { font-size: 12px !important; }
+  main.main-content .student-link-add-button > span > div:first-child { font-size: 20px !important; }
+  main.main-content .feedback-add-question-icon { width: 20px; height: 20px; font-size: 20px; line-height: 1; }
+  main.main-content .campus-tour-avp-title { font-size: 16px !important; }
+  main.main-content .student-admissions-contact-grid { gap: 12px; align-items: start; }
+  main.main-content .student-admissions-contact-panel { min-height: 0; padding: 10px; border-radius: 12px; }
+  main.main-content .student-admissions-contact-panel-head { padding: 10px; gap: 8px; }
+  main.main-content .student-admissions-contact-panel-head p { font-size: 10px !important; letter-spacing: .08em; }
+  main.main-content .student-admissions-contact-panel-head h4 { font-size: 11px !important; line-height: 1.4; }
+  main.main-content .student-admissions-contact-panel-icon { width: 20px; height: 20px; }
+  main.main-content .student-admissions-contact-summary { padding: 8px 4px; font-size: 11px !important; }
+  main.main-content :is(.student-admissions-contact-items,.student-admissions-person-grid) { padding: 0 4px; gap: 8px; }
+  main.main-content .student-admissions-contact-items::before { left: 20px; top: 24px; bottom: 16px; }
+  main.main-content .student-admissions-contact-item { grid-template-columns: 32px minmax(0,1fr) 16px; gap: 8px; padding: 8px 0; min-height: 44px; }
+  main.main-content .student-admissions-contact-item-icon { width: 32px; height: 32px; }
+  main.main-content .student-admissions-contact-item-icon svg { width: 18px; height: 18px; }
+  main.main-content :is(.student-admissions-contact-item-copy,.student-admissions-person-copy) strong { font-size: 11px; line-height: 1.4; }
+  main.main-content .student-admissions-contact-item-copy span { font-size: 12px; line-height: 1.4; }
+  main.main-content .student-admissions-person {
+    grid-template-columns: 32px minmax(0,1fr); min-height: 0; padding: 8px; gap: 6px 8px; border-radius: 10px;
+  }
+  main.main-content .student-admissions-person-avatar { width: 32px; height: 32px; }
+  main.main-content .student-admissions-person-copy span { font-size: 10px; line-height: 1.4; letter-spacing: .04em; }
+  main.main-content .student-admissions-person-divider { grid-column: 1 / -1; width: 100%; height: 1px; }
+  main.main-content .student-admissions-person-email { grid-column: 1 / -1; font-size: 11px; line-height: 1.4; }
+  main.main-content .student-qr-card { min-height: 0; padding: 12px; gap: 10px; }
+  main.main-content .student-qr-card :is(img,.student-qr-placeholder) { max-height: 160px; object-fit: contain; }
+
+  main.main-content :is(.iapply-hero,.dp-program-hero) { padding-block: 24px !important; }
+  main.main-content :is(.iapply-hero,.dp-program-hero) h1 { font-size: 20px !important; margin-bottom: 10px; }
+  main.main-content :is(.iapply-hero-sub,.iapply-hero-lede,.iapply-hero-body) { font-size: 12px !important; line-height: 1.6; }
+  main.main-content .iapply-hero-content.iapply-hero-content-spread { display: grid; grid-template-columns: minmax(0,1fr); gap: 12px; }
+  main.main-content .iapply-hero-actions {
+    flex-direction: row; flex-wrap: wrap; gap: 8px; margin-top: 0;
+    justify-content: flex-start !important; align-self: start !important; padding-bottom: 0 !important;
+  }
+  main.main-content .iapply-hero-actions :is(.apply-now-btn,.iapply-secondary-btn) {
+    width: auto !important; max-width: 100%; min-height: 36px; padding: 8px 12px;
+    font-size: 11px; line-height: 1.4; letter-spacing: .02em; gap: 6px;
+  }
+
+  main.main-content .about-vision-content { padding: 16px; gap: 8px; border-radius: 14px; }
+  main.main-content .about-vision-row { display: flex; flex-direction: column; align-items: stretch; min-height: 0; gap: 8px; }
+  main.main-content .about-vision-trigger,
+  main.main-content .about-vision-row.is-open .about-vision-trigger {
+    position: static; transform: none !important; order: 0; width: 100%; min-height: 44px;
+    justify-content: space-between; align-self: stretch; padding: 4px 0;
+  }
+  main.main-content .about-vision-word { font-size: 18px !important; line-height: 1.3; }
+  main.main-content .about-vision-arrow { width: 22px; height: 22px; order: 1; }
+  main.main-content .about-vision-panel { position: static; transform: none !important; order: 1; display: none; width: 100%; max-width: 100%; }
+  main.main-content .about-vision-row.is-open .about-vision-panel { display: block; }
+  main.main-content .about-vision-card { padding: 12px; max-width: 100%; }
+
+  main.main-content :is(.ls-gallery-panel-shell,.ls-gallery-container-card,.hymn-hero,.hymn-lyrics-block) { padding: 12px; border-radius: 12px; }
+  main.main-content .ls-gallery-two-col { gap: 10px; }
+  main.main-content .ls-gallery-container-card :is(h3,h4) { font-size: 12px !important; }
+  main.main-content .ls-gallery-links :is(a,span) { min-height: 36px; padding: 6px 10px; font-size: 11px; }
+  main.main-content .hymn-hero { gap: 12px; }
+  main.main-content .hymn-hero-ornament { width: 40px; height: 40px; }
+  main.main-content .hymn-tagline { font-size: 13px !important; line-height: 1.5; }
+  main.main-content :is(.hymn-line,.hymn-hero-desc,.hymn-meaning-item) { font-size: 12px !important; line-height: 1.6; }
+  main.main-content .hymn-listen-btn { min-height: 36px; padding: 6px 10px; font-size: 11px; gap: 6px; }
+  main.main-content .hymn-listen-icon { width: 20px; height: 20px; }
 
   :is(.dp-program-modal, .ne-modal-overlay, .student-qr-modal, .student-admissions-person-modal) { padding: 16px; }
   :is(.dp-program-modal-dialog, .ne-modal-card, .student-qr-modal-panel, .student-admissions-person-modal-panel) {
@@ -135,16 +269,29 @@
   :is(.dp-program-modal-copy, .ne-modal-content, .student-admissions-person-modal-copy) { padding: 16px; }
   :is(.dp-program-modal, .ne-modal-overlay, .student-qr-modal, .student-admissions-person-modal) :is(p, li) { font-size: 13px; line-height: 1.6; }
   :is(.dp-program-modal-heading, .ne-modal-title) { font-size: 20px; }
-  .dp-program-modal .dp-program-modal-heading { font-size: 18px; }
-  .dp-program-modal .dp-program-modal-subhead { font-size: 12px; }
-  .dp-program-modal .dp-program-modal-field-label { font-size: 10px; }
-  .dp-program-modal-head { padding-right: 48px; }
-  .dp-program-modal-fields-grid { gap: 10px; }
-  .dp-program-modal-field { padding: 12px; }
+  .dp-program-modal .dp-program-modal-dialog { width: min(100%, 560px); max-height: min(80dvh, 680px); }
+  .dp-program-modal .dp-program-modal-copy { padding: 12px; gap: 8px; }
+  main.main-content .dp-program-modal .dp-program-modal-heading { font-size: 14px !important; }
+  main.main-content .dp-program-modal .dp-program-modal-subhead { font-size: 11px !important; }
+  main.main-content .dp-program-modal .dp-program-modal-field-label { font-size: 10px !important; line-height: 1.4; }
+  main.main-content .dp-program-modal :is(.dp-program-modal-field-value,.dp-program-modal-body,.dp-program-modal-body p) { font-size: 11px !important; line-height: 1.6; }
+  .dp-program-modal-head { padding-right: 44px; gap: 4px; }
+  .dp-program-modal-fields-grid { gap: 6px; }
+  .dp-program-modal-field { padding: 8px; gap: 4px; border-radius: 8px; }
   .ne-modal-body { grid-template-columns: minmax(0, 1fr); max-height: none; overflow: visible; }
   .ne-modal-img-wrap { height: 180px; min-height: 0; }
   .ne-modal-content { max-height: none; overflow: visible; }
   :is(.dp-program-modal-close, .ne-modal-close, .student-qr-modal-close, .student-admissions-person-modal-close) { min-width: 40px; min-height: 40px; }
+  :is(.advisory-modal-card, .facility-modal-card, .modal-box) { max-width: calc(100vw - 24px); max-height: calc(100dvh - 24px); overflow-y: auto; border-radius: 12px; }
+  :is(.advisory-modal-copy, .facility-modal-header, .modal-box) { padding: 16px !important; }
+  :is(.advisory-modal-title, .facility-modal-title, .modal-box h3, .student-qr-modal h2, .student-admissions-person-modal h2) { font-size: 18px !important; line-height: 1.4; }
+  :is(.advisory-modal-text, .advisory-modal-date, .modal-box p, .student-qr-modal, .student-admissions-person-modal) { font-size: 12px; line-height: 1.6; }
+  .advisory-modal-card.has-media { height: auto; max-height: calc(100dvh - 24px); grid-template-rows: minmax(0,auto) minmax(0,1fr); }
+  .advisory-modal-card.has-media .advisory-modal-media { height: 220px; min-height: 0; }
+  .student-admissions-person-modal-panel { grid-template-columns: minmax(0,1fr); }
+  .student-admissions-person-modal-media { min-height: 0; max-height: 180px; }
+  .student-qr-modal-gallery { grid-template-columns: minmax(0,1fr); }
+  .student-qr-modal :is(img,.student-qr-modal-frame) { max-height: 240px; object-fit: contain; }
 }
 
 @media screen and (max-width: 599px) {
