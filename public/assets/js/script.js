@@ -940,7 +940,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (allImages.length === 1) {
          media.innerHTML = `
-           <div style="position:relative; width:100%; height:100%; padding:24px; box-sizing:border-box;">
+           <div style="position:relative; width:100%; height:100%;">
              ${expandBtnHtml}
              <img src="${allImages[0]}" alt="${decodeEscapedHtml(trigger.dataset.title || 'News image')}" id="advisoryModalImage" style="width:100%;height:100%;object-fit:contain;background:transparent;">
            </div>
@@ -950,10 +950,10 @@ document.addEventListener("DOMContentLoaded", () => {
              openAdvisoryFullscreen(allImages, 0);
          });
       } else {
-         let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden; padding:24px; box-sizing:border-box;">';
+         let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
          carouselHtml += expandBtnHtml;
          allImages.forEach((img, idx) => {
-             carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:24px; left:24px; width:calc(100% - 48px); height:calc(100% - 48px); object-fit:contain; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+             carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; inset:0; width:100%; height:100%; object-fit:contain; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
          });
          carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
          carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
