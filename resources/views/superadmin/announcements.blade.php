@@ -7,7 +7,7 @@
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}?v={{ filemtime(public_path('assets/css/announcement.css')) }}">
     <link rel="stylesheet" data-news-responsive href="{{ asset('assets/css/shared/cms-announcements-responsive.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-announcements-responsive.css')) }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">

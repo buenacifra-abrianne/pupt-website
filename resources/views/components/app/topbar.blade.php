@@ -458,7 +458,7 @@
     }
 
     /* Redesigned Custom Checkbox (Global) */
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
         -webkit-appearance: none;
         appearance: none;
         width: 18px;
@@ -479,12 +479,12 @@
         flex-shrink: 0;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
         background-color: #800000;
         border-color: #800000;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked::after {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked::after {
         content: "";
         position: absolute;
         width: 5px;
@@ -496,39 +496,39 @@
         top: 1px;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
         border-color: #a30000;
         box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
         box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.2);
         border-color: #a30000;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):disabled {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):disabled {
         background-color: #f3f3f3;
         border-color: #d3d3d3;
         cursor: not-allowed;
     }
 
     /* Dark Mode Checkbox Styles */
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
         border-color: #f0c85a;
         background-color: rgba(48, 22, 26, 0.92);
     }
 
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
         background-color: #800000;
         border-color: #800000;
     }
 
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
         border-color: #ffd978;
         box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.15);
     }
 
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
         box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.25);
         border-color: #ffd978;
     }
