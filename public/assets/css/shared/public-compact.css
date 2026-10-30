@@ -126,6 +126,14 @@
   main.main-content .students-org-copy h3 { font-size: 11px !important; line-height: 1.5; }
   main.main-content :is(.students-org-abbr, .official-role, .ne-card-date, .ne-featured-meta) { font-size: 11px; }
   main.main-content .students-org-abbr { font-size: 10px !important; letter-spacing: .04em; }
+  main.main-content .map-hero-header { grid-template-columns: minmax(0,1fr); padding: 12px; gap: 10px; border-radius: 12px; }
+  main.main-content .map-hero-chips { flex-wrap: nowrap; justify-content: space-between; gap: 6px; margin-block: 10px; max-width: 100%; overflow-x: auto; }
+  main.main-content .map-chip {
+    flex: 0 0 auto; padding: 3px 0; border: 0; background: transparent;
+    font-size: 9px; line-height: 1.4; white-space: nowrap;
+  }
+  main.main-content .map-hero-cta { min-height: 32px; padding: 6px 10px; gap: 6px; font-size: 11px; }
+  main.main-content .map-hero-cta svg { width: 12px; height: 12px; }
   main.main-content .ne-card-img { height: 150px; }
   main.main-content :is(.ne-filter, .ne-btn-gold, .apply-now-btn, .student-page-cta, .ords-btn) {
     font-size: 12px; min-height: 40px; padding: 8px 12px; white-space: normal;
