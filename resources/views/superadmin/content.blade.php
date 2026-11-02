@@ -68,6 +68,11 @@
     </script>
 
     <main class="main-content">
+        <div class="cms-history-toolbar">
+            <button type="button" class="cms-history-button" id="cms-history-open">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7M3 4v7h7M12 7v5l3 2"/></svg> Version history
+            </button>
+        </div>
 
         <nav class="tab-navigation" aria-label="CMS content sections">
             <ul class="tab-navigation-list" role="tablist">
@@ -233,6 +238,8 @@
         @endforeach
     </main>
 
+@include('superadmin.partials.cms-version-history')
+
 <style>
     :root {
         --cms-tab-bleed: 30px;
@@ -257,9 +264,10 @@
     }
 
     .tab-navigation-list {
-        --cms-tab-gap: 52px;
+        --cms-tab-gap: 8px;
         display: flex;
-        justify-content: center;
+        flex-wrap: nowrap;
+        justify-content: space-between;
         align-items: stretch;
         gap: var(--cms-tab-gap);
         list-style: none;
@@ -272,7 +280,10 @@
 
     .tab-navigation-item {
         position: relative;
-        flex: 1 1 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        justify-content: center;
     }
 
     .tab-navigation-item:hover,
@@ -371,6 +382,12 @@
         text-transform: uppercase;
         white-space: nowrap;
         transition: color 0.24s ease, transform 0.24s ease, text-shadow 0.24s ease;
+    }
+
+    body.cms-shell .tab-navigation .cms-tab-btn {
+        white-space: nowrap;
+        overflow-wrap: normal;
+        word-break: normal;
     }
 
     .cms-tab-btn::after {
@@ -1397,6 +1414,6 @@ document.addEventListener('DOMContentLoaded', function () {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

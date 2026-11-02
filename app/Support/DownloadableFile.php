@@ -2,15 +2,18 @@
 
 namespace App\Support;
 
-use Illuminate\Support\Facades\App;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\Storage;
 use Throwable;
 
 class DownloadableFile
 {
     private const PRIMARY_DISK = 's3';
+
     private const FALLBACK_DISK = 'public';
+
     private const MAX_BYTES = 20 * 1024 * 1024;
 
     public static function store(UploadedFile $file, string $directory = 'downloadables'): string|false
@@ -30,6 +33,9 @@ class DownloadableFile
 
     public static function delete(?string $path): void
     {
+        if (Schema::hasTable('cms_content_versions')) {
+            return; // Retain attachments referenced by historical database backups.
+        }
         $value = trim((string) $path);
 
         if ($value === '' || self::isExternal($value)) {
@@ -71,7 +77,7 @@ class DownloadableFile
         if (App::environment('local')) {
             try {
                 if (Storage::disk(self::FALLBACK_DISK)->exists($normalized)) {
-                    return asset('storage/' . $normalized);
+                    return asset('storage/'.$normalized);
                 }
             } catch (Throwable) {
             }
@@ -88,16 +94,16 @@ class DownloadableFile
             }
         }
 
-        return asset('storage/' . $normalized);
+        return asset('storage/'.$normalized);
     }
 
     public static function validationError(?UploadedFile $file): ?string
     {
-        if (!$file) {
+        if (! $file) {
             return null;
         }
 
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             return 'File upload failed during transfer.';
         }
 

@@ -8,10 +8,10 @@
     $isContentPage = request()->routeIs('*.content');
 @endphp
 <style>
-/* Make the entire sidebar fit and disable scrolling */
+/* The links scroll independently while the sidebar footer stays visible. */
 .sidebar {
     overflow-y: hidden !important;
-    padding-bottom: 50px !important; /* Space for the absolute footer */
+    padding-bottom: 0 !important;
     background: linear-gradient(180deg, #6c0202 0%, #7f0606 55%, #510000 100%) !important;
 }
 
@@ -126,7 +126,7 @@
                 <i class="fas fa-clipboard-check"></i>
                 <span>Pending Approvals</span>
                 @if(($pendingApprovalCount ?? 0) > 0)
-                    <span style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($pendingApprovalCount ?? 0) > 99 ? '99+' : ($pendingApprovalCount ?? 0) }}</span>
+                    <span class="sidebar-count-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($pendingApprovalCount ?? 0) > 99 ? '99+' : ($pendingApprovalCount ?? 0) }}</span>
                 @endif
             </a>
         </li>
@@ -209,7 +209,7 @@
                 <i class="fas fa-bell"></i>
                 <span>Notifications</span>
                 @if(($unreadNotificationCount ?? 0) > 0)
-                    <span class="unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : ($unreadNotificationCount ?? 0) }}</span>
+                    <span class="sidebar-count-badge unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : ($unreadNotificationCount ?? 0) }}</span>
                 @endif
             </a>
         </li>
@@ -223,11 +223,12 @@
         </li>
         @endif
 
-        <li class="sidebar-footer-text" style="position: absolute; bottom: 0; left: 0; right: 0; text-align: center; color: #ffffff; font-size: 12px; font-style: italic; border-top: 1px solid rgba(255,255,255,0.1); padding: 15px 0; background: inherit; z-index: 10; line-height: 1.5;">
-            Mula Sa'yo, Para sa Bayan<br>
-            <span style="font-weight: bold; opacity: 0.7; font-size: 10px; font-style: normal;">PUPT CMS V.2026</span>
-        </li>
     </ul>
+    <footer class="sidebar-footer-text">
+        <hr>
+        <span>Mula Sa'yo, Para sa Bayan</span>
+        <span class="sidebar-footer-version">PUPT CMS V.2026</span>
+    </footer>
 </nav>
 
 <script>

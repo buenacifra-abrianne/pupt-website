@@ -1567,6 +1567,155 @@ body.pup-dark-mode .empty {
     color: #906060 !important;
 }
 
+/* Audit-only adaptation: the same semantic rows become cards below desktop. */
+.cms-audit-page :is(.audit-field-label, .audit-view-label, .audit-page-status) { display: none; }
+.cms-audit-page .audit-sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+body.cms-shell .cms-audit-page .audit-records.cms-table-scroll {
+    max-height: none;
+    overflow: visible;
+    scrollbar-gutter: auto;
+}
+body.cms-shell .cms-audit-page .audit-records > .audit-table { min-width: 0; }
+.cms-audit-page .desc-text { display: block; -webkit-line-clamp: unset; overflow: visible; }
+.cms-audit-page .ip-text { white-space: normal; overflow: visible; overflow-wrap: anywhere; }
+.cms-audit-page .action-badge { overflow: visible; }
+.cms-audit-page :is(button, input):focus-visible,
+#logModal button:focus-visible { outline: 2px solid #9a6700; outline-offset: 3px; }
+
+@media (max-width: 1439px) {
+    .cms-audit-page .date-range-custom-wrap:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .cms-audit-page .date-range-custom-wrap .filter-field { min-width: 0; width: 100%; }
+    .cms-audit-page .date-range-custom-wrap input { min-width: 0; }
+    .cms-audit-page .date-range-separator { text-align: center; }
+}
+
+@media (min-width: 1025px) {
+    body.cms-shell .cms-audit-page .filter-bar { grid-template-columns: minmax(0, 2fr) minmax(0, 1.1fr) minmax(0, 1.35fr) auto; }
+    body.cms-shell .cms-audit-page .filter-bar > :is(.filter-field, .audit-date-range-wrap, .btn-outline) { grid-column: auto; }
+}
+
+/* Preserve table styling while sharing a narrower desktop column with the sidebar. */
+@media (min-width: 1025px) and (max-width: 1439px) {
+    .cms-audit-page .audit-table col.col-idx { width: 32px; }
+    .cms-audit-page .audit-table col.col-user { width: 18%; }
+    .cms-audit-page .audit-table col.col-action { width: 12%; }
+    .cms-audit-page .audit-table col.col-module { width: 12%; }
+    .cms-audit-page .audit-table col.col-ip { width: 11%; }
+    .cms-audit-page .audit-table col.col-time { width: 14%; }
+    .cms-audit-page .audit-date-range-wrap .date-range-selector { flex-wrap: wrap; }
+    .cms-audit-page .audit-date-range-wrap .date-range-selector > label { flex-basis: 100%; }
+}
+
+@media (max-width: 1024px) {
+    body.cms-shell .cms-audit-page .audit-records { border: 0; background: transparent !important; border-radius: 0; }
+    body.cms-shell .cms-audit-page .audit-records > .audit-table { display: block; width: 100%; table-layout: auto; }
+    .cms-audit-page .audit-table colgroup { display: none; }
+    /* Keep column headers in the accessibility tree when their visual row is absent. */
+    body.cms-shell .cms-audit-page .audit-records > .audit-table > thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+    .cms-audit-page #logBody { display: grid; gap: 12px; }
+    .cms-audit-page #logBody > tr {
+        display: grid;
+        grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas: "user user action" "module timestamp view" "description description description" "ip ip index";
+        align-items: start;
+        gap: 16px;
+        padding: 18px;
+        border: 1px solid var(--admin-panel-border, #ead8d0);
+        border-radius: 14px;
+        background: #fffdf9;
+        box-shadow: 0 3px 12px rgba(35, 5, 5, .04);
+    }
+    .cms-audit-page #logBody > tr:hover { background: #fcf7ef; }
+    .cms-audit-page #logBody > tr > td {
+        display: block;
+        width: auto;
+        min-width: 0;
+        max-width: 100%;
+        padding: 0;
+        border: 0;
+        overflow: visible;
+        text-align: left;
+        overflow-wrap: anywhere;
+    }
+    .cms-audit-page .col-idx-cell { grid-area: index; align-self: end; color: #6d5a5a !important; }
+    .cms-audit-page .col-user-cell { grid-area: user; }
+    .cms-audit-page .col-action-cell { grid-area: action; }
+    .cms-audit-page .col-module-cell { grid-area: module; }
+    .cms-audit-page .desc-cell { grid-area: description; padding-top: 14px !important; border-top: 1px solid var(--admin-panel-border, #ead8d0) !important; }
+    .cms-audit-page .col-ip-cell { grid-area: ip; }
+    .cms-audit-page .col-time-cell { grid-area: timestamp; }
+    .cms-audit-page .col-view-cell { grid-area: view; justify-self: end; align-self: center; }
+    .cms-audit-page .audit-field-label { display: block; margin-bottom: 5px; color: #6d5a5a; font-size: 11px; font-weight: 600; line-height: 1.4; }
+    .cms-audit-page .col-idx-cell .audit-field-label { display: inline; margin-right: 5px; }
+    .cms-audit-page :is(.desc-text, .uname) { font-size: 13px; line-height: 1.5; }
+    .cms-audit-page :is(.urole, .ip-text, .time-text) { font-size: 12px; line-height: 1.5; }
+    .cms-audit-page :is(.urole, .ip-text) { color: #6d5a5a; }
+    .cms-audit-page .time-ago { color: #6d5a5a; white-space: normal; }
+    .cms-audit-page .audit-view-label { display: inline; }
+    .cms-audit-page .btn-view-sm { width: auto; min-width: 44px; min-height: 44px; height: auto; padding: 10px 12px; gap: 6px; font-size: 12px; line-height: 1.4; }
+    .cms-audit-page .audit-empty-row { grid-template-areas: none !important; grid-template-columns: minmax(0, 1fr) !important; }
+    .cms-audit-page .audit-empty-row .empty { padding: 20px 0; }
+    body.cms-shell .cms-audit-page .filter-bar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    body.cms-shell .cms-audit-page .filter-bar > :is(.filter-field, .audit-date-range-wrap, .btn-outline) { grid-column: auto; }
+    .cms-audit-page .audit-date-range-wrap .date-range-selector { flex-wrap: wrap; }
+    .cms-audit-page .audit-date-range-wrap .date-range-selector > label { flex-basis: 100%; }
+    .cms-audit-page .filter-bar > button { min-height: 44px; align-self: end; }
+    .cms-audit-page .tab-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+    #logModal .audit-detail-summary { flex-wrap: wrap; }
+    #logModal .detail-row { display: grid; grid-template-columns: minmax(0, 1fr); gap: 5px; }
+    #logModal .detail-value { min-width: 0; overflow-wrap: anywhere; }
+    #logModal .cbtn { min-width: 44px; min-height: 44px; }
+    body.pup-dark-mode .cms-audit-page :is(.audit-field-label, .col-idx-cell, .urole, .time-ago) { color: #d4bfb7 !important; }
+}
+
+@media (max-width: 767px) {
+    .cms-audit-page #logBody > tr {
+        grid-template-columns: minmax(0, 1fr) minmax(0, .7fr);
+        grid-template-areas: "user action" "module module" "description description" "ip ip" "timestamp timestamp" "index view";
+        padding: 16px;
+        gap: 14px;
+    }
+    body.cms-shell .cms-audit-page .filter-bar { grid-template-columns: minmax(0, 1fr); }
+    body.cms-shell .cms-audit-page .filter-bar > * { width: 100%; }
+    .cms-audit-page .date-range-custom-wrap:not([hidden]) { display: grid; grid-template-columns: minmax(0, 1fr); }
+    .cms-audit-page .date-range-separator { text-align: center; }
+    .cms-audit-page .pagination { flex-direction: column; align-items: stretch; gap: 12px; }
+    .cms-audit-page .page-info { text-align: center; font-size: 12px; }
+    .cms-audit-page .page-btns { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 10px; width: 100%; }
+    .cms-audit-page #pageBtns > .pbtn:not(#prevBtn):not(#nextBtn) { display: none; }
+    .cms-audit-page #pageBtns > :is(#prevBtn, #nextBtn) { width: 44px; height: 44px; }
+    .cms-audit-page .audit-page-status { display: block; align-self: center; text-align: center; font-size: 12px; }
+}
+
+@media (max-width: 479px) {
+    .cms-audit-page #logBody > tr {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas: "user" "action" "module" "description" "ip" "timestamp" "index" "view";
+        padding: 14px;
+        gap: 12px;
+    }
+    .cms-audit-page .col-view-cell { justify-self: stretch; }
+    .cms-audit-page .btn-view-sm { width: 100%; }
+}
+
 
 
 

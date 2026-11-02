@@ -397,7 +397,8 @@ class CmsController extends Controller
             'students.pages.*.qr_codes.title' => ['nullable', 'string', 'max:255'],
             'students.pages.*.qr_codes.items' => ['nullable', 'array'],
             'students.pages.*.qr_codes.items.*.label' => ['nullable', 'string', 'max:255'],
-            'students.pages.*.qr_codes.items.*.description' => ['nullable', 'string', 'max:50'],
+            'students.pages.*.qr_codes.items.*.description' => ['nullable', 'string'],
+            'students.pages.admissions.qr_codes.items.*.description' => ['nullable', 'string', 'max:50'],
             'students.pages.*.qr_codes.items.*.href' => ['nullable', 'string', 'max:2048'],
             'students.pages.*.qr_codes.items.*.image' => ['nullable', 'string', 'max:2048'],
             'students.pages.*.qr_codes.items.*.flyer_image' => ['nullable', 'string', 'max:2048'],
@@ -1017,25 +1018,10 @@ class CmsController extends Controller
             ]);
         }
 
-        if ($existing) {
-            DB::table('cms_contents')
-                ->where('tab_key', $tabKey)
-                ->update([
-                    'title' => $title,
-                    'content' => $content,
-                    'updated_by' => (int) (session('user_id') ?? 0),
-                    'updated_at' => now(),
-                ]);
-        } else {
-            DB::table('cms_contents')->insert([
-                'tab_key' => $tabKey,
-                'title' => $title,
-                'content' => $content,
-                'updated_by' => (int) (session('user_id') ?? 0),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
-        }
+        \App\Support\CmsVersionHistory::publish(
+            $tabKey, $title, $content, 'direct_save', $sectionKey,
+            \App\Support\CmsVersionHistory::checksum($existing)
+        );
 
         $auditMessage = 'Updated '.$tabLabel.' content directly as admin.';
         if (in_array($tabKey, ['home', 'about', 'academics', 'students', 'research_extension', 'events'], true) && $sectionLabel !== '') {

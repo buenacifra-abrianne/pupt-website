@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <title>PUP Taguig - Staff Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ filemtime(public_path('assets/css/dashboard.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/dashboard.css')) }}">
 </head>
 <body>
     <!-- Sidebar -->
@@ -18,14 +18,14 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-dashboard">
         <!-- ========================= -->
         <!-- ✅ TAB 1: DASHBOARD -->
         <!-- ========================= -->
 
 
             <!-- Stats Cards -->
-            <div class="stats-grid">
+            <div class="stats-grid cms-summary-grid">
             <div class="stat-card">
                 <div class="stat-icon maroon">
                     <i class="fas fa-hourglass-half"></i>
@@ -57,14 +57,15 @@
             <div class="content-grid">
                 <!-- Recent Notifications -->
                 <div class="card">
-                    <div class="card-header">
+                    <header class="card-header cms-dashboard-feed-header">
                         <h2 class="card-title">Recent Notifications</h2>
                         <div style="display:flex; gap:10px;">
                             <a class="btn btn-outline btn-sm" href="{{ route('staff.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
-                    </div>
+                    </header>
+                    <hr class="cms-dashboard-feed-divider">
 
                     <div class="card-body-scroll">
                         @if(!empty($recent_notifications) && count($recent_notifications) > 0)
@@ -394,7 +395,7 @@ async function postJSON(url, data) {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
 

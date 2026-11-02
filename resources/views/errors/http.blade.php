@@ -6,7 +6,7 @@
     <title>{{ $statusCode }} {{ $headline }} - PUP Taguig Campus</title>
     <meta name="theme-color" content="#8B0000">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
-    <link rel="stylesheet" href="{{ asset('assets/css/errors.css') }}?v={{ filemtime(public_path('assets/css/errors.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/errors.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/errors.css')) }}">
 </head>
 <body class="error-page">
     <main class="error-shell">

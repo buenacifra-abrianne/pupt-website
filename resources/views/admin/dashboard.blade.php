@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <title>PUP Taguig - Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ filemtime(public_path('assets/css/dashboard.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/dashboard.css')) }}">
 </head>
 <body>
     <!-- Sidebar -->
@@ -18,17 +18,27 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-dashboard">
+
+        @php
+            $showLinkMonitoring = request('tab') === 'link-monitoring' && \App\Support\CmsSections::normalizeRole((string) session('user_role')) === 'ADMIN';
+        @endphp
+        @if(\App\Support\CmsSections::normalizeRole((string) session('user_role')) === 'ADMIN')
+            <nav class="top-tabs" aria-label="Dashboard pages">
+                <a class="top-tab-btn {{ !$showLinkMonitoring ? 'active' : '' }}" href="{{ route('admin.dashboard') }}"><i class="fas fa-home" aria-hidden="true"></i> Dashboard</a>
+                <a class="top-tab-btn {{ $showLinkMonitoring ? 'active' : '' }}" href="{{ route('admin.dashboard', ['tab' => 'link-monitoring']) }}"><i class="fas fa-link" aria-hidden="true"></i> Link Monitoring</a>
+            </nav>
+        @endif
 
         <!-- ========================= -->
         <!-- ✅ TAB 1: DASHBOARD -->
         <!-- ========================= -->
-        <div id="dashboardTab" class="top-tab-content active">
+        <div id="dashboardTab" class="top-tab-content {{ !$showLinkMonitoring ? 'active' : '' }}">
 
 
 
             <!-- Stats Cards -->
-            <div class="stats-grid">
+            <div class="stats-grid cms-summary-grid">
 
                 <div class="stat-card">
                     <div class="stat-card-head">
@@ -108,7 +118,7 @@
             <div class="content-grid">
                 <!-- Recent Notifications -->
                 <div class="card">
-                    <div class="card-header">
+                    <header class="card-header cms-dashboard-feed-header">
                         <div class="card-header-main">
                             <h2 class="card-title">Recent Notifications</h2>
                         </div>
@@ -117,7 +127,8 @@
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
-                    </div>
+                    </header>
+                    <hr class="cms-dashboard-feed-divider">
 
                     <div class="card-body-scroll">
                         @if(!empty($recent_notifications) && count($recent_notifications) > 0)
@@ -174,6 +185,11 @@
 
             </div>
         </div>
+        @if(\App\Support\CmsSections::normalizeRole((string) session('user_role')) === 'ADMIN')
+            <div id="linkMonitoringTab" class="top-tab-content {{ $showLinkMonitoring ? 'active' : '' }}">
+                @include('partials.dashboard_link_monitoring')
+            </div>
+        @endif
     </main>
 
     <div class="modal" id="addUserModal">
@@ -598,7 +614,7 @@ async function postJSON(url, data) {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
 

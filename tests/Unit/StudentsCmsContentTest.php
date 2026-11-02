@@ -7,6 +7,33 @@ use PHPUnit\Framework\TestCase;
 
 class StudentsCmsContentTest extends TestCase
 {
+    public function test_document_request_descriptions_survive_saving_and_reloading_without_truncation(): void
+    {
+        $description = str_repeat("Request your transcript and follow the payment instructions.\n", 120).'Final reminder.';
+        $result = StudentsCmsContent::fromInput([
+            'pages' => [
+                'document-requests' => [
+                    'qr_codes' => [
+                        'items' => [[
+                            'label' => 'Transcript request',
+                            'description' => $description,
+                            'href' => 'https://example.com/request',
+                            'image' => 'assets/static_img/qr.png',
+                            'flyer_image' => 'assets/static_img/process.png',
+                        ]],
+                    ],
+                ],
+            ],
+        ], null);
+
+        $reloaded = StudentsCmsContent::fromInput([], StudentsCmsContent::encode($result));
+        $item = $reloaded['pages']['document-requests']['qr_codes']['items'][0];
+
+        $this->assertSame($description, $item['description']);
+        $this->assertSame('assets/static_img/qr.png', $item['image']);
+        $this->assertSame('assets/static_img/process.png', $item['flyer_image']);
+    }
+
     public function test_from_cards_input_replaces_existing_cards_without_reusing_deleted_positions(): void
     {
         $stored = StudentsCmsContent::encode([

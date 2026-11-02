@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <title>PUP Taguig - Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ filemtime(public_path('assets/css/dashboard.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/dashboard.css')) }}">
 </head>
 <body>
     <!-- Sidebar -->
@@ -18,7 +18,7 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-dashboard">
 
         <!-- ✅ NEW TOP-LEVEL TAB NAVIGATION -->
         <div class="top-tabs">
@@ -31,6 +31,9 @@
             <button class="top-tab-btn" onclick="switchTopTab('databaseBackupTab', this)">
                 <i class="fas fa-database"></i> Database Backup
             </button>
+            <button class="top-tab-btn" onclick="switchTopTab('linkMonitoringTab', this)">
+                <i class="fas fa-link" aria-hidden="true"></i> Link Monitoring
+            </button>
         </div>
 
         <!-- ========================= -->
@@ -42,20 +45,24 @@
 
             <!-- Stats Cards -->
             <!-- Stats Cards -->
-            <div class="stats-grid" style="grid-template-columns: 1fr 2.5fr;">
+            <div class="stats-grid cms-summary-grid" style="grid-template-columns: 1fr 2.5fr;">
 
                 <div class="stat-card" style="align-items: center;">
-                    <div class="stat-icon no-bg maroon" style="font-size: 42px;">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <div class="stat-info" style="flex: 1;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px;">
-                            <div class="stat-label" style="margin-bottom:0; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">Pending Approvals</div>
-                            <a class="btn btn-outline" href="{{ route('superadmin.approvals.pending') }}" style="border-radius: 20px; padding: 4px 12px; font-size: 10px; font-weight: 600; min-width: auto; height: auto; white-space: nowrap;">
-                                <i class="fas fa-eye"></i> View All
-                            </a>
+                    <div class="stat-card-head">
+                        <div class="stat-card-title-wrap">
+                            <div class="stat-icon no-bg maroon" style="font-size: 42px;">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-heading-group">
+                                <div class="stat-label" style="margin-bottom:0; font-weight: 700; text-transform: uppercase; font-size: 10px; letter-spacing: 0.5px;">Pending Approvals</div>
+                                <div class="stat-value" style="font-size: 36px; color: var(--admin-primary); margin-bottom: 6px;">{{ $pendingApprovals ?? 0 }}</div>
+                            </div>
                         </div>
-                        <div class="stat-value" style="font-size: 36px; color: var(--admin-primary); margin-bottom: 6px;">{{ $pendingApprovals ?? 0 }}</div>
+                        <a class="btn btn-outline stat-action-btn" href="{{ route('superadmin.approvals.pending') }}" style="border-radius: 20px; padding: 4px 12px; font-size: 10px; font-weight: 600; min-width: auto; height: auto; white-space: nowrap;">
+                            <i class="fas fa-eye"></i> View All
+                        </a>
+                    </div>
+                    <div class="stat-info">
                         <div class="stat-change positive" style="font-size: 11px; font-weight: 500;">
                             <i class="fas fa-database"></i> Live From Database
                         </div>
@@ -64,12 +71,12 @@
 
                 <div class="stat-card" style="align-items: center; justify-content: space-between; padding: 25px 35px; border: 1px solid #fee2e2; background-color: #fcfcfc; border-radius: 12px; flex-wrap: wrap; gap: 20px;">
                     <!-- Left Section -->
-                    <div style="display: flex; align-items: center; gap: 25px;">
+                    <div class="cms-uptime-summary" style="display: flex; align-items: center; gap: 25px;">
                         <i class="fas fa-battery-full" style="font-size: 4.5rem; color: #800000;"></i>
-                        <div style="display: flex; flex-direction: column;">
+                        <div class="cms-uptime-copy" style="display: flex; flex-direction: column;">
                             <span style="font-size: 11px; font-weight: 800; color: #800000; letter-spacing: 0.5px; text-transform: uppercase;">System Uptime</span>
-                            <span style="font-size: 3.5rem; font-weight: 900; color: #000; line-height: 1.1; margin-bottom: 5px; font-family: 'Inter', sans-serif;">{{ $uptime['percent'] ?? '—' }}</span>
-                            <span style="font-size: 12px; font-weight: 600; color: #800000; display: flex; align-items: center; gap: 6px;">
+                            <span class="cms-uptime-value" style="font-size: 3.5rem; font-weight: 900; color: #000; line-height: 1.1; margin-bottom: 5px; font-family: 'Inter', sans-serif;">{{ $uptime['percent'] ?? '—' }}</span>
+                            <span class="cms-uptime-status" style="font-size: 12px; font-weight: 600; color: #800000; display: flex; align-items: center; gap: 6px;">
                                 <i class="fas {{ ($uptime['ok'] ?? false) ? 'fa-check-circle' : 'fa-exclamation-circle' }}"></i> 
                                 <span>{{ ($uptime['ok'] ?? false) ? 'All systems operational' : 'Check system health' }} &bull;</span> 
                                 <span style="color: #666; font-weight: 500;">Up for {{ $uptime['human'] ?? '—' }}</span>
@@ -78,9 +85,9 @@
                     </div>
                     
                     <!-- Right Section (Timeline) -->
-                    <div style="flex: 1; max-width: 550px; min-width: 300px; display: flex; flex-direction: column; background: #fff; padding: 15px 20px; border-radius: 10px; border: 1px solid #eaeaea; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
+                    <div class="cms-uptime-timeline" style="flex: 1; max-width: 550px; min-width: 300px; display: flex; flex-direction: column; background: #fff; padding: 15px 20px; border-radius: 10px; border: 1px solid #eaeaea; box-shadow: 0 2px 8px rgba(0,0,0,0.02);">
                         <span style="font-size: 10px; font-weight: 800; color: #666; letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase;">Uptime Overview</span>
-                        <div style="display: flex; gap: 2px; align-items: stretch; height: 22px; margin-bottom: 8px;">
+                        <div class="cms-uptime-bars" style="display: flex; gap: 2px; align-items: stretch; height: 22px; margin-bottom: 8px;">
                             @for ($i = 0; $i < 65; $i++)
                                 <div style="flex: 1; background-color: #800000; border-radius: 2px; opacity: {{ 0.7 + (rand(0, 30) / 100) }};"></div>
                             @endfor
@@ -129,14 +136,15 @@
 
             <!-- Recent Activity -->
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
+                <header class="card-header cms-dashboard-feed-header">
+                    <h2 class="card-title"><i class="fas fa-history" aria-hidden="true"></i> Recent Activity</h2>
                     <div style="display:flex; gap:10px;">
                         <a class="btn btn-outline btn-sm" href="{{ route('superadmin.audit') ?? '#' }}">
                             <i class="fas fa-eye"></i> View All
                         </a>
                     </div>
-                </div>
+                </header>
+                <hr class="cms-dashboard-feed-divider">
 
                 <div class="card-body-scroll">
                     @forelse($recentActivities as $a)
@@ -184,14 +192,15 @@
             </div>
                 <!-- Recent Notifications -->
                 <div class="card">
-                    <div class="card-header">
+                    <header class="card-header cms-dashboard-feed-header">
                         <h2 class="card-title">Recent Notifications</h2>
                         <div style="display:flex; gap:10px;">
                             <a class="btn btn-outline btn-sm" href="{{ route('superadmin.notifications') ?? '#' }}">
                                 <i class="fas fa-eye"></i> View All
                             </a>
                         </div>
-                    </div>
+                    </header>
+                    <hr class="cms-dashboard-feed-divider">
 
                     <div class="card-body-scroll">
                         @if(!empty($recent_notifications) && count($recent_notifications) > 0)
@@ -252,14 +261,18 @@
         <!-- ========================= -->
         <!-- ✅ TAB 2: DATABASE BACKUP -->
         <!-- ========================= -->
-        <div id="databaseBackupTab" class="top-tab-content">
+        <div id="databaseBackupTab" class="top-tab-content" data-compact-controls>
             @include('superadmin.partials.dashboard-database-backups')
+        </div>
+
+        <div id="linkMonitoringTab" class="top-tab-content">
+            @include('partials.dashboard_link_monitoring')
         </div>
 
         <!-- ========================= -->
         <!-- ✅ TAB 3: ANALYTICS -->
         <!-- ========================= -->
-        <div id="analyticsTab" class="top-tab-content">
+        <div id="analyticsTab" class="top-tab-content" data-compact-controls>
 
 
 
@@ -940,7 +953,7 @@
         const requestedTab = new URLSearchParams(window.location.search).get('tab');
         const requestedTopTab = requestedTab === 'database-backups'
             ? 'databaseBackupTab'
-            : (requestedTab === 'analytics' ? 'analyticsTab' : '');
+            : (requestedTab === 'link-monitoring' ? 'linkMonitoringTab' : (requestedTab === 'analytics' ? 'analyticsTab' : ''));
 
         const saved = isTermsConsentPending()
             ? 'dashboardTab'
@@ -1616,7 +1629,7 @@ function exportPdf() {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
 

@@ -125,7 +125,7 @@ class TrackPublicAnalytics
             return false;
         }
 
-        if ($request->ajax() || $request->expectsJson()) {
+        if ($request->ajax() || $request->expectsJson() || $request->userAgent() === 'PUP-LinkMonitor/1.0') {
             return false;
         }
 

@@ -7,13 +7,14 @@
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}?v={{ filemtime(public_path('assets/css/announcement.css')) }}">
+    <link rel="stylesheet" data-news-responsive href="{{ asset('assets/css/shared/cms-announcements-responsive.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-announcements-responsive.css')) }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
     @include('partials.cms_image_editor_assets')
 </head>
-<body>
+<body class="cms-announcements-page">
     <!-- Sidebar -->
     <x-app.sidebar />
 
@@ -47,19 +48,21 @@
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage Announcements</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage Announcements</h3>
+                    </div>
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkAnnouncementSelection">
-                        <input type="checkbox" id="bulkAnnouncementSelection" hidden>
-                        <span id="announcementSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" disabled>
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkAnnouncementSelection">
+                            <input type="checkbox" id="bulkAnnouncementSelection" hidden>
+                            <span id="announcementSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" title="Delete Selected" aria-label="Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Delete<span class="cms-bulk-label-extra"> Selected</span></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -163,27 +166,29 @@
         <!-- News Tab -->
         <div id="news" class="tab-content active">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage News</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage News</h3>
+                    </div>
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkNewsSelection">
-                        <input type="checkbox" id="bulkNewsSelection" hidden>
-                        <span id="newsSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        @if($hasNewsHiddenColumn ?? false)
-                            <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" disabled>
-                                <i class="fas fa-eye-slash"></i> Hide from Public
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkNewsSelection">
+                            <input type="checkbox" id="bulkNewsSelection" hidden>
+                            <span id="newsSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            @if($hasNewsHiddenColumn ?? false)
+                                <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" title="Hide from Public" aria-label="Hide from Public" disabled>
+                                    <i class="fas fa-eye-slash"></i> <span>Hide<span class="cms-bulk-label-extra"> from Public</span></span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" title="Show in Public" aria-label="Show in Public" disabled>
+                                    <i class="fas fa-eye"></i> <span>Show<span class="cms-bulk-label-extra"> in Public</span></span>
+                                </button>
+                            @endif
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" title="Delete Selected" aria-label="Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Delete<span class="cms-bulk-label-extra"> Selected</span></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" disabled>
-                                <i class="fas fa-eye"></i> Show in Public
-                            </button>
-                        @endif
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" disabled>
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                        </div>
                     </div>
                 </div>
 
@@ -212,7 +217,7 @@
                             </label>
 
                             <div class="news-image">
-                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:contain; background:#080808;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
                             </div>
 
                             <div class="news-content">
@@ -290,7 +295,7 @@
                             </label>
 
                             <div class="news-image">
-                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:cover;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
+                                <img src="{{ \App\Support\NewsImage::url($news->image_path, 'assets/static_img/pupillar.jpeg') }}" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}" onerror="this.onerror=null;this.src=this.dataset.fallbackSrc;" style="width:100%; height:150px; object-fit:contain; background:#080808;" alt="{{ e(\App\Support\PlainText::normalize($news->title ?? 'News image')) }}">
                             </div>
 
                             <div class="news-content">
@@ -347,6 +352,8 @@
             </div>
         </div>
     </main>
+
+    @include('partials.news_upload_preview')
 
     <div id="readMoreModal" class="modal">
         <div class="modal-content read-more-modal-content">
@@ -437,7 +444,7 @@
                     </select>
                 </div>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <div class="cms-news-modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeAnnouncementModal()" style="background: #ccc;">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary">
                         <i class="fas fa-save"></i> Save Announcement
@@ -655,9 +662,10 @@
                             
                             const img = document.createElement('img');
                             img.src = src;
-                            img.style.width = '90px';
-                            img.style.height = '90px';
-                            img.style.objectFit = 'cover';
+                            img.style.width = '160px';
+                            img.style.height = '160px';
+                            img.style.objectFit = 'contain';
+                            img.style.background = '#080808';
                             img.style.borderRadius = '6px';
                             img.style.border = isFeatured ? '2px solid #8a1538' : '1px solid #ddd';
                             
@@ -683,12 +691,23 @@
                                 onRemove();
                             };
                             
-                            wrapper.appendChild(img);
+                            const previewBtn = document.createElement('button');
+                            previewBtn.type = 'button';
+                            previewBtn.className = 'news-upload-preview-button';
+                            previewBtn.setAttribute('aria-label', 'Preview uploaded image');
+                            previewBtn.onclick = function() {
+                                const preview = document.getElementById('newsUploadPreviewDialog');
+                                preview.querySelector('img').src = src;
+                                preview.showModal();
+                            };
+                            previewBtn.appendChild(img);
+                            wrapper.appendChild(previewBtn);
                             wrapper.appendChild(removeBtn);
                             
                             if (isFeatured) {
                                 const badge = document.createElement('span');
                                 badge.textContent = 'FEATURED';
+                                badge.style.whiteSpace = 'nowrap';
                                 badge.style.position = 'absolute';
                                 badge.style.bottom = '4px';
                                 badge.style.left = '50%';
@@ -723,7 +742,7 @@
                     })();
                 </script>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <div class="cms-news-modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeNewsModal()" style="background: #ccc;">
                         Cancel
                     </button>
@@ -1052,11 +1071,11 @@
             if (allImages.length > 0) {
                 media.hidden = false;
                 if (allImages.length === 1) {
-                    media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:cover;">`;
+                    media.innerHTML = `<img src="${allImages[0]}" alt="${title || 'News image'}" id="readMoreImage" style="width:100%;height:100%;object-fit:contain; background:#080808;">`;
                 } else {
                     let carouselHtml = '<div class="news-carousel" style="position:relative; width:100%; height:100%; overflow:hidden;">';
                     allImages.forEach((img, idx) => {
-                        carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:cover; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
+                        carouselHtml += `<img src="${img}" class="news-carousel-slide" style="position:absolute; top:0; left:0; width:100%; height:100%; object-fit:contain; background:#080808; transition:opacity 0.3s ease; opacity:${idx===0?1:0}; z-index:${idx===0?1:0};" alt="Slide ${idx}">`;
                     });
                     carouselHtml += `<button class="news-carousel-prev" style="position:absolute; left:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10094;</button>`;
                     carouselHtml += `<button class="news-carousel-next" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); z-index:10; background:rgba(0,0,0,0.5); color:#fff; border:none; width:30px; height:30px; border-radius:50%; cursor:pointer;">&#10095;</button>`;
@@ -1988,7 +2007,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
 

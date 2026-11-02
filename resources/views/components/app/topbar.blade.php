@@ -12,8 +12,14 @@
 @endphp
 
 @once
+    <script>document.body.classList.add('cms-shell');</script>
+    <link rel="stylesheet" href="{{ asset('assets/css/shared/cms-responsive.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/cms-responsive.css')) }}">
+    <script src="{{ asset('assets/js/cms-layout.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/cms-layout.js')) }}" defer></script>
+
+    <link rel="stylesheet" href="{{ asset('assets/css/shared/cms-adaptive-tables.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/cms-adaptive-tables.css')) }}">
+    <script src="{{ asset('assets/js/cms-adaptive-tables.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/cms-adaptive-tables.js')) }}" defer></script>
     <link rel="stylesheet" href="{{ asset('assets/css/shared/profile-avatar.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}?v={{ filemtime(public_path('assets/css/accessibility_widget.css')) }}" data-accessibility-widget-styles="true">
+    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/accessibility_widget.css')) }}" data-accessibility-widget-styles="true">
 @endonce
 
 <style id="cms-unified-button-theme">
@@ -453,7 +459,7 @@
     }
 
     /* Redesigned Custom Checkbox (Global) */
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
         -webkit-appearance: none;
         appearance: none;
         width: 18px;
@@ -474,12 +480,12 @@
         flex-shrink: 0;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
         background-color: #800000;
         border-color: #800000;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked::after {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked::after {
         content: "";
         position: absolute;
         width: 5px;
@@ -491,39 +497,39 @@
         top: 1px;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
         border-color: #a30000;
         box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.12);
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
         box-shadow: 0 0 0 4px rgba(128, 0, 0, 0.2);
         border-color: #a30000;
     }
 
-    input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):disabled {
+    input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):disabled {
         background-color: #f3f3f3;
         border-color: #d3d3d3;
         cursor: not-allowed;
     }
 
     /* Dark Mode Checkbox Styles */
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection) {
         border-color: #f0c85a;
         background-color: rgba(48, 22, 26, 0.92);
     }
 
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):checked {
         background-color: #800000;
         border-color: #800000;
     }
 
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):hover {
         border-color: #ffd978;
         box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.15);
     }
 
-    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
+    body.pup-dark-mode input[type="checkbox"]:not(.events-cms-feature-toggle):not(.news-select-checkbox):not(.announcement-select-checkbox):not([hidden]):not(#bulkAnnouncementSelection):not(#bulkNewsSelection):focus-visible {
         box-shadow: 0 0 0 4px rgba(240, 200, 90, 0.25);
         border-color: #ffd978;
     }
@@ -546,7 +552,7 @@
 <header class="topbar">
     <div class="topbar-left">
         <button class="menu-toggle" onclick="{{ $menuToggleFunction }}" type="button">
-            <i class="fas fa-bars"></i>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18" /></svg>
         </button>
         {{ $left ?? '' }}
     </div>

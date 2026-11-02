@@ -7,8 +7,9 @@
   <meta name="theme-color" content="#8B0000" />
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
-  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}"/>
-  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ filemtime(public_path('assets/css/home.css')) }}" />
+  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/home.css')) }}" />
+  <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/public-compact.css')) }}" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -20,16 +21,6 @@
 </head>
 
 <body class="home-carousel-redesign {{ ($cmsPreview ?? false) ? 'cms-preview-mode' : 'public-home-mode' }}">
-  <script>
-      (function() {
-          try {
-              var isDark = localStorage.getItem('pup-dark-mode') === 'true';
-              if (isDark) {
-                  document.body.classList.add('pup-dark-mode');
-              }
-          } catch (e) {}
-      })();
-  </script>
   @php
     $cmsPreview = (bool) ($cmsPreview ?? false);
     $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
@@ -621,7 +612,9 @@
 
     <div class="advisory-modal-overlay" id="advisoryDetailsModal" aria-hidden="true">
       <div class="advisory-modal-card" role="dialog" aria-modal="true" aria-label="Update details">
-        <button class="advisory-modal-close" type="button" aria-label="Close details">&times;</button>
+        <button class="advisory-modal-close" type="button" aria-label="Close details">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"></path></svg>
+        </button>
 
         <div class="advisory-modal-media" id="advisoryModalMedia" hidden>
           <img src="" alt="" id="advisoryModalImage" data-fallback-src="{{ asset('assets/static_img/pupillar.jpeg') }}">
@@ -641,7 +634,8 @@
             rel="noopener noreferrer"
             hidden
           >
-            Open Original Link
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6m0-6L10 14"></path><path d="M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5"></path></svg>
+            Open Link
           </a>
         </div>
       </div>
@@ -678,9 +672,9 @@
     <pup-footer></pup-footer>
   @endunless
 
-  <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-  <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
-  <script src="{{ asset('assets/js/campus-tour.js') }}?v={{ filemtime(public_path('assets/js/campus-tour.js')) }}" defer></script>
+  <script src="{{ asset('assets/js/pup-components.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/pup-components.js')) }}" defer></script>
+  <script src="{{ asset('assets/js/script.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/script.js')) }}" defer></script>
+  <script src="{{ asset('assets/js/campus-tour.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/campus-tour.js')) }}" defer></script>
 
   @if($cmsPreview)
     <style>
@@ -1203,7 +1197,7 @@
     </script>
   @endif
 
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
-<script src="{{ asset('assets/js/particles.js') }}?v={{ filemtime(public_path('assets/js/particles.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/particles.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/particles.js')) }}" defer></script>
 </body>
 </html>

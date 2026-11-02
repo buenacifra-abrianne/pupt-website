@@ -190,7 +190,6 @@
             <div class="dp-program-modal-copy">
                 <div class="dp-program-modal-head">
                     <h3 id="{{ $modalId }}-dialog-title" class="dp-program-modal-heading">Program Details</h3>
-                    <p class="dp-program-modal-subhead">Academic profile and accreditation snapshot</p>
                 </div>
 
                 <div class="dp-program-modal-fields-grid">

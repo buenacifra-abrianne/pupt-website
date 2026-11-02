@@ -786,7 +786,8 @@ class StudentsCmsContent
                     'items' => self::normalizeQrItems(
                         data_get($source, 'qr_codes.items', []),
                         data_get($baseQrCodes, 'items', []),
-                        data_get($defaults, 'qr_codes.items', [])
+                        data_get($defaults, 'qr_codes.items', []),
+                        null
                     ),
                 ]
                 : $baseQrCodes,
@@ -855,7 +856,7 @@ class StudentsCmsContent
         return $items;
     }
 
-    private static function normalizeQrItems(mixed $input, mixed $base, mixed $defaults): array
+    private static function normalizeQrItems(mixed $input, mixed $base, mixed $defaults, ?int $descriptionLimit = 50): array
     {
         $sourceItems = is_array($input) ? array_values($input) : [];
         $baseItems = is_array($base) ? array_values($base) : [];
@@ -871,7 +872,9 @@ class StudentsCmsContent
             $baseItem = is_array($baseItems[$index] ?? null) ? $baseItems[$index] : $defaultItem;
             $normalized = [
                 'label' => self::sanitizeString((string) ($item['label'] ?? ($baseItem['label'] ?? '')), 255, ''),
-                'description' => self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), 50, ''),
+                'description' => $descriptionLimit === null
+                    ? trim(HtmlEntities::decode((string) ($item['description'] ?? ($baseItem['description'] ?? ''))))
+                    : self::sanitizeString((string) ($item['description'] ?? ($baseItem['description'] ?? '')), $descriptionLimit, ''),
                 'href' => self::sanitizeString((string) ($item['href'] ?? ($baseItem['href'] ?? '')), 2048, ''),
                 'image' => array_key_exists('image', $item)
                     ? self::sanitizeOptionalString((string) $item['image'], 2048)

@@ -12,7 +12,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
 </head>
-<body>
+<body class="cms-memorandum-page">
     <x-app.sidebar />
 
     <x-app.topbar :logout-route="route('superadmin.logout')" default-role="Superadmin" />
@@ -70,7 +70,7 @@
                         onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(0,0,0,0.06)'; this.style.borderColor='rgba(128,0,0,0.2)';"
                         onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='{{ $row->is_read ? '0 2px 8px rgba(0,0,0,0.02)' : '0 4px 15px rgba(128,0,0,0.05)' }}'; this.style.borderColor='rgba(0,0,0,0.05)';">
 
-                        <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
+                        <div class="cms-memorandum-heading" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;">
                             <div style="flex: 1;">
                                 <h3 class="announcement-title" style="margin: 0; font-size: 1.15rem; color: {{ $row->is_read ? '#333' : 'var(--theme-maroon, #800000)' }}; font-weight: 700; line-height: 1.4; display: flex; align-items: center; gap: 10px;">
                                     {{ e($row->title) }}
@@ -617,7 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
 
