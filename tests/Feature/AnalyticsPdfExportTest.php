@@ -46,7 +46,8 @@ class AnalyticsPdfExportTest extends TestCase
         foreach (array_values(AnalyticsPdfBuilder::SECTIONS) as $index => $label) {
             $this->assertStringContainsString('Part '.($index + 1).': '.$label, $pdf);
         }
-        $this->assertStringContainsString('Total Visitors: 30,336', $pdf);
+        $this->assertStringContainsString('TOTAL VISITORS', $pdf);
+        $this->assertStringContainsString('(30,336) Tj', $pdf);
         $this->assertStringContainsString('Date Range: 2026-11-01 to 2026-11-02', $pdf);
         $this->assertStringNotContainsString('Announcement Reach', $pdf);
         $this->assertStringNotContainsString('Unique Viewers', $pdf);
@@ -63,6 +64,53 @@ class AnalyticsPdfExportTest extends TestCase
             $this->assertStringContainsString($label, $html);
         }
         $this->assertStringNotContainsString('Announcement Reach', $html);
+    }
+
+    public function test_pdf_restores_the_logo_summary_cards_and_styled_tables(): void
+    {
+        $response = $this->post('/superadmin/analytics/export/pdf', $this->payload());
+        $response->assertOk();
+        $pdf = $response->getContent();
+
+        $this->assertStringContainsString('/Subtype /Image', $pdf);
+        $this->assertStringContainsString('/Logo Do', $pdf);
+        foreach (['TOTAL VISITORS', 'AVG. SESSION DURATION', 'BOUNCE RATE', 'TOTAL UPLOADS', 'Metric', 'Average Score', 'Uploader Role', 'Percentage'] as $label) {
+            $this->assertStringContainsString('('.$label.') Tj', $pdf);
+        }
+        $this->assertStringContainsString('0.4824 0 0 rg', $pdf);
+        $this->assertStringContainsString('re B', $pdf);
+        $this->assertStringContainsString('This is system-generated, signature is not required.', $pdf);
+    }
+
+    public function test_long_upload_tables_paginate_without_losing_content_or_overlapping_footers(): void
+    {
+        $roles = [['role' => str_repeat('Long ', 600), 'count' => 1, 'percentage' => 1]];
+        for ($index = 1; $index <= 100; $index++) {
+            $roles[] = ['role' => sprintf('Uploader %03d', $index), 'count' => $index, 'percentage' => 1];
+        }
+        $response = $this->post('/superadmin/analytics/export/pdf', [
+            'download_pdf' => 1,
+            'sections' => ['upload_percentage'],
+            'payload' => json_encode(['upload_analytics' => ['roles' => $roles, 'sources' => []]]),
+        ]);
+        $response->assertOk()->assertHeader('Content-Type', 'application/pdf');
+        $pdf = $response->getContent();
+
+        for ($index = 1; $index <= 100; $index++) {
+            $this->assertStringContainsString(sprintf('(Uploader %03d) Tj', $index), $pdf);
+        }
+        $this->assertSame(600, substr_count($pdf, 'Long'));
+        $pageCount = preg_match_all('/\/Type \/Page\b/', $pdf);
+        $this->assertGreaterThan(1, $pageCount);
+        $this->assertSame($pageCount, substr_count($pdf, '(Uploader Role) Tj'));
+        $this->assertSame($pageCount, substr_count($pdf, 'This is system-generated, signature is not required.'));
+
+        preg_match_all('/Tf 1 0 0 1 [\d.]+ ([\d.]+) Tm \((.*?)\) Tj/', $pdf, $text, PREG_SET_ORDER);
+        foreach ($text as $item) {
+            if (! str_starts_with($item[2], 'This ') && ! str_starts_with($item[2], 'Please keep')) {
+                $this->assertGreaterThanOrEqual(90, (float) $item[1], 'Report content must stay above the footer.');
+            }
+        }
     }
 
     public function test_pdf_exports_only_the_selected_sections(): void
