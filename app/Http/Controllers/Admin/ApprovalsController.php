@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Http\Request;
 use App\Models\ApprovalRequest;
 use App\Support\AuditLog;
+use App\Support\ApprovalAudit;
 use App\Support\CmsApprovalPreview;
 use App\Services\ResendEmailService;
 use App\Support\CmsSections;
@@ -284,13 +285,6 @@ $history = $this->attachDisplayFields($history);
                 $tabKey, $title, $content, 'approval', $payload['section_key'] ?? null,
                 \App\Support\CmsVersionHistory::checksum($live)
             );
-
-            AuditLog::record(
-                'APPROVED',
-                'CONTENT',
-                'Approved CMS content edit for '.$tabLabel,
-                (int) (session('user_id') ?? 0)
-            );
         }
 
         elseif ($type === 'DOWNLOADABLE_CREATE') {
@@ -392,6 +386,10 @@ $history = $this->attachDisplayFields($history);
             'reviewed_at' => now(),
             'updated_at' => now(),
         ]);
+
+        // Record the reviewer decision for every request type in this transaction.
+        // A failed audit insert must also roll back the approval.
+        ApprovalAudit::record($row);
 
         // 🔔 Notify ONLY the requester staff
         // 🔔 Notify ONLY the requester staff (robust user id lookup)
