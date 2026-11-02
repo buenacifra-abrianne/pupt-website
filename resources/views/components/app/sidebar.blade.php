@@ -126,7 +126,7 @@
                 <i class="fas fa-clipboard-check"></i>
                 <span>Pending Approvals</span>
                 @if(($pendingApprovalCount ?? 0) > 0)
-                    <span style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($pendingApprovalCount ?? 0) > 99 ? '99+' : ($pendingApprovalCount ?? 0) }}</span>
+                    <span class="sidebar-count-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($pendingApprovalCount ?? 0) > 99 ? '99+' : ($pendingApprovalCount ?? 0) }}</span>
                 @endif
             </a>
         </li>
@@ -209,7 +209,7 @@
                 <i class="fas fa-bell"></i>
                 <span>Notifications</span>
                 @if(($unreadNotificationCount ?? 0) > 0)
-                    <span class="unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : ($unreadNotificationCount ?? 0) }}</span>
+                    <span class="sidebar-count-badge unread-notifications-badge" style="margin-left:auto;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#f0c85a;color:#5c0000;display:inline-flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;line-height:1;">{{ ($unreadNotificationCount ?? 0) > 99 ? '99+' : ($unreadNotificationCount ?? 0) }}</span>
                 @endif
             </a>
         </li>
@@ -225,6 +225,7 @@
 
     </ul>
     <footer class="sidebar-footer-text">
+        <hr>
         <span>Mula Sa'yo, Para sa Bayan</span>
         <span class="sidebar-footer-version">PUPT CMS V.2026</span>
     </footer>

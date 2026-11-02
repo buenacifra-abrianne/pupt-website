@@ -16,6 +16,13 @@ if (!in_array($role, ['superadmin', 'admin', 'staff'], true)) {
     throw new RuntimeException('Only CMS pages can be rendered.');
 }
 $request = Illuminate\Http\Request::create('http://localhost'.$uri);
+if (parse_url($uri, PHP_URL_PATH) === '/superadmin/analytics/export/pdf') {
+    $request = Illuminate\Http\Request::create('http://localhost'.$uri, 'POST', ['payload' => json_encode([
+        'kpis' => ['total_visitors' => 1234],
+        'server_health' => ['status' => 'Online', 'cpu_usage' => '12%', 'memory_usage' => '25%'],
+        'upload_analytics' => ['total_uploads' => 12, 'roles' => [['role' => 'Research and Extension', 'count' => 12, 'percentage' => 100]], 'sources' => [['source' => 'Campus announcements', 'count' => 12]]],
+    ])]);
+}
 $app->instance('request', $request);
 $session = app('session')->driver();
 $session->start();
@@ -31,6 +38,9 @@ $session->put([
 ]);
 $request->setLaravelSession($session);
 Illuminate\Support\Facades\View::share('errors', new Illuminate\Support\ViewErrorBag());
+Illuminate\Support\Facades\View::composer('components.app.sidebar', function ($view) {
+    $view->with(['pendingApprovalCount' => 7, 'unreadNotificationCount' => 29]);
+});
 Illuminate\Support\Facades\DB::beginTransaction();
 try {
     $response = app('router')->dispatch($request);

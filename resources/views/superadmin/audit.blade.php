@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
-    <title>PUP Taguig - Admin Dashboard</title>
+    <title>Audit Trail - PUP Taguig CMS</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/css/audit.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/audit.css') }}?v={{ filemtime(public_path('assets/css/audit.css')) }}">
 </head>
 <body>
     <!-- Sidebar -->
@@ -16,7 +16,7 @@
     @include('partials.profile_modal')
 
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content cms-audit-page">
 
         <div class="page-header">
             <div class="page-header-left">
@@ -194,13 +194,13 @@
             <div class="filter-bar">
                 <div class="filter-field filter-search">
                     <i class="fas fa-magnifying-glass"></i>
-                    <input type="text" id="srch" placeholder="Search logs..." oninput="applyFilters()">
+                    <input type="text" id="srch" aria-label="Search audit logs" placeholder="Search logs..." oninput="applyFilters()">
                 </div>
 
                 <div class="filter-field filter-select">
                     <i class="fas fa-bolt"></i>
                     <div class="cms-dropdown" id="auditActionDropdown">
-                        <button type="button" class="cms-dropdown-trigger" aria-haspopup="listbox" aria-expanded="false">
+                        <button type="button" class="cms-dropdown-trigger" aria-label="Filter by action" aria-haspopup="listbox" aria-expanded="false">
                             <span class="cms-dropdown-label">All Actions</span>
                             <i class="fas fa-chevron-down"></i>
                         </button>
@@ -256,8 +256,8 @@
             </div>
 
             <!-- Table -->
-            <div class="table-wrap">
-                <table class="audit-table">
+            <div class="table-wrap cms-table-scroll audit-records">
+                <table class="audit-table" role="table" aria-label="Audit trail">
                     <colgroup>
                         <col class="col-idx">
                         <col class="col-user">
@@ -268,26 +268,26 @@
                         <col class="col-time">
                         <col class="col-view">
                     </colgroup>
-                    <thead>
-                        <tr>
-                            <th class="th-idx">#</th>
-                            <th class="th-user">User</th>
-                            <th class="th-action">Action</th>
-                            <th class="th-module">Module</th>
-                            <th class="th-desc">Description</th>
-                            <th class="th-ip">IP Address</th>
-                            <th class="th-time">Timestamp</th>
-                            <th class="th-view"></th>
+                    <thead role="rowgroup">
+                        <tr role="row">
+                            <th class="th-idx" id="audit-heading-index" scope="col" role="columnheader">#</th>
+                            <th class="th-user" id="audit-heading-user" scope="col" role="columnheader">User</th>
+                            <th class="th-action" id="audit-heading-action" scope="col" role="columnheader">Action</th>
+                            <th class="th-module" id="audit-heading-module" scope="col" role="columnheader">Module</th>
+                            <th class="th-desc" id="audit-heading-description" scope="col" role="columnheader">Description</th>
+                            <th class="th-ip" id="audit-heading-ip" scope="col" role="columnheader">IP Address</th>
+                            <th class="th-time" id="audit-heading-timestamp" scope="col" role="columnheader">Timestamp</th>
+                            <th class="th-view" id="audit-heading-view" scope="col" role="columnheader"><span class="audit-sr-only">View Details</span></th>
                         </tr>
                     </thead>
-                    <tbody id="logBody"></tbody>
+                    <tbody id="logBody" role="rowgroup"></tbody>
                 </table>
             </div>
 
             <!-- Pagination -->
             <div class="pagination">
-                <div class="page-info" id="pgInfo">Showing 1-15</div>
-                <div class="page-btns" id="pageBtns">
+                <div class="page-info" id="pgInfo" role="status" aria-live="polite" aria-atomic="true">Showing 1-15</div>
+                <div class="page-btns" id="pageBtns" role="group" aria-label="Audit log pages">
                     <button class="pbtn" id="prevBtn" onclick="changePg(-1)"><i class="fas fa-chevron-left"></i></button>
                     <button class="pbtn active" id="pgNum">1</button>
                     <button class="pbtn" id="nextBtn" onclick="changePg(1)"><i class="fas fa-chevron-right"></i></button>
@@ -298,11 +298,11 @@
     </main>
 
     <!-- Log Detail Modal -->
-<div class="modal" id="logModal">
+<div class="modal" id="logModal" role="dialog" aria-modal="true" aria-labelledby="audit-detail-title" tabindex="-1">
     <div class="mbox">
         <div class="mhead">
-            <h2><i class="fas fa-magnifying-glass-chart"></i> Log Details</h2>
-            <button class="cbtn" onclick="closeModal()"><i class="fas fa-times"></i></button>
+            <h2 id="audit-detail-title"><i class="fas fa-magnifying-glass-chart"></i> Log Details</h2>
+            <button class="cbtn" aria-label="Close log details" onclick="closeModal()"><i class="fas fa-times" aria-hidden="true"></i></button>
         </div>
         <div class="mbody" id="logDetail"></div>
         <div class="mfoot"><button class="btn-outline" onclick="closeModal()">Close</button></div>
@@ -549,28 +549,30 @@ function render() {
     const tb = document.getElementById('logBody');
 
     if (!sl.length) {
-        tb.innerHTML = `<tr><td colspan="8"><div class="empty"><i class="fas fa-magnifying-glass"></i><p>No logs/data found.</p></div></td></tr>`;
+        tb.innerHTML = `<tr class="audit-empty-row" role="row"><td colspan="8" role="cell"><div class="empty"><i class="fas fa-magnifying-glass" aria-hidden="true"></i><p>No logs/data found.</p></div></td></tr>`;
     } else {
         tb.innerHTML = sl.map((l, i) => {
             const am = ACTION_META[l.action] || ACTION_META.DEFAULT;
             const rowNo = s + i + 1;
-            return `<tr>
-                <td class="col-idx-cell" style="color:#ccc;font-size:12px">${rowNo}</td>
-                <td class="col-user-cell">
+            return `<tr role="row" data-log-id="${Number(l.id)}">
+                <td class="col-idx-cell" headers="audit-heading-index" role="cell" style="color:#ccc;font-size:12px"><span class="audit-field-label" aria-hidden="true">Entry</span>${rowNo}</td>
+                <td class="col-user-cell" headers="audit-heading-user" role="cell">
+                    <span class="audit-field-label" aria-hidden="true">User</span>
                     <div class="user-cell">
                         ${renderAvatar(l)}
                         <div><div class="uname">${escapeHtml(l.user)}</div><div class="urole">${escapeHtml(l.role)}</div></div>
                     </div>
                 </td>
-                <td class="col-action-cell"><span class="action-badge ${escapeHtml(am.cls)}"><i class="fas ${escapeHtml(am.icon)}" style="font-size:10px"></i> ${escapeHtml(l.action)}</span></td>
-                <td class="col-module-cell"><span class="mod-badge" title="${escapeHtml(l.module)}">${escapeHtml(l.module)}</span></td>
-                <td class="desc-cell" title="${escapeHtml(l.desc)}"><div class="desc-text">${escapeHtml(l.desc)}</div></td>
-                <td class="col-ip-cell"><span class="ip-text">${escapeHtml(l.ip)}</span></td>
-                <td class="col-time-cell">
+                <td class="col-action-cell" headers="audit-heading-action" role="cell"><span class="audit-field-label" aria-hidden="true">Action</span><span class="action-badge ${escapeHtml(am.cls)}"><i class="fas ${escapeHtml(am.icon)}" aria-hidden="true" style="font-size:10px"></i> ${escapeHtml(l.action)}</span></td>
+                <td class="col-module-cell" headers="audit-heading-module" role="cell"><span class="audit-field-label" aria-hidden="true">Module</span><span class="mod-badge" title="${escapeHtml(l.module)}">${escapeHtml(l.module)}</span></td>
+                <td class="desc-cell" headers="audit-heading-description" role="cell" title="${escapeHtml(l.desc)}"><span class="audit-field-label" aria-hidden="true">Description</span><div class="desc-text">${escapeHtml(l.desc)}</div></td>
+                <td class="col-ip-cell" headers="audit-heading-ip" role="cell"><span class="audit-field-label" aria-hidden="true">IP Address</span><span class="ip-text">${escapeHtml(l.ip)}</span></td>
+                <td class="col-time-cell" headers="audit-heading-timestamp" role="cell">
+                    <span class="audit-field-label" aria-hidden="true">Timestamp</span>
                     <div class="time-text">${escapeHtml(formatTs(l.ts))}</div>
                     <div class="time-ago">${escapeHtml(timeAgo(l.ts))}</div>
                 </td>
-                <td class="col-view-cell"><button class="btn-view-sm" title="View Details" onclick="viewLog(${Number(l.id)})"><i class="fas fa-eye"></i></button></td>
+                <td class="col-view-cell" headers="audit-heading-view" role="cell"><button type="button" class="btn-view-sm" title="View Details" aria-label="View details for audit log ${Number(l.id)}" onclick="viewLog(${Number(l.id)})"><i class="fas fa-eye" aria-hidden="true"></i><span class="audit-view-label">View Details</span></button></td>
             </tr>`;
         }).join('');
     }
@@ -582,7 +584,9 @@ function render() {
         ? `Showing ${s + 1}-${Math.min(s + PP, tot)} of ${tot} log${tot !== 1 ? 's' : ''}`
         : 'Showing 0 of 0 logs';
         
-    let btnsHtml = `<button class="pbtn" id="prevBtn" onclick="changePg(-1)" ${pg === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i></button>`;
+    let btnsHtml = `<button class="pbtn" id="prevBtn" aria-label="Previous page" onclick="changePg(-1)" ${pg === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left" aria-hidden="true"></i></button>`;
+
+    btnsHtml += `<span class="audit-page-status">Page ${pg} of ${max}</span>`;
     
     let startPage = Math.max(1, pg - 2);
     let endPage = Math.min(max, pg + 2);
@@ -595,7 +599,7 @@ function render() {
     }
     
     for (let i = startPage; i <= endPage; i++) {
-        btnsHtml += `<button class="pbtn ${i === pg ? 'active' : ''}" onclick="goToPg(${i})">${i}</button>`;
+        btnsHtml += `<button class="pbtn ${i === pg ? 'active' : ''}" ${i === pg ? 'aria-current="page"' : ''} aria-label="Page ${i}" onclick="goToPg(${i})">${i}</button>`;
     }
     
     if (endPage < max) {
@@ -605,7 +609,7 @@ function render() {
         btnsHtml += `<button class="pbtn" onclick="goToPg(${max})">${max}</button>`;
     }
     
-    btnsHtml += `<button class="pbtn" id="nextBtn" onclick="changePg(1)" ${pg >= max ? 'disabled' : ''}><i class="fas fa-chevron-right"></i></button>`;
+    btnsHtml += `<button class="pbtn" id="nextBtn" aria-label="Next page" onclick="changePg(1)" ${pg >= max ? 'disabled' : ''}><i class="fas fa-chevron-right" aria-hidden="true"></i></button>`;
     
     document.getElementById('pageBtns').innerHTML = btnsHtml;
 
@@ -695,6 +699,7 @@ function switchType(t, silent = false) {
 function goToPg(n) {
     pg = n;
     render();
+    document.querySelector('#pageBtns [aria-current="page"]')?.focus();
 }
 
 function changePg(d) {
@@ -702,15 +707,20 @@ function changePg(d) {
     const max = Math.max(1, Math.ceil(tot / PP));
     pg = Math.max(1, Math.min(pg + d, max));
     render();
+    const preferred = document.getElementById(d > 0 ? 'nextBtn' : 'prevBtn');
+    const fallback = document.getElementById(d > 0 ? 'prevBtn' : 'nextBtn');
+    (preferred?.disabled ? fallback : preferred)?.focus();
 }
 
+let auditDetailTrigger = null;
 function viewLog(id) {
     const l = NORMALIZED_LOGS.find((x) => Number(x.id) === Number(id));
     if (!l) return;
 
     const am = ACTION_META[l.action] || ACTION_META.DEFAULT;
+    auditDetailTrigger = document.activeElement;
     document.getElementById('logDetail').innerHTML = `
-        <div style="background:linear-gradient(135deg,rgba(128,0,0,0.04),rgba(212,175,55,0.06));padding:16px 25px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;">
+        <div class="audit-detail-summary" style="background:linear-gradient(135deg,rgba(128,0,0,0.04),rgba(212,175,55,0.06));padding:16px 25px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;gap:12px;">
             ${renderAvatar(l, 'lg')}
             <div>
                 <div style="font-weight:700;color:#800000;font-size:16px;">${escapeHtml(l.user)}</div>
@@ -730,15 +740,26 @@ function viewLog(id) {
             <div class="detail-row"><div class="detail-label">Time Ago</div><div class="detail-value">${escapeHtml(timeAgo(l.ts))}</div></div>
         </div>`;
     document.getElementById('logModal').classList.add('active');
+    document.getElementById('logModal').querySelector('.cbtn').focus();
 }
 
 function closeModal() {
     document.getElementById('logModal').classList.remove('active');
+    if (auditDetailTrigger?.isConnected) auditDetailTrigger.focus();
 }
 
 window.addEventListener('click', (e) => {
     const m = document.getElementById('logModal');
-    if (e.target === m) m.classList.remove('active');
+    if (e.target === m) closeModal();
+});
+
+document.getElementById('logModal').addEventListener('keydown', event => {
+    if (event.key === 'Escape') { event.preventDefault(); closeModal(); }
+    if (event.key !== 'Tab') return;
+    const buttons = [...event.currentTarget.querySelectorAll('button')];
+    const first = buttons[0], last = buttons.at(-1);
+    if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+    else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
 });
 
 function csvEscape(v) {
@@ -807,6 +828,32 @@ if (window.CmsDateRange && typeof window.CmsDateRange.init === 'function') {
         onChange: () => applyFilters(),
     });
 }
+
+// Native buttons retain Enter/Space behavior; arrows and Escape navigate the filter menus.
+const auditFilters = document.querySelector('.cms-audit-page .filter-bar');
+auditFilters.addEventListener('keydown', event => {
+    const dropdown = event.target.closest('.cms-dropdown');
+    if (!dropdown) return;
+    const trigger = dropdown.querySelector('.cms-dropdown-trigger');
+    const options = [...dropdown.querySelectorAll('.cms-dropdown-option')];
+    const index = options.indexOf(document.activeElement);
+    if (event.key === 'Escape' && dropdown.classList.contains('open')) {
+        event.preventDefault();
+        dropdown.classList.remove('open');
+        trigger.setAttribute('aria-expanded', 'false');
+        trigger.focus();
+    } else if (['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) {
+        event.preventDefault();
+        if (!dropdown.classList.contains('open')) trigger.click();
+        const next = event.key === 'Home' ? 0 : event.key === 'End' ? options.length - 1
+            : index < 0 ? (event.key === 'ArrowUp' ? options.length - 1 : 0)
+            : (index + (event.key === 'ArrowUp' ? -1 : 1) + options.length) % options.length;
+        options[next]?.focus();
+    }
+});
+auditFilters.addEventListener('click', event => {
+    event.target.closest('.cms-dropdown-option')?.closest('.cms-dropdown').querySelector('.cms-dropdown-trigger').focus();
+});
 
 const params = new URLSearchParams(window.location.search);
 if (params.get('filter') === 'announcements') {

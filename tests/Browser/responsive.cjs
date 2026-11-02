@@ -1,5 +1,5 @@
 // Run against a local Laravel server: node tests/Browser/responsive.cjs
-// Optional: BASE_URL, CHROME_PATH, WIDTHS, PAGES, HEIGHT, MOBILE=1, CAPTURE=1, AUDIT_ONLY=1.
+// Optional: BASE_URL, CHROME_PATH, WIDTHS, PAGES, HEIGHT, MOBILE=1, CAPTURE=1, AUDIT_ONLY=1, THEME=dark.
 const fs = require('node:fs');
 const path = require('node:path');
 const { spawn } = require('node:child_process');
@@ -51,6 +51,8 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
       assert.equal(await evaluate('document.querySelector(".footer-carousel-status").textContent'), expected);
     };
     await cdp('Page.enable');
+    if (process.env.REDUCED_MOTION === '1') await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+    if (process.env.GLOBE_FALLBACK === '1') await cdp('Page.addScriptToEvaluateOnNewDocument', { source: `const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return String(type).includes('webgl')?null:originalContext.call(this,type,...args);};` });
     if (process.env.MOBILE === '1') await cdp('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
     await cdp('Network.enable');
     // Keep the check independent of third-party widgets, media and font servers.
@@ -60,10 +62,11 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
       documentStatus = 0;
       await cdp('Page.navigate', { url: currentUrl });
       for (let i = 0; i < 100; i++) {
-        if (documentStatus && await evaluate('document.readyState === "complete" && !!document.querySelector("main, .landing-container") && (!document.querySelector("pup-footer") || !!document.querySelector("pup-footer .footer-shell"))')) break;
+        if (documentStatus && await evaluate('document.readyState === "complete" && !!document.querySelector("main, .landing-container, .cms-analytics-report") && (!document.querySelector("pup-footer") || !!document.querySelector("pup-footer .footer-shell"))')) break;
         await new Promise(resolve => setTimeout(resolve, 100));
       }
       assert.equal(documentStatus, 200, page + ': page must load successfully');
+      if (process.env.THEME === 'dark') await evaluate('document.body.classList.add("pup-dark-mode")');
       if (process.env.CMS === '1') await evaluate('(() => { const style=document.createElement("style"); style.textContent="*,*::before,*::after{animation:none!important;transition:none!important}"; document.head.append(style); })()');
       for (const { width, height } of viewports) {
         await cdp('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: 1, mobile: process.env.MOBILE === '1' });
@@ -93,10 +96,45 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
           return { width: innerWidth, height: innerHeight, scrollWidth: document.documentElement.scrollWidth, clipped: clipped.slice(0,20), footerOverflow, footer: shell ? { display: getComputedStyle(shell).display, overflow: getComputedStyle(shell).overflowX, clientWidth: shell.clientWidth, scrollWidth: shell.scrollWidth } : null, header: header ? { left: logo.getBoundingClientRect().left, right: actions.getBoundingClientRect().right, overlap: document.querySelector('.logo-section').getBoundingClientRect().right > actions.getBoundingClientRect().left + 1 } : null };
         })()`);
         reports.push({ page, ...report });
-        if (process.env.CMS === '1') {
+        if (process.env.CMS === '1' && await evaluate('!!document.querySelector(".main-content")')) {
           const cms = await evaluate(`(() => {
             const problems=[];
             const dashboard=[];
+            const controls=[];
+            for(const actions of document.querySelectorAll('.notification-item > .notification-actions')) {
+              if(!actions.getClientRects().length)continue;
+              const buttons=[...actions.querySelectorAll('.btn-icon')];
+              for(const button of buttons){
+                const r=button.getBoundingClientRect();
+                if(r.width<24||r.width>36||Math.abs(r.width-r.height)>1||button.scrollWidth>button.clientWidth+1)controls.push('Notification icon actions must stay compact and square without squeezing');
+              }
+              if(innerWidth<=1024){
+                const content=actions.parentElement.querySelector('.notification-content');
+                const r=actions.getBoundingClientRect(),cr=content?.getBoundingClientRect();
+                if(cr&&(r.left<cr.left-1||r.top<cr.bottom-1))controls.push('Notification actions must sit below the readable text column');
+              }
+            }
+            if(innerWidth<=1024) {
+              for(const search of document.querySelectorAll('.main-content .search-bar')) {
+                const input=search.querySelector('input');
+                if(!search.getClientRects().length||!input?.getClientRects().length||input.getBoundingClientRect().width<120)controls.push('Page search must stay visible and usable');
+              }
+              for(const field of document.querySelectorAll('.main-content .filter-bar > .filter-field')) {
+                const bar=field.closest('.filter-bar');
+                if(field.getBoundingClientRect().width<Math.min(180,bar.clientWidth)-1)controls.push('Filter fields must not collapse into narrow controls');
+              }
+              const overview=document.querySelector('.stats-grid > .stat-card[style*="grid-column: span 2"]');
+              if(overview&&innerWidth<=600) {
+                const grid=overview.parentElement;
+                for(const card of grid.children)if(Math.abs(card.getBoundingClientRect().width-grid.clientWidth)>1)controls.push('Phone summary cards must use the full column without implicit grid tracks');
+              }
+              for(const item of document.querySelectorAll('.notification-item')) {
+                const body=item.querySelector('.cms-notification-body')||item.children[1];
+                if(body.getBoundingClientRect().width<item.clientWidth*.6)controls.push('Notification text needs a readable column');
+              }
+              const firewall=document.querySelector('input[name="ip_address"]');
+              if(firewall&&firewall.getBoundingClientRect().width<Math.min(220,firewall.form.clientWidth)-1)controls.push('Firewall inputs must remain readable');
+            }
             if(document.querySelector('.cms-dashboard')&&innerWidth<=1024) {
               const tabs=[...document.querySelectorAll('.cms-dashboard .top-tab-btn')];
               if(tabs.length) {
@@ -111,6 +149,7 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
                 if(action&&heading){const ar=action.getBoundingClientRect(),hr=heading.getBoundingClientRect();if(ar.left<hr.right-1||ar.height>34)dashboard.push('Summary action must stay compact beside the heading');}
               }
               for(const header of document.querySelectorAll('.cms-dashboard-feed-header')) {
+                if(!header.getBoundingClientRect().width||!header.getBoundingClientRect().height)continue;
                 const action=header.querySelector('.btn'),title=header.querySelector('.card-title');
                 const ar=action.getBoundingClientRect(),tr=title.getBoundingClientRect(),hr=header.getBoundingClientRect();
                 if(ar.left<tr.right-1||Math.abs(ar.right-hr.right)>1||ar.top>=tr.bottom||ar.bottom<=tr.top||ar.height>34||ar.width>100)dashboard.push('Recent feed action must stay compact on the right beside its title');
@@ -123,6 +162,19 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
                 for(const row of [...table.rows].slice(0,26))for(const cell of row.cells) {
                   const r=cell.getBoundingClientRect();
                   const record=kind=>tableProblems.push({table:table.className,row:row.rowIndex,column:cell.cellIndex,kind});
+                  if(innerWidth<=1024&&table.closest('.cms-data-page')&&!table.matches('.cms-adaptive-table')) {
+                    const style=getComputedStyle(cell);
+                    if(parseFloat(style.fontSize)>12||parseFloat(style.paddingTop)>8||parseFloat(style.paddingBottom)>8)record('mobile table text or spacing is too large');
+                    if(table.matches('.approvals-table')&&row.parentElement.tagName==='TBODY'&&row.cells.length>1&&r.height>88)record('approval row has excessive vertical space');
+                    for(const button of cell.querySelectorAll('button')) {
+                      const labels=document.createTreeWalker(button,NodeFilter.SHOW_TEXT);
+                      while(labels.nextNode()) {
+                        if(!labels.currentNode.textContent.trim())continue;
+                        const range=document.createRange();range.selectNodeContents(labels.currentNode);
+                        if([...range.getClientRects()].filter(rect=>rect.width>1).length>1)record('table button label wraps');
+                      }
+                    }
+                  }
                   for(const button of cell.querySelectorAll('button,a')) {
                     const br=button.getBoundingClientRect();
                     if(br.width&&br.height&&(br.left<r.left-2||br.right>r.right+2))record('action extends beyond cell');
@@ -180,7 +232,7 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
               }
               panel.hidden=saved.hidden;if(saved.style===null)panel.removeAttribute('style');else panel.setAttribute('style',saved.style);
             }
-            return {problems,modals:overlays.length,tabs:tabs.slice(0,20),tables:tableProblems.slice(0,20),dashboard};
+            return {problems,modals:overlays.length,tabs:tabs.slice(0,20),tables:tableProblems.slice(0,20),dashboard,controls};
           })()`);
           report.cms = cms;
           reports.at(-1).cms = cms;
@@ -188,10 +240,36 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
           if (process.env.AUDIT_ONLY !== '1') assert.deepEqual(cms.tabs, [], page + ': tab content containment at ' + width);
           if (process.env.AUDIT_ONLY !== '1') assert.deepEqual(cms.tables, [], page + ': table columns at ' + width);
           if (process.env.AUDIT_ONLY !== '1') assert.deepEqual(cms.dashboard, [], page + ': compact dashboard at ' + width);
+          if (process.env.AUDIT_ONLY !== '1') assert.deepEqual(cms.controls, [], page + ': usable mobile controls at ' + width);
           const sidebarFits = () => evaluate('(() => { const sidebar=document.querySelector(".sidebar"),footer=sidebar.querySelector(".sidebar-footer-text"),links=sidebar.querySelector(".nav-menu"); const sr=sidebar.getBoundingClientRect(),fr=footer.getBoundingClientRect(),nr=links.getBoundingClientRect(); return Math.abs(fr.bottom-sr.bottom)<=1 && nr.bottom<=fr.top+1 && fr.height>0; })()');
+          const sidebarBadges = () => evaluate(`(() => {
+            const problems=[];
+            const badges=[...document.querySelectorAll('.sidebar-count-badge')];
+            if(!badges.length)problems.push('Sidebar count fixtures must be present');
+            for(const badge of badges){
+              const original=badge.textContent,display=badge.style.display;
+              for(const count of ['7','29','99+']){
+                badge.textContent=count;
+                const style=getComputedStyle(badge),r=badge.getBoundingClientRect(),parent=badge.parentElement.getBoundingClientRect();
+                const range=document.createRange();range.selectNodeContents(badge);const text=range.getBoundingClientRect();
+                if(!['flex','inline-flex'].includes(style.display)||style.alignItems!=='center'||Math.abs((text.top+text.bottom-r.top-r.bottom)/2)>2)problems.push(count+': count must be vertically centered '+JSON.stringify({display:style.display,align:style.alignItems,offset:(text.top+text.bottom-r.top-r.bottom)/2}));
+                if(r.left<parent.left||r.right>parent.right||badge.scrollWidth>badge.clientWidth+1)problems.push(count+': badge must fit inside its navigation row');
+              }
+              badge.textContent=original;badge.style.display='none';
+              if(getComputedStyle(badge).display!=='none')problems.push('Cleared notification counts must stay hidden');
+              badge.style.display=display;
+            }
+            return problems;
+          })()`);
           if (width <= 1024) {
             await evaluate('document.querySelector(".topbar .menu-toggle").click()');
             assert.equal(await evaluate('document.body.classList.contains("cms-nav-open")'), true, page + ': navigation opens');
+            assert.deepEqual(await sidebarBadges(), [], page + ': sidebar badge alignment at ' + width);
+            await evaluate('document.querySelector(".sidebar .has-submenu:not(.expanded) > .submenu-toggle")?.click()');
+            if(process.env.CAPTURE==='1'){
+              const shot=await cdp('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+              fs.writeFileSync(path.join(output,page.replace(/[^a-z0-9-]/gi,'-')+'-navigation-'+width+'.png'),Buffer.from(shot.data,'base64'));
+            }
             assert.ok(await evaluate('(() => { const sidebar=document.querySelector(".sidebar"),links=sidebar.querySelector(".nav-menu"),footer=sidebar.querySelector(".sidebar-footer-text"); const last=[...links.querySelectorAll("a")].at(-1); last.scrollIntoView({block:"nearest",behavior:"instant"}); const r=last.getBoundingClientRect(); return getComputedStyle(links).overflowY === "auto" && r.top>=0 && r.bottom<=footer.getBoundingClientRect().top+1; })()'), page + ': last navigation link remains reachable');
             assert.ok(await sidebarFits(), page + ': sidebar footer stays at bottom');
             await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
@@ -200,9 +278,11 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
             const before = await evaluate('document.querySelector(".sidebar").classList.contains("collapsed")');
             await evaluate('document.querySelector(".topbar .menu-toggle").click()');
             assert.equal(await evaluate('document.querySelector(".sidebar").classList.contains("collapsed")'), !before, page + ': desktop navigation toggle');
+            if(!before)assert.equal(await evaluate('[...document.querySelectorAll(".sidebar-count-badge")].every(badge=>getComputedStyle(badge).display==="none")'), true, page + ': count badges hide with collapsed navigation');
             assert.ok(await sidebarFits(), page + ': collapsed sidebar footer stays at bottom');
             await evaluate('document.querySelector(".topbar .menu-toggle").click()');
             assert.ok(await sidebarFits(), page + ': expanded sidebar footer stays at bottom');
+            assert.deepEqual(await sidebarBadges(), [], page + ': desktop sidebar badge alignment at ' + width);
           }
         }
         if (process.env.AUDIT_ONLY !== '1') {
@@ -239,21 +319,36 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
             }
           }
         }
-        if (process.env.CAPTURE === '1' && [320,768,1440].includes(width)) {
+        if (process.env.AUDIT_CHECKS === '1' && page === '/superadmin/audit') {
+          await require('./audit-checks.cjs')({ evaluate, cdp, width });
+        }
+        if (process.env.TABLE_CHECKS === '1') await require('./tables-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.NEWS_CHECKS === '1') await require('./news-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.PUBLIC_COMPACT === '1') await require('./public-compact-checks.cjs')({evaluate,cdp,width,page});
+        if (process.env.GLOBE_CHECKS === '1' && page === '/') await require('./globe-checks.cjs')({evaluate,cdp});
+        if (process.env.CAPTURE === '1' && (process.env.AUDIT_CHECKS === '1' || [320,375,768,1024,1440].includes(width))) {
           // The fixture server omits analytics API responses; clear its error toasts for screenshots.
           if (process.env.CMS === '1') await evaluate('document.getElementById("cmsToastWrap")?.replaceChildren()');
           await evaluate('window.scrollTo({top:0,behavior:"instant"})');
           const shot = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-          fs.writeFileSync(path.join(output, page.replaceAll('/', '-') + '-' + width + '.png'), Buffer.from(shot.data, 'base64'));
+          fs.writeFileSync(path.join(output, page.replace(/[^a-z0-9-]/gi, '-') + '-' + width + '.png'), Buffer.from(shot.data, 'base64'));
+          if(process.env.CMS==='1') {
+            const count=await evaluate('document.querySelectorAll(".cms-data-page .cms-table-scroll, .cms-audit-page .audit-records").length');
+            for(let index=0;index<count;index++) {
+              await evaluate('window.scrollTo({top:document.querySelectorAll(".cms-data-page .cms-table-scroll, .cms-audit-page .audit-records")['+index+'].getBoundingClientRect().top+scrollY-90,behavior:"instant"})');
+              const tableShot=await cdp('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+              fs.writeFileSync(path.join(output,page.replace(/[^a-z0-9-]/gi,'-')+'-table-'+index+'-'+width+'.png'),Buffer.from(tableShot.data,'base64'));
+            }
+          }
           if (process.env.CMS === '1' && await evaluate('!!document.querySelector(".cms-dashboard-feed-header")')) {
             await evaluate('window.scrollTo({top:document.querySelector(".cms-dashboard-feed-header").getBoundingClientRect().top+scrollY-90,behavior:"instant"})');
             const feedShot = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-            fs.writeFileSync(path.join(output, page.replaceAll('/', '-') + '-feeds-' + width + '.png'), Buffer.from(feedShot.data, 'base64'));
+            fs.writeFileSync(path.join(output, page.replace(/[^a-z0-9-]/gi, '-') + '-feeds-' + width + '.png'), Buffer.from(feedShot.data, 'base64'));
           }
           if (report.footer) {
             await evaluate('document.querySelector("pup-footer").scrollIntoView({behavior:"instant",block:"end"}); new Promise(resolve => setTimeout(resolve,100))');
             const footerShot = await cdp('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false });
-            fs.writeFileSync(path.join(output, page.replaceAll('/', '-') + '-footer-' + width + '.png'), Buffer.from(footerShot.data, 'base64'));
+            fs.writeFileSync(path.join(output, page.replace(/[^a-z0-9-]/gi, '-') + '-footer-' + width + '.png'), Buffer.from(footerShot.data, 'base64'));
           }
         }
       }

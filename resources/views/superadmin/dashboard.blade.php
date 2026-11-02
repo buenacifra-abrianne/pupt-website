@@ -31,6 +31,9 @@
             <button class="top-tab-btn" onclick="switchTopTab('databaseBackupTab', this)">
                 <i class="fas fa-database"></i> Database Backup
             </button>
+            <button class="top-tab-btn" onclick="switchTopTab('linkMonitoringTab', this)">
+                <i class="fas fa-link" aria-hidden="true"></i> Link Monitoring
+            </button>
         </div>
 
         <!-- ========================= -->
@@ -258,14 +261,18 @@
         <!-- ========================= -->
         <!-- ✅ TAB 2: DATABASE BACKUP -->
         <!-- ========================= -->
-        <div id="databaseBackupTab" class="top-tab-content">
+        <div id="databaseBackupTab" class="top-tab-content" data-compact-controls>
             @include('superadmin.partials.dashboard-database-backups')
+        </div>
+
+        <div id="linkMonitoringTab" class="top-tab-content">
+            @include('partials.dashboard_link_monitoring')
         </div>
 
         <!-- ========================= -->
         <!-- ✅ TAB 3: ANALYTICS -->
         <!-- ========================= -->
-        <div id="analyticsTab" class="top-tab-content">
+        <div id="analyticsTab" class="top-tab-content" data-compact-controls>
 
 
 
@@ -946,7 +953,7 @@
         const requestedTab = new URLSearchParams(window.location.search).get('tab');
         const requestedTopTab = requestedTab === 'database-backups'
             ? 'databaseBackupTab'
-            : (requestedTab === 'analytics' ? 'analyticsTab' : '');
+            : (requestedTab === 'link-monitoring' ? 'linkMonitoringTab' : (requestedTab === 'analytics' ? 'analyticsTab' : ''));
 
         const saved = isTermsConsentPending()
             ? 'dashboardTab'

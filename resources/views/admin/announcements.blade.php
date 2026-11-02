@@ -7,13 +7,14 @@
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}?v={{ filemtime(public_path('assets/css/announcement.css')) }}">
+    <link rel="stylesheet" data-news-responsive href="{{ asset('assets/css/shared/cms-announcements-responsive.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-announcements-responsive.css')) }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
     @include('partials.cms_image_editor_assets')
 </head>
-<body>
+<body class="cms-announcements-page">
     <!-- Sidebar -->
     <x-app.sidebar />
 
@@ -47,19 +48,21 @@
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage Announcements</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage Announcements</h3>
+                    </div>
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkAnnouncementSelection">
-                        <input type="checkbox" id="bulkAnnouncementSelection" hidden>
-                        <span id="announcementSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" disabled>
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkAnnouncementSelection">
+                            <input type="checkbox" id="bulkAnnouncementSelection" hidden>
+                            <span id="announcementSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" title="Delete Selected" aria-label="Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Delete<span class="cms-bulk-label-extra"> Selected</span></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -163,27 +166,29 @@
         <!-- News Tab -->
         <div id="news" class="tab-content active">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage News</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage News</h3>
+                    </div>
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkNewsSelection">
-                        <input type="checkbox" id="bulkNewsSelection" hidden>
-                        <span id="newsSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        @if($hasNewsHiddenColumn ?? false)
-                            <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" disabled>
-                                <i class="fas fa-eye-slash"></i> Hide from Public
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkNewsSelection">
+                            <input type="checkbox" id="bulkNewsSelection" hidden>
+                            <span id="newsSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            @if($hasNewsHiddenColumn ?? false)
+                                <button type="button" class="btn btn-sm btn-warning" id="bulkHideNewsBtn" title="Hide from Public" aria-label="Hide from Public" disabled>
+                                    <i class="fas fa-eye-slash"></i> <span>Hide<span class="cms-bulk-label-extra"> from Public</span></span>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" title="Show in Public" aria-label="Show in Public" disabled>
+                                    <i class="fas fa-eye"></i> <span>Show<span class="cms-bulk-label-extra"> in Public</span></span>
+                                </button>
+                            @endif
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" title="Delete Selected" aria-label="Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Delete<span class="cms-bulk-label-extra"> Selected</span></span>
                             </button>
-                            <button type="button" class="btn btn-sm btn-success" id="bulkShowNewsBtn" disabled>
-                                <i class="fas fa-eye"></i> Show in Public
-                            </button>
-                        @endif
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteNewsBtn" disabled>
-                            <i class="fas fa-trash"></i> Delete Selected
-                        </button>
+                        </div>
                     </div>
                 </div>
 
@@ -348,6 +353,8 @@
         </div>
     </main>
 
+    @include('partials.news_upload_preview')
+
     <div id="readMoreModal" class="modal">
         <div class="modal-content read-more-modal-content">
             <button class="close-modal read-more-close" type="button" onclick="closeReadMoreModal()">
@@ -437,7 +444,7 @@
                     </select>
                 </div>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <div class="cms-news-modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeAnnouncementModal()" style="background: #ccc;">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary">
                         <i class="fas fa-save"></i> Save Announcement
@@ -655,8 +662,8 @@
                             
                             const img = document.createElement('img');
                             img.src = src;
-                            img.style.width = '90px';
-                            img.style.height = '90px';
+                            img.style.width = '160px';
+                            img.style.height = '160px';
                             img.style.objectFit = 'contain';
                             img.style.background = '#080808';
                             img.style.borderRadius = '6px';
@@ -684,12 +691,23 @@
                                 onRemove();
                             };
                             
-                            wrapper.appendChild(img);
+                            const previewBtn = document.createElement('button');
+                            previewBtn.type = 'button';
+                            previewBtn.className = 'news-upload-preview-button';
+                            previewBtn.setAttribute('aria-label', 'Preview uploaded image');
+                            previewBtn.onclick = function() {
+                                const preview = document.getElementById('newsUploadPreviewDialog');
+                                preview.querySelector('img').src = src;
+                                preview.showModal();
+                            };
+                            previewBtn.appendChild(img);
+                            wrapper.appendChild(previewBtn);
                             wrapper.appendChild(removeBtn);
                             
                             if (isFeatured) {
                                 const badge = document.createElement('span');
                                 badge.textContent = 'FEATURED';
+                                badge.style.whiteSpace = 'nowrap';
                                 badge.style.position = 'absolute';
                                 badge.style.bottom = '4px';
                                 badge.style.left = '50%';
@@ -724,7 +742,7 @@
                     })();
                 </script>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <div class="cms-news-modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeNewsModal()" style="background: #ccc;">
                         Cancel
                     </button>

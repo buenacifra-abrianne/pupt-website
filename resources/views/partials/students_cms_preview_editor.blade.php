@@ -2387,11 +2387,12 @@
             const shellStyles = window.getComputedStyle(shell);
             const shellPaddingLeft = Number.parseFloat(shellStyles.paddingLeft) || 0;
             const shellPaddingRight = Number.parseFloat(shellStyles.paddingRight) || 0;
-            const availableWidth = Math.max(320, shell.clientWidth - shellPaddingLeft - shellPaddingRight);
-            const fixedPreviewWidth = 1520;
-            const scale = Math.min(1, availableWidth / fixedPreviewWidth);
+            const compactPreview = window.matchMedia('(max-width: 1024px)').matches;
+            const availableWidth = Math.max(compactPreview ? 1 : 320, shell.clientWidth - shellPaddingLeft - shellPaddingRight);
+            const previewWidth = compactPreview ? availableWidth : 1520;
+            const scale = Math.min(1, availableWidth / previewWidth);
 
-            workspace.style.setProperty('--students-preview-width', `${fixedPreviewWidth}px`);
+            workspace.style.setProperty('--students-preview-width', `${previewWidth}px`);
             workspace.style.setProperty('--students-preview-scale', `${scale}`);
         };
 

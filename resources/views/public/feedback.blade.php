@@ -36,8 +36,9 @@
   <meta name="theme-color" content="#8B0000" />
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
-  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}"/>
+  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}" />
   <link rel="stylesheet" href="{{ asset('assets/css/feedback.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/feedback.css')) }}" />
+  <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/public-compact.css')) }}" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

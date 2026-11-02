@@ -68,6 +68,45 @@
         window.addEventListener('resize', syncViewport);
         syncViewport();
 
+        // CMS pages use several modal implementations. Keep the shared widgets
+        // out of pointer and keyboard navigation until the last dialog closes.
+        const widgetSelector = '.widget-dock, .floating-voice-btn, .acc-container, .chatbot-widget-shell';
+        const modalSelector = '.modal, .modal-overlay, .profile-edit-modal, .cms-image-editor, .cms-terms-overlay, [class$="-cms-modal"], [role="dialog"], [aria-modal="true"], dialog[open]';
+        const widgetState = new Map();
+        const syncModalWidgets = () => {
+            const open = [...document.querySelectorAll(modalSelector)].some(modal => {
+                if (modal.closest(widgetSelector) || modal.hidden || !modal.getClientRects().length) return false;
+                const style = getComputedStyle(modal);
+                return style.display !== 'none' && style.visibility !== 'hidden';
+            });
+            if (document.body.classList.contains('cms-modal-open') !== open) {
+                document.body.classList.toggle('cms-modal-open', open);
+            }
+            if (open) {
+                document.querySelectorAll(widgetSelector).forEach(widget => {
+                    if (!widgetState.has(widget)) widgetState.set(widget, widget.inert);
+                    widget.inert = true;
+                });
+            } else {
+                widgetState.forEach((inert, widget) => { widget.inert = inert; });
+                widgetState.clear();
+            }
+        };
+        let modalSyncQueued = false;
+        const modalObserver = new MutationObserver(() => {
+            if (modalSyncQueued) return;
+            modalSyncQueued = true;
+            requestAnimationFrame(() => {
+                modalSyncQueued = false;
+                syncModalWidgets();
+            });
+        });
+        modalObserver.observe(document.body, {
+            childList: true, subtree: true, attributes: true,
+            attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-hidden', 'aria-modal']
+        });
+        syncModalWidgets();
+
         const containTables = () => {
             document.querySelectorAll('.main-content table, .modal table, .modal-overlay table').forEach(table => {
                 const header = table.tHead?.rows[0] || table.rows[0];

@@ -150,7 +150,7 @@
     </div>
 
     <div class="backup-table-wrap">
-        <table class="backup-table">
+        <table class="backup-table" data-responsive-cards data-card-primary="Backup Name">
             <thead>
                 <tr>
                     <th>Backup Name</th>

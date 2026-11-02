@@ -7,13 +7,14 @@
 
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/announcement.css') }}?v={{ filemtime(public_path('assets/css/announcement.css')) }}">
+    <link rel="stylesheet" data-news-responsive href="{{ asset('assets/css/shared/cms-announcements-responsive.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-announcements-responsive.css')) }}">
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @include('partials.rich_text_editor_assets')
     @include('partials.cms_image_editor_assets')
 </head>
-<body>
+<body class="cms-announcements-page">
     <!-- Sidebar -->
     <x-app.sidebar />
 
@@ -51,26 +52,28 @@
         <!-- Announcements Tab -->
         <div id="announcements" class="tab-content">
             <div class="card">
-                <div class="card-header">
-                    <h3 class="card-title">Manage Announcements</h3>
-                </div>
+                <div class="cms-selection-controls">
+                    <div class="card-header">
+                        <h3 class="card-title">Manage Announcements</h3>
+                    </div>
 
-                @php
-                    $annReqs = $myRequests->filter(fn($r) =>
-                        in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
-                        && strtolower((string)($r->status ?? '')) === 'rejected'
-                    );
-                @endphp
+                    @php
+                        $annReqs = $myRequests->filter(fn($r) =>
+                            in_array(strtoupper($r->type), ['ANNOUNCEMENT_CREATE','ANNOUNCEMENT_UPDATE','ANNOUNCEMENT_DELETE','ANNOUNCEMENT_ENABLE','ANNOUNCEMENT_DISABLE'])
+                            && strtolower((string)($r->status ?? '')) === 'rejected'
+                        );
+                    @endphp
 
-                <div class="news-bulk-toolbar">
-                    <label class="news-bulk-count" for="bulkAnnouncementSelection">
-                        <input type="checkbox" id="bulkAnnouncementSelection" hidden>
-                        <span id="announcementSelectionCount">0 selected</span>
-                    </label>
-                    <div class="news-bulk-actions">
-                        <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" disabled>
-                            <i class="fas fa-trash"></i> Request Delete Selected
-                        </button>
+                    <div class="news-bulk-toolbar">
+                        <label class="news-bulk-count" for="bulkAnnouncementSelection">
+                            <input type="checkbox" id="bulkAnnouncementSelection" hidden>
+                            <span id="announcementSelectionCount">0 selected</span>
+                        </label>
+                        <div class="news-bulk-actions">
+                            <button type="button" class="btn btn-sm btn-delete" id="bulkDeleteAnnouncementsBtn" title="Request Delete Selected" aria-label="Request Delete Selected" disabled>
+                                <i class="fas fa-trash"></i> <span>Request Delete<span class="cms-bulk-label-extra"> Selected</span></span>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -457,7 +460,7 @@
                     >
                 </div>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <div class="cms-news-modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeAnnouncementModal()" style="background: #ccc;">Cancel</button>
                     <button type="submit" class="btn btn-sm btn-primary" id="announcementSubmitBtn">
                         <i class="fas fa-paper-plane"></i> Request New
@@ -587,7 +590,7 @@
   <div id="news_existing_additional_images_container"></div>
 </div>
 
-                <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
+                <div class="cms-news-modal-actions" style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 25px;">
                     <button type="button" class="btn btn-sm" onclick="closeNewsModal()" style="background: #ccc;">
                         Cancel
                     </button>

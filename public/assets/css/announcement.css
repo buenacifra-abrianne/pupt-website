@@ -1706,9 +1706,10 @@ body {
 }
 
 .news-card-select span {
+    position: relative;
     width: 24px;
     height: 24px;
-    border-radius: 999px;
+    border-radius: 6px;
     border: 2px solid rgba(127, 17, 19, 0.4);
     background: rgba(255, 255, 255, 0.92);
     box-shadow: 0 8px 18px rgba(29, 11, 11, 0.14);
@@ -1724,11 +1725,19 @@ body {
 .news-card-select input:checked + span::after {
     content: "";
     display: block;
-    width: 8px;
-    height: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 10px;
     border-right: 2px solid #fff;
     border-bottom: 2px solid #fff;
-    transform: translate(7px, 2px) rotate(45deg);
+    transform: translate(-50%, -60%) rotate(45deg);
+}
+
+.news-card-select input:focus-visible + span {
+    outline: 2px solid var(--admin-primary);
+    outline-offset: 3px;
 }
 
 .news-card:has(.news-select-checkbox:checked) {

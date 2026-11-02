@@ -895,6 +895,7 @@ class PUPFooter extends HTMLElement {
     .footer-shell {
       display: flex;
       flex-wrap: nowrap;
+      height: clamp(220px, 32dvh, 280px);
       overflow-x: auto;
       scroll-snap-type: x mandatory;
       scroll-padding-inline: var(--layout-page-gutter, 16px);
@@ -925,6 +926,8 @@ class PUPFooter extends HTMLElement {
       flex: 0 0 100%;
       min-width: 0;
       max-width: 100%;
+      min-height: 0;
+      overflow-y: auto;
       overflow-wrap: anywhere;
       scroll-snap-align: start;
       background: rgba(0, 0, 0, 0.2);
