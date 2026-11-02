@@ -215,7 +215,7 @@ class AuditController extends Controller
                 'role' => $role !== '' ? $role : 'SYSTEM',
                 'action' => $action,
                 'module' => $module,
-                'desc' => (string) ($row->description ?? ''),
+                'desc' => preg_replace('/^Recovered from approval history\.\s*/', '', (string) ($row->description ?? '')),
                 'ip' => (string) ($row->ip_address ?? '-'),
                 'ts' => $parsedTs->toIso8601String(),
                 'av' => 'av-0',
