@@ -7,8 +7,8 @@
   <meta name="theme-color" content="#8B0000" />
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
-  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}"/>
-  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ filemtime(public_path('assets/css/home.css')) }}" />
+  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}"/>
+  <link rel="stylesheet" href="{{ asset('assets/css/home.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/home.css')) }}" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -20,16 +20,6 @@
 </head>
 
 <body class="home-carousel-redesign {{ ($cmsPreview ?? false) ? 'cms-preview-mode' : 'public-home-mode' }}">
-  <script>
-      (function() {
-          try {
-              var isDark = localStorage.getItem('pup-dark-mode') === 'true';
-              if (isDark) {
-                  document.body.classList.add('pup-dark-mode');
-              }
-          } catch (e) {}
-      })();
-  </script>
   @php
     $cmsPreview = (bool) ($cmsPreview ?? false);
     $homeCms = \App\Support\HomeCmsContent::fromInput($homeCms ?? [], null);
@@ -678,9 +668,9 @@
     <pup-footer></pup-footer>
   @endunless
 
-  <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-  <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
-  <script src="{{ asset('assets/js/campus-tour.js') }}?v={{ filemtime(public_path('assets/js/campus-tour.js')) }}" defer></script>
+  <script src="{{ asset('assets/js/pup-components.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/pup-components.js')) }}" defer></script>
+  <script src="{{ asset('assets/js/script.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/script.js')) }}" defer></script>
+  <script src="{{ asset('assets/js/campus-tour.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/campus-tour.js')) }}" defer></script>
 
   @if($cmsPreview)
     <style>
@@ -1203,7 +1193,7 @@
     </script>
   @endif
 
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
-<script src="{{ asset('assets/js/particles.js') }}?v={{ filemtime(public_path('assets/js/particles.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/particles.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/particles.js')) }}" defer></script>
 </body>
 </html>

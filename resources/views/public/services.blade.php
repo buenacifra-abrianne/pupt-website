@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Systems - Polytechnic University of the Philippines</title>
-    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/services.css') }}?v={{ filemtime(public_path('assets/css/services.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/services.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/services.css')) }}">
     <link rel="icon" type="image/png" href="../assets/static_img/logo.png" sizes="32x32">
 
     <!-- Open Graph / Facebook -->
@@ -41,8 +41,8 @@
     <!-- Footer -->
     <pup-footer></pup-footer>
 
-    <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
-    <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+    <script src="{{ asset('assets/js/script.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/script.js')) }}" defer></script>
+    <script src="{{ asset('assets/js/pup-components.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/pup-components.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

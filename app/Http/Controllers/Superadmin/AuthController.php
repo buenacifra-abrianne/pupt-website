@@ -90,6 +90,8 @@ class AuthController extends Controller
             $assignedRoles = [$dbRole];
         }
 
+        request()->session()->regenerate();
+
         session([
             'user_logged_in' => true,
             'user_id' => $userId,

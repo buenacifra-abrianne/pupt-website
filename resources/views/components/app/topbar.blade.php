@@ -13,10 +13,10 @@
 
 @once
     <script>document.body.classList.add('cms-shell');</script>
-    <link rel="stylesheet" href="{{ asset('assets/css/shared/cms-responsive.css') }}?v={{ filemtime(public_path('assets/css/shared/cms-responsive.css')) }}">
-    <script src="{{ asset('assets/js/cms-layout.js') }}?v={{ filemtime(public_path('assets/js/cms-layout.js')) }}" defer></script>
+    <link rel="stylesheet" href="{{ asset('assets/css/shared/cms-responsive.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/cms-responsive.css')) }}">
+    <script src="{{ asset('assets/js/cms-layout.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/cms-layout.js')) }}" defer></script>
     <link rel="stylesheet" href="{{ asset('assets/css/shared/profile-avatar.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}?v={{ filemtime(public_path('assets/css/accessibility_widget.css')) }}" data-accessibility-widget-styles="true">
+    <link rel="stylesheet" href="{{ asset('assets/css/accessibility_widget.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/accessibility_widget.css')) }}" data-accessibility-widget-styles="true">
 @endonce
 
 <style id="cms-unified-button-theme">

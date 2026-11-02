@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Polytechnic University of the Philippines - Taguig Campus</title>
-    <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}?v={{ filemtime(public_path('assets/css/index.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}?v={{ filemtime(public_path('assets/css/components/landing-footer.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/index.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/index.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/components/landing-footer.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/components/landing-footer.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <meta name="theme-color" content="#8B0000">
     <style>
@@ -23,16 +23,6 @@
 
 </head>
 <body>
-<script>
-    (function() {
-        try {
-            var isDark = localStorage.getItem('pup-dark-mode') === 'true';
-            if (isDark) {
-                document.body.classList.add('pup-dark-mode');
-            }
-        } catch (e) {}
-    })();
-</script>
 <main class="menu">
     <canvas id="hero-particles" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; pointer-events: none;"></canvas>
     <div class="landing-container">
@@ -294,6 +284,6 @@
         }
     });
 </script>
-<script src="{{ asset('assets/js/particles.js') }}?v={{ filemtime(public_path('assets/js/particles.js')) }}" defer></script>
+<script src="{{ asset('assets/js/particles.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/particles.js')) }}" defer></script>
 </body>
 </html>
