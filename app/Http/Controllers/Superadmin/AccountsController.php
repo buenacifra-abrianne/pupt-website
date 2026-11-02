@@ -52,6 +52,9 @@ class AccountsController extends Controller
         if (Schema::hasColumn('users', 'profile_picture')) {
             $userSelect[] = 'users.profile_picture';
         }
+        if (Schema::hasColumn('users', 'oneportal_id')) {
+            $userSelect[] = 'users.oneportal_id';
+        }
 
         $rows = DB::table('users')
             ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
@@ -79,6 +82,7 @@ class AccountsController extends Controller
         $idpDirectory = $idpDirectoryResponse['data'] ?? [];
         $isIdpCached = $idpDirectoryResponse['is_cached'] ?? false;
         $idpCacheTimestamp = $idpDirectoryResponse['cached_at'] ?? null;
+        $isIdpFallback = $idpDirectoryResponse['is_fallback'] ?? false;
 
         $combinedDirectory = collect($idpDirectory)
             ->filter(function ($person) {
@@ -100,7 +104,7 @@ class AccountsController extends Controller
 
         $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 
-        $mapped = $rows->map(function ($u) use ($rolesByUser, $combinedDirectory, $pk) {
+        $mapped = $rows->map(function ($u) use ($rolesByUser, $combinedDirectory, $pk, $isIdpFallback) {
             $userRoleRows = $rolesByUser->get((int) $u->user_id, collect());
 
             $roleCodes = $userRoleRows->pluck('role_code')
@@ -136,7 +140,7 @@ class AccountsController extends Controller
                 });
             }
 
-            if ($matchedPerson) {
+            if ($matchedPerson && !$isIdpFallback) {
                 $updates = [];
                 
                 if (!empty($matchedPerson['oneportal_id']) && $userOneportalId !== $matchedPerson['oneportal_id']) {
@@ -191,6 +195,8 @@ class AccountsController extends Controller
             'facultyDirectoryJson' => json_encode($combinedDirectory),
             'isFacultyCached' => $isIdpCached,
             'facultyCacheTimestamp' => $idpCacheTimestamp,
+            'isIdpFallback' => $isIdpFallback,
+            'idpDirectoryUnavailable' => $idpDirectoryResponse['unavailable'] ?? false,
             'isAdminCached' => false,
             'adminCacheTimestamp' => null,
         ]);

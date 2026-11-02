@@ -123,14 +123,23 @@
         <input
             type="text"
             id="facultySearch"
-            placeholder="Search faculty by name or email"
+            placeholder="Search users by name or email"
             autocomplete="off"
         >
     </div>
     <input type="hidden" id="facultySelect">
     <div class="searchable-dropdown" id="facultyDropdown"></div>
 </div>
-        <small class="role-help-text">Type a name or email, then choose a faculty member from the list.</small>
+        <small class="role-help-text">Type a name or email, then choose a user from the list.</small>
+        @if($isIdpFallback ?? false)
+            <p class="role-help-text" role="status">
+                IDP is unavailable. Using saved user details from
+                {{ \Carbon\Carbon::parse($facultyCacheTimestamp)->timezone(config('app.timezone'))->format('M j, Y, g:i A T') }}.
+                You can still assign CMS access.
+            </p>
+        @elseif($idpDirectoryUnavailable ?? false)
+            <p class="role-help-text" role="status">IDP is unavailable and no saved user directory is available yet. Try again when IDP is back online.</p>
+        @endif
       </div>
     </div>
     <div class="frow">
@@ -1060,7 +1069,7 @@ function renderFacultyDropdown(query = '') {
   });
 
   if (!filteredFaculty.length) {
-    dropdown.innerHTML = `<div class="searchable-empty">No matching faculty found.</div>`;
+    dropdown.innerHTML = `<div class="searchable-empty">No matching users found.</div>`;
     dropdown.classList.add('active');
     return;
   }
