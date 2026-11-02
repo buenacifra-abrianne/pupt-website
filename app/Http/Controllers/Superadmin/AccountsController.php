@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use App\Mail\NewAccountTempPasswordMail;
 use App\Support\AuditLog;
+use App\Support\AccountStatusGuard;
 use App\Support\Avatar;
 use App\Services\Idp\IdpDirectoryService;
 
@@ -581,20 +582,20 @@ public function setStatus(Request $request, $id)
     }
 
     $newStatus = (string) $request->input('status', '');
-    $newStatusUpper = strtoupper(trim($newStatus));
 
-    // Only block if they are trying to SUSPEND a SUPERADMIN
-    if ($newStatusUpper === 'SUSPENDED') {
-    if ($resp = $this->denyIfNonSuperadminTargetsSuperadmin('suspend', (string) ($target->role_code ?? ''))) {
+    if ($resp = $this->denyIfNonSuperadminTargetsSuperadmin('edit', (string) ($target->role_code ?? ''))) {
         return $resp;
     }
-}
 
     // validate allowed statuses
     $validStatus = ['Active','Inactive','Suspended'];
     $request->validate([
         'status' => ['required', Rule::in($validStatus)],
     ]);
+
+    if ($resp = AccountStatusGuard::denySelfDeactivation((int) $id, $newStatus)) {
+        return $resp;
+    }
 
     DB::table('users')->where($pk, (int)$id)->update($this->filterUsersPayload($this->addUsersUpdatedAt([
         'status' => $newStatus,
@@ -661,6 +662,10 @@ if ($resp = $this->blockIfNonSuperadminTargetsSuperadmin($id, 'edit')) return $r
         'roles.*'    => ['string','max:80'],
         'role'       => ['nullable','string','max:80'],
     ]);
+
+    if ($resp = AccountStatusGuard::denySelfDeactivation($id, $data['status'])) {
+        return $resp;
+    }
 
     $requestedRoleCodes = $this->normalizeRoleCodesFromRequest($request);
 
@@ -754,9 +759,10 @@ public function updateStatus(Request $request, $id)
         'status' => ['required', Rule::in(['Active','Inactive','Suspended'])],
     ]);
 
-    if (strtolower($data['status']) === 'suspended') {
-    if ($resp = $this->blockIfNonSuperadminTargetsSuperadmin($id, 'suspend')) return $resp;
-}
+    if ($resp = AccountStatusGuard::denySelfDeactivation($id, $data['status'])) {
+        return $resp;
+    }
+    if ($resp = $this->blockIfNonSuperadminTargetsSuperadmin($id, 'edit')) return $resp;
 
     $pk = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
 

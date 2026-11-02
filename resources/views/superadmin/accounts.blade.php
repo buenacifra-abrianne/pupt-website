@@ -259,6 +259,7 @@ const SC = { Active:'sb-active', Inactive:'sb-inactive', Suspended:'sb-suspended
 const SI = { Active:'fa-circle-check', Inactive:'fa-circle-minus', Suspended:'fa-ban' };
 const AV = ['av-0'];
 const CURRENT_ROLE = "{{ strtoupper(trim((string) session('user_role'))) }}";
+const CURRENT_USER_ID = Number(@json((int) session('user_id')));
 
 const TAB_GROUPS = {
   'Superadmin': ['SUPERADMIN'],
@@ -295,8 +296,16 @@ function canEditUser(targetRole){
   return true;
 }
 
-function canSuspendUser(targetRole){
-  return true;
+function canSuspendUser(targetId){
+  return Number(targetId) !== CURRENT_USER_ID;
+}
+
+function setStatusOptionsForUser(targetId){
+  const isSelf = Number(targetId) === CURRENT_USER_ID;
+  const select = document.getElementById('f-st');
+  Array.from(select.options).forEach(option => {
+    option.disabled = isSelf && ['Inactive', 'Suspended'].includes(option.value);
+  });
 }
 
 function escapeHtml(v) {
@@ -592,7 +601,7 @@ function render(){
       const safeLastLogin = escapeHtml(u.ll);
 
 const allowEdit = canEditUser(u.rl);
-const allowSuspend = canSuspendUser(u.rl);
+const allowSuspend = canSuspendUser(u.id);
 
 const editBtn = allowEdit
   ? `<button class="bico bi-edit" title="Edit" onclick="openEdit(${u.id})"><i class="fas fa-pen"></i></button>`
@@ -669,6 +678,7 @@ function changePg(d){
 }
 
 function clrForm(){
+  setStatusOptionsForUser(null);
   document.getElementById('facultySelect').value = '';
   document.getElementById('facultySearch').value = '';
   ['f-fn','f-ln','f-em'].forEach(x => document.getElementById(x).value='');
@@ -713,6 +723,8 @@ function openEdit(id){
   editId = id;
   const u = users.find(x => x.id === id);
   if(!u) return;
+
+  setStatusOptionsForUser(id);
 
   document.getElementById('f-fn').value = u.fn || '';
   document.getElementById('f-ln').value = u.ln || '';
@@ -888,6 +900,10 @@ if (editActionBtn) {
 function editFromView(){ closeM('viewModal'); openEdit(viewId); }
 
 function doConfirm(id, action){
+  if (action === 'suspend' && !canSuspendUser(id)) {
+    showToast('You cannot suspend or deactivate your own account.', 'warning');
+    return;
+  }
   const u=users.find(x=>x.id===id); if(!u)return;
   const cfg={
     suspend:{

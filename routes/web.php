@@ -386,8 +386,8 @@ Route::prefix('superadmin')->group(function () {
         Route::get('/security/incidents', [\App\Http\Controllers\Superadmin\SecurityController::class, 'incidents'])->name('superadmin.security.incidents');
         Route::post('/security/block-ip', [\App\Http\Controllers\Superadmin\SecurityController::class, 'blockIp'])->name('superadmin.security.blockIp');
         Route::delete('/security/unblock-ip/{blockedIp}', [\App\Http\Controllers\Superadmin\SecurityController::class, 'unblockIp'])->name('superadmin.security.unblockIp');
-        Route::post('/security/suspend/{user}', [\App\Http\Controllers\Superadmin\SecurityController::class, 'suspendAccount'])->name('superadmin.security.suspend');
-        Route::post('/security/unsuspend/{user}', [\App\Http\Controllers\Superadmin\SecurityController::class, 'unsuspendAccount'])->name('superadmin.security.unsuspend');
+        Route::post('/security/suspend/{user}', [\App\Http\Controllers\Superadmin\SecurityController::class, 'suspendAccount'])->whereNumber('user')->name('superadmin.security.suspend');
+        Route::post('/security/unsuspend/{user}', [\App\Http\Controllers\Superadmin\SecurityController::class, 'unsuspendAccount'])->whereNumber('user')->name('superadmin.security.unsuspend');
     });
 
 

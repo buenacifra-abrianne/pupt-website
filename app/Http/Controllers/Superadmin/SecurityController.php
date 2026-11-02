@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BlockedIp;
 use App\Models\SecurityEvent;
-use App\Models\User;
+use App\Support\AccountStatusGuard;
 use App\Support\AuditLog;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class SecurityController extends Controller
 {
@@ -91,21 +93,37 @@ class SecurityController extends Controller
         return back()->with('success', 'IP address unblocked.');
     }
 
-    public function suspendAccount(Request $request, User $user)
+    public function suspendAccount(Request $request, int $user)
     {
-        $user->update(['status' => 'Suspended']);
-
-        AuditLog::record('SECURITY', 'ACCOUNT', "User account {$user->email} suspended by Superadmin.");
-
-        return back()->with('success', 'User account suspended successfully.');
+        return $this->changeAccountStatus($user, 'Suspended');
     }
 
-    public function unsuspendAccount(Request $request, User $user)
+    public function unsuspendAccount(Request $request, int $user)
     {
-        $user->update(['status' => 'Active']);
+        return $this->changeAccountStatus($user, 'Active');
+    }
 
-        AuditLog::record('SECURITY', 'ACCOUNT', "User account {$user->email} restored (unsuspended) by Superadmin.");
+    private function changeAccountStatus(int $userId, string $status)
+    {
+        if ($response = AccountStatusGuard::denySelfDeactivation($userId, $status)) {
+            return $response;
+        }
 
-        return back()->with('success', 'User account restored successfully.');
+        $key = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
+        $user = DB::table('users')->where($key, $userId)->first();
+        abort_unless($user, 404);
+
+        $updates = ['status' => $status];
+        if (Schema::hasColumn('users', 'updated_at')) {
+            $updates['updated_at'] = now();
+        }
+        DB::table('users')->where($key, $userId)->update($updates);
+
+        $action = $status === 'Suspended' ? 'suspended' : 'restored (unsuspended)';
+        AuditLog::record('SECURITY', 'ACCOUNT', "User account {$user->email} {$action} by Superadmin.", $userId);
+
+        return back()->with('success', $status === 'Suspended'
+            ? 'User account suspended successfully.'
+            : 'User account restored successfully.');
     }
 }
