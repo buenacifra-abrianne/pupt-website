@@ -9,6 +9,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Validation\Rule;
 
 class AnalyticsController extends Controller
 {
@@ -157,13 +158,6 @@ class AnalyticsController extends Controller
         }
         $addSection('Part 4: Upload Percentage by Source', $uploadSourcesRows);
 
-        $addSection('Part 5: Announcement Reach', [
-            ['Views', number_format((int) data_get($report, 'announcementReach.views', 0))],
-            ['Unique Viewers', number_format((int) data_get($report, 'announcementReach.unique_viewers', 0))],
-            ['Clicks', number_format((int) data_get($report, 'announcementReach.clicks', 0))],
-            ['CTR', number_format((float) data_get($report, 'announcementReach.ctr_pct', 0), 2).'%'],
-        ]);
-
         $serverHealthRows = [
             ['Server Status', data_get($report, 'serverHealth.status', 'Unavailable')],
             ['CPU Usage', data_get($report, 'serverHealth.cpu_usage', '--')],
@@ -173,7 +167,7 @@ class AnalyticsController extends Controller
         if ((string) data_get($report, 'serverHealth.status', 'Unavailable') === 'Unavailable') {
             $serverHealthRows[] = ['Note', data_get($report, 'serverHealth.message', 'Server health data is temporarily unavailable.')];
         }
-        $addSection('Part 6: Server Health', $serverHealthRows);
+        $addSection('Part 5: Server Health', $serverHealthRows);
 
         foreach (range('A', 'C') as $col) {
             $sheet->getColumnDimension($col)->setAutoSize(true);
@@ -189,8 +183,13 @@ class AnalyticsController extends Controller
 
     public function exportPdf(Request $request)
     {
+        $validated = $request->validate([
+            'sections' => ['sometimes', 'required', 'array', 'min:1'],
+            'sections.*' => ['required', 'string', Rule::in(array_keys(AnalyticsPdfBuilder::SECTIONS))],
+        ]);
+        $sections = $validated['sections'] ?? array_keys(AnalyticsPdfBuilder::SECTIONS);
         $payload = $this->decodeExportPayload($request);
-        $report = $this->buildExportReport($request, $payload);
+        $report = $this->buildExportReport($request, $payload, $sections);
 
         if ($request->boolean('download_pdf')) {
             return $this->downloadPdfReport($report);
@@ -201,7 +200,7 @@ class AnalyticsController extends Controller
             'feedback' => $report['feedback'],
             'uploads' => $report['uploads'],
             'serverHealth' => $report['serverHealth'],
-            'announcementReach' => $report['announcementReach'],
+            'sections' => $report['sections'],
             'start' => $report['start'],
             'end' => $report['end'],
             'generatedAt' => $report['generatedAt'],
@@ -216,9 +215,12 @@ class AnalyticsController extends Controller
         return is_array($payload) ? $payload : [];
     }
 
-    private function buildExportReport(Request $request, array $payload): array
+    private function buildExportReport(Request $request, array $payload, ?array $sections = null): array
     {
+        $sections ??= array_keys(AnalyticsPdfBuilder::SECTIONS);
+
         return [
+            'sections' => $sections,
             'data' => [
                 'total_visitors' => data_get($payload, 'kpis.total_visitors', $request->input('total_visitors', 0)),
                 'avg_duration' => data_get($payload, 'kpis.avg_duration', $request->input('avg_duration', '0m 0s')),
@@ -230,13 +232,9 @@ class AnalyticsController extends Controller
             ],
             'feedback' => data_get($payload, 'feedback_results', $this->feedbackDefaults()),
             'uploads' => data_get($payload, 'upload_analytics', $this->uploadDefaults()),
-            'serverHealth' => $this->resolveExportServerHealth($payload),
-            'announcementReach' => data_get($payload, 'announcement_reach', [
-                'views' => 0,
-                'unique_viewers' => 0,
-                'clicks' => 0,
-                'ctr_pct' => 0,
-            ]),
+            'serverHealth' => in_array('server_health', $sections, true)
+                ? $this->resolveExportServerHealth($payload)
+                : [],
             'start' => $request->input('start', ''),
             'end' => $request->input('end', ''),
             'generatedAt' => now()->format('F d, Y h:i A'),

@@ -4,6 +4,14 @@ namespace App\Support;
 
 class AnalyticsPdfBuilder
 {
+    public const SECTIONS = [
+        'monitoring_overview' => 'Monitoring Overview',
+        'user_engagement' => 'User Engagement',
+        'feedback_results' => 'Feedback Result',
+        'upload_percentage' => 'Upload Percentage',
+        'server_health' => 'Server Health',
+    ];
+
     private const PAGE_WIDTH = 595.28;
     private const PAGE_HEIGHT = 841.89;
     private const MARGIN_LEFT = 40.0;
@@ -36,95 +44,99 @@ class AnalyticsPdfBuilder
         $this->addKeyValueLine('Generated', $report['generatedAt']);
         $this->addGap();
 
-        $this->addSection('Part 1: Monitoring Overview');
-        $this->addMetricRows([
-            ['Total Visitors', (string) ($report['data']['total_visitors'] ?? 0)],
-            ['Avg. Session Duration', (string) ($report['data']['avg_duration'] ?? '0m 0s')],
-            ['Bounce Rate', (string) ($report['data']['bounce_rate'] ?? '0%')],
-            ['Total Uploads', (string) data_get($report, 'uploads.total_uploads', $report['data']['total_uploads'] ?? 0)],
-        ]);
+        $sections = $report['sections'] ?? array_keys(self::SECTIONS);
+        $part = 0;
 
-        $this->addSection('Part 2: User Engagement');
-        $this->addMetricRows([
-            ['Sessions', (string) ($report['data']['sessions'] ?? 0)],
-            ['Page views', (string) ($report['data']['pageviews'] ?? 0)],
-            ['Pages / Session', (string) ($report['data']['pages_per_session'] ?? 0)],
-        ]);
+        if (in_array('monitoring_overview', $sections, true)) {
+            $this->addSection('Part '.(++$part).': '.self::SECTIONS['monitoring_overview']);
+            $this->addMetricRows([
+                ['Total Visitors', (string) ($report['data']['total_visitors'] ?? 0)],
+                ['Avg. Session Duration', (string) ($report['data']['avg_duration'] ?? '0m 0s')],
+                ['Bounce Rate', (string) ($report['data']['bounce_rate'] ?? '0%')],
+                ['Total Uploads', (string) data_get($report, 'uploads.total_uploads', $report['data']['total_uploads'] ?? 0)],
+            ]);
+        }
 
-        $feedback = $report['feedback'] ?? [];
-        $this->addSection('Part 3: Feedback Result');
-        for ($index = 1; $index <= 10; $index++) {
+        if (in_array('user_engagement', $sections, true)) {
+            $this->addSection('Part '.(++$part).': '.self::SECTIONS['user_engagement']);
+            $this->addMetricRows([
+                ['Sessions', (string) ($report['data']['sessions'] ?? 0)],
+                ['Page views', (string) ($report['data']['pageviews'] ?? 0)],
+                ['Pages / Session', (string) ($report['data']['pages_per_session'] ?? 0)],
+            ]);
+        }
+
+        if (in_array('feedback_results', $sections, true)) {
+            $feedback = $report['feedback'] ?? [];
+            $this->addSection('Part '.(++$part).': '.self::SECTIONS['feedback_results']);
+            for ($index = 1; $index <= 10; $index++) {
+                $this->addKeyValueLine(
+                    'Q'.$index,
+                    number_format((float) data_get($feedback, 'question_'.$index.'_avg', 0), 2).' / 4'
+                );
+            }
             $this->addKeyValueLine(
-                'Q'.$index,
-                number_format((float) data_get($feedback, 'question_'.$index.'_avg', 0), 2).' / 4'
+                'Total Average',
+                number_format((float) data_get($feedback, 'overall_average', 0), 2).' / 4'
             );
+            $this->addKeyValueLine('Final Result', (string) data_get($feedback, 'final_rating', 'No Data'));
+            $this->addGap(6.0);
+            $this->addMetricRows([
+                ['Outstanding', number_format((int) data_get($feedback, 'outstanding', 0))],
+                ['Very Satisfactory', number_format((int) data_get($feedback, 'very_satisfactory', 0))],
+                ['Satisfactory', number_format((int) data_get($feedback, 'satisfactory', 0))],
+                ['Unsatisfactory', number_format((int) data_get($feedback, 'unsatisfactory', 0))],
+                ['Total Responses', number_format((int) data_get($feedback, 'total_responses', 0))],
+            ]);
         }
-        $this->addKeyValueLine(
-            'Total Average',
-            number_format((float) data_get($feedback, 'overall_average', 0), 2).' / 4'
-        );
-        $this->addKeyValueLine('Final Result', (string) data_get($feedback, 'final_rating', 'No Data'));
-        $this->addGap(6.0);
-        $this->addMetricRows([
-            ['Outstanding', number_format((int) data_get($feedback, 'outstanding', 0))],
-            ['Very Satisfactory', number_format((int) data_get($feedback, 'very_satisfactory', 0))],
-            ['Satisfactory', number_format((int) data_get($feedback, 'satisfactory', 0))],
-            ['Unsatisfactory', number_format((int) data_get($feedback, 'unsatisfactory', 0))],
-            ['Total Responses', number_format((int) data_get($feedback, 'total_responses', 0))],
-        ]);
 
-        $this->addSection('Part 4: Upload Percentage');
-        $roles = data_get($report, 'uploads.roles', []);
-        if ($roles === []) {
-            $this->addLine('No role upload data found.', 10.0, 'regular', 12.0);
-        } else {
-            foreach ($roles as $row) {
-                $this->addLine(sprintf(
-                    '%s: %s uploads (%s%%)',
-                    data_get($row, 'role', 'Unknown'),
-                    number_format((int) data_get($row, 'count', 0)),
-                    number_format((float) data_get($row, 'percentage', 0), 2)
-                ), 10.0, 'regular', 12.0);
+        if (in_array('upload_percentage', $sections, true)) {
+            $this->addSection('Part '.(++$part).': '.self::SECTIONS['upload_percentage']);
+            $roles = data_get($report, 'uploads.roles', []);
+            if ($roles === []) {
+                $this->addLine('No role upload data found.', 10.0, 'regular', 12.0);
+            } else {
+                foreach ($roles as $row) {
+                    $this->addLine(sprintf(
+                        '%s: %s uploads (%s%%)',
+                        data_get($row, 'role', 'Unknown'),
+                        number_format((int) data_get($row, 'count', 0)),
+                        number_format((float) data_get($row, 'percentage', 0), 2)
+                    ), 10.0, 'regular', 12.0);
+                }
+            }
+            $this->addGap(6.0);
+            $sources = data_get($report, 'uploads.sources', []);
+            if ($sources === []) {
+                $this->addLine('No uploads found.', 10.0, 'regular', 12.0);
+            } else {
+                foreach ($sources as $row) {
+                    $this->addLine(sprintf(
+                        '%s: %s',
+                        data_get($row, 'source', 'Uploads'),
+                        number_format((int) data_get($row, 'count', 0))
+                    ), 10.0, 'regular', 12.0);
+                }
             }
         }
-        $this->addGap(6.0);
-        $sources = data_get($report, 'uploads.sources', []);
-        if ($sources === []) {
-            $this->addLine('No uploads found.', 10.0, 'regular', 12.0);
-        } else {
-            foreach ($sources as $row) {
-                $this->addLine(sprintf(
-                    '%s: %s',
-                    data_get($row, 'source', 'Uploads'),
-                    number_format((int) data_get($row, 'count', 0))
+
+        if (in_array('server_health', $sections, true)) {
+            $serverHealth = $report['serverHealth'] ?? [];
+            $this->addSection('Part '.(++$part).': '.self::SECTIONS['server_health']);
+            $this->addMetricRows([
+                ['Server Status', (string) data_get($serverHealth, 'status', 'Unavailable')],
+                ['CPU Usage', (string) data_get($serverHealth, 'cpu_usage', '--')],
+                ['Memory Usage', (string) data_get($serverHealth, 'memory_usage', '--')],
+                ['Last Updated', (string) data_get($serverHealth, 'last_updated', '--')],
+            ]);
+
+            if ((string) data_get($serverHealth, 'status', 'Unavailable') === 'Unavailable') {
+                $this->addLine((string) data_get(
+                    $serverHealth,
+                    'message',
+                    'Server health data is temporarily unavailable.'
                 ), 10.0, 'regular', 12.0);
             }
-        }
-
-        $announcementReach = $report['announcementReach'] ?? [];
-        $this->addSection('Part 5: Announcement Reach');
-        $this->addMetricRows([
-            ['Views', number_format((int) data_get($announcementReach, 'views', 0))],
-            ['Unique Viewers', number_format((int) data_get($announcementReach, 'unique_viewers', 0))],
-            ['Clicks', number_format((int) data_get($announcementReach, 'clicks', 0))],
-            ['CTR', number_format((float) data_get($announcementReach, 'ctr_pct', 0), 2).'%'],
-        ]);
-
-        $serverHealth = $report['serverHealth'] ?? [];
-        $this->addSection('Part 6: Server Health');
-        $this->addMetricRows([
-            ['Server Status', (string) data_get($serverHealth, 'status', 'Unavailable')],
-            ['CPU Usage', (string) data_get($serverHealth, 'cpu_usage', '--')],
-            ['Memory Usage', (string) data_get($serverHealth, 'memory_usage', '--')],
-            ['Last Updated', (string) data_get($serverHealth, 'last_updated', '--')],
-        ]);
-
-        if ((string) data_get($serverHealth, 'status', 'Unavailable') === 'Unavailable') {
-            $this->addLine((string) data_get(
-                $serverHealth,
-                'message',
-                'Server health data is temporarily unavailable.'
-            ), 10.0, 'regular', 12.0);
         }
 
         $this->finishCurrentPage();

@@ -198,6 +198,7 @@ tr:nth-child(even) td{
     }
 </script>
 @php
+    $sectionNumber = 0;
     $feedbackRows = [
         ['Q1', data_get($feedback, 'question_1_avg', 0)],
         ['Q2', data_get($feedback, 'question_2_avg', 0)],
@@ -234,6 +235,9 @@ tr:nth-child(even) td{
     <input type="hidden" name="end" value="{{ $end }}">
     <input type="hidden" name="payload" value="{{ $downloadPayload }}">
     <input type="hidden" name="download_pdf" value="1">
+    @foreach($sections as $section)
+        <input type="hidden" name="sections[]" value="{{ $section }}">
+    @endforeach
 </form>
 
 <div class="header">
@@ -246,8 +250,9 @@ tr:nth-child(even) td{
     </div>
 </div>
 
+@if(in_array('monitoring_overview', $sections, true))
 <div class="section">
-    <h2>Part 1: Monitoring Overview</h2>
+    <h2>Part {{ ++$sectionNumber }}: Monitoring Overview</h2>
     <div class="summary-grid">
         <div class="summary-card">
             <div class="summary-label">Total Visitors</div>
@@ -267,9 +272,11 @@ tr:nth-child(even) td{
         </div>
     </div>
 </div>
+@endif
 
+@if(in_array('user_engagement', $sections, true))
 <div class="section">
-    <h2>Part 2: User Engagement</h2>
+    <h2>Part {{ ++$sectionNumber }}: User Engagement</h2>
     <table data-responsive-cards>
         <tr>
             <th>Metric</th>
@@ -289,9 +296,11 @@ tr:nth-child(even) td{
         </tr>
     </table>
 </div>
+@endif
 
+@if(in_array('feedback_results', $sections, true))
 <div class="section">
-    <h2>Part 3: Feedback Result</h2>
+    <h2>Part {{ ++$sectionNumber }}: Feedback Result</h2>
     <div class="two-col">
         <table data-responsive-cards>
             <tr>
@@ -332,9 +341,11 @@ tr:nth-child(even) td{
         </table>
     </div>
 </div>
+@endif
 
+@if(in_array('upload_percentage', $sections, true))
 <div class="section">
-    <h2>Part 4: Upload Percentage</h2>
+    <h2>Part {{ ++$sectionNumber }}: Upload Percentage</h2>
     <div class="two-col">
         <table data-responsive-cards>
             <tr>
@@ -373,35 +384,11 @@ tr:nth-child(even) td{
         </table>
     </div>
 </div>
+@endif
 
+@if(in_array('server_health', $sections, true))
 <div class="section">
-    <h2>Part 5: Announcement Reach</h2>
-    <table data-responsive-cards>
-        <tr>
-            <th>Metric</th>
-            <th>Value</th>
-        </tr>
-        <tr>
-            <td>Views</td>
-            <td>{{ number_format((int) data_get($announcementReach, 'views', 0)) }}</td>
-        </tr>
-        <tr>
-            <td>Unique Viewers</td>
-            <td>{{ number_format((int) data_get($announcementReach, 'unique_viewers', 0)) }}</td>
-        </tr>
-        <tr>
-            <td>Clicks</td>
-            <td>{{ number_format((int) data_get($announcementReach, 'clicks', 0)) }}</td>
-        </tr>
-        <tr>
-            <td>CTR</td>
-            <td>{{ number_format((float) data_get($announcementReach, 'ctr_pct', 0), 2) }}%</td>
-        </tr>
-    </table>
-</div>
-
-<div class="section">
-    <h2>Part 6: Server Health</h2>
+    <h2>Part {{ ++$sectionNumber }}: Server Health</h2>
     <table data-responsive-cards>
         <tr>
             <th>Metric</th>
@@ -428,6 +415,7 @@ tr:nth-child(even) td{
         <p class="muted">{{ data_get($serverHealth, 'message', 'Server health data is temporarily unavailable.') }}</p>
     @endif
 </div>
+@endif
 
 <div class="report-footer">
     <div class="report-footer-right">
