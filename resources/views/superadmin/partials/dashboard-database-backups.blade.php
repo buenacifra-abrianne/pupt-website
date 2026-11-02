@@ -179,7 +179,7 @@
                                     class="btn btn-outline btn-sm backup-danger-btn"
                                     data-delete-action="{{ route('superadmin.database-backups.destroy', $backup['id']) }}"
                                     data-backup-name="{{ $backup['backup_name'] }}"
-                                    onclick="openBackupDeleteModal(this)"
+                                    data-dashboard-action="open-backup-delete"
                                 >
                                     <i class="fas fa-trash"></i> Delete
                                 </button>
@@ -205,7 +205,7 @@
     <div class="modal-content">
         <div class="modal-header">
             <h2 class="modal-title"><i class="fas fa-triangle-exclamation"></i> Delete Backup</h2>
-            <button class="close-btn" type="button" onclick="closeBackupDeleteModal()">
+            <button class="close-btn" type="button" data-dashboard-action="close-backup-delete">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -213,7 +213,7 @@
             <p id="backupDeleteText">Are you sure you want to delete this backup? This action cannot be undone.</p>
         </div>
         <div class="modal-footer backup-modal-footer">
-            <button class="btn btn-outline btn-sm" type="button" onclick="closeBackupDeleteModal()">Cancel</button>
+            <button class="btn btn-outline btn-sm" type="button" data-dashboard-action="close-backup-delete">Cancel</button>
             <form id="backupDeleteForm" method="POST">
                 @csrf
                 @method('DELETE')
@@ -224,5 +224,3 @@
         </div>
     </div>
 </div>
-
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>

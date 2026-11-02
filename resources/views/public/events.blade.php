@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Events - Polytechnic University of the Philippines</title>
-    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/news&events.css') }}?v={{ filemtime(public_path('assets/css/news&events.css')) }}">
-    <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ filemtime(public_path('assets/css/shared/public-compact.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/news&events.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/news&events.css')) }}">
+    <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/public-compact.css')) }}">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
     <!-- Open Graph / Facebook -->
@@ -17,18 +17,11 @@
     <meta property="og:image" content="{{ asset('assets/static_img/logo.png') }}" />
 
 </head>
-<body>
-  <script>
-      (function() {
-          try {
-              var isDark = localStorage.getItem('pup-dark-mode') === 'true';
-              if (isDark) {
-                  document.body.classList.add('pup-dark-mode');
-              }
-          } catch (e) {}
-      })();
-  </script>
-    @php
+@php
+    $cmsPreview = (bool) ($cmsPreview ?? false);
+@endphp
+<body data-cms-preview="{{ $cmsPreview ? 'true' : 'false' }}">
+  @php
         $cmsPreview = (bool) ($cmsPreview ?? false);
         $eventsCms = \App\Support\EventsCmsContent::fromInput($eventsCms ?? [], null);
         $pageSection = $eventsCms['page'] ?? [];
@@ -427,8 +420,8 @@
 
     @unless($cmsPreview)
         <pup-footer></pup-footer>
-        <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
-        <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
+        <script src="{{ asset('assets/js/script.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/script.js')) }}" defer></script>
+        <script src="{{ asset('assets/js/pup-components.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/pup-components.js')) }}" defer></script>
     @endunless
 
     @if($cmsPreview)
@@ -1325,6 +1318,6 @@
             schedulePreviewHeight();
         });
     </script>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

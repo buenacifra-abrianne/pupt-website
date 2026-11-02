@@ -735,3 +735,21 @@
         </section>
     @endif
 </div>
+
+
+<style id="students-cms-preview-action-fix">
+    .students-cms-preview-card-actions,
+    .students-cms-preview-link-actions {
+        flex-wrap: nowrap !important;
+    }
+
+    .students-cms-preview-card-actions > button,
+    .students-cms-preview-link-actions > button {
+        flex: 0 0 auto !important;
+        width: auto !important;
+        min-width: max-content;
+        white-space: nowrap !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+    }
+</style>

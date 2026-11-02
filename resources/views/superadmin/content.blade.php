@@ -264,9 +264,10 @@
     }
 
     .tab-navigation-list {
-        --cms-tab-gap: 52px;
+        --cms-tab-gap: 8px;
         display: flex;
-        justify-content: center;
+        flex-wrap: nowrap;
+        justify-content: space-between;
         align-items: stretch;
         gap: var(--cms-tab-gap);
         list-style: none;
@@ -279,7 +280,10 @@
 
     .tab-navigation-item {
         position: relative;
-        flex: 1 1 0;
+        flex: 1 1 auto;
+        min-width: 0;
+        display: flex;
+        justify-content: center;
     }
 
     .tab-navigation-item:hover,
@@ -378,6 +382,12 @@
         text-transform: uppercase;
         white-space: nowrap;
         transition: color 0.24s ease, transform 0.24s ease, text-shadow 0.24s ease;
+    }
+
+    body.cms-shell .tab-navigation .cms-tab-btn {
+        white-space: nowrap;
+        overflow-wrap: normal;
+        word-break: normal;
     }
 
     .cms-tab-btn::after {
@@ -1404,6 +1414,6 @@ document.addEventListener('DOMContentLoaded', function () {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

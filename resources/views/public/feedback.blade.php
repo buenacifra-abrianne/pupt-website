@@ -36,9 +36,9 @@
   <meta name="theme-color" content="#8B0000" />
   <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
 
-  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}"/>
-  <link rel="stylesheet" href="{{ asset('assets/css/feedback.css') }}?v={{ filemtime(public_path('assets/css/feedback.css')) }}" />
-  <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ filemtime(public_path('assets/css/shared/public-compact.css')) }}" />
+  <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}" />
+  <link rel="stylesheet" href="{{ asset('assets/css/feedback.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/feedback.css')) }}" />
+  <link rel="stylesheet" data-public-compact href="{{ asset('assets/css/shared/public-compact.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/shared/public-compact.css')) }}" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -214,8 +214,8 @@
   @endunless
 
   @unless($cmsPreview)
-    <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-    <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
+    <script src="{{ asset('assets/js/pup-components.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/pup-components.js')) }}" defer></script>
+    <script src="{{ asset('assets/js/script.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/script.js')) }}" defer></script>
   @else
     <style>
       .feedback-page.cms-preview-mode {
@@ -526,6 +526,6 @@
       });
     </script>
   @endunless
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

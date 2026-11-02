@@ -95,7 +95,11 @@ class MfaController extends Controller
         }
 
         $idColumn = Schema::hasColumn('users', 'user_id') ? 'user_id' : 'id';
-        $user = DB::table('users')->where($idColumn, $userId)->first();
+        $user = DB::table('users')
+            ->leftJoin('roles', 'users.role_id', '=', 'roles.id')
+            ->select('users.*', 'roles.code as role_code')
+            ->where("users.$idColumn", $userId)
+            ->first();
 
         if (!$user) {
             return redirect()->route('superadmin.login')->withErrors(['login' => 'User not found.']);

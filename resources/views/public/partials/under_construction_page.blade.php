@@ -6,8 +6,8 @@
     <title>{{ $pageTitle }} - Polytechnic University of the Philippines</title>
     <meta name="theme-color" content="#8B0000">
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
-    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ filemtime(public_path('assets/styles/layout.css')) }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/under-construction.css') }}?v={{ filemtime(public_path('assets/css/under-construction.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/styles/layout.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/styles/layout.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/under-construction.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/under-construction.css')) }}">
 </head>
 <body>
     <pup-header
@@ -77,8 +77,8 @@
 
     <pup-footer></pup-footer>
 
-    <script src="{{ asset('assets/js/script.js') }}?v={{ filemtime(public_path('assets/js/script.js')) }}" defer></script>
-    <script src="{{ asset('assets/js/pup-components.js') }}?v={{ filemtime(public_path('assets/js/pup-components.js')) }}" defer></script>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+    <script src="{{ asset('assets/js/script.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/script.js')) }}" defer></script>
+    <script src="{{ asset('assets/js/pup-components.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/pup-components.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>

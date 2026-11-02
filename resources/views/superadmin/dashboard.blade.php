@@ -7,7 +7,7 @@
     <link rel="icon" type="image/png" href="{{ asset('assets/static_img/logo.png') }}" sizes="32x32">
     <title>PUP Taguig - Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ filemtime(public_path('assets/css/dashboard.css')) }}">
+    <link rel="stylesheet" href="{{ asset('assets/css/dashboard.css') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/css/dashboard.css')) }}">
 </head>
 <body>
     <!-- Sidebar -->
@@ -1629,7 +1629,7 @@ function exportPdf() {
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
     <i class="fas fa-microphone"></i>
 </button>
-<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ filemtime(public_path('assets/js/widget-dock.js')) }}" defer></script>
+<script src="{{ asset('assets/js/widget-dock.js') }}?v={{ \App\Support\AssetVersion::hash(public_path('assets/js/widget-dock.js')) }}" defer></script>
 </body>
 </html>
 
