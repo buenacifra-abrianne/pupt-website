@@ -738,6 +738,17 @@
 
 
 <style id="students-cms-preview-action-fix">
+    .student-link-row[data-students-link-index] > span {
+        flex: 1 1 0;
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .students-cms-preview-link-actions {
+        flex: 0 0 auto;
+        margin-left: auto;
+    }
+
     .students-cms-preview-card-actions,
     .students-cms-preview-link-actions {
         flex-wrap: nowrap !important;

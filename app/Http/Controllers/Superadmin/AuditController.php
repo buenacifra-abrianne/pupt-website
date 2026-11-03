@@ -41,7 +41,6 @@ class AuditController extends Controller
         $rows = DB::table('activity_logs')
             ->select($select)
             ->orderByDesc(in_array('created_at', $columns, true) ? 'created_at' : $idColumn)
-            ->limit(1000)
             ->get();
 
         $allActions = DB::table('activity_logs')
@@ -216,7 +215,7 @@ class AuditController extends Controller
                 'role' => $role !== '' ? $role : 'SYSTEM',
                 'action' => $action,
                 'module' => $module,
-                'desc' => (string) ($row->description ?? ''),
+                'desc' => preg_replace('/^Recovered from approval history\.\s*/', '', (string) ($row->description ?? '')),
                 'ip' => (string) ($row->ip_address ?? '-'),
                 'ts' => $parsedTs->toIso8601String(),
                 'av' => 'av-0',

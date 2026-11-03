@@ -457,6 +457,12 @@ background: #f8f1f1;
 }
 
 /* Filter Bar */
+.cms-audit-page .filter-bar {
+    /* Keep menus inside transformed filter fields above the sticky table header. */
+    position: relative;
+    z-index: 2;
+}
+
 .filter-bar {
     display: grid;
     grid-template-columns: minmax(280px, 2fr) minmax(200px, 1.1fr) minmax(320px, 1.35fr) auto;

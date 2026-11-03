@@ -16,7 +16,7 @@
         table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #f0f0f0; }
         th { color: #888; font-weight: 500; }
-        .security-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block; }
+        .security-badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 500; display: inline-block; white-space: nowrap; }
         .sec-badge-red { background: #fee2e2; color: #b91c1c; }
         .sec-badge-yellow { background: #fef3c7; color: #b45309; }
         .action-btn { background: #dc2626; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 500; }

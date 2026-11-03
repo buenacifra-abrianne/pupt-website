@@ -28,6 +28,8 @@ class AuditLog
         'NEWS',
         'CONTENT',
         'CMS',
+        'DOWNLOADABLE',
+        'DOWNLOADABLES',
     ];
 
     private const CHANGE_ACTIONS = [
@@ -49,10 +51,18 @@ class AuditLog
         string $module,
         string $description,
         ?int $targetId = null,
-        array $context = []
+        array $context = [],
+        bool $required = false
     ): void {
         if (!self::tableReady()) {
+            if ($required) {
+                throw new \RuntimeException('Activity log table is missing.');
+            }
             return;
+        }
+
+        if ($required && isset($context['approval_request_id']) && !self::hasColumn('approval_request_id')) {
+            throw new \RuntimeException('Approval audit migration is required.');
         }
 
         $action = strtoupper(trim($action));
@@ -79,6 +89,9 @@ class AuditLog
         if (self::hasColumn('target_id')) {
             $row['target_id'] = $targetId;
         }
+        if (self::hasColumn('approval_request_id') && isset($context['approval_request_id'])) {
+            $row['approval_request_id'] = $context['approval_request_id'];
+        }
         if (self::hasColumn('description')) {
             $row['description'] = $description;
         }
@@ -99,6 +112,9 @@ class AuditLog
         try {
             DB::table('activity_logs')->insert($row);
         } catch (\Throwable $e) {
+            if ($required) {
+                throw $e;
+            }
             Log::warning('Failed to write activity log', ['error' => $e->getMessage()]);
         }
     }

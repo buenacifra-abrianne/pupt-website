@@ -442,6 +442,8 @@ class CmsVersionHistoryTest extends TestCase
     #[DataProvider('approvers')]
     public function test_approved_cms_edits_are_versioned_in_the_approval_transaction(string $role): void
     {
+        (require database_path('migrations/2026_03_06_000100_create_activity_logs_table.php'))->up();
+        (require database_path('migrations/2026_11_02_000001_add_approval_request_id_to_activity_logs.php'))->up();
         Schema::create('approval_requests', function (Blueprint $table) {
             $table->id();
             $table->string('title');
@@ -467,6 +469,7 @@ class CmsVersionHistoryTest extends TestCase
         $this->postJson('/'.$role.'/approvals/'.$id.'/approve')->assertOk()->assertJsonPath('ok', true);
         $this->assertDatabaseHas('cms_content_versions', ['source' => 'approval', 'content' => 'Approved content']);
         $this->assertDatabaseHas('approval_requests', ['id' => $id, 'status' => 'approved']);
+        $this->assertDatabaseHas('activity_logs', ['approval_request_id' => $id, 'action' => 'APPROVED', 'user_id' => 12]);
 
         // A request submitted against an older page must not overwrite a restore.
         DB::table('approval_requests')->where('id', $id)->update(['status' => 'pending']);

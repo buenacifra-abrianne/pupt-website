@@ -300,6 +300,7 @@
                 <input type="hidden" name="start" id="exp_start">
                 <input type="hidden" name="end" id="exp_end">
                 <input type="hidden" name="payload" id="exp_payload">
+                <input type="hidden" name="download_pdf" value="1">
                 </form>
 
                 <div class="export-options">
@@ -620,6 +621,8 @@
 
         </div>
     </main>
+
+    @include('superadmin.analytics.pdf_export_modal')
 
     <div class="modal" id="addUserModal">
         <div class="modal-content">
@@ -1505,6 +1508,11 @@ async function postJSON(url, data) {
     }
 
     function exportAnalytics(type){
+    if (type === 'pdf') {
+        exportPdf();
+        return;
+    }
+
     if (!hasAnalyticsExportContent()) {
         showToast("No analytics content found to export.", 'warning', 'No Changes');
         return;
@@ -1529,10 +1537,6 @@ async function postJSON(url, data) {
     };
 
     let url='';
-
-    if(type==='pdf'){
-        url="{{ route('superadmin.analytics.exportPdf') }}";
-    }
 
     if(type==='excel'){
         url="{{ route('superadmin.analytics.exportExcel') }}";
@@ -1609,7 +1613,26 @@ function exportPdf() {
     return;
   }
 
-  // grab date range currently used
+  updatePdfExportSelection();
+  document.getElementById('analyticsPdfExportModal').showModal();
+}
+
+function updatePdfExportSelection() {
+  const hasSelection = document.querySelector('#analyticsPdfExportModal input[name="sections[]"]:checked') !== null;
+  document.getElementById('confirmPdfExportButton').disabled = !hasSelection;
+  document.getElementById('pdfExportSelectionHint').hidden = hasSelection;
+}
+
+function confirmPdfExport() {
+  const modal = document.getElementById('analyticsPdfExportModal');
+  if (!modal.open) return;
+  updatePdfExportSelection();
+  if (document.getElementById('confirmPdfExportButton').disabled) return;
+  if (!hasAnalyticsExportContent()) {
+    showToast("No analytics content found to export.", 'warning', 'No Changes');
+    return;
+  }
+
   const start = document.getElementById('analyticsStart')?.value || '';
   const end   = document.getElementById('analyticsEnd')?.value || '';
 
@@ -1624,6 +1647,7 @@ function exportPdf() {
 
   showToast("PDF export started.", 'info', 'Export');
   document.getElementById('exportPdfForm').submit();
+  modal.close();
 }
 </script>
 <button type="button" id="floatingVoiceBtn" class="floating-voice-btn" title="Speech to text">
