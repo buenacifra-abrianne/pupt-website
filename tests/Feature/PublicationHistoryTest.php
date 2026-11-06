@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Middleware\ActiveSecurityTracker;
-use App\Http\Middleware\FirewallMiddleware;
 use App\Http\Middleware\TrackPublicAnalytics;
 use App\Models\Backup;
 use App\Services\CmsS3BackupHistory;
@@ -26,7 +24,7 @@ class PublicationHistoryTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware([FirewallMiddleware::class, ActiveSecurityTracker::class, TrackPublicAnalytics::class]);
+        $this->withoutMiddleware([TrackPublicAnalytics::class]);
         foreach ([
             '2026_03_06_210500_create_cms_contents_table.php',
             '2026_10_27_000001_create_cms_content_versions_table.php',

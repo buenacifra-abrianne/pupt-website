@@ -30,7 +30,7 @@ const server = http.createServer((req, res) => {
     res.end(cache.get(req.url));
   } catch (error) { console.error('Render failed:', req.url, error.message); res.writeHead(500); res.end('Render failed'); }
 });
-const pages = ['superadmin', 'admin', 'staff'].flatMap(role => ['dashboard', 'announcements', 'content', 'notifications', 'downloadables', ...(role === 'staff' ? [] : ['approvals/pending']), ...(role === 'superadmin' ? ['accounts', 'audit', 'security/incidents'] : [])].map(page => `/${role}/${page}`));
+const pages = ['superadmin', 'admin', 'staff'].flatMap(role => ['dashboard', 'announcements', 'content', 'notifications', 'downloadables', ...(role === 'staff' ? [] : ['approvals/pending']), ...(role === 'superadmin' ? ['accounts', 'audit'] : [])].map(page => `/${role}/${page}`));
 server.listen(0, '127.0.0.1', () => {
   const child = spawn(process.execPath, ['tests/Browser/responsive.cjs'], {
     cwd: root, windowsHide: true, stdio: 'inherit',

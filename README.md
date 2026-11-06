@@ -8,7 +8,7 @@ The PUP Taguig Website features a comprehensive Role-Based Access Control (RBAC)
 - **Public**: Access to home, about, academics, students, events, research pages, and feedback submission.
 - **Staff**: Content contributors who draft News, Announcements, and Downloadable forms for review.
 - **Admin**: Content managers who review, approve, and publish content submitted by staff.
-- **Superadmin**: Full system control including user management, security incident response, database backups, and audit logs.
+- **Superadmin**: Full system control including user management, database backups, and audit logs.
 
 ## Implemented Modules
 

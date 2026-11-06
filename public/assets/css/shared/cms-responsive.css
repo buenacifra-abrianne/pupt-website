@@ -335,9 +335,6 @@ body.cms-shell :is(.btn, .action-btn, .export-btn, .tab-btn, .cms-tab-btn) {
     body.cms-shell .card-header > div:has(.search-bar) { flex: 1 1 300px; gap: 10px; }
     body.cms-shell .card-header .search-bar { flex: 1 1 220px; }
 
-    body.cms-shell .cms-firewall-form { flex-wrap: wrap; }
-    body.cms-shell .cms-firewall-form .input-text { flex: 1 1 220px; min-width: 0; }
-    body.cms-shell .cms-firewall-form .action-btn { flex: 0 0 auto; }
 
     body.cms-shell .notification-item {
         display: grid !important;
@@ -648,12 +645,6 @@ body.cms-shell .cms-summary-grid .stat-action-btn {
     body.cms-shell .cms-access-table th:nth-child(5) { width: 120px; }
     body.cms-shell .cms-access-table th:nth-child(6) { width: 148px; }
 
-    body.cms-shell .cms-data-page .cms-table-scroll > .cms-firewall-table { min-width: 650px; }
-    body.cms-shell .cms-firewall-table th:nth-child(1) { width: 110px; }
-    body.cms-shell .cms-firewall-table th:nth-child(2) { width: 100px; }
-    body.cms-shell .cms-firewall-table th:nth-child(3) { width: 200px; }
-    body.cms-shell .cms-firewall-table th:nth-child(4) { width: 148px; }
-    body.cms-shell .cms-firewall-table th:nth-child(5) { width: 92px; }
     body.cms-shell .cms-data-page .cms-table-scroll > .cms-security-events-table { min-width: 820px; }
     body.cms-shell .cms-security-events-table th:nth-child(1) { width: 140px; }
     body.cms-shell .cms-security-events-table th:nth-child(2) { width: 110px; }
