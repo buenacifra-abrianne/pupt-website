@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Middleware\ActiveSecurityTracker;
-use App\Http\Middleware\FirewallMiddleware;
 use App\Http\Middleware\TrackPublicAnalytics;
 use App\Models\Backup;
 use App\Services\CmsS3BackupHistory;
@@ -37,8 +35,6 @@ class CmsVersionHistoryTest extends TestCase
         parent::setUp();
         // Keep authentication, role checks, terms, sessions and validation active.
         $this->withoutMiddleware([
-            FirewallMiddleware::class,
-            ActiveSecurityTracker::class,
             TrackPublicAnalytics::class,
         ]);
         (require database_path('migrations/2026_03_06_210500_create_cms_contents_table.php'))->up();

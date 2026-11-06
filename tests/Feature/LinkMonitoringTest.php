@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use App\Http\Middleware\ActiveSecurityTracker;
-use App\Http\Middleware\FirewallMiddleware;
 use App\Http\Middleware\TrackPublicAnalytics;
 use App\Services\KnowledgeSync\UrlSafetyValidator;
 use App\Services\LinkMonitoringService;
@@ -296,7 +294,6 @@ class LinkMonitoringTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->withoutMiddleware([FirewallMiddleware::class, ActiveSecurityTracker::class]);
         $this->startSession();
         $this->withCredentials()->withCookie(config('session.cookie'), session()->getId());
         config(['app.url' => 'https://campus.test']);

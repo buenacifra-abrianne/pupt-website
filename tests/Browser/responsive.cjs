@@ -124,8 +124,6 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
                 const body=item.querySelector('.cms-notification-body')||item.children[1];
                 if(body.getBoundingClientRect().width<item.clientWidth*.6)controls.push('Notification text needs a readable column');
               }
-              const firewall=document.querySelector('input[name="ip_address"]');
-              if(firewall&&firewall.getBoundingClientRect().width<Math.min(220,firewall.form.clientWidth)-1)controls.push('Firewall inputs must remain readable');
             }
             if(document.querySelector('.cms-dashboard')&&innerWidth<=1024) {
               const tabs=[...document.querySelectorAll('.cms-dashboard .top-tab-btn')];
