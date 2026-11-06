@@ -42,14 +42,6 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
     const { sessionId } = await send('Target.attachToTarget', { targetId, flatten: true });
     const cdp = (method, params = {}) => send(method, params, sessionId);
     const evaluate = async expression => { const result = await cdp('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }); if (result.exceptionDetails) throw new Error(JSON.stringify(result.exceptionDetails)); return result.result.value; };
-    const waitForSlide = async expected => {
-      for (let attempt = 0; attempt < 30; attempt++) {
-        const status = await evaluate('document.querySelector(".footer-carousel-status").textContent');
-        if (status === expected) return;
-        await new Promise(resolve => setTimeout(resolve, 100));
-      }
-      assert.equal(await evaluate('document.querySelector(".footer-carousel-status").textContent'), expected);
-    };
     await cdp('Page.enable');
     if (process.env.REDUCED_MOTION === '1') await cdp('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
     if (process.env.GLOBE_FALLBACK === '1') await cdp('Page.addScriptToEvaluateOnNewDocument', { source: `const originalContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return String(type).includes('webgl')?null:originalContext.call(this,type,...args);};` });
@@ -294,28 +286,13 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
           }
           if (report.footer) {
             assert.deepEqual(report.footerOverflow, [], page + ': footer content overflow at ' + width);
-            assert.equal(report.footer.display, width <= 1024 ? 'flex' : 'block', page + ': footer layout at ' + width);
+            assert.equal(report.footer.display, width <= 1024 ? 'grid' : 'block', page + ': footer layout at ' + width);
+            assert.ok(report.footer.scrollWidth <= report.footer.clientWidth + 1, page + ': footer fits at ' + width);
+            assert.equal(await evaluate('document.querySelector(".footer-carousel-controls")'), null, page + ': no footer carousel controls');
             if (width <= 1024) {
-              await evaluate('document.querySelector("[data-footer-next]").click()');
-              await waitForSlide('2 / 8');
-              await evaluate('document.querySelector(".footer-shell").focus()');
-              await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'End', code: 'End', windowsVirtualKeyCode: 35 });
-              await waitForSlide('8 / 8');
-              assert.equal(await evaluate('document.querySelector("[data-footer-next]").disabled'), true);
-              await cdp('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Home', code: 'Home', windowsVirtualKeyCode: 36 });
-              await waitForSlide('1 / 8');
-              if (process.env.MOBILE === '1' && width === 393) {
-                const point = await evaluate('(() => { const shell = document.querySelector(".footer-shell"); shell.scrollIntoView({behavior:"instant",block:"center"}); const r=shell.getBoundingClientRect(); return {x:r.right-32,y:r.top+80,end:r.left+32}; })()');
-                await cdp('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: point.x, y: point.y }] });
-                for (let step = 1; step <= 10; step++) {
-                  await cdp('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [{ x: point.x + (point.end - point.x) * step / 10, y: point.y }] });
-                  await new Promise(resolve => setTimeout(resolve, 20));
-                }
-                await cdp('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-                await waitForSlide('2 / 8');
-                await evaluate('document.querySelector("[data-footer-prev]").click()');
-                await waitForSlide('1 / 8');
-              }
+              assert.ok(await evaluate('(() => { const blocks = document.querySelector(".footer-combined-govph").children; const logo = blocks[0].getBoundingClientRect(), text = blocks[1].getBoundingClientRect(); return logo.right <= text.left && Math.abs(logo.top - text.top) <= 1; })()'), page + ': government logo left of text at ' + width);
+              assert.equal(await evaluate('getComputedStyle(document.querySelector(".footer-shell")).gridTemplateColumns.split(" ").length'), width <= 600 ? 1 : 2, page + ': footer columns at ' + width);
+              assert.ok(await evaluate('(() => { const shell = document.querySelector(".footer-shell"), bounds = shell.getBoundingClientRect(); return [...shell.querySelectorAll("a")].every(link => { const r = link.getBoundingClientRect(); return r.left >= bounds.left && r.right <= bounds.right + 1 && r.top >= bounds.top && r.bottom <= bounds.bottom + 1; }); })()'), page + ': all footer links visible at ' + width);
             }
           }
         }
