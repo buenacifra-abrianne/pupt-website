@@ -889,59 +889,37 @@ class PUPFooter extends HTMLElement {
 
   @media (max-width: 1024px) {
     .footer-shell {
-      display: grid;
+      padding: 18px var(--layout-page-gutter, 20px) 14px;
+    }
+
+    .footer-top {
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 12px;
-      padding: 16px var(--layout-page-gutter, 16px);
-      align-items: stretch;
+      gap: 0;
     }
 
-    .footer-top,
-    .footer-govph-grid {
-      display: contents;
-    }
-
-    .footer-brand,
-    .footer-top > .footer-panel,
-    .footer-combined-panel,
-    .footer-socials-panel,
-    .footer-bottom-strip,
-    .footer-govph-grid > .footer-govph-block,
-    .footer-combined-govph {
-      min-width: 0;
-      max-width: 100%;
-      min-height: 0;
-      overflow-wrap: anywhere;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      padding: 16px;
-      margin: 0;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-start;
-      gap: 20px;
-    }
-
-    .footer-brand,
-    .footer-socials-panel {
+    .footer-brand {
+      grid-column: 1 / -1;
       justify-content: center;
-      align-items: center;
+      border-left: 0;
+      border-top: 0;
+      padding: 18px 16px 14px;
     }
 
     .footer-brand-seals {
-      max-width: 220px;
-      gap: 12px;
+      max-width: 240px;
+      gap: 12px 10px;
     }
 
     .footer-brand-seal,
     .footer-brand-logo {
-      max-width: 60px;
+      max-width: 68px;
     }
 
     .footer-panel {
+      border-left: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 16px;
       gap: 12px;
-      justify-content: flex-start;
     }
 
     .footer-panel-header {
@@ -949,9 +927,8 @@ class PUPFooter extends HTMLElement {
     }
 
     .footer-panel-title {
-      font-size: 13px;
-      line-height: 1.2;
-      letter-spacing: 0.05em;
+      font-size: 12px;
+      letter-spacing: 0.1em;
     }
 
     .footer-service-link,
@@ -959,58 +936,58 @@ class PUPFooter extends HTMLElement {
       font-size: 12px;
     }
 
+    .footer-socials-panel {
+      grid-column: 1 / -1;
+      justify-content: center;
+      border-left: 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 16px;
+    }
+
     .footer-socials {
-      gap: 16px;
+      gap: 12px;
     }
 
     .footer-social-link {
-      width: 48px;
-      height: 48px;
+      width: 36px;
+      height: 36px;
     }
 
     .footer-social-link svg {
-      width: 24px;
-      height: 24px;
+      width: 17px;
+      height: 17px;
     }
 
     .footer-bottom-strip {
-      gap: 16px;
-      justify-content: center;
-      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .footer-accreditation-links {
-      display: flex;
-      flex-direction: column;
       gap: 10px;
-      width: 100%;
     }
 
     .footer-accreditation-link {
-      width: 100%;
+      width: min(100%, 260px);
     }
 
-    .footer-combined-govph {
-      display: grid;
-      grid-template-columns: 80px minmax(0, 1fr);
-      gap: 12px;
-      align-items: start;
-    }
-
-    .footer-combined-govph > .footer-govph-block:first-child {
-      margin-bottom: 0 !important;
+    .footer-govph-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .footer-govph-brand {
-      display: grid;
-      grid-template-columns: 80px minmax(0, 1fr);
+      grid-template-columns: 96px minmax(0, 1fr);
       gap: 12px;
-      align-items: center;
     }
 
     .footer-govph-brand img {
-      width: 80px;
-      height: 80px;
+      width: 96px;
+      height: 96px;
     }
 
     .footer-govph-title {
@@ -1033,20 +1010,22 @@ class PUPFooter extends HTMLElement {
     }
 
     .footer-legal {
-      padding: 12px 16px;
+      padding: 10px 16px 12px;
       font-size: 11px;
     }
   }
 
   @media (max-width: 600px) {
     .footer-shell {
-      grid-template-columns: minmax(0, 1fr);
+      padding: 14px var(--layout-page-gutter, 16px) 12px;
     }
-  }
 
-  @media (max-width: 480px) {
-    .footer-shell {
-      padding: 16px var(--layout-page-gutter, 16px);
+    .footer-top {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-brand {
+      padding: 14px 10px 12px;
     }
 
     .footer-brand-seals {
@@ -1056,15 +1035,88 @@ class PUPFooter extends HTMLElement {
 
     .footer-brand-seal,
     .footer-brand-logo {
-      max-width: 62px;
+      max-width: 60px;
+    }
+
+    .footer-panel {
+      padding: 14px 10px;
+      gap: 10px;
+    }
+
+    .footer-panel-header {
+      align-items: center;
+    }
+
+    .footer-socials-panel {
+      padding: 14px 10px;
+    }
+
+    .footer-social-link {
+      width: 34px;
+      height: 34px;
+    }
+
+    .footer-social-link svg {
+      width: 16px;
+      height: 16px;
     }
 
     .footer-bottom-strip {
-      padding: 12px;
+      padding: 12px 10px;
+      gap: 10px;
+    }
+
+    .footer-accreditation-links {
+      flex-direction: column;
+      width: 100%;
+      gap: 8px;
+    }
+
+    .footer-accreditation-link {
+      width: 100%;
+      min-width: 0;
     }
 
     .footer-accreditation-label {
       letter-spacing: 0.22em;
+    }
+
+    .footer-govph-grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 14px;
+      padding-top: 14px;
+    }
+
+    .footer-govph-brand {
+      grid-template-columns: 80px minmax(0, 1fr);
+      gap: 10px;
+    }
+
+    .footer-govph-brand img {
+      width: 80px;
+      height: 80px;
+    }
+
+    .footer-legal {
+      padding: 8px 10px 10px;
+      font-size: 11px;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .footer-shell {
+      padding: 12px var(--layout-page-gutter, 12px) 10px;
+    }
+
+    .footer-brand-seals {
+      max-width: 200px;
+      gap: 8px 6px;
+    }
+
+    .footer-brand-seal,
+    .footer-brand-logo {
+      max-width: 54px;
     }
   }
 </style>

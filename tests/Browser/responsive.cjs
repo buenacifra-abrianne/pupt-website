@@ -286,12 +286,11 @@ const pages = (process.env.PAGES || '/,/home,/about,/about/history,/about/vision
           }
           if (report.footer) {
             assert.deepEqual(report.footerOverflow, [], page + ': footer content overflow at ' + width);
-            assert.equal(report.footer.display, width <= 1024 ? 'grid' : 'block', page + ': footer layout at ' + width);
+            assert.equal(report.footer.display, 'block', page + ': footer layout at ' + width);
             assert.ok(report.footer.scrollWidth <= report.footer.clientWidth + 1, page + ': footer fits at ' + width);
             assert.equal(await evaluate('document.querySelector(".footer-carousel-controls")'), null, page + ': no footer carousel controls');
             if (width <= 1024) {
-              assert.ok(await evaluate('(() => { const blocks = document.querySelector(".footer-combined-govph").children; const logo = blocks[0].getBoundingClientRect(), text = blocks[1].getBoundingClientRect(); return logo.right <= text.left && Math.abs(logo.top - text.top) <= 1; })()'), page + ': government logo left of text at ' + width);
-              assert.equal(await evaluate('getComputedStyle(document.querySelector(".footer-shell")).gridTemplateColumns.split(" ").length'), width <= 600 ? 1 : 2, page + ': footer columns at ' + width);
+              assert.equal(await evaluate('getComputedStyle(document.querySelector(".footer-top")).gridTemplateColumns.split(" ").length'), width <= 600 ? 1 : 2, page + ': footer top columns at ' + width);
               assert.ok(await evaluate('(() => { const shell = document.querySelector(".footer-shell"), bounds = shell.getBoundingClientRect(); return [...shell.querySelectorAll("a")].every(link => { const r = link.getBoundingClientRect(); return r.left >= bounds.left && r.right <= bounds.right + 1 && r.top >= bounds.top && r.bottom <= bounds.bottom + 1; }); })()'), page + ': all footer links visible at ' + width);
             }
           }
