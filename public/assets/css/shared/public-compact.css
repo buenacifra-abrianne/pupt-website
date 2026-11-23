@@ -289,7 +289,7 @@
   .advisory-modal-card.has-media { height: auto; max-height: calc(100dvh - 24px); grid-template-rows: minmax(0,auto) minmax(0,1fr); }
   .advisory-modal-card.has-media .advisory-modal-media { height: 220px; min-height: 0; }
   .student-admissions-person-modal-panel { grid-template-columns: minmax(0,1fr); }
-  .student-admissions-person-modal-media { min-height: 0; max-height: 180px; }
+  .student-admissions-person-modal-media { min-height: 0; max-height: none; }
   .student-qr-modal-gallery { grid-template-columns: minmax(0,1fr); }
   .student-qr-modal :is(img,.student-qr-modal-frame) { max-height: 240px; object-fit: contain; }
 }

@@ -945,6 +945,7 @@ body.pup-dark-mode .student-admissions-person-email:hover {
   height: 100%;
   aspect-ratio: 0.92;
   object-fit: cover;
+  object-position: top center;
   border-radius: 22px;
   background: #e8d3b1;
   box-shadow: var(--dm-glow);
@@ -1046,8 +1047,9 @@ body.student-admissions-person-modal-open {
   }
 
   .student-admissions-person-modal-media img {
-    aspect-ratio: 1;
-    max-height: 42vh;
+    aspect-ratio: 4 / 5;
+    max-height: min(280px, 38vh);
+    object-position: top center;
   }
 
   .student-admissions-person-modal-copy {
